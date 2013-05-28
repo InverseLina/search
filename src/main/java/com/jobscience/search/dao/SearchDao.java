@@ -9,17 +9,15 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.jobscience.search.db.DBHelper;
 
 @Singleton
 public class SearchDao {
 
-    static private String QUERY_SELECT = "select \"Name\", \"id\", \"Title\"" + " from contact where resume_tsv @@ to_tsquery(?) or \"Title\" ilike ? limit 30";
-
-    static private String QUERY_COUNT  = "select count (id)" + " from contact where resume_tsv @@ to_tsquery(?) or \"Title\" ilike ?";
+//    static private String QUERY_SELECT = "select \"Name\", \"id\", \"Title\"" + " from contact where resume_tsv @@ to_tsquery(?) or \"Title\" ilike ? limit 30";
+//
+//    static private String QUERY_COUNT  = "select count (id)" + " from contact where resume_tsv @@ to_tsquery(?) or \"Title\" ilike ?";
 
     @Inject
     private DBHelper      dbHelper;
