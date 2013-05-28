@@ -24,9 +24,9 @@ public class SearchDao {
     @Inject
     private DBHelper      dbHelper;
 
-    public SearchResult search(Map<String, String> searchValues) {
+    public SearchResult search(Map<String, String> searchValues,String searchMode) {
         Connection con = dbHelper.getConnection();
-        SearchStatements statementAndValues = buildSearchStatements(con,searchValues);
+        SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode);
 
         long start = System.currentTimeMillis();
         List<Map> result = dbHelper.preparedStatementExecuteQuery(statementAndValues.queryStmt, statementAndValues.values);
@@ -46,14 +46,14 @@ public class SearchDao {
         return searchResult;
     }
 
-    private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues) {
+    private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues,String searchMode) {
         SearchStatements ss = new SearchStatements();
 
         // build the statement
-        ss.queryStmt = dbHelper.prepareStatement(con,QUERY_SELECT);
-        ss.countStmt = dbHelper.prepareStatement(con,QUERY_COUNT);
+        ss.queryStmt = dbHelper.prepareStatement(con,buildSql(searchValues, searchMode, 0));
+        ss.countStmt = dbHelper.prepareStatement(con,buildSql(searchValues, searchMode, 1));
 
-        // build the values
+       /* // build the values
         String search = searchValues.get("search");
 
         String searchILike = search;
@@ -61,12 +61,58 @@ public class SearchDao {
             searchILike = "%" + search + "%";
         }
 
-        String searchTq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(search));
-        ss.values = new Object[] { searchTq, searchILike };
+        String searchTq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(search));*/
+        ss.values = new Object[] {};
 
         return ss;
     }
+    
+    /**
+     * @param searchValues
+     * @param searchMode
+     * @param queryType 0 for list,1 for count
+     * @return
+     */
+    public String buildSql( Map<String, String> searchValues,String searchMode,int queryType){
+    	StringBuffer sb = new StringBuffer();
+    	if(queryType==0){
+    		sb.append("select \"Name\", \"id\", \"Title\"" + " from contact where 1=1 ");
+    	}else{
+    		sb.append("select count(id) from contact where 1=1 ");
+    	}
+    	if(searchValues!=null){
+	    	if("keyword".equals(searchMode)){
+	    		for(String key:searchValues.keySet()){
+	    			if("search".equals(key)&&searchValues.get(key)!=null&&!"".equals(searchValues.get(key))){
+	    				sb.append(" and ( \"Name\" ilike '%"+searchValues.get(key)+"%' or \"Title\" ilike '%"+searchValues.get(key)+"%')");
+	    				continue;
+	    			}
+	    			sb.append(" and \""+covertToColumnName(key)+"\" ilike '%"+searchValues.get(key)+"%'");
+	    		}
+	    	}else if("simple".equals(searchMode)){
+	    		sb.append(" and resume_tsv @@ to_tsquery('"+searchValues.get("search")+"') or \"Title\" ilike '%"+searchValues.get("search")+"%'");
+	    		 sb.append("  or \"Name\" ilike '%"+searchValues.get("search")+"%'");
+	    	}
+    	}
+    	if(queryType==0){
+    		sb.append(" limit 30");
+    	}
+    	
+    	System.out.println(sb);
+    	return sb.toString();
+    }
+    
+    private String covertToColumnName(String src){
+    	if(src.toLowerCase().equals("firstname")){
+    		return "FirstName";
+    	}else if (src.toLowerCase().equals("lastname")){
+    		return "LastName";
+    	}else{
+    		return src.substring(0,1).toUpperCase()+src.substring(1).toLowerCase();
+    	}
+    }
 }
+
 
 class SearchStatements {
 

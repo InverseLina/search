@@ -33,7 +33,7 @@
 		var view = this;
 		var searchValues = $.extend({},view.contentView.getSearchValues(),view.sideNav.getSearchValues());
 		// just add the "q_"
-		var qParams = {};
+		var qParams = {searchMode:view.sideNav.searchMode};
 		$.each(searchValues,function(key,val){
 			qParams["q_" + key] = val;
 		});

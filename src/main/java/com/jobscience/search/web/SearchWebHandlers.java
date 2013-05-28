@@ -18,11 +18,14 @@ public class SearchWebHandlers {
     private SearchDao searchDao;
     
     @WebGet("/search")
-    public WebResponse search(@WebParam("q_") Map searchValues){
+    public WebResponse search(@WebParam("q_") Map searchValues,@WebParam("searchMode") String searchMode){
         
+    	if(searchMode==null){
+    		searchMode = "simple";
+    	}
         // FIXME: needs to get the search map from request.
        // Map searchValues = MapUtil.mapIt("search",search);
-        SearchResult searchResult = searchDao.search(searchValues);
+        SearchResult searchResult = searchDao.search(searchValues,searchMode);
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }
