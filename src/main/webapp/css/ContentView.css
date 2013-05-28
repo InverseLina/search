@@ -1,0 +1,36 @@
+.ContentView{
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+}
+
+.ContentView .sidenav-ctn{
+  position: absolute;
+  top: 43px; left: 0; bottom: 0;
+  width: 280px;
+}
+
+.ContentView .search-form{
+  position: relative;
+  width: 400px;
+  margin: 30px auto;
+}
+  
+.ContentView .search-form input{
+  width: 300px;
+  height: 30px;
+}
+
+.ContentView .search-result{
+  width: 80%;
+  margin: 30px auto;
+  padding: 10px;
+  border: solid 1px #eee;
+}
+
+.ContentView .search-info{
+  display: block;
+  color: #777;
+  width: 375px;
+  text-align: right;
+  height: 16px;
+}
