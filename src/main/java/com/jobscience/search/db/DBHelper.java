@@ -14,6 +14,8 @@ import java.util.Map;
 import javax.inject.Singleton;
 
 import com.google.common.base.Throwables;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Singleton
@@ -21,11 +23,12 @@ public class DBHelper {
 
     ComboPooledDataSource cpds;
 
-    public DBHelper() {
+    @Inject
+    public void init(@Named("db.url") String url,@Named("db.user") String user, @Named("db.password") String password){
         cpds = new ComboPooledDataSource();
-        cpds.setJdbcUrl("jdbc:postgresql://localhost:5432/jobscience_db");
-        cpds.setUser("postgres");
-        cpds.setPassword("welcome");
+        cpds.setJdbcUrl(url);
+        cpds.setUser(user);
+        cpds.setPassword(password);
         cpds.setUnreturnedConnectionTimeout(0);
     }
 
