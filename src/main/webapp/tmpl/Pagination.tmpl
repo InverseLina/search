@@ -7,20 +7,20 @@
 <script id="Pagination-detail" type="text/html">
     <div class="pagination">
         <ul>
-          {{#equal 1 pageNo}}
+          {{#equal 1 pageIdx}}
               <li class="disabled"><a href="#">&laquo;</a></li>
           {{else}}
               <li ><a class="prev" href="#">&laquo;</a></li>
           {{/equal}}
-          {{#gt pageNo 5}}
+          {{#gt pageIdx 5}}
               <li><a data-page="1">1</a></li>
               <li><a data-page="2">2</a></li>
               <li><a data-page="3">3</a></li>
               <li class="disabled"><a>&hellip;</a></li>
           {{/gt}}
 
-          {{#fromTo start end pageNo}}
-            {{#equal pageNo num}}
+          {{#fromTo start end pageIdx}}
+            {{#equal pageIdx num}}
                 <li class="active"><a href="#">{{num}}</a></li>
             {{else}}
                 <li><a data-page={{num}}>{{num}}</a></li>
@@ -28,7 +28,7 @@
           {{/fromTo}}
 
           {{#if end_2}}
-              <li><a>&hellip;</a></li>
+              <li class="disabled"><a>&hellip;</a></li>
           {{/if}}
 
           {{#if end_1}}
@@ -39,7 +39,7 @@
               <li><a data-page="{{pageCount}}">{{pageCount}}</a></li>
           {{/lt}}
 
-          {{#gte pageNo pageCount}}
+          {{#gte pageIdx pageCount}}
               <li class="disabled">&raquo;</li>
           {{else}}
               <li><a class="next">&raquo;</a></li>

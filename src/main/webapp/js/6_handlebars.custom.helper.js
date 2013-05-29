@@ -26,7 +26,7 @@
 	  return ret;
     });
 
-    Handlebars.registerHelper('fromTo', function(start,end,pageNo, options) {
+    Handlebars.registerHelper('fromTo', function(start,end,pageIdx, options) {
 	  var fn = options.fn, inverse = options.inverse;
 	  var ret = "", data;
 	  if (options.data) {
@@ -35,7 +35,7 @@
 	  }
 	  var nums=new Array();
 	  for(var i=start;i<=end;i++){
-		 nums.push({num:i, pageNo:pageNo});
+		 nums.push({num:i, pageIdx:pageIdx});
 	  }
 	  if(nums && nums.length > 0) {
 	    for(var i=0, j=nums.length; i<j; i++) {

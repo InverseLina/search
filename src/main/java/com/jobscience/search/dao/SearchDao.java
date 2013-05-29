@@ -22,9 +22,9 @@ public class SearchDao {
     @Inject
     private DBHelper      dbHelper;
 
-    public SearchResult search(Map<String, String> searchValues, String searchMode, Integer pageNo, Integer pageSize) {
+    public SearchResult search(Map<String, String> searchValues, String searchMode, Integer pageIdx, Integer pageSize) {
         Connection con = dbHelper.getConnection();
-        SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode, pageNo, pageSize);
+        SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode, pageIdx, pageSize);
 
 
         long start = System.currentTimeMillis();
@@ -41,15 +41,15 @@ public class SearchDao {
         } catch (SQLException e) {
             throw Throwables.propagate(e);
         }
-        searchResult.setPageNo(pageNo);
+        searchResult.setPageIdx(pageIdx);
         searchResult.setPageSize(pageSize);
         return searchResult;
     }
 
     private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues,String searchMode,
-                                                   Integer pageNo, Integer pageSize) {
+                                                   Integer pageIdx, Integer pageSize) {
         SearchStatements ss = new SearchStatements();
-        int offset = (pageNo -1)* pageSize;
+        int offset = (pageIdx -1)* pageSize;
 
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,buildSql(searchValues, searchMode, offset, pageSize));

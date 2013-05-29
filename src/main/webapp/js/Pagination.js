@@ -1,6 +1,6 @@
 /**
  * View: Pagination
- *  param: pageNo int current page no
+ *  param: pageIdx int current page no
  *  param: pageSize int
  *  param: totalCount int
  *  param: callback callback fuction
@@ -18,25 +18,25 @@
                 var view = this;
                 if(data.totalCount>0){
 
-                  renderPage.call(view, data.pageNo||1, data.pageSize||10, data.totalCount, data.callback);
+                  renderPage.call(view, data.pageIdx||1, data.pageSize||10, data.totalCount, data.callback);
                 }
             },
             events: {
               "click; a[data-page]":function(event){
                   var view = this;
-                  var newPageNo = $(event.currentTarget).attr("data-page");
-                  view.page.callback(newPageNo, view.page.pageSize);
+                  var newpageIdx = $(event.currentTarget).attr("data-page");
+                  view.page.callback(newpageIdx, view.page.pageSize);
               },
               "click; a.next":function(event){
 
                   var view = this;
                   var page = view.page;
-                  view.page.callback(page.pageNo + 1, page.pageSize);
+                  view.page.callback(page.pageIdx + 1, page.pageSize);
               },
               "click; a.prev":function(event){
                   var view = this;
                   var page = view.page;
-                  view.page.callback(page.pageNo - 1, page.pageSize);
+                  view.page.callback(page.pageIdx - 1, page.pageSize);
               },
               "change; select":function(event){
                   var view = this;
@@ -56,13 +56,13 @@
             if(page.totalCount % page.pageSize != 0 ) {
                 page.pageCount += 1;
             }
-            if(page.pageNo > 5){
-                page.start = page.pageNo -1;
+            if(page.pageIdx > 5){
+                page.start = page.pageIdx -1;
             }else{
                 page.start = 1;
             }
 
-            page.end = page.pageNo + 3;
+            page.end = page.pageIdx + 3;
             if(page.end > page.pageCount){
                 page.end =page.pageCount;
             }
@@ -75,9 +75,9 @@
 //            console.log(page)
         }
 
-    function renderPage(pageNo, pageSize, totalCount, callback) {
+    function renderPage(pageIdx, pageSize, totalCount, callback) {
         var view = this;
-        var page = view.page = {pageNo: pageNo, pageSize: pageSize, totalCount: totalCount, callback: callback};
+        var page = view.page = {pageIdx: pageIdx, pageSize: pageSize, totalCount: totalCount, callback: callback};
         calc(view.page);
         var html = render("Pagination-detail", page);
         view.$el.empty().append(html);

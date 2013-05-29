@@ -38,8 +38,8 @@
             qParams["q_" + key] = val;
         });
 
-        var callback = function(pageNo, pageSize){
-            qParams.pageNo = pageNo||1;
+        var callback = function(pageIdx, pageSize){
+            qParams.pageIdx = pageIdx||1;
             qParams.pageSize = pageSize||30;
             $.ajax({
                 url: "search",

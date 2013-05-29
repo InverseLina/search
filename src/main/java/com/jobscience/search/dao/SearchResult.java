@@ -10,7 +10,7 @@ public class SearchResult {
     private long countDuration;
     private long selectDuration;
     private int count;
-    private int pageNo;
+    private int pageIdx;
     private int pageSize;
     
     public SearchResult(List<Map> result, int count){
@@ -53,12 +53,12 @@ public class SearchResult {
         return this;
     }
 
-    public int getPageNo() {
-        return pageNo;
+    public int getPageIdx() {
+        return pageIdx;
     }
 
-    public void setPageNo(int pageNo) {
-        this.pageNo = pageNo;
+    public void setPageIdx(int pageIdx) {
+        this.pageIdx = pageIdx;
     }
 
     public int getPageSize() {

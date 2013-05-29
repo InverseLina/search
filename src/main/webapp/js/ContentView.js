@@ -29,7 +29,7 @@
                     htmlInfo += " (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)";
                     view.$searchInfo.html(htmlInfo);
                     brite.display("Pagination",view.$el.find(".page"), {
-                        pageNo:result.pageNo,
+                        pageIdx:result.pageIdx,
                         pageSize:result.pageSize,
                         totalCount:result.count,
                         callback:result.callback
