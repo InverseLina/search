@@ -10,6 +10,7 @@ import com.britesnow.snow.util.MapUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.jobscience.search.dao.SearchDao;
+import com.jobscience.search.dao.SearchMode;
 
 public class SimpleTest extends SnowTestSupport {
 
@@ -24,7 +25,7 @@ public class SimpleTest extends SnowTestSupport {
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
        Map values = MapUtil.mapIt("search","java");
        long start = System.currentTimeMillis();
-       //searchDao.search(values,"simple", pageNo, pageSize);
+       searchDao.search(values,SearchMode.SIMPLE, 1, 30);
        long end = System.currentTimeMillis();
        System.out.println("search result: " + (end - start));
     }

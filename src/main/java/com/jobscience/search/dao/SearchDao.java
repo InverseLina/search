@@ -22,7 +22,7 @@ public class SearchDao {
     @Inject
     private DBHelper      dbHelper;
 
-    public SearchResult search(Map<String, String> searchValues, String searchMode, Integer pageIdx, Integer pageSize) {
+    public SearchResult search(Map<String, String> searchValues, SearchMode searchMode, Integer pageIdx, Integer pageSize) {
         Connection con = dbHelper.getConnection();
         SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode, pageIdx, pageSize);
 
@@ -46,7 +46,7 @@ public class SearchDao {
         return searchResult;
     }
 
-    private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues,String searchMode,
+    private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues,SearchMode searchMode,
                                                    Integer pageIdx, Integer pageSize) {
         SearchStatements ss = new SearchStatements();
         int offset = (pageIdx -1)* pageSize;
@@ -76,7 +76,7 @@ public class SearchDao {
      * @param limit
      * @return
      */
-    public String buildSql( Map<String, String> searchValues,String searchMode,int offset, int limit){
+    public String buildSql( Map<String, String> searchValues,SearchMode searchMode,int offset, int limit){
     	StringBuffer sb = new StringBuffer();
     	if(offset>=0){
     		sb.append("select \"Name\", \"id\", \"Title\"" + " from contact where 1=1 ");
@@ -84,7 +84,7 @@ public class SearchDao {
     		sb.append("select count(id) from contact where 1=1 ");
     	}
     	if(searchValues!=null){
-	    	if("keyword".equals(searchMode)){
+	    	if(searchMode == SearchMode.KEYWORD){
 	    		for(String key:searchValues.keySet()){
 	    			if("search".equals(key)&&searchValues.get(key)!=null&&!"".equals(searchValues.get(key))){
 	    				sb.append(" and ( \"Name\" ilike '%"+searchValues.get(key)+"%' or \"Title\" ilike '%"+searchValues.get(key)+"%')");
@@ -92,7 +92,7 @@ public class SearchDao {
 	    			}
 	    			sb.append(" and \""+covertToColumnName(key)+"\" ilike '%"+searchValues.get(key)+"%'");
 	    		}
-	    	}else if("simple".equals(searchMode)){
+	    	}else if(searchMode == SearchMode.SIMPLE){
 	    		sb.append(" and resume_tsv @@ to_tsquery('"+searchValues.get("search")+"') or \"Title\" ilike '%"+searchValues.get("search")+"%'");
 	    		 sb.append("  or \"Name\" ilike '%"+searchValues.get("search")+"%'");
 	    	}

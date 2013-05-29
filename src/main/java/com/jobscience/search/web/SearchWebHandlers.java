@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.jobscience.search.dao.SearchDao;
+import com.jobscience.search.dao.SearchMode;
 import com.jobscience.search.dao.SearchResult;
 
 @Singleton
@@ -18,12 +19,14 @@ public class SearchWebHandlers {
     private SearchDao searchDao;
     
     @WebGet("/search")
-    public WebResponse search(@WebParam("q_") Map searchValues,@WebParam("searchMode") String searchMode,
+    public WebResponse search(@WebParam("q_") Map searchValues,@WebParam("searchMode") String searchModeStr,
                               @WebParam("pageIdx") Integer pageIdx, @WebParam("pageSize") Integer pageSize){
         
-    	if(searchMode==null){
-    		searchMode = "simple";
-    	}
+        SearchMode searchMode = SearchMode.SIMPLE;
+        if (searchModeStr != null) {
+            searchMode = SearchMode.valueOf(searchModeStr.toUpperCase());
+        }
+        
         // FIXME: needs to get the search map from request.
        // Map searchValues = MapUtil.mapIt("search",search);
         SearchResult searchResult = searchDao.search(searchValues,searchMode, pageIdx, pageSize);
