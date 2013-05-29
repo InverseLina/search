@@ -27,6 +27,13 @@ public class SearchWebHandlers {
             searchMode = SearchMode.valueOf(searchModeStr.toUpperCase());
         }
         
+        if(pageIdx == null ){
+            pageIdx = 0;
+        }
+        if(pageSize == null ){
+            pageSize = 30;
+        }
+        
         // FIXME: needs to get the search map from request.
        // Map searchValues = MapUtil.mapIt("search",search);
         SearchResult searchResult = searchDao.search(searchValues,searchMode, pageIdx, pageSize);
