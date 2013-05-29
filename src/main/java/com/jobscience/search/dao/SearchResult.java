@@ -10,6 +10,8 @@ public class SearchResult {
     private long countDuration;
     private long selectDuration;
     private int count;
+    private int pageNo;
+    private int pageSize;
     
     public SearchResult(List<Map> result, int count){
         this.result = result;
@@ -51,10 +53,19 @@ public class SearchResult {
         return this;
     }
 
-    
+    public int getPageNo() {
+        return pageNo;
+    }
 
+    public void setPageNo(int pageNo) {
+        this.pageNo = pageNo;
+    }
 
+    public int getPageSize() {
+        return pageSize;
+    }
 
-    
-
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
 }

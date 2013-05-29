@@ -19,17 +19,23 @@
 		},
 		
 		parentEvents: {
-			
-			MainView: {
-				"SEARCH_RESULT_CHANGE": function(event,result){
-					var view = this;
-					var html = render("search-items",{items:result.result});
-      	  view.$searchResult.html(html);
-          var htmlInfo = "Result size: " + result.count + " | Duration: " + result.duration + "ms";
-          htmlInfo += " (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)";
-      		view.$searchInfo.html(htmlInfo);
-				}
-			}
+
+            MainView: {
+                "SEARCH_RESULT_CHANGE": function (event, result) {
+                    var view = this;
+                    var html = render("search-items", {items: result.result});
+                    view.$searchResult.html(html);
+                    var htmlInfo = "Result size: " + result.count + " | Duration: " + result.duration + "ms";
+                    htmlInfo += " (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)";
+                    view.$searchInfo.html(htmlInfo);
+                    brite.display("Pagination",view.$el.find(".page"), {
+                        pageNo:result.pageNo,
+                        pageSize:result.pageSize,
+                        totalCount:result.count,
+                        callback:result.callback
+                    })
+                }
+            }
 		},
 		
 		getSearchValues: function(){

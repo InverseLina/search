@@ -22,8 +22,8 @@
 
 .ContentView .search-result{
   width: 80%;
-  margin: 30px auto;
-  padding: 10px;
+  margin: 20px auto;
+  padding: 5px;
   border: solid 1px #eee;
 }
 

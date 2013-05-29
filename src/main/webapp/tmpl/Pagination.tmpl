@@ -1,0 +1,60 @@
+<script id="Pagination" type="text/html">
+    <div class="Pagination">
+
+    </div>
+</script>
+
+<script id="Pagination-detail" type="text/html">
+    <div class="pagination">
+        <ul>
+          {{#equal 1 pageNo}}
+              <li class="disabled"><a href="#">&laquo;</a></li>
+          {{else}}
+              <li ><a class="prev" href="#">&laquo;</a></li>
+          {{/equal}}
+          {{#gt pageNo 5}}
+              <li><a data-page="1">1</a></li>
+              <li><a data-page="2">2</a></li>
+              <li><a data-page="3">3</a></li>
+              <li class="disabled"><a>&hellip;</a></li>
+          {{/gt}}
+
+          {{#fromTo start end pageNo}}
+            {{#equal pageNo num}}
+                <li class="active"><a href="#">{{num}}</a></li>
+            {{else}}
+                <li><a data-page={{num}}>{{num}}</a></li>
+            {{/equal}}
+          {{/fromTo}}
+
+          {{#if end_2}}
+              <li><a>&hellip;</a></li>
+          {{/if}}
+
+          {{#if end_1}}
+              <li><a data-page="{{end_1}})">{{end_1}}</a></li>
+          {{/if}}
+
+          {{#lt end pageCount}}
+              <li><a data-page="{{pageCount}}">{{pageCount}}</a></li>
+          {{/lt}}
+
+          {{#gte pageNo pageCount}}
+              <li class="disabled">&raquo;</li>
+          {{else}}
+              <li><a class="next">&raquo;</a></li>
+          {{/gte}}
+          <li>
+              <select>
+                 <option value="30">30</option>
+                 <option value="50">50</option>
+                 <option value="100">100</option>
+                 <option value="300">300</option>
+                 <option value="600">600</option>
+                 <option value="900">900</option>
+             </select>
+          </li>
+        </ul>
+
+    </div>
+</script>

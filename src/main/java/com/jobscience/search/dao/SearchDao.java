@@ -22,9 +22,10 @@ public class SearchDao {
     @Inject
     private DBHelper      dbHelper;
 
-    public SearchResult search(Map<String, String> searchValues,String searchMode) {
+    public SearchResult search(Map<String, String> searchValues, String searchMode, Integer pageNo, Integer pageSize) {
         Connection con = dbHelper.getConnection();
-        SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode);
+        SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode, pageNo, pageSize);
+
 
         long start = System.currentTimeMillis();
         List<Map> result = dbHelper.preparedStatementExecuteQuery(statementAndValues.queryStmt, statementAndValues.values);
@@ -40,16 +41,19 @@ public class SearchDao {
         } catch (SQLException e) {
             throw Throwables.propagate(e);
         }
-        
+        searchResult.setPageNo(pageNo);
+        searchResult.setPageSize(pageSize);
         return searchResult;
     }
 
-    private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues,String searchMode) {
+    private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues,String searchMode,
+                                                   Integer pageNo, Integer pageSize) {
         SearchStatements ss = new SearchStatements();
+        int offset = (pageNo -1)* pageSize;
 
         // build the statement
-        ss.queryStmt = dbHelper.prepareStatement(con,buildSql(searchValues, searchMode, 0));
-        ss.countStmt = dbHelper.prepareStatement(con,buildSql(searchValues, searchMode, 1));
+        ss.queryStmt = dbHelper.prepareStatement(con,buildSql(searchValues, searchMode, offset, pageSize));
+        ss.countStmt = dbHelper.prepareStatement(con,buildSql(searchValues, searchMode, -1,-1));
 
        /* // build the values
         String search = searchValues.get("search");
@@ -68,12 +72,13 @@ public class SearchDao {
     /**
      * @param searchValues
      * @param searchMode
-     * @param queryType 0 for list,1 for count
+     * @param offset -1, for count 0 for list,1 for count
+     * @param limit
      * @return
      */
-    public String buildSql( Map<String, String> searchValues,String searchMode,int queryType){
+    public String buildSql( Map<String, String> searchValues,String searchMode,int offset, int limit){
     	StringBuffer sb = new StringBuffer();
-    	if(queryType==0){
+    	if(offset>=0){
     		sb.append("select \"Name\", \"id\", \"Title\"" + " from contact where 1=1 ");
     	}else{
     		sb.append("select count(id) from contact where 1=1 ");
@@ -92,8 +97,8 @@ public class SearchDao {
 	    		 sb.append("  or \"Name\" ilike '%"+searchValues.get("search")+"%'");
 	    	}
     	}
-    	if(queryType==0){
-    		sb.append(" limit 30");
+    	if(offset>=0){
+    		sb.append(" offset ").append(offset).append(" limit ").append(limit);
     	}
     	
     	System.out.println(sb);
