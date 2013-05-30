@@ -1,6 +1,7 @@
 .ContentView{
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
+  min-width: 600px;
 }
 
 .ContentView .sidenav-ctn{
@@ -21,17 +22,65 @@
 }
 
 .ContentView .search-result{
+  top: 130px; right: 0; bottom: 0; left: 0;
+  position: absolute;
   width: 80%;
   margin: 20px auto;
   padding: 5px;
   border: solid 1px #eee;
 }
 
-.ContentView .page{
-    width: 80%;
-    margin: 30px auto;
-    padding: 5px;
+.ContentView .search-result .table  {
+    height: 100%;
+    margin: 10px;
 }
+.ContentView .search-result .table tr {
+    border-bottom: 1px solid #dddddd;;
+}
+
+
+.ContentView .search-result .table thead.fixedHeader tr {
+    position: relative;
+    display: block;
+    border-bottom: 1px solid #dddddd;;
+}
+
+
+.ContentView .search-result .table thead.fixedHeader th {
+    font-weight: normal;
+    padding: 4px 10px;
+    text-align: left;
+}
+
+.ContentView .search-result .table  tr .id {
+    width: 100px
+}
+
+.ContentView .search-result .table  tr .name {
+    width: 250px
+}
+
+
+
+
+.ContentView .search-result .table tbody.scrollContent {
+    display: block;
+    height: 100%;
+    overflow-y: scroll;
+    width: 100%
+}
+
+
+.ContentView .search-result .table tbody.scrollContent tr {
+    border-bottom: 1px solid #dddddd;
+    display: block;
+}
+
+.ContentView .search-result .table tbody.scrollContent tr td {
+    border:none;
+    display: block;
+}
+
 
 .ContentView .search-info{
   display: block;
