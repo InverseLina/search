@@ -32,18 +32,22 @@
 
 .ContentView .search-result .table  {
     height: 100%;
-    margin: 10px;
+    position: relative;
 }
 
 
 .ContentView .search-result .tableHeader, .ContentView .search-result .tableBody{
     display: block;
     width: 100%;
+    position: absolute;
+    left:0; right: 0;
 
 }
 
 .ContentView .search-result .table .tableBody{
-    height: 400px;
+    top:30px;
+
+    bottom: 0;
     overflow:auto;
 }
 
@@ -57,7 +61,7 @@
 .ContentView .search-result .table .row>div{
     display: table-cell;
     padding-top: 5px;
-    width: 33.3333%;
+    width: 33.33%;
     border-bottom: 1px solid #dddddd;
     overflow: hidden;
     white-space: nowrap;
