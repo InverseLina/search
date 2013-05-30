@@ -119,7 +119,18 @@ public class SearchDao {
                     }
                     values.add(value);
                 }
-
+                
+                //add the 'Title' filter
+                if (searchValues.get("Title") != null && !"".equals(searchValues.get("Title"))) {
+                    hasCondition = true;
+                    String value = searchValues.get("Title");
+                    conditions.append(" and a.\"Title\" ilike ? ");
+                    if(!value.contains("%")){
+                        value = "%" + value + "%";
+                    }
+                    values.add(value);
+                }
+               
                 //add the 'Skill' filter, and join Skill table
                 if (searchValues.get("Skill") != null && !"".equals(searchValues.get("Skill"))) {
                     hasCondition = true;
@@ -131,20 +142,37 @@ public class SearchDao {
                     }
                     values.add(value);
                 }
-
+                
+                boolean searchEmployment = false;
                 //add the 'Employment' filter, and join Employment table
                 if (searchValues.get("Employment") != null && !"".equals(searchValues.get("Employment"))) {
                     hasCondition = true;
                     String value = searchValues.get("Employment");
                     joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
-                    conditions.append(" and ( c.\"ts2__Name__c\" ilike ? or c.\"ts2__Job_Title__c\" ilike ?) ");
+                    conditions.append(" and  c.\"ts2__Job_Title__c\" ilike ? ");
                     if(!value.contains("%")){
                         value = "%" + value + "%";
                     }
                     values.add(value);
-                    values.add(value);
+                    searchEmployment = true;
                 }
-
+                
+                //add the 'Company' filter, and join Employment table
+                if (searchValues.get("Company") != null && !"".equals(searchValues.get("Company"))) {
+                	 hasCondition = true;
+                     String value = searchValues.get("Company");
+                     if(searchEmployment){
+                    	 conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
+                     }else{
+	                     joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+	                     conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
+                     }
+                     if(!value.contains("%")){
+                         value = "%" + value + "%";
+                     }
+                     values.add(value);
+                }
+                
                 //add the 'Education' filter, and join Education table
                 if (searchValues.get("Education") != null && !"".equals(searchValues.get("Education"))) {
                     hasCondition = true;
@@ -156,6 +184,8 @@ public class SearchDao {
                     }
                     values.add(value);
                 }
+                
+                
             // the simple mode, use full text search
             }else if(searchMode == SearchMode.SIMPLE){
                 hasCondition = true;

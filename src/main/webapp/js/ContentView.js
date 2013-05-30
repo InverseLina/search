@@ -43,10 +43,11 @@
 			if (val){
 				if(val.length<3){
 					alert(" search text must not less than 3 chars");
-					return null;
-				}
-				return {
-					search: val
+					return {};
+				}else{
+					return {
+						search: val
+					}
 				}
 			}else{
 				return null;
