@@ -12,6 +12,7 @@
 		events: {
 			"click; h2": function(event){
 				var view = this;
+				var $e = view.$el;
 				var $newSec = $(event.target).parent(".sec");
 				this.searchMode = $newSec.attr("data-search-mode");
 
@@ -21,12 +22,21 @@
 				
 				$newSec.addClass("sel");		
 				if(this.searchMode=="advanced"){
-					var companies = [{name:'Google',num:234},{name:'Adobe',num:234},{name:'LinkedIn',num:234},{name:'Facebook',num:234}];
-					var educations = [{name:'Standford',num:234},{name:'MIT',num:234}];
-					brite.display("AdvancedSearch",$("div.advanced",$newSec),{companies:companies,educations:educations});
+				  
+					if($e.find(".AdvancedSearch").size() == 0){
+            $.ajax({
+              url : "getTopCompaniesAndEducations",
+              type : "GET",
+              dataType : "json"
+            }).always(function(data) {
+              var result = data.result;
+    					var companies = result.companies;
+    					var educations = result.educations;
+    					brite.display("AdvancedSearch",$("div.advanced",$newSec),{companies:companies,educations:educations});
+            }); 
+					}
 				}
 			},
-			
 			"keypress; input": function(event){
 				if (event.which === 13){
 					this.$el.trigger("DO_SEARCH");
@@ -36,6 +46,7 @@
 		
 		getSearchValues: function(){
 			var view = this;
+			var $e = view.$el;
 			if (view.searchMode === "simple"){
 				// when simple mode, return nothing.
 				return null;
@@ -69,8 +80,7 @@
 					return null;
 				}
 			}else if (view.searchMode === "advanced"){
-				// FIXME: need to do later, when we have the UI.
-				return null;
+				return $e.bFindComponents("AdvancedSearch")[0].getSearchValues();
 			}
 		}
 	});

@@ -270,7 +270,7 @@ public class SearchDao {
                     String value = searchValues.get("companyNames");
                     String[] companyNames = value.split(","); 
                     joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
-                    conditions.append(" and d.\"ts2__Name__c\" in ");
+                    conditions.append(" and c.\"ts2__Name__c\" in ");
                     for(int i = 0; i < companyNames.length; i++){
                         if(i == 0){
                             conditions.append("(");

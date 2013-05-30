@@ -25,6 +25,13 @@
 	 	"DO_SEARCH": function(){
 	 		doSearch.call(this);	
 	 	}
+	 },
+	 getSearchMode:function(){
+	   var view = this;
+	   console.log(view.$el.bFindComponents("SideNav")[0]);
+	   var searchMode = view.$el.bFindComponents("SideNav")[0].searchMode;
+	   
+	   return searchMode;
 	 }
 	});
 

@@ -18,6 +18,38 @@
 				 }
 			 }
 		 }
+	 },
+	 getSearchValues:function(){
+	   var view = this;
+	   var $e = view.$el;
+	   var $companyContainer = $e.find("ul.company");
+	   var $educationContainer = $e.find("ul.education");
+	   var companyALL = $companyContainer.find("li[data-name='ALL']").hasClass("selected");
+	   var companyStr = "";
+	   $companyContainer.find("li[data-name!='ALL']").each(function(i){
+	     var $li = $(this);
+	     var value = $(this).attr("data-name");
+	     if($li.hasClass("selected") || companyALL){
+  	     if(companyStr.length != 0){
+  	       companyStr += ",";
+  	     }
+  	     companyStr += value;
+	     }
+	   });
+	   
+	   var educationALL = $educationContainer.find("li[data-name='ALL']").hasClass("selected");
+	   var educationStr = "";
+	   $educationContainer.find("li[data-name!='ALL']").each(function(i){
+	     var $li = $(this);
+	     var value = $(this).attr("data-name");
+	     if($li.hasClass("selected") || educationALL){
+  	     if(educationStr.length != 0){
+  	       educationStr += ",";
+  	     }
+  	     educationStr += value;
+	     }
+	   });
+	   return {companyNames:companyStr,educationNames:educationStr};
 	 }
 	});
 })(jQuery);
