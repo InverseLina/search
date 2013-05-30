@@ -52,13 +52,13 @@
     text-align: left;
 }
 
-.ContentView .search-result .table  tr .id {
-    width: 100px
+.ContentView .search-result .table  tr td, .ContentView .search-result .table  tr th{
+    width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-.ContentView .search-result .table  tr .name {
-    width: 250px
-}
 
 
 

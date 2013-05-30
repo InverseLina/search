@@ -14,5 +14,6 @@
 }
 .Pagination ul li select{
     width: 60px;
+    margin-left: 10px;
 
 }
