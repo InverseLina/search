@@ -1,20 +1,20 @@
 <script id="search-items" type="text/html">
-  <table class="table">
-    <thead class='fixedHeader'>
-      <tr>
-        <th class="id">ID</th>
-        <th class="name">Name</th>
-        <th class="title">Title</th>
-      </tr>
-    </thead>
-    <tbody class='scrollContent'>
-      {{#each items}}
-      <tr>
-          <td class="id">{{id}}</td>
-          <td class="name">{{Name}}</td>
-          <td class="title">{{Title}}</td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
+    <div class="table">
+        <div class="tableHeader ">
+            <div class="row">
+                <div>ID</div>
+                <div>Name</div>
+                <div>Title</div>
+            </div>
+        </div>
+        <div class='tableBody'>
+          {{#each items}}
+              <div class="row">
+                  <div>{{id}}</div>
+                  <div>{{Name}}</div>
+                  <div>{{Title}}</div>
+              </div>
+          {{/each}}
+        </div>
+    </div>
 </script>
