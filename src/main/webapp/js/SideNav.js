@@ -36,16 +36,33 @@
 				return null;
 			}else if (view.searchMode === "keyword"){
 				var values = {};
+				var isValid = true;
+				var hasSearch = false;
 				view.$el.find(".keyword-form input").each(function(){
 					var $input = $(this);
 					var nameValue = {};
 					var name = $input.attr("name");
 					var val = $input.val();
 					if (val){
-						values[name] = val;
+						if(val.length>2){
+							values[name] = val;
+						}else{
+							alert(name+" text must not less than 3 chars");
+							isValid = false;
+						}
+						hasSearch = true;
 					}
-   			});
-   			return values;
+				});
+				
+				if(hasSearch){//if there has type some letters in nav text field
+					if(isValid){
+						return values;
+					}else{
+						return {};
+					}
+				}else{
+					return null;
+				}
 			}else if (view.searchMode === "advanced"){
 				// FIXME: need to do later, when we have the UI.
 				return null;

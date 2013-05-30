@@ -33,7 +33,7 @@
                         pageSize:result.pageSize,
                         totalCount:result.count,
                         callback:result.callback
-                    })
+                    });
                 }
             }
 		},
@@ -41,6 +41,10 @@
 		getSearchValues: function(){
 			var val = this.$searchInput.val();
 			if (val){
+				if(val.length<3){
+					alert(" search text must not less than 3 chars");
+					return null;
+				}
 				return {
 					search: val
 				}
