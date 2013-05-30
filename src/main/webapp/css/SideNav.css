@@ -3,6 +3,8 @@
   top: 0; right: 0; bottom: 0; left: 0;
   background: #eee;
   border-right: solid 1px #ddd;
+  margin-bottom: -9999px;
+  overflow-y: hidden;
 }
 
 .SideNav h2{
