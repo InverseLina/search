@@ -27,6 +27,12 @@
   border: solid 1px #eee;
 }
 
+.ContentView .page{
+    width: 80%;
+    margin: 30px auto;
+    padding: 5px;
+}
+
 .ContentView .search-info{
   display: block;
   color: #777;
