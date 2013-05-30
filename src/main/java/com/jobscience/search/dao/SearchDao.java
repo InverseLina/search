@@ -51,6 +51,34 @@ public class SearchDao {
         searchResult.setPageSize(pageSize);
         return searchResult;
     }
+    
+    /**
+     * get education top of the most contacts by size
+     * @param size
+     */
+    public List getTopMostEducation(Integer size) {
+        if(size == null){
+            size = 5;
+        }
+        Connection con = dbHelper.getConnection();
+        String querySql = "select \"ts2__Name__c\" as name, count(*) as count from ts2__education_history__c where \"ts2__Name__c\" !='' group by \"ts2__Name__c\"  order by count desc limit "+size;
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(dbHelper.prepareStatement(con,querySql.toString()), new Object[0]);
+        return result;
+    }
+    
+    /**
+     * get company top of the most contacts by size
+     * @param size
+     */
+    public List getTopMostCompanies(Integer size) {
+        if(size == null){
+            size = 5;
+        }
+        Connection con = dbHelper.getConnection();
+        String querySql = "select \"ts2__Name__c\" as name, count(*) as count from ts2__employment_history__c where \"ts2__Name__c\" !='' group by \"ts2__Name__c\"  order by count desc limit "+size;
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(dbHelper.prepareStatement(con,querySql.toString()), new Object[0]);
+        return result;
+    }
 
     /**
      * @param searchValues
@@ -199,6 +227,65 @@ public class SearchDao {
                 values.add(searchTsq);
                 values.add(searchILike);
                 values.add(searchILike);
+            }else if(searchMode == SearchMode.ADVANCED){
+                
+                if (searchValues.get("search") != null && !"".equals(searchValues.get("search"))) {
+                    hasCondition = true;
+                    String value = searchValues.get("search");
+                    String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
+                    String searchILike = value;
+                    if (!searchILike.contains("%")) {
+                        searchILike = "%" + value + "%";
+                    }
+                    conditions.append(" and (a.resume_tsv @@ to_tsquery(?) or a.\"Title\" ilike ? or a.\"Name\" ilike ? )");
+                    values.add(searchTsq);
+                    values.add(searchILike);
+                    values.add(searchILike);
+                }
+                
+                //add the 'educationNames' filter, and join Education table
+                if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
+                    hasCondition = true;
+                    String value = searchValues.get("educationNames");
+                    String[] educationNames = value.split(","); 
+                    joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+                    conditions.append(" and d.\"ts2__Name__c\" in ");
+                    for(int i = 0; i < educationNames.length; i++){
+                        if(i == 0){
+                            conditions.append("(");
+                        }else{
+                            conditions.append(",");
+                        }
+                        conditions.append("?");
+                        if(i == educationNames.length - 1){
+                            conditions.append(")");
+                        }
+                        values.add(educationNames[i]);
+                    }
+                }
+                
+                //add the 'companyNames' filter, and join Education table
+                if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
+                    hasCondition = true;
+                    String value = searchValues.get("companyNames");
+                    String[] companyNames = value.split(","); 
+                    joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+                    conditions.append(" and d.\"ts2__Name__c\" in ");
+                    for(int i = 0; i < companyNames.length; i++){
+                        if(i == 0){
+                            conditions.append("(");
+                        }else{
+                            conditions.append(",");
+                        }
+                        conditions.append("?");
+                        if(i == companyNames.length - 1){
+                            conditions.append(")");
+                        }
+                        values.add(companyNames[i]);
+                    }
+                }
+                
+                
             }
         }
         

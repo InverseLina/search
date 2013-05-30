@@ -1,5 +1,7 @@
 package com.jobscience.search.web;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -38,6 +40,17 @@ public class SearchWebHandlers {
        // Map searchValues = MapUtil.mapIt("search",search);
         SearchResult searchResult = searchDao.search(searchValues,searchMode, pageIdx, pageSize);
         WebResponse wr = WebResponse.success(searchResult);
+        return wr;
+    }
+    
+    @WebGet("/getTopCompaniesAndEducations")
+    public WebResponse getTopCompanies(){
+        Map result = new HashMap();
+        List companies = searchDao.getTopMostCompanies(5);
+        List educations = searchDao.getTopMostEducation(5);
+        result.put("companies", companies);
+        result.put("educations", educations);
+        WebResponse wr = WebResponse.success(result);
         return wr;
     }
 }
