@@ -56,9 +56,12 @@
 
 .ContentView .search-result .table .row>div{
     display: table-cell;
-    overflow: hidden;
+    padding-top: 5px;
     width: 33.3333%;
     border-bottom: 1px solid #dddddd;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 
