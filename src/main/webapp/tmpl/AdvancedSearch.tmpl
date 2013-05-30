@@ -1,0 +1,23 @@
+<script id="AdvancedSearch" type="text/html">
+<div class="AdvancedSearch">
+	<div>
+		<ul class="advancedItems">
+    	<li class="all"><label><input type="checkbox"/><span>All company</span></label></li>
+    	{{#each companies}}
+    	<li><label><input type="checkbox"/><span>{{name}}&nbsp;({{num}})</span></label></li>
+    	{{/each}}
+    </ul>
+    
+    <ul class="advancedItems">
+    	<li class="all"><label><input type="checkbox"/><span>All Education</span></label></li>
+    	{{#each educations}}
+    	<li><label><input type="checkbox"/><span>{{name}}&nbsp;({{num}})</span></label></li>
+    	{{/each}}
+    </ul>
+    
+    <div class="btnContainer">
+        <button id="search-keyword" data-action="DO_SEARCH" type="submit" class="btn btn-primary">Refresh</button>
+      </div>
+	</div>
+</div>  
+</script>

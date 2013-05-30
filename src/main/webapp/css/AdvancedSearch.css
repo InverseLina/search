@@ -1,0 +1,21 @@
+.AdvancedSearch .advancedItems{
+	list-style: none;
+}
+
+.AdvancedSearch .advancedItems [type="checkbox"]{
+	margin-top: -1px;
+	margin-right: 5px;
+}
+
+.AdvancedSearch .advancedItems .all span{
+	 font-weight: bold;
+	 margin-bottom:5px;
+}
+
+.AdvancedSearch .advancedItems label{
+	 color:#000;
+}
+
+.AdvancedSearch .advancedItems .selected label span{
+	 color:rgb(187, 115, 43);
+}
