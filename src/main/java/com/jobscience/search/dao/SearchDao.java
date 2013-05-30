@@ -27,9 +27,12 @@ public class SearchDao {
 
     public SearchResult search(Map<String, String> searchValues, SearchMode searchMode, Integer pageIdx, Integer pageSize) {
         Connection con = dbHelper.getConnection();
+        
+        //builder statements
         SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode, pageIdx, pageSize);
 
 
+        //excute query and caculate times
         long start = System.currentTimeMillis();
         List<Map> result = dbHelper.preparedStatementExecuteQuery(statementAndValues.queryStmt, statementAndValues.values);
         long mid = System.currentTimeMillis();
@@ -62,19 +65,28 @@ public class SearchDao {
         }
         int offset = (pageIdx -1) * pageSize;
 
+        //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
+        //the count query sql that will query the count of data
         StringBuilder countSql = new StringBuilder();
+        // the part of query that build join tables sql
         StringBuilder joinTables = new StringBuilder();
+        // the part of query that build conditions sql
         StringBuilder conditions = new StringBuilder();
+        // the params will be put in sql
         List values = new ArrayList();
         
+        //to test if need to add "where", if true, add ' where 1=1 ', so that will join " and .." condition
         boolean hasCondition = false;
         
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         
         if(searchValues!=null){
+            //keyword mode, use ilike search
             if(searchMode == SearchMode.KEYWORD){
+                
+                //add the 'search' filter
                 if (searchValues.get("search") != null && !"".equals(searchValues.get("search"))) {
                     hasCondition = true;
                     String value = searchValues.get("search");
@@ -86,6 +98,7 @@ public class SearchDao {
                     values.add(value);
                 }
 
+                //add the 'FirstName' filter
                 if (searchValues.get("FirstName") != null && !"".equals(searchValues.get("FirstName"))) {
                     hasCondition = true;
                     String value = searchValues.get("FirstName");
@@ -96,6 +109,7 @@ public class SearchDao {
                     values.add(value);
                 }
 
+                //add the 'LastName' filter
                 if (searchValues.get("LastName") != null && !"".equals(searchValues.get("LastName"))) {
                     hasCondition = true;
                     String value = searchValues.get("LastName");
@@ -106,6 +120,7 @@ public class SearchDao {
                     values.add(value);
                 }
 
+                //add the 'Skill' filter, and join Skill table
                 if (searchValues.get("Skill") != null && !"".equals(searchValues.get("Skill"))) {
                     hasCondition = true;
                     String value = searchValues.get("Skill");
@@ -117,6 +132,7 @@ public class SearchDao {
                     values.add(value);
                 }
 
+                //add the 'Employment' filter, and join Employment table
                 if (searchValues.get("Employment") != null && !"".equals(searchValues.get("Employment"))) {
                     hasCondition = true;
                     String value = searchValues.get("Employment");
@@ -129,6 +145,7 @@ public class SearchDao {
                     values.add(value);
                 }
 
+                //add the 'Education' filter, and join Education table
                 if (searchValues.get("Education") != null && !"".equals(searchValues.get("Education"))) {
                     hasCondition = true;
                     String value = searchValues.get("Education");
@@ -139,7 +156,7 @@ public class SearchDao {
                     }
                     values.add(value);
                 }
-                
+            // the simple mode, use full text search
             }else if(searchMode == SearchMode.SIMPLE){
                 hasCondition = true;
                 String value = searchValues.get("search");

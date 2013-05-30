@@ -3,6 +3,9 @@ package com.jobscience.search.dao;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * the object of search result
+ */
 public class SearchResult {
     
     private List<Map> result;
