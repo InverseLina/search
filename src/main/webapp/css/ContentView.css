@@ -86,7 +86,7 @@
 .ContentView .search-result .table .row>div span{
     display: inline-block;
     width: 90%;
-    padding-left: 5px;
+    padding-left: 8px;
     white-space: nowrap;
     text-overflow: ellipsis;
     word-break: normal;
