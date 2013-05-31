@@ -16,6 +16,8 @@
 				 }else{
 					 $li.addClass("selected");
 				 }
+				 
+				 this.$el.trigger("DO_SEARCH");
 			 }
 		 }
 	 },
