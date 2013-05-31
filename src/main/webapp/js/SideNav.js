@@ -25,7 +25,6 @@
 				if(this.searchMode=="advanced"){
 
                     if ($e.find(".AdvancedSearch").size() == 0) {
-                        console.log('XXXXXXXXXXXXXX')
                         $.ajax({
                             url: "getTopCompaniesAndEducations",
                             type: "GET",
