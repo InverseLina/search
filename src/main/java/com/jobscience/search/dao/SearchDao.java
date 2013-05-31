@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.log4j.Logger;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
@@ -22,6 +24,7 @@ public class SearchDao {
 
     static private String QUERY_COUNT  = "select count (distinct a.id)" + " from contact a ";
 
+    private Logger log = Logger.getLogger(getClass());
     @Inject
     private DBHelper      dbHelper;
 
@@ -303,7 +306,7 @@ public class SearchDao {
         
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         
-        System.out.println(querySql);
+        log.info(querySql);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
