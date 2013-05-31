@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.log4j.Logger;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
@@ -22,6 +24,7 @@ public class SearchDao {
 
     static private String QUERY_COUNT  = "select count (distinct a.id)" + " from contact a ";
 
+    private Logger log = Logger.getLogger(getClass());
     @Inject
     private DBHelper      dbHelper;
 
@@ -61,7 +64,7 @@ public class SearchDao {
             size = 5;
         }
         Connection con = dbHelper.getConnection();
-        String querySql = "select \"ts2__Name__c\" as name, count(*) as count from ts2__education_history__c where \"ts2__Name__c\" !='' group by \"ts2__Name__c\"  order by count desc limit "+size;
+        String querySql = "select e.\"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__education_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc limit "+size;
         List<Map> result = dbHelper.preparedStatementExecuteQuery(dbHelper.prepareStatement(con,querySql.toString()), new Object[0]);
         return result;
     }
@@ -75,7 +78,7 @@ public class SearchDao {
             size = 5;
         }
         Connection con = dbHelper.getConnection();
-        String querySql = "select \"ts2__Name__c\" as name, count(*) as count from ts2__employment_history__c where \"ts2__Name__c\" !='' group by \"ts2__Name__c\"  order by count desc limit "+size;
+        String querySql = "select \"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__employment_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc limit "+size;
         List<Map> result = dbHelper.preparedStatementExecuteQuery(dbHelper.prepareStatement(con,querySql.toString()), new Object[0]);
         return result;
     }
@@ -232,7 +235,9 @@ public class SearchDao {
                 if (searchValues.get("search") != null && !"".equals(searchValues.get("search"))) {
                     hasCondition = true;
                     String value = searchValues.get("search");
+                    System.out.println("........"+value);
                     String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
+                    System.out.println("========"+searchTsq);
                     String searchILike = value;
                     if (!searchILike.contains("%")) {
                         searchILike = "%" + value + "%";
@@ -303,6 +308,7 @@ public class SearchDao {
         
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         
+        log.info(querySql);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
