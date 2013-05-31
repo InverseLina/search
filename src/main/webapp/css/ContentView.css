@@ -12,13 +12,17 @@
 
 .ContentView .search-form{
   position: relative;
-  width: 400px;
-  margin: 30px auto;
+  width: 500px;
+  margin: 60px auto 30px auto;
+  
 }
   
 .ContentView .search-form input{
-  width: 300px;
+  width: 400px;
   height: 30px;
+  border-radius: 2px;
+  padding: 15px;
+  margin-right: 10px;
 }
 
 .ContentView .search-result{
@@ -32,6 +36,7 @@
 .ContentView .search-result .table  {
     height: 100%;
     position: relative;
+    margin-top: 30px;
 }
 
 
