@@ -303,7 +303,6 @@ public class SearchDao {
         
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         
-        System.out.println(querySql);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
