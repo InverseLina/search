@@ -15,6 +15,14 @@
 .AdvancedSearch .advancedItems label{
 	 color:#000;
 }
+.AdvancedSearch .advancedItems label span{
+     display:inline-block;
+     overflow: hidden;
+     white-space: nowrap;
+     text-overflow: ellipsis;
+     word-break: normal;
+     max-width: 200px;
+}
 
 .AdvancedSearch .advancedItems .selected label span{
 	 color:rgb(187, 115, 43);

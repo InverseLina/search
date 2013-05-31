@@ -15,6 +15,7 @@
 				var $e = view.$el;
 				var $newSec = $(event.target).parent(".sec");
 				this.searchMode = $newSec.attr("data-search-mode");
+                console.log(this.searchMode);
 
 				var $oldSec = view.$el.find(".sec.sel");
 
@@ -22,21 +23,22 @@
 				
 				$newSec.addClass("sel");		
 				if(this.searchMode=="advanced"){
-				  
-					if($e.find(".AdvancedSearch").size() == 0){
-            $.ajax({
-              url : "getTopCompaniesAndEducations",
-              type : "GET",
-              dataType : "json"
-            }).always(function(data) {
-              var result = data.result;
-    					var companies = result.companies;
-    					var educations = result.educations;
-    					brite.display("AdvancedSearch",$("div.advanced",$newSec),{companies:companies,educations:educations});
-            }); 
-					}
-				}
-			},
+
+                    if ($e.find(".AdvancedSearch").size() == 0) {
+                        console.log('XXXXXXXXXXXXXX')
+                        $.ajax({
+                            url: "getTopCompaniesAndEducations",
+                            type: "GET",
+                            dataType: "json"
+                        }).always(function (data) {
+                                var result = data.result;
+                                var companies = result.companies;
+                                var educations = result.educations;
+                                brite.display("AdvancedSearch", $("div.advanced", $newSec), {companies: companies, educations: educations});
+                            });
+                    }
+                }
+            },
 			"keypress; input": function(event){
 				if (event.which === 13){
 					this.$el.trigger("DO_SEARCH");
