@@ -12,9 +12,40 @@
               <div class="row">
                   <div>{{id}}</div>
                   <div>{{Name}}</div>
-                  <div>{{Title}}</div>
+                  <div><span>{{Title}}</span></div>
               </div>
           {{/each}}
+        </div>
+    </div>
+</script>
+<script id="search-query-error" type="text/html">
+    <div class="table">
+        <div class="tableHeader ">
+            <div class="row">
+                <div>ID</div>
+                <div>Name</div>
+                <div>Title</div>
+            </div>
+        </div>
+        <div class='tableBody'>
+            <div class="alert alert-block alert-error fade in">
+                <strong>{{title}}:</strong> {{detail}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="search-empty" type="text/html">
+    <div class="table">
+        <div class="tableHeader ">
+            <div class="row">
+                <div>ID</div>
+                <div>Name</div>
+                <div>Title</div>
+            </div>
+        </div>
+        <div class='tableBody'>
+            <div class="empty-search"><span>Enter Search Criteria</span></div>
         </div>
     </div>
 </script>

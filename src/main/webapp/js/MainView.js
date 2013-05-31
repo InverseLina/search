@@ -50,15 +50,15 @@
             if(!/^\s*$/.test(val)){
                 if(/^\s*[^\s].+[^\s]\s*$/.test(val)){
                     qParams["q_" + key] = val;
-                    valCount++;
                 }else{
                     isValid = false;
                 }
+                valCount++;
             }
         });
         
         //if there has no any search text
-        if(valCount == 0){
+        if(valCount == 0 && isValid){
             view.contentView.showErrorMessage("Not Search Keyword", "please enter some keywords to search");
         	return false;
         }

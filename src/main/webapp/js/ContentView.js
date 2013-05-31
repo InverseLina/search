@@ -16,9 +16,13 @@
 					view.$el.trigger("DO_SEARCH");
 				}
 			});
+            view.$searchResult.html(render("search-empty"));
 		},
         showErrorMessage: function(title, detail){
-            alert("XXXXxxxx");
+            var view = this;
+            var html = render("search-query-error", {title: title, detail:detail});
+            view.$searchResult.html(html);
+
         },
 		
 		parentEvents: {
