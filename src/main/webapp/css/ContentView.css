@@ -1,7 +1,7 @@
 .ContentView{
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  min-width: 600px;
+  min-width: 650px;
 }
 
 .ContentView .sidenav-ctn{
@@ -61,11 +61,22 @@
 .ContentView .search-result .table .row>div{
     display: table-cell;
     padding-top: 5px;
-    width: 33.33%;
+    width: 10%;
     border-bottom: 1px solid #dddddd;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    word-break: normal;
+    min-width: 80px;
+
+}
+.ContentView .search-result .table .row>div+div{
+    width: 30%;
+
+}
+
+.ContentView .search-result .table .row>div+div+div{
+    width: 60%;
 }
 
 
