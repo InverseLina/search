@@ -52,33 +52,14 @@
 				return null;
 			}else if (view.searchMode === "keyword"){
 				var values = {};
-				var isValid = true;
-				var hasSearch = false;
-				view.$el.find(".keyword-form input").each(function(){
-					var $input = $(this);
-					var nameValue = {};
-					var name = $input.attr("name");
-					var val = $input.val();
-					if (val){
-						if(val.length>2){
-							values[name] = val;
-						}else{
-							alert(name+" text must not less than 3 chars");
-							isValid = false;
-						}
-						hasSearch = true;
-					}
-				});
-				
-				if(hasSearch){//if there has type some letters in nav text field
-					if(isValid){
-						return values;
-					}else{
-						return {};
-					}
-				}else{
-					return null;
-				}
+                view.$el.find(".keyword-form input").each(function () {
+                    var $input = $(this);
+                    var name = $input.attr("name");
+                    var val = $input.val();
+                    values[name] = val;
+                });
+
+                return values;
 			}else if (view.searchMode === "advanced"){
 				return $e.bFindComponents("AdvancedSearch")[0].getSearchValues();
 			}

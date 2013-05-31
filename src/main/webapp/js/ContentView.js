@@ -17,6 +17,9 @@
 				}
 			});
 		},
+        showErrorMessage: function(title, detail){
+            alert("XXXXxxxx");
+        },
 		
 		parentEvents: {
 
@@ -41,18 +44,9 @@
 		getSearchValues: function(){
 			var val = this.$searchInput.val();
 			var searchMode = this.$el.bView("MainView").getSearchMode();
-			if (val){
-				if(val.length < 3 && searchMode != "advanced"){
-					alert(" search text must not less than 3 chars");
-					return {};
-				}else{
-					return {
-						search: val
-					}
-				}
-			}else{
-				return null;
-			}
+            return {
+                search: val
+            }
 		}
 	});
 	

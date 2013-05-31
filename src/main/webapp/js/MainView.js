@@ -38,25 +38,34 @@
 
     function doSearch() {
         var view = this;
-        var isValid = false;
+        var valCount = 0;
+        var isValid = true;
         var contentSearchValues = view.contentView.getSearchValues();
         var navContectSearchValues = view.sideNav.getSearchValues();
         var searchValues = $.extend({},contentSearchValues ,navContectSearchValues );
         // just add the "q_"
         var qParams = {searchMode: view.sideNav.searchMode};
+        console.log(qParams);
         $.each(searchValues, function (key, val) {
-            qParams["q_" + key] = val;
-            isValid = true;
+            if(!/^\s*$/.test(val)){
+                if(/^\s*[^\s].+[^\s]\s*$/.test(val)){
+                    qParams["q_" + key] = val;
+                    valCount++;
+                }else{
+                    isValid = false;
+                }
+            }
         });
         
         //if there has no any search text
-        if(contentSearchValues==null&&navContectSearchValues==null){
-        	alert("please enter some keywords to search");
+        if(valCount == 0){
+            view.contentView.showErrorMessage("Not Search Keyword", "please enter some keywords to search");
         	return false;
         }
         //if has some search text,but less than 3 letters
         if(!isValid){
-        	return false;
+            view.contentView.showErrorMessage("Wrong Search Query", "Search query needs to be at least 3 character long");
+            return false;
         }
         
         var callback = function(pageIdx, pageSize){
