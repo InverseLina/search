@@ -21,6 +21,10 @@
 	 		var view = this;
 	 		view.$el.trigger("DO_SEARCH");
 	 	},
+        'focusout; input[type="text"]':function(event){
+            var $target = $(event.currentTarget);
+            $target.val($.trim($target.val()));
+        },
 	 	
 	 	"DO_SEARCH": function(){
 	 		doSearch.call(this);	
