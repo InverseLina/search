@@ -1,0 +1,34 @@
+// Core variables and mixins
+@import "mixins.less";
+
+// --------- MainView --------- //
+.MainView{
+  .fitparent();
+  overflow: hidden;
+  min-height: 600px;
+}
+
+.MainView header .navbar-inner{
+  border-radius: 0px;
+}
+
+.MainView header .navbar{
+  margin: 0;
+}
+
+.MainView header .navbar .brand{
+  padding-left: 10px;
+}
+
+.MainView .sidenav-ctn{
+  position: absolute;
+  top: 43px; left: 0; bottom: 0;
+  width: 280px;
+}
+
+.MainView .contentview-ctn{
+  position: absolute;
+  top: 42px; left: 280px; bottom: 0; right: 0;
+}
+
+// --------- /MainView --------- //

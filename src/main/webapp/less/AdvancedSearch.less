@@ -1,0 +1,40 @@
+// Core variables and mixins
+@import "mixins.less";
+
+// --------- AdvancedSearch --------- //
+.AdvancedSearch .advancedItems{
+	list-style: none;
+}
+
+.AdvancedSearch .advancedItems [type="checkbox"]{
+	margin-top: -1px;
+	margin-right: 5px;
+}
+
+.AdvancedSearch .advancedItems .all span{
+	 font-weight: bold;
+	 margin-bottom:5px;
+}
+
+.AdvancedSearch .advancedItems label{
+	 color:#808080;
+}
+
+.AdvancedSearch .advancedItems .selected label{
+	 color:rgb(187, 115, 43);
+}
+
+.AdvancedSearch .advancedItems label span{
+     display:inline-block;
+     overflow: hidden;
+     white-space: nowrap;
+     text-overflow: ellipsis;
+     word-break: normal;
+     max-width: 200px;
+}
+
+.AdvancedSearch .advancedItems .selected label span{
+	 color:rgb(187, 115, 43);
+}
+
+// --------- /AdvancedSearch --------- //

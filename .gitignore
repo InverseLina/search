@@ -12,4 +12,5 @@ target/
 # prevent tmp/ should be for dev db and stuff
 tmp/
 # prevent the compiled files
+*.css
 templates.js

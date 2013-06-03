@@ -1,13 +1,27 @@
-.SideNav{
+.fitparent {
   position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.fitvertical {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.SideNav {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: #eee;
   border-right: solid 1px #ddd;
   margin-bottom: -9999px;
   overflow-y: hidden;
 }
-
-.SideNav h2{
+.SideNav h2 {
   cursor: pointer;
   font-size: 14px;
   padding: 3px 10px;
@@ -17,36 +31,28 @@
   font-weight: normal;
   letter-spacing: .1em;
 }
-
-.SideNav .sec.sel h2{
-  background: rgba(255,255,255,.9);
+.SideNav .sec.sel h2 {
+  background: rgba(255, 255, 255, 0.9);
 }
-
-.SideNav .sec > div{
+.SideNav .sec > div {
   display: none;
 }
-
-.SideNav .sec.sel > div{
+.SideNav .sec.sel > div {
   display: block;
 }
-
-.SideNav .control-group{
+.SideNav .control-group {
   margin: 0;
 }
-
-.SideNav label{
+.SideNav label {
   color: #999;
 }
-
-.SideNav input{
+.SideNav input {
   padding: 14px;
 }
-
-.SideNav .keyword-form{
+.SideNav .keyword-form {
   padding: 0 0 0 11px;
 }
-
-.SideNav .btnContainer{
+.SideNav .btnContainer {
   padding: 0 0 0 130px;
 }
 

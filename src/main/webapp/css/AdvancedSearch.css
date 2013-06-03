@@ -1,34 +1,41 @@
-.AdvancedSearch .advancedItems{
-	list-style: none;
+.fitparent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.fitvertical {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.AdvancedSearch .advancedItems {
+  list-style: none;
+}
+.AdvancedSearch .advancedItems [type="checkbox"] {
+  margin-top: -1px;
+  margin-right: 5px;
+}
+.AdvancedSearch .advancedItems .all span {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.AdvancedSearch .advancedItems label {
+  color: #808080;
+}
+.AdvancedSearch .advancedItems .selected label {
+  color: #bb732b;
+}
+.AdvancedSearch .advancedItems label span {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: normal;
+  max-width: 200px;
+}
+.AdvancedSearch .advancedItems .selected label span {
+  color: #bb732b;
 }
 
-.AdvancedSearch .advancedItems [type="checkbox"]{
-	margin-top: -1px;
-	margin-right: 5px;
-}
-
-.AdvancedSearch .advancedItems .all span{
-	 font-weight: bold;
-	 margin-bottom:5px;
-}
-
-.AdvancedSearch .advancedItems label{
-	 color:#808080;
-}
-
-.AdvancedSearch .advancedItems .selected label{
-	 color:rgb(187, 115, 43);
-}
-
-.AdvancedSearch .advancedItems label span{
-     display:inline-block;
-     overflow: hidden;
-     white-space: nowrap;
-     text-overflow: ellipsis;
-     word-break: normal;
-     max-width: 200px;
-}
-
-.AdvancedSearch .advancedItems .selected label span{
-	 color:rgb(187, 115, 43);
-}

@@ -1,29 +1,45 @@
-.MainView{
+.fitparent {
   position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.fitvertical {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.MainView {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   overflow: hidden;
   min-height: 600px;
 }
-
-header .navbar-inner{
+.MainView header .navbar-inner {
   border-radius: 0px;
 }
-
-header .navbar{
+.MainView header .navbar {
   margin: 0;
 }
-
-header .navbar .brand{
+.MainView header .navbar .brand {
   padding-left: 10px;
 }
-
-.MainView .sidenav-ctn{
+.MainView .sidenav-ctn {
   position: absolute;
-  top: 43px; left: 0; bottom: 0;
+  top: 43px;
+  left: 0;
+  bottom: 0;
   width: 280px;
 }
-
-.MainView .contentview-ctn{
+.MainView .contentview-ctn {
   position: absolute;
-  top: 42px; left: 280px; bottom: 0; right: 0;
+  top: 42px;
+  left: 280px;
+  bottom: 0;
+  right: 0;
 }
+
