@@ -13,8 +13,13 @@
 }
 
 .AdvancedSearch .advancedItems label{
-	 color:#000;
+	 color:#808080;
 }
+
+.AdvancedSearch .advancedItems .selected label{
+	 color:rgb(187, 115, 43);
+}
+
 .AdvancedSearch .advancedItems label span{
      display:inline-block;
      overflow: hidden;
