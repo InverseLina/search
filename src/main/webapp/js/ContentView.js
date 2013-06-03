@@ -20,6 +20,7 @@
 		},
         showErrorMessage: function(title, detail){
             var view = this;
+            view.$searchInfo.empty();
             var html = render("search-query-error", {title: title, detail:detail});
             view.$searchResult.html(html);
 
