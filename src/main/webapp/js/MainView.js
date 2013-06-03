@@ -1,5 +1,6 @@
 (function($){
 	
+	var searchDao = app.SearchDaoHandler;
 	brite.registerView("MainView",{parent:"body"},{
 		create: function(){
 			console.log("...");
@@ -48,8 +49,7 @@
         var navContectSearchValues = view.sideNav.getSearchValues();
         var searchValues = $.extend({},contentSearchValues ,navContectSearchValues );
         // just add the "q_"
-        var qParams = {searchMode: view.sideNav.searchMode};
-        console.log(qParams);
+        var qParams = {};
         $.each(searchValues, function (key, val) {
             console.log(key + '  ' + val);
             if(!/^\s*$/.test(val)){
@@ -74,15 +74,9 @@
         }
         
         var callback = function(pageIdx, pageSize){
-            qParams.pageIdx = pageIdx||1;
-            qParams.pageSize = pageSize||30;
-            $.ajax({
-                url: "search",
-                type: "GET",
-                data: qParams,
-                dataType: "json"
-            }).always(function (data) {
-	            var result = data.result;
+            pageIdx = pageIdx||1;
+            pageSize = pageSize||30;
+            searchDao.search(qParams,view.sideNav.searchMode,pageIdx,pageSize).always(function (result) {
 	            result.callback = callback;
 	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
             });

@@ -1,5 +1,5 @@
 (function($){
-	
+	var searchDao = app.SearchDaoHandler;
 	brite.registerView("SideNav",{parent:"#sidenav-ctn"},{
 		create: function(){
 			return render("SideNav");
@@ -25,12 +25,7 @@
 				if(this.searchMode=="advanced"){
 
                     if ($e.find(".AdvancedSearch").size() == 0) {
-                        $.ajax({
-                            url: "getTopCompaniesAndEducations",
-                            type: "GET",
-                            dataType: "json"
-                        }).always(function (data) {
-                                var result = data.result;
+                       searchDao.getAdvancedMenu().always(function (result) {
                                 var companies = result.companies;
                                 var educations = result.educations;
                                 brite.display("AdvancedSearch", $("div.advanced", $newSec), {companies: companies, educations: educations});
