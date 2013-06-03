@@ -19,10 +19,16 @@
       <div class="control-group">
         <label>Title:</label>
         <input name="Title" type="text" placeholder="Title"/>
-      </div> 
+          <label  class="checkbox">
+              <input name="curTitle" type="checkbox" value='true'> Current Title
+          </label>
+      </div>
       <div class="control-group">
         <label>Company:</label>
         <input name="Company" type="text" placeholder="Company"/>
+          <label class="checkbox">
+              <input name="curCompany"  value='true' type="checkbox"> Current Company
+          </label>
       </div> 
       <div class="control-group">
         <label>Skill:</label>
@@ -31,10 +37,6 @@
       <div class="control-group">
         <label>Education:</label>
         <input name="Education" type="text" placeholder="Education"/>
-      </div> 
-      <div class="control-group">
-        <label>Employment:</label>
-        <input name="Employment" type="text" placeholder="Employment"/>
       </div> 
       <div class="btnContainer">
         <button id="search-keyword" data-action="DO_SEARCH" type="submit" class="btn btn-primary">Refresh</button>

@@ -47,6 +47,7 @@
         var qParams = {searchMode: view.sideNav.searchMode};
         console.log(qParams);
         $.each(searchValues, function (key, val) {
+            console.log(key + '  ' + val);
             if(!/^\s*$/.test(val)){
                 if(/^\s*[^\s].+[^\s]\s*$/.test(val)){
                     qParams["q_" + key] = $.trim(val);

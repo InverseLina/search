@@ -53,7 +53,13 @@
 				return null;
 			}else if (view.searchMode === "keyword"){
 				var values = {};
-                view.$el.find(".keyword-form input").each(function () {
+                view.$el.find(".keyword-form input[type='text']").each(function () {
+                    var $input = $(this);
+                    var name = $input.attr("name");
+                    var val = $input.val();
+                    values[name] = val;
+                });
+                view.$el.find(".keyword-form input[type='checkbox']:checked").each(function () {
                     var $input = $(this);
                     var name = $input.attr("name");
                     var val = $input.val();
