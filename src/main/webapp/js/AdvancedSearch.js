@@ -39,6 +39,10 @@
 	     }
 	   });
 	   
+	   if(companyALL){
+		   companyStr="All Company";
+	   }
+	   
 	   var educationALL = $educationContainer.find("li[data-name='ALL']").hasClass("selected");
 	   var educationStr = "";
 	   $educationContainer.find("li[data-name!='ALL']").each(function(i){
@@ -51,6 +55,10 @@
   	     educationStr += value;
 	     }
 	   });
+	   
+	   if(educationALL){
+		   educationStr="All Education";
+	   }
 	   return {companyNames:companyStr,educationNames:educationStr};
 	 }
 	});

@@ -252,20 +252,22 @@ public class SearchDao {
                 if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
                     hasCondition = true;
                     String value = searchValues.get("educationNames");
-                    String[] educationNames = value.split(","); 
-                    joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
-                    conditions.append(" and d.\"ts2__Name__c\" in ");
-                    for(int i = 0; i < educationNames.length; i++){
-                        if(i == 0){
-                            conditions.append("(");
-                        }else{
-                            conditions.append(",");
-                        }
-                        conditions.append("?");
-                        if(i == educationNames.length - 1){
-                            conditions.append(")");
-                        }
-                        values.add(educationNames[i]);
+                    if(!"All Education".equals(value)){
+	                    String[] educationNames = value.split(","); 
+	                    joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+	                    conditions.append(" and d.\"ts2__Name__c\" in ");
+	                    for(int i = 0; i < educationNames.length; i++){
+	                        if(i == 0){
+	                            conditions.append("(");
+	                        }else{
+	                            conditions.append(",");
+	                        }
+	                        conditions.append("?");
+	                        if(i == educationNames.length - 1){
+	                            conditions.append(")");
+	                        }
+	                        values.add(educationNames[i]);
+	                    }
                     }
                 }
                 
@@ -273,20 +275,22 @@ public class SearchDao {
                 if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
                     hasCondition = true;
                     String value = searchValues.get("companyNames");
-                    String[] companyNames = value.split(","); 
-                    joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
-                    conditions.append(" and c.\"ts2__Name__c\" in ");
-                    for(int i = 0; i < companyNames.length; i++){
-                        if(i == 0){
-                            conditions.append("(");
-                        }else{
-                            conditions.append(",");
-                        }
-                        conditions.append("?");
-                        if(i == companyNames.length - 1){
-                            conditions.append(")");
-                        }
-                        values.add(companyNames[i]);
+                    if(!"All Company".equals(value)){
+	                    String[] companyNames = value.split(","); 
+	                    joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+	                    conditions.append(" and c.\"ts2__Name__c\" in ");
+	                    for(int i = 0; i < companyNames.length; i++){
+	                        if(i == 0){
+	                            conditions.append("(");
+	                        }else{
+	                            conditions.append(",");
+	                        }
+	                        conditions.append("?");
+	                        if(i == companyNames.length - 1){
+	                            conditions.append(")");
+	                        }
+	                        values.add(companyNames[i]);
+	                    }
                     }
                 }
                 
