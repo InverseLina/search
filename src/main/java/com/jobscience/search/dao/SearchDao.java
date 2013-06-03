@@ -20,7 +20,7 @@ import com.jobscience.search.db.DBHelper;
 @Singleton
 public class SearchDao {
 
-    static private String QUERY_SELECT = "select distinct a.\"Name\", a.\"id\", a.\"Title\"" + " from contact a ";
+    static private String QUERY_SELECT = "select distinct a.\"Name\", a.\"id\", a.\"Title\",to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate" + " from contact a ";
 
     static private String QUERY_COUNT  = "select count (distinct a.id)" + " from contact a ";
 
