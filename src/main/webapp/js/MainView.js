@@ -49,7 +49,7 @@
         $.each(searchValues, function (key, val) {
             if(!/^\s*$/.test(val)){
                 if(/^\s*[^\s].+[^\s]\s*$/.test(val)){
-                    qParams["q_" + key] = val;
+                    qParams["q_" + key] = $.trim(val);
                 }else{
                     isValid = false;
                 }
