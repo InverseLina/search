@@ -1,20 +1,14 @@
 <script id="search-items" type="text/html">
     <div class="table">
-        <div class="tableHeader ">
-            <div class="row">
-                <div>ID</div>
-                <div>Name</div>
-                <div>Create Date</div>
-                <div>Title</div>
-            </div>
-        </div>
+      {{{incl "search-items-header"}}}
         <div class='tableBody'>
           {{#each items}}
               <div class="row">
                   <div>{{id}}</div>
-                  <div>{{Name}}</div>
-                  <div>{{createdate}}</div>
+                  <div><span>{{Name}}</span></div>
+                  <div><span>{{createdate}}</span></div>
                   <div><span>{{Title}}</span></div>
+                  <div></div>
               </div>
           {{/each}}
         </div>
@@ -22,14 +16,7 @@
 </script>
 <script id="search-query-error" type="text/html">
     <div class="table">
-        <div class="tableHeader ">
-            <div class="row">
-                <div>ID</div>
-                <div>Name</div>
-                <div>Create Date</div>
-                <div>Title</div>
-            </div>
-        </div>
+      {{{incl "search-items-header"}}}
         <div class='tableBody'>
             <div class="alert alert-block alert-error fade in">
                 <strong>{{title}}:</strong> {{detail}}
@@ -40,16 +27,21 @@
 
 <script id="search-empty" type="text/html">
     <div class="table">
-        <div class="tableHeader ">
-            <div class="row">
-                <div>ID</div>
-                <div>Name</div>
-                <div>Create Date</div>
-                <div>Title</div>
-            </div>
-        </div>
+        {{{incl "search-items-header"}}}
         <div class='tableBody'>
             <div class="empty-search"><span>Enter Search Criteria</span></div>
+        </div>
+    </div>
+</script>
+
+<script id="search-items-header" type="text/html">
+    <div class="tableHeader ">
+        <div class="row">
+            <div>ID</div>
+            <div>Name</div>
+            <div>Create Date</div>
+            <div>Title</div>
+            <div></div>
         </div>
     </div>
 </script>
