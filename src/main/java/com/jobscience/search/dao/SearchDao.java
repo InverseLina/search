@@ -91,8 +91,8 @@ public class SearchDao {
     private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues,SearchMode searchMode,
                                                    Integer pageIdx, Integer pageSize) {
         SearchStatements ss = new SearchStatements();
-        if(pageIdx < 0){
-            pageIdx = 0;
+        if(pageIdx < 1){
+            pageIdx = 1;
         }
         int offset = (pageIdx -1) * pageSize;
 
