@@ -61,5 +61,14 @@
     	}
     });
 
-
+    Handlebars.registerHelper('hide', function(src,num) {
+    	if(!src){
+    		return new Handlebars.SafeString("");
+    	}
+    	if(src.length<=num){
+    		return new Handlebars.SafeString("hide");
+    	}else{
+    		return new Handlebars.SafeString("");
+    	}
+    });
 })(jQuery);

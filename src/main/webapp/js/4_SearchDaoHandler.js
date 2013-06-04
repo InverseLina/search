@@ -21,11 +21,12 @@ var app = app || {};
 		});
 	}
 	
-	SearchDaoHandler.prototype.getAdvancedMenu = function(){
-
+	SearchDaoHandler.prototype.getAdvancedMenu = function(opts){
+		opts = opts||{};
 		return $.ajax({
 			type : "GET",
 			url : "getTopCompaniesAndEducations",
+			data:opts,
 			dataType : "json"
 		}).pipe(function(val) {
 			return val.result;

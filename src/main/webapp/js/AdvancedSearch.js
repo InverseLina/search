@@ -1,4 +1,5 @@
 (function($){
+	var searchDao = app.SearchDaoHandler;
 	
 	brite.registerView("AdvancedSearch",{parent:".advanced",emptyParent:true},{
 		create: function(data){
@@ -18,6 +19,40 @@
 				 }
 				 
 				 this.$el.trigger("DO_SEARCH");
+			 }
+		 },
+		 "btap;.btns span":function(event){
+			 var $btn = $(event.currentTarget);
+			 var $li = $btn.parent("li");
+			 var flag = $btn.attr("data-show");
+			 var $ul = $btn.closest("ul.advancedItems");
+			 var type = $ul.hasClass("company")?"company":"education";
+			 var dataName = (type=="company")?"companies":"educations";
+			 if(flag=="more"){
+				 searchDao.getAdvancedMenu({type:type,offset:app.preference.get(type,5),limit:20}).pipe(function(data){
+					 $li.before(render("AdvancedSearch-"+type,data));
+					 app.preference.store(type,(parseInt(app.preference.get(type,5))+data[dataName].length));
+					 $btn.next().show();
+					 if(data.length<20){
+						 $btn.hide();
+					 }
+				 });
+			 }else{
+				 var itemNum = parseInt(app.preference.get(type,5));
+				 var hideNum = 0;
+				 if((itemNum-5)%20==0){
+					 hideNum = 20;
+				 }else{
+					 hideNum = (itemNum-5)%20;
+				 }
+				 app.preference.store(type,(itemNum-hideNum));
+				 $("li:not('.btns'):gt("+(itemNum-hideNum)+")",$ul).hide(1000,function(){
+					 $(this).remove();
+				 });
+				 $btn.prev().show();
+				 if((itemNum-hideNum)<=5){
+					 $btn.hide();
+				 }
 			 }
 		 }
 	 },

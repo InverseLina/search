@@ -6,6 +6,7 @@
     	{{#each companies}}
     	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
     	{{/each}}
+    	<li class="btns"><span data-show="more">&or;more</span><span class="{{hide advancedItems 5}}" data-show="less">&and;less</span></li>
     </ul>
     
     <ul class="advancedItems education">
@@ -13,7 +14,20 @@
     	{{#each educations}}
     	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
     	{{/each}}
+    	<li class="btns"><span data-show="more">&or;more</span><span class="{{hide educations 5}}" data-show="less">&and;less</span></li>
     </ul>
 	</div>
 </div>  
+</script>
+
+<script id="AdvancedSearch-company" type="text/html">
+	{{#each companies}}
+    <li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+  {{/each}}
+</script>
+
+<script id="AdvancedSearch-education" type="text/html">
+	{{#each educations}}
+    <li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+  {{/each}}
 </script>

@@ -44,12 +44,22 @@ public class SearchWebHandlers {
     }
     
     @WebGet("/getTopCompaniesAndEducations")
-    public WebResponse getTopCompanies(){
-        Map result = new HashMap();
-        List companies = searchDao.getTopMostCompanies(5);
-        List educations = searchDao.getTopMostEducation(5);
-        result.put("companies", companies);
-        result.put("educations", educations);
+    public WebResponse getTopCompanies(@WebParam("type")String type,@WebParam("offset")Integer offset,@WebParam("limit")Integer limit){
+    	Map result = new HashMap();
+        if(offset==null){
+        	offset = 0;
+        }
+        if(limit==null){
+        	limit=5;
+        }
+        if(type==null||"company".equals(type)){
+	        List companies = searchDao.getTopMostCompanies(offset,limit);
+	        result.put("companies", companies);
+        }
+        if(type==null||"education".equals(type)){
+	        List educations = searchDao.getTopMostEducation(offset,limit);
+	        result.put("educations", educations);
+        }
         WebResponse wr = WebResponse.success(result);
         return wr;
     }
