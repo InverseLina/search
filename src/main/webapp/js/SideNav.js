@@ -15,7 +15,6 @@
 				var $e = view.$el;
 				var $newSec = $(event.target).parent(".sec");
 				this.searchMode = $newSec.attr("data-search-mode");
-                console.log(this.searchMode);
 
 				var $oldSec = view.$el.find(".sec.sel");
 

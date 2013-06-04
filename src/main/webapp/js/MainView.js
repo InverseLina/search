@@ -3,7 +3,6 @@
 	var searchDao = app.SearchDaoHandler;
 	brite.registerView("MainView",{parent:"body"},{
 		create: function(){
-			console.log("...");
 			return render("MainView");
 	 }, 
 	 
@@ -33,7 +32,6 @@
 	 },
 	 getSearchMode:function(){
 	   var view = this;
-	   console.log(view.$el.bFindComponents("SideNav")[0]);
 	   var searchMode = view.$el.bFindComponents("SideNav")[0].searchMode;
 	   
 	   return searchMode;
@@ -51,7 +49,6 @@
         // just add the "q_"
         var qParams = {};
         $.each(searchValues, function (key, val) {
-            console.log(key + '  ' + val);
             if(!/^\s*$/.test(val)){
                 if(/^\s*[^\s].+[^\s]\s*$/.test(val)){
                     qParams["q_" + key] = $.trim(val);

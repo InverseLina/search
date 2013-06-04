@@ -14,7 +14,6 @@
             },
 
             postDisplay: function (data) {
-                console.log(data);
                 var view = this;
                 if(data.totalCount>0){
 
@@ -72,7 +71,6 @@
             if(page.end < page.pageCount -1) {
                 page.end_1 = page.pageCount - 1;
             }
-//            console.log(page)
         }
 
     function renderPage(pageIdx, pageSize, totalCount, callback) {
