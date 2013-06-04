@@ -154,8 +154,9 @@ public class SearchDao {
                 //add the 'Title' filter
                 if (searchValues.get("Title") != null && !"".equals(searchValues.get("Title"))) {
                     String value = searchValues.get("Title");
+                    hasCondition = true;
                     if(searchValues.get("curTitle")!=null){
-                        hasCondition = true;
+
                         conditions.append(" and a.\"Title\" ilike ? ");
                         if(!value.contains("%")){
                             value = "%" + value + "%";
@@ -163,7 +164,7 @@ public class SearchDao {
                         values.add(value);
                     }else{
                         searchEmployment = true;
-                        joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+                        joinTables.append(" left outer join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
                         conditions.append(" and ( c.\"ts2__Job_Title__c\" ilike ?  or a.\"Title\" ilike ? )");
                         if(!value.contains("%")){
                             value = "%" + value + "%";
@@ -195,7 +196,7 @@ public class SearchDao {
                      if(searchEmployment){
                     	 conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
                      }else{
-	                     joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+	                     joinTables.append(" left outer join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
 	                     conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
                      }
 
