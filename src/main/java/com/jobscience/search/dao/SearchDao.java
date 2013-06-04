@@ -24,7 +24,7 @@ public class SearchDao {
 
     static private String QUERY_COUNT  = "select count (distinct a.id)" + " from contact a ";
 
-    private Logger log = Logger.getLogger(getClass());
+    private Logger log = Logger.getLogger(SearchDao.class);
     @Inject
     private DBHelper      dbHelper;
 
@@ -318,7 +318,7 @@ public class SearchDao {
         
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         
-        log.info(querySql);
+        log.debug(querySql);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
