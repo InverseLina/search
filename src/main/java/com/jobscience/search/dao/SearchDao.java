@@ -164,10 +164,11 @@ public class SearchDao {
                     }else{
                         searchEmployment = true;
                         joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
-                        conditions.append(" and  c.\"ts2__Job_Title__c\" ilike ? ");
+                        conditions.append(" and ( c.\"ts2__Job_Title__c\" ilike ?  or a.\"Title\" ilike ? )");
                         if(!value.contains("%")){
                             value = "%" + value + "%";
                         }
+                        values.add(value);
                         values.add(value);
                     }
 
