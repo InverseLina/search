@@ -5,126 +5,124 @@
 .ContentView{
   .fitparent();
   min-width: 650px;
-}
 
-.ContentView .sidenav-ctn{
-  position: absolute;
-  top: 43px; left: 0; bottom: 0;
-  width: 280px;
-}
+  .sidenav-ctn{
+    position: absolute;
+    top: 43px; left: 0; bottom: 0;
+    width: 280px;
+  }
 
-.ContentView .search-form{
-  position: relative;
-  width: 500px;
-  margin: 60px auto 30px auto;
-  
-}
-  
-.ContentView .search-form input{
-  width: 400px;
-  height: 30px;
-  border-radius: 2px;
-  padding: 15px;
-  margin-right: 10px;
-}
-
-.ContentView .search-result{
-  top: 130px; right: 0; bottom: 0; left: 0;
-  position: absolute;
-  width: 80%;
-  margin: 20px auto;
-  padding: 5px;
-}
-
-.ContentView .search-result .table  {
-    height: 100%;
+  .search-form{
     position: relative;
-    margin-top: 30px;
-}
+    width: 500px;
+    margin: 60px auto 30px auto;
 
+    input{
+      width: 400px;
+      height: 30px;
+      border-radius: 2px;
+      padding: 15px;
+      margin-right: 10px;
+    }
 
-.ContentView .search-result .tableHeader, .ContentView .search-result .tableBody{
+  }
+
+  .search-result {
+    top: 155px; right: 0; bottom: 0; left: 0;
+    position: absolute;
+    width: 80%;
+    margin: 20px auto;
+    padding: 5px;
+
+    .table  {
+      height: 100%;
+      position: relative;
+      margin-top: 5px;
+
+      .row{
+        display: table-row;
+        width: 100%;
+        height: 30px;
+        >div{
+          display: table-cell;
+          padding-top: 5px;
+          padding-left: 10px;
+          width: 10%;
+          border-bottom: 1px solid #dddddd;
+          overflow: hidden;
+          min-width: 100px;
+
+          border: 1px solid #000;
+
+        }
+        >div+div{
+          width: 30%;
+        }
+        >div+div+div{
+          width: 10px;
+          max-width:110px;
+        }
+        >div+div+div+div{
+          width: 50%;
+          max-width: 300px;
+        }
+      }
+
+      .row>div span{
+        display: inline-block;
+        width: 90%;
+        padding-left: 8px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        word-break: normal;
+        overflow: hidden;
+      }
+
+      .tableHeader .row>div{
+        background: #DDD;
+        font-weight: bold;
+      }
+
+      .tableHeader, .tableBody{
+        display: block;
+        width: 100%;
+        position: absolute;
+        left:0; right: 0;
+
+      }
+      .tableBody{
+        top:30px;
+        bottom: 0;
+        overflow:scroll;
+
+      }
+
+      .empty-search{
+        position: absolute;
+        top: 70px;left: 0; right: 0;
+        text-align: center;
+        font-size: 20px;
+        color: #bbbbbb;
+      }
+
+      .alert-error{
+        position: absolute;
+        top: 70px;left: 50%;
+        width: 300px;
+        margin-left: -150px;
+      }
+    }
+
+  }
+
+  .search-info{
     display: block;
-    width: 100%;
-    position: absolute;
-    left:0; right: 0;
+    color: #777;
+    width: 375px;
+    text-align: right;
+    height: 16px;
+  }
 
 }
 
-.ContentView .search-result .table .tableBody{
-    top:30px;
-    bottom: 0;
-    overflow:auto;
-}
-
-.ContentView .search-result .table .row{
-    display: table-row;
-    width: 100%;
-    height: 30px;
-
-}
-
-.ContentView .search-result .table .row>div{
-    display: table-cell;
-    padding-top: 5px;
-    padding-left: 10px;
-    width: 10%;
-    border-bottom: 1px solid #dddddd;
-    overflow: hidden;
-    min-width: 100px;
-
-}
-
-
-.ContentView .search-result .table .tableHeader .row>div{
-    background: #DDD;
-    font-weight: bold;
-}
-
-.ContentView .search-result .table .row>div+div{
-    width: 30%;
-}
-
-.ContentView .search-result .table .row>div+div+div{
-    width: 10px;
-    max-width:110px;
-}
-
-.ContentView .search-result .table .row>div+div+div+div{
-    width: 50%;
-    max-width: 300px;
-}
-
-.ContentView .search-result .table .row>div span{
-    display: inline-block;
-    width: 90%;
-    padding-left: 8px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    word-break: normal;
-    overflow: hidden;
-}
-
-.ContentView .search-result .table .empty-search{
-    position: absolute;
-    top: 70px;left: 0; right: 0;
-    text-align: center;
-    font-size: 20px;
-    color: #bbbbbb;
-}
-.ContentView .search-result .table .alert-error{
-    position: absolute;
-    top: 70px;left: 50%;
-    width: 300px;
-    margin-left: -150px;
-}
-
-
-.ContentView .search-info{
-  display: block;
-  color: #777;
-  width: 375px;
-  text-align: right;
-  height: 16px;
-}
 // --------- /ContentView --------- //
