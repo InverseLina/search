@@ -30,6 +30,11 @@
             view.$searchInfo.empty();
             view.$searchResult.html(render("search-empty"));
         },
+        loading:function() {
+            var view = this;
+            view.$searchInfo.empty();
+            view.$searchResult.html(render("search-loading"));
+        },
 
 		parentEvents: {
 

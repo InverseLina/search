@@ -22,8 +22,8 @@
 				
 				$newSec.addClass("sel");		
 				if(this.searchMode=="advanced"){
-
                     if ($e.find(".AdvancedSearch").size() == 0) {
+                        $e.find("div.sec .advanced").html(render("SideNav-advanced-loading"));
                        searchDao.getAdvancedMenu().always(function (result) {
                                 var companies = result.companies;
                                 var educations = result.educations;

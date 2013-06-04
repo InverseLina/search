@@ -41,6 +41,7 @@
 
     function doSearch() {
         var view = this;
+        view.contentView.loading();
         var valCount = 0;
         var isValid = true;
         var contentSearchValues = view.contentView.getSearchValues();
