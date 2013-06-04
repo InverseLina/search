@@ -1,5 +1,6 @@
 package com.jobscience.search.web;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class SearchWebHandlers {
     }
     
     @WebGet("/getTopCompaniesAndEducations")
-    public WebResponse getTopCompanies(@WebParam("type")String type,@WebParam("offset")Integer offset,@WebParam("limit")Integer limit){
+    public WebResponse getTopCompanies(@WebParam("type")String type,@WebParam("offset")Integer offset,@WebParam("limit")Integer limit) throws SQLException{
     	Map result = new HashMap();
         if(offset==null){
         	offset = 0;

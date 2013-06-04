@@ -58,28 +58,36 @@ public class SearchDao {
     /**
      * get education top of the most contacts by size
      * @param size
+     * @throws SQLException 
      */
-    public List getTopMostEducation(Integer offset,Integer size) {
+    public List getTopMostEducation(Integer offset,Integer size) throws SQLException {
         if(size == null){
             size = 5;
         }
         Connection con = dbHelper.getConnection();
         String querySql = "select e.\"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__education_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc offset "+offset+" limit "+size;
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(dbHelper.prepareStatement(con,querySql.toString()), new Object[0]);
+        PreparedStatement prepareStatement =  dbHelper.prepareStatement(con,querySql.toString());
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
+        prepareStatement.close();
+        con.close();
         return result;
     }
     
     /**
      * get company top of the most contacts by size
      * @param size
+     * @throws SQLException 
      */
-    public List getTopMostCompanies(Integer offset,Integer size) {
+    public List getTopMostCompanies(Integer offset,Integer size) throws SQLException {
         if(size == null){
             size = 5;
         }
         Connection con = dbHelper.getConnection();
         String querySql = "select \"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__employment_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc offset "+offset+" limit "+size;
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(dbHelper.prepareStatement(con,querySql.toString()), new Object[0]);
+        PreparedStatement prepareStatement =  dbHelper.prepareStatement(con,querySql.toString());
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
+        prepareStatement.close();
+        con.close();
         return result;
     }
 
