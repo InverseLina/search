@@ -13,3 +13,4 @@ target/
 tmp/
 # prevent the compiled files
 templates.js
+src/main/webapp/css/
