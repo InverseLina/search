@@ -31,6 +31,15 @@
                             });
                     }
                 }
+                var mainView = view.$el.bView("MainView");
+                if(this.searchMode == "simple"){
+                    var query = mainView.contentView.$el.find("input.search-query").val();
+                    if(/^\s*[^\s].+[^\s]\s*$/.test(query)){
+                        view.$el.trigger("DO_SEARCH");
+                    }else{
+                        mainView.contentView.empty();
+                    }
+                }
             },
 			"keypress; input": function(event){
 				if (event.which === 13){

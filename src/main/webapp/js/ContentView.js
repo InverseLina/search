@@ -1,22 +1,22 @@
 (function($){
-	
+
 	brite.registerView("ContentView",{parent:"#contentview-ctn"},{
 		create: function(){
 			return render("ContentView");
-		}, 
-		
+		},
+
 		postDisplay: function(){
 			var view = this;
 			view.$searchInput = view.$el.find(".search-input");
 			view.$searchResult = view.$el.find(".search-result");
 			view.$searchInfo = view.$el.find(".search-info");
-			
+
 			view.$searchInput.on("keypress",function(event){
 				if (event.which === 13){
 					view.$el.trigger("DO_SEARCH");
 				}
 			});
-            view.$searchResult.html(render("search-empty"));
+            view.empty();
 		},
         showErrorMessage: function(title, detail){
             var view = this;
@@ -25,7 +25,12 @@
             view.$searchResult.html(html);
 
         },
-		
+        empty:function() {
+            var view = this;
+            view.$searchInfo.empty();
+            view.$searchResult.html(render("search-empty"));
+        },
+
 		parentEvents: {
 
             MainView: {
