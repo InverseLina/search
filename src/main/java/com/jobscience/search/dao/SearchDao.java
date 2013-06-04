@@ -241,9 +241,7 @@ public class SearchDao {
                 if (searchValues.get("search") != null && !"".equals(searchValues.get("search"))) {
                     hasCondition = true;
                     String value = searchValues.get("search");
-                    System.out.println("........"+value);
                     String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
-                    System.out.println("========"+searchTsq);
                     String searchILike = value;
                     if (!searchILike.contains("%")) {
                         searchILike = "%" + value + "%";
