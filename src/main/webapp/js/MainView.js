@@ -26,8 +26,8 @@
             $target.val($.trim($target.val()));
         },
 	 	
-	 	"DO_SEARCH": function(){
-	 		doSearch.call(this);	
+	 	"DO_SEARCH": function(event,opts){
+	 		doSearch.call(this,opts);	
 	 	}
 	 },
 	 getSearchMode:function(){
@@ -39,7 +39,7 @@
 	});
 
 
-    function doSearch() {
+    function doSearch(opts) {
         var view = this;
         var valCount = 0;
         var isValid = true;
@@ -69,7 +69,7 @@
             view.contentView.showErrorMessage("Wrong Search Query", "Search query needs to be at least 3 character long");
             return false;
         }
-        
+        qParams=$.extend({},qParams,opts);
         var callback = function(pageIdx, pageSize){
             view.contentView.loading();
             pageIdx = pageIdx||1;
@@ -79,7 +79,7 @@
 	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
             });
         };
-        callback();
+        callback(qParams.pageIdx,qParams.pageSize);
 
     }
 	

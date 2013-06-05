@@ -1,27 +1,17 @@
 <script id="search-items" type="text/html">
-    <div class="table">
-      {{{incl "search-items-header"}}}
-        <div class='tableBody'>
-          {{#each items}}
-              <div class="row">
-                  <div>{{id}}</div>
-                  <div><span>{{Name}}</span></div>
-                  <div><span>{{createdate}}</span></div>
-                  <div><span>{{Title}}</span></div>
-              </div>
-          {{/each}}
-        </div>
-    </div>
+  {{#each items}}
+      <div class="row">
+          <div>{{id}}</div>
+          <div><span>{{name}}</span></div>
+          <div><span>{{createdate}}</span></div>
+          <div><span>{{title}}</span></div>
+      </div>
+  {{/each}}
 </script>
 <script id="search-query-error" type="text/html">
-    <div class="table">
-      {{{incl "search-items-header"}}}
-        <div class='tableBody'>
-            <div class="alert alert-block alert-error fade in">
-                <strong>{{title}}:</strong> {{detail}}
-            </div>
-        </div>
-    </div>
+  <div class="alert alert-block alert-error fade in">
+      <strong>{{title}}:</strong> {{detail}}
+  </div>
 </script>
 
 <script id="search-empty" type="text/html">
@@ -34,25 +24,19 @@
 </script>
 
 <script id="search-loading" type="text/html">
-    <div class="table">
-        {{{incl "search-items-header"}}}
-        <div class='tableBody'>
-            <span class="loading badge badge-info">Loading...</span>
-        </div>
-    </div>
+	<span class="loading badge badge-info">Loading...</span>
 </script>
 
 <script id="search-items-header" type="text/html">
     <div class="tableHeader ">
         <div class="row">
-            <div>ID</div>
-            <div>Name</div>
-            <div>Create Date</div>
-            <div>Title</div>
+            <div data-column="Id">ID<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
+            <div data-column="Name">Name<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
+            <div data-column="CreateDate">Create Date<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
+            <div data-column="Title">Title<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
         </div>
     </div>
 </script>
-
 <script id="search-query-notfound" type="text/html">
     <div class="table">
       {{{incl "search-items-header"}}}

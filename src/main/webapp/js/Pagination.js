@@ -24,17 +24,23 @@
               "click; a[data-page]":function(event){
                   var view = this;
                   var newpageIdx = $(event.currentTarget).attr("data-page");
+                  view.$el.bComponent("ContentView").pageIdx = newpageIdx;
+                  view.$el.bComponent("ContentView").pageSize = view.page.pageSize;
                   view.page.callback(newpageIdx, view.page.pageSize);
               },
               "click; a.next":function(event){
 
                   var view = this;
                   var page = view.page;
+                  view.$el.bComponent("ContentView").pageIdx = page.pageIdx + 1;
+                  view.$el.bComponent("ContentView").pageSize = page.pageSize;
                   view.page.callback(page.pageIdx + 1, page.pageSize);
               },
               "click; a.prev":function(event){
                   var view = this;
                   var page = view.page;
+                  view.$el.bComponent("ContentView").pageIdx = page.pageIdx - 1;
+                  view.$el.bComponent("ContentView").pageSize = page.pageSize;
                   view.page.callback(page.pageIdx - 1, page.pageSize);
               },
               "change; select":function(event){
@@ -43,6 +49,8 @@
                   var pageSize = $(event.target).val();
                   if(pageSize >= -1){
                       page.pageSize = pageSize;
+                      view.$el.bComponent("ContentView").pageIdx = 1;
+                      view.$el.bComponent("ContentView").pageSize =  page.pageSize;
                       view.page.callback(1, page.pageSize);
                   }
               }

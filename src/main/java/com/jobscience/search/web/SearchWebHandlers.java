@@ -23,7 +23,8 @@ public class SearchWebHandlers {
     
     @WebGet("/search")
     public WebResponse search(@WebParam("q_") Map searchValues,@WebParam("searchMode") String searchModeStr,
-                              @WebParam("pageIdx") Integer pageIdx, @WebParam("pageSize") Integer pageSize){
+                              @WebParam("pageIdx") Integer pageIdx, @WebParam("pageSize") Integer pageSize,
+                              @WebParam("column")String column,@WebParam("order")String order){
         
         SearchMode searchMode = SearchMode.SIMPLE;
         if (searchModeStr != null) {
@@ -36,10 +37,13 @@ public class SearchWebHandlers {
         if(pageSize == null ){
             pageSize = 30;
         }
-        
+        String orderCon = "";
+        if(column!=null){
+        	orderCon = " order by " +column+" "+(("desc".equals(order))?"desc":"asc");
+        }
         // FIXME: needs to get the search map from request.
        // Map searchValues = MapUtil.mapIt("search",search);
-        SearchResult searchResult = searchDao.search(searchValues,searchMode, pageIdx, pageSize);
+        SearchResult searchResult = searchDao.search(searchValues,searchMode, pageIdx, pageSize,orderCon);
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }

@@ -20,7 +20,7 @@ import com.jobscience.search.db.DBHelper;
 @Singleton
 public class SearchDao {
 
-    static private String QUERY_SELECT = "select distinct a.\"Name\", a.\"id\", a.\"Title\",to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate" + " from contact a ";
+    static private String QUERY_SELECT = "select distinct a.\"Name\" as Name, a.\"id\" as id, a.\"Title\" as Title,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate" + " from contact a ";
 
     static private String QUERY_COUNT  = "select count (distinct a.id)" + " from contact a ";
 
@@ -28,11 +28,11 @@ public class SearchDao {
     @Inject
     private DBHelper      dbHelper;
 
-    public SearchResult search(Map<String, String> searchValues, SearchMode searchMode, Integer pageIdx, Integer pageSize) {
+    public SearchResult search(Map<String, String> searchValues, SearchMode searchMode, Integer pageIdx, Integer pageSize,String orderCon) {
         Connection con = dbHelper.getConnection();
         
         //builder statements
-        SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode, pageIdx, pageSize);
+        SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode, pageIdx, pageSize,orderCon);
 
 
         //excute query and caculate times
@@ -97,7 +97,7 @@ public class SearchDao {
      * @return SearchStatements
      */
     private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues,SearchMode searchMode,
-                                                   Integer pageIdx, Integer pageSize) {
+                                                   Integer pageIdx, Integer pageSize,String orderCon) {
         SearchStatements ss = new SearchStatements();
         if(pageIdx < 1){
             pageIdx = 1;
@@ -322,6 +322,7 @@ public class SearchDao {
         querySql.append(conditions);
         countSql.append(conditions);
         
+        querySql.append(orderCon);
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         
         log.debug(querySql);

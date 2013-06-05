@@ -18,11 +18,32 @@
 			});
             view.empty();
 		},
+		events:{
+			"btap;.tableHeader .row>div":function(event){
+				var view = this;
+				var $th = $(event.currentTarget);
+				var $desc = $(".desc",$th);
+				var $asc = $(".asc",$th);
+				var column = $th.attr("data-column");
+				var bPagination = view.$el.bComponent("ContentView");
+				var pageIdx = bPagination.pageIdx||1;
+				var pageSize = bPagination.pageSize||30;
+				if($asc.is(":hidden")){
+					$(".desc,.asc",$th.parent()).hide();
+					$asc.show();
+					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH",{column:column,order:"asc",pageIdx:pageIdx,pageSize:pageSize});
+				}else{
+					$(".desc,.asc",$th.parent()).hide();
+					$desc.show();
+					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH",{column:column,order:"desc",pageIdx:pageIdx,pageSize:pageSize});
+				}
+			}
+		},
         showErrorMessage: function(title, detail){
             var view = this;
             view.$searchInfo.empty();
             var html = render("search-query-error", {title: title, detail:detail});
-            view.$searchResult.html(html);
+            $(".tableBody",view.$searchResult).html(html);
 
         },
         empty:function() {
@@ -33,7 +54,7 @@
         loading:function() {
             var view = this;
             view.$searchInfo.empty();
-            view.$searchResult.html(render("search-loading"));
+            $(".tableBody",view.$searchResult).html(render("search-loading"));
         },
 
 		parentEvents: {
@@ -47,7 +68,7 @@
                     view.$searchInfo.html(htmlInfo);
                     if(result.count > 0){
                         html = render("search-items", {items: result.result});
-                        view.$searchResult.html(html);
+                        $(".tableBody",view.$searchResult).html(html);
                         brite.display("Pagination",view.$el.find(".page"), {
                             pageIdx:result.pageIdx,
                             pageSize:result.pageSize,
