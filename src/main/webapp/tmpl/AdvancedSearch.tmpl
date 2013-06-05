@@ -22,12 +22,12 @@
 
 <script id="AdvancedSearch-company" type="text/html">
 	{{#each companies}}
-    <li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+    <li style="display: none" class="toShow" data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
   {{/each}}
 </script>
 
 <script id="AdvancedSearch-education" type="text/html">
 	{{#each educations}}
-    <li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+    <li style="display: none" class="toShow"  data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
   {{/each}}
 </script>

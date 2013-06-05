@@ -31,6 +31,9 @@
 			 if(flag=="more"){
 				 searchDao.getAdvancedMenu({type:type,offset:app.preference.get(type,5),limit:20}).pipe(function(data){
 					 $li.before(render("AdvancedSearch-"+type,data));
+                     $li.closest("ul").find(".toShow").show(1000, function(){
+                         $(this).removeClass("toShow");
+                     })
 					 app.preference.store(type,(parseInt(app.preference.get(type,5))+data[dataName].length));
 					 $btn.next().show();
 					 if(data.length<20){
