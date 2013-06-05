@@ -41,17 +41,22 @@
             MainView: {
                 "SEARCH_RESULT_CHANGE": function (event, result) {
                     var view = this;
-                    var html = render("search-items", {items: result.result});
-                    view.$searchResult.html(html);
+                    var html;
                     var htmlInfo = "Result size: " + result.count + " | Duration: " + result.duration + "ms";
                     htmlInfo += " (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)";
                     view.$searchInfo.html(htmlInfo);
-                    brite.display("Pagination",view.$el.find(".page"), {
-                        pageIdx:result.pageIdx,
-                        pageSize:result.pageSize,
-                        totalCount:result.count,
-                        callback:result.callback
-                    });
+                    if(result.count > 0){
+                        html = render("search-items", {items: result.result});
+                        view.$searchResult.html(html);
+                        brite.display("Pagination",view.$el.find(".page"), {
+                            pageIdx:result.pageIdx,
+                            pageSize:result.pageSize,
+                            totalCount:result.count,
+                            callback:result.callback
+                        });
+                    }else {
+                        view.$searchResult.html(render("search-query-notfound"));
+                    }
                 }
             }
 		},
