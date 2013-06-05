@@ -22,6 +22,7 @@
 			 }
 		 },
 		 "btap;.btns span":function(event){
+			 var view = this;
 			 var $btn = $(event.currentTarget);
 			 var $li = $btn.parent("li");
 			 var flag = $btn.attr("data-show");
@@ -39,6 +40,7 @@
 					 if(data.length<20){
 						 $btn.hide();
 					 }
+					 view.$el.trigger("DO_SEARCH");
 				 });
 			 }else{
 				 var itemNum = parseInt(app.preference.get(type,5));
@@ -49,8 +51,14 @@
 					 hideNum = (itemNum-5)%20;
 				 }
 				 app.preference.store(type,(itemNum-hideNum));
-				 $("li:not('.btns'):gt("+(itemNum-hideNum)+")",$ul).hide(1000,function(){
+				 var num = 0;
+				 var $hideLi = $("li:not('.btns'):gt("+(itemNum-hideNum)+")",$ul);
+				 $hideLi.hide(1000,function(){
 					 $(this).remove();
+					 num++;
+					 if(num==$hideLi.length){
+						 view.$el.trigger("DO_SEARCH");
+					 }
 				 });
 				 $btn.prev().show();
 				 if((itemNum-hideNum)<=5){
