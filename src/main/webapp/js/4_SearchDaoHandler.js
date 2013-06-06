@@ -5,6 +5,13 @@ var app = app || {};
 	function SearchDaoHandler(){
 	}
 	
+	/**
+	 * do search contacts with params
+	 * @Param qPrams, Object, which contains keyword, name and so on
+	 * @Param mode, String, the search mode, like 'simple', 'keyword', 'advanced'
+	 * @Param pageIdx, Int, the page index
+	 * @Param pageSize, Int, the page size
+	 */ 
 	SearchDaoHandler.prototype.search = function(qParams,mode,pageIdx,pageSize){
 		var data = $.extend({},qParams);
 		data.searchMode = mode;
@@ -21,6 +28,10 @@ var app = app || {};
 		});
 	}
 	
+	/**
+   * get menu data
+   * @Param opts, Object, which contains type, offset,limit
+   */ 
 	SearchDaoHandler.prototype.getAdvancedMenu = function(opts){
 		opts = opts||{};
 		return $.ajax({

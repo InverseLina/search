@@ -21,6 +21,7 @@
 	 		var view = this;
 	 		view.$el.trigger("DO_SEARCH");
 	 	},
+	 	//should trim the search value when focus out
         'focusout; input[type="text"]':function(event){
             var $target = $(event.currentTarget);
             $target.val($.trim($target.val()));

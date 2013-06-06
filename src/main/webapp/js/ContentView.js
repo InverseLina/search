@@ -19,6 +19,7 @@
             view.empty();
 		},
 		events:{
+		  // click the header cell to sort data
 			"btap;.tableHeader .row>div":function(event){
 				var view = this;
 				var $th = $(event.currentTarget);
@@ -58,7 +59,7 @@
         },
 
 		parentEvents: {
-
+            // the event about reult change, here, will refresh data in table
             MainView: {
                 "SEARCH_RESULT_CHANGE": function (event, result) {
                     var view = this;

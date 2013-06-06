@@ -6,6 +6,7 @@
 		},
 		
 		postDisplay: function(){
+		  // save serarch mode to the view
 			this.searchMode = this.$el.find(".sec.sel").attr("data-search-mode");
 		},
 		
@@ -58,20 +59,22 @@
 				return null;
 			}else if (view.searchMode === "keyword"){
 				var values = {};
-                view.$el.find(".keyword-form input[type='text']").each(function () {
-                    var $input = $(this);
-                    var name = $input.attr("name");
-                    var val = $input.val();
-                    values[name] = val;
-                });
-                view.$el.find(".keyword-form input[type='checkbox']:checked").each(function () {
-                    var $input = $(this);
-                    var name = $input.attr("name");
-                    var val = $input.val();
-                    values[name] = val;
-                });
+				//get input values
+        view.$el.find(".keyword-form input[type='text']").each(function() {
+          var $input = $(this);
+          var name = $input.attr("name");
+          var val = $input.val();
+          values[name] = val;
+        });
+        //get checkbox values
+        view.$el.find(".keyword-form input[type='checkbox']:checked").each(function() {
+          var $input = $(this);
+          var name = $input.attr("name");
+          var val = $input.val();
+          values[name] = val;
+        });
 
-                return values;
+        return values;
 			}else if (view.searchMode === "advanced"){
 				return $e.bFindComponents("AdvancedSearch")[0].getSearchValues();
 			}
