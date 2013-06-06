@@ -20,7 +20,7 @@ import com.jobscience.search.db.DBHelper;
 @Singleton
 public class SearchDao {
 
-    static private String QUERY_SELECT = "select distinct a.\"Name\" as Name,lower(a.\"Name\") as lName, a.\"id\" as id, a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate" + " from contact a ";
+    static private String QUERY_SELECT = "select distinct ";
 
     static private String QUERY_COUNT  = "select count (distinct a.id)" + " from contact a ";
 
@@ -28,11 +28,11 @@ public class SearchDao {
     @Inject
     private DBHelper      dbHelper;
 
-    public SearchResult search(Map<String, String> searchValues, SearchMode searchMode, Integer pageIdx, Integer pageSize,String orderCon) {
+    public SearchResult search(String searchColumns,Map<String, String> searchValues, SearchMode searchMode, Integer pageIdx, Integer pageSize,String orderCon) {
         Connection con = dbHelper.getConnection();
         
         //builder statements
-        SearchStatements statementAndValues = buildSearchStatements(con,searchValues,searchMode, pageIdx, pageSize,orderCon);
+        SearchStatements statementAndValues = buildSearchStatements(con,searchColumns,searchValues,searchMode, pageIdx, pageSize,orderCon);
 
 
         //excute query and caculate times
@@ -91,12 +91,34 @@ public class SearchDao {
         return result;
     }
 
+    private String getQueryColumnName(String orginalName,StringBuilder joinTables){
+    	if(orginalName.toLowerCase().equals("name")){
+    		return "a.\"Name\" as Name,lower(a.\"Name\") as lName";
+    	}else if(orginalName.toLowerCase().equals("id")){
+    		return " a.\"id\" as id";
+    	}else if(orginalName.toLowerCase().equals("title")){
+    		return "a.\"Title\" as Title,lower(a.\"Title\") as lTitle";
+    	}else if(orginalName.toLowerCase().equals("createdate")){
+    		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate";
+    	}else if(orginalName.toLowerCase().equals("company")){
+    		joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\"  ");
+    		return " c.\"ts2__Name__c\" as Company,lower(c.\"ts2__Name__c\") as lCompany";
+    	}else if(orginalName.toLowerCase().equals("skill")){
+    		joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+    		return "b.\"ts2__Skill_Name__c\" as Skill,lower(b.\"ts2__Skill_Name__c\") as lSkill";
+    	}else if(orginalName.toLowerCase().equals("education")){
+    		joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+    		return "d.\"ts2__Name__c\" as Education,lower(d.\"ts2__Name__c\") as lEducation";
+    	}
+    	return orginalName;
+    }
+    
     /**
      * @param searchValues
      * @param searchMode
      * @return SearchStatements
      */
-    private SearchStatements buildSearchStatements(Connection con, Map<String, String> searchValues,SearchMode searchMode,
+    private SearchStatements buildSearchStatements(Connection con,String searchColumns, Map<String, String> searchValues,SearchMode searchMode,
                                                    Integer pageIdx, Integer pageSize,String orderCon) {
         SearchStatements ss = new SearchStatements();
         if(pageIdx < 1){
@@ -120,6 +142,16 @@ public class SearchDao {
         
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
+        if(searchColumns==null){
+        	querySql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate");
+        }else{
+	        for(String column:searchColumns.split(",")){
+	        	querySql.append(getQueryColumnName(column,joinTables));
+	        	querySql.append(",");
+	        }
+	        querySql.deleteCharAt(querySql.length()-1);
+        }
+        querySql.append(" from contact a ");
         
         if(searchValues!=null){
             //keyword mode, use ilike search

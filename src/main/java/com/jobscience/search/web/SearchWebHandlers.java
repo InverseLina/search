@@ -24,7 +24,8 @@ public class SearchWebHandlers {
     @WebGet("/search")
     public WebResponse search(@WebParam("q_") Map searchValues,@WebParam("searchMode") String searchModeStr,
                               @WebParam("pageIdx") Integer pageIdx, @WebParam("pageSize") Integer pageSize,
-                              @WebParam("column")String column,@WebParam("order")String order){
+                              @WebParam("column")String column,@WebParam("order")String order,
+                              @WebParam("searchColumns")String searchColumns ){
         
         SearchMode searchMode = SearchMode.SIMPLE;
         if (searchModeStr != null) {
@@ -43,7 +44,7 @@ public class SearchWebHandlers {
         }
         // FIXME: needs to get the search map from request.
        // Map searchValues = MapUtil.mapIt("search",search);
-        SearchResult searchResult = searchDao.search(searchValues,searchMode, pageIdx, pageSize,orderCon);
+        SearchResult searchResult = searchDao.search(searchColumns,searchValues,searchMode, pageIdx, pageSize,orderCon);
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }
@@ -70,7 +71,11 @@ public class SearchWebHandlers {
     }
     
     private String getOrderColumn(String originalName){
-    	if("Name".equalsIgnoreCase(originalName)||"Title".equalsIgnoreCase(originalName)){
+    	if("Name".equalsIgnoreCase(originalName)||
+    	   "Title".equalsIgnoreCase(originalName)||
+    	   "Company".equalsIgnoreCase(originalName)||
+    	   "Skill".equalsIgnoreCase(originalName)||
+    	   "Education".equalsIgnoreCase(originalName)){
     		return "l"+originalName;
     	}
     	
