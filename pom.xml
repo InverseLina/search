@@ -50,6 +50,32 @@
           </execution>
         </executions>
       </plugin>     
+      
+<!-- Copy war files to ../war -->
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <tasks>
+                <mkdir dir="../war" />
+                <delete includeemptydirs="true">
+                  <fileset dir="../war" includes="**/*" excludes=".git/"/>
+                </delete>
+                <copy todir="../war">
+                  <fileset dir="target/jss"/>
+                </copy>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- /Copy war files to ../war -->      
      
     </plugins>
     
