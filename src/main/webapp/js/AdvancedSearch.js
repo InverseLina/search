@@ -6,12 +6,23 @@
 			return render("AdvancedSearch",data);
 	 }, 
 	 
-	 postDisplay: function(){},
+	 postDisplay: function(data){
+		 var view = this;
+		 view.$el.find(".advancedItems li.all :checkbox").prop("checked",true).closest("li").addClass("selected");
+		 view.$el.trigger("DO_SEARCH");
+	 },
 	 
 	 events: {
 		 "btap;.advancedItems label":function(event){
 			 if(event.which==1){
 				 var $li = $(event.target).closest("li");
+				 var $ul = $li.parent("ul");
+				 if($li.hasClass("all")){
+					 $("li:gt(1)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
+				 }else{
+					 $("li:eq(0)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
+				 }
+				 
 				 if($li.hasClass("selected")){
 					 $li.removeClass("selected");
 				 }else{
@@ -98,7 +109,6 @@
   	     educationStr += value;
 	     }
 	   });
-	   
 	   return {companyNames:companyStr,educationNames:educationStr};
 	 }
 	});
