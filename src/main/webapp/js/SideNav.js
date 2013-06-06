@@ -44,7 +44,7 @@
                     }
                 }
             },
-			"keypress; input": function(event){
+			"keypress; input[type='text']": function(event){
 				if (event.which === 13){
 					this.$el.trigger("DO_SEARCH");
 				}
