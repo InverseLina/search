@@ -39,7 +39,7 @@ public class SearchWebHandlers {
         }
         String orderCon = "";
         if(column!=null){
-        	orderCon = " order by " +column+" "+(("desc".equals(order))?"desc":"asc");
+        	orderCon = " order by  " +getOrderColumn(column)+ " " +(("desc".equals(order))?"desc":"asc");
         }
         // FIXME: needs to get the search map from request.
        // Map searchValues = MapUtil.mapIt("search",search);
@@ -67,5 +67,13 @@ public class SearchWebHandlers {
         }
         WebResponse wr = WebResponse.success(result);
         return wr;
+    }
+    
+    private String getOrderColumn(String originalName){
+    	if("Name".equalsIgnoreCase(originalName)||"Title".equalsIgnoreCase(originalName)){
+    		return "l"+originalName;
+    	}
+    	
+    	return originalName;
     }
 }

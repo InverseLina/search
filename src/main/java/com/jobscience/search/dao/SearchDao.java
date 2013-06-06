@@ -20,7 +20,7 @@ import com.jobscience.search.db.DBHelper;
 @Singleton
 public class SearchDao {
 
-    static private String QUERY_SELECT = "select distinct a.\"Name\" as Name, a.\"id\" as id, a.\"Title\" as Title,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate" + " from contact a ";
+    static private String QUERY_SELECT = "select distinct a.\"Name\" as Name,lower(a.\"Name\") as lName, a.\"id\" as id, a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate" + " from contact a ";
 
     static private String QUERY_COUNT  = "select count (distinct a.id)" + " from contact a ";
 
@@ -325,7 +325,7 @@ public class SearchDao {
         querySql.append(orderCon);
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         
-        log.debug(querySql);
+        log.info(querySql);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
