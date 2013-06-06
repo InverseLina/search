@@ -14,6 +14,7 @@
 				var view = this;
 				var $e = view.$el;
 				var $newSec = $(event.target).parent(".sec");
+                var oldMode = this.searchMode;
 				this.searchMode = $newSec.attr("data-search-mode");
 
 				var $oldSec = view.$el.find(".sec.sel");
@@ -34,12 +35,16 @@
                     }
                 }
                 var mainView = view.$el.bView("MainView");
-                if(this.searchMode == "simple"){
+                if(this.searchMode != oldMode){
                     var query = mainView.contentView.$el.find("input.search-query").val();
-                    if(/^\s*[^\s].+[^\s]\s*$/.test(query)){
+                    if(this.searchMode == 'simple'){
+                        if (/^\s*[^\s].+[^\s]\s*$/.test(query)) {
+                            view.$el.trigger("DO_SEARCH");
+                        } else {
+                            mainView.contentView.empty();
+                        }
+                    } else {
                         view.$el.trigger("DO_SEARCH");
-                    }else{
-                        mainView.contentView.empty();
                     }
                 }
             },
