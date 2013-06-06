@@ -58,6 +58,7 @@
             docEvents: {}
         });
 
+        // process the page info
         function calc(page) {
             page.pageCount = parseInt(page.totalCount/page.pageSize) ;
             if(page.totalCount % page.pageSize != 0 ) {
@@ -80,7 +81,7 @@
                 page.end_1 = page.pageCount - 1;
             }
         }
-
+    //redender and show page info
     function renderPage(pageIdx, pageSize, totalCount, callback) {
         var view = this;
         var page = view.page = {pageIdx: pageIdx, pageSize: pageSize, totalCount: totalCount, callback: callback};
