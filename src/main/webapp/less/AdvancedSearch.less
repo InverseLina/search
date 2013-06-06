@@ -3,46 +3,52 @@
 
 // --------- AdvancedSearch --------- //
 .AdvancedSearch .advancedItems{
-	list-style: none;
-}
+	margin-left:10px;
+	 li{
+			list-style: none;
+			margin-bottom:6px;
+	 }
+	 
+	 [type="checkbox"]{
+			margin-top: -1px;
+			margin-right: 5px;
+		}
 
-.AdvancedSearch .advancedItems [type="checkbox"]{
-	margin-top: -1px;
-	margin-right: 5px;
-}
-
-.AdvancedSearch .advancedItems .all span{
-	 font-weight: bold;
-	 margin-bottom:5px;
-}
-
-.AdvancedSearch .advancedItems label{
-	 color:#515151;
-}
-
-.AdvancedSearch .advancedItems .selected label{
-	 color:#bb732b;
-}
-
-.AdvancedSearch .advancedItems label span{
-     display:inline-block;
-     overflow: hidden;
-     white-space: nowrap;
-     text-overflow: ellipsis;
-     word-break: normal;
-     max-width: 180px;
-}
-
-.AdvancedSearch .advancedItems .selected label span{
-	 color:#bb732b;
-}
-
-.AdvancedSearch li.btns{
-	color:#2f67e0;
-	padding-left: 20px;
-	span{
-		cursor:pointer;
-		margin-right: 20px;
+	.all{
+		 margin-bottom:8px;
+		 span{
+		 		font-weight: bold;
+		 }
+	}
+	
+	label{
+	 	color:#515151;
+	 	span{
+	     display:inline-block;
+	     overflow: hidden;
+	     white-space: nowrap;
+	     text-overflow: ellipsis;
+	     word-break: normal;
+	     max-width: 180px;
+		}
+	}
+	
+	.selected{
+		label{
+	 		color:#b25c05;
+	 		span{
+				 color:#bb732b;
+			}
+	 	}
+	}
+	
+	li.btns{
+		color:#2f67e0;
+		padding-left: 20px;
+		span{
+			cursor:pointer;
+			margin-right: 20px;
+		}
 	}
 }
 // --------- /AdvancedSearch --------- //

@@ -18,7 +18,7 @@
 				 var $li = $(event.target).closest("li");
 				 var $ul = $li.parent("ul");
 				 if($li.hasClass("all")){
-					 $("li:gt(1)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
+					 $("li:gt(0)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
 				 }else{
 					 $("li:eq(0)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
 				 }
