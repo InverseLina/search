@@ -39,7 +39,7 @@
 				}
 			},
             "btap;.tableHeader span[data-action='popupColumns']":function(event){
-                brite.display("SelectColumns", "body", {top: event.pageY, left: event.pageX});
+                brite.display("SelectColumns", "body", {top: event.pageY + 40, left: event.pageX});
 			},
 
 			"keypress;.search-input":function(event){
@@ -123,7 +123,7 @@
     function getColWidth(){
         var view = this;
         var colLen = app.preference.columns().length;
-        return parseInt((view.$searchResult.innerWidth()-10)/colLen)-2;
+        return parseInt((view.$searchResult.innerWidth()-30)/colLen)-2;
     }
 	
 })(jQuery);

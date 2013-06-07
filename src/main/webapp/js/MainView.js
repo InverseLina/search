@@ -87,7 +87,7 @@
             view.contentView.loading();
             pageIdx = pageIdx||1;
             pageSize = pageSize||30;
-            searchDao.search(qParams,view.sideNav.searchMode,pageIdx,pageSize).always(function (result) {
+            searchDao.search(qParams,view.sideNav.searchMode,pageIdx,pageSize,app.preference.columns().join(",")).always(function (result) {
 	            result.callback = callback;
 	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
             });

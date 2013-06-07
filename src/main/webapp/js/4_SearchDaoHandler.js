@@ -12,12 +12,12 @@ var app = app || {};
 	 * @Param pageIdx, Int, the page index
 	 * @Param pageSize, Int, the page size
 	 */ 
-	SearchDaoHandler.prototype.search = function(qParams,mode,pageIdx,pageSize){
+	SearchDaoHandler.prototype.search = function(qParams,mode,pageIdx,pageSize, searchColumns){
 		var data = $.extend({},qParams);
 		data.searchMode = mode;
 		data.pageIdx = pageIdx;
 		data.pageSize = pageSize;
-        data.searchColumns = app.preference.columns().join(",");
+        data.searchColumns = searchColumns;
 		
 		return $.ajax({
 			type : "GET",
