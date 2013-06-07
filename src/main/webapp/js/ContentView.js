@@ -39,7 +39,10 @@
 				}
 			},
             "btap;.tableHeader span[data-action='popupColumns']":function(event){
-                brite.display("SelectColumns", "body", {top: event.pageY + 40, left: event.pageX});
+                view = this;
+                var pos = $(event.currentTarget).offset();
+                brite.display("SelectColumns", "body", {top: pos.top  + $(event.currentTarget).outerHeight() -2,
+                    left: pos.left -5});
 			},
 
 			"keypress;.search-input":function(event){

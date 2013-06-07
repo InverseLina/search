@@ -24,8 +24,8 @@
                 var bh = $("body").height();
                 var bw = $("body").width();
                 view.$el.show();
-                var pos = {top: data.top + view.$el.height() > bh ? bh - view.$el.height() -30 : data.top - 30,
-                           left: data.left + view.$el.width() > bw ? bw - view.$el.width() - 30 : data.left-30}
+                var pos = {top: data.top + view.$el.outerHeight() > bh ? bh - view.$el.height() -30 : data.top,
+                           left: data.left + view.$el.outerWidth() > bw ? bw - view.$el.width() - 30 : data.left}
                 view.$el.css(pos);
 
                 $(document).on("btap." + view.cid, function(event){
@@ -34,7 +34,6 @@
                     var pos = view.$el.position();
                     if(event.pageX > pos.left && event.pageY < pos.left + width
                         && event.pageY > pos.top && event.pageY < pos.top + height){
-                        //do nothing
                     }else{
                         view.$el.bRemove();
                         $(document).off("btap." + view.cid);
