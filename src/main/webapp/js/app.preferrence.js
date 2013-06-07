@@ -23,7 +23,7 @@ var app = app || {};
             document.cookie=key+"="+value;
         },
         get:function(key,defaultVal){
-            getCookie(key, defaultVal);
+            return getCookie(key, defaultVal);
         },
         columns:function(){
             var defaultColumns = "id,name,createdate,title";
