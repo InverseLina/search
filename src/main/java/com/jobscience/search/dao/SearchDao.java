@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,13 +62,21 @@ public class SearchDao {
      * @throws SQLException 
      */
     public List getTopMostEducation(Integer offset,Integer size) throws SQLException {
-        if(size == null){
-            size = 5;
-        }
+    	 if(size == null||size<6){
+             size = 6;
+         }
+         size = size-1;
+         offset = offset<0?0:offset;
         Connection con = dbHelper.getConnection();
         String querySql = "select e.\"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__education_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc offset "+offset+" limit "+size;
-        PreparedStatement prepareStatement =  dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
+        String countSqlForNoCompany = "select count(distinct c.\"id\") as count from ts2__education_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" ='' or  e.\"ts2__Name__c\" is null ";
+        PreparedStatement prepareStatement =  dbHelper.prepareStatement(con,countSqlForNoCompany);
+        List<Map> result = new ArrayList<Map>();
+        final int noCompanyCount =  dbHelper.preparedStatementExecuteCount(prepareStatement,  new Object[0]);
+        result.add(new HashMap(){{put("name", "No Education");put("count", noCompanyCount);}});
+       
+        prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        result.addAll(dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]));
         prepareStatement.close();
         con.close();
         return result;
@@ -79,19 +88,55 @@ public class SearchDao {
      * @throws SQLException 
      */
     public List getTopMostCompanies(Integer offset,Integer size) throws SQLException {
-        if(size == null){
-            size = 5;
+        if(size == null||size<6){
+            size = 6;
         }
+        size = size-1;
+        offset = offset<0?0:offset;
         Connection con = dbHelper.getConnection();
         String querySql = "select \"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__employment_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc offset "+offset+" limit "+size;
-        PreparedStatement prepareStatement =  dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
+        String countSqlForNoCompany = "select count(distinct c.\"id\") as count from ts2__employment_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" ='' or e.\"ts2__Name__c\" is null ";
+        PreparedStatement prepareStatement =dbHelper.prepareStatement(con, countSqlForNoCompany);
+        List<Map> result = new ArrayList<Map>();
+        final int noCompanyCount =  dbHelper.preparedStatementExecuteCount(prepareStatement,  new Object[0]);
+        result.add(new HashMap(){{put("name", "No Company");put("count", noCompanyCount);}});
+       
+        prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        result.addAll(dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]));
+       
         prepareStatement.close();
         con.close();
         return result;
     }
-
-    private String getQueryColumnName(String orginalName,StringBuilder joinTables){
+    
+    /**
+     * get skill top of the most contacts by size
+     * @param size
+     * @throws SQLException 
+     */
+    public List getTopMostSkills(Integer offset,Integer size) throws SQLException {
+        if(size == null||size<6){
+            size = 6;
+        }
+        size = size-1;
+        offset = offset<0?0:offset;
+        Connection con = dbHelper.getConnection();
+        String querySql = "select b.\"ts2__Skill_Name__c\" as name, count(distinct c.\"id\") as count  from contact c join ts2__skill__c b   on c.\"sfId\" = b.\"ts2__Contact__c\"   where b.\"ts2__Skill_Name__c\" !='' group by b.\"ts2__Skill_Name__c\"  order by count desc   offset "+offset+" limit "+size;
+        String countSqlForNoSkill = "select count(distinct c.\"id\") as count  from contact c join ts2__skill__c b   on c.\"sfId\" = b.\"ts2__Contact__c\"   where b.\"ts2__Skill_Name__c\" ='' or  b.\"ts2__Skill_Name__c\" is null ";
+        PreparedStatement prepareStatement =dbHelper.prepareStatement(con, countSqlForNoSkill);
+        List<Map> result = new ArrayList<Map>();
+        final int noCompanyCount =  dbHelper.preparedStatementExecuteCount(prepareStatement,  new Object[0]);
+        result.add(new HashMap(){{put("name", "No Skill");put("count", noCompanyCount);}});
+       
+        prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        result.addAll(dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]));
+       
+        prepareStatement.close();
+        con.close();
+        return result;
+    }
+    
+    private String getQueryColumnName(String orginalName,List<String> columnJoinTables,StringBuilder groupBy){
     	if(orginalName.toLowerCase().equals("name")){
     		return "a.\"Name\" as Name,lower(a.\"Name\") as lName";
     	}else if(orginalName.toLowerCase().equals("id")){
@@ -101,14 +146,26 @@ public class SearchDao {
     	}else if(orginalName.toLowerCase().equals("createdate")){
     		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate";
     	}else if(orginalName.toLowerCase().equals("company")){
-    		joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\"  ");
-    		return " c.\"ts2__Name__c\" as Company,lower(c.\"ts2__Name__c\") as lCompany";
+    		columnJoinTables.add(" left join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\"  ");
+    		if(groupBy.length()>0){
+    			groupBy.delete(0, groupBy.length());
+    		}
+    		groupBy.append(" a.\"id\" ");
+    		return " string_agg(c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as lCompany";
     	}else if(orginalName.toLowerCase().equals("skill")){
-    		joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
-    		return "b.\"ts2__Skill_Name__c\" as Skill,lower(b.\"ts2__Skill_Name__c\") as lSkill";
+    		columnJoinTables.add(" left  join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+    		if(groupBy.length()>0){
+    			groupBy.delete(0, groupBy.length());
+    		}
+    		groupBy.append(" a.\"id\" ");
+    		return "string_agg(b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as lSkill";
     	}else if(orginalName.toLowerCase().equals("education")){
-    		joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
-    		return "d.\"ts2__Name__c\" as Education,lower(d.\"ts2__Name__c\") as lEducation";
+    		columnJoinTables.add("  left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+    		if(groupBy.length()>0){
+    			groupBy.delete(0, groupBy.length());
+    		}
+    		groupBy.append(" a.\"id\" ");
+    		return "string_agg(d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as lEducation";
     	}
     	return orginalName;
     }
@@ -132,8 +189,12 @@ public class SearchDao {
         StringBuilder countSql = new StringBuilder();
         // the part of query that build join tables sql
         StringBuilder joinTables = new StringBuilder();
+        // the part of query that build join tables sql
+        List<String> columnJoinTables = new ArrayList<String>();
         // the part of query that build conditions sql
         StringBuilder conditions = new StringBuilder();
+        // the part of query that build group by sql
+        StringBuilder groupBy= new StringBuilder();
         // the params will be put in sql
         List values = new ArrayList();
         
@@ -146,7 +207,7 @@ public class SearchDao {
         	querySql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate");
         }else{
 	        for(String column:searchColumns.split(",")){
-	        	querySql.append(getQueryColumnName(column,joinTables));
+	        	querySql.append(getQueryColumnName(column,columnJoinTables,groupBy));
 	        	querySql.append(",");
 	        }
 	        querySql.deleteCharAt(querySql.length()-1);
@@ -280,6 +341,7 @@ public class SearchDao {
                 
                 if (searchValues.get("search") != null && !"".equals(searchValues.get("search"))) {
                     hasCondition = true;
+                    
                     String value = searchValues.get("search");
                     String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
                     String searchILike = value;
@@ -296,9 +358,11 @@ public class SearchDao {
                 if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
                     hasCondition = true;
                     String value = searchValues.get("educationNames");
-                    if(!"All Education".equals(value)){
+                    boolean noEducation = false;
+                    if(!"Any Education".equals(value)){
 	                    String[] educationNames = value.split(","); 
 	                    joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+	                    removeDuplicate(columnJoinTables,"ts2__education_history__c");
 	                    conditions.append(" and d.\"ts2__Name__c\" in ");
 	                    for(int i = 0; i < educationNames.length; i++){
 	                        if(i == 0){
@@ -310,7 +374,16 @@ public class SearchDao {
 	                        if(i == educationNames.length - 1){
 	                            conditions.append(")");
 	                        }
-	                        values.add(educationNames[i]);
+	                        
+	                        if(educationNames[i].equals("No Education")){
+	                        	noEducation = true;
+	                        	values.add("");
+	                        }else{
+	                        	values.add(educationNames[i]);
+	                        }
+	                    }
+	                    if(noEducation){
+	                    	conditions.append(" or d.\"ts2__Name__c\" is null");
 	                    }
                     }
                 }
@@ -319,9 +392,11 @@ public class SearchDao {
                 if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
                     hasCondition = true;
                     String value = searchValues.get("companyNames");
-                    if(!"All Company".equals(value)){
+                    boolean noCompany = false;
+                    if(!"Any Company".equals(value)){
 	                    String[] companyNames = value.split(","); 
 	                    joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+	                    removeDuplicate(columnJoinTables,"ts2__employment_history__c");
 	                    conditions.append(" and c.\"ts2__Name__c\" in ");
 	                    for(int i = 0; i < companyNames.length; i++){
 	                        if(i == 0){
@@ -333,18 +408,62 @@ public class SearchDao {
 	                        if(i == companyNames.length - 1){
 	                            conditions.append(")");
 	                        }
-	                        values.add(companyNames[i]);
+	                        if(companyNames[i].equals("No Company")){
+	                        	noCompany = true;
+	                        	values.add("");
+	                        }else{
+	                        	values.add(companyNames[i]);
+	                        }
+	                    }
+	                    if(noCompany){
+	                    	conditions.append(" or c.\"ts2__Name__c\" is null");
 	                    }
                     }
                 }
                 
-                
+                //add the 'skillNames' filter, and join Education table
+                if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
+                    hasCondition = true;
+                    String value = searchValues.get("skillNames");
+                    boolean noSkill = false;
+                    if(!"Any Skill".equals(value)){
+	                    String[] skillNames = value.split(","); 
+                        joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+                        removeDuplicate(columnJoinTables,"ts2__skill__c");
+                        conditions.append(" and b.\"ts2__Skill_Name__c\" in  ");
+	                    for(int i = 0; i < skillNames.length; i++){
+	                        if(i == 0){
+	                            conditions.append("(");
+	                        }else{
+	                            conditions.append(",");
+	                        }
+	                        conditions.append("?");
+	                        if(i == skillNames.length - 1){
+	                            conditions.append(")");
+	                        }
+	                        if(skillNames[i].equals("No Skill")){
+	                        	noSkill = true;
+	                        	values.add("");
+	                        }else{
+	                        	values.add(skillNames[i]);
+	                        }
+	                    }
+	                    if(noSkill){
+	                    	conditions.append(" or b.\"ts2__Skill_Name__c\" is null");
+	                    }
+                    }
+                }
             }
         }
         
         querySql.append(joinTables);
         countSql.append(joinTables);
-        
+        for(String join:columnJoinTables){
+        	if(!join.equals("No Join")){
+	        	querySql.append(join);
+	        	countSql.append(join);
+        	}
+        }
         if(hasCondition){
             String whereStr = " where 1=1 ";
             querySql.append(whereStr);
@@ -353,11 +472,14 @@ public class SearchDao {
         
         querySql.append(conditions);
         countSql.append(conditions);
+        if(!"".equals(groupBy.toString())){
+	        querySql.append(" group by "+groupBy);
+        }
         
         querySql.append(orderCon);
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         
-        log.info(querySql);
+        log.debug(querySql);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
@@ -365,7 +487,14 @@ public class SearchDao {
 
         return ss;
     }
-    
+
+    private void removeDuplicate(List<String> columnJoinTables,String tableName){
+    	for(int i=0,j=columnJoinTables.size();i<j;i++){
+    		if(columnJoinTables.get(i).contains(tableName)){
+    			columnJoinTables.set(i, "No Join");
+    		}
+    	}
+    }
 }
 
 

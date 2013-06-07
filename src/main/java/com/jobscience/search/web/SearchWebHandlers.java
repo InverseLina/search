@@ -66,6 +66,10 @@ public class SearchWebHandlers {
 	        List educations = searchDao.getTopMostEducation(offset,limit);
 	        result.put("educations", educations);
         }
+        if(type==null||"skill".equals(type)){
+	        List skills = searchDao.getTopMostSkills(offset,limit);
+	        result.put("skills", skills);
+        }
         WebResponse wr = WebResponse.success(result);
         return wr;
     }
