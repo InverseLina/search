@@ -10,6 +10,8 @@
 			view.$searchInput = view.$el.find(".search-input");
 			view.$searchResult = view.$el.find(".search-result");
 			view.$searchInfo = view.$el.find(".search-info");
+			view.tableOrderColumn = null;
+			view.tableOrderType = null;
 
 			view.$searchInput.on("keypress",function(event){
 				if (event.which === 13){
@@ -25,15 +27,18 @@
 				var $desc = $(".desc",$th);
 				var $asc = $(".asc",$th);
 				var column = $th.attr("data-column");
+				view.tableOrderColumn = column;
 				var bPagination = view.$el.bComponent("ContentView");
 				var pageIdx = bPagination.pageIdx||1;
 				var pageSize = bPagination.pageSize||30;
 				if($asc.is(":hidden")){
 					$(".desc,.asc",$th.parent()).hide();
 					$asc.show();
+					view.tableOrderType = "asc";
 					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH",{column:column,order:"asc",pageIdx:pageIdx,pageSize:pageSize});
 				}else{
 					$(".desc,.asc",$th.parent()).hide();
+					view.tableOrderType = "desc";
 					$desc.show();
 					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH",{column:column,order:"desc",pageIdx:pageIdx,pageSize:pageSize});
 				}
@@ -75,6 +80,7 @@
             MainView: {
                 "SEARCH_RESULT_CHANGE": function (event, result) {
                     var view = this;
+                    var $e = view.$el;
                     var html;
                     var htmlInfo = "Result size: " + result.count + " | Duration: " + result.duration + "ms";
                     htmlInfo += " (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)";
@@ -86,6 +92,12 @@
                         html = render("search-items", {items: buildResult(result.result),
                             colWidth:getColWidth.call(view)});
                         view.$searchResult.html(html);
+                        
+                        //show desc/asc
+                        if(view.tableOrderColumn && view.tableOrderType){
+                          $e.find(".tableHeader .row>div[data-column='"+view.tableOrderColumn+"']").find("."+view.tableOrderType).show();
+                        }
+                        
                         brite.display("Pagination",view.$el.find(".page"), {
                             pageIdx:result.pageIdx,
                             pageSize:result.pageSize,
