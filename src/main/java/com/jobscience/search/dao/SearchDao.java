@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.jobscience.search.db.DBHelper;
 
@@ -215,20 +216,25 @@ public class SearchDao {
         querySql.append(" from contact a ");
         
         if(searchValues!=null){
+           
+            // for all search mode, we preform the same condition
+            String search = searchValues.get("search");
+            if (!Strings.isNullOrEmpty(search)) {
+                hasCondition = true;
+                String value = search;
+                String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
+                String searchILike = value;
+                if (!searchILike.contains("%")) {
+                    searchILike = "%" + value + "%";
+                }
+                conditions.append(" and (a.resume_tsv @@ to_tsquery(?) or a.\"Title\" ilike ? or a.\"Name\" ilike ? )");
+                values.add(searchTsq);
+                values.add(searchILike);
+                values.add(searchILike);                
+            }
+
             //keyword mode, use ilike search
             if(searchMode == SearchMode.KEYWORD){
-                
-                //add the 'search' filter
-                if (searchValues.get("search") != null && !"".equals(searchValues.get("search"))) {
-                    hasCondition = true;
-                    String value = searchValues.get("search");
-                    conditions.append(" and ( a.\"Name\" ilike ? or a.\"Title\" ilike ?) ");
-                    if(!value.contains("%")){
-                        value = "%" + value + "%";
-                    }
-                    values.add(value);
-                    values.add(value);
-                }
 
                 //add the 'FirstName' filter
                 if (searchValues.get("FirstName") != null && !"".equals(searchValues.get("FirstName"))) {
@@ -326,34 +332,8 @@ public class SearchDao {
                 
             // the simple mode, use full text search
             }else if(searchMode == SearchMode.SIMPLE){
-                hasCondition = true;
-                String value = searchValues.get("search");
-                String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
-                String searchILike = value;
-                if (!searchILike.contains("%")) {
-                    searchILike = "%" + value + "%";
-                }
-                conditions.append(" and (a.resume_tsv @@ to_tsquery(?) or a.\"Title\" ilike ? or a.\"Name\" ilike ? )");
-                values.add(searchTsq);
-                values.add(searchILike);
-                values.add(searchILike);
+                // already in the query
             }else if(searchMode == SearchMode.ADVANCED){
-                
-                if (searchValues.get("search") != null && !"".equals(searchValues.get("search"))) {
-                    hasCondition = true;
-                    
-                    String value = searchValues.get("search");
-                    String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
-                    String searchILike = value;
-                    if (!searchILike.contains("%")) {
-                        searchILike = "%" + value + "%";
-                    }
-                    conditions.append(" and (a.resume_tsv @@ to_tsquery(?) or a.\"Title\" ilike ? or a.\"Name\" ilike ? )");
-                    values.add(searchTsq);
-                    values.add(searchILike);
-                    values.add(searchILike);
-                }
-                
                 //add the 'educationNames' filter, and join Education table
                 if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
                     hasCondition = true;
