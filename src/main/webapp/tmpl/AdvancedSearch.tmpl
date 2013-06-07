@@ -2,24 +2,24 @@
 <div class="AdvancedSearch">
 	<div>
 		<ul class="advancedItems company">
-    	<li class="all" data-name="ALL"><label><input type="checkbox"/><span>All company</span></label></li>
+    	<li class="all" data-name="ALL"><label><input type="checkbox"/><span>Any Company</span></label></li>
     	{{#each companies}}
     	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
     	{{/each}}
     	<li class="btns">
     		<span data-show="more"><i class="icon-arrow-down" ></i>more</span>
-    		<span class="{{hide companies 5}} " data-show="less"><i class="icon-arrow-up" data-show="less"></i>less<span>
+    		<span class="{{hide companies 6}} " data-show="less"><i class="icon-arrow-up" data-show="less"></i>less<span>
     	</li>
     </ul>
     
     <ul class="advancedItems education">
-    	<li class="all"  data-name="ALL"><label><input type="checkbox"/><span>All Education</span></label></li>
+    	<li class="all"  data-name="ALL"><label><input type="checkbox"/><span>Any Education</span></label></li>
     	{{#each educations}}
     	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
     	{{/each}}
     	<li class="btns">
     		<span data-show="more"><i class="icon-arrow-down" ></i>more</span>
-    		<span class="{{hide educations 5}} " data-show="less"><i class="icon-arrow-up" data-show="less"></i>less<span>
+    		<span class="{{hide educations 6}} " data-show="less"><i class="icon-arrow-up" data-show="less"></i>less<span>
     	</li>
     </ul>
 	</div>

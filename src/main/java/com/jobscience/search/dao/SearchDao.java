@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,13 +62,21 @@ public class SearchDao {
      * @throws SQLException 
      */
     public List getTopMostEducation(Integer offset,Integer size) throws SQLException {
-        if(size == null){
-            size = 5;
-        }
+    	 if(size == null||size<6){
+             size = 6;
+         }
+         size = size-1;
+         offset = offset<0?0:offset;
         Connection con = dbHelper.getConnection();
         String querySql = "select e.\"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__education_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc offset "+offset+" limit "+size;
-        PreparedStatement prepareStatement =  dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
+        String countSqlForNoCompany = "select count(distinct c.\"id\") as count from ts2__education_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" ='' or  e.\"ts2__Name__c\" is null ";
+        PreparedStatement prepareStatement =  dbHelper.prepareStatement(con,countSqlForNoCompany);
+        List<Map> result = new ArrayList<Map>();
+        final int noCompanyCount =  dbHelper.preparedStatementExecuteCount(prepareStatement,  new Object[0]);
+        result.add(new HashMap(){{put("name", "No Education");put("count", noCompanyCount);}});
+       
+        prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        result.addAll(dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]));
         prepareStatement.close();
         con.close();
         return result;
@@ -79,13 +88,22 @@ public class SearchDao {
      * @throws SQLException 
      */
     public List getTopMostCompanies(Integer offset,Integer size) throws SQLException {
-        if(size == null){
-            size = 5;
+        if(size == null||size<6){
+            size = 6;
         }
+        size = size-1;
+        offset = offset<0?0:offset;
         Connection con = dbHelper.getConnection();
         String querySql = "select \"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__employment_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc offset "+offset+" limit "+size;
-        PreparedStatement prepareStatement =  dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
+        String countSqlForNoCompany = "select count(distinct c.\"id\") as count from ts2__employment_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" ='' or e.\"ts2__Name__c\" is null ";
+        PreparedStatement prepareStatement =dbHelper.prepareStatement(con, countSqlForNoCompany);
+        List<Map> result = new ArrayList<Map>();
+        final int noCompanyCount =  dbHelper.preparedStatementExecuteCount(prepareStatement,  new Object[0]);
+        result.add(new HashMap(){{put("name", "No Company");put("count", noCompanyCount);}});
+       
+        prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        result.addAll(dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]));
+       
         prepareStatement.close();
         con.close();
         return result;
@@ -280,6 +298,7 @@ public class SearchDao {
                 
                 if (searchValues.get("search") != null && !"".equals(searchValues.get("search"))) {
                     hasCondition = true;
+                    
                     String value = searchValues.get("search");
                     String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
                     String searchILike = value;
@@ -296,7 +315,8 @@ public class SearchDao {
                 if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
                     hasCondition = true;
                     String value = searchValues.get("educationNames");
-                    if(!"All Education".equals(value)){
+                    boolean noEducation = false;
+                    if(!"Any Education".equals(value)){
 	                    String[] educationNames = value.split(","); 
 	                    joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
 	                    conditions.append(" and d.\"ts2__Name__c\" in ");
@@ -310,7 +330,16 @@ public class SearchDao {
 	                        if(i == educationNames.length - 1){
 	                            conditions.append(")");
 	                        }
-	                        values.add(educationNames[i]);
+	                        
+	                        if(educationNames[i].equals("No Education")){
+	                        	noEducation = true;
+	                        	values.add("");
+	                        }else{
+	                        	values.add(educationNames[i]);
+	                        }
+	                    }
+	                    if(noEducation){
+	                    	conditions.append(" or d.\"ts2__Name__c\" is null");
 	                    }
                     }
                 }
@@ -319,7 +348,8 @@ public class SearchDao {
                 if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
                     hasCondition = true;
                     String value = searchValues.get("companyNames");
-                    if(!"All Company".equals(value)){
+                    boolean noCompany = false;
+                    if(!"Any Company".equals(value)){
 	                    String[] companyNames = value.split(","); 
 	                    joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
 	                    conditions.append(" and c.\"ts2__Name__c\" in ");
@@ -333,7 +363,15 @@ public class SearchDao {
 	                        if(i == companyNames.length - 1){
 	                            conditions.append(")");
 	                        }
-	                        values.add(companyNames[i]);
+	                        if(companyNames[i].equals("No Company")){
+	                        	noCompany = true;
+	                        	values.add("");
+	                        }else{
+	                        	values.add(companyNames[i]);
+	                        }
+	                    }
+	                    if(noCompany){
+	                    	conditions.append(" or c.\"ts2__Name__c\" is null");
 	                    }
                     }
                 }

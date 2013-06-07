@@ -21,7 +21,12 @@
 				 if($li.hasClass("all")){
 					 $("li:gt(0)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
 				 }else{
-					 $("li:eq(0)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
+					 if($li.prev().hasClass("all")){
+						 $("li:eq(0)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
+						 $("li:gt(1)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
+					 }else{
+						 $("li:lt(2)",$ul).removeClass("selected").find(":checkbox").prop("checked",false);
+					 }
 				 }
 				 
 				 if($li.hasClass("selected")){
@@ -103,6 +108,9 @@
 	     }
 	   });
 	   
+	   if(companyALL){
+		   companyStr="Any Company";
+	   }
 	   
 	   var educationALL = $educationContainer.find("li[data-name='ALL']").hasClass("selected");
 	   var educationStr = "";
@@ -118,6 +126,9 @@
   	     educationStr += value;
 	     }
 	   });
+	   if(educationALL){
+		   educationStr="Any Education";
+	   }
 	   return {companyNames:companyStr,educationNames:educationStr};
 	 }
 	});
