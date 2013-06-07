@@ -17,6 +17,7 @@ var app = app || {};
 		data.searchMode = mode;
 		data.pageIdx = pageIdx;
 		data.pageSize = pageSize;
+        data.searchColumns = app.preference.columns().join(",");
 		
 		return $.ajax({
 			type : "GET",

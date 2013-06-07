@@ -1,0 +1,13 @@
+<script id="SelectColumns" type="text/html">
+<div class="SelectColumns" >
+     <ul>
+         {{#each columns}}
+            <li>
+                <label class="checkbox">
+                  <input type="checkbox" value="{{name}}" />{{display}}
+                </label>
+            </li>
+         {{/each}}
+     </ul>
+</div>
+</script>

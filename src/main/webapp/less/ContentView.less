@@ -43,44 +43,40 @@
 
     .table  {
       position:relative;
+      display: table;
       height: 100%;
       margin-top: 5px;
       .row{
         position:relative;
+        display: table-row;
         height: 30px;
         margin:0px;
         .desc{
-					width:auto;     
-					display:none;   
+			width:auto;
+			display:none;
         }
         .asc{
         	width:auto;
         	display:none;
         }
         >div{
-          position:absolute;
-          top:0px;
-          bottom:0px;
+          display: table-cell;
           padding-top: 5px;
           padding-left: 10px;
           border-bottom: 1px solid #dddddd;
+          min-width: 150px;
           overflow: hidden;
         }
-        >div:first-child{
-          left:0px;
+
+        >div:nth-child(1) {
           width:80px;
+          min-width: 80px;
         }
-        >div:nth-child(2){
-          left:80.01px;
-          width: 200px;
-        }
-        >div:nth-child(3){
-          left:280.01px;
-          width: 110px;
-        }
-        >div:nth-child(4){
-          left:390.01px;
-          right:0px;
+
+
+        >div:last-of-type {
+          width: 100%;
+
         }
       }
 
@@ -105,6 +101,14 @@
           background: #DDD;
           font-weight: bold;
           cursor:pointer;
+        }
+        span[data-action='popupColumns']{
+          position: absolute;
+          width: 36px;
+          right: 1px; top: 1px; bottom: 1px;
+          font-size: 20px;
+          background: #cbcbcb;
+          color: #ffffff;
         }
 
       }

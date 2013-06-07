@@ -1,12 +1,16 @@
 <script id="search-items" type="text/html">
-  {{#each items}}
-      <div class="row">
-          <div>{{id}}</div>
-          <div><span>{{name}}</span></div>
-          <div><span>{{createdate}}</span></div>
-          <div><span>{{title}}</span></div>
-      </div>
-  {{/each}}
+    <div class="table">
+      {{{colHeader "search-items-header"}}}
+        <div class='tableBody'>
+          {{#each items}}
+              <div class="row">
+                  {{#each row}}
+                      <div><span>{{this}}</span></div>
+                  {{/each}}
+              </div>
+          {{/each}}
+        </div>
+    </div>
 </script>
 <script id="search-query-error" type="text/html">
   <div class="alert alert-block alert-error fade in">
@@ -16,7 +20,7 @@
 
 <script id="search-empty" type="text/html">
     <div class="table">
-        {{{incl "search-items-header"}}}
+        {{{colHeader "search-items-header"}}}
         <div class='tableBody'>
             <div class="empty-search"><span>Enter Search Criteria</span></div>
         </div>
@@ -30,16 +34,16 @@
 <script id="search-items-header" type="text/html">
     <div class="tableHeader ">
         <div class="row">
-            <div data-column="Id">ID<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
-            <div data-column="Name">Name<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
-            <div data-column="CreateDate">Create Date<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
-            <div data-column="Title">Title<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
+          {{#each displayColumns}}
+            <div data-column="{{name}}">{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
+          {{/each}}
+            <span data-action="popupColumns" class="btn">+</span>
         </div>
     </div>
 </script>
 <script id="search-query-notfound" type="text/html">
     <div class="table">
-      {{{incl "search-items-header"}}}
+      {{{colHeader "search-items-header"}}}
         <div class='tableBody'>
             <div class="alert alert-block alert-info fade in">
                 <strong>Nothing found,</strong> please change search criteria and retry

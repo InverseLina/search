@@ -31,6 +31,15 @@
 	 		doSearch.call(this,opts);	
 	 	}
 	 },
+     docEvents: {
+         "DO_SET_COLUMNS":function(event, extra){
+             var view = this;
+             if(extra.columns && extra.columns.length > 0){
+                 app.preference.columns(extra.columns);
+                 view.$el.trigger("DO_SEARCH");
+             }
+         }
+     },
 	 getSearchMode:function(){
 	   var view = this;
 	   var searchMode = view.$el.bFindComponents("SideNav")[0].searchMode;
@@ -45,7 +54,10 @@
         var valCount = 0;
         var isValid = true;
         var contentSearchValues = view.contentView.getSearchValues();
-        var navContectSearchValues = view.sideNav.getSearchValues();
+        var navContectSearchValues = {};
+        if(view.sideNav) {
+           navContectSearchValues = view.sideNav.getSearchValues();
+        }
         var searchValues = $.extend({},contentSearchValues ,navContectSearchValues );
         // just add the "q_"
         var qParams = {};

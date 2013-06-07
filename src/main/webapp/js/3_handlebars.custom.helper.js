@@ -71,4 +71,26 @@
     		return new Handlebars.SafeString("");
     	}
     });
+
+    Handlebars.registerHelper('colHeader', function(template,options) {
+        var columns = app.preference.columns();
+        var displays = [];
+        $.each(app.preference.displayColumns, function(idx, item){
+            if(IsContain(columns, item.name)){
+                displays.push(item);
+            }
+        });
+        var html = Handlebars.templates[template]({displayColumns:displays});
+        return html;
+    });
+
+    function IsContain(arr,value)
+    {
+        for(var i=0;i<arr.length;i++)
+        {
+            if(arr[i]==value)
+                return true;
+        }
+        return false;
+    }
 })(jQuery);
