@@ -110,7 +110,7 @@ public class SearchDao {
     }
     
     /**
-     * get company top of the most contacts by size
+     * get skill top of the most contacts by size
      * @param size
      * @throws SQLException 
      */
@@ -136,7 +136,7 @@ public class SearchDao {
         return result;
     }
     
-    private String getQueryColumnName(String orginalName,StringBuilder joinTables){
+    private String getQueryColumnName(String orginalName,StringBuilder joinTables,StringBuilder groupBy){
     	if(orginalName.toLowerCase().equals("name")){
     		return "a.\"Name\" as Name,lower(a.\"Name\") as lName";
     	}else if(orginalName.toLowerCase().equals("id")){
@@ -146,14 +146,17 @@ public class SearchDao {
     	}else if(orginalName.toLowerCase().equals("createdate")){
     		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate";
     	}else if(orginalName.toLowerCase().equals("company")){
-    		joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\"  ");
-    		return " c.\"ts2__Name__c\" as Company,lower(c.\"ts2__Name__c\") as lCompany";
+    		joinTables.append(" left join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\"  ");
+    		groupBy.append(" a.\"id\" ");
+    		return " string_agg(c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as lCompany";
     	}else if(orginalName.toLowerCase().equals("skill")){
-    		joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
-    		return "b.\"ts2__Skill_Name__c\" as Skill,lower(b.\"ts2__Skill_Name__c\") as lSkill";
+    		joinTables.append(" left join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+    		groupBy.append(" a.\"id\" ");
+    		return "string_agg(b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as lSkill";
     	}else if(orginalName.toLowerCase().equals("education")){
-    		joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
-    		return "d.\"ts2__Name__c\" as Education,lower(d.\"ts2__Name__c\") as lEducation";
+    		joinTables.append(" left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+    		groupBy.append(" a.\"id\" ");
+    		return "string_agg(d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as lEducation";
     	}
     	return orginalName;
     }
@@ -179,6 +182,8 @@ public class SearchDao {
         StringBuilder joinTables = new StringBuilder();
         // the part of query that build conditions sql
         StringBuilder conditions = new StringBuilder();
+        // the part of query that build group by sql
+        StringBuilder groupBy= new StringBuilder();
         // the params will be put in sql
         List values = new ArrayList();
         
@@ -191,7 +196,7 @@ public class SearchDao {
         	querySql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate");
         }else{
 	        for(String column:searchColumns.split(",")){
-	        	querySql.append(getQueryColumnName(column,joinTables));
+	        	querySql.append(getQueryColumnName(column,joinTables,groupBy));
 	        	querySql.append(",");
 	        }
 	        querySql.deleteCharAt(querySql.length()-1);
@@ -439,7 +444,6 @@ public class SearchDao {
         
         querySql.append(joinTables);
         countSql.append(joinTables);
-        
         if(hasCondition){
             String whereStr = " where 1=1 ";
             querySql.append(whereStr);
@@ -448,6 +452,10 @@ public class SearchDao {
         
         querySql.append(conditions);
         countSql.append(conditions);
+        if(!"".equals(groupBy.toString())){
+	        querySql.append(" group by "+groupBy);
+	        countSql.append(" group by "+groupBy);
+        }
         
         querySql.append(orderCon);
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
