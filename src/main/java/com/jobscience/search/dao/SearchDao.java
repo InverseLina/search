@@ -136,7 +136,7 @@ public class SearchDao {
         return result;
     }
     
-    private String getQueryColumnName(String orginalName,StringBuilder joinTables,StringBuilder groupBy){
+    private String getQueryColumnName(String orginalName,List<String> columnJoinTables,StringBuilder groupBy){
     	if(orginalName.toLowerCase().equals("name")){
     		return "a.\"Name\" as Name,lower(a.\"Name\") as lName";
     	}else if(orginalName.toLowerCase().equals("id")){
@@ -146,15 +146,24 @@ public class SearchDao {
     	}else if(orginalName.toLowerCase().equals("createdate")){
     		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate";
     	}else if(orginalName.toLowerCase().equals("company")){
-    		joinTables.append(" left join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\"  ");
+    		columnJoinTables.add(" left join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\"  ");
+    		if(groupBy.length()>0){
+    			groupBy.delete(0, groupBy.length());
+    		}
     		groupBy.append(" a.\"id\" ");
     		return " string_agg(c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as lCompany";
     	}else if(orginalName.toLowerCase().equals("skill")){
-    		joinTables.append(" left join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+    		columnJoinTables.add(" left  join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+    		if(groupBy.length()>0){
+    			groupBy.delete(0, groupBy.length());
+    		}
     		groupBy.append(" a.\"id\" ");
     		return "string_agg(b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as lSkill";
     	}else if(orginalName.toLowerCase().equals("education")){
-    		joinTables.append(" left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+    		columnJoinTables.add("  left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+    		if(groupBy.length()>0){
+    			groupBy.delete(0, groupBy.length());
+    		}
     		groupBy.append(" a.\"id\" ");
     		return "string_agg(d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as lEducation";
     	}
@@ -180,6 +189,8 @@ public class SearchDao {
         StringBuilder countSql = new StringBuilder();
         // the part of query that build join tables sql
         StringBuilder joinTables = new StringBuilder();
+        // the part of query that build join tables sql
+        List<String> columnJoinTables = new ArrayList<String>();
         // the part of query that build conditions sql
         StringBuilder conditions = new StringBuilder();
         // the part of query that build group by sql
@@ -196,7 +207,7 @@ public class SearchDao {
         	querySql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate");
         }else{
 	        for(String column:searchColumns.split(",")){
-	        	querySql.append(getQueryColumnName(column,joinTables,groupBy));
+	        	querySql.append(getQueryColumnName(column,columnJoinTables,groupBy));
 	        	querySql.append(",");
 	        }
 	        querySql.deleteCharAt(querySql.length()-1);
@@ -351,6 +362,7 @@ public class SearchDao {
                     if(!"Any Education".equals(value)){
 	                    String[] educationNames = value.split(","); 
 	                    joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+	                    removeDuplicate(columnJoinTables,"ts2__education_history__c");
 	                    conditions.append(" and d.\"ts2__Name__c\" in ");
 	                    for(int i = 0; i < educationNames.length; i++){
 	                        if(i == 0){
@@ -384,6 +396,7 @@ public class SearchDao {
                     if(!"Any Company".equals(value)){
 	                    String[] companyNames = value.split(","); 
 	                    joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+	                    removeDuplicate(columnJoinTables,"ts2__employment_history__c");
 	                    conditions.append(" and c.\"ts2__Name__c\" in ");
 	                    for(int i = 0; i < companyNames.length; i++){
 	                        if(i == 0){
@@ -415,8 +428,9 @@ public class SearchDao {
                     boolean noSkill = false;
                     if(!"Any Skill".equals(value)){
 	                    String[] skillNames = value.split(","); 
-	                    joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
-	                    conditions.append(" and b.\"ts2__Skill_Name__c\" in  ");
+                        joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+                        removeDuplicate(columnJoinTables,"ts2__skill__c");
+                        conditions.append(" and b.\"ts2__Skill_Name__c\" in  ");
 	                    for(int i = 0; i < skillNames.length; i++){
 	                        if(i == 0){
 	                            conditions.append("(");
@@ -444,6 +458,12 @@ public class SearchDao {
         
         querySql.append(joinTables);
         countSql.append(joinTables);
+        for(String join:columnJoinTables){
+        	if(!join.equals("No Join")){
+	        	querySql.append(join);
+	        	countSql.append(join);
+        	}
+        }
         if(hasCondition){
             String whereStr = " where 1=1 ";
             querySql.append(whereStr);
@@ -454,7 +474,6 @@ public class SearchDao {
         countSql.append(conditions);
         if(!"".equals(groupBy.toString())){
 	        querySql.append(" group by "+groupBy);
-	        countSql.append(" group by "+groupBy);
         }
         
         querySql.append(orderCon);
@@ -468,7 +487,14 @@ public class SearchDao {
 
         return ss;
     }
-    
+
+    private void removeDuplicate(List<String> columnJoinTables,String tableName){
+    	for(int i=0,j=columnJoinTables.size();i<j;i++){
+    		if(columnJoinTables.get(i).contains(tableName)){
+    			columnJoinTables.set(i, "No Join");
+    		}
+    	}
+    }
 }
 
 
