@@ -357,7 +357,7 @@ public class SearchDao {
         querySql.append(orderCon);
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         
-        log.info(querySql);
+        log.debug(querySql);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
