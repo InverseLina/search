@@ -26,11 +26,14 @@
 				if(this.searchMode=="advanced"){
                     if ($e.find(".AdvancedSearch").size() == 0) {
                         $e.find("div.sec .advanced").html(render("SideNav-advanced-loading"));
-                        searchDao.getAdvancedMenu({type:"company",limit:app.preference.get("company",5)}).always(function (result) {
+                        searchDao.getAdvancedMenu({type:"company",limit:app.preference.get("company",6)}).always(function (result) {
                              var companies = result.companies;
-                             searchDao.getAdvancedMenu({type:"education",limit:app.preference.get("education",5)}).always(function (res) {
+                             searchDao.getAdvancedMenu({type:"education",limit:app.preference.get("education",6)}).always(function (res) {
                                  var educations = res.educations;
-                                 brite.display("AdvancedSearch", $("div.advanced", $newSec), {companies: companies, educations: educations});
+                                 searchDao.getAdvancedMenu({type:"skill",limit:app.preference.get("skill",6)}).always(function (data) {
+                                     var skills = data.skills;
+                                     brite.display("AdvancedSearch", $("div.advanced", $newSec), {skills:skills,companies: companies, educations: educations});
+                                 });
                              });
                        });
                     }

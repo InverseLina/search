@@ -108,7 +108,34 @@ public class SearchDao {
         con.close();
         return result;
     }
-
+    
+    /**
+     * get company top of the most contacts by size
+     * @param size
+     * @throws SQLException 
+     */
+    public List getTopMostSkills(Integer offset,Integer size) throws SQLException {
+        if(size == null||size<6){
+            size = 6;
+        }
+        size = size-1;
+        offset = offset<0?0:offset;
+        Connection con = dbHelper.getConnection();
+        String querySql = "select b.\"ts2__Skill_Name__c\" as name, count(distinct c.\"id\") as count  from contact c join ts2__skill__c b   on c.\"sfId\" = b.\"ts2__Contact__c\"   where b.\"ts2__Skill_Name__c\" !='' group by b.\"ts2__Skill_Name__c\"  order by count desc   offset "+offset+" limit "+size;
+        String countSqlForNoSkill = "select count(distinct c.\"id\") as count  from contact c join ts2__skill__c b   on c.\"sfId\" = b.\"ts2__Contact__c\"   where b.\"ts2__Skill_Name__c\" ='' or  b.\"ts2__Skill_Name__c\" is null ";
+        PreparedStatement prepareStatement =dbHelper.prepareStatement(con, countSqlForNoSkill);
+        List<Map> result = new ArrayList<Map>();
+        final int noCompanyCount =  dbHelper.preparedStatementExecuteCount(prepareStatement,  new Object[0]);
+        result.add(new HashMap(){{put("name", "No Skill");put("count", noCompanyCount);}});
+       
+        prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        result.addAll(dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]));
+       
+        prepareStatement.close();
+        con.close();
+        return result;
+    }
+    
     private String getQueryColumnName(String orginalName,StringBuilder joinTables){
     	if(orginalName.toLowerCase().equals("name")){
     		return "a.\"Name\" as Name,lower(a.\"Name\") as lName";
@@ -376,7 +403,37 @@ public class SearchDao {
                     }
                 }
                 
-                
+                //add the 'skillNames' filter, and join Education table
+                if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
+                    hasCondition = true;
+                    String value = searchValues.get("skillNames");
+                    boolean noSkill = false;
+                    if(!"Any Skill".equals(value)){
+	                    String[] skillNames = value.split(","); 
+	                    joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+	                    conditions.append(" and b.\"ts2__Skill_Name__c\" in  ");
+	                    for(int i = 0; i < skillNames.length; i++){
+	                        if(i == 0){
+	                            conditions.append("(");
+	                        }else{
+	                            conditions.append(",");
+	                        }
+	                        conditions.append("?");
+	                        if(i == skillNames.length - 1){
+	                            conditions.append(")");
+	                        }
+	                        if(skillNames[i].equals("No Skill")){
+	                        	noSkill = true;
+	                        	values.add("");
+	                        }else{
+	                        	values.add(skillNames[i]);
+	                        }
+	                    }
+	                    if(noSkill){
+	                    	conditions.append(" or b.\"ts2__Skill_Name__c\" is null");
+	                    }
+                    }
+                }
             }
         }
         
