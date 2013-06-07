@@ -123,7 +123,7 @@
     function getColWidth(){
         var view = this;
         var colLen = app.preference.columns().length;
-        return parseInt(view.$searchResult.innerWidth()/colLen);
+        return parseInt((view.$searchResult.innerWidth()-10)/colLen)-2;
     }
 	
 })(jQuery);
