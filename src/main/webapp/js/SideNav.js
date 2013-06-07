@@ -38,14 +38,18 @@
                 var mainView = view.$el.bView("MainView");
                 if(this.searchMode != oldMode){
                     var query = mainView.contentView.$el.find("input.search-query").val();
-                    if(this.searchMode == 'simple'){
-                        if (/^\s*[^\s].+[^\s]\s*$/.test(query)) {
-                            view.$el.trigger("DO_SEARCH");
-                        } else {
-                            mainView.contentView.empty();
-                        }
-                    } else {
+                    if (/^\s*[^\s].+[^\s]\s*$/.test(query)) {
                         view.$el.trigger("DO_SEARCH");
+                    }else{
+                        if(this.searchMode == 'simple'){
+                            mainView.contentView.empty();
+                        } else{
+                           if(!$.isEmptyObject(this.getSearchValues())){
+                               view.$el.trigger("DO_SEARCH");
+                            }else{
+                               mainView.contentView.empty();
+                           }
+                        }
                     }
                 }
             },
@@ -62,28 +66,33 @@
 			if (view.searchMode === "simple"){
 				// when simple mode, return nothing.
 				return null;
-			}else if (view.searchMode === "keyword"){
-				var values = {};
-				//get input values
-        view.$el.find(".keyword-form input[type='text']").each(function() {
-          var $input = $(this);
-          var name = $input.attr("name");
-          var val = $input.val();
-          values[name] = val;
-        });
-        //get checkbox values
-        view.$el.find(".keyword-form input[type='checkbox']:checked").each(function() {
-          var $input = $(this);
-          var name = $input.attr("name");
-          var val = $input.val();
-          values[name] = val;
-        });
+            } else if (view.searchMode === "keyword") {
+                var values = {};
+                //get input values
+                view.$el.find(".keyword-form input[type='text']").each(function () {
+                    var $input = $(this);
+                    var name = $input.attr("name");
+                    var val = $input.val();
+                    values[name] = val;
+                });
+                //get checkbox values
+                view.$el.find(".keyword-form input[type='checkbox']:checked").each(function () {
+                    var $input = $(this);
+                    var name = $input.attr("name");
+                    var val = $input.val();
+                    values[name] = val;
+                });
 
-        return values;
-			}else if (view.searchMode === "advanced"){
-				return $e.bFindComponents("AdvancedSearch")[0].getSearchValues();
-			}
-		}
+                return values;
+            } else if (view.searchMode === "advanced") {
+                var advancedView = $e.bFindComponents("AdvancedSearch");
+                if (advancedView.length > 0){
+                    return advancedView[0].getSearchValues();
+                }else{
+                    return {};
+                }
+            }
+        }
 	});
 	
 })(jQuery);

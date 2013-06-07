@@ -16,7 +16,6 @@
             postDisplay: function (data) {
                 var view = this;
                 if(data.totalCount>0){
-
                   renderPage.call(view, data.pageIdx||1, data.pageSize||10, data.totalCount, data.callback);
                 }
             },
@@ -84,11 +83,13 @@
     //redender and show page info
     function renderPage(pageIdx, pageSize, totalCount, callback) {
         var view = this;
-        var page = view.page = {pageIdx: pageIdx, pageSize: pageSize, totalCount: totalCount, callback: callback};
-        calc(view.page);
-        var html = render("Pagination-detail", page);
-        view.$el.empty().append(html);
-        view.$el.find("select").val(page.pageSize);
+        if(view.$el){
+            var page = view.page = {pageIdx: pageIdx, pageSize: pageSize, totalCount: totalCount, callback: callback};
+            calc(view.page);
+            var html = render("Pagination-detail", page);
+            view.$el.empty().append(html);
+            view.$el.find("select").val(page.pageSize);
+        }
     }
 
 })(jQuery);
