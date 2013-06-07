@@ -43,14 +43,16 @@
 
     .table  {
       position:relative;
-      display: table;
+//      display: table;
       height: 100%;
       margin-top: 5px;
       .row{
         position:relative;
-        display: table-row;
+//        display: table-row;
         height: 30px;
         margin:0px;
+        width:100%;
+        border-bottom: 1px solid #dddddd;
         .desc{
 			width:auto;
 			display:none;
@@ -60,24 +62,14 @@
         	display:none;
         }
         >div{
-          display: table-cell;
+//          display: table-cell;
           padding-top: 5px;
           padding-left: 10px;
-          border-bottom: 1px solid #dddddd;
-          min-width: 150px;
+
           overflow: hidden;
+          float:left;
         }
 
-        >div:nth-child(1) {
-          width:80px;
-          min-width: 80px;
-        }
-
-
-        >div:last-of-type {
-          width: 100%;
-
-        }
       }
 
       .row>div span{
@@ -97,8 +89,11 @@
         right:0;
         top:0;
         height:30px;
-        .row > div {
+        .row {
           background: #DDD;
+        }
+        .row > div {
+
           font-weight: bold;
           cursor:pointer;
         }
@@ -148,6 +143,14 @@
         width: 300px;
         margin-left: -150px;
       }
+
+      .row>div[data-column='id']{
+        max-width: 80px;
+      }
+/*      .row>div:last-of-type {
+         position: absolute;
+         right: 0;
+      }*/
     }
 
   }

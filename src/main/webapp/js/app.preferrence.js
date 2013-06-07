@@ -17,7 +17,7 @@ var app = app || {};
 
     var displayColumns = [{name:"id", display:"ID"},{name:"name", display:"Name"},{name:"createdate",display:"Create Date"}
         ,{name:"title",display:"Title"}, {name:"company",display:"Company"}
-        ,{name:"skills",display:"Skills"},{name:"education",display:"Education"}];
+        ,{name:"skill",display:"Skill"},{name:"education",display:"Education"}];
     app.preference={
         store:function(key,value){
             document.cookie=key+"="+value;
@@ -30,7 +30,6 @@ var app = app || {};
             var columns;
             if(arguments.length == 0){
                 columns = getCookie("columns", defaultColumns);
-//               console.log(columns);
                 return columns.split(",");
             }else{
                 if(arguments[0] && $.type(arguments[0]) == "array" ){

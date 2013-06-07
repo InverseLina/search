@@ -52,14 +52,14 @@
         showErrorMessage: function(title, detail){
             var view = this;
             view.$searchInfo.empty();
-            var html = render("search-query-error", {title: title, detail:detail});
-            view.$el.find(".tableBody",view.$searchResult).html(html);
+            var html = render("search-query-error", {title: title, detail:detail,colWidth:getColWidth.call(view)});
+            view.$searchResult.html(html);
 
         },
         empty:function() {
             var view = this;
             view.$searchInfo.empty();
-            view.$searchResult.html(render("search-empty"));
+            view.$searchResult.html(render("search-empty",{colWidth:getColWidth.call(view)}));
         },
         loading:function() {
             var view = this;
@@ -75,9 +75,13 @@
                     var html;
                     var htmlInfo = "Result size: " + result.count + " | Duration: " + result.duration + "ms";
                     htmlInfo += " (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)";
+
                     view.$searchInfo.html(htmlInfo);
                     if(result.count > 0){
-                        html = render("search-items", {items: buildResult(result.result)});
+
+
+                        html = render("search-items", {items: buildResult(result.result),
+                            colWidth:getColWidth.call(view)});
                         view.$searchResult.html(html);
                         brite.display("Pagination",view.$el.find(".page"), {
                             pageIdx:result.pageIdx,
@@ -85,9 +89,8 @@
                             totalCount:result.count,
                             callback:result.callback
                         });
-                        view.$el.find(".table .row>div").css({width: 100/app.preference.columns().length + "%"})
                     }else {
-                        view.$searchResult.html(render("search-query-notfound"));
+                        view.$searchResult.html(render("search-query-notfound",{colWidth:getColWidth.call(view)}));
                     }
                 }
             }
@@ -106,16 +109,21 @@
        var result = [];
        var item;
         var columns = app.preference.columns();
+        var colLen = columns.length;
        for(var i = 0; i < items.length; i++){
             item = [];
-//           console.log(items[i]);
            for(var j = 0; j < columns.length; j++) {
-               item.push(items[i][columns[j]]);
+               item.push({name:columns[j], value: items[i][columns[j]], notLast:colLen - j >1});
            }
            result.push({row:item});
        }
-//        console.log(result);
         return result;
+    }
+
+    function getColWidth(){
+        var view = this;
+        var colLen = app.preference.columns().length;
+        return parseInt(view.$searchResult.innerWidth()/colLen);
     }
 	
 })(jQuery);

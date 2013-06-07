@@ -72,7 +72,7 @@
     	}
     });
 
-    Handlebars.registerHelper('colHeader', function(template,options) {
+    Handlebars.registerHelper('colHeader', function(template,colWidth, toptions) {
         var columns = app.preference.columns();
         var displays = [];
         $.each(app.preference.displayColumns, function(idx, item){
@@ -80,7 +80,7 @@
                 displays.push(item);
             }
         });
-        var html = Handlebars.templates[template]({displayColumns:displays});
+        var html = Handlebars.templates[template]({displayColumns:displays, colWidth:colWidth});
         return html;
     });
 
