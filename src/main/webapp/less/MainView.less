@@ -10,6 +10,11 @@
 
 .MainView header .navbar-inner{
   border-radius: 0px;
+  background-image: none;
+  background-color: #f4f4f4;
+  border: solid 1px #fff;
+  border-bottom: solid 1px #ccc;
+  .box-shadow(~"none");
 }
 
 .MainView header .navbar{
@@ -18,18 +23,23 @@
 
 .MainView header .navbar .brand{
   padding-left: 10px;
+  color: #f4f4f4;
+  letter-spacing: .1em;
+  text-shadow: none;
 }
 
 .MainView .sidenav-ctn{
   position: absolute;
-  top: 43px; left: 0; bottom: 0;
+  top: 61px; left: 0; bottom: 0;
   width: 280px;
+  background: #e5e5e5;
+  border-right: solid 1px #ccc;  
   overflow: auto;
 }
 
 .MainView .contentview-ctn{
   position: absolute;
-  top: 42px; left: 280px; bottom: 0; right: 0;
+  top: 61px; left: 280px; bottom: 0; right: 0;
 }
 
 // --------- /MainView --------- //

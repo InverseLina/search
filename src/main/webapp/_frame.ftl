@@ -2,7 +2,7 @@
   <head>
     <link rel="stylesheet" type="text/css" href="${_r.contextPath}/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="${_r.contextPath}/bootstrap/css/bootstrap-responsive.css">
-    
+    <title>JobScience Search (Demo)</title>
     [@webBundle path="${_r.contextPath}/css/" type="css" /]
     [@webBundle path="${_r.contextPath}/js/" type="js" /]
   </head>
