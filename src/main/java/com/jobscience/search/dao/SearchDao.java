@@ -188,6 +188,8 @@ public class SearchDao {
         StringBuilder querySql = new StringBuilder();
         //the count query sql that will query the count of data
         StringBuilder countSql = new StringBuilder();
+        //the columns
+        StringBuilder columnsSql = new StringBuilder();
         // the part of query that build join tables sql
         StringBuilder joinTables = new StringBuilder();
         // the part of query that build join tables sql
@@ -205,14 +207,15 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         if(searchColumns==null){
-        	querySql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate");
+            columnsSql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate");
         }else{
 	        for(String column:searchColumns.split(",")){
-	        	querySql.append(getQueryColumnName(column,columnJoinTables,groupBy));
-	        	querySql.append(",");
+	            columnsSql.append(getQueryColumnName(column,columnJoinTables,groupBy));
+	            columnsSql.append(",");
 	        }
-	        querySql.deleteCharAt(querySql.length()-1);
+	        columnsSql.deleteCharAt(columnsSql.length()-1);
         }
+        querySql.append(columnsSql);
         querySql.append(" from contact a ");
         
         if(searchValues!=null){
@@ -220,14 +223,17 @@ public class SearchDao {
             // for all search mode, we preform the same condition
             String search = searchValues.get("search");
             if (!Strings.isNullOrEmpty(search)) {
-                hasCondition = true;
+                joinTables.append(" right join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
+                                        + " select a_copy1.id as id from contact a_copy1 "
+                                        + " where "
+                                        + " a_copy1.\"Title\" ilike ? "
+                                        + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = a.id ");
                 String value = search;
                 String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
                 String searchILike = value;
                 if (!searchILike.contains("%")) {
                     searchILike = "%" + value + "%";
                 }
-                conditions.append(" and (a.resume_tsv @@ to_tsquery(?) or a.\"Title\" ilike ? or a.\"Name\" ilike ? )");
                 values.add(searchTsq);
                 values.add(searchILike);
                 values.add(searchILike);                
