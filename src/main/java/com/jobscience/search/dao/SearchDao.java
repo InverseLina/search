@@ -343,7 +343,7 @@ public class SearchDao {
 	                    String[] educationNames = value.split(","); 
 	                    joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
 	                    removeDuplicate(columnJoinTables,"ts2__education_history__c");
-	                    conditions.append(" and d.\"ts2__Name__c\" in ");
+	                    conditions.append("  and ( d.\"ts2__Name__c\" in ");
 	                    for(int i = 0; i < educationNames.length; i++){
 	                        if(i == 0){
 	                            conditions.append("(");
@@ -365,6 +365,8 @@ public class SearchDao {
 	                    if(noEducation){
 	                    	conditions.append(" or d.\"ts2__Name__c\" is null");
 	                    }
+
+                        conditions.append(" )");
                     }
                 }
                 
@@ -377,7 +379,7 @@ public class SearchDao {
 	                    String[] companyNames = value.split(","); 
 	                    joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
 	                    removeDuplicate(columnJoinTables,"ts2__employment_history__c");
-	                    conditions.append(" and c.\"ts2__Name__c\" in ");
+	                    conditions.append("  and ( c.\"ts2__Name__c\" in ");
 	                    for(int i = 0; i < companyNames.length; i++){
 	                        if(i == 0){
 	                            conditions.append("(");
@@ -398,6 +400,8 @@ public class SearchDao {
 	                    if(noCompany){
 	                    	conditions.append(" or c.\"ts2__Name__c\" is null");
 	                    }
+
+                        conditions.append(" ) ");
                     }
                 }
                 
@@ -410,7 +414,7 @@ public class SearchDao {
 	                    String[] skillNames = value.split(","); 
                         joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
                         removeDuplicate(columnJoinTables,"ts2__skill__c");
-                        conditions.append(" and b.\"ts2__Skill_Name__c\" in  ");
+                        conditions.append(" and ( b.\"ts2__Skill_Name__c\" in  ");
 	                    for(int i = 0; i < skillNames.length; i++){
 	                        if(i == 0){
 	                            conditions.append("(");
@@ -431,6 +435,8 @@ public class SearchDao {
 	                    if(noSkill){
 	                    	conditions.append(" or b.\"ts2__Skill_Name__c\" is null");
 	                    }
+
+                        conditions.append(" ) ");
                     }
                 }
             }
