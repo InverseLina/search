@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,21 +62,25 @@ public class SearchDao {
      * @throws SQLException 
      */
     public List getTopMostEducation(Integer offset,Integer size) throws SQLException {
-    	 if(size == null||size<6){
-             size = 6;
-         }
-         size = size-1;
-         offset = offset<0?0:offset;
+        if(size == null||size<6){
+            size = 6;
+        }
+        size = size-1;
+        offset = offset < 0 ? 0 : offset;
         Connection con = dbHelper.getConnection();
-        String querySql = "select e.\"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__education_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc offset "+offset+" limit "+size;
-        String countSqlForNoCompany = "select count(distinct c.\"id\") as count from ts2__education_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" ='' or  e.\"ts2__Name__c\" is null ";
-        PreparedStatement prepareStatement =  dbHelper.prepareStatement(con,countSqlForNoCompany);
-        List<Map> result = new ArrayList<Map>();
-        final int noCompanyCount =  dbHelper.preparedStatementExecuteCount(prepareStatement,  new Object[0]);
-        result.add(new HashMap(){{put("name", "No Education");put("count", noCompanyCount);}});
-       
-        prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        result.addAll(dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]));
+        // no educations sql union top educations sql
+        String querySql =  " select 'No Educations' as name, count(*) as count "
+                                +" from ( "
+                                +" select e.\"ts2__Name__c\" as name, e.\"ts2__Contact__c\" as contact "
+                                +" from ts2__education_history__c e  "
+                                +" where e.\"ts2__Name__c\" ='' or e.\"ts2__Name__c\" is null group by e.\"ts2__Contact__c\", e.\"ts2__Name__c\") a "
+                                +" union all "
+                                +" (select a.name, count(a.contact) from ( " + " select e.\"ts2__Name__c\" as name, e.\"ts2__Contact__c\" as contact "
+                                + " from ts2__education_history__c e  "
+                                + " where e.\"ts2__Name__c\" !='' group by e.\"ts2__Contact__c\", e.\"ts2__Name__c\") a  "
+                                + " group by a.name order by a.count desc offset "+offset+" limit "+size+")";
+        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
         prepareStatement.close();
         con.close();
         return result;
@@ -93,18 +96,21 @@ public class SearchDao {
             size = 6;
         }
         size = size-1;
-        offset = offset<0?0:offset;
+        offset = offset < 0 ? 0 : offset;
         Connection con = dbHelper.getConnection();
-        String querySql = "select \"ts2__Name__c\" as name, count(distinct c.\"id\") as count from ts2__employment_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" !='' group by e.\"ts2__Name__c\"  order by count desc offset "+offset+" limit "+size;
-        String countSqlForNoCompany = "select count(distinct c.\"id\") as count from ts2__employment_history__c e inner join  contact c on c.\"sfId\"=e.\"ts2__Contact__c\"  where e.\"ts2__Name__c\" ='' or e.\"ts2__Name__c\" is null ";
-        PreparedStatement prepareStatement =dbHelper.prepareStatement(con, countSqlForNoCompany);
-        List<Map> result = new ArrayList<Map>();
-        final int noCompanyCount =  dbHelper.preparedStatementExecuteCount(prepareStatement,  new Object[0]);
-        result.add(new HashMap(){{put("name", "No Company");put("count", noCompanyCount);}});
-       
-        prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        result.addAll(dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]));
-       
+        // no company sql union top companies sql
+        String querySql =  " select 'No Company' as name, count(*) as count "
+                                +" from ( "
+                                +" select e.\"ts2__Name__c\" as name, e.\"ts2__Contact__c\" as contact "
+                                +" from ts2__employment_history__c e  "
+                                +" where e.\"ts2__Name__c\" ='' or e.\"ts2__Name__c\" is null group by e.\"ts2__Contact__c\", e.\"ts2__Name__c\") a "
+                                +" union all "
+                                +" (select a.name, count(a.contact) from ( " + " select e.\"ts2__Name__c\" as name, e.\"ts2__Contact__c\" as contact "
+                                + " from ts2__employment_history__c e  "
+                                + " where e.\"ts2__Name__c\" !='' group by e.\"ts2__Contact__c\", e.\"ts2__Name__c\") a  "
+                                + " group by a.name order by a.count desc offset "+offset+" limit "+size +")";
+        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
         prepareStatement.close();
         con.close();
         return result;
@@ -120,18 +126,21 @@ public class SearchDao {
             size = 6;
         }
         size = size-1;
-        offset = offset<0?0:offset;
+        offset = offset < 0 ? 0 : offset;
         Connection con = dbHelper.getConnection();
-        String querySql = "select b.\"ts2__Skill_Name__c\" as name, count(distinct c.\"id\") as count  from contact c join ts2__skill__c b   on c.\"sfId\" = b.\"ts2__Contact__c\"   where b.\"ts2__Skill_Name__c\" !='' group by b.\"ts2__Skill_Name__c\"  order by count desc   offset "+offset+" limit "+size;
-        String countSqlForNoSkill = "select count(distinct c.\"id\") as count  from contact c join ts2__skill__c b   on c.\"sfId\" = b.\"ts2__Contact__c\"   where b.\"ts2__Skill_Name__c\" ='' or  b.\"ts2__Skill_Name__c\" is null ";
-        PreparedStatement prepareStatement =dbHelper.prepareStatement(con, countSqlForNoSkill);
-        List<Map> result = new ArrayList<Map>();
-        final int noCompanyCount =  dbHelper.preparedStatementExecuteCount(prepareStatement,  new Object[0]);
-        result.add(new HashMap(){{put("name", "No Skill");put("count", noCompanyCount);}});
-       
-        prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        result.addAll(dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]));
-       
+        // no skills sql union top skills sql
+        String querySql =  " select 'No Skills' as name, count(*) as count "
+                                +" from ( "
+                                +" select e.\"ts2__Skill_Name__c\" as name, e.\"ts2__Contact__c\" as contact "
+                                +" from ts2__skill__c e  "
+                                +" where e.\"ts2__Skill_Name__c\" ='' or e.\"ts2__Skill_Name__c\" is null group by e.\"ts2__Contact__c\", e.\"ts2__Skill_Name__c\") a "
+                                +" union all "
+                                +" (select a.name, count(a.contact) from ( " + " select e.\"ts2__Skill_Name__c\" as name, e.\"ts2__Contact__c\" as contact "
+                                + " from ts2__skill__c e  "
+                                + " where e.\"ts2__Skill_Name__c\" !='' group by e.\"ts2__Contact__c\", e.\"ts2__Skill_Name__c\") a  "
+                                + " group by a.name order by a.count desc offset "+offset+" limit "+size+")";
+        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
         prepareStatement.close();
         con.close();
         return result;

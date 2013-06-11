@@ -50,7 +50,11 @@ public class SearchWebHandlers {
     }
     
     @WebGet("/getTopCompaniesAndEducations")
-    public WebResponse getTopCompanies(@WebParam("type")String type,@WebParam("offset")Integer offset,@WebParam("limit")Integer limit) throws SQLException{
+    public WebResponse getTopCompanies(@WebParam("type") String type, @WebParam("companyOffset") Integer companyOffset,
+                            @WebParam("companyLimit") Integer companyLimit, @WebParam("educationOffset") Integer educationOffset,
+                            @WebParam("educationLimit") Integer educationLimit, @WebParam("skillOffset") Integer skillOffset,
+                            @WebParam("skillLimit") Integer skillLimit, @WebParam("offset") Integer offset,
+                            @WebParam("limit") Integer limit) throws SQLException {
     	Map result = new HashMap();
         if(offset==null){
         	offset = 0;
@@ -58,18 +62,48 @@ public class SearchWebHandlers {
         if(limit==null){
         	limit=5;
         }
-        if(type==null||"company".equals(type)){
-	        List companies = searchDao.getTopMostCompanies(offset,limit);
+        
+        long start = System.currentTimeMillis();
+        if(type==null || "".equals(type) || "company".equals(type)){
+            if(companyOffset == null){
+                companyOffset = offset;
+            }
+            if(companyLimit == null){
+                companyLimit = limit;
+            }
+	        List companies = searchDao.getTopMostCompanies(companyOffset,companyLimit);
 	        result.put("companies", companies);
+	        long tempEnd = System.currentTimeMillis();
+	        result.put("companyDuration", tempEnd - start);
         }
-        if(type==null||"education".equals(type)){
-	        List educations = searchDao.getTopMostEducation(offset,limit);
+        long mid = System.currentTimeMillis();
+        if(type==null || "".equals(type) || "education".equals(type)){
+            if(educationOffset == null){
+                educationOffset = offset;
+            }
+            if(educationLimit == null){
+                educationLimit = limit;
+            }
+	        List educations = searchDao.getTopMostEducation(educationOffset,educationLimit);
 	        result.put("educations", educations);
+	        long tempEnd = System.currentTimeMillis();
+	        result.put("educationDuration", tempEnd - mid);
         }
-        if(type==null||"skill".equals(type)){
-	        List skills = searchDao.getTopMostSkills(offset,limit);
+        long mid1 = System.currentTimeMillis();
+        if(type==null || "".equals(type) || "skill".equals(type)){
+            if(skillOffset == null){
+                skillOffset = offset;
+            }
+            if(skillLimit == null){
+                skillLimit = limit;
+            }
+	        List skills = searchDao.getTopMostSkills(skillOffset,skillLimit);
 	        result.put("skills", skills);
+	        long tempEnd = System.currentTimeMillis();
+            result.put("skillDuration", tempEnd - mid1);
         }
+        long end = System.currentTimeMillis();
+        result.put("duration", end - start);
         WebResponse wr = WebResponse.success(result);
         return wr;
     }
