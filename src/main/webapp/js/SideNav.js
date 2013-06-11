@@ -43,7 +43,7 @@
                         if(this.searchMode == 'simple'){
                             mainView.contentView.empty();
                         } else{
-                           if(!$.isEmptyObject(this.getSearchValues())){
+                           if(!isEmptyQuery(this.getSearchValues())){
                                view.$el.trigger("DO_SEARCH");
                             }else{
                                mainView.contentView.empty();
@@ -93,5 +93,19 @@
             }
         }
 	});
+
+    function isEmptyQuery(params){
+        params = params||{};
+        var val;
+        var empty = true;
+        for(key in params) {
+           val = params[key]||'';
+            if(!/^\s*$/.test(val)){
+                empty = false;
+                break;
+            }
+        }
+        return empty;
+    }
 	
 })(jQuery);
