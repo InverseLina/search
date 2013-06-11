@@ -74,7 +74,7 @@
         
         //if there has no any search text
         if(valCount == 0 && isValid){
-            view.contentView.showErrorMessage("Not Search Keyword", "please enter some keywords to search");
+            view.contentView.empty();
         	return false;
         }
         //if has some search text,but less than 3 letters
