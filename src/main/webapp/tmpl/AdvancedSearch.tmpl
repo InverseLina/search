@@ -9,7 +9,7 @@
 		<ul class="advancedItems company">
     	<li class="all" data-name="ALL"><label><input type="checkbox"/><span>Any Company</span></label></li>
     	{{#each companies}}
-    	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+    	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>(<span class="validCount"></span>{{count}})</label></li>
     	{{/each}}
     	<li class="btns">
     		<span data-show="more"><i class="icon-arrow-down" ></i>more</span>
@@ -20,7 +20,7 @@
     <ul class="advancedItems education">
     	<li class="all"  data-name="ALL"><label><input type="checkbox"/><span>Any Education</span></label></li>
     	{{#each educations}}
-    	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+    	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>(<span class="validCount"></span>{{count}})</label></li>
     	{{/each}}
     	<li class="btns">
     		<span data-show="more"><i class="icon-arrow-down" ></i>more</span>
@@ -31,7 +31,7 @@
     <ul class="advancedItems skill">
     	<li class="all"  data-name="ALL"><label><input type="checkbox"/><span>Any Skill</span></label></li>
     	{{#each skills}}
-    	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+    	<li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>(<span class="validCount"></span>{{count}})</label></li>
     	{{/each}}
     	<li class="btns">
     		<span data-show="more"><i class="icon-arrow-down" ></i>more</span>
@@ -44,18 +44,18 @@
 
 <script id="AdvancedSearch-company" type="text/html">
 	{{#each companies}}
-    <li style="display: none" class="toShow" data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+    <li style="display: none" class="toShow" data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>(<span class="validCount"></span>{{count}})</label></li>
   {{/each}}
 </script>
 
 <script id="AdvancedSearch-education" type="text/html">
 	{{#each educations}}
-    <li style="display: none" class="toShow"  data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+    <li style="display: none" class="toShow"  data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>(<span class="validCount"></span>{{count}})</label></li>
   {{/each}}
 </script>
 
 <script id="AdvancedSearch-skill" type="text/html">
 	{{#each skills}}
-    <li style="display: none" class="toShow"  data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>({{count}})</label></li>
+    <li style="display: none" class="toShow"  data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>(<span class="validCount"></span>{{count}})</label></li>
   {{/each}}
 </script>

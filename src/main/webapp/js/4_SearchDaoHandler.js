@@ -30,6 +30,23 @@ var app = app || {};
 	}
 	
 	/**
+	 * do search get group values
+	 * @Param qPrams, Object, which contains keyword, name and so on
+	 */ 
+	SearchDaoHandler.prototype.getGroupValuesForAdvanced = function(qParams,limitData){
+		var data = $.extend({},qParams,limitData);
+		
+		return $.ajax({
+			type : "GET",
+			url : "getGroupValuesForAdvanced",
+			data : data,
+			dataType : "json"
+		}).pipe(function(val) {
+			return val.result;
+		});
+	}
+	
+	/**
    * get menu data
    * @Param opts, Object, which contains type, offset,limit
    */ 

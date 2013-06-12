@@ -1,5 +1,5 @@
-(function($){
-	
+(function($) {
+
   var searchDao = app.SearchDaoHandler;
 
   brite.registerView("AdvancedSearch", {
@@ -13,8 +13,8 @@
     postDisplay : function(data) {
       var view = this;
       data = data || {};
-      updateResultInfo.call(view,data);
-      
+      updateResultInfo.call(view, data);
+
       view.$el.find(".advancedItems li.all :checkbox").prop("checked", true).closest("li").addClass("selected");
       view.$el.trigger("DO_SEARCH");
     },
@@ -62,7 +62,7 @@
             offset : app.preference.get(type, 6),
             limit : 20
           }).pipe(function(data) {
-            updateResultInfo.call(view,data);
+            updateResultInfo.call(view, data);
             $li.before(render("AdvancedSearch-" + type, data));
             $li.closest("ul").find(".toShow").show(1000, function() {
               $(this).removeClass("toShow");
@@ -102,6 +102,50 @@
         }
       }
 
+    },
+
+    parentEvents : {
+      MainView : {
+        "SEARCH_RESULT_CHANGE" : function(event, result) {
+          var view = this;
+          var $e = view.$el;
+          var mainView = view.$el.bView("MainView");
+          var contentSearchValues = mainView.contentView.getSearchValues();
+          var navContectSearchValues = mainView.sideNav.getSearchValues();
+          var searchValues = $.extend({},contentSearchValues ,navContectSearchValues);
+          // just add the "q_"
+          var qParams = {};
+          $.each(searchValues, function (key, val) {
+            qParams["q_" + key] = $.trim(val);
+          });
+          if (result.count > 0) {
+            searchDao.getGroupValuesForAdvanced(qParams).done(function(result){
+              var companies = result.companies || [];
+              var educations = result.educations || [];
+              var skills = result.skills || [];
+              
+              $e.find(".advancedItems li .validCount").show().html("0/");
+              
+              for(var i = 0; i < companies.length; i++){
+                var obj = companies[i]; 
+                $e.find(".advancedItems.company li[data-name='"+obj.name+"'] .validCount").html(obj.count+"/");
+              }
+              
+              for(var i = 0; i < educations.length; i++){
+                var obj = educations[i]; 
+                $e.find(".advancedItems.education li[data-name='"+obj.name+"'] .validCount").html(obj.count+"/");
+              }
+              
+              for(var i = 0; i < skills.length; i++){
+                var obj = skills[i]; 
+                $e.find(".advancedItems.skill li[data-name='"+obj.name+"'] .validCount").html(obj.count+"/");
+              }
+            });
+          }else{
+            $e.find(".advancedItems li .validCount").hide();
+          }
+        }
+      }
     },
 
     getSearchValues : function() {
@@ -171,67 +215,60 @@
       };
     }
 
-  }); 
+  });
 
-	
-	function updateResultInfo(result){
-	  var view = this;
-	  var $e = view.$el;
-	  var $advancedSearchResultInfo = $e.find(".AdvancedSearch-resultInfo");
-	  var $count = $advancedSearchResultInfo.find(".result-count");
-	  var $duration = $advancedSearchResultInfo.find(".result-duration");
-	  var $companyDuration = $advancedSearchResultInfo.find(".result-companyDuration");
-	  var $educationDuration = $advancedSearchResultInfo.find(".result-educationDuration");
-	  var $skillDuration = $advancedSearchResultInfo.find(".result-skillDuration");
-	  var count = 0;
-	  
-	  var duration = result.duration, 
-	      companies = result.companies, 
-	      educations = result.educations, 
-	      skills = result.skills, 
-	      companyDuration = result.companyDuration, 
-	      educationDuration = result.educationDuration, 
-	      skillDuration = result.skillDuration;
-	  
-	  if(companies && companies.length){
-	    //except the no company
-	    count = count + companies.length - 1;
-	  }
-	  
-	  if(educations && educations.length){
-	    //except the no education
-	    count = count + educations.length - 1;
-	  }
-	  
-	  if(skills && skills.length){
-	    //except the no skill
-	    count = count + skills.length - 1;
-	  }
-	  
-	  $count.html(count);
-	  
-	  if(duration != null && typeof duration != "undefined"){
-	    $duration.html(duration);
-	  }
-	  
-	  if(companyDuration != null && typeof companyDuration != "undefined"){
-	    $companyDuration.html(companyDuration);
-	  }else{
-	    $companyDuration.html(0);
-	  }
-	  
-	  if(educationDuration != null && typeof educationDuration != "undefined"){
-	    $educationDuration.html(educationDuration);
-	  }else{
+  function updateResultInfo(result) {
+    var view = this;
+    var $e = view.$el;
+    var $advancedSearchResultInfo = $e.find(".AdvancedSearch-resultInfo");
+    var $count = $advancedSearchResultInfo.find(".result-count");
+    var $duration = $advancedSearchResultInfo.find(".result-duration");
+    var $companyDuration = $advancedSearchResultInfo.find(".result-companyDuration");
+    var $educationDuration = $advancedSearchResultInfo.find(".result-educationDuration");
+    var $skillDuration = $advancedSearchResultInfo.find(".result-skillDuration");
+    var count = 0;
+
+    var duration = result.duration, companies = result.companies, educations = result.educations, skills = result.skills, companyDuration = result.companyDuration, educationDuration = result.educationDuration, skillDuration = result.skillDuration;
+
+    if (companies && companies.length) {
+      //except the no company
+      count = count + companies.length - 1;
+    }
+
+    if (educations && educations.length) {
+      //except the no education
+      count = count + educations.length - 1;
+    }
+
+    if (skills && skills.length) {
+      //except the no skill
+      count = count + skills.length - 1;
+    }
+
+    $count.html(count);
+
+    if (duration != null && typeof duration != "undefined") {
+      $duration.html(duration);
+    }
+
+    if (companyDuration != null && typeof companyDuration != "undefined") {
+      $companyDuration.html(companyDuration);
+    } else {
+      $companyDuration.html(0);
+    }
+
+    if (educationDuration != null && typeof educationDuration != "undefined") {
+      $educationDuration.html(educationDuration);
+    } else {
       $educationDuration.html(0);
     }
-	  
-	  if(skillDuration != null && typeof skillDuration != "undefined"){
-	    $skillDuration.html(skillDuration);
-	  }else{
+
+    if (skillDuration != null && typeof skillDuration != "undefined") {
+      $skillDuration.html(skillDuration);
+    } else {
       $skillDuration.html(0);
     }
-	  
-	}
-	
-})(jQuery);
+
+  }
+
+})(jQuery); 
