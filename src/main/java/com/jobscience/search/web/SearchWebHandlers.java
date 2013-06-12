@@ -71,7 +71,7 @@ public class SearchWebHandlers {
             if(companyLimit == null){
                 companyLimit = limit;
             }
-	        List companies = searchDao.getTopMostCompanies(companyOffset,companyLimit);
+	        List companies = searchDao.getTopAdvancedType(companyOffset,companyLimit,"company");
 	        result.put("companies", companies);
 	        long tempEnd = System.currentTimeMillis();
 	        result.put("companyDuration", tempEnd - start);
@@ -84,7 +84,7 @@ public class SearchWebHandlers {
             if(educationLimit == null){
                 educationLimit = limit;
             }
-	        List educations = searchDao.getTopMostEducation(educationOffset,educationLimit);
+	        List educations = searchDao.getTopAdvancedType(educationOffset,educationLimit,"education");
 	        result.put("educations", educations);
 	        long tempEnd = System.currentTimeMillis();
 	        result.put("educationDuration", tempEnd - mid);
@@ -97,7 +97,7 @@ public class SearchWebHandlers {
             if(skillLimit == null){
                 skillLimit = limit;
             }
-	        List skills = searchDao.getTopMostSkills(skillOffset,skillLimit);
+	        List skills = searchDao.getTopAdvancedType(skillOffset,skillLimit,"skill");
 	        result.put("skills", skills);
 	        long tempEnd = System.currentTimeMillis();
             result.put("skillDuration", tempEnd - mid1);

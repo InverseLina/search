@@ -56,110 +56,30 @@ public class SearchDao {
         return searchResult;
     }
     
-    /**
-     * get education top of the most contacts by size
-     * @param size
-     * @throws SQLException 
-     */
-    public List getTopMostEducation(Integer offset,Integer size) throws SQLException {
+    public List getTopAdvancedType(Integer offset,Integer size,String type) throws SQLException {
         if(size == null||size<6){
             size = 6;
         }
         size = size-1;
         offset = offset < 0 ? 0 : offset;
         Connection con = dbHelper.getConnection();
-        // no educations sql union top educations sql
-        String querySql = " ( " + "select 'No Educations' as name, "
-                                + " (select count(*) from contact) - "
-                                + "  (select count(*) as count   "
-                                + "  from (   "
-                                + "  select e.\"ts2__Contact__c\"   "
-                                + "  from ts2__education_history__c e   where e.\"ts2__Name__c\" != '' "
-                                + "  and e.\"ts2__Name__c\" is not null "
-                                + "  group by e.\"ts2__Contact__c\"  "
-                                + "  ) a) as count)"
-                                + " union all "
-                                + " (select a.name, count(a.contact) from ( "
-                                + " select e.\"ts2__Name__c\" as name, e.\"ts2__Contact__c\" as contact "
-                                + " from ts2__education_history__c e  "
-                                + " where e.\"ts2__Name__c\" !='' group by e.\"ts2__Contact__c\", e.\"ts2__Name__c\") a  "
-                                + " group by a.name order by a.count desc offset "
-                                + offset
-                                + " limit "
-                                + size
-                                + ")";
-        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
-        prepareStatement.close();
-        con.close();
-        return result;
-    }
-    
-    /**
-     * get company top of the most contacts by size
-     * @param size
-     * @throws SQLException 
-     */
-    public List getTopMostCompanies(Integer offset,Integer size) throws SQLException {
-        if(size == null||size<6){
-            size = 6;
-        }
-        size = size-1;
-        offset = offset < 0 ? 0 : offset;
-        Connection con = dbHelper.getConnection();
-        // no company sql union top companies sql
-        String querySql = "(select 'No Company' as name, " + " (select count(*) from contact) - "
-                                + " (select count(*) as count   "
-                                + " from (   "
-                                + " select e.\"ts2__Contact__c\"   "
-                                + " from ts2__employment_history__c e   where e.\"ts2__Name__c\" != '' "
-                                + " and e.\"ts2__Name__c\" is not null "
-                                + " group by e.\"ts2__Contact__c\"  "
-                                + " ) a) as count)"
-                                + " union all "
-                                + " (select a.name, count(a.contact) from ( "
-                                + " select e.\"ts2__Name__c\" as name, e.\"ts2__Contact__c\" as contact "
-                                + " from ts2__employment_history__c e  "
-                                + " where e.\"ts2__Name__c\" !='' group by e.\"ts2__Contact__c\", e.\"ts2__Name__c\") a  "
-                                + " group by a.name order by a.count desc offset "
-                                + offset
-                                + " limit "
-                                + size
-                                + ")";
-        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
-        prepareStatement.close();
-        con.close();
-        return result;
-    }
-    
-    /**
-     * get skill top of the most contacts by size
-     * @param size
-     * @throws SQLException 
-     */
-    public List getTopMostSkills(Integer offset,Integer size) throws SQLException {
-        if(size == null||size<6){
-            size = 6;
-        }
-        size = size-1;
-        offset = offset < 0 ? 0 : offset;
-        Connection con = dbHelper.getConnection();
-        // no skills sql union top skills sql
-        String querySql = "( " + "select 'No Skills' as name, "
+        String label = getLabel(type);
+        String name = getNameExpr(type);
+        String table = getTable(type);
+        String querySql = "( " + "select 'No "+label+"' as name, "
                                 + " (select count(*) from contact) - "
                                 + " (select count(*) as count   "
                                 + " from (   "
                                 + " select e.\"ts2__Contact__c\"   "
-                                + " from ts2__skill__c e   where e.\"ts2__Skill_Name__c\" != '' "
-                                + " and e.\"ts2__Skill_Name__c\" is not null "
+                                + " from "+table+" e   where e."+name+" != '' "
+                                + " and e."+name+" is not null "
                                 + " group by e.\"ts2__Contact__c\"  "
                                 + " ) a) as count)"
                                 + " union all "
                                 + " (select a.name, count(a.contact) from ( "
-                                + " select e.\"ts2__Skill_Name__c\" as name, e.\"ts2__Contact__c\" as contact "
-                                + " from ts2__skill__c e  "
-                                + " where e.\"ts2__Skill_Name__c\" !='' group by e.\"ts2__Contact__c\", e.\"ts2__Skill_Name__c\") a  "
+                                + " select e."+name+" as name, e.\"ts2__Contact__c\" as contact "
+                                + " from "+table+" e  "
+                                + " where e."+name+" !='' group by e.\"ts2__Contact__c\", e."+name+") a  "
                                 + " group by a.name order by a.count desc offset "
                                 + offset
                                 + " limit "
@@ -192,16 +112,10 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         columnsSql.append("a.\"sfId\" as id, ");
         querySql.append(columnsSql);
-        String companyTable = " ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ";
-        String educationTable = " ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ";
-        String skillTable = " ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ";
-        if(type.equals("company")){
-            querySql.append(" case when c.\"ts2__Name__c\" is null then 'No Company' when c.\"ts2__Name__c\" = '' then 'No Company'  else c.\"ts2__Name__c\" end  as name ");
-        }else if(type.equals("education")){
-            querySql.append(" case when d.\"ts2__Name__c\" is null then 'No Educations' when d.\"ts2__Name__c\" = '' then 'No Educations'  else d.\"ts2__Name__c\" end  as name ");
-        }else if(type.equals("skill")){
-            querySql.append(" case when b.\"ts2__Skill_Name__c\" is null then 'No Skills' when b.\"ts2__Skill_Name__c\" = '' then 'No Skills'  else b.\"ts2__Skill_Name__c\" end  as name ");
-        }
+        String companyTable = getAdvancedJoinTable("company");
+        String educationTable = getAdvancedJoinTable("education");
+        String skillTable = getAdvancedJoinTable("skill");
+        querySql.append(getNameExprForNothing(type));
         querySql.append(" from contact a ");
         
         if (searchValues != null) {
@@ -209,54 +123,16 @@ public class SearchDao {
             // for all search mode, we preform the same condition
             String search = searchValues.get("search");
             if (!Strings.isNullOrEmpty(search)) {
-                joinTables.append(" right join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
-                                        + " select a_copy1.id as id from contact a_copy1 "
-                                        + " where "
-                                        + " a_copy1.\"Title\" ilike ? "
-                                        + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = a.id ");
-                String value = search;
-                String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
-                String searchILike = value;
-                if (!searchILike.contains("%")) {
-                    searchILike = "%" + value + "%";
-                }
-                values.add(searchTsq);
-                values.add(searchILike);
-                values.add(searchILike);
+                querySql.append(getSearchValueJoinTable(search, values));
             }
 
             // add the 'educationNames' filter, and join Education table
             if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
                 hasCondition = true;
                 String value = searchValues.get("educationNames");
-                boolean noEducation = false;
                 if (!"Any Education".equals(value)) {
-                    String[] educationNames = value.split(",");
-                    joinTables.append(" inner join "+educationTable);
-                    conditions.append("  and ( d.\"ts2__Name__c\" in ");
-                    for (int i = 0; i < educationNames.length; i++) {
-                        if (i == 0) {
-                            conditions.append("(");
-                        } else {
-                            conditions.append(",");
-                        }
-                        conditions.append("?");
-                        if (i == educationNames.length - 1) {
-                            conditions.append(")");
-                        }
-
-                        if (educationNames[i].equals("No Education")) {
-                            noEducation = true;
-                            values.add("");
-                        } else {
-                            values.add(educationNames[i]);
-                        }
-                    }
-                    if (noEducation) {
-                        conditions.append(" or d.\"ts2__Name__c\" is null");
-                    }
-
-                    conditions.append(" )");
+                    joinTables.append(getAdvancedJoinTable("education"));
+                    conditions.append(getConditionForThirdNames(value, values, "education"));
                 }
             }
 
@@ -264,33 +140,9 @@ public class SearchDao {
             if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
                 hasCondition = true;
                 String value = searchValues.get("companyNames");
-                boolean noCompany = false;
                 if (!"Any Company".equals(value)) {
-                    String[] companyNames = value.split(",");
-                    joinTables.append(" inner join " + companyTable);
-                    conditions.append("  and ( c.\"ts2__Name__c\" in ");
-                    for (int i = 0; i < companyNames.length; i++) {
-                        if (i == 0) {
-                            conditions.append("(");
-                        } else {
-                            conditions.append(",");
-                        }
-                        conditions.append("?");
-                        if (i == companyNames.length - 1) {
-                            conditions.append(")");
-                        }
-                        if (companyNames[i].equals("No Company")) {
-                            noCompany = true;
-                            values.add("");
-                        } else {
-                            values.add(companyNames[i]);
-                        }
-                    }
-                    if (noCompany) {
-                        conditions.append(" or c.\"ts2__Name__c\" is null");
-                    }
-
-                    conditions.append(" ) ");
+                    joinTables.append(getAdvancedJoinTable("company"));
+                    conditions.append(getConditionForThirdNames(value, values, "company"));
                 }
             }
 
@@ -298,33 +150,9 @@ public class SearchDao {
             if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
                 hasCondition = true;
                 String value = searchValues.get("skillNames");
-                boolean noSkill = false;
                 if (!"Any Skill".equals(value)) {
-                    String[] skillNames = value.split(",");
-                    joinTables.append(" inner join  " + skillTable);
-                    conditions.append(" and ( b.\"ts2__Skill_Name__c\" in  ");
-                    for (int i = 0; i < skillNames.length; i++) {
-                        if (i == 0) {
-                            conditions.append("(");
-                        } else {
-                            conditions.append(",");
-                        }
-                        conditions.append("?");
-                        if (i == skillNames.length - 1) {
-                            conditions.append(")");
-                        }
-                        if (skillNames[i].equals("No Skill")) {
-                            noSkill = true;
-                            values.add("");
-                        } else {
-                            values.add(skillNames[i]);
-                        }
-                    }
-                    if (noSkill) {
-                        conditions.append(" or b.\"ts2__Skill_Name__c\" is null");
-                    }
-
-                    conditions.append(" ) ");
+                    joinTables.append(getAdvancedJoinTable("skill"));
+                    conditions.append(getConditionForThirdNames(value, values, "skill"));
                 }
             }
         }
@@ -332,17 +160,17 @@ public class SearchDao {
         querySql.append(joinTables);
         if(type.equals("company")){
             if(joinTables.indexOf("ts2__employment_history__c") == -1){
-                querySql.append(" left join "+companyTable);
+                querySql.append(companyTable);
             }
             groupBy.append(" group by a.\"sfId\", c.\"ts2__Name__c\" ");
         }else if(type.equals("education")){
             if(joinTables.indexOf("ts2__education_history__c") == -1){
-                querySql.append(" left join "+educationTable);
+                querySql.append(educationTable);
             }
             groupBy.append(" group by a.\"sfId\", d.\"ts2__Name__c\" ");
         }else if(type.equals("skill")){
             if(joinTables.indexOf("ts2__skill__c") == -1){
-                querySql.append(" left join "+skillTable);
+                querySql.append(skillTable);
             }
             groupBy.append(" group by a.\"sfId\", b.\"ts2__Skill_Name__c\" ");
         }
@@ -453,20 +281,9 @@ public class SearchDao {
             // for all search mode, we preform the same condition
             String search = searchValues.get("search");
             if (!Strings.isNullOrEmpty(search)) {
-                joinTables.append(" right join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
-                                        + " select a_copy1.id as id from contact a_copy1 "
-                                        + " where "
-                                        + " a_copy1.\"Title\" ilike ? "
-                                        + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = a.id ");
-                String value = search;
-                String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(value));
-                String searchILike = value;
-                if (!searchILike.contains("%")) {
-                    searchILike = "%" + value + "%";
-                }
-                values.add(searchTsq);
-                values.add(searchILike);
-                values.add(searchILike);                
+                String joinSql = getSearchValueJoinTable(search, values);
+                querySql.append(joinSql);
+                countSql.append(joinSql);
             }
 
             //keyword mode, use ilike search
@@ -591,7 +408,7 @@ public class SearchDao {
 	                            conditions.append(")");
 	                        }
 	                        
-	                        if(educationNames[i].equals("No Education")){
+	                        if(educationNames[i].equals("No Educations")){
 	                        	noEducation = true;
 	                        	values.add("");
 	                        }else{
@@ -661,7 +478,7 @@ public class SearchDao {
 	                        if(i == skillNames.length - 1){
 	                            conditions.append(")");
 	                        }
-	                        if(skillNames[i].equals("No Skill")){
+	                        if(skillNames[i].equals("No Skills")){
 	                        	noSkill = true;
 	                        	values.add("");
 	                        }else{
@@ -708,6 +525,130 @@ public class SearchDao {
         ss.values = values.toArray();
 
         return ss;
+    }
+    
+    private String getSearchValueJoinTable(String searchValue, List values){
+        StringBuilder joinSql = new StringBuilder();
+        joinSql.append(" right join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
+                                + " select a_copy1.id as id from contact a_copy1 "
+                                + " where "
+                                + " a_copy1.\"Title\" ilike ? "
+                                + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = a.id ");
+        String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(searchValue));
+        String searchILike = searchValue;
+        if (!searchILike.contains("%")) {
+            searchILike = "%" + searchValue + "%";
+        }
+        values.add(searchTsq);
+        values.add(searchILike);
+        values.add(searchILike); 
+        return joinSql.toString();
+    }
+    
+    private String getAdvancedJoinTable(String type){
+        StringBuilder joinSql = new StringBuilder();
+        
+        if(type.equals("company")){
+            joinSql.append(" left join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+        }else if(type.equals("education")){
+            joinSql.append(" left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+        }else if(type.equals("skill")){
+            joinSql.append(" left join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+        }
+        return joinSql.toString();
+    }
+    
+    private String getNameExpr(String type){
+        StringBuilder sql = new StringBuilder();
+        
+        if(type.equals("company")){
+            sql.append("\"ts2__Name__c\"");
+        }else if(type.equals("education")){
+            sql.append("\"ts2__Name__c\"");
+        }else if(type.equals("skill")){
+            sql.append("\"ts2__Skill_Name__c\"");
+        }
+        return sql.toString();
+    }
+    
+    private String getNameExprForNothing(String type){
+        StringBuilder sql = new StringBuilder();
+        String name = getNameExpr(type);
+        String instance = getTableInstance(type);
+        String label = getLabel(type);
+        sql.append(" case when "+instance+"."+name+" is null then 'No "+label+"' when "+instance+"."+name+" = '' then 'No "+label+"'  else "+instance+"."+name+" end  as name ");
+        return sql.toString();
+    }
+    
+    private String getLabel(String type){
+        String label = null;
+        
+        if(type.equals("company")){
+            label = "Company";
+        }else if(type.equals("education")){
+            label = "Educations";
+        }else if(type.equals("skill")){
+            label = "Skills";
+        }
+        return label;
+    }
+    
+    private String getTable(String type){
+        String table = null;
+        
+        if(type.equals("company")){
+            table = "ts2__employment_history__c";
+        }else if(type.equals("education")){
+            table = "ts2__education_history__c";
+        }else if(type.equals("skill")){
+            table = "ts2__skill__c";
+        }
+        return table;
+    }
+    
+    private String getTableInstance(String type){
+        String instance = null;
+        if(type.equals("company")){
+            instance = "c";
+        }else if(type.equals("education")){
+            instance = "d";
+        }else if(type.equals("skill")){
+            instance = "b";
+        }
+        return instance;
+    }
+    
+    private String getConditionForThirdNames(String namesStr, List values, String type){
+        StringBuilder conditions = new StringBuilder();
+        String[] names = namesStr.split(",");
+        String instance = getTableInstance(type);
+        String nameExpr = getNameExpr(type);
+        String label = getLabel(type);
+        boolean noName = false;
+        conditions.append("  and ( "+instance+"."+nameExpr+" in ");
+        for (int i = 0; i < names.length; i++) {
+            if (i == 0) {
+                conditions.append("(");
+            } else {
+                conditions.append(",");
+            }
+            conditions.append("?");
+            if (i == names.length - 1) {
+                conditions.append(")");
+            }
+            if (names[i].equals("No "+label)) {
+                noName = true;
+                values.add("");
+            } else {
+                values.add(names[i]);
+            }
+        }
+        if (noName) {
+            conditions.append(" or "+instance+"."+nameExpr+" is null");
+        }
+
+        conditions.append(" )");
+        return conditions.toString();
     }
     
     private void removeDuplicate(List<String> columnJoinTables,String tableName){
