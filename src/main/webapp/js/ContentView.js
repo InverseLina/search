@@ -19,6 +19,9 @@
 				}
 			});
             view.empty();
+            $(window).resize(function(){
+                fixColWidth.call(view);
+            })
 		},
 		events:{
 			"btap; table th[data-column]":function(event){
@@ -44,10 +47,7 @@
 				}
 			},
             "btap;div.btnPopupColumns":function(event){
-                view = this;
-                var pos = $(event.currentTarget).offset();
-                brite.display("SelectColumns", "body", {top: pos.top  + $(event.currentTarget).outerHeight() + 10,
-                    left: pos.left -5});
+                brite.display("SelectColumns");
 			},
 
 			"keypress;.search-input":function(event){

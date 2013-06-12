@@ -6,7 +6,7 @@
  *
  */
 (function ($) {
-    brite.registerView("SelectColumns", {emptyParent: false,parent:"body"},
+    brite.registerView("SelectColumns", {emptyParent: false,parent:".search-result"},
         {
             create: function (data, config) {
                 return render("SelectColumns", {columns:app.preference.displayColumns});
@@ -21,12 +21,12 @@
                 });
 
 
-                var bh = $("body").height();
+/*                var bh = $("body").height();
                 var bw = $("body").width();
                 view.$el.show();
                 var pos = {top: data.top + view.$el.outerHeight() > bh ? bh - view.$el.height() -30 : data.top,
                            left: data.left + view.$el.outerWidth() > bw ? bw - view.$el.width() - 30 : data.left}
-                view.$el.css(pos);
+                view.$el.css(pos);*/
 
 /*                $(document).on("btap." + view.cid, function(event){
                     var width = view.$el.width();
