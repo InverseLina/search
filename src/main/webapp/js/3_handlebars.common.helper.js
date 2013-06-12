@@ -166,7 +166,6 @@
 
     Handlebars.registerHelper("each_with_index", function(array, options) {
         var buffer = "";
-        console.log(array)
         for (var i = 0, j = array.length; i < j; i++) {
             var item = array[i];
 
