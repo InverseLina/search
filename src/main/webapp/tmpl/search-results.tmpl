@@ -1,58 +1,72 @@
 <script id="search-items" type="text/html">
-    <div class="table">
-      {{{colHeader "search-items-header" colWidth}}}
-        <div class='tableBody'>
-          {{#each items}}
-              <div class="row">
-                  {{#each row}}
-                      <div data-column="{{name}}" style="width:{{../../colWidth}}px" ><span>{{value}}</span></div>
-                  {{/each}}
-              </div>
-          {{/each}}
-        </div>
-    </div>
-</script>
-<script id="search-query-error" type="text/html">
-    <div class="table">
-        {{{colHeader "search-items-header" colWidth}}}
-        <div class='tableBody'>
-            <div class="alert alert-block alert-error fade in">
-                <strong>{{title}}:</strong> {{detail}}
-            </div>
-        </div>
-    </div>
-</script>
-
-<script id="search-empty" type="text/html">
-    <div class="table">
-        {{{colHeader "search-items-header" colWidth}}}
-        <div class='tableBody'>
-            <div class="empty-search"><span>Enter Search Criteria</span></div>
-        </div>
-    </div>
-</script>
-
-<script id="search-loading" type="text/html">
-	<span class="loading badge badge-info">Loading...</span>
+    <table class="scrollTable">
+        {{{colHeader "search-items-header" }}}
+        <tbody>
+            {{#each items}}
+            <tr>
+                {{#each row}}
+                    <td data-column="{{name}}"><span>{{value}}</span></td>
+                {{/each}}
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
 </script>
 
 <script id="search-items-header" type="text/html">
-    <div class="tableHeader ">
-        <div class="row">
-          {{#each displayColumns}}
-            <div style="width:{{../colWidth}}px " data-column="{{name}}">{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span></div>
-          {{/each}}
-            <span data-action="popupColumns" class="btn btnPopupColumns">+</span>
-        </div>
-    </div>
+    <thead>
+         <tr>
+             {{#each displayColumns}}
+                 <th style="width:{{../colWidth}}%" data-column="{{name}}">{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span></th>
+             {{/each}}
+         </tr>
+    </thead>
 </script>
+
+<script id="search-items-header-with-body" type="text/html">
+    <table>
+        <thead>
+             <tr>
+                 {{#each displayColumns}}
+                     <th style="width:{{../colWidth}}%" data-column="{{name}}">{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span></th>
+                 {{/each}}
+             </tr>
+        </thead>
+        <tbody>
+        <tr class="full">
+            <td colspan="{{colsLen}}">
+                {{{decode block}}}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</script>
+
 <script id="search-query-notfound" type="text/html">
-    <div class="table">
-      {{{colHeader "search-items-header" colWidth}}}
-        <div class='tableBody'>
-            <div class="alert alert-block alert-info fade in">
-                <strong>Nothing found,</strong> please change search criteria and retry
-            </div>
+    {{#colBody 'search-items-header-with-body'}}
+        <div class="alert alert-block alert-info fade in">
+            <strong>Nothing found,</strong> please change search criteria and retry
         </div>
-    </div>
+    {{/colBody}}
+</script>
+
+<script id="search-loading" type="text/html">
+    {{#colBody 'search-items-header-with-body'}}
+        <span class="loading badge badge-info">Loading...</span>
+    {{/colBody}}
+</script>
+
+
+<script id="search-empty" type="text/html">
+    {{#colBody 'search-items-header-with-body'}}
+        <div class="empty-search"><span>Enter Search Criteria</span></div>
+    {{/colBody}}
+</script>
+
+<script id="search-query-error" type="text/html">
+    {{#colBody 'search-items-header-with-body'}}
+        <div class="alert alert-block alert-error fade in">
+            <strong>{{title}}:</strong> {{detail}}
+        </div>
+    {{/colBody}}
 </script>

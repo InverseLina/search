@@ -2,22 +2,24 @@
 @import "mixins.less";
 
 // --------- ContentView --------- //
-.ContentView{
+.ContentView {
   .fitparent();
   min-width: 650px;
 
-  .sidenav-ctn{
+  .sidenav-ctn {
     position: absolute;
-    top: 43px; left: 0; bottom: 0;
+    top: 43px;
+    left: 0;
+    bottom: 0;
     width: 280px;
   }
 
-  .search-form{
+  .search-form {
     position: relative;
     width: 500px;
     margin: 40px auto 40px auto;
 
-    input{
+    input {
       width: 400px;
       height: 32px;
       border-radius: 2px;
@@ -27,141 +29,144 @@
 
   }
 
-  .page{
-    width: 80%;
-    margin: 0 auto 0 auto;
-    height: 30px;
-    padding-right: 38px;
-  }
-  
   .search-result {
-    top: 155px; right: 0; bottom: 0; left: 0;
+    top: 155px;
+    right: 120px;
+    bottom: 0;
+    left: 120px;
     position: absolute;
-    width: 75%;
     margin: 0px auto 20px auto;
     padding: 5px;
+    min-width: 500px;
 
-    .table  {
-      position:relative;
-//      display: table;
-      height: 100%;
-      margin-top: 5px;
-      .row{
-        position:relative;
-//        display: table-row;
-        height: 30px;
-        margin:0px;
-        width:100%;
-        border-bottom: 1px solid #dddddd;
-        .desc{
-			width:auto;
-			display:none;
-        }
-        .asc{
-        	width:auto;
-        	display:none;
-        }
-        >div{
-//          display: table-cell;
-          padding-top: 5px;
-          padding-left: 10px;
 
-          overflow: hidden;
-          float:left;
-        }
 
-      }
+    div.page {
+      position: absolute;
+      top: -60px;
+      right: 0;
+      left: 0;
+      height: 30px;
+      min-width: 500px;
+    }
 
-      .row>div span{
-        display: inline-block;
+    div.btnPopupColumns {
+      position: absolute;
+      width: 40px;
+      right: -45px;
+      top: 0;
+      height: 30px;
+      font-size: 20px;
+      background: #e0e0e0;
+      border: none;
+      color: #ffffff;
+      border-radius: 0px;
+      padding: 5px 12px;
+    }
+
+    .tableContainer {
+      .fitparent();
+      min-width: 500px;
+
+      table {
+        .fitparent();
+        min-width: 500px;
         width: 100%;
-        padding-left: 2px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        word-break: normal;
-        overflow: hidden;
-      }
-
-      .tableHeader {
-        display: block;
-        position: absolute;
-        left:0;
-        right:0;
-        top:0;
-        height:30px;
-        .row {
+        height: 100%;
+        overflow: auto;
+        tr {
+          height: 30px;
+          td, th {
+            padding-left: 10px;
+            padding-top: 5px;
+            text-align: left;
+          }
+        }
+        thead tr {
+          display: block;
+          position: relative;
           background: #DDD;
-        }
-        .row > div {
+          border-bottom: 1px solid #dddddd;
+          th {
+            font-weight: bold;
+            cursor: pointer;
 
-          font-weight: bold;
-          cursor:pointer;
-        }
-        span.btnPopupColumns{
-          position: absolute;
-          width: 40px;
-          right: -45px; top: 0; bottom: 0;
-          font-size: 20px;
-          background: #e0e0e0;
-          border: none;
-          color: #ffffff;
-          border-radius: 0px;
-          padding: 2px 12px;
-        }
-        
-        span.btnPopupColumns:hover{
-          background: #aaa;
+            .desc {
+              width: auto;
+              display: none;
+            }
+            .asc {
+              width: auto;
+              display: none;
+            }
+          }
         }
 
+        tbody {
+          .fitparent();
+          overflow-x:hidden;
+          overflow-y: auto;
+          top: 30px;
+          td {
+            span {
+              display: inline-block;
+              width: 100%;
+              padding-left: 2px;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              word-break: normal;
+              overflow: hidden;
+            }
+          }
+        }
       }
 
-      .tableBody{
-        position: absolute;
-        top:30px;
-        left:0;
-        right:0;
-        bottom: 0;
-        overflow-y:auto;
+      table.scrollTable tr {
+        border-bottom: 1px solid #dddddd;
+        display:block;
       }
 
-      .empty-search{
-        position: absolute;
-        top: 70px;left: 0; right: 0;
-        text-align: center;
-        font-size: 20px;
-        color: #bbbbbb;
-      }
-      .loading{
-        position: absolute;
-        top: 70px;left: 50%;
-        width: 300px;
-        margin-left: -150px;
-        font-size: 20px;
-        color: #bbbbbb;
-        background: #ddd;
-        height: 80px;
-        text-align: center;
-        padding-top: 35px;
-      }
+      table  tr.full {
+        .fitparent();
+        td {
+          width: 100%;
+          .empty-search {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 20px;
+            color: #bbbbbb;
+          }
+          .loading {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            width: 300px;
+            margin-left: -150px;
+            font-size: 20px;
+            color: #bbbbbb;
+            background: #ddd;
+            height: 80px;
+            text-align: center;
+            padding-top: 35px;
+          }
 
-      .alert-error, .alert-info{
-        position: absolute;
-        top: 70px;left: 50%;
-        width: 300px;
-        margin-left: -150px;
-      }
-
-      .row>div[data-column='id']{
-        max-width: 80px;
-      }
-      .row>div[data-column='createdate']{
-        max-width: 100px;
+          .alert-error, .alert-info {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            width: 300px;
+            margin-left: -150px;
+          }
+        }
       }
     }
 
   }
 
-  .search-info{
+  .search-info {
     display: block;
     color: #777;
     width: 375px;

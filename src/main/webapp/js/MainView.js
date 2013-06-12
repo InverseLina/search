@@ -85,7 +85,7 @@
         qParams=$.extend({},qParams,opts);
         var callback = function(pageIdx, pageSize){
             view.contentView.loading();
-            pageIdx = pageIdx||1;
+           pageIdx = pageIdx||1;
             pageSize = pageSize||30;
             searchDao.search(qParams,view.sideNav.searchMode,pageIdx,pageSize,app.preference.columns().join(",")).always(function (result) {
 	            result.callback = callback;

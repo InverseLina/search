@@ -28,7 +28,7 @@
                            left: data.left + view.$el.outerWidth() > bw ? bw - view.$el.width() - 30 : data.left}
                 view.$el.css(pos);
 
-                $(document).on("btap." + view.cid, function(event){
+/*                $(document).on("btap." + view.cid, function(event){
                     var width = view.$el.width();
                     var height = view.$el.height();
                     var pos = view.$el.position();
@@ -38,7 +38,10 @@
                         view.$el.bRemove();
                         $(document).off("btap." + view.cid);
                     }
-                });
+                });*/
+                view.$el.on("mouseleave", function(){
+                    view.$el.bRemove();
+                })
 
             },
             events: {

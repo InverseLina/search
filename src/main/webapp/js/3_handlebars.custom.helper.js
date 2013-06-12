@@ -72,7 +72,7 @@
     	}
     });
 
-    Handlebars.registerHelper('colHeader', function(template,colWidth, toptions) {
+    Handlebars.registerHelper('colHeader', function(template,colWidth, options) {
         var columns = app.preference.columns();
         var displays = [];
         $.each(app.preference.displayColumns, function(idx, item){
@@ -80,7 +80,21 @@
                 displays.push(item);
             }
         });
-        var html = Handlebars.templates[template]({displayColumns:displays, colWidth:colWidth});
+        var html = Handlebars.templates[template]({displayColumns:displays, colWidth:100/displays.length, colsLen:displays.length});
+        return html;
+    });
+
+    Handlebars.registerHelper('colBody', function(template, options) {
+        var columns = app.preference.columns();
+        var displays = [];
+        $.each(app.preference.displayColumns, function(idx, item){
+            if(IsContain(columns, item.name)){
+                displays.push(item);
+            }
+        });
+        var buffer = options.fn(this);
+        var html = Handlebars.templates[template]({displayColumns:displays, block:buffer,
+                colsLen:displays.length, colWidth:100/displays.length});
         return html;
     });
 
