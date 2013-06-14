@@ -33,7 +33,7 @@
                 }else {
                     view.$el.find(".open").removeClass("icon-eject").addClass("icon-play");
                     if(!$.isEmptyObject(view.values)){
-                        view.$el.find(".content").html(render("SideSection-close", {value: JSON.stringify(view.values)}))
+                        view.$el.find(".content").html(render("SideSection-close", {value: formatDisplay(view.values)}))
                     }
 
                 }
@@ -67,13 +67,12 @@
                         console.log(values);
 
                         view.$el.find(".open").removeClass("icon-eject").addClass("icon-play");
-                       // view.$el.find("." + view.cname).bRemove();
-                        view.$el.find("div."+view.cname).hide();
+                        view.$el.find("." + view.cname).bRemove();
                         view.status = "close";
                         app.preference.store(view.cname + ".status", "close");
                         if(!$.isEmptyObject(values)){
                             app.preference.store(view.cname + ".values", JSON.stringify(values));
-                            view.$el.find(".content").append(render("SideSection-close", {value: JSON.stringify(values)}))
+                            view.$el.find(".content").html(render("SideSection-close", {value: formatDisplay(values)}))
                         }
                     }else{
                         //open
