@@ -167,7 +167,40 @@
                     }
                 }
             },
-            docEvents: {}
+            parentEvents : {
+              MainView : {
+                "SEARCH_RESULT_CHANGE" : function(event, result) {
+                  var view = this;
+                  var $e = view.$el;
+                  var mainView = view.$el.bView("MainView");
+                  var contentSearchValues = mainView.contentView.getSearchValues();
+                  var navContectSearchValues = mainView.sideNav.getSearchValues();
+                  var searchValues = $.extend({},contentSearchValues ,navContectSearchValues);
+                  // just add the "q_"
+                  var qParams = {};
+                  $.each(searchValues, function (key, val) {
+                    qParams["q_" + key] = $.trim(val);
+                  });
+                  qParams.type = "education";
+                  
+                  if (result.count > 0) {
+                    searchDao.getGroupValuesForAdvanced(qParams).done(function(result){
+                      var educations = result.list || [];
+                      console.log(result.list);
+                      $e.find("li .validCount").show().html("0/");
+                      
+                      for(var i = 0; i < educations.length; i++){
+                        var obj = educations[i]; 
+                        $e.find("li[data-name='"+obj.name+"'] .validCount").html(obj.count+"/");
+                      }
+                      
+                    });
+                  }else{
+                    $e.find("li .validCount").hide();
+                  }
+                }
+              }
+            },
         });
 
     function updateResultInfo(result) {

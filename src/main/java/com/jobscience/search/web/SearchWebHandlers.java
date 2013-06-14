@@ -83,17 +83,13 @@ public class SearchWebHandlers {
     }
     
     @WebGet("/getGroupValuesForAdvanced")
-    public WebResponse getGroupValuesForAdvanced(@WebParam("q_") Map searchValues) throws SQLException{
+    public WebResponse getGroupValuesForAdvanced(@WebParam("q_") Map searchValues,@WebParam("type")String type) throws SQLException{
          // FIXME: needs to get the search map from request.
         // Map searchValues = MapUtil.mapIt("search",search);
         Map result = new HashMap();
-        List<Map> companies = searchDao.getGroupValuesForAdvanced(searchValues,"company");
-        List<Map> educations = searchDao.getGroupValuesForAdvanced(searchValues,"education");
-        List<Map> skills = searchDao.getGroupValuesForAdvanced(searchValues,"skill");
+        List<Map> list = searchDao.getGroupValuesForAdvanced(searchValues,type);
         
-        result.put("companies", companies);
-        result.put("educations", educations);
-        result.put("skills", skills);
+        result.put("list", list);
         WebResponse wr = WebResponse.success(result);
         return wr;
     }
