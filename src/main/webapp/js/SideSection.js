@@ -67,26 +67,32 @@
                         console.log(values);
 
                         view.$el.find(".open").removeClass("icon-eject").addClass("icon-play");
-                        view.$el.find("." + view.cname).bRemove();
+                       // view.$el.find("." + view.cname).bRemove();
+                        view.$el.find("div."+view.cname).hide();
                         view.status = "close";
                         app.preference.store(view.cname + ".status", "close");
                         if(!$.isEmptyObject(values)){
                             app.preference.store(view.cname + ".values", JSON.stringify(values));
-                            view.$el.find(".content").html(render("SideSection-close", {value: JSON.stringify(values)}))
+                            view.$el.find(".content").append(render("SideSection-close", {value: JSON.stringify(values)}))
                         }
                     }else{
                         //open
                         view.values = JSON.parse(app.preference.get(view.cname + ".values", ""));
                         view.status = "open";
                         app.preference.store(view.cname + ".status", "open");
-                        brite.display(view.cname , view.$el.find(".content")).done(function(component){
-                            if(component.$el.bView(view.name) == view){
-                                view.subComponent = component;
-                                if(!$.isEmptyObject(view.values)){
-                                    view.subComponent.updateSearchValues(view.values);
-                                }
-                            }
-                        });
+                        if( view.$el.find("div."+view.cname).length>0){
+                    		view.$el.find("div."+view.cname).show();
+                    		view.$el.find("span.not-open").remove();
+                    	}else{
+	                        brite.display(view.cname , view.$el.find(".content")).done(function(component){
+	                            if(component.$el.bView(view.name) == view){
+	                                view.subComponent = component;
+	                                if(!$.isEmptyObject(view.values)){
+	                                    view.subComponent.updateSearchValues(view.values);
+	                                }
+	                            }
+	                        });
+                    	}
                         view.$el.find(".open").removeClass("icon-play").addClass("icon-eject")
                     }
                 }

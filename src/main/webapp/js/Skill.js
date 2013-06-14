@@ -61,9 +61,13 @@
             },
             events: {
                 "clear": function(){
-                    var view = this;
-                    view.$el.find("li[data-name!='ALL'] input[type='checkbox']").prop("checked", false);
-                    view.$el.find("li[data-name='ALL'] input[type='checkbox']").prop("checked", true);
+                	var view = this;
+                    view.$el.find("li[data-name!='ALL']").removeClass("selected").find(":checkbox").prop("checked", false);
+                    var $allLi=view.$el.find("li[data-name='ALL']");
+                    if(!$allLi.hasClass("selected")){
+                    	$allLi.addClass("selected");
+                    }
+                    $allLi.find(":checkbox").prop("checked", true);
                     view.$el.find("input[type='text']").val("");
 
                 },
