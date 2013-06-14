@@ -25,17 +25,11 @@
             updateSearchValues:function(data){
                 var view  = this;
                 var update = function(){
-                    if(data.companyNames){
-                        $.each(data.companyNames.split(","), function(item){
+                    if(data.educationNames){
+                        $.each(data.educationNames.split(","), function(idx, item){
                             view.$el.find("li[data-name='" + item + "'] input").prop("checked", true);
+                            view.$el.find("li[data-name='" + item + "']").addClass("selected")
                         })
-                    }
-                    if(data.curCompany){
-                        console.log(view.$el.find("input[name='curCompany']"));
-                        view.$el.find("input[name='curCompany']").prop("checked", true);
-                    }
-                    if(data.searchCompany){
-                        view.$el.find('input[type=text]').val(data.searchCompany);
                     }
                 };
                 if(view.$el.find(".education").length > 0){
@@ -160,6 +154,16 @@
                         if ((itemNum - hideNum) <= 6) {
                             $btn.hide();
                         }
+                    }
+                },
+                "UPDATE_RESULT_CHANGE":function(event, result){
+                    var $e = this.$el;
+                    var companies = result.educations || [];
+                    $e.find("li .validCount").show().html("0/");
+
+                    for(var i = 0; i < companies.length; i++){
+                        var obj = companies[i];
+                        $e.find(".education li[data-name='"+obj.name+"'] .validCount").html(obj.count+"/");
                     }
                 }
             },

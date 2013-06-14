@@ -26,8 +26,9 @@
                 var view  = this;
                 var update = function(){
                     if(data.skillNames){
-                        $.each(data.skillNames.split(","), function(item){
+                        $.each(data.skillNames.split(","), function(idx, item){
                             view.$el.find("li[data-name='" + item + "'] input").prop("checked", true);
+                            view.$el.find("li[data-name='" + item + "']").addClass("selected")
                         })
                     }
                 };
@@ -153,6 +154,16 @@
                         if ((itemNum - hideNum) <= 6) {
                             $btn.hide();
                         }
+                    }
+                },
+                "UPDATE_RESULT_CHANGE":function(event, result){
+                    var $e = this.$el;
+                    var companies = result.skills || [];
+                    $e.find("li .validCount").show().html("0/");
+
+                    for(var i = 0; i < companies.length; i++){
+                        var obj = companies[i];
+                        $e.find(".skill li[data-name='"+obj.name+"'] .validCount").html(obj.count+"/");
                     }
                 }
             },
