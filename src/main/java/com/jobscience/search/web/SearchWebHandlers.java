@@ -11,7 +11,6 @@ import javax.inject.Singleton;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.jobscience.search.dao.SearchDao;
-import com.jobscience.search.dao.SearchMode;
 import com.jobscience.search.dao.SearchResult;
 
 @Singleton
@@ -22,15 +21,11 @@ public class SearchWebHandlers {
     private SearchDao searchDao;
     
     @WebGet("/search")
-    public WebResponse search(@WebParam("q_") Map searchValues,@WebParam("searchMode") String searchModeStr,
+    public WebResponse search(@WebParam("q_") Map searchValues,
                               @WebParam("pageIdx") Integer pageIdx, @WebParam("pageSize") Integer pageSize,
                               @WebParam("column")String column,@WebParam("order")String order,
                               @WebParam("searchColumns")String searchColumns ){
         
-        SearchMode searchMode = SearchMode.SIMPLE;
-        if (searchModeStr != null) {
-            searchMode = SearchMode.valueOf(searchModeStr.toUpperCase());
-        }
         
         if(pageIdx == null ){
             pageIdx = 0;
@@ -43,17 +38,14 @@ public class SearchWebHandlers {
         	orderCon = " order by  " +getOrderColumn(column)+ " " +(("desc".equals(order))?"desc":"asc");
         }
         // FIXME: needs to get the search map from request.
-       // Map searchValues = MapUtil.mapIt("search",search);
-        SearchResult searchResult = searchDao.search(searchColumns,searchValues,searchMode, pageIdx, pageSize,orderCon);
+        // Map searchValues = MapUtil.mapIt("search",search);
+        SearchResult searchResult = searchDao.search(searchColumns,searchValues, pageIdx, pageSize,orderCon);
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }
     
     @WebGet("/getTopCompaniesAndEducations")
-    public WebResponse getTopCompanies(@WebParam("type") String type, @WebParam("companyOffset") Integer companyOffset,
-                            @WebParam("companyLimit") Integer companyLimit, @WebParam("educationOffset") Integer educationOffset,
-                            @WebParam("educationLimit") Integer educationLimit, @WebParam("skillOffset") Integer skillOffset,
-                            @WebParam("skillLimit") Integer skillLimit, @WebParam("offset") Integer offset,
+    public WebResponse getTopCompanies(@WebParam("type") String type, @WebParam("offset") Integer offset,
                             @WebParam("limit") Integer limit) throws SQLException {
     	Map result = new HashMap();
         if(offset==null){
@@ -65,39 +57,21 @@ public class SearchWebHandlers {
         
         long start = System.currentTimeMillis();
         if(type==null || "".equals(type) || "company".equals(type)){
-            if(companyOffset == null){
-                companyOffset = offset;
-            }
-            if(companyLimit == null){
-                companyLimit = limit;
-            }
-	        List companies = searchDao.getTopAdvancedType(companyOffset,companyLimit,"company");
+	        List companies = searchDao.getTopAdvancedType(offset,limit,"company");
 	        result.put("companies", companies);
 	        long tempEnd = System.currentTimeMillis();
 	        result.put("companyDuration", tempEnd - start);
         }
         long mid = System.currentTimeMillis();
         if(type==null || "".equals(type) || "education".equals(type)){
-            if(educationOffset == null){
-                educationOffset = offset;
-            }
-            if(educationLimit == null){
-                educationLimit = limit;
-            }
-	        List educations = searchDao.getTopAdvancedType(educationOffset,educationLimit,"education");
+	        List educations = searchDao.getTopAdvancedType(offset,limit,"education");
 	        result.put("educations", educations);
 	        long tempEnd = System.currentTimeMillis();
 	        result.put("educationDuration", tempEnd - mid);
         }
         long mid1 = System.currentTimeMillis();
         if(type==null || "".equals(type) || "skill".equals(type)){
-            if(skillOffset == null){
-                skillOffset = offset;
-            }
-            if(skillLimit == null){
-                skillLimit = limit;
-            }
-	        List skills = searchDao.getTopAdvancedType(skillOffset,skillLimit,"skill");
+	        List skills = searchDao.getTopAdvancedType(offset,limit,"skill");
 	        result.put("skills", skills);
 	        long tempEnd = System.currentTimeMillis();
             result.put("skillDuration", tempEnd - mid1);
@@ -126,14 +100,14 @@ public class SearchWebHandlers {
 
     
     private String getOrderColumn(String originalName){
-    	if("Name".equalsIgnoreCase(originalName)||
-    	   "Title".equalsIgnoreCase(originalName)||
-    	   "Company".equalsIgnoreCase(originalName)||
-    	   "Skill".equalsIgnoreCase(originalName)||
-    	   "Education".equalsIgnoreCase(originalName)){
-    		return "l"+originalName;
-    	}
-    	
-    	return originalName;
+		if("Name".equalsIgnoreCase(originalName)||
+		   "Title".equalsIgnoreCase(originalName)||
+		   "Company".equalsIgnoreCase(originalName)||
+		   "Skill".equalsIgnoreCase(originalName)||
+		   "Education".equalsIgnoreCase(originalName)){
+			return "l"+originalName;
+		}
+		
+		return originalName;
     }
 }
