@@ -161,7 +161,7 @@
                         app.preference.store(type, (itemNum - hideNum));
                         console.log({itemNum:itemNum, hideNum:hideNum})
                         var num = 0;
-                        var $hideLi = $("li:not('.btns'):gt(" + (itemNum - hideNum) + ")", $ul);
+                        var $hideLi = $("li:not('.btns'):gt(" + (itemNum - hideNum+2) + ")", $ul);
                         $hideLi.hide(1000, function() {
                             $(this).remove();
                             num++;
