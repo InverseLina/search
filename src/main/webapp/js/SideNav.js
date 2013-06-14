@@ -80,7 +80,7 @@
                     if (result.count > 0) {
                         searchDao.getGroupValuesForAdvanced(qParams).done(function(result){
                             $.each(view.$el.bFindComponents("SideSection"), function(idx, sideSection){
-                                if(sideSection.subComponent){
+                                if(sideSection.subComponent && sideSection.subComponent.$el){
                                     sideSection.subComponent.$el.trigger("UPDATE_RESULT_CHANGE", result);
                                 }
                             });
