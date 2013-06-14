@@ -1,0 +1,121 @@
+// Core variables and mixins
+@import "mixins.less";
+
+.SideSection {
+  border: solid 1px #ddd;
+  background: #E5E5E5;
+  min-width: 220px;
+  width:100%;
+
+  div.title {
+    position: relative;
+    h2 {
+      font-size: 16px;
+      padding: 3px 0px;
+      line-height: 30px;
+      margin: 0;
+      color: #888;
+      font-weight: normal;
+      letter-spacing: .1em;
+      font-weight: bold;
+      text-align: center;
+      height: 30px;
+      background: #F6F6F6;
+    }
+
+    .open, .clear {
+      position: absolute;
+      display: block;
+      top: 8px;
+      cursor: pointer;
+    }
+    .open {
+      left:10px;
+    }
+    .clear {
+      right: 10px;
+    }
+  }
+
+
+  .content {
+    background: #E5E5E5;
+    padding: 10px;
+    ul {
+      margin: 0 0 10px 0;
+    }
+    input[type='text'] {
+      width: 190px;
+      height: 32px;
+    }
+
+    .control-group {
+       margin-bottom: 0;
+    }
+
+    li{
+      list-style: none;
+      margin-bottom:4px;
+    }
+
+    [type="checkbox"]{
+      margin-top: -1px;
+      margin-right: 5px;
+      height: auto;
+    }
+
+    .all{
+      margin-bottom:6px;
+      span{
+        font-weight: bold;
+      }
+    }
+
+    label{
+      color:#515151;
+      span{
+        display:inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        word-break: normal;
+        max-width: 180px;
+      }
+    }
+
+    .selected{
+      label{
+        color:#b25c05;
+        span{
+          color:#bb732b;
+        }
+      }
+    }
+
+    li.btns{
+      color:#2f67e0;
+      padding-left: 14px;
+      span{
+        cursor:pointer;
+        margin-right: 20px;
+      }
+      .more{
+        i{
+          margin-right:7px;
+        }
+      }
+    }
+
+    span.not-open {
+      display: inline-block;
+      height: 20px;
+      text-align: center;
+      line-height: 20px;
+      width: 100%;
+    }
+  }
+
+  .resultInfo {
+    font-size: 10px;
+  }
+}

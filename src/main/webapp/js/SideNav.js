@@ -7,7 +7,11 @@
 		
 		postDisplay: function(){
 		  // save serarch mode to the view
-			this.searchMode = this.$el.find(".sec.sel").attr("data-search-mode");
+          var view = this;
+          brite.display("SideSection", view.$el, {title: "Contact Info", component: "ContactInfo"});
+          brite.display("SideSection", view.$el, {title: "Company", component: "Company"});
+          brite.display("SideSection", view.$el, {title: "Education", component: "Education"});
+          brite.display("SideSection", view.$el, {title: "Skill", component: "Skill"});
 		},
 		
 		events: {
@@ -62,35 +66,13 @@
 		getSearchValues: function(){
 			var view = this;
 			var $e = view.$el;
-			if (view.searchMode === "simple"){
-				// when simple mode, return nothing.
-				return null;
-            } else if (view.searchMode === "keyword") {
-                var values = {};
-                //get input values
-                view.$el.find(".keyword-form input[type='text']").each(function () {
-                    var $input = $(this);
-                    var name = $input.attr("name");
-                    var val = $input.val();
-                    values[name] = val;
-                });
-                //get checkbox values
-                view.$el.find(".keyword-form input[type='checkbox']:checked").each(function () {
-                    var $input = $(this);
-                    var name = $input.attr("name");
-                    var val = $input.val();
-                    values[name] = val;
-                });
+			var result = {};
+            $.each($e.bFindComponents("SideSection"), function(idx,item){
+                $.extend(result, item.getSearchValues());
+            });
+            console.log(result);
+            return result;
 
-                return values;
-            } else if (view.searchMode === "advanced") {
-                var advancedView = $e.bFindComponents("AdvancedSearch");
-                if (advancedView.length > 0){
-                    return advancedView[0].getSearchValues();
-                }else{
-                    return {};
-                }
-            }
         }
 	});
 
