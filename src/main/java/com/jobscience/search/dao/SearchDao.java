@@ -64,16 +64,17 @@ public class SearchDao {
         String label = getLabel(type);
         String name = getNameExpr(type);
         String table = getTable(type);
-        String querySql = "( " + "select 'No "+label+"' as name, "
-                                + " (select count(*) from contact) - "
-                                + " (select count(*) as count   "
-                                + " from (   "
-                                + " select e.\"ts2__Contact__c\"   "
-                                + " from "+table+" e   where e."+name+" != '' "
-                                + " and e."+name+" is not null "
-                                + " group by e.\"ts2__Contact__c\"  "
-                                + " ) a) as count)"
-                                + " union all "
+        String querySqlForNo = (offset==0)?("( " + "select 'No "+label+"' as name, "
+				                + " (select count(*) from contact) - "
+				                + " (select count(*) as count   "
+				                + " from (   "
+				                + " select e.\"ts2__Contact__c\"   "
+				                + " from "+table+" e   where e."+name+" != '' "
+				                + " and e."+name+" is not null "
+				                + " group by e.\"ts2__Contact__c\"  "
+				                + " ) a) as count)"
+				                + " union all "):"";
+        String querySql = querySqlForNo
                                 + " (select a.name, count(a.contact) from ( "
                                 + " select e."+name+" as name, e.\"ts2__Contact__c\" as contact "
                                 + " from "+table+" e  "
