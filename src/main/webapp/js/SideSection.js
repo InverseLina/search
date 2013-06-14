@@ -64,7 +64,6 @@
                         //close
                         view.status == close;
                         var values = view.subComponent.getSearchValues();
-                        console.log(values);
 
                         view.$el.find(".open").removeClass("icon-eject").addClass("icon-play");
                         view.$el.find("." + view.cname).bRemove();
@@ -92,10 +91,24 @@
 	                            }
 	                        });
                     	}
-                        view.$el.find(".open").removeClass("icon-play").addClass("icon-eject")
+                        view.$el.find(".open").removeClass("icon-chevron-right").addClass("icon-chevron-down")
                     }
                 }
             },
             docEvents: {}
         });
+
+    function formatDisplay(obj){
+        var val;
+        var result = "";
+        for(var k in obj){
+            val = obj[k];
+            if(k=="companyNames" || k=="skillNames" || k == "educationNames"){
+                result += " " + val;
+            }else{
+                result = result +" " + k + ":" + obj[k];
+            }
+        }
+        return result;
+    }
 })(jQuery);

@@ -23,11 +23,13 @@
                 });
             },
             updateSearchValues:function(data){
+                console.log(data);
                 var view  = this;
                 var update = function(){
-                    if(data.educationNames){
-                        $.each(data.educationNames.split(","), function(item){
+                    if(data.companyNames){
+                        $.each(data.companyNames.split(","), function(idx,item){
                             view.$el.find("li[data-name='" + item + "'] input").prop("checked", true);
+                            view.$el.find("li[data-name='" + item + "']").addClass("selected")
                         })
                     }
                     if(data.curCompany){
@@ -173,6 +175,16 @@
                         if ((itemNum - hideNum) <= 6) {
                             $btn.hide();
                         }
+                    }
+                },
+                "UPDATE_RESULT_CHANGE":function(event, result){
+                    var $e = this.$el;
+                    var companies = result.companies || [];
+                    $e.find("li .validCount").show().html("0/");
+
+                    for(var i = 0; i < companies.length; i++){
+                        var obj = companies[i];
+                        $e.find(".company li[data-name='"+obj.name+"'] .validCount").html(obj.count+"/");
                     }
                 }
             },
