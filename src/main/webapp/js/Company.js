@@ -15,7 +15,7 @@
 
             postDisplay: function (data) {
                 var view = this;
-                var companyLimit = app.preference.get("company",6);
+                var companyLimit = app.preference.get("company",app.defaultMenuSize);
                 searchDao.getAdvancedMenu({companyLimit:companyLimit}).always(function (result) {
                     var html = render("Company-detail", result || {});
                     view.$el.append(html);
@@ -100,14 +100,9 @@
                         var $li = $(event.target).closest("li");
                         var $ul = $li.parent("ul");
                         if ($li.hasClass("all")) {
-                            $("li:gt(0)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
+                            $("li:gt(1)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
                         } else {
-                            if ($li.prev().hasClass("all")) {
-                                $("li:eq(0)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
-                                $("li:gt(1)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
-                            } else {
-                                $("li:lt(2)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
-                            }
+                            $("li:eq(1)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
                         }
 
                         if ($li.hasClass("selected")) {
@@ -134,7 +129,7 @@
                         // get advanced menu data from server
                         searchDao.getAdvancedMenu({
                             type : type,
-                            offset : app.preference.get(type, 6),
+                            offset : app.preference.get(type, app.defaultMenuSize),
                             limit : 20
                         }).pipe(function(data) {
                                 updateResultInfo.call(view, data);
@@ -144,7 +139,7 @@
                                 })
 
                                 //save the offset
-                                app.preference.store(type, (parseInt(app.preference.get(type, 6)) + data[dataName].length));
+                                app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
                                 $btn.next().show();
                                 if (data.length < 20) {
                                     $btn.hide();
@@ -153,12 +148,12 @@
                             });
                         // show less items
                     } else {
-                        var itemNum = parseInt(app.preference.get(type, 6));
+                        var itemNum = parseInt(app.preference.get(type, app.defaultMenuSize));
                         var hideNum = 0;
-                        if ((itemNum - 6) % 20 == 0) {
+                        if ((itemNum - app.defaultMenuSize) % 20 == 0) {
                             hideNum = 20;
                         } else {
-                            hideNum = (itemNum - 6) % 20;
+                            hideNum = (itemNum - app.defaultMenuSize) % 20;
                         }
                         app.preference.store(type, (itemNum - hideNum));
                         console.log({itemNum:itemNum, hideNum:hideNum})
@@ -172,7 +167,7 @@
                             }
                         });
                         $btn.prev().show();
-                        if ((itemNum - hideNum) <= 6) {
+                        if ((itemNum - hideNum) <= app.defaultMenuSize) {
                             $btn.hide();
                         }
                     }
