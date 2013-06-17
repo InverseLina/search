@@ -16,7 +16,7 @@
             postDisplay: function (data) {
                 var view = this;
                 var educationLimit = app.preference.get("education",app.defaultMenuSize);
-                searchDao.getAdvancedMenu({educationLimit:educationLimit}).always(function (result) {
+                searchDao.getAdvancedMenu({limit:educationLimit,type:"education"}).always(function (result) {
                     var html = render("Education-detail", result || {});
                     view.$el.append(html);
                     updateResultInfo.call(view, result);

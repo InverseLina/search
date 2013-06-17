@@ -16,7 +16,7 @@
             postDisplay: function (data) {
                 var view = this;
                 var skillLimit = app.preference.get("skill",app.defaultMenuSize);
-                searchDao.getAdvancedMenu({skillLimit:skillLimit}).always(function (result) {
+                searchDao.getAdvancedMenu({limit:skillLimit,type:"skill"}).always(function (result) {
                     var html = render("Skill-detail", result || {});
                     view.$el.append(html);
                     updateResultInfo.call(view, result);

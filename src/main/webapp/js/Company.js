@@ -16,7 +16,7 @@
             postDisplay: function (data) {
                 var view = this;
                 var companyLimit = app.preference.get("company",app.defaultMenuSize);
-                searchDao.getAdvancedMenu({companyLimit:companyLimit}).always(function (result) {
+                searchDao.getAdvancedMenu({limit:companyLimit,type:"company"}).always(function (result) {
                     var html = render("Company-detail", result || {});
                     view.$el.append(html);
                     updateResultInfo.call(view, result);
