@@ -186,7 +186,6 @@
                   if (result.count > 0) {
                     searchDao.getGroupValuesForAdvanced(qParams).done(function(result){
                       var educations = result.list || [];
-                      console.log(result.list);
                       $e.find("li .validCount").show().html("0/");
                       
                       for(var i = 0; i < educations.length; i++){
