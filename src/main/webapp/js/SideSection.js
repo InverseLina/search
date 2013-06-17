@@ -33,7 +33,6 @@
                     if(!$.isEmptyObject(view.values)){
                         view.$el.find(".content").html(render("SideSection-close", {value: formatDisplay(view.values)}))
                     }
-
                 }
             },
             

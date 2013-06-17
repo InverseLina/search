@@ -19,6 +19,7 @@
                 searchDao.getAdvancedMenu({limit:companyLimit,type:"company"}).always(function (result) {
                     var html = render("Company-detail", result || {});
                     view.$el.append(html);
+										app.sideSectionContentMixins.refreshSelections.call(view);                    
                     updateResultInfo.call(view, result);
                 });
             },
@@ -106,6 +107,16 @@
                     if (event.which == 1) {
                         var $li = $(event.target).closest("li");
                         var $ul = $li.parent("ul");
+                        
+                        // FIXME: needs to use custom checkbox element to simplify
+                        //        and reuse code for all the different SideSectionContent
+                        if ($li.hasClass("all") && $li.hasClass("selected")){
+                        	setTimeout(function(){
+                        		$li.find(":checkbox").prop("checked",true);
+                        	},10);
+                        	return;
+                        }
+                        
                         if ($li.hasClass("all")) {
                             $("li:gt(1)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
                         } else {
@@ -117,6 +128,9 @@
                         } else {
                             $li.addClass("selected");
                         }
+                        
+                        app.sideSectionContentMixins.refreshSelections.call(view);
+                        
                         setTimeout(function () {
                             view.$el.trigger("DO_SEARCH");
                         }, 200);
