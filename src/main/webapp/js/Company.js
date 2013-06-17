@@ -130,8 +130,8 @@
                     var $li = $btn.parent("li");
                     var flag = $btn.attr("data-show");
                     var $ul = $btn.closest("ul");
-                    var type = $ul.hasClass("company") ? "company" : ($ul.hasClass("skill") ? "skill" : "education");
-                    var dataName = (type == "company") ? "companies" : ((type == "skill") ? "skills" : "educations");
+                    var type = "company";
+                    var dataName = "companies";
                     // show more items
                     if (flag == "more") {
                         // get advanced menu data from server

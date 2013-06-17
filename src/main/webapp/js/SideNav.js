@@ -29,7 +29,6 @@
 			$.each($e.bFindComponents("SideSection"), function(idx,item){
 			    $.extend(result, item.getSearchValues());
 			});
-			console.log(result);
 			return result;
 
     }
