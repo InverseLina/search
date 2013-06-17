@@ -10,6 +10,8 @@
     brite.registerView("Education", {emptyParent: true},
         {
             create: function (data, config) {
+            		this.dataType = "education";
+                this.dataName = "educations";            	
                 return render("Education");
             },
 
@@ -121,8 +123,8 @@
                     var $li = $btn.parent("li");
                     var flag = $btn.attr("data-show");
                     var $ul = $btn.closest("ul");
-                    var type = $ul.hasClass("company") ? "company" : ($ul.hasClass("skill") ? "skill" : "education");
-                    var dataName = (type == "company") ? "companies" : ((type == "skill") ? "skills" : "educations");
+                    var type = view.dataType;
+                    var dataName = view.dataName;
                     // show more items
                     if (flag == "more") {
                         // get advanced menu data from server
@@ -191,6 +193,8 @@
                   var contentSearchValues = mainView.contentView.getSearchValues();
                   var navContectSearchValues = mainView.sideNav.getSearchValues();
                   var searchValues = $.extend({},contentSearchValues ,navContectSearchValues);
+                  // we remove this dataName because we do not want it in the results (otherwise always 0/...)
+                  delete searchValues[view.dataType + "Names"];
                   // just add the "q_"
                   var qParams = {};
                   $.each(searchValues, function (key, val) {
