@@ -20,7 +20,6 @@
                 var view = this;
                 if(view.status == "open"){
                     brite.display(data.component , view.$el.find(".content")).done(function(component){
-
                       if(component.$el.bView(view.name) == view){
                         view.subComponent = component;
                         if(!$.isEmptyObject(view.values)){
@@ -37,6 +36,7 @@
 
                 }
             },
+            
             getSearchValues: function(){
                 var view = this;
                 if(view.status == "open"){
@@ -45,7 +45,9 @@
                     return JSON.parse(app.preference.get(view.cname + ".values", ""));
                 }
             },
+            
             events: {
+            	
                 "btap; .clear":function(event){
                     event.stopPropagation();
                     var view = $(event.currentTarget).bView();
@@ -58,6 +60,7 @@
                     app.preference.store(view.cname + ".values", null);
                     view.$el.trigger("DO_SEARCH");
                 },
+                
                 "btap; .section-banner":function(event){
                     var view = $(event.currentTarget).bView();
                     if(view.status=="open"){
@@ -94,8 +97,7 @@
                         view.$el.find(".open").removeClass("icon-chevron-right").addClass("icon-chevron-down");
                     }
                 }
-            },
-            docEvents: {}
+            }
         });
 
     function formatDisplay(obj){

@@ -22,6 +22,7 @@
                     updateResultInfo.call(view, result);
                 });
             },
+            
             updateSearchValues:function(data){
                 var view  = this;
                 var update = function(){
@@ -44,6 +45,7 @@
                     setTimeout(update, 500);
                 }
             },
+            
             getSearchValues:function(){
                 var view = this;
                 var $e = view.$el;
@@ -79,6 +81,7 @@
 
                 return result;
             },
+            
             events: {
                 "clear": function(){
                     var view = this;
@@ -91,10 +94,12 @@
                     view.$el.find("input[type='text']").val("");
 
                 },
+                
                 "change; input[name='curCompany']" : function(event) {
                     var view = this;
                     view.$el.trigger("DO_SEARCH");
                 },
+                
                 "btap; li[data-name] label" : function(event) {
                     var view = this;
                     //left click
@@ -118,6 +123,7 @@
 
                     }
                 },
+                
                 "btap;.btns span" : function(event) {
                     var view = this;
                     var $btn = $(event.currentTarget);
@@ -173,6 +179,7 @@
                         }
                     }
                 },
+                
                 "UPDATE_RESULT_CHANGE":function(event, result){
                     var $e = this.$el;
                     var companies = result.companies || [];
@@ -184,7 +191,9 @@
                     }
                 }
             },
+            
             parentEvents : {
+            	
               MainView : {
                 "SEARCH_RESULT_CHANGE" : function(event, result) {
                   var view = this;
@@ -217,7 +226,7 @@
                   }
                 }
               }
-            },
+            }
         });
 
     function updateResultInfo(result) {
