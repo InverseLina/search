@@ -2,7 +2,6 @@
 @import "mixins.less";
 
 .SideSection {
-  border: solid 1px #ddd;
   background: #E5E5E5;
   min-width: 220px;
   width:100%;
@@ -29,6 +28,7 @@
       display: block;
       top: 7px;
       cursor: pointer;
+      opacity: .3;
     }
     .open {
       left:10px;
@@ -93,6 +93,7 @@
         text-overflow: ellipsis;
         word-break: normal;
         max-width: 150px;
+        font-size: 12px;
       }
     }
 
@@ -131,5 +132,8 @@
 
   .resultInfo {
     font-size: 10px;
+    margin-top: -10px;
+    text-align: right;
+    color: #777;
   }
 }
