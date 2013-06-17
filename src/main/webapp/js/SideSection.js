@@ -65,8 +65,7 @@
                         view.status == close;
                         var values = view.subComponent.getSearchValues();
 
-                        view.$el.find(".open").removeClass("icon-eject").addClass("icon-play");
-                        view.$el.find("." + view.cname).bRemove();
+                        view.$el.find("." + view.cname).hide();
                         view.status = "close";
                         app.preference.store(view.cname + ".status", "close");
                         if(!$.isEmptyObject(values)){
@@ -79,9 +78,9 @@
                         view.values = JSON.parse(app.preference.get(view.cname + ".values", ""));
                         view.status = "open";
                         app.preference.store(view.cname + ".status", "open");
-                        if( view.$el.find("div."+view.cname).length>0){
+                        if( view.$el.find("div."+view.cname).size()>0){
                       		view.$el.find("div."+view.cname).show();
-                      		view.$el.find("span.not-open").remove();
+                      		view.$el.find("span.not-open").hide();
                       	}else{
   	                        brite.display(view.cname , view.$el.find(".content")).done(function(component){
   	                            if(component.$el.bView(view.name) == view){

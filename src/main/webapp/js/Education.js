@@ -41,7 +41,7 @@
             getSearchValues:function(){
                 var view = this;
                 var $e = view.$el;
-                var $educationContainer = $e.find("ul.education");
+                var $educationContainer = $e.find("ul.educationList");
                 var companyALL = $educationContainer.find("li[data-name='ALL']").hasClass("selected");
                 var educationStr = "";
                 // get companies filter

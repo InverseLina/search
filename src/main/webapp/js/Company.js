@@ -23,7 +23,6 @@
                 });
             },
             updateSearchValues:function(data){
-                console.log(data);
                 var view  = this;
                 var update = function(){
                     if(data.companyNames){
@@ -33,7 +32,6 @@
                         })
                     }
                     if(data.curCompany){
-                        console.log(view.$el.find("input[name='curCompany']"));
                         view.$el.find("input[name='curCompany']").prop("checked", true);
                     }
                     if(data.searchCompany){
@@ -49,7 +47,7 @@
             getSearchValues:function(){
                 var view = this;
                 var $e = view.$el;
-                var $companyContainer = $e.find("ul.company");
+                var $companyContainer = $e.find("ul.companyList");
                 var companyALL = $companyContainer.find("li[data-name='ALL']").hasClass("selected");
                 var companyStr = "";
                 // get companies filter
