@@ -42,7 +42,7 @@ public class SearchDao {
         int count = dbHelper.preparedStatementExecuteCount(statementAndValues.countStmt, statementAndValues.values);
         long end = System.currentTimeMillis();
 
-        SearchResult searchResult = new SearchResult(result, count).setDuration(end - start).setCountDuration(mid - start).setSelectDuration(end - mid);
+        SearchResult searchResult = new SearchResult(result, count).setDuration(end - start).setSelectDuration(mid - start).setCountDuration(end - mid);
         try {
             statementAndValues.countStmt.close();
             statementAndValues.queryStmt.close();
