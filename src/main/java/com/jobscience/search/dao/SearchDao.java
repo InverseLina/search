@@ -61,29 +61,16 @@ public class SearchDao {
         }
         offset = offset < 0 ? 0 : offset;
         Connection con = dbHelper.getConnection();
-        String label = getLabel(type);
         String name = getNameExpr(type);
         String table = getTable(type);
-        String querySqlForNo = (offset==0)?("( " + "select 'No "+label+"' as name, "
-				                + " (select count(*) from contact) - "
-				                + " (select count(*) as count   "
-				                + " from (   "
-				                + " select e.\"ts2__Contact__c\"   "
-				                + " from "+table+" e   where e."+name+" != '' "
-				                + " and e."+name+" is not null "
-				                + " group by e.\"ts2__Contact__c\"  "
-				                + " ) a) as count)"
-				                + " union all "):"";
-        String querySql = querySqlForNo
-                                + " (select a.name, count(a.contact) from ( "
+        String querySql = " select a.name, count(a.contact) from ( "
                                 + " select e."+name+" as name, e.\"ts2__Contact__c\" as contact "
                                 + " from "+table+" e  "
                                 + " where e."+name+" !='' group by e.\"ts2__Contact__c\", e."+name+") a  "
                                 + " group by a.name order by a.count desc offset "
                                 + offset
                                 + " limit "
-                                + size
-                                + ")";
+                                + size;
         
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
@@ -346,7 +333,6 @@ public class SearchDao {
         if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
         	hasCondition = true;
             String value = searchValues.get("educationNames");
-            boolean noEducation = false;
             if(!"Any Education".equals(value)){
                 String[] educationNames = value.split(","); 
                 joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
@@ -363,16 +349,9 @@ public class SearchDao {
                         conditions.append(")");
                     }
                     
-                    if(educationNames[i].equals("No Educations")){
-                    	noEducation = true;
-                    	values.add("");
-                    }else{
-                    	values.add(educationNames[i]);
-                    }
+                    values.add(educationNames[i]);
                 }
-                if(noEducation){
-                	conditions.append(" or d.\"ts2__Name__c\" is null");
-                }
+                
 
                 conditions.append(" )");
             }
@@ -382,7 +361,6 @@ public class SearchDao {
         if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
         	hasCondition = true;
             String value = searchValues.get("companyNames");
-            boolean noCompany = false;
             if(!"Any Company".equals(value)){
                 String[] companyNames = value.split(","); 
                 joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
@@ -398,15 +376,7 @@ public class SearchDao {
                     if(i == companyNames.length - 1){
                         conditions.append(")");
                     }
-                    if(companyNames[i].equals("No Company")){
-                    	noCompany = true;
-                    	values.add("");
-                    }else{
-                    	values.add(companyNames[i]);
-                    }
-                }
-                if(noCompany){
-                	conditions.append(" or c.\"ts2__Name__c\" is null");
+                    values.add(companyNames[i]);
                 }
 
                 conditions.append(" ) ");
@@ -417,7 +387,6 @@ public class SearchDao {
         if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
         	hasCondition = true;
             String value = searchValues.get("skillNames");
-            boolean noSkill = false;
             if(!"Any Skill".equals(value)){
                 String[] skillNames = value.split(","); 
                 joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
@@ -433,15 +402,7 @@ public class SearchDao {
                     if(i == skillNames.length - 1){
                         conditions.append(")");
                     }
-                    if(skillNames[i].equals("No Skills")){
-                    	noSkill = true;
-                    	values.add("");
-                    }else{
-                    	values.add(skillNames[i]);
-                    }
-                }
-                if(noSkill){
-                	conditions.append(" or b.\"ts2__Skill_Name__c\" is null");
+                    values.add(skillNames[i]);
                 }
 
                 conditions.append(" ) ");
@@ -627,8 +588,6 @@ public class SearchDao {
         String[] names = namesStr.split(",");
         String instance = getTableInstance(type);
         String nameExpr = getNameExpr(type);
-        String label = getLabel(type);
-        boolean noName = false;
         conditions.append("  and ( "+instance+"."+nameExpr+" in ");
         for (int i = 0; i < names.length; i++) {
             if (i == 0) {
@@ -640,17 +599,8 @@ public class SearchDao {
             if (i == names.length - 1) {
                 conditions.append(")");
             }
-            if (names[i].equals("No "+label)) {
-                noName = true;
-                values.add("");
-            } else {
-                values.add(names[i]);
-            }
+           values.add(names[i]);
         }
-        if (noName) {
-            conditions.append(" or "+instance+"."+nameExpr+" is null");
-        }
-
         conditions.append(" )");
         return conditions.toString();
     }

@@ -22,33 +22,6 @@
 			}
 		},
 
-        parentEvents : {
-            MainView : {
-                "SEARCH_RESULT_CHANGE" : function(event, result) {
-                    var view = this;
-                    var $e = view.$el;
-                    var mainView = view.$el.bView("MainView");
-                    var contentSearchValues = mainView.contentView.getSearchValues();
-                    var navContectSearchValues = mainView.sideNav.getSearchValues();
-                    var searchValues = $.extend({},contentSearchValues ,navContectSearchValues);
-                    // just add the "q_"
-                    var qParams = {};
-                    $.each(searchValues, function (key, val) {
-                        qParams["q_" + key] = $.trim(val);
-                    });
-                    if (result.count > 0) {
-                        searchDao.getGroupValuesForAdvanced(qParams).done(function(result){
-                            $.each(view.$el.bFindComponents("SideSection"), function(idx, sideSection){
-                                if(sideSection.subComponent && sideSection.subComponent.$el){
-                                    sideSection.subComponent.$el.trigger("UPDATE_RESULT_CHANGE", result);
-                                }
-                            });
-                        });
-                    }
-                }
-            }
-        },
-		
 		getSearchValues: function(){
 			var view = this;
 			var $e = view.$el;

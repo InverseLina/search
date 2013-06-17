@@ -9,3 +9,6 @@
     }
   }
 })(window); 
+var app = app||{};
+
+app.defaultMenuSize = 5;
