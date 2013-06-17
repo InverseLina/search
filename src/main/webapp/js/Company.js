@@ -93,6 +93,10 @@
                     view.$el.find("input[type='text']").val("");
 
                 },
+                "change; input[name='curCompany']" : function(event) {
+                    var view = this;
+                    view.$el.trigger("DO_SEARCH");
+                },
                 "btap; li[data-name] label" : function(event) {
                     var view = this;
                     //left click
@@ -161,7 +165,6 @@
                             hideNum = (itemNum - 6) % 20;
                         }
                         app.preference.store(type, (itemNum - hideNum));
-                        console.log({itemNum:itemNum, hideNum:hideNum})
                         var num = 0;
                         var $hideLi = $("li:not('.btns'):gt(" + (itemNum - hideNum+2) + ")", $ul);
                         $hideLi.hide(1000, function() {

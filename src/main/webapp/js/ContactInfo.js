@@ -41,6 +41,10 @@
                 "clear": function(){
                     var view = this;
                     view.$el.find("input").val("");
+                },
+                "change; input[name='curTitle']" : function(event) {
+                  var view = this;
+                  view.$el.trigger("DO_SEARCH");
                 }
             },
             docEvents: {}
