@@ -197,21 +197,21 @@ public class SearchDao {
     			groupBy.delete(0, groupBy.length());
     		}
     		groupBy.append(" a.\"id\" ");
-    		return " string_agg(c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as lCompany";
+    		return " string_agg(distinct c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as lCompany";
     	}else if(orginalName.toLowerCase().equals("skill")){
     		columnJoinTables.add(getAdvancedJoinTable("skill"));
     		if(groupBy.length()>0){
     			groupBy.delete(0, groupBy.length());
     		}
     		groupBy.append(" a.\"id\" ");
-    		return "string_agg(b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as lSkill";
+    		return "string_agg(distinct b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as lSkill";
     	}else if(orginalName.toLowerCase().equals("education")){
     		columnJoinTables.add(getAdvancedJoinTable("education"));
     		if(groupBy.length()>0){
     			groupBy.delete(0, groupBy.length());
     		}
     		groupBy.append(" a.\"id\" ");
-    		return "string_agg(d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as lEducation";
+    		return "string_agg(distinct d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as lEducation";
     	}
     	return orginalName;
     }
