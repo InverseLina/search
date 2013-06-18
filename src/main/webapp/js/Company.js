@@ -21,7 +21,7 @@
                 searchDao.getAdvancedMenu({limit:companyLimit,type:"company"}).always(function (result) {
                     var html = render("Company-detail", result || {});
                     view.$el.append(html);
-										app.sideSectionContentMixins.refreshSelections.call(view);                    
+					app.sideSectionContentMixins.refreshSelections.call(view);                    
                     updateResultInfo.call(view, result);
                 });
             },
@@ -260,7 +260,7 @@
 
         if (companies && companies.length) {
             //except the no company
-            count = count + companies.length - 1;
+            count = count + companies.length;
         }
 
         $count.html(count);

@@ -232,12 +232,12 @@
         var $callDuration = $resultInfo.find(".result-callDuration");
         var count = 0;
 
-        var duration = result.duration, companies = result.companies, educations = result.educations, skills = result.skills,
+        var duration = result.duration,skills = result.skills,
             callDuration = result.skillDuration, skillDuration = result.skillDuration;
 
-        if (educations && educations.length) {
+        if (skills && skills.length) {
             //except the no education
-            count = count + educations.length - 1;
+            count = count + skills.length;
         }
         $count.html(count);
 

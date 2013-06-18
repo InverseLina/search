@@ -235,7 +235,7 @@
 
         if (educations && educations.length) {
             //except the no education
-            count = count + educations.length - 1;
+            count = count + educations.length;
         }
         $count.html(count);
 
