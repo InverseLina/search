@@ -28,7 +28,7 @@ var app = app || {};
     var $e = view.$el;
     var dataType = this.dataType;
     
-    $e.on("btap",".clear",function(){
+    $e.on("clear",function(){
       view.clearValues();
     });
 
