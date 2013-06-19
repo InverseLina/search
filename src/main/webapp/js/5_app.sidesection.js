@@ -80,8 +80,8 @@ var app = app || {};
       var $li = $btn.parent("li");
       var flag = $btn.attr("data-show");
       var $ul = $btn.closest("ul");
-      var type = this.dataType;
-      var dataName = this.dataName;
+      var type = view.dataType;
+      var dataName = view.dataName;
       // show more items
       if (flag == "more") {
         // get advanced menu data from server
