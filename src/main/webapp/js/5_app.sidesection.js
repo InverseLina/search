@@ -38,12 +38,18 @@ var app = app || {};
       
       // FIXME: needs to use custom checkbox element to simplify
       //        and reuse code for all the different SideSectionContent
-      if ($li.hasClass("all") && $li.hasClass("selected")) {
+
+      if ($li.hasClass("all") ) {
+        view.$el.find("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
         setTimeout(function() {
           $li.find(":checkbox").prop("checked", true);
+          $li.removeClass("selected").addClass("selected");
+          view.$el.trigger("DO_SEARCH");
         }, 10);
         return;
       }
+
+
 
       if ($li.hasClass("all")) {
         $("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
@@ -124,40 +130,52 @@ var app = app || {};
       }
 
     });
+  };
 
-    $(document).on("SEARCH_RESULT_CHANGE." + view.id, function(event,result) {
-      var mainView = view.$el.bView("MainView");
-      var contentSearchValues = mainView.contentView.getSearchValues();
-      var navContectSearchValues = mainView.sideNav.getSearchValues();
-      var searchValues = $.extend({}, contentSearchValues, navContectSearchValues);
-      // just add the "q_"
-      var qParams = {};
-      $.each(searchValues, function(key, val) {
-        qParams["q_" + key] = $.trim(val);
-      });
-      qParams.type = view.dataType;
+  BaseSideAdvanced.prototype.parentEvents  = {
+          MainView: {
+              "SEARCH_RESULT_CHANGE": function(event, result) {
+                  var view = this;
+                  var $e = view.$el;
+                  var mainView = view.$el.bView("MainView");
 
-      if (result.count > 0) {
-        searchDao.getGroupValuesForAdvanced(qParams).done(function(result) {
-          var items = result.list || [];
+                  var contentSearchValues = mainView.contentView.getSearchValues();
+                  var navContectSearchValues = mainView.sideNav.getSearchValues();
+                  var searchValues = $.extend({}, contentSearchValues, navContectSearchValues);
+                  // we remove this dataName because we do not want it in the results (otherwise always 0/...)
+                  delete searchValues[view.dataType + "Names"];
+                  // just add the "q_"
+                  var qParams = {};
+                  $.each(searchValues, function(key, val) {
+                      qParams["q_" + key] = $.trim(val);
+                  });
+                  qParams.type = view.dataType;
 
-          $e.find("li .validCount").show().html("0/");
+                  if (result.count > 0) {
+                      searchDao.getGroupValuesForAdvanced(qParams).done(function(result) {
+                          var items = result.list || [];
 
-          for (var i = 0; i < items.length; i++) {
-            var obj = items[i];
-            $e.find("li[data-name='" + obj.name + "'] .validCount").html(obj.count + "/");
+                          $e.find("li .validCount").show().html("0/");
+
+                          for (var i = 0; i < items.length; i++) {
+                              var obj = items[i];
+                              $e.find("li[data-name='" + obj.name + "'] .validCount").html(obj.count + "/");
+                          }
+
+                      });
+                  } else {
+                      $e.find("li .validCount").hide();
+                  }
+
+              }
+
           }
-
-        });
-      } else {
-        $e.find("li .validCount").hide();
-      }
-
-    });
-  }
+      };
 
 
-  BaseSideAdvanced.prototype.updateSearchValues = function(data) {
+
+
+      BaseSideAdvanced.prototype.updateSearchValues = function(data) {
     var view = this;
     var dataType = this.dataType;
     var names = data[dataType+"Names"];
@@ -168,7 +186,7 @@ var app = app || {};
       })
     }
 
-  }
+  };
 
 
   BaseSideAdvanced.prototype.getSearchValues = function() {
@@ -195,7 +213,7 @@ var app = app || {};
     }
 
     return result;
-  }
+  };
 
 
   BaseSideAdvanced.prototype.updateResultInfo = function(result,$e) {
@@ -227,7 +245,7 @@ var app = app || {};
     } else {
       $callDuration.html(0);
     }
-  }
+  };
 
   BaseSideAdvanced.prototype.refreshSelections = function() {
     var view = this;
@@ -237,7 +255,7 @@ var app = app || {};
     }else{
       view.$el.find("li.all").removeClass("selected").find(":checkbox").prop("checked", false);
     }
-  } 
+  };
 
   BaseSideAdvanced.prototype.clearValues = function() {
     var view = this;
@@ -249,7 +267,7 @@ var app = app || {};
     $allLi.find(":checkbox").prop("checked", true);
     view.$el.find("input[type='text']").val(""); 
 
-  } 
+  };
 
   app.sidesection.BaseSideAdvanced = BaseSideAdvanced;
 })(jQuery); 

@@ -32,7 +32,6 @@
             },
             updateSearchValues:function(data){
                 var view = this;
-                console.log(view);
                 for (var k in data) {
                    view.$el.find("input[name='" + k + "']").val(data[k]);
                 }
