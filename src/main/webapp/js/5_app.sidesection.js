@@ -9,21 +9,24 @@ var app = app || {};
   };
 
   BaseSideAdvanced.prototype.create = function(data, config) {
-    return render(this.name);
+    var dfd = $.Deferred();
+    var view = this;
+    var dataType = this.dataType;
+    var limit = app.preference.get(dataType, app.defaultMenuSize);
+    searchDao.getAdvancedMenu({limit : limit, type : dataType}).always(function(result) {
+      var $e = $(render(view.name));
+      var html = render(view.name+"-detail", result || {});
+      $e.append(html);
+      view.updateResultInfo(result,$e);
+      dfd.resolve($e);
+    }); 
+    return dfd.promise();
   }
   
   BaseSideAdvanced.prototype.postDisplay = function(data) {
     var view = this;
     var $e = view.$el;
     var dataType = this.dataType;
-    
-    var limit = app.preference.get(dataType, app.defaultMenuSize);
-    searchDao.getAdvancedMenu({limit : limit, type : dataType}).always(function(result) {
-      var html = render(view.name+"-detail", result || {});
-      view.$el.append(html);
-      view.refreshSelections();
-      view.updateResultInfo(result);
-    }); 
     
     $e.on("btap",".clear",function(){
       view.clearValues();
@@ -55,12 +58,17 @@ var app = app || {};
       }
 
       view.refreshSelections();
-
+      
       setTimeout(function() {
         view.$el.trigger("DO_SEARCH");
       }, 200);
     });
-
+    
+    $e.on("change","li[data-name] input[type='checkbox']", function(event) {
+      var values = view.getSearchValues();
+      app.preference.store(view.name + ".values", JSON.stringify(values));
+    });
+    
     $e.on("btap",".btns span", function(event) {
       var $btn = $(event.currentTarget);
       var $li = $btn.parent("li");
@@ -155,19 +163,11 @@ var app = app || {};
     var view = this;
     var dataType = this.dataType;
     var names = data[dataType+"Names"];
-    var update = function() {
-      if (names) {
-        $.each(names.split(","), function(idx, item) {
-          view.$el.find("li[data-name='" + item + "'] input").prop("checked", true);
-          view.$el.find("li[data-name='" + item + "']").addClass("selected")
-        })
-
-      }
-    };
-    if (view.$el.find("."+dataType).length > 0) {
-      update();
-    } else {
-      setTimeout(update, 500);
+    if (names) {
+      $.each(names.split(","), function(idx, item) {
+        view.$el.find("li[data-name='" + item + "'] input").prop("checked", true);
+        view.$el.find("li[data-name='" + item + "']").addClass("selected")
+      })
     }
 
   }
@@ -200,9 +200,9 @@ var app = app || {};
   }
 
 
-  BaseSideAdvanced.prototype.updateResultInfo = function(result) {
+  BaseSideAdvanced.prototype.updateResultInfo = function(result,$e) {
     var view = this;
-    var $e = view.$el;
+    $e = $e || view.$el;
     var $resultInfo = $e.find(".resultInfo");
     var $count = $resultInfo.find(".result-count");
     var $duration = $resultInfo.find(".result-duration");
