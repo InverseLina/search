@@ -53,7 +53,11 @@
                     if(view.status == "open"){
                         view.subComponent.$el.trigger("clear");
                     }else{
-                        view.$el.find(".content").empty();
+                        //check sub component is create or not.
+                        if(view.subComponent){
+                            view.subComponent.$el.trigger("clear");
+                        }
+                        view.$el.find(".not-open").remove();
                     }
                     //remove cookie
                     app.preference.store(view.cname + ".values", null);
@@ -72,7 +76,7 @@
                         app.preference.store(view.cname + ".status", "close");
                         if(!$.isEmptyObject(values)){
                             app.preference.store(view.cname + ".values", JSON.stringify(values));
-                            view.$el.find(".content").append(render("SideSection-close", {value: formatDisplay(values)}))
+                            view.$el.find(".content").remove(".not-open").append(render("SideSection-close", {value: formatDisplay(values)}))
                         }
                         view.$el.find(".open").removeClass("icon-chevron-down").addClass("icon-chevron-right");
                     }else{

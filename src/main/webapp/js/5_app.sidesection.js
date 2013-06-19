@@ -18,6 +18,7 @@ var app = app || {};
       var html = render(view.name+"-detail", result || {});
       $e.append(html);
       view.updateResultInfo(result,$e);
+      view.refreshSelections($e);
       dfd.resolve($e);
     }); 
     return dfd.promise();
@@ -186,6 +187,8 @@ var app = app || {};
       })
     }
 
+    view.refreshSelections();
+
   };
 
 
@@ -247,13 +250,13 @@ var app = app || {};
     }
   };
 
-  BaseSideAdvanced.prototype.refreshSelections = function() {
+  BaseSideAdvanced.prototype.refreshSelections = function($e) {
     var view = this;
-    
-    if (view.$el.find("li:not(.all).selected").length === 0) {
-      view.$el.find("li.all").addClass("selected").find(":checkbox").prop("checked", true);
+    $e = $e||view.$el;
+    if ($e.find("li:not(.all).selected").length === 0) {
+      $e.find("li.all").addClass("selected").find(":checkbox").prop("checked", true);
     }else{
-      view.$el.find("li.all").removeClass("selected").find(":checkbox").prop("checked", false);
+      $e.find("li.all").removeClass("selected").find(":checkbox").prop("checked", false);
     }
   };
 
