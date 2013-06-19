@@ -76,7 +76,8 @@
                         app.preference.store(view.cname + ".status", "close");
                         if(!$.isEmptyObject(values)){
                             app.preference.store(view.cname + ".values", JSON.stringify(values));
-                            view.$el.find(".content").remove(".not-open").append(render("SideSection-close", {value: formatDisplay(values)}))
+                            view.$el.find(".content .not-open").remove();
+                            view.$el.find(".content").append(render("SideSection-close", {value: formatDisplay(values)}))
                         }
                         view.$el.find(".open").removeClass("icon-chevron-down").addClass("icon-chevron-right");
                     }else{
