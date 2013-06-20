@@ -23,7 +23,7 @@ public class SearchDao {
 
     static private String QUERY_SELECT = "select distinct ";
 
-    static private String QUERY_COUNT  = "select count (distinct a.id)" + " from contact a ";
+    static private String QUERY_COUNT  = "select count (distinct a.id) ";
 
     private Logger log = Logger.getLogger(SearchDao.class);
     @Inject
@@ -97,20 +97,20 @@ public class SearchDao {
         boolean hasCondition = false;
         querySql.append("select result.name, count(*) as count from ( ");
         querySql.append(QUERY_SELECT);
-        columnsSql.append("a.\"sfId\" as id, ");
+        columnsSql.append("contact.\"sfId\" as id, ");
         querySql.append(columnsSql);
-        String companyTable = getAdvancedJoinTable("company");
-        String educationTable = getAdvancedJoinTable("education");
-        String skillTable = getAdvancedJoinTable("skill");
+        String companyTable = getAdvancedValueJoinTable("company");
+        String educationTable = getAdvancedValueJoinTable("education");
+        String skillTable = getAdvancedValueJoinTable("skill");
         querySql.append(getNameExprForNothing(type));
-        querySql.append(" from contact a ");
+        querySql.append(" from contact contact ");
         
         if (searchValues != null) {
 
             // for all search mode, we preform the same condition
             String search = searchValues.get("search");
             if (!Strings.isNullOrEmpty(search)) {
-                querySql.append(getSearchValueJoinTable(search, values));
+                querySql.append(getJoinTable(search,null, values));
             }
 
             // add the 'educationNames' filter, and join Education table
@@ -118,7 +118,7 @@ public class SearchDao {
                 hasCondition = true;
                 String value = searchValues.get("educationNames");
                 if (!"Any Education".equals(value)) {
-                    joinTables.append(getAdvancedJoinTable("education"));
+                    joinTables.append(getAdvancedValueJoinTable("education"));
                     conditions.append(getConditionForThirdNames(value, values, "education"));
                 }
             }
@@ -128,7 +128,7 @@ public class SearchDao {
                 hasCondition = true;
                 String value = searchValues.get("companyNames");
                 if (!"Any Company".equals(value)) {
-                    joinTables.append(getAdvancedJoinTable("company"));
+                    joinTables.append(getAdvancedValueJoinTable("company"));
                     conditions.append(getConditionForThirdNames(value, values, "company"));
                 }
             }
@@ -138,7 +138,7 @@ public class SearchDao {
                 hasCondition = true;
                 String value = searchValues.get("skillNames");
                 if (!"Any Skill".equals(value)) {
-                    joinTables.append(getAdvancedJoinTable("skill"));
+                    joinTables.append(getAdvancedValueJoinTable("skill"));
                     conditions.append(getConditionForThirdNames(value, values, "skill"));
                 }
             }
@@ -149,17 +149,17 @@ public class SearchDao {
             if(joinTables.indexOf("ts2__employment_history__c") == -1){
                 querySql.append(companyTable);
             }
-            groupBy.append(" group by a.\"sfId\", c.\"ts2__Name__c\" ");
+            groupBy.append(" group by contact.\"sfId\", c.\"ts2__Name__c\" ");
         }else if(type.equals("education")){
             if(joinTables.indexOf("ts2__education_history__c") == -1){
                 querySql.append(educationTable);
             }
-            groupBy.append(" group by a.\"sfId\", d.\"ts2__Name__c\" ");
+            groupBy.append(" group by contact.\"sfId\", d.\"ts2__Name__c\" ");
         }else if(type.equals("skill")){
             if(joinTables.indexOf("ts2__skill__c") == -1){
                 querySql.append(skillTable);
             }
-            groupBy.append(" group by a.\"sfId\", b.\"ts2__Skill_Name__c\" ");
+            groupBy.append(" group by contact.\"sfId\", b.\"ts2__Skill_Name__c\" ");
         }
         
         if(hasCondition){
@@ -184,35 +184,39 @@ public class SearchDao {
     
     private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy){
     	if(orginalName.toLowerCase().equals("name")){
+    		if(groupBy.length()>0){
+    			groupBy.append(",");
+    		}
+    		groupBy.append("a.\"Name\"");
     		return "a.\"Name\" as Name,lower(a.\"Name\") as lName";
     	}else if(orginalName.toLowerCase().equals("id")){
     		return " a.\"id\" as id";
     	}else if(orginalName.toLowerCase().equals("title")){
+    		if(groupBy.length()>0){
+    			groupBy.append(",");
+    		}
+    		groupBy.append("a.\"Title\"");
     		return "a.\"Title\" as Title,lower(a.\"Title\") as lTitle";
     	}else if(orginalName.toLowerCase().equals("createdate")){
+    		if(groupBy.length()>0){
+    			groupBy.append(",");
+    		}
+    		groupBy.append("a.\"CreatedDate\"");
     		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate";
     	}else if(orginalName.toLowerCase().equals("company")){
     		columnJoinTables.add(getAdvancedJoinTable("company"));
-    		if(groupBy.length()>0){
-    			groupBy.delete(0, groupBy.length());
-    		}
-    		groupBy.append(" a.\"id\" ");
+    		
     		return " string_agg(distinct c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as lCompany";
     	}else if(orginalName.toLowerCase().equals("skill")){
     		columnJoinTables.add(getAdvancedJoinTable("skill"));
-    		if(groupBy.length()>0){
-    			groupBy.delete(0, groupBy.length());
-    		}
-    		groupBy.append(" a.\"id\" ");
+    		
     		return "string_agg(distinct b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as lSkill";
     	}else if(orginalName.toLowerCase().equals("education")){
     		columnJoinTables.add(getAdvancedJoinTable("education"));
-    		if(groupBy.length()>0){
-    			groupBy.delete(0, groupBy.length());
-    		}
-    		groupBy.append(" a.\"id\" ");
+    		
     		return "string_agg(distinct d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as lEducation";
     	}
+    	
     	return orginalName;
     }
     
@@ -285,7 +289,8 @@ public class SearchDao {
         if (searchValues.get("Skill") != null && !"".equals(searchValues.get("Skill"))) {
         	hasCondition = true;
             String value = searchValues.get("Skill");
-            joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+            removeDuplicate(columnJoinTables,"ts2__skill__c");
+            joinTables.append("  join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
             conditions.append(" and b.\"ts2__Skill_Name__c\" ilike ? ");
             if(!value.contains("%")){
                 value = "%" + value + "%";
@@ -303,7 +308,7 @@ public class SearchDao {
             	 conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
              }else{
             	 removeDuplicate(columnJoinTables,"ts2__employment_history__c");
-                 joinTables.append(" left outer join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+                 joinTables.append("  join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
                  conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
              }
 
@@ -321,7 +326,8 @@ public class SearchDao {
         if (searchValues.get("Education") != null && !"".equals(searchValues.get("Education"))) {
         	hasCondition = true;
             String value = searchValues.get("Education");
-            joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+            removeDuplicate(columnJoinTables,"ts2__education_history__c");
+            joinTables.append("  join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
             conditions.append(" and d.\"ts2__Name__c\" ilike ? ");
             if(!value.contains("%")){
                 value = "%" + value + "%";
@@ -329,89 +335,6 @@ public class SearchDao {
             values.add(value);
         }
         
-    
-
-        //add the 'educationNames' filter, and join Education table
-        if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
-        	hasCondition = true;
-            String value = searchValues.get("educationNames");
-            if(!"Any Education".equals(value)){
-                String[] educationNames = value.split(","); 
-                joinTables.append(" inner join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
-                removeDuplicate(columnJoinTables,"ts2__education_history__c");
-                conditions.append("  and ( d.\"ts2__Name__c\" in ");
-                for(int i = 0; i < educationNames.length; i++){
-                    if(i == 0){
-                        conditions.append("(");
-                    }else{
-                        conditions.append(",");
-                    }
-                    conditions.append("?");
-                    if(i == educationNames.length - 1){
-                        conditions.append(")");
-                    }
-                    
-                    values.add(educationNames[i]);
-                }
-                
-
-                conditions.append(" )");
-            }
-        }
-        
-        //add the 'companyNames' filter, and join Education table
-        if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
-        	hasCondition = true;
-            String value = searchValues.get("companyNames");
-            if(!"Any Company".equals(value)){
-                String[] companyNames = value.split(","); 
-                if(!searchEmployment){
-	                joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
-	                removeDuplicate(columnJoinTables,"ts2__employment_history__c");
-                }
-                conditions.append("  and ( c.\"ts2__Name__c\" in ");
-                for(int i = 0; i < companyNames.length; i++){
-                    if(i == 0){
-                        conditions.append("(");
-                    }else{
-                        conditions.append(",");
-                    }
-                    conditions.append("?");
-                    if(i == companyNames.length - 1){
-                        conditions.append(")");
-                    }
-                    values.add(companyNames[i]);
-                }
-
-                conditions.append(" ) ");
-            }
-        }
-        
-        //add the 'skillNames' filter, and join Education table
-        if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
-        	hasCondition = true;
-            String value = searchValues.get("skillNames");
-            if(!"Any Skill".equals(value)){
-                String[] skillNames = value.split(","); 
-                joinTables.append(" inner join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
-                removeDuplicate(columnJoinTables,"ts2__skill__c");
-                conditions.append(" and ( b.\"ts2__Skill_Name__c\" in  ");
-                for(int i = 0; i < skillNames.length; i++){
-                    if(i == 0){
-                        conditions.append("(");
-                    }else{
-                        conditions.append(",");
-                    }
-                    conditions.append("?");
-                    if(i == skillNames.length - 1){
-                        conditions.append(")");
-                    }
-                    values.add(skillNames[i]);
-                }
-
-                conditions.append(" ) ");
-            }
-        }
         return hasCondition;
     }
     /**
@@ -438,7 +361,7 @@ public class SearchDao {
         // the part of query that build conditions sql
         StringBuilder conditions = new StringBuilder();
         // the part of query that build group by sql
-        StringBuilder groupBy= new StringBuilder();
+        StringBuilder groupBy= new StringBuilder("a.\"id\"");
         // the params will be put in sql
         List values = new ArrayList();
         
@@ -448,17 +371,15 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
-        querySql.append(" from contact a ");
-        
+        querySql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
+        countSql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
             String search = searchValues.get("search");
-            if (!Strings.isNullOrEmpty(search)) {
-                String joinSql = getSearchValueJoinTable(search, values);
-                querySql.append(joinSql);
-                countSql.append(joinSql);
-            }
+            String joinSql = getJoinTable(search, searchValues,values);
+            querySql.append(joinSql);
+            countSql.append(joinSql);
 
             hasCondition = renderSearchCondition(searchValues,values,conditions,joinTables,columnJoinTables );
         }
@@ -488,29 +409,108 @@ public class SearchDao {
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         
         log.debug(querySql);
+        log.debug(countSql);
+        
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
         ss.values = values.toArray();
-
         return ss;
     }
     
-    private String getSearchValueJoinTable(String searchValue, List values){
-        StringBuilder joinSql = new StringBuilder();
-        joinSql.append(" right join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
-                                + " select a_copy1.id as id from contact a_copy1 "
-                                + " where "
-                                + " a_copy1.\"Title\" ilike ? "
-                                + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = a.id ");
-        String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(searchValue));
-        String searchILike = searchValue;
-        if (!searchILike.contains("%")) {
-            searchILike = "%" + searchValue + "%";
+    private String getJoinTable(String searchValue, Map<String, String> searchValues, List values){
+    	StringBuilder joinSql = new StringBuilder();
+        if(!Strings.isNullOrEmpty(searchValue)){
+	        joinSql.append(" right join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) a1 on a_copy.id = a1.id " + " union "
+	                                + " select a_copy1.id as id from contact a_copy1 "
+	                                + " where "
+	                                + " a_copy1.\"Title\" ilike ? "
+	                                + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = contact.id ");
+	        String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(searchValue));
+	        String searchILike = searchValue;
+	        if (!searchILike.contains("%")) {
+	            searchILike = "%" + searchValue + "%";
+	        }
+	        values.add(searchTsq);
+	        values.add(searchILike);
+	        values.add(searchILike); 
         }
-        values.add(searchTsq);
-        values.add(searchILike);
-        values.add(searchILike); 
+        if(searchValues!=null){
+        	
+	   //add the 'educationNames' filter, and join Education table
+        if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
+            String value = searchValues.get("educationNames");
+            if(!"Any Education".equals(value)){
+                String[] educationNames = value.split(","); 
+                joinSql.append(" join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
+                for(int i = 0; i < educationNames.length; i++){
+                    if(i == 0){
+                    	joinSql.append("(");
+                    }else{
+                    	joinSql.append(",");
+                    }
+                    joinSql.append("?");
+                    if(i == educationNames.length - 1){
+                    	joinSql.append(")");
+                    }
+                    
+                    values.add(educationNames[i]);
+                }
+                
+                joinSql.append(" ) ed1 on contact.\"sfId\" = ed1.\"ts2__Contact__c\" ");
+            }
+        }
+        
+    
+        
+        //add the 'companyNames' filter, and join Education table
+        if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
+            String value = searchValues.get("companyNames");
+            if(!"Any Company".equals(value)){
+                String[] companyNames = value.split(","); 
+                joinSql.append(" join (select em.\"ts2__Contact__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
+                for(int i = 0; i < companyNames.length; i++){
+                    if(i == 0){
+                    	joinSql.append("(");
+                    }else{
+                    	joinSql.append(",");
+                    }
+                    joinSql.append("?");
+                    if(i == companyNames.length - 1){
+                    	joinSql.append(")");
+                    }
+                    values.add(companyNames[i]);
+                }
+
+                joinSql.append(" )  c1 on contact.\"sfId\" = c1.\"ts2__Contact__c\"   ");
+            }
+        }
+        
+        //add the 'skillNames' filter, and join Education table
+        if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
+            String value = searchValues.get("skillNames");
+            if(!"Any Skill".equals(value)){
+                String[] skillNames = value.split(","); 
+                joinSql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in  ");
+                for(int i = 0; i < skillNames.length; i++){
+                    if(i == 0){
+                    	joinSql.append("(");
+                    }else{
+                    	joinSql.append(",");
+                    }
+                    joinSql.append("?");
+                    if(i == skillNames.length - 1){
+                    	joinSql.append(")");
+                    }
+                    values.add(skillNames[i]);
+                }
+                joinSql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
+	            }
+	        }
+        joinSql.append(" ) a");
+        }
+        
+       
         return joinSql.toString();
     }
     
@@ -526,6 +526,20 @@ public class SearchDao {
         }
         return joinSql.toString();
     }
+    
+    private String getAdvancedValueJoinTable(String type){
+        StringBuilder joinSql = new StringBuilder();
+        
+        if(type.equals("company")){
+            joinSql.append(" left join ts2__employment_history__c c on  contact.\"sfId\" = c.\"ts2__Contact__c\" ");
+        }else if(type.equals("education")){
+            joinSql.append(" left join ts2__education_history__c d on  contact.\"sfId\" = d.\"ts2__Contact__c\" ");
+        }else if(type.equals("skill")){
+            joinSql.append(" left join ts2__skill__c b on  contact.\"sfId\" = b.\"ts2__Contact__c\" ");
+        }
+        return joinSql.toString();
+    }
+    
     
     private String getNameExpr(String type){
         StringBuilder sql = new StringBuilder();
