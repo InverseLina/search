@@ -269,6 +269,7 @@ public class SearchDao {
                 values.add(value);
             }else{
                 searchEmployment = true;
+                removeDuplicate(columnJoinTables,"ts2__employment_history__c");
                 joinTables.append(" left outer join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
                 conditions.append(" and ( c.\"ts2__Job_Title__c\" ilike ?  or a.\"Title\" ilike ? )");
                 if(!value.contains("%")){
@@ -301,6 +302,7 @@ public class SearchDao {
              if(searchEmployment){
             	 conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
              }else{
+            	 removeDuplicate(columnJoinTables,"ts2__employment_history__c");
                  joinTables.append(" left outer join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
                  conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
              }
@@ -363,8 +365,10 @@ public class SearchDao {
             String value = searchValues.get("companyNames");
             if(!"Any Company".equals(value)){
                 String[] companyNames = value.split(","); 
-                joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
-                removeDuplicate(columnJoinTables,"ts2__employment_history__c");
+                if(!searchEmployment){
+	                joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+	                removeDuplicate(columnJoinTables,"ts2__employment_history__c");
+                }
                 conditions.append("  and ( c.\"ts2__Name__c\" in ");
                 for(int i = 0; i < companyNames.length; i++){
                     if(i == 0){
