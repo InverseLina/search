@@ -38,12 +38,12 @@
 					$(".desc,.asc",$th.parent()).hide();
 					$asc.show();
 					view.tableOrderType = "asc";
-					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH",{column:column,order:"asc",pageIdx:pageIdx,pageSize:pageSize});
+					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH",{pageIdx:pageIdx,pageSize:pageSize});
 				}else{
 					$(".desc,.asc",$th.parent()).hide();
 					view.tableOrderType = "desc";
 					$desc.show();
-					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH",{column:column,order:"desc",pageIdx:pageIdx,pageSize:pageSize});
+					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH",{pageIdx:pageIdx,pageSize:pageSize});
 				}
 			},
             "btap;div.btnPopupColumns":function(event){
@@ -117,11 +117,14 @@
 		},
 		
 		getSearchValues: function(){
+            var view = this;
 			var val = this.$searchInput.val();
-			var searchMode = this.$el.bView("MainView").getSearchMode();
-            return {
-                search: val
+            var result = {};
+            result.search = val;
+            if(view.tableOrderColumn && view.tableOrderType){
+                result.sort = {column:view.tableOrderColumn,order:view.tableOrderType};
             }
+            return result;
 		}
 	});
 

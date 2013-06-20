@@ -54,6 +54,12 @@
         var valCount = 0;
         var isValid = true;
         var contentSearchValues = view.contentView.getSearchValues();
+
+        if(contentSearchValues.sort){
+            opts = $.extend(opts || {},contentSearchValues.sort);
+            delete contentSearchValues.sort;
+        }
+
         var navContectSearchValues = {};
         if(view.sideNav) {
            navContectSearchValues = view.sideNav.getSearchValues();
