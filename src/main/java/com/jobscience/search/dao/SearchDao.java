@@ -586,27 +586,27 @@ public class SearchDao {
         return sql.toString();
     }
     
-    private String getNameExprForNothing(String type){
-        StringBuilder sql = new StringBuilder();
-        String name = getNameExpr(type);
-        String instance = getTableInstance(type);
-        String label = getLabel(type);
-        sql.append(" case when "+instance+"."+name+" is null then 'No "+label+"' when "+instance+"."+name+" = '' then 'No "+label+"'  else "+instance+"."+name+" end  as name ");
-        return sql.toString();
-    }
+//    private String getNameExprForNothing(String type){
+//        StringBuilder sql = new StringBuilder();
+//        String name = getNameExpr(type);
+//        String instance = getTableInstance(type);
+//        String label = getLabel(type);
+//        sql.append(" case when "+instance+"."+name+" is null then 'No "+label+"' when "+instance+"."+name+" = '' then 'No "+label+"'  else "+instance+"."+name+" end  as name ");
+//        return sql.toString();
+//    }
     
-    private String getLabel(String type){
-        String label = null;
-        
-        if(type.equals("company")){
-            label = "Company";
-        }else if(type.equals("education")){
-            label = "Educations";
-        }else if(type.equals("skill")){
-            label = "Skills";
-        }
-        return label;
-    }
+//    private String getLabel(String type){
+//        String label = null;
+//        
+//        if(type.equals("company")){
+//            label = "Company";
+//        }else if(type.equals("education")){
+//            label = "Educations";
+//        }else if(type.equals("skill")){
+//            label = "Skills";
+//        }
+//        return label;
+//    }
     
     private String getTable(String type){
         String table = null;
