@@ -116,7 +116,8 @@ var app = app || {};
         }
         app.preference.store(type, (itemNum - hideNum));
         var num = 0;
-        var $hideLi = $("li:not('.btns'):gt(" + (itemNum - hideNum + 2) + ")", $ul);
+        var $hideLi = $("li[data-name][data-name!='ALL']:not('.btns'):gt(" + (itemNum - hideNum - 1) + ")", $ul);
+
         $hideLi.hide(1000, function() {
           $(this).remove();
           num++;
