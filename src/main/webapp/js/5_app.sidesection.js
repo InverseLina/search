@@ -178,7 +178,7 @@ var app = app || {};
 
 
 
-      BaseSideAdvanced.prototype.updateSearchValues = function(data) {
+   BaseSideAdvanced.prototype.updateSearchValues = function(data) {
     var view = this;
     var dataType = this.dataType;
     var names = data[dataType+"Names"];
