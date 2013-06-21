@@ -84,6 +84,7 @@ public class SearchDao {
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
         StringBuilder conditions = new StringBuilder();
+        StringBuilder searchConditions = new StringBuilder();
         String column = null;
         String baseTableIns = null;
         querySql.append("select result.name, count(*) as count from ( select ");
@@ -113,9 +114,10 @@ public class SearchDao {
             // for all search mode, we preform the same condition
             String search = searchValues.get("search");
             if (!Strings.isNullOrEmpty(search)) {
-                baseTable = " Contact ";
+                joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+                baseTable = " contact ";
                 baseTableIns = "a";
-                querySql.append(getSearchValueJoinTable(search, values));
+                searchConditions.append(getSearchValueJoinTable(search, values));
             }
 
             // add the 'educationNames' filter, and join Education table
@@ -123,9 +125,9 @@ public class SearchDao {
                 hasCondition = true;
                 String value = searchValues.get("educationNames");
                 if (!"Any Education".equals(value)) {
-                    if(baseTable.indexOf("ts2__education_history__c") == -1){
+                    if(baseTable.indexOf("ts2__education_history__c") == -1 && joinTables.indexOf("ts2__education_history__c") == -1){
                         joinTables.append(" inner join ts2__education_history__c d on ");
-                        if(baseTable.indexOf(" Contact ") > 0){
+                        if(baseTable.indexOf(" contact ") >= 0){
                             joinTables.append("a.\"sfId\" = d.\"ts2__Contact__c\" ");
                         }else{
                             joinTables.append(baseTableIns+".\"ts2__Contact__c\" = d.\"ts2__Contact__c\" ");
@@ -140,9 +142,9 @@ public class SearchDao {
                 hasCondition = true;
                 String value = searchValues.get("companyNames");
                 if (!"Any Company".equals(value)) {
-                    if(baseTable.indexOf("ts2__employment_history__c") == -1){
+                    if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
                         joinTables.append(" inner join ts2__employment_history__c c on ");
-                        if(baseTable.indexOf(" Contact ") > 0){
+                        if(baseTable.indexOf(" contact ") >= 0){
                             joinTables.append("a.\"sfId\" = c.\"ts2__Contact__c\" ");
                         }else{
                             joinTables.append(baseTableIns+".\"ts2__Contact__c\" = c.\"ts2__Contact__c\" ");
@@ -157,9 +159,9 @@ public class SearchDao {
                 hasCondition = true;
                 String value = searchValues.get("skillNames");
                 if (!"Any Skill".equals(value)) {
-                    if(baseTable.indexOf("ts2__skill__c") == -1){
+                    if(baseTable.indexOf("ts2__skill__c") == -1 && joinTables.indexOf("ts2__skill__c") == -1){
                         joinTables.append(" inner join ts2__skill__c b on ");
-                        if(baseTable.indexOf(" Contact ") > 0){
+                        if(baseTable.indexOf(" contact ") >= 0){
                             joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
                         }else{
                             joinTables.append(baseTableIns+".\"ts2__Contact__c\" = b.\"ts2__Contact__c\" ");
@@ -174,6 +176,7 @@ public class SearchDao {
         querySql.append(" from ");
         querySql.append(baseTable);
         querySql.append(baseTableIns);
+        querySql.append(searchConditions);
         querySql.append(joinTables);
         
         if(hasCondition){
