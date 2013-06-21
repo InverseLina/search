@@ -250,9 +250,19 @@ var app = app || {};
       var view = this;
       var $e = $e || view.$el;
       var mainView = $e.bView("MainView");
-      result = result || {};
-      if($.isEmptyObject(result)){
-          result.count = 999;
+      if(!result){
+          //is not call from serch change, get result form result info;
+          result = {count:0};
+          var $searchInfo = mainView.contentView.$el.find(".search-info")
+          if($searchInfo.length> 0 ) {
+              var searchInfo = $searchInfo.text();
+              var regex = /^Result.*:\s*(\d+)\s*\|/;
+              var match = regex.exec(searchInfo);
+              if (match != null) {
+                  result.count = match[1];
+              }
+
+          }
       }
 
       var contentSearchValues = mainView.contentView.getSearchValues();
