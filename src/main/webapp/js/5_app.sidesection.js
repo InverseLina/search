@@ -27,9 +27,14 @@ var app = app || {};
   BaseSideAdvanced.prototype.postDisplay = function(data) {
     var view = this;
     var $e = view.$el;
-    var dataType = this.dataType;
-    
-    $e.on("clear",function(){
+    var dataType = this.dataType
+    setTimeout(function(){
+        view.updateScore($e);
+    }, 300);
+
+
+
+      $e.on("clear",function(){
       view.clearValues();
     });
 
@@ -138,40 +143,8 @@ var app = app || {};
           MainView: {
               "SEARCH_RESULT_CHANGE": function(event, result) {
                   var view = this;
-                  var $e = view.$el;
-                  var mainView = view.$el.bView("MainView");
-
-                  var contentSearchValues = mainView.contentView.getSearchValues();
-                  if(contentSearchValues.sort){
-                      delete contentSearchValues.sort;
-                  }
-                  var navContectSearchValues = mainView.sideNav.getSearchValues();
-                  var searchValues = $.extend({}, contentSearchValues, navContectSearchValues);
-                  // just add the "q_"
-                  var qParams = {};
-                  $.each(searchValues, function(key, val) {
-                      qParams["q_" + key] = $.trim(val);
-                  });
-                  qParams.type = view.dataType;
-
-                  if (result.count > 0) {
-                      searchDao.getGroupValuesForAdvanced(qParams).done(function(result) {
-                          var items = result.list || [];
-
-                          $e.find("li .validCount").show().html("0/");
-
-                          for (var i = 0; i < items.length; i++) {
-                              var obj = items[i];
-                              $e.find("li[data-name='" + obj.name + "'] .validCount").html(obj.count + "/");
-                          }
-
-                      });
-                  } else {
-                      $e.find("li .validCount").hide();
-                  }
-
+                  view.updateScore(view.$el, result);
               }
-
           }
       };
 
@@ -272,6 +245,44 @@ var app = app || {};
     $allLi.find(":checkbox").prop("checked", true);
     view.$el.find("input[type='text']").val(""); 
 
+  };
+  BaseSideAdvanced.prototype.updateScore = function($e, result) {
+      var view = this;
+      var $e = $e || view.$el;
+      var mainView = $e.bView("MainView");
+      result = result || {};
+      if($.isEmptyObject(result)){
+          result.count = 999;
+      }
+
+      var contentSearchValues = mainView.contentView.getSearchValues();
+      if(contentSearchValues.sort){
+          delete contentSearchValues.sort;
+      }
+      var navContectSearchValues = mainView.sideNav.getSearchValues();
+      var searchValues = $.extend({}, contentSearchValues, navContectSearchValues);
+      // just add the "q_"
+      var qParams = {};
+      $.each(searchValues, function(key, val) {
+          qParams["q_" + key] = $.trim(val);
+      });
+      qParams.type = view.dataType;
+
+      if (result.count > 0) {
+          searchDao.getGroupValuesForAdvanced(qParams).done(function(result) {
+              var items = result.list || [];
+
+              $e.find("li .validCount").show().html("0/");
+
+              for (var i = 0; i < items.length; i++) {
+                  var obj = items[i];
+                  $e.find("li[data-name='" + obj.name + "'] .validCount").html(obj.count + "/");
+              }
+
+          });
+      } else {
+          $e.find("li .validCount").hide();
+      }
   };
 
   app.sidesection.BaseSideAdvanced = BaseSideAdvanced;
