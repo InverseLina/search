@@ -389,8 +389,8 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
-        querySql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
-        countSql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
+        querySql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
+        countSql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
@@ -444,7 +444,7 @@ public class SearchDao {
 	                                + " where "
 	                                + " a_copy1.\"Title\" ilike ? "
 	                                + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = contact.id ");
-	        String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(searchValue));
+	        String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(searchValue.replaceAll("[%)(]", "")));
 	        String searchILike = searchValue;
 	        if (!searchILike.contains("%")) {
 	            searchILike = "%" + searchValue + "%";
