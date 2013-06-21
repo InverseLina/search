@@ -142,6 +142,9 @@ var app = app || {};
                   var mainView = view.$el.bView("MainView");
 
                   var contentSearchValues = mainView.contentView.getSearchValues();
+                  if(contentSearchValues.sort){
+                      delete contentSearchValues.sort;
+                  }
                   var navContectSearchValues = mainView.sideNav.getSearchValues();
                   var searchValues = $.extend({}, contentSearchValues, navContectSearchValues);
                   // just add the "q_"
