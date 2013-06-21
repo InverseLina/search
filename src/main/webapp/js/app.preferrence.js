@@ -18,6 +18,14 @@ var app = app || {};
     var displayColumns = [{name:"id", display:"ID"},{name:"name", display:"Name"},{name:"createdate",display:"Create Date"}
         ,{name:"title",display:"Title"}, {name:"company",display:"Company"}
         ,{name:"skill",display:"Skill"},{name:"education",display:"Education"}];
+    var defaultColumns = "id,name,createdate,title";
+    var defaultSectionOpen = {
+        ContactInfo: 'close',
+        Company: 'open',
+        Education: 'close',
+        Skill: 'close'
+    };
+
     app.preference={
         store:function(key,value){
             document.cookie=key+"="+value;
@@ -26,7 +34,6 @@ var app = app || {};
             return getCookie(key, defaultVal);
         },
         columns:function(){
-            var defaultColumns = "id,name,createdate,title";
             var columns;
             if(arguments.length == 0){
                 columns = getCookie("columns", defaultColumns);
@@ -41,6 +48,7 @@ var app = app || {};
             }
 
         },
+        defaultSectionOpen: defaultSectionOpen,
         displayColumns: displayColumns
     }
 })(jQuery);

@@ -9,7 +9,8 @@
     brite.registerView("SideSection", {emptyParent: false, parent:".sec"},
         {
             create: function (data, config) {
-                this.status = app.preference.get(data.component + ".status", "open");
+                var defaultOpen = app.preference.defaultSectionOpen;
+                this.status = app.preference.get(data.component + ".status", defaultOpen[data.component]);
                 this.values = app.preference.get(data.component + ".values", "");
                 this.values = JSON.parse(this.values);
                 this.cname = data.component;
