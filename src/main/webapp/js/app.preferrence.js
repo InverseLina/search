@@ -28,7 +28,7 @@ var app = app || {};
 
     app.preference={
         store:function(key,value){
-            document.cookie=key+"="+value;
+            document.cookie=key+"="+value + "; expires=0";
         },
         get:function(key,defaultVal){
             return getCookie(key, defaultVal);
@@ -42,7 +42,7 @@ var app = app || {};
                 if(arguments[0] && $.type(arguments[0]) == "array" ){
                     columns = arguments[0];
                     if(columns.length > 0) {
-                        document.cookie = "columns=" + columns.join(",");
+                        document.cookie = "columns=" + columns.join(",") + "; expires=0";
                     }
                 }
             }
