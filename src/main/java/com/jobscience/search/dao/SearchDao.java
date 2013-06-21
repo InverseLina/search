@@ -459,22 +459,8 @@ public class SearchDao {
         if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
             String value = searchValues.get("educationNames");
             if(!"Any Education".equals(value)){
-                String[] educationNames = value.split(","); 
                 joinSql.append(" join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
-                for(int i = 0; i < educationNames.length; i++){
-                    if(i == 0){
-                    	joinSql.append("(");
-                    }else{
-                    	joinSql.append(",");
-                    }
-                    joinSql.append("?");
-                    if(i == educationNames.length - 1){
-                    	joinSql.append(")");
-                    }
-                    
-                    values.add(educationNames[i]);
-                }
-                
+                joinSql.append("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
                 joinSql.append(" ) ed1 on contact.\"sfId\" = ed1.\"ts2__Contact__c\" ");
             }
         }
@@ -485,21 +471,8 @@ public class SearchDao {
         if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
             String value = searchValues.get("companyNames");
             if(!"Any Company".equals(value)){
-                String[] companyNames = value.split(","); 
                 joinSql.append(" join (select em.\"ts2__Contact__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
-                for(int i = 0; i < companyNames.length; i++){
-                    if(i == 0){
-                    	joinSql.append("(");
-                    }else{
-                    	joinSql.append(",");
-                    }
-                    joinSql.append("?");
-                    if(i == companyNames.length - 1){
-                    	joinSql.append(")");
-                    }
-                    values.add(companyNames[i]);
-                }
-
+                joinSql.append("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
                 joinSql.append(" )  c1 on contact.\"sfId\" = c1.\"ts2__Contact__c\"   ");
             }
         }
@@ -508,20 +481,8 @@ public class SearchDao {
         if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
             String value = searchValues.get("skillNames");
             if(!"Any Skill".equals(value)){
-                String[] skillNames = value.split(","); 
                 joinSql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in  ");
-                for(int i = 0; i < skillNames.length; i++){
-                    if(i == 0){
-                    	joinSql.append("(");
-                    }else{
-                    	joinSql.append(",");
-                    }
-                    joinSql.append("?");
-                    if(i == skillNames.length - 1){
-                    	joinSql.append(")");
-                    }
-                    values.add(skillNames[i]);
-                }
+                joinSql.append("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
                 joinSql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
 	            }
 	        }
@@ -638,23 +599,11 @@ public class SearchDao {
     
     private String getConditionForThirdNames(String namesStr, List values, String type){
         StringBuilder conditions = new StringBuilder();
-        String[] names = namesStr.split(",");
         String instance = getTableInstance(type);
         String nameExpr = getNameExpr(type);
         conditions.append("  and ( "+instance+"."+nameExpr+" in ");
-        for (int i = 0; i < names.length; i++) {
-            if (i == 0) {
-                conditions.append("(");
-            } else {
-                conditions.append(",");
-            }
-            conditions.append("?");
-            if (i == names.length - 1) {
-                conditions.append(")");
-            }
-           values.add(names[i]);
-        }
-        conditions.append(" )");
+        conditions.append("('"+ Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(namesStr))+"')");
+        conditions.append(")");
         return conditions.toString();
     }
     
@@ -665,6 +614,7 @@ public class SearchDao {
     		}
     	}
     }
+    
     
 }
 
