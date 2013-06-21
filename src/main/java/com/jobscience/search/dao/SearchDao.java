@@ -117,7 +117,7 @@ public class SearchDao {
                 joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
                 baseTable = " contact ";
                 baseTableIns = "a";
-                searchConditions.append(getSearchValueJoinTable(search, values));
+                searchConditions.append(getSearchValueJoinTable(search, values,"a"));
             }
 
             // add the 'educationNames' filter, and join Education table
@@ -223,15 +223,12 @@ public class SearchDao {
     		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate";
     	}else if(orginalName.toLowerCase().equals("company")){
     		columnJoinTables.add(getAdvancedJoinTable("company"));
-    		
     		return " string_agg(distinct c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as lCompany";
     	}else if(orginalName.toLowerCase().equals("skill")){
     		columnJoinTables.add(getAdvancedJoinTable("skill"));
-    		
     		return "string_agg(distinct b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as lSkill";
     	}else if(orginalName.toLowerCase().equals("education")){
     		columnJoinTables.add(getAdvancedJoinTable("education"));
-    		
     		return "string_agg(distinct d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as lEducation";
     	}
     	
@@ -253,108 +250,6 @@ public class SearchDao {
     	 return columnsSql.toString();
     }
     
-    private boolean renderSearchCondition(Map<String, String> searchValues, List values, StringBuilder conditions,StringBuilder joinTables,List<String> columnJoinTables ){
-
-    	boolean hasCondition = false;
-        //add the 'FirstName' filter
-        if (searchValues.get("FirstName") != null && !"".equals(searchValues.get("FirstName"))) {
-        	hasCondition = true;
-            String value = searchValues.get("FirstName");
-            conditions.append(" and a.\"FirstName\" ilike ? ");
-            if(!value.contains("%")){
-                value = "%" + value + "%";
-            }
-            values.add(value);
-        }
-
-        //add the 'LastName' filter
-        if (searchValues.get("LastName") != null && !"".equals(searchValues.get("LastName"))) {
-        	hasCondition = true;
-            String value = searchValues.get("LastName");
-            conditions.append(" and a.\"LastName\" ilike ? ");
-            if(!value.contains("%")){
-                value = "%" + value + "%";
-            }
-            values.add(value);
-        }
-        boolean searchEmployment = false;
-        //add the 'Title' filter
-        if (searchValues.get("Title") != null && !"".equals(searchValues.get("Title"))) {
-        	hasCondition = true;
-            String value = searchValues.get("Title");
-            if(searchValues.get("curTitle")!=null){
-
-                conditions.append(" and a.\"Title\" ilike ? ");
-                if(!value.contains("%")){
-                    value = "%" + value + "%";
-                }
-                values.add(value);
-            }else{
-                searchEmployment = true;
-                removeDuplicate(columnJoinTables,"ts2__employment_history__c");
-                joinTables.append(" left outer join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
-                conditions.append(" and ( c.\"ts2__Job_Title__c\" ilike ?  or a.\"Title\" ilike ? )");
-                if(!value.contains("%")){
-                    value = "%" + value + "%";
-                }
-                values.add(value);
-                values.add(value);
-            }
-
-        }
-       
-        //add the 'Skill' filter, and join Skill table
-        if (searchValues.get("Skill") != null && !"".equals(searchValues.get("Skill"))) {
-        	hasCondition = true;
-            String value = searchValues.get("Skill");
-            removeDuplicate(columnJoinTables,"ts2__skill__c");
-            joinTables.append("  join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
-            conditions.append(" and b.\"ts2__Skill_Name__c\" ilike ? ");
-            if(!value.contains("%")){
-                value = "%" + value + "%";
-            }
-            values.add(value);
-        }
-        
-
-
-        //add the 'Company' filter, and join Employment table
-        if (searchValues.get("Company") != null && !"".equals(searchValues.get("Company"))) {
-        	hasCondition = true;
-             String value = searchValues.get("Company");
-             if(searchEmployment){
-            	 conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
-             }else{
-            	 removeDuplicate(columnJoinTables,"ts2__employment_history__c");
-                 joinTables.append("  join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
-                 conditions.append(" and  c.\"ts2__Name__c\" ilike ? ");
-             }
-
-            if(searchValues.get("curCompany") != null){
-                conditions.append(" and c.\"ts2__Employment_End_Date__c\" is  null ");
-            }
-
-             if(!value.contains("%")){
-                 value = "%" + value + "%";
-             }
-             values.add(value);
-        }
-        
-        //add the 'Education' filter, and join Education table
-        if (searchValues.get("Education") != null && !"".equals(searchValues.get("Education"))) {
-        	hasCondition = true;
-            String value = searchValues.get("Education");
-            removeDuplicate(columnJoinTables,"ts2__education_history__c");
-            joinTables.append("  join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
-            conditions.append(" and d.\"ts2__Name__c\" ilike ? ");
-            if(!value.contains("%")){
-                value = "%" + value + "%";
-            }
-            values.add(value);
-        }
-        
-        return hasCondition;
-    }
     /**
      * @param searchValues
      * @param searchMode
@@ -383,9 +278,6 @@ public class SearchDao {
         // the params will be put in sql
         List values = new ArrayList();
         
-        //to test if need to add "where", if true, add ' where 1=1 ', so that will join " and .." condition
-        boolean hasCondition = false;
-        
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
@@ -395,11 +287,9 @@ public class SearchDao {
            
             // for all search mode, we preform the same condition
             String search = searchValues.get("search");
-            String joinSql = getJoinTable(search, searchValues,values);
+            String joinSql = getCondtion(search, searchValues,values);
             querySql.append(joinSql);
             countSql.append(joinSql);
-
-            hasCondition = renderSearchCondition(searchValues,values,conditions,joinTables,columnJoinTables );
         }
         
         querySql.append(joinTables);
@@ -411,11 +301,6 @@ public class SearchDao {
         	}
         }
         
-        if(hasCondition){
-            String whereStr = " where 1=1 ";
-            querySql.append(whereStr);
-            countSql.append(whereStr);
-        }
         
         querySql.append(conditions);
         countSql.append(conditions);
@@ -436,24 +321,81 @@ public class SearchDao {
         return ss;
     }
     
-    private String getJoinTable(String searchValue, Map<String, String> searchValues, List values){
+    private String getCondtion(String searchValue, Map<String, String> searchValues, List values){
     	StringBuilder joinSql = new StringBuilder();
+    	StringBuilder conditions = new StringBuilder();
+    	  
         if(!Strings.isNullOrEmpty(searchValue)){
-	        joinSql.append(" right join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) a1 on a_copy.id = a1.id " + " union "
-	                                + " select a_copy1.id as id from contact a_copy1 "
-	                                + " where "
-	                                + " a_copy1.\"Title\" ilike ? "
-	                                + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = contact.id ");
-	        String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(searchValue.replaceAll("[%)(]", "")));
-	        String searchILike = searchValue;
-	        if (!searchILike.contains("%")) {
-	            searchILike = "%" + searchValue + "%";
-	        }
-	        values.add(searchTsq);
-	        values.add(searchILike);
-	        values.add(searchILike); 
+	        joinSql.append(getSearchValueJoinTable(searchValue, values,"contact"));
         }
+        
+
         if(searchValues!=null){
+        	
+        	 //add the 'FirstName' filter
+            if (searchValues.get("FirstName") != null && !"".equals(searchValues.get("FirstName"))) {
+                String value = searchValues.get("FirstName");
+                conditions.append(" and contact.\"FirstName\" ilike ? ");
+                if(!value.contains("%")){
+                    value = "%" + value + "%";
+                }
+                values.add(value);
+            }
+
+            //add the 'LastName' filter
+            if (searchValues.get("LastName") != null && !"".equals(searchValues.get("LastName"))) {
+                String value = searchValues.get("LastName");
+                conditions.append(" and contact.\"LastName\" ilike ? ");
+                if(!value.contains("%")){
+                    value = "%" + value + "%";
+                }
+                values.add(value);
+            }
+            
+            
+            boolean searchEmployment = false;
+            String joinEmployment = "";
+            //add the 'Title' filter
+            if (searchValues.get("Title") != null && !"".equals(searchValues.get("Title"))) {
+                String value = searchValues.get("Title");
+                if(searchValues.get("curTitle")!=null){
+
+                    conditions.append(" and contact.\"Title\" ilike ? ");
+                    if(!value.contains("%")){
+                        value = "%" + value + "%";
+                    }
+                    values.add(value);
+                }else{
+                    
+                    joinEmployment = " left join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em ";
+                    conditions.append(" and ( c1.\"ts2__Job_Title__c\" ilike ?  or contact.\"Title\" ilike ? )");
+                    if(!value.contains("%")){
+                        value = "%" + value + "%";
+                    }
+                    values.add(value);
+                    values.add(value);
+                }
+            }
+            
+            
+        	
+        //add the 'companyNames' filter, and join Education table
+        if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
+            String value = searchValues.get("companyNames");
+            if(!"Any Company".equals(value)){
+            	joinSql.append(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
+                joinSql.append("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
+                searchEmployment = true;
+            }
+        }
+        
+        if(!searchEmployment&&!joinEmployment.equals("")){
+        	 joinSql.append(joinEmployment);
+        }
+        
+        if(searchEmployment||!joinEmployment.equals("")){
+        	joinSql.append(" )  c1 on contact.\"sfId\" = c1.\"ts2__Contact__c\"   ");
+        }
         	
 	   //add the 'educationNames' filter, and join Education table
         if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
@@ -464,18 +406,7 @@ public class SearchDao {
                 joinSql.append(" ) ed1 on contact.\"sfId\" = ed1.\"ts2__Contact__c\" ");
             }
         }
-        
-    
-        
-        //add the 'companyNames' filter, and join Education table
-        if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
-            String value = searchValues.get("companyNames");
-            if(!"Any Company".equals(value)){
-                joinSql.append(" join (select em.\"ts2__Contact__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
-                joinSql.append("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
-                joinSql.append(" )  c1 on contact.\"sfId\" = c1.\"ts2__Contact__c\"   ");
-            }
-        }
+       
         
         //add the 'skillNames' filter, and join Education table
         if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
@@ -486,7 +417,9 @@ public class SearchDao {
                 joinSql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
 	            }
 	        }
-        joinSql.append(" ) a");
+        
+        joinSql.append(" where 1=1 "+conditions+") a");
+       
         }
         
        
@@ -519,13 +452,13 @@ public class SearchDao {
 //        return joinSql.toString();
 //    }
     
-    private String getSearchValueJoinTable(String searchValue, List values){
+    private String getSearchValueJoinTable(String searchValue, List values,String alias){
         StringBuilder joinSql = new StringBuilder();
         joinSql.append(" right join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
                                 + " select a_copy1.id as id from contact a_copy1 "
                                 + " where "
                                 + " a_copy1.\"Title\" ilike ? "
-                                + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = a.id ");
+                                + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = "+alias+".id ");
         String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(searchValue));
         String searchILike = searchValue;
         if (!searchILike.contains("%")) {
@@ -549,28 +482,6 @@ public class SearchDao {
         }
         return sql.toString();
     }
-    
-//    private String getNameExprForNothing(String type){
-//        StringBuilder sql = new StringBuilder();
-//        String name = getNameExpr(type);
-//        String instance = getTableInstance(type);
-//        String label = getLabel(type);
-//        sql.append(" case when "+instance+"."+name+" is null then 'No "+label+"' when "+instance+"."+name+" = '' then 'No "+label+"'  else "+instance+"."+name+" end  as name ");
-//        return sql.toString();
-//    }
-    
-//    private String getLabel(String type){
-//        String label = null;
-//        
-//        if(type.equals("company")){
-//            label = "Company";
-//        }else if(type.equals("education")){
-//            label = "Educations";
-//        }else if(type.equals("skill")){
-//            label = "Skills";
-//        }
-//        return label;
-//    }
     
     private String getTable(String type){
         String table = null;
@@ -606,15 +517,6 @@ public class SearchDao {
         conditions.append(")");
         return conditions.toString();
     }
-    
-    private void removeDuplicate(List<String> columnJoinTables,String tableName){
-    	for(int i=0,j=columnJoinTables.size();i<j;i++){
-    		if(columnJoinTables.get(i).contains(tableName)){
-    			columnJoinTables.set(i, "No Join");
-    		}
-    	}
-    }
-    
     
 }
 
