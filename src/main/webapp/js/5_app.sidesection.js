@@ -271,6 +271,8 @@ var app = app || {};
       }
       var navContectSearchValues = mainView.sideNav.getSearchValues();
       var searchValues = $.extend({}, contentSearchValues, navContectSearchValues);
+      // remove this section names as we do not want to have all 0/..
+      delete searchValues[this.dataType + "Names"];
       // just add the "q_"
       var qParams = {};
       $.each(searchValues, function(key, val) {
