@@ -144,6 +144,10 @@ var app = app || {};
               "SEARCH_RESULT_CHANGE": function(event, result) {
                   var view = this;
                   view.updateScore(view.$el, result);
+              },
+              "NO_SEARCH":function(event){
+                  var view = this;
+                  view.updateScore(view.$el);
               }
           }
       };

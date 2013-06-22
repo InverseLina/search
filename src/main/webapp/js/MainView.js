@@ -81,11 +81,13 @@
         //if there has no any search text
         if(valCount == 0 && isValid){
             view.contentView.empty();
+            view.$el.trigger("NO_SEARCH");
         	return false;
         }
         //if has some search text,but less than 3 letters
         if(!isValid){
             view.contentView.showErrorMessage("Wrong Search Query", "Search query needs to be at least 3 character long");
+            view.$el.trigger("NO_SEARCH");
             return false;
         }
         qParams=$.extend({},qParams,opts);
