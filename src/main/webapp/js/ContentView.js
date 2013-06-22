@@ -136,7 +136,11 @@
        for(var i = 0; i < items.length; i++){
             item = [];
            for(var j = 0; j < columns.length; j++) {
-               item.push({name:columns[j], value: items[i][columns[j]], notLast:colLen - j >1});
+               if(columns[j] == "skill"){
+                   item.push({name:columns[j], value: translate(items[i][columns[j]]), notLast:colLen - j >1});
+               }else{
+                   item.push({name:columns[j], value: items[i][columns[j]], notLast:colLen - j >1});
+               }
            }
            result.push({row:item});
        }
@@ -184,6 +188,22 @@
             $body.find("td[data-column='" + colName + "']").css(
                 {width: realWidth, "max-width": realWidth, "min-width":realWidth});
         })
+    }
+
+    function translate(value){
+        if(!value) {
+            return "";
+        }
+        var items = value.split(","), result = [];
+        var len = items.length;
+        for(var i=0 ; i < len; i++){
+           if(items[i].length > 1) {
+               result.push(items[i].substr(0, 1).toUpperCase() + items[i].substr(1).toLowerCase());
+           }else{
+               result.push(items[i]);
+           }
+        }
+        return result.join(",");
     }
 	
 })(jQuery);
