@@ -293,7 +293,7 @@ var app = app || {};
 
           });
       } else {
-          $e.find("li .validCount").hide();
+          $e.find("li .validCount").show().html("0/");
       }
   };
 
