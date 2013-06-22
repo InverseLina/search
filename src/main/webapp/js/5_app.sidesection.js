@@ -260,8 +260,13 @@ var app = app || {};
               var match = regex.exec(searchInfo);
               if (match != null) {
                   result.count = match[1];
+              }else{
+                  //not result
+                  result.count = -1;
               }
 
+          }else{
+              result.count = -1;
           }
       }
 
@@ -292,8 +297,10 @@ var app = app || {};
               }
 
           });
-      } else {
+      } else if(result.count == 0){
           $e.find("li .validCount").show().html("0/");
+      } else{
+          $e.find("li .validCount").hide();
       }
   };
 
