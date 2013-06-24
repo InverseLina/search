@@ -30,115 +30,116 @@ var app = app || {};
     var dataType = this.dataType
     setTimeout(function(){
         view.updateScore($e);
-    }, 300);
+    }, 300);  
+  }
+
+
+    BaseSideAdvanced.prototype.events  = {
+        "clear": function(){
+            var view = this;
+            view.clearValues();
+        },
+        "btap; li[data-name] label":function(event) {
+            var view = this;
+            var $li = $(event.target).closest("li");
+            var $ul = $li.parent("ul");
+
+            // FIXME: needs to use custom checkbox element to simplify
+            //        and reuse code for all the different SideSectionContent
+
+            if ($li.hasClass("all") ) {
+                view.$el.find("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
+                setTimeout(function() {
+                    $li.find(":checkbox").prop("checked", true);
+                    $li.removeClass("selected").addClass("selected");
+                    view.$el.trigger("DO_SEARCH");
+                }, 10);
+                return;
+            }
 
 
 
-      $e.on("clear",function(){
-      view.clearValues();
-    });
+            if ($li.hasClass("all")) {
+                $("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
+            } else {
+                $("li.all", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
+            }
 
-    $e.on("btap","li[data-name] label", function(event) {
-      var $li = $(event.target).closest("li");
-      var $ul = $li.parent("ul");
-      
-      // FIXME: needs to use custom checkbox element to simplify
-      //        and reuse code for all the different SideSectionContent
+            if ($li.hasClass("selected")) {
+                $li.removeClass("selected");
+            } else {
+                $li.addClass("selected");
+            }
 
-      if ($li.hasClass("all") ) {
-        view.$el.find("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
-        view.$el.find("li:not(.all) :input[type='text']", $ul).val('');
-        setTimeout(function() {
-          $li.find(":checkbox").prop("checked", true);
-          $li.removeClass("selected").addClass("selected");
-          view.$el.trigger("DO_SEARCH");
-        }, 10);
-        return;
-      }
+            view.refreshSelections();
 
+            setTimeout(function() {
+                view.$el.trigger("DO_SEARCH");
+            }, 200);
+        },
+        "change; li[data-name] input[type='checkbox']": function(event) {
+            var view = this;
+            var values = view.getSearchValues();
+            app.preference.store(view.name + ".values", JSON.stringify(values));
+        },
+        "btap; .btns span": function(event) {
+            var view = this;
+            var $btn = $(event.currentTarget);
+            var $li = $btn.parent("li");
+            var flag = $btn.attr("data-show");
+            var $ul = $btn.closest("ul");
+            var type = view.dataType;
+            var dataName = view.dataName;
+            // show more items
+            if (flag == "more") {
+                // get advanced menu data from server
+                searchDao.getAdvancedMenu({
+                    type : type,
+                    offset : app.preference.get(type, app.defaultMenuSize),
+                    limit : 20
+                }).pipe(function(data) {
+                        view.updateResultInfo(data);
+                        $li.before(render(view.name+"-add", data));
+                        $li.closest("ul").find(".toShow").show(1000, function() {
+                            $(this).removeClass("toShow");
+                        })
 
+                        //save the offset
+                        app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
+                        $btn.next().show();
+                        if (data.length < 20) {
+                            $btn.hide();
+                        }
+                        view.$el.trigger("DO_SEARCH");
+                    });
+                // show less items
+            } else {
+                var itemNum = parseInt(app.preference.get(type, app.defaultMenuSize));
+                var hideNum = 0;
+                if ((itemNum - app.defaultMenuSize) % 20 == 0) {
+                    hideNum = 20;
+                } else {
+                    hideNum = (itemNum - app.defaultMenuSize) % 20;
+                }
+                app.preference.store(type, (itemNum - hideNum));
+                var num = 0;
+                var $hideLi = $("li[data-name][data-name!='ALL']:not('.btns'):gt(" + (itemNum - hideNum - 1) + ")", $ul);
 
-      if ($li.hasClass("all")) {
-        $("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
-      } else {
-        $("li.all", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
-      }
+                $hideLi.hide(1000, function() {
+                    $(this).remove();
+                    num++;
+                    if (num == $hideLi.length) {
+                        view.$el.trigger("DO_SEARCH");
+                    }
+                });
+                $btn.prev().show();
+                if ((itemNum - hideNum) <= app.defaultMenuSize) {
+                    $btn.hide();
+                }
+            }
 
-      if ($li.hasClass("selected")) {
-        $li.removeClass("selected");
-      } else {
-        $li.addClass("selected");
-      }
-
-      view.refreshSelections();
-      
-      setTimeout(function() {
-        view.$el.trigger("DO_SEARCH");
-      }, 200);
-    });
-    
-    $e.on("change","li[data-name] input[type='checkbox']", function(event) {
-      var values = view.getSearchValues();
-      app.preference.store(view.name + ".values", JSON.stringify(values));
-    });
-    
-    $e.on("btap",".btns span", function(event) {
-      var $btn = $(event.currentTarget);
-      var $li = $btn.parent("li");
-      var flag = $btn.attr("data-show");
-      var $ul = $btn.closest("ul");
-      var type = view.dataType;
-      var dataName = view.dataName;
-      // show more items
-      if (flag == "more") {
-        // get advanced menu data from server
-        searchDao.getAdvancedMenu({
-          type : type,
-          offset : app.preference.get(type, app.defaultMenuSize),
-          limit : 20
-        }).pipe(function(data) {
-          view.updateResultInfo(data);
-          $li.before(render(view.name+"-add", data));
-          $li.closest("ul").find(".toShow").show(1000, function() {
-            $(this).removeClass("toShow");
-          })
-
-          //save the offset
-          app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
-          $btn.next().show();
-          if (data.length < 20) {
-            $btn.hide();
-          }
-          view.$el.trigger("DO_SEARCH");
-        });
-        // show less items
-      } else {
-        var itemNum = parseInt(app.preference.get(type, app.defaultMenuSize));
-        var hideNum = 0;
-        if ((itemNum - app.defaultMenuSize) % 20 == 0) {
-          hideNum = 20;
-        } else {
-          hideNum = (itemNum - app.defaultMenuSize) % 20;
         }
-        app.preference.store(type, (itemNum - hideNum));
-        var num = 0;
-        var $hideLi = $("li[data-name][data-name!='ALL']:not('.btns'):gt(" + (itemNum - hideNum - 1) + ")", $ul);
-
-        $hideLi.hide(1000, function() {
-          $(this).remove();
-          num++;
-          if (num == $hideLi.length) {
-            view.$el.trigger("DO_SEARCH");
-          }
-        });
-        $btn.prev().show();
-        if ((itemNum - hideNum) <= app.defaultMenuSize) {
-          $btn.hide();
-        }
-      }
-
-    });
-  };
+    };
 
   BaseSideAdvanced.prototype.parentEvents  = {
           MainView: {
