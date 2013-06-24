@@ -14,6 +14,17 @@
         "change; input[name='curCompany']" : function(event) {
           var view = this;
           view.$el.trigger("DO_SEARCH");
+        },
+        "keyup;input[name='company']":function(event){
+        	var $input = $(event.target);
+        	var view = this;
+        	if($input.val().length>0){
+        		 view.$el.find("li[data-name='ALL']").removeClass("selected").find(":checkbox").prop("checked", false);
+        	}else{
+        		if (view.$el.find("li:not(.all).selected").length === 0) {
+        			view.$el.find("li.all").addClass("selected").find(":checkbox").prop("checked", true);
+        		}
+        	}
         }
       }; 
     };
@@ -28,6 +39,7 @@
       }
       if (data.searchCompany) {
         view.$el.find('input[type=text]').val(data.searchCompany);
+        view.$el.find("li.all").removeClass("selected").find(":checkbox").prop("checked", false);
       }
 
     };

@@ -353,8 +353,8 @@ public class SearchDao {
             }
             
             
-            boolean searchEmployment = false;
-            String joinEmployment = "";
+            String joinEmploymentForTitle = "";
+            String joinEmploymentForCompanyName = "";
             //add the 'Title' filter
             if (searchValues.get("Title") != null && !"".equals(searchValues.get("Title"))) {
                 String value = searchValues.get("Title");
@@ -367,7 +367,7 @@ public class SearchDao {
                     values.add(value);
                 }else{
                     
-                    joinEmployment = " left join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em ";
+                	joinEmploymentForTitle = " left join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em ";
                     conditions.append(" and ( c1.\"ts2__Job_Title__c\" ilike ?  or contact.\"Title\" ilike ? )");
                     if(!value.contains("%")){
                         value = "%" + value + "%";
@@ -379,24 +379,46 @@ public class SearchDao {
             
             
         	
-        //add the 'companyNames' filter, and join Education table
+        //add the 'companyNames' filter, and join Employment table
         if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
             String value = searchValues.get("companyNames");
             if(!"Any Company".equals(value)){
-            	joinSql.append(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
-                joinSql.append("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
-                searchEmployment = true;
+            	joinEmploymentForCompanyName=(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
+            	joinEmploymentForCompanyName+=("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
             }
         }
         
-        if(!searchEmployment&&!joinEmployment.equals("")){
-        	 joinSql.append(joinEmployment);
+      //add the 'Company' filter, and join Employment table
+        if (searchValues.get("searchCompany") != null && !"".equals(searchValues.get("searchCompany"))) {
+             String value = searchValues.get("searchCompany");
+             String columnName = " em.\"ts2__Name__c\" ilike ";
+             value = "("+columnName+" '%"+Joiner.on("%' OR "+columnName+" '%").join(Splitter.on(",").omitEmptyStrings().split(value.replaceAll("[)(_]", "")))+"%')";
+             if(!joinEmploymentForCompanyName.equals("")){
+            	 joinEmploymentForCompanyName+=" and   "+value;
+             }else{
+            	 joinEmploymentForCompanyName=(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where 1=1 ");
+            	 joinEmploymentForCompanyName+=" and   "+value;
+             }
+
+            if(searchValues.get("curCompany") != null){
+            	joinEmploymentForCompanyName+=(" and em.\"ts2__Employment_End_Date__c\" is  null ");
+            }
+
+            
         }
         
-        if(searchEmployment||!joinEmployment.equals("")){
+        if(joinEmploymentForCompanyName.equals("")&&!joinEmploymentForTitle.equals("")){
+        	 joinSql.append(joinEmploymentForTitle);
+        }else if(!joinEmploymentForCompanyName.equals("")){
+        	joinSql.append(joinEmploymentForCompanyName);
+        }
+        
+        if(!joinEmploymentForCompanyName.equals("")||!joinEmploymentForTitle.equals("")){
         	joinSql.append(" )  c1 on contact.\"sfId\" = c1.\"ts2__Contact__c\"   ");
         }
         	
+        
+        
 	   //add the 'educationNames' filter, and join Education table
         if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
             String value = searchValues.get("educationNames");
