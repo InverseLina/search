@@ -240,7 +240,8 @@ public class SearchDao {
     	StringBuilder columnsSql = new StringBuilder();
     	 if(searchColumns==null){
              columnsSql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate");
-         }else{
+             groupBy.append(",a.\"Name\",a.\"Title\",a.\"CreatedDate\"");
+    	 }else{
  	        for(String column:searchColumns.split(",")){
  	            columnsSql.append(getQueryColumnName(column,columnJoinTables,groupBy));
  	            columnsSql.append(",");
