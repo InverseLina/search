@@ -29,7 +29,6 @@
       };
 
       this.events = $.extend(this.events, app.sidesection.BaseSideAdvanced.prototype.events);
-        console.log(this.events);
     }
 
 
