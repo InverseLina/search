@@ -102,6 +102,19 @@
                         view.$el.find(".open").removeClass("icon-chevron-right").addClass("icon-chevron-down");
                     }
                 }
+            },
+            parentEvents: {
+                MainView : {
+                    "SEARCH_RESULT_CHANGE": function(event, result){
+                        var view = this;
+                        if (view.status == "open") {
+                            var values = view.subComponent.getSearchValues();
+                            if (!$.isEmptyObject(values)) {
+                                app.preference.store(view.cname + ".values", JSON.stringify(values));
+                            }
+                        }
+                    }
+                }
             }
         });
 
