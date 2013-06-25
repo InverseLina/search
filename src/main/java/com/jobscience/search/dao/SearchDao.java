@@ -477,19 +477,68 @@ public class SearchDao {
     
     private String getSearchValueJoinTable(String searchValue, List values,String alias){
         StringBuilder joinSql = new StringBuilder();
-        joinSql.append(" right join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
+        joinSql.append(" right join ");
+        
+        if(searchValue.contains("OR")){
+        	joinSql.append("(select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
                                 + " select a_copy1.id as id from contact a_copy1 "
-                                + " where "
-                                + " a_copy1.\"Title\" ilike ? "
-                                + " or a_copy1.\"Name\" ilike ? ) a_ext on a_ext.id = "+alias+".id ");
-        String searchTsq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(searchValue));
-        String searchILike = searchValue;
-        if (!searchILike.contains("%")) {
-            searchILike = "%" + searchValue + "%";
+                                + " where 1!=1 ");
+	        String searchTsq = Joiner.on("|").join(Splitter.on("OR").trimResults().omitEmptyStrings().split(searchValue));
+	        values.add(searchTsq);
+	        
+	        String[] searchILikes = searchValue.split("OR");
+	        
+	        for(String searchILike:searchILikes){
+	        	 if (!searchILike.contains("%")) {
+	                 searchILike = "%" + searchILike.trim() + "%";
+	             }else{
+	            	 searchILike= searchILike.trim();
+	             }
+	        	 
+	        	 System.out.println(searchILike);
+	        	 joinSql.append(" OR a_copy1.\"Title\" ilike ?");
+	        	 values.add(searchILike);
+	        	 joinSql.append(" OR a_copy1.\"Name\" ilike ?");
+	        	 values.add(searchILike);
+	        }
+	        joinSql.append(") a_ext on a_ext.id = "+alias+".id ");
+        }else{
+        	String[] searchILikes = searchValue.split("AND|\\s+");
+        	String searchILike;
+        	int i = 0;
+        	joinSql.append("(select a_ext0.id from (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
+                    + " select a_copy1.id as id from contact a_copy1 "
+                    + " where a_copy1.\"Title\" ilike ? or  a_copy1.\"Name\" ilike ?) a_ext"+i);
+        	
+        	searchILike = searchILikes[i];
+	   		searchILike= searchILike.trim();
+	   		values.add(searchILike);
+        	if (!searchILike.contains("%")) {
+                 searchILike = "%" + searchILike + "%";
+             }
+        	 values.add(searchILike);
+        	 values.add(searchILike);
+        	i++;
+        	  for(;i<searchILikes.length;i++){
+        		  joinSql.append(" inner join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
+                          + " select a_copy1.id as id from contact a_copy1 "
+                          + " where a_copy1.\"Title\" ilike ? or  a_copy1.\"Name\" ilike ?) a_ext"+i)
+                          .append(" on a_ext"+(i-1)+".id=a_ext"+i+".id ");
+        		  searchILike = searchILikes[i];
+        		  searchILike= searchILike.trim();
+        		  values.add(searchILike);
+ 	        	 if (!searchILike.contains("%")) {
+ 	                 searchILike = "%" + searchILike + "%";
+ 	             }
+ 	        	 values.add(searchILike);
+ 	        	 values.add(searchILike);
+ 	        }
+        	  joinSql.append(") a_ext on a_ext.id = "+alias+".id ");
         }
-        values.add(searchTsq);
-        values.add(searchILike);
-        values.add(searchILike); 
+        
+       
+      
+        
         return joinSql.toString();
     }
     
@@ -541,6 +590,12 @@ public class SearchDao {
         return conditions.toString();
     }
     
+    
+    public static void main(String[] args) {
+    	for(String a:"java OR ceo".split("OR")){
+    		System.out.println(a);
+    	}
+	}
 }
 
 
