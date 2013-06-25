@@ -34,6 +34,7 @@
                 var view = this;
                 for (var k in data) {
                    view.$el.find("input[name='" + k + "']").val(data[k]);
+                    view.$el.find("input[name='" + k + "']").closest(".control-group").removeClass("has-value").addClass("has-value");
                 }
             },
             events: {
