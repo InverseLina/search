@@ -33,22 +33,6 @@
     .open {
       left:10px;
     }
-    .clear {
-      display: none; /* does not work as expected, need to hide when nothing to clear */
-      right: 4px;
-      top: 6px;
-      font-size: 18px;
-      font-weight: bold;
-      width: 18px;
-      height: 18px;
-      text-align: center;
-      line-height: 15px;
-      .border-radius(18px);
-    }
-    .clear:hover {
-      background:#666666;
-      color:#ffffff;
-    }
   }
 
 
@@ -64,7 +48,12 @@
     }
 
     .control-group {
-       margin-bottom: 0;
+      margin-bottom: 0;
+      position: relative;
+    }
+
+    .control-group.has-value .clear{
+      display: block;
     }
 
     li{
@@ -121,13 +110,21 @@
       }
     }
 
+    span.not-open .clear{
+      display: block;
+      z-index: 99;
+      top: 30%; right: 0px
+    }
     span.not-open {
       display: block;
+      position: relative;
       min-height: 20px;
       text-align: center;
       line-height: 20px;
+      padding-right: 20px;
       width: 100%;
       word-wrap: break-word;
+      background: rgb(220,220,220);
     }
   }
 
@@ -137,4 +134,26 @@
     text-align: right;
     color: #777;
   }
+
+  .clear {
+    display:none;
+    position: absolute;
+    right: 24px;
+    top: 32px;
+    font-size: 18px;
+    font-weight: bold;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 15px;
+    .border-radius(18px);
+    cursor: pointer;
+  }
+
+  .clear:hover {
+    background:#666666;
+    color:#ffffff;
+  }
+
+
 }

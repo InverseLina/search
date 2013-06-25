@@ -49,6 +49,7 @@ var app = app || {};
 
             if ($li.hasClass("all") ) {
                 view.$el.find("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
+                $ul.find("input[type='text']").val("");
                 setTimeout(function() {
                     $li.find(":checkbox").prop("checked", true);
                     $li.removeClass("selected").addClass("selected");

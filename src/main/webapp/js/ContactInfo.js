@@ -37,13 +37,26 @@
                 }
             },
             events: {
-                "clear": function(){
-                    var view = this;
-                    view.$el.find("input").val("");
+                "btap; .clear": function(event){
+                    event.stopPropagation();
+                    var $group =$(event.currentTarget).closest(".control-group");
+                    $group.removeClass("has-value");
+                    $group.find("input").val("");
                 },
                 "change; input[name='curTitle']" : function(event) {
                   var view = this;
                   view.$el.trigger("DO_SEARCH");
+                },
+                "keyup; input[type='text']":function(event){
+                    event.stopPropagation();
+                    var $target = $(event.currentTarget);
+                    var val = $target.val();
+
+                    if(!/^\s*$/.test(val)){
+                        $target.closest(".control-group").addClass("has-value");
+                    }else{
+                        $target.closest(".control-group").removeClass("has-value");
+                    }
                 }
             },
             docEvents: {}
