@@ -2,9 +2,10 @@
 @import "mixins.less";
 
 .SideSection {
-  background: #E5E5E5;
+  background: rgba(251,251,251,0.3);
   min-width: 220px;
   width:100%;
+  min-height: 100px;
 
   div.section-banner {
     position: relative;
@@ -20,7 +21,7 @@
       font-weight: bold;
       text-align: center;
       height: 30px;
-      background: #F6F6F6;
+      background: rgb(251,251,251);
     }
 
     .open, .clear {
@@ -38,7 +39,7 @@
 
   .content {
     background: #E5E5E5;
-    padding: 10px;
+//    padding: 10px;
     ul {
       margin: 0 0 10px 0;
     }
@@ -113,18 +114,19 @@
     span.not-open .clear{
       display: block;
       z-index: 99;
-      top: 25%; right: 0px
+      top: 50%; right: 5px;
+      margin-top: -8px;
     }
     span.not-open {
       display: block;
       position: relative;
-      min-height: 20px;
+      min-height: 50px;
       text-align: center;
       line-height: 20px;
-      padding-right: 20px;
+      padding: 10px 20px 10px 10px;
       width: 100%;
       word-wrap: break-word;
-      background: rgb(220,220,220);
+      background: rgba(251,251,251,0.6);
     }
   }
 
@@ -138,8 +140,8 @@
   .clear {
     display:none;
     position: absolute;
-    right: 24px;
-    top: 32px;
+    right: 14px;
+    top: 34px;
     font-size: 18px;
     font-weight: bold;
     width: 18px;
@@ -154,6 +156,10 @@
   .clear:hover {
     background:rgb(200,200,200);
     color:#ffffff;
+  }
+
+  .Education, .Company,.Skill, .ContactInfo {
+    padding: 10px;
   }
 
 
