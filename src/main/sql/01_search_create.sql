@@ -28,14 +28,14 @@ IF( TG_OP='INSERT' ) THEN
 ELSIF (TG_OP = 'UPDATE') THEN
     UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__Text_Resume__c" )  where id = new.id;
 END IF;
-RETURN NULL;
+RETURN NEW;
 END;
 $Body$
 LANGUAGE 'plpgsql';
 
 
 CREATE TRIGGER contact_trg_resume_tsv
-  BEFORE INSERT OR UPDATE
+  BEFORE INSERT OR UPDATE OF "ts2__Text_Resume__c"
   ON contact
   FOR EACH ROW
   EXECUTE PROCEDURE update_context_ex_resume();
