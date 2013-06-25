@@ -26,10 +26,15 @@
         		}
         	}
         }
-      }; 
-    };
-    
+      };
+
+      this.events = $.extend(this.events, app.sidesection.BaseSideAdvanced.prototype.events);
+        console.log(this.events);
+    }
+
+
     brite.inherit(CompanyView,app.sidesection.BaseSideAdvanced);
+
     
     CompanyView.prototype.updateSearchValues = function(data){
       var view = this;
