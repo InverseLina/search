@@ -6,7 +6,6 @@
  *
  */
 (function ($) {
-    var searchDao = app.SearchDaoHandler;
     function SkillView(){
       this.constructor._super.constructor.call(this,"skill","skills");
     };

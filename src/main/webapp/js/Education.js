@@ -6,7 +6,6 @@
  *
  */
 (function ($) {
-    var searchDao = app.SearchDaoHandler;
     function EducationView(){
       this.constructor._super.constructor.call(this,"education","educations");
     };

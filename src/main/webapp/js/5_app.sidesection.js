@@ -139,6 +139,17 @@ var app = app || {};
                 }
             }
 
+        },
+        "keyup;input[type='text']":function(event){
+            var $input = $(event.target);
+            var view = this;
+            if($input.val().length>0){
+                view.$el.find("li[data-name='ALL']").removeClass("selected").find(":checkbox").prop("checked", false);
+            }else{
+                if (view.$el.find("li:not(.all).selected").length === 0) {
+                    view.$el.find("li.all").addClass("selected").find(":checkbox").prop("checked", true);
+                }
+            }
         }
     };
 
@@ -168,6 +179,15 @@ var app = app || {};
         view.$el.find("li[data-name='" + item + "']").addClass("selected")
       })
     }
+   var curName = "cur" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
+   if (data[curName]) {
+       view.$el.find("input[name='" + curName + "']").prop("checked", true);
+   }
+   var searchName = "search" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
+   if (data[searchName]) {
+       view.$el.find('input[type=text]').val(data[searchName]);
+       view.$el.find("li.all").removeClass("selected").find(":checkbox").prop("checked", false);
+   }
 
     view.refreshSelections();
 
@@ -196,6 +216,17 @@ var app = app || {};
     if (!/^\s*$/.test(itemStr)) {
       result[dataType+"Names"] = itemStr;
     }
+
+      var searchName = "search" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
+      var searchValue = view.$el.find('input[type=text]').val();
+      if (!/^\s*$/.test(searchValue)) {
+          result[searchName] = searchValue;
+      }
+      var curName = "cur" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
+      var curValue = view.$el.find("input[name='" + curName + "']").prop("checked");
+      if (curValue) {
+          result[curName] = curValue;
+      }
 
     return result;
   };
@@ -235,7 +266,8 @@ var app = app || {};
   BaseSideAdvanced.prototype.refreshSelections = function($e) {
     var view = this;
     $e = $e||view.$el;
-    if ($e.find("li:not(.all).selected").length === 0) {
+
+    if ($e.find("li:not(.all).selected").length === 0 ) {
       $e.find("li.all").addClass("selected").find(":checkbox").prop("checked", true);
     }else{
       $e.find("li.all").removeClass("selected").find(":checkbox").prop("checked", false);

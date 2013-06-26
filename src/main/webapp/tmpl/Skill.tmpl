@@ -11,6 +11,12 @@
 
     <ul class="skillList">
         <li class="all"  data-name="ALL"><label><input type="checkbox"/><span>Any Skill</span></label></li>
+        <li>
+            <div class="control-group">
+                <input name="skill" type="text" placeholder="Skill"/>
+            </div>
+        </li>
+
         {{#each skills}}
             <li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>(<span class="validCount"></span>{{count}})</label></li>
         {{/each}}

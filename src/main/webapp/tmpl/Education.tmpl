@@ -11,6 +11,12 @@
 
     <ul class="educationList">
         <li class="all"  data-name="ALL"><label><input type="checkbox"/><span>Any Education</span></label></li>
+        <li>
+            <div class="control-group">
+                <input name="education" type="text" placeholder="Education"/>
+            </div>
+        </li>
+
         {{#each educations}}
             <li data-name="{{name}}"><label><input type="checkbox"/><span>{{name}}&nbsp;</span>(<span class="validCount"></span>{{count}})</label></li>
         {{/each}}
