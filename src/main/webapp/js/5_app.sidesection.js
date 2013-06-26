@@ -266,8 +266,9 @@ var app = app || {};
   BaseSideAdvanced.prototype.refreshSelections = function($e) {
     var view = this;
     $e = $e||view.$el;
+    var searchValue = $e.find('input[type=text]').val();
 
-    if ($e.find("li:not(.all).selected").length === 0 ) {
+    if ($e.find("li:not(.all).selected").length === 0 && /^\s*$/.test(searchValue) ) {
       $e.find("li.all").addClass("selected").find(":checkbox").prop("checked", true);
     }else{
       $e.find("li.all").removeClass("selected").find(":checkbox").prop("checked", false);
