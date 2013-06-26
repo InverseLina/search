@@ -39,10 +39,12 @@
             },
             events: {
                 "btap; .clear": function(event){
+                    var view = this;
                     event.stopPropagation();
                     var $group =$(event.currentTarget).closest(".control-group");
                     $group.removeClass("has-value");
                     $group.find("input").val("");
+                    view.$el.trigger("DO_SEARCH");
                 },
                 "change; input[name='curTitle']" : function(event) {
                   var view = this;
