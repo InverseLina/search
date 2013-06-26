@@ -39,13 +39,7 @@
                  view.$el.trigger("DO_SEARCH");
              }
          }
-     },
-	 getSearchMode:function(){
-	   var view = this;
-	   var searchMode = view.$el.bFindComponents("SideNav")[0].searchMode;
-	   
-	   return searchMode;
-	 }
+     }
 	});
 
 
