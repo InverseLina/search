@@ -569,7 +569,7 @@ public class SearchDao {
     		}
     		
     		temp = notConditions[0].trim();
-			sb.append(" select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
+			sb.append(" select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)) b on a_copy.id = b.id " + " union "
                 + " select a_copy1.id as id from contact a_copy1 "
                 + " where a_copy1.\"Title\" ilike ? or  a_copy1.\"Name\" ilike ? ");
     		
@@ -596,7 +596,7 @@ public class SearchDao {
 //                        + " where (a_copy1.\"Title\" not ilike ? or a_copy1.\"Title\" is null ) and  (a_copy1.\"Name\" not ilike ? or a_copy1.\"Name\" is null)) a_ext on ex.id=a_ext.id  where ex.resume_tsv @@ to_tsquery(?)) n_extd")
 //                        .append(i+" on n_extd"+i+".id=n_ext.id ");
                         
-	    		sb.append("  (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)" + " union "
+	    		sb.append("  (select ex.id from contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)" + " union "
                         + " (select a_copy1.id as id from contact a_copy1 "
                         + " where a_copy1.\"Title\"  ilike ? or  a_copy1.\"Name\"  ilike ? ) ) ");
                        // .append(i+" on n_extd"+i+".id=n_ext.id ");
