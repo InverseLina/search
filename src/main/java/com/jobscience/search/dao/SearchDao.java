@@ -111,6 +111,7 @@ public class SearchDao {
         }
         
         if (searchValues != null) {
+           
             // for all search mode, we preform the same condition
             String search = searchValues.get("search");
             if (!Strings.isNullOrEmpty(search)) {
@@ -119,7 +120,10 @@ public class SearchDao {
                 baseTableIns = "a";
                 searchConditions.append(getSearchValueJoinTable(search, values,"a"));
             }
-
+        	
+          	
+              
+              
             // add the 'educationNames' filter, and join Education table
             if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
                 hasCondition = true;
@@ -170,6 +174,75 @@ public class SearchDao {
                     conditions.append(getConditionForThirdNames(value, values, "skill"));
                 }
             }
+
+          //add the 'Title' filter
+            if (searchValues.get("Title") != null && !"".equals(searchValues.get("Title"))) {
+                String value = searchValues.get("Title");
+                if(searchValues.get("curTitle")!=null){
+                	if(baseTable.indexOf("contact") ==-1){
+         	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+         	            baseTable = " contact ";
+         	            baseTableIns = "a";
+                     }
+                    conditions.append(" and a.\"Title\" ilike ? ");
+                    if(!value.contains("%")){
+                        value = "%" + value + "%";
+                    }
+                    values.add(value);
+                }else{
+                     if(baseTable.indexOf("contact") ==-1){
+         	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+         	            baseTable = " contact ";
+         	            baseTableIns = "a";
+                     }
+                     if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
+                    	 joinTables.append(" inner join ts2__employment_history__c c1 on a.\"sfId\" =c.\"ts2__Contact__c\" ");
+                     }
+                     
+                    conditions.append(" and ( c.\"ts2__Job_Title__c\" ilike ?  or a.\"Title\" ilike ? )");
+                    if(!value.contains("%")){
+                        value = "%" + value + "%";
+                    }
+                    values.add(value);
+                    values.add(value);
+                }
+            }
+            
+            //add the 'FirstName' filter
+            if (searchValues.get("FirstName") != null && !"".equals(searchValues.get("FirstName"))) {
+                String value = searchValues.get("FirstName");
+                if(baseTable.indexOf("contact") ==-1){
+     	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+     	            baseTable = " contact ";
+     	            baseTableIns = "a";
+                 }
+               
+                 
+                conditions.append(" and a.\"FirstName\" ilike ? ");
+                if(!value.contains("%")){
+                    value = "%" + value + "%";
+                }
+                values.add(value);
+            }
+
+            //add the 'LastName' filter
+            if (searchValues.get("LastName") != null && !"".equals(searchValues.get("LastName"))) {
+                String value = searchValues.get("LastName");
+                if(baseTable.indexOf("contact") ==-1){
+     	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+     	            baseTable = " contact ";
+     	            baseTableIns = "a";
+                 }
+                
+                conditions.append(" and a.\"LastName\" ilike ? ");
+                if(!value.contains("%")){
+                    value = "%" + value + "%";
+                }
+                values.add(value);
+            }
+            
+            
+            
         }
         
         querySql.append(column);
