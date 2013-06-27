@@ -477,69 +477,10 @@ public class SearchDao {
     
     private String getSearchValueJoinTable(String searchValue, List values,String alias){
         StringBuilder joinSql = new StringBuilder();
-        joinSql.append(" right join ");
-        
-        if(searchValue.contains("OR")){
-        	joinSql.append("(select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
-                                + " select a_copy1.id as id from contact a_copy1 "
-                                + " where 1!=1 ");
-	        String searchTsq = Joiner.on("|").join(Splitter.on("OR").trimResults().omitEmptyStrings().split(searchValue));
-	        values.add(searchTsq);
-	        
-	        String[] searchILikes = searchValue.split("OR");
-	        
-	        for(String searchILike:searchILikes){
-	        	 if (!searchILike.contains("%")) {
-	                 searchILike = "%" + searchILike.trim() + "%";
-	             }else{
-	            	 searchILike= searchILike.trim();
-	             }
-	        	 
-	        	 System.out.println(searchILike);
-	        	 joinSql.append(" OR a_copy1.\"Title\" ilike ?");
-	        	 values.add(searchILike);
-	        	 joinSql.append(" OR a_copy1.\"Name\" ilike ?");
-	        	 values.add(searchILike);
-	        }
-	        joinSql.append(") a_ext on a_ext.id = "+alias+".id ");
-        }else{
-        	String[] searchILikes = searchValue.split("AND|\\s+");
-        	String searchILike;
-        	int i = 0;
-        	joinSql.append("(select a_ext0.id from (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
-                    + " select a_copy1.id as id from contact a_copy1 "
-                    + " where a_copy1.\"Title\" ilike ? or  a_copy1.\"Name\" ilike ?) a_ext"+i);
-        	
-        	searchILike = searchILikes[i];
-	   		searchILike= searchILike.trim();
-	   		values.add(searchILike);
-        	if (!searchILike.contains("%")) {
-                 searchILike = "%" + searchILike + "%";
-             }
-        	 values.add(searchILike);
-        	 values.add(searchILike);
-        	i++;
-        	  for(;i<searchILikes.length;i++){
-        		  joinSql.append(" inner join (select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
-                          + " select a_copy1.id as id from contact a_copy1 "
-                          + " where a_copy1.\"Title\" ilike ? or  a_copy1.\"Name\" ilike ?) a_ext"+i)
-                          .append(" on a_ext"+(i-1)+".id=a_ext"+i+".id ");
-        		  searchILike = searchILikes[i];
-        		  searchILike= searchILike.trim();
-        		  values.add(searchILike);
- 	        	 if (!searchILike.contains("%")) {
- 	                 searchILike = "%" + searchILike + "%";
- 	             }
- 	        	 values.add(searchILike);
- 	        	 values.add(searchILike);
- 	        }
-        	  joinSql.append(") a_ext on a_ext.id = "+alias+".id ");
-        }
-        
-       
-      
-        
-        return joinSql.toString();
+      joinSql.append(" right join (");
+      joinSql.append(booleanSearchHandler(searchValue, null, values));
+      joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
+      return joinSql.toString();
     }
     
     private String getNameExpr(String type){
@@ -590,12 +531,95 @@ public class SearchDao {
         return conditions.toString();
     }
     
-    
-    public static void main(String[] args) {
-    	for(String a:"java OR ceo".split("OR")){
-    		System.out.println(a);
+    public static String booleanSearchHandler(String searchValue,String type, List values){
+    	StringBuilder sb = new StringBuilder();
+    	String temp = "";
+    	if(type==null||"OR".equals(type)){
+	    	String[] orConditions = searchValue.trim().split("OR");
+	    	for(int i=0;i<orConditions.length;i++){
+	    		String orCondition = orConditions[i];
+	    		sb.append("select a_extr"+i+".id from (");
+	    		sb.append(booleanSearchHandler(orCondition, "AND",values));
+	    		sb.append(" a_extr"+i+" union ");
+	    	}
+	    	sb.append("(select 1 as id from contact where 1!=1)");
+    	}else if("AND".equals(type)){
+    		String[] andConditions = searchValue.trim().split("AND");
+	    	for(int i=0;i<andConditions.length;i++){
+	    		String andCondition = andConditions[i];
+	    		//if(!andCondition.trim().equals("")){
+	    			if(i==0){
+	    				sb.append(" select n_ext0.id as id from ");
+	    			}
+		    		sb.append(booleanSearchHandler(andCondition, "NOT",values)+(i));
+		    		if(i>0){
+		    			sb.append(" on n_ext"+i+".id=n_ext"+(i-1)+".id");
+		    		}
+		    		sb.append(" join ");
+		    		
+	    		//}
+	    	}
+	    	sb.append(" (select 1 from contact limit 1) last on 1=1) ");
+    	}else if("NOT".equals(type)){
+    		String[] notConditions = searchValue.trim().split("NOT");
+    		if(notConditions.length==1){
+    			sb.append("(");
+    		}else{
+    			sb.append(" (select n_ext.id from (");
+    		}
+    		
+    		temp = notConditions[0].trim();
+			sb.append(" select a_copy.id as id from contact a_copy right join (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)) b on a_copy.id = b.id " + " union "
+                + " select a_copy1.id as id from contact a_copy1 "
+                + " where a_copy1.\"Title\" ilike ? or  a_copy1.\"Name\" ilike ? ");
+    		
+			if(notConditions.length==1){
+    			sb.append(") n_ext");
+    		}else{
+    			sb.append(") n_ext");
+    		}
+    		
+			
+    		values.add(temp);
+    		if(!temp.contains("%")){
+    			temp = "%"+temp+"%";	
+    		}
+    		values.add(temp);
+    		values.add(temp);
+    		boolean hasNot = false;
+	    	for(int i=1;i<notConditions.length;i++){
+	    		hasNot = true;
+	    		temp = notConditions[i].trim(); 
+	    		sb.append(" except ");
+//	    		sb.append("  (select ex.id from contact_ex ex " + " join "
+//                        + " (select a_copy1.id as id from contact a_copy1 "
+//                        + " where (a_copy1.\"Title\" not ilike ? or a_copy1.\"Title\" is null ) and  (a_copy1.\"Name\" not ilike ? or a_copy1.\"Name\" is null)) a_ext on ex.id=a_ext.id  where ex.resume_tsv @@ to_tsquery(?)) n_extd")
+//                        .append(i+" on n_extd"+i+".id=n_ext.id ");
+                        
+	    		sb.append("  (select ex.id from contact_ex ex where ex.resume_tsv @@ to_tsquery(?)" + " union "
+                        + " (select a_copy1.id as id from contact a_copy1 "
+                        + " where a_copy1.\"Title\"  ilike ? or  a_copy1.\"Name\"  ilike ? ) ) ");
+                       // .append(i+" on n_extd"+i+".id=n_ext.id ");
+	    		values.add(temp);
+	    		if(!temp.contains("%")){
+	    			values.add("%"+temp+"%");
+		    		values.add("%"+temp+"%");
+	    		}else{
+	    			values.add(temp);
+		    		values.add(temp);
+	    		}
+	    		
+	    		//values.add("!"+temp);
+	    	}
+	    	if(hasNot){
+	    		sb.append(")n_ext");
+	    	}
     	}
-	}
+    	
+    	return sb.toString();
+    }
+    
+  
 }
 
 
