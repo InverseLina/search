@@ -21,6 +21,19 @@
                 });
 
 
+                $(document).on("btap." + view.cid, function(event){
+                    var width = view.$el.width();
+                    var height = view.$el.height();
+                    var pos = view.$el.offset();
+                    if(event.pageX > pos.left && event.pageY < pos.left + width
+                        && event.pageY > pos.top && event.pageY < pos.top + height){
+                        //do nothing
+                        //view.$el.off("mouseleave");
+                    }else{
+                        view.$el.bRemove();
+                        $(document).off("btap." + view.cid);
+                    }
+                });
                 view.$el.on("mouseleave", function(){
                     view.$el.bRemove();
                 })
