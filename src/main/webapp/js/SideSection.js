@@ -48,7 +48,7 @@
             
             events: {
             	
-                "btap; .clear":function(event){
+                "btap; .not-open .clear":function(event){
                     event.stopPropagation();
                     var view = $(event.currentTarget).bView();
                     if(view.status == "open"){
@@ -100,6 +100,16 @@
   	                        });
                       	}
                         view.$el.find(".open").removeClass("icon-chevron-right").addClass("icon-chevron-down");
+                    }
+                },
+                "store":function(){
+                    //force store value
+                    var view = this;
+                    var values = view.subComponent.getSearchValues();
+                    if(!$.isEmptyObject(values)){
+                        app.preference.store(view.cname + ".values", JSON.stringify(values));
+                    }else {
+                        app.preference.store(view.cname + ".values", null);
                     }
                 }
             },

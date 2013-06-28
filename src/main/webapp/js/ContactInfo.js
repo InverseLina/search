@@ -40,11 +40,12 @@
             events: {
                 "btap; .clear": function(event){
                     var view = this;
-                    event.stopPropagation();
                     var $group =$(event.currentTarget).closest(".control-group");
                     $group.removeClass("has-value");
                     $group.find("input").val("");
+                    view.$el.bView("SideSection").$el.trigger("store");
                     view.$el.trigger("DO_SEARCH");
+                    event.stopPropagation();
                 },
                 "change; input[name='curTitle']" : function(event) {
                   var view = this;
