@@ -35,4 +35,21 @@ public class LocationService {
 		return contacts;
 	}
 	
+	public List<Map> findContactsNear(String zip,Double distance) throws SQLException{
+		StringBuilder querySql = new StringBuilder();
+	 	querySql.append(" select a.* from contact a,(select * from zcta where zip=?) zip  ")
+	 	 		.append(" where earth_distance(ll_to_earth(zip.latitude,zip.longitude), ll_to_earth(a.\"ts2__Latitude__c\",a.\"ts2__Longitude__c\"))")
+	 	 		.append(" <=?");
+	 	Connection connection = dbHelper.getConnection();
+	 	PreparedStatement paPreparedStatement = connection.prepareStatement(querySql.toString());
+	 	List<Map> contacts = dbHelper.preparedStatementExecuteQuery(paPreparedStatement,zip,distance);
+	 	try {
+	 	  paPreparedStatement.close();
+	 	  connection.close();
+	    }catch (SQLException e) {
+	      throw Throwables.propagate(e);
+	    }
+		return contacts;
+	}
+	
 }
