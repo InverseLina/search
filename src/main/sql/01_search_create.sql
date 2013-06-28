@@ -48,3 +48,7 @@ CREATE INDEX contact_LastName_trgm_gin ON contact USING gin ("LastName" gin_trgm
 
   
 -- ALTER TABLE contact enable trigger c5_c5_contact_logtrigger;
+
+CREATE EXTENSION cube SCHEMA public VERSION "1.0";
+  
+CREATE EXTENSION earthdistance SCHEMA public VERSION "1.0";
