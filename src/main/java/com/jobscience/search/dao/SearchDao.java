@@ -606,6 +606,10 @@ public class SearchDao {
     
     public static String booleanSearchHandler(String searchValue,String type, List values){
     	StringBuilder sb = new StringBuilder();
+    	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
+    	if(searchValue.equals("")){
+    		return " select id from contact where 1!=1 ";
+    	}
     	String temp = "";
     	if(type==null||"OR".equals(type)){
 	    	String[] orConditions = searchValue.trim().split("OR");
