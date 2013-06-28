@@ -1,5 +1,7 @@
 package com.jobscience.search;
 
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.BeforeClass;
@@ -10,6 +12,7 @@ import com.britesnow.snow.util.MapUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.jobscience.search.dao.SearchDao;
+import com.jobscience.search.service.LocationService;
 
 public class SimpleTest extends SnowTestSupport {
 
@@ -27,6 +30,16 @@ public class SimpleTest extends SnowTestSupport {
        searchDao.search(null,values, 1, 30,"");
        long end = System.currentTimeMillis();
        System.out.println("search result: " + (end - start));
+    }
+    
+    @Test
+    public void searchDistanceTest() throws SQLException{
+       LocationService locationService = appInjector.getInstance(LocationService.class);
+       long start = System.currentTimeMillis();
+       List<Map> contacts = locationService.findContactsNear(30.0, 30.0, 999999.0);
+       long end = System.currentTimeMillis();
+       System.out.println("search result size: " + contacts.size());
+       System.out.println("cost time: " + (end - start));
     }
     
     //@Test
