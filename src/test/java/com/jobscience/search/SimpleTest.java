@@ -36,13 +36,13 @@ public class SimpleTest extends SnowTestSupport {
     public void searchDistanceTest() throws SQLException{
        LocationService locationService = appInjector.getInstance(LocationService.class);
        long start = System.currentTimeMillis();
-       List<Map> contacts = locationService.findContactsNear(30.0, 30.0, 999999.0);
+       List<Map> contacts = locationService.findContactsNear(30.0, 30.0, 621.0);
        long end = System.currentTimeMillis();
        System.out.println("search result size(by lat/long): " + contacts.size());
        System.out.println("cost time(by lat/long): " + (end - start));
        
        start = System.currentTimeMillis();
-       contacts = locationService.findContactsNear("210",9999.0);
+       contacts = locationService.findContactsNear("210",6.21);
        end = System.currentTimeMillis();
        System.out.println("search result size(by zip): " + contacts.size());
        System.out.println("cost time(by zip): " + (end - start));
