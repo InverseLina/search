@@ -73,7 +73,7 @@ public class SearchDao {
                                 + size;
         
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
         prepareStatement.close();
         con.close();
         return result;
