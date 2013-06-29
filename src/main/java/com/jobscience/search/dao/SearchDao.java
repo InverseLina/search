@@ -63,17 +63,17 @@ public class SearchDao {
         Connection con = dbHelper.getConnection();
         String name = getNameExpr(type);
         String table = getTable(type);
-        String querySql = " select a.name, count(a.contact) from ( "
-                                + " select e."+name+" as name, e.\"ts2__Contact__c\" as contact "
-                                + " from "+table+" e  "
-                                + " where e."+name+" !='' group by e.\"ts2__Contact__c\", e."+name+") a  "
-                                + " group by a.name order by a.count desc offset "
-                                + offset
-                                + " limit "
-                                + size;
+        StringBuilder querySql = new StringBuilder(" select a.name, count(a.contact) from ( ").
+                                append( " select e."+name+" as name, e.\"ts2__Contact__c\" as contact ").
+                                append( " from "+table+" e  ").
+                                append( " where e."+name+" !='' group by e.\"ts2__Contact__c\", e."+name+") a  ").
+                                append( " group by a.name order by a.count desc offset " ).
+                                append( offset).
+                                append( " limit ").
+                                append( size);
         
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, new Object[0]);
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
         prepareStatement.close();
         con.close();
         return result;
@@ -263,8 +263,9 @@ public class SearchDao {
         }
         
         querySql.append(") result where result.name != '' group by result.name order by count desc");
-        
-        log.debug(querySql);
+        if(log.isDebugEnabled()){
+            log.debug(querySql);
+        }
         Connection con = dbHelper.getConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
@@ -384,10 +385,11 @@ public class SearchDao {
         
         querySql.append(orderCon);
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
-        
-        log.debug(querySql);
-        log.debug(countSql);
-        
+        if(log.isDebugEnabled()){
+            log.debug(querySql);
+            log.debug(countSql);
+        }
+
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());

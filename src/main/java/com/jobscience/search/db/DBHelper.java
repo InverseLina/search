@@ -21,7 +21,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @Singleton
 public class DBHelper {
 
-    ComboPooledDataSource cpds;
+    private ComboPooledDataSource cpds;
 
     @Inject
     public void init(@Named("db.url") String url,@Named("db.user") String user, @Named("db.password") String password){
