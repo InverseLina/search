@@ -263,8 +263,9 @@ public class SearchDao {
         }
         
         querySql.append(") result where result.name != '' group by result.name order by count desc");
-        
-        log.debug(querySql);
+        if(log.isDebugEnabled()){
+            log.debug(querySql);
+        }
         Connection con = dbHelper.getConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
@@ -384,10 +385,11 @@ public class SearchDao {
         
         querySql.append(orderCon);
         querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
-        
-        log.debug(querySql);
-        log.debug(countSql);
-        
+        if(log.isDebugEnabled()){
+            log.debug(querySql);
+            log.debug(countSql);
+        }
+
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
