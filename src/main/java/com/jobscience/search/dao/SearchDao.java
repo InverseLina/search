@@ -614,7 +614,7 @@ public class SearchDao {
     	}
     	String temp = "";
     	if(type==null||"OR".equals(type)){
-	    	String[] orConditions = searchValue.trim().split("OR");
+	    	String[] orConditions = searchValue.trim().split("\\s+OR\\s+");
 	    	for(int i=0;i<orConditions.length;i++){
 	    		String orCondition = orConditions[i];
 	    		sb.append("select a_extr"+i+".id from (");
@@ -623,7 +623,7 @@ public class SearchDao {
 	    	}
 	    	sb.append("(select 1 as id from contact where 1!=1)");
     	}else if("AND".equals(type)){
-    		String[] andConditions = searchValue.trim().split("AND");
+    		String[] andConditions = searchValue.trim().split("\\s+AND\\s+");
 	    	for(int i=0;i<andConditions.length;i++){
 	    		String andCondition = andConditions[i];
 	    		//if(!andCondition.trim().equals("")){
@@ -640,7 +640,7 @@ public class SearchDao {
 	    	}
 	    	sb.append(" (select 1 from contact limit 1) last on 1=1) ");
     	}else if("NOT".equals(type)){
-    		String[] notConditions = searchValue.trim().split("NOT");
+    		String[] notConditions = searchValue.trim().split("\\s+NOT\\s+");
     		if(notConditions.length==1){
     			sb.append("(");
     		}else{
