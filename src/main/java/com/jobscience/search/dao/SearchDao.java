@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -280,7 +281,7 @@ public class SearchDao {
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"Name\"");
-    		return "a.\"Name\" as Name,lower(a.\"Name\") as lName";
+    		return "a.\"Name\" as Name,lower(a.\"Name\") as \"lName\"";
     	}else if(orginalName.toLowerCase().equals("id")){
     		return " a.\"id\" as id";
     	}else if(orginalName.toLowerCase().equals("title")){
@@ -288,7 +289,7 @@ public class SearchDao {
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"Title\"");
-    		return "a.\"Title\" as Title,lower(a.\"Title\") as lTitle";
+    		return "a.\"Title\" as Title,lower(a.\"Title\") as \"lTitle\"";
     	}else if(orginalName.toLowerCase().equals("createdate")){
     		if(groupBy.length()>0){
     			groupBy.append(",");
@@ -297,13 +298,13 @@ public class SearchDao {
     		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate";
     	}else if(orginalName.toLowerCase().equals("company")){
     		columnJoinTables.add(getAdvancedJoinTable("company"));
-    		return " string_agg(distinct c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as lCompany";
+    		return " string_agg(distinct c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as \"lCompany\"";
     	}else if(orginalName.toLowerCase().equals("skill")){
     		columnJoinTables.add(getAdvancedJoinTable("skill"));
-    		return "string_agg(distinct b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as lSkill";
+    		return "string_agg(distinct b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as \"lSkill\"";
     	}else if(orginalName.toLowerCase().equals("education")){
     		columnJoinTables.add(getAdvancedJoinTable("education"));
-    		return "string_agg(distinct d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as lEducation";
+    		return "string_agg(distinct d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as \"lEducation\"";
     	}
     	
     	return orginalName;
@@ -356,15 +357,22 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
-        querySql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
+        querySql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\"  ");
+        if(orderCon.contains("Title")){
+        	querySql.append(",lower(contact.\"Title\") as \"lTitle\"");
+        }else if(orderCon.contains("Name")){
+        	querySql.append(",lower(contact.\"Name\") as \"lName\"");
+        }
+        
+        querySql.append(" from contact contact  ");
         countSql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
             String search = searchValues.get("search");
-            String joinSql = getCondtion(search, searchValues,values);
-            querySql.append(joinSql);
-            countSql.append(joinSql);
+            String[] sqls = getCondtion(search, searchValues,values,orderCon,offset,pageSize);
+            querySql.append(sqls[0]);
+            countSql.append(sqls[1]);
         }
         
         querySql.append(joinTables);
@@ -383,8 +391,12 @@ public class SearchDao {
 	        querySql.append(" group by "+groupBy);
         }
         
-        querySql.append(orderCon);
-        querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
+        if(Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
+        	if(orderCon!=null&&!"".equals(orderCon)){
+        		querySql.append(" order by "+orderCon);
+        	}
+	        querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
+        }
         if(log.isDebugEnabled()){
             log.debug(querySql);
             log.debug(countSql);
@@ -396,9 +408,10 @@ public class SearchDao {
         ss.values = values.toArray();
         return ss;
     }
-    
-    private String getCondtion(String searchValue, Map<String, String> searchValues, List values){
+    private String[] getCondtion(String searchValue, Map<String, String> searchValues, List values,String orderCon,
+    		Integer offset,Integer pageSize){
     	StringBuilder joinSql = new StringBuilder();
+    	StringBuilder countSql = new StringBuilder();
     	StringBuilder conditions = new StringBuilder();
     	  
         if(!Strings.isNullOrEmpty(searchValue)){
@@ -516,12 +529,21 @@ public class SearchDao {
 	            }
 	        }
         
-        joinSql.append(" where 1=1 "+conditions+") a");
+        joinSql.append(" where 1=1 "+conditions);
+        countSql = new StringBuilder(joinSql.toString());
+        if(!Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
+        	if(orderCon!=null&&!"".equals(orderCon)){
+        		joinSql.append(" order by "+orderCon);
+        	}
+        	joinSql.append(" offset ").append(offset).append(" limit ").append(pageSize);
+        }
        
+        joinSql.append(") a ");
+        countSql.append(") a ");
         }
         
        
-        return joinSql.toString();
+        return new String[]{joinSql.toString(),countSql.toString()};
     }
     
     private String getAdvancedJoinTable(String type){
@@ -614,7 +636,7 @@ public class SearchDao {
     	}
     	String temp = "";
     	if(type==null||"OR".equals(type)){
-	    	String[] orConditions = searchValue.trim().split("OR");
+	    	String[] orConditions = searchValue.trim().split("\\s+OR\\s+");
 	    	for(int i=0;i<orConditions.length;i++){
 	    		String orCondition = orConditions[i];
 	    		sb.append("select a_extr"+i+".id from (");
@@ -623,7 +645,7 @@ public class SearchDao {
 	    	}
 	    	sb.append("(select 1 as id from contact where 1!=1)");
     	}else if("AND".equals(type)){
-    		String[] andConditions = searchValue.trim().split("AND");
+    		String[] andConditions = searchValue.trim().split("\\s+AND\\s+");
 	    	for(int i=0;i<andConditions.length;i++){
 	    		String andCondition = andConditions[i];
 	    		//if(!andCondition.trim().equals("")){
@@ -640,7 +662,7 @@ public class SearchDao {
 	    	}
 	    	sb.append(" (select 1 from contact limit 1) last on 1=1) ");
     	}else if("NOT".equals(type)){
-    		String[] notConditions = searchValue.trim().split("NOT");
+    		String[] notConditions = searchValue.trim().split("\\s+NOT\\s+");
     		if(notConditions.length==1){
     			sb.append("(");
     		}else{
@@ -698,7 +720,6 @@ public class SearchDao {
     	return sb.toString();
     }
     
-  
 }
 
 
