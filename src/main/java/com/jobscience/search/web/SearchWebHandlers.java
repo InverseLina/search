@@ -36,9 +36,10 @@ public class SearchWebHandlers {
         String orderCon = "";
         if(column!=null){
         	if(searchColumns.contains(column)){
-        		orderCon = " order by  " +getOrderColumn(column)+ " " +(("desc".equals(order))?"desc":"asc");
+        		orderCon = "\""+getOrderColumn(column)+ "\" " +(("desc".equals(order))?"desc":"asc");
         	}
         }
+        
         // FIXME: needs to get the search map from request.
         // Map searchValues = MapUtil.mapIt("search",search);
         SearchResult searchResult = searchDao.search(searchColumns,searchValues, pageIdx, pageSize,orderCon);
@@ -103,7 +104,9 @@ public class SearchWebHandlers {
 		   "Company".equalsIgnoreCase(originalName)||
 		   "Skill".equalsIgnoreCase(originalName)||
 		   "Education".equalsIgnoreCase(originalName)){
-			return "l"+originalName;
+			return "l"+originalName.substring(0,1).toUpperCase()+originalName.substring(1);
+		}else if("createdate".equalsIgnoreCase(originalName)){
+			return "CreatedDate";
 		}
 		
 		return originalName;
