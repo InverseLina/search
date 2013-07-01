@@ -34,18 +34,5 @@
     }
 	});
 
-    function isEmptyQuery(params){
-        params = params||{};
-        var val;
-        var empty = true;
-        for(key in params) {
-           val = params[key]||'';
-            if(!/^\s*$/.test(val)){
-                empty = false;
-                break;
-            }
-        }
-        return empty;
-    }
 	
 })(jQuery);

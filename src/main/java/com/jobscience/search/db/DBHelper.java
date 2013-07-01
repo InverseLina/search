@@ -34,11 +34,6 @@ public class DBHelper {
 
     public Connection getConnection() {
         try {
-            // Class.forName("org.postgresql.Driver");
-            // Connection con = null;
-            // con = DriverManager.getConnection(
-            // "jdbc:postgresql://localhost:5432/jobscience_db","postgres", "welcome");
-
             Connection con = cpds.getConnection();
             return con;
         } catch (SQLException e) {
