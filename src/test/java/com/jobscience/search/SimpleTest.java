@@ -38,13 +38,19 @@ public class SimpleTest extends SnowTestSupport {
        long start = System.currentTimeMillis();
        List<Map> contacts = locationService.findContactsNear(30.0, 30.0, 621.0);
        long end = System.currentTimeMillis();
-       System.out.println("search result size(by lat/long): " + contacts.size());
+       System.out.println("search result size(by lat/long(30.0, 30.0, 621.0)): " + contacts.size());
        System.out.println("cost time(by lat/long): " + (end - start));
+       
+       start = System.currentTimeMillis();
+       contacts = locationService.findContactsNearInPointWay(30.0, 30.0, 621.0);
+       end = System.currentTimeMillis();
+       System.out.println("search result size(by lat/long(30.0, 30.0, 621.0))--(Point Way):" + contacts.size());
+       System.out.println("cost time(by lat/long)--(Point Way): " + (end - start));
        
        start = System.currentTimeMillis();
        contacts = locationService.findContactsNear("210",6.21);
        end = System.currentTimeMillis();
-       System.out.println("search result size(by zip): " + contacts.size());
+       System.out.println("search result size(by zip 210): " + contacts.size());
        System.out.println("cost time(by zip): " + (end - start));
     }
     

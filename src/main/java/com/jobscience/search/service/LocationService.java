@@ -36,6 +36,22 @@ public class LocationService {
 		return contacts;
 	}
 	
+	public List<Map> findContactsNearInPointWay(Double latitude,Double longitude,Double distance) throws SQLException{
+	 	StringBuilder querySql = new StringBuilder();
+	 	querySql.append("select * from contact a ")
+	 	 		.append(" where sec_to_gc(point(?,?) <@> point(\"ts2__Longitude__c\", \"ts2__Latitude__c\"))<? ");
+	 	Connection connection = dbHelper.getConnection();
+	 	PreparedStatement paPreparedStatement = connection.prepareStatement(querySql.toString());
+	 	List<Map> contacts = dbHelper.preparedStatementExecuteQuery(paPreparedStatement,longitude,latitude,distance);
+	 	try {
+	 	  paPreparedStatement.close();
+	 	  connection.close();
+	    }catch (SQLException e) {
+	      throw Throwables.propagate(e);
+	    }
+		return contacts;
+	}
+	
 	public List<Map> findContactsNear(String zip,Double distance) throws SQLException{
 		distance *=1609.344;
 		StringBuilder querySql = new StringBuilder();
