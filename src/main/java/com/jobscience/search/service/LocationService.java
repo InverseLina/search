@@ -51,7 +51,23 @@ public class LocationService {
 	    }
 		return contacts;
 	}
-	
+	// sin(LatA)*sin(LatB) + cos(LatA)*cos(LatB)*cos(MLonA-MLonB)
+	public List<Map> findContactsNearWithoutModule(Double latitude,Double longitude,Double distance) throws SQLException{
+		distance *=1609.344;
+		StringBuilder querySql = new StringBuilder();
+	 	querySql.append("select * from contact a ")
+	 	 		.append(" where 6378168*acos(sin(\"ts2__Latitude__c\"*pi()/180)*sin(?*pi()/180) + cos(\"ts2__Latitude__c\"*pi()/180)*cos(?*pi()/180)*cos((\"ts2__Longitude__c\"-?)*pi()/180))<? ");
+	 	Connection connection = dbHelper.getConnection();
+	 	PreparedStatement paPreparedStatement = connection.prepareStatement(querySql.toString());
+	 	List<Map> contacts = dbHelper.preparedStatementExecuteQuery(paPreparedStatement,latitude,latitude,longitude,distance);
+	 	try {
+	 	  paPreparedStatement.close();
+	 	  connection.close();
+	    }catch (SQLException e) {
+	      throw Throwables.propagate(e);
+	    }
+		return contacts;
+	}
 	public List<Map> findContactsNear(String zip,Double distance) throws SQLException{
 		distance *=1609.344;
 		StringBuilder querySql = new StringBuilder();
