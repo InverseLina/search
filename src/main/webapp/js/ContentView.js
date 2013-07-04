@@ -70,6 +70,7 @@
             view.$searchInfo.empty();
             view.$searchResult.find(".tableContainer").html(render("search-empty",{colWidth:getColWidth.call(view)}));
             view.$searchResult.find(".page").empty();
+            fixColWidth.call(view);
         },
         loading:function() {
             var view = this;
@@ -150,8 +151,8 @@
     function getColWidth(){
         var view = this;
         var colLen = app.preference.columns().length;
-        return parseInt((view.$searchResult.innerWidth()-30)/colLen)-2;
-//        return 100/colLen;
+//        return parseInt((view.$searchResult.innerWidth()-30)/colLen)-2;
+        return 100/colLen;
     }
 
     function fixColWidth(){
