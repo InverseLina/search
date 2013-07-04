@@ -63,6 +63,7 @@
             var html = render("search-query-error", {title: title, detail:detail,colWidth:getColWidth.call(view)});
             view.$searchResult.find(".tableContainer").html(html);
             view.$searchResult.find(".page").empty();
+            fixColWidth.call(view);
 
         },
         empty:function() {
@@ -112,6 +113,7 @@
                     }else {
                         view.$searchResult.find(".tableContainer").html(render("search-query-notfound",{colWidth:getColWidth.call(view)}));
                         view.$searchResult.find(".page").empty();
+                        fixColWidth.call(view);
                     }
                 }
             }
