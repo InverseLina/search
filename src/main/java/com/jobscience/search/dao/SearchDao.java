@@ -289,7 +289,8 @@ public class SearchDao {
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"Title\"");
-    		return "a.\"Title\" as Title,lower(a.\"Title\") as \"lTitle\"";
+    		return "a.\"Title\" as Title,case   when a.\"Title\" is null then '' " +
+        			        " else lower(a.\"Title\") END \"lTitle\" ";
     	}else if(orginalName.toLowerCase().equals("createdate")){
     		if(groupBy.length()>0){
     			groupBy.append(",");
@@ -359,9 +360,13 @@ public class SearchDao {
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
         querySql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\"  ");
         if(orderCon.contains("Title")){
-        	querySql.append(",lower(contact.\"Title\") as \"lTitle\"");
+        	
+        	
+        	
+        	querySql.append(",case   when contact.\"Title\" is null then '' " +
+        			        " else lower(contact.\"Title\") END \"lTitle\" ");
         }else if(orderCon.contains("Name")){
-        	querySql.append(",lower(contact.\"Name\") as \"lName\"");
+        	querySql.append(",lower(contact.\"Name\") as \"lName\" ");
         }
         
         querySql.append(" from contact contact  ");
@@ -391,12 +396,12 @@ public class SearchDao {
 	        querySql.append(" group by "+groupBy);
         }
         
-        if(Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
+        //if(Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
         	if(orderCon!=null&&!"".equals(orderCon)){
         		querySql.append(" order by "+orderCon);
         	}
 	        querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
-        }
+        //}
         if(log.isDebugEnabled()){
             log.debug(querySql);
             log.debug(countSql);
@@ -531,12 +536,12 @@ public class SearchDao {
         
         joinSql.append(" where 1=1 "+conditions);
         countSql = new StringBuilder(joinSql.toString());
-        if(!Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
+       /* if(!Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
         	if(orderCon!=null&&!"".equals(orderCon)){
         		joinSql.append(" order by "+orderCon);
         	}
         	joinSql.append(" offset ").append(offset).append(" limit ").append(pageSize);
-        }
+        }*/
        
         joinSql.append(") a ");
         countSql.append(") a ");
