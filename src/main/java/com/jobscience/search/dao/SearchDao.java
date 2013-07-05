@@ -396,12 +396,10 @@ public class SearchDao {
 	        querySql.append(" group by "+groupBy);
         }
         
-        //if(Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
-        	if(orderCon!=null&&!"".equals(orderCon)){
-        		querySql.append(" order by "+orderCon);
-        	}
-	        querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
-        //}
+    	if(orderCon!=null&&!"".equals(orderCon)){
+    		querySql.append(" order by "+orderCon);
+    	}
+        
         if(log.isDebugEnabled()){
             log.debug(querySql);
             log.debug(countSql);
@@ -536,12 +534,12 @@ public class SearchDao {
         
         joinSql.append(" where 1=1 "+conditions);
         countSql = new StringBuilder(joinSql.toString());
-       /* if(!Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
+        if(!Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
         	if(orderCon!=null&&!"".equals(orderCon)){
         		joinSql.append(" order by "+orderCon);
         	}
         	joinSql.append(" offset ").append(offset).append(" limit ").append(pageSize);
-        }*/
+        }
        
         joinSql.append(") a ");
         countSql.append(") a ");
