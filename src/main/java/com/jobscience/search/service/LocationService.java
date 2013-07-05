@@ -71,8 +71,8 @@ public class LocationService {
 	public List<Map> findContactsNear(String zip,Double distance) throws SQLException{
 		distance *=1609.344;
 		StringBuilder querySql = new StringBuilder();
-	 	querySql.append(" select a.* from contact a,(select * from zcta where zip=?) zip  ")
-	 	 		.append(" where earth_distance(ll_to_earth(zip.latitude,zip.longitude), ll_to_earth(a.\"ts2__Latitude__c\",a.\"ts2__Longitude__c\"))")
+	 	querySql.append(" select a.* from contact a,(select * from zipcode_us where zip=?) zip  ")
+	 			.append(" where 6378168*acos(sin(zip.latitude*pi()/180)*sin(a.\"ts2__Latitude__c\"*pi()/180) + cos(zip.latitude*pi()/180)*cos(a.\"ts2__Latitude__c\"*pi()/180)*cos((zip.longitude-a.\"ts2__Longitude__c\")*pi()/180))")
 	 	 		.append(" <=?");
 	 	Connection connection = dbHelper.getConnection();
 	 	PreparedStatement paPreparedStatement = connection.prepareStatement(querySql.toString());

@@ -46,12 +46,12 @@ public class SimpleTest extends SnowTestSupport {
        end = System.currentTimeMillis();
        System.out.println("search result size(by lat/long(30.0, 30.0, 621.0))--(Point Way):" + contacts.size());
        System.out.println("cost time(by lat/long)--(Point Way): " + (end - start));
-       
+       */
        start = System.currentTimeMillis();
        contacts = locationService.findContactsNear("210",6.21);
        end = System.currentTimeMillis();
        System.out.println("search result size(by zip 210): " + contacts.size());
-       System.out.println("cost time(by zip): " + (end - start));*/
+       System.out.println("cost time(by zip): " + (end - start));
     }
     
     //@Test
