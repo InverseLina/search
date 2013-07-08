@@ -1,9 +1,33 @@
 // Core variables and mixins
 @import "mixins.less";
 
-.ContactInfo {
-  width:100%;
-  input[name='curTitle']{
-    margin-top:4px !important;
+.SideSection .content .ContactInfo {
+  width: 100%;
+  input[name='curTitle'] {
+    margin-top: 4px !important;
+  }
+
+  .control-group {
+    margin-bottom: 0;
+    position: relative;
+    height: 40px;
+    label {
+      float: left;
+      width: 40px;
+      margin-top: 5px;
+    }
+    label.checkbox {
+      width: 100%;
+      margin-top: -1px;
+    }
+    input[type='text'] {
+      display: block;
+      width: 170px;
+      margin-left: 45px;
+    }
+
+    :after {
+      clear: both;
+    }
   }
 }
