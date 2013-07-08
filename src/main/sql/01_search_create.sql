@@ -48,3 +48,21 @@ CREATE INDEX contact_LastName_trgm_gin ON contact USING gin ("LastName" gin_trgm
 
   
 -- ALTER TABLE contact enable trigger c5_c5_contact_logtrigger;
+
+CREATE EXTENSION cube SCHEMA public VERSION "1.0";
+  
+CREATE EXTENSION earthdistance SCHEMA public VERSION "1.0";
+
+DROP TABLE if EXISTS zcta;
+
+CREATE TABLE zcta
+(
+  zip character(5) NOT NULL,
+  city character varying(64),
+  state character(2),
+  latitude double precision,
+  longitude double precision,
+  timezone integer,
+  dst integer,
+  CONSTRAINT zcta_pkey PRIMARY KEY (zip)
+);
