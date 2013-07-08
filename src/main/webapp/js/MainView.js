@@ -72,6 +72,11 @@
             }
         });
         
+        if(searchValues["radius"]&&!/^\s*\d+(\.\d+)?$/.test(searchValues["radius"])){
+        	 view.contentView.showErrorMessage("Wrong Search Query", "radius must be numberic");
+             view.$el.trigger("NO_SEARCH");
+             return false;
+        }
         //if there has no any search text
         if(valCount == 0 && isValid){
             view.contentView.empty();
