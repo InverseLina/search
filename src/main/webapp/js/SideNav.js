@@ -12,6 +12,7 @@
           brite.display("SideSection", view.$el, {title: "Company", component: "Company"});
           brite.display("SideSection", view.$el, {title: "Education", component: "Education"});
           brite.display("SideSection", view.$el, {title: "Skill", component: "Skill"});
+          brite.display("SideSection", view.$el, {title: "Location", component: "Location"});
 		},
 		
 		events: {

@@ -48,3 +48,18 @@ CREATE INDEX contact_LastName_trgm_gin ON contact USING gin ("LastName" gin_trgm
 
   
 -- ALTER TABLE contact enable trigger c5_c5_contact_logtrigger;
+
+
+DROP TABLE if EXISTS zipcode_us;
+
+CREATE TABLE zipcode_us
+(
+  zip character(5) NOT NULL,
+  city character varying(64),
+  state character(2),
+  latitude double precision,
+  longitude double precision,
+  timezone integer,
+  dst integer,
+  CONSTRAINT zcta_pkey PRIMARY KEY (zip)
+);

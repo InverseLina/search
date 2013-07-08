@@ -443,7 +443,7 @@ public class SearchDao {
                 }
                 values.add(value);
             }
-            
+       
             
             String joinEmploymentForTitle = "";
             String joinEmploymentForCompanyName = "";
@@ -531,6 +531,19 @@ public class SearchDao {
                 joinSql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
 	            }
 	        }
+        
+        
+        
+        //add the 'Zip' filter
+        if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))
+        	&&searchValues.get("radius") != null && !"".equals(searchValues.get("radius"))) {
+            joinSql.append(" join zipcode_us zip on ");
+            joinSql.append(" zip.zip=? and 6378168*acos(sin(zip.latitude*pi()/180)*sin(contact.\"ts2__Latitude__c\"*pi()/180) + cos(zip.latitude*pi()/180)*cos(contact.\"ts2__Latitude__c\"*pi()/180)*cos((zip.longitude-contact.\"ts2__Longitude__c\")*pi()/180))");
+            joinSql.append(" <? ");
+            values.add(searchValues.get("Zip"));
+            values.add(Double.parseDouble(searchValues.get("radius")));
+        }
+        
         
         joinSql.append(" where 1=1 "+conditions);
         countSql = new StringBuilder(joinSql.toString());

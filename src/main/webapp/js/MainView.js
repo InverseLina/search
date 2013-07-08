@@ -61,12 +61,23 @@
         var searchValues = $.extend({},contentSearchValues ,navContectSearchValues );
         // just add the "q_"
         var qParams = {};
+        
+        if(searchValues["radius"]&&!/^\s*\d+(\.\d+)?$/.test(searchValues["radius"])){
+       	 view.contentView.showErrorMessage("Wrong Search Query", "radius must be numberic");
+            view.$el.trigger("NO_SEARCH");
+            return false;
+       }
+        
         $.each(searchValues, function (key, val) {
             if(!/^\s*$/.test(val)){
                 if(/^\s*[^\s].+[^\s]\s*$/.test(val)){
                     qParams["q_" + key] = $.trim(val);
                 }else{
-                    isValid = false;
+                	if(key=="radius"){
+                	  qParams["q_" + key] = $.trim(val);
+                	}else{
+                      isValid = false;
+                	}
                 }
                 valCount++;
             }
