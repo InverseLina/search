@@ -7,7 +7,16 @@
       // obviously, handle this case as you think most appropriate.
       return "<small>Error: could not find template: " + templateName + "</small>";
     }
-  }
+  };
+    w.hasTemplate = function(templateName){
+        var tmpl = Handlebars.templates[templateName];
+        if (tmpl){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 })(window);
  
 var app = app||{};

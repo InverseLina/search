@@ -50,6 +50,7 @@ var app = app || {};
             if ($li.hasClass("all") ) {
                 view.$el.find("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
                 $ul.find("input[type='text']").val("");
+                $ul.find("li .filter").hide();
                 setTimeout(function() {
                     $li.find(":checkbox").prop("checked", true);
                     $li.removeClass("selected").addClass("selected");
@@ -68,8 +69,11 @@ var app = app || {};
 
             if ($li.hasClass("selected")) {
                 $li.removeClass("selected");
+                $(".filter", $li).hide();
             } else {
                 $li.addClass("selected");
+                //show filter
+                showFilter.call(view, $li);
             }
 
             view.refreshSelections();
@@ -175,8 +179,16 @@ var app = app || {};
     var names = data[dataType+"Names"];
     if (names) {
       $.each(names.split(","), function(idx, item) {
-        view.$el.find("li[data-name='" + item + "'] input").prop("checked", true);
-        view.$el.find("li[data-name='" + item + "']").addClass("selected")
+          var vals = item.split("|");
+          item = vals[0];
+          vals = vals.slice(1);
+          var $li = view.$el.find("li[data-name='" + item + "']");
+          $("input[type='checkbox']", $li).prop("checked", true);
+          showFilter.call(view, $li);
+          $(".filter input[type='text']", $li).each(function(idx, ele){
+             $(ele).val(vals[idx]);
+          });
+         $li.addClass("selected")
       })
     }
    var curName = "cur" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
@@ -203,7 +215,16 @@ var app = app || {};
     var itemStr = "";
     // get companies filter
     $itemContainer.find("li[data-name][data-name!='ALL']").find("input[type='checkbox']:checked").each(function(i) {
-      var value = $(this).closest("li").attr("data-name");
+      var $li = $(this).closest("li");
+      var value = $li.attr("data-name");
+      $li.find(".filter input").each(function(idx, ele){
+          var fval = $(ele).val();
+          if(!/^\s*$/g.test(fval)){
+              value = value + "|" + fval;
+          }else{
+              value = value + "|";
+          }
+      })
       //get selected or all option is selected.
       if (itemStr.length != 0) {
         itemStr += ",";
@@ -343,6 +364,17 @@ var app = app || {};
           $e.find("li .validCount").hide();
       }
   };
+
+  function showFilter($li){
+      if($(".filter", $li).length==0){
+          var templName = this.name + "_filter";
+          if(hasTemplate(templName)){
+              $li.append(render(templName));
+          }
+      }else{
+          $(".filter", $li).show();
+      }
+  }
 
   app.sidesection.BaseSideAdvanced = BaseSideAdvanced;
 })(jQuery); 
