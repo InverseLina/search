@@ -70,7 +70,7 @@
         
         $.each(searchValues, function (key, val) {
             if(!/^\s*$/.test(val)){
-                if(/^\s*[^\s].+[^\s]\s*$/.test(val)){
+                if(/^\s*[^\s].+[^\s]\s*$/.test(val)||/.*(State).*/.test(key)){
                     qParams["q_" + key] = $.trim(val);
                 }else{
                 	if(key=="radius"){
