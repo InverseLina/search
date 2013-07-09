@@ -20,29 +20,49 @@
                 }
             },
             events: {
-              "click; a[data-page]":function(event){
+              "btap; a[data-page]":function(event){
+                  event.stopPropagation();
                   var view = this;
                   var newpageIdx = $(event.currentTarget).attr("data-page");
                   view.$el.bComponent("ContentView").pageIdx = newpageIdx;
                   view.$el.bComponent("ContentView").pageSize = view.page.pageSize;
                   view.page.callback(newpageIdx, view.page.pageSize);
               },
-              "click; a.next":function(event){
-
+              "btap; a.next":function(event){
+                  event.stopPropagation();
                   var view = this;
                   var page = view.page;
                   view.$el.bComponent("ContentView").pageIdx = page.pageIdx + 1;
                   view.$el.bComponent("ContentView").pageSize = page.pageSize;
                   view.page.callback(page.pageIdx + 1, page.pageSize);
               },
-              "click; a.prev":function(event){
+              "btap; a.prev":function(event){
+                  event.stopPropagation();
                   var view = this;
                   var page = view.page;
                   view.$el.bComponent("ContentView").pageIdx = page.pageIdx - 1;
                   view.$el.bComponent("ContentView").pageSize = page.pageSize;
                   view.page.callback(page.pageIdx - 1, page.pageSize);
               },
+              "change; label.checkbox":function(event){
+                  event.stopPropagation();
+                  var view = this;
+                  var $target = $(event.currentTarget);
+                  if($target.hasClass("selected")){
+                      $target.removeClass("selected");
+                      $target.find("input").prop("checked", false);
+                      view.$el.bView("ContentView").$el.find(".tableContainer input[type='checkbox']").prop("checked", false);
+                  }else{
+                      $target.addClass("selected");
+                      $target.find("input").prop("checked", true);
+                      view.$el.bView("ContentView").$el.find(".tableContainer input[type='checkbox']").prop("checked", true);
+                  }
+              },
+              "btap; span .btn":function(event){
+                  console.log("Add to Sourceing Project");
+              },
               "change; select":function(event){
+                  event.stopPropagation();
                   var view = this;
                   var page = view.page;
                   var pageSize = $(event.target).val();

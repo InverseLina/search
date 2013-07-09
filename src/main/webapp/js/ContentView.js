@@ -46,7 +46,18 @@
 					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH",{pageIdx:pageIdx,pageSize:pageSize});
 				}
 			},
-            "btap;div.btnPopupColumns":function(event){
+            "change; .tableContainer td input[type='checkbox']":function(event){
+                var view = this;
+                var checkLen = view.$el.find(".tableContainer td input:not(:checked)").length;
+                if ( checkLen > 0){
+                    view.$el.find(".pagination label.checkbox").removeClass("selected");
+                    view.$el.find(".pagination label.checkbox input").prop("checked", false);
+                }else{
+                    view.$el.find(".pagination label.checkbox").removeClass("selected").addClass("selected");
+                    view.$el.find(".pagination label.checkbox input").prop("checked", true);
+                }
+            },
+            "btap; div.btnPopupColumns":function(event){
                 brite.display("SelectColumns");
 			},
 
@@ -172,6 +183,8 @@
             tableWidth = tableWidth - 110;
             colLen --;
         }
+        //checkbox
+        tableWidth = tableWidth - 30;
 
         colWidth = tableWidth / colLen;
         var realWidth;
@@ -184,6 +197,8 @@
                 realWidth = 80;
             }else if(colName == "createdate"){
                 realWidth = 110;
+            }else if($(item).hasClass("checkbox")){
+                realWidth = 30;
             }else {
                 realWidth = colWidth;
             }

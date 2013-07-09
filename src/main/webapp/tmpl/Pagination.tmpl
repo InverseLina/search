@@ -6,6 +6,12 @@
 
 <script id="Pagination-detail" type="text/html">
     <div class="pagination">
+        <span>
+            <label class="checkbox selected">
+                <input name="selectAll" type="checkbox" checked > Select All
+            </label>
+            <button class="btn">Add to Sourcing Project</button>
+        </span>
         <ul>
           {{#equal 1 pageIdx}}
               <li class="disabled"><a>&laquo;</a></li>

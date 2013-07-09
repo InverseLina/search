@@ -84,10 +84,11 @@
         thead tr {
           display: block;
           position: relative;
-          background: #DDD;
-          border-bottom: 1px solid #dddddd;
+
           height: 30px;
           th {
+            background: #DDD;
+            border-bottom: 1px solid #dddddd;
             font-weight: bold;
             cursor: pointer;
 
@@ -96,6 +97,12 @@
               display: none;
               margin-left: 5px;
             }
+          }
+          th.checkbox {
+            width: 30px;
+            background: #ffffff;
+            border-color: white;
+            border:none;
           }
         }
 
@@ -117,6 +124,12 @@
               overflow: hidden;
             }
           }
+          td.checkbox {
+            width: 30px;
+            input[type="checkbox"]{
+              margin-left: -5px;
+            }
+          }
           td[data-column='skill'],td[data-column='company'],td[data-column='education']{
              span {
                max-height: 50px;
@@ -126,7 +139,7 @@
         }
       }
 
-      table.scrollTable tr {
+      table.scrollTable tbody tr {
         border-bottom: 1px solid #dddddd;
         display:block;
       }
