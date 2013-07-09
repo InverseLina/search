@@ -61,6 +61,10 @@
                     }else{
                         $target.closest(".control-group").removeClass("has-value");
                     }
+                },
+                "change; :checkbox":function(event){
+                	var view = this;
+                    view.$el.trigger("DO_SEARCH");
                 }
             },
             docEvents: {}
