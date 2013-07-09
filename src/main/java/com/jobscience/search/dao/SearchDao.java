@@ -557,8 +557,23 @@ public class SearchDao {
             values.add(city);
         }
         
-        //add the 'City' filter
-        if (searchValues.get("radius") != null && !"".equals(searchValues.get("radius"))) {
+        //add the 'State' filter
+        if (searchValues.get("State") != null && !"".equals(searchValues.get("State"))) {
+        	if(!searchZip){
+            joinSql.append(" join zipcode_us zip on 1=1 ");
+        	}
+        	String state = searchValues.get("State");
+            joinSql.append(" and zip.State ilike ? ");
+            searchZip = true;
+            if(!state.contains("%")){
+            	state="%"+state+"%";
+            }
+            values.add(state);
+        }
+        
+        //add the 'radius' filter
+        if (searchValues.get("radiusFlag")!=null&&
+        	searchValues.get("radius") != null && !"".equals(searchValues.get("radius"))) {
         	if(!searchZip){
             joinSql.append(" join zipcode_us zip on 1=1 ");
         	}

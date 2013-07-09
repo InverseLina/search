@@ -25,13 +25,20 @@
                         values[$item.attr("name")] = val;
                     }
                 });
+                view.$el.find(":checkbox:checked").each(function(idx, item){
+                	var $item = $(item);
+                	values[$item.attr("name")] = true;
+                });
                 return values;
             },
             updateSearchValues:function(data){
                 var view = this;
                 for (var k in data) {
                    view.$el.find("input[name='" + k + "']").val(data[k]);
-                    view.$el.find("input[name='" + k + "']").closest(".control-group").removeClass("has-value").addClass("has-value");
+                   view.$el.find("input[name='" + k + "']").closest(".control-group").removeClass("has-value").addClass("has-value");
+                   if(k=="radiusFlag"){
+                	   view.$el.find("input[name='" + k + "']").prop("checked",true);
+                   } 
                 }
             },
             events: {
