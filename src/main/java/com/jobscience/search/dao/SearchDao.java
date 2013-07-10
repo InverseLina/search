@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -81,7 +82,7 @@ public class SearchDao {
     }
     
     public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type) throws SQLException {
-      //the select query  that will query data
+        //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
         StringBuilder conditions = new StringBuilder();
@@ -155,7 +156,40 @@ public class SearchDao {
                             joinTables.append(baseTableIns+".\"ts2__Contact__c\" = c.\"ts2__Contact__c\" ");
                         }
                     }
-                    conditions.append(getConditionForThirdNames(value, values, "company"));
+                   // conditions.append(getConditionForThirdNames(value, values, "company"));
+                    
+
+                	//joinEmploymentForCompanyName+=("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
+                	Iterator<String> companyNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
+                	boolean hasCompany = false;
+                	if(companyNames.hasNext()){
+                		conditions.append(" and ( 1!=1 ");
+                		hasCompany = true;
+                	}
+                	while(companyNames.hasNext()){
+                		conditions.append(" or (");
+                		String n = companyNames.next();
+                		String[] companyParams = n.split("\\|");
+                	    conditions.append("  c.\"ts2__Name__c\" = ? ");
+                		values.add(companyParams[0]);
+                		if(companyParams.length>1){
+    	        			if(companyParams[1]!=null&&!"".equals(companyParams[1])){
+    	            		  conditions.append(" and EXTRACT(year from age(c.\"ts2__Employment_End_Date__c\",c.\"ts2__Employment_Start_Date__c\"))>=? ");
+    	            		  values.add(Double.parseDouble(companyParams[1]));
+    	        			}
+    	        		    if(companyParams.length>2){
+    	        		      if(companyParams[2]!=null&&!"".equals(companyParams[2])){
+    	            		    conditions.append(" and EXTRACT(year from age(c.\"ts2__Employment_End_Date__c\",c.\"ts2__Employment_Start_Date__c\"))<=? ");
+    	            		    values.add(Double.parseDouble(companyParams[2]));
+    	        		      }
+    	            	    }
+                	   }
+                		conditions.append(")");
+                	}
+                	if(hasCompany){
+                		conditions.append(" ) ");
+                	}
+                
                 }
             }
 
@@ -475,8 +509,37 @@ public class SearchDao {
         if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
             String value = searchValues.get("companyNames");
             if(!"Any Company".equals(value)){
-            	joinEmploymentForCompanyName=(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
-            	joinEmploymentForCompanyName+=("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
+            	joinEmploymentForCompanyName=(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where ");
+            	//joinEmploymentForCompanyName+=("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
+            	Iterator<String> companyNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
+            	boolean hasCompany = false;
+            	if(companyNames.hasNext()){
+            		joinEmploymentForCompanyName+="( 1!=1 ";
+            		hasCompany = true;
+            	}
+            	while(companyNames.hasNext()){
+            		joinEmploymentForCompanyName+=" or (";
+            		String n = companyNames.next();
+            		String[] companyParams = n.split("\\|");
+            	    joinEmploymentForCompanyName+="  em.\"ts2__Name__c\" = ? ";
+            		values.add(companyParams[0]);
+            		if(companyParams.length>1){
+	        			if(companyParams[1]!=null&&!"".equals(companyParams[1])){
+	            		  joinEmploymentForCompanyName+=" and EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))>=? ";
+	            		  values.add(Double.parseDouble(companyParams[1]));
+	        			}
+	        		    if(companyParams.length>2){
+	        		      if(companyParams[2]!=null&&!"".equals(companyParams[2])){
+	            		    joinEmploymentForCompanyName+=" and EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))<=? ";
+	            		    values.add(Double.parseDouble(companyParams[2]));
+	        		      }
+	            	    }
+            	   }
+            		joinEmploymentForCompanyName+=")";
+            	}
+            	if(hasCompany){
+            		joinEmploymentForCompanyName+=" ) ";
+            	}
             }
         }
         
