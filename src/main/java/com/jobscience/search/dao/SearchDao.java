@@ -532,55 +532,38 @@ public class SearchDao {
 	            }
 	        }
         
-        
-        boolean searchZip = false;
-        
-        //add the 'Zip' filter
-        if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))) {
-            joinSql.append(" join zipcode_us zip on ");
-            joinSql.append(" zip.zip=? ");
-            searchZip = true;
-            values.add(searchValues.get("Zip"));
-        }
-        
-      //add the 'City' filter
-        if (searchValues.get("City") != null && !"".equals(searchValues.get("City"))) {
-        	if(!searchZip){
-            joinSql.append(" join zipcode_us zip on 1=1 ");
-        	}
-        	String city = searchValues.get("City");
-            joinSql.append(" and zip.City ilike ? ");
-            searchZip = true;
-            if(!city.contains("%")){
-            	city="%"+city+"%";
-            }
-            values.add(city);
-        }
-        
-        //add the 'State' filter
-        if (searchValues.get("State") != null && !"".equals(searchValues.get("State"))) {
-        	if(!searchZip){
-            joinSql.append(" join zipcode_us zip on 1=1 ");
-        	}
-        	String state = searchValues.get("State");
-            joinSql.append(" and zip.State ilike ? ");
-            searchZip = true;
-            if(!state.contains("%")){
-            	state="%"+state+"%";
-            }
-            values.add(state);
-        }
-        
         //add the 'radius' filter
         if (searchValues.get("radiusFlag")!=null&&
         	searchValues.get("radius") != null && !"".equals(searchValues.get("radius"))) {
-        	if(!searchZip){
-            joinSql.append(" join zipcode_us zip on 1=1 ");
-        	}
-            joinSql.append(" and 6378168*acos(sin(zip.latitude*pi()/180)*sin(contact.\"ts2__Latitude__c\"*pi()/180) + cos(zip.latitude*pi()/180)*cos(contact.\"ts2__Latitude__c\"*pi()/180)*cos((zip.longitude-contact.\"ts2__Longitude__c\")*pi()/180)) ");
+        	boolean searchZip = false;
+        	StringBuilder condition = new StringBuilder();
+        	//add the 'Zip' filter
+            if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))) {
+            	condition.append(" and zipcode_us.zip= '"+searchValues.get("Zip")+"'" );
+                searchZip = true;
+            }
+            
+          //add the 'City' filter
+            if (searchValues.get("City") != null && !"".equals(searchValues.get("City"))) {
+            	String city = searchValues.get("City");
+                condition.append(" and zipcode_us.City= '"+city+"'" );
+                searchZip = true;
+            }
+            
+            //add the 'State' filter
+            if (searchValues.get("State") != null && !"".equals(searchValues.get("State"))) {
+            	String state = searchValues.get("State");
+            	condition.append(" and zipcode_us.State= '"+state+"'" );
+                searchZip = true;
+            }
+            
+            joinSql.append(" join (select avg(longitude) as longitude,avg(latitude) as latitude from zipcode_us  where 1=1 "+condition+" ) zip on ");
+            joinSql.append(" 6378168*acos(sin(zip.latitude*pi()/180)*sin(contact.\"ts2__Latitude__c\"*pi()/180) + cos(zip.latitude*pi()/180)*cos(contact.\"ts2__Latitude__c\"*pi()/180)*cos((zip.longitude-contact.\"ts2__Longitude__c\")*pi()/180)) ");
             joinSql.append(" <? ");
-            searchZip = true;
             values.add(Double.parseDouble(searchValues.get("radius")));
+            if(!searchZip){
+            	joinSql.append(" and 1!=1 ");
+            }
         }
         
         joinSql.append(" where 1=1 "+conditions);
