@@ -358,7 +358,7 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
-        querySql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\"  ");
+        querySql.append(" from ( select  contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\"  ");
         if(orderCon.contains("Title")){
         	
         	
@@ -370,7 +370,7 @@ public class SearchDao {
         }
         
         querySql.append(" from contact contact  ");
-        countSql.append(" from ( select distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
+        countSql.append(" from ( select  contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
