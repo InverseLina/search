@@ -191,6 +191,8 @@
 
         var $body = view.$el.find("tbody");
         var $head = view.$el.find("thead");
+        var tlen = $head.find("th").length -1;
+
         $head.find("th").each(function(idx, item){
             colName = $(item).attr("data-column");
             if(colName == "id" ){
@@ -202,7 +204,11 @@
             }else {
                 realWidth = colWidth;
             }
-            $(item).css({width: realWidth, "max-width": realWidth, "min-width": realWidth});
+            if(idx == tlen){
+                $(item).css({width: realWidth+20, "max-width": realWidth+20, "min-width": realWidth});
+            }else{
+                $(item).css({width: realWidth, "max-width": realWidth, "min-width": realWidth});
+            }
             $body.find("td[data-column='" + colName + "']").css(
                 {width: realWidth, "max-width": realWidth, "min-width":realWidth});
         })
