@@ -3,6 +3,7 @@ package com.jobscience.search.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -620,13 +621,23 @@ public class SearchDao {
                 searchZip = true;
             }
             
-            joinSql.append(" join (select avg(longitude) as longitude,avg(latitude) as latitude from zipcode_us  where 1=1 "+condition+" ) zip on ");
-            joinSql.append(" 6378168*acos(sin(zip.latitude*pi()/180)*sin(contact.\"ts2__Latitude__c\"*pi()/180) + cos(zip.latitude*pi()/180)*cos(contact.\"ts2__Latitude__c\"*pi()/180)*cos((zip.longitude-contact.\"ts2__Longitude__c\")*pi()/180)) ");
-            joinSql.append(" <? ");
-            values.add(Double.parseDouble(searchValues.get("radius")));
-            if(!searchZip){
-            	joinSql.append(" and 1!=1 ");
+            Double[] latLong = getLatLong(condition.toString());
+            if(latLong[0]==null||latLong[1]==null){
+            	conditions.append(" and 1!=1 ");
+            }else{
+	            double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(searchValues.get("radius")));
+	            conditions.append(" and contact.\"ts2__Latitude__c\" >"+latLongAround[0]);
+	            conditions.append(" and contact.\"ts2__Latitude__c\" <"+latLongAround[2]);
+	            conditions.append(" and contact.\"ts2__Longitude__c\" >"+latLongAround[1]);
+	            conditions.append(" and contact.\"ts2__Longitude__c\" <"+latLongAround[3]);
             }
+           // joinSql.append(" join (select avg(longitude) as longitude,avg(latitude) as latitude from zipcode_us  where 1=1 "+condition+" ) zip on ");
+            //joinSql.append(" 6378168*acos(sin(zip.latitude*pi()/180)*sin(contact.\"ts2__Latitude__c\"*pi()/180) + cos(zip.latitude*pi()/180)*cos(contact.\"ts2__Latitude__c\"*pi()/180)*cos((zip.longitude-contact.\"ts2__Longitude__c\")*pi()/180)) ");
+            //joinSql.append(" <? ");
+            //values.add(Double.parseDouble(searchValues.get("radius")));
+            /*if(!searchZip){
+            	joinSql.append(" and 1!=1 ");
+            }*/
         }
         
         joinSql.append(" where 1=1 "+conditions);
@@ -820,7 +831,59 @@ public class SearchDao {
     	return sb.toString();
     }
     
+    
+    /** 
+     * @param raidus unit meter
+     * return minLat,minLng,maxLat,maxLng 
+     */  
+    public static double[] getAround(double lat,double lon,Double raidus){  
+          
+        Double latitude = lat;  
+        Double longitude = lon;  
+          
+        Double degree = 6378168*2*Math.PI/360.0;//  40065709
+        double raidusMile = raidus;  
+          
+        Double dpmLat = 1/degree;  
+        Double radiusLat = dpmLat*raidusMile;  
+        Double minLat = latitude - radiusLat;  
+        Double maxLat = latitude + radiusLat;  
+          
+        Double mpdLng = degree*Math.cos(latitude * (Math.PI/180));  
+        Double dpmLng = 1 / mpdLng;  
+        Double radiusLng = dpmLng*raidusMile;  
+        Double minLng = longitude - radiusLng;  
+        Double maxLng = longitude + radiusLng;  
+        return new double[]{minLat,minLng,maxLat,maxLng};  
+    }  
+    
+    
+    public Double[] getLatLong(String condition){
+    	Double[] latLong = new Double[2];
+    	 System.out.println("select avg(longitude) as longitude,avg(latitude) as latitude from zipcode_us  where 1=1 "+condition);
+    	Connection con = dbHelper.getConnection();
+        PreparedStatement s =dbHelper.prepareStatement(con,"select avg(longitude) as longitude,avg(latitude) as latitude from zipcode_us  where 1=1 "+condition);
+        List<Map> zip = dbHelper.preparedStatementExecuteQuery(s);
+        if(zip.size()>0){
+          latLong[0] = (Double) zip.get(0).get("latitude");
+          latLong[1] = (Double) zip.get(0).get("longitude");
+        }
+        try{
+	        s.close();
+	        con.close();
+        }catch(Exception e){
+        	 throw Throwables.propagate(e);
+        }
+       
+        return latLong;
+    }
+    
+    public static void main(String[] args) {
+	//	System.out.println(getAround(30,30,100000)[1]);
+	}
 }
+
+
 
 
 class SearchStatements {
