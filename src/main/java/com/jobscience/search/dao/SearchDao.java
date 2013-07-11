@@ -460,7 +460,9 @@ public class SearchDao {
     	if(orderCon!=null&&!"".equals(orderCon)){
     		querySql.append(" order by "+orderCon);
     	}
-        
+    	if(Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
+        	querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
+        }
         if(log.isDebugEnabled()){
             log.debug(querySql);
             log.debug(countSql);
@@ -687,11 +689,11 @@ public class SearchDao {
         StringBuilder joinSql = new StringBuilder();
         
         if(type.equals("company")){
-            joinSql.append(" left join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" ");
+            joinSql.append(" left join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" and c.\"ts2__Name__c\"!='' ");
         }else if(type.equals("education")){
-            joinSql.append(" left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" ");
+            joinSql.append(" left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" and d.\"ts2__Name__c\"!='' ");
         }else if(type.equals("skill")){
-            joinSql.append(" left join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" ");
+            joinSql.append(" left join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" and b.\"ts2__Skill_Name__c\"!='' ");
         }
         return joinSql.toString();
     }
