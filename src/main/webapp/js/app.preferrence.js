@@ -15,10 +15,10 @@ var app = app || {};
         }
     }
 
-    var displayColumns = [{name:"id", display:"ID"},{name:"name", display:"Name"},{name:"createdate",display:"Create Date"}
+    var displayColumns = [{name:"id", display:"ID"},{name:"name", display:"Name"},{name:"CreatedDate",display:"Create Date"}
         ,{name:"title",display:"Title"}, {name:"company",display:"Company"}
         ,{name:"skill",display:"Skill"},{name:"education",display:"Education"}];
-    var defaultColumns = "id,name,createdate,title";
+    var defaultColumns = "id,name,createddate,title";
     var defaultSectionOpen = {
         ContactInfo: 'close',
         Company: 'open',

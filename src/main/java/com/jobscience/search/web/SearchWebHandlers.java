@@ -105,7 +105,7 @@ public class SearchWebHandlers {
 		   "Skill".equalsIgnoreCase(originalName)||
 		   "Education".equalsIgnoreCase(originalName)){
 			return "l"+originalName.substring(0,1).toUpperCase()+originalName.substring(1);
-		}else if("createdate".equalsIgnoreCase(originalName)){
+		}else if("createddate".equalsIgnoreCase(originalName)){
 			return "CreatedDate";
 		}
 		

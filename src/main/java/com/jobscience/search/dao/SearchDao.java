@@ -3,7 +3,6 @@ package com.jobscience.search.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -324,33 +323,57 @@ public class SearchDao {
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"Title\"");
-    		return "a.\"Title\" as Title,case   when a.\"Title\" is null then '' " +
-        			        " else lower(a.\"Title\") END \"lTitle\" ";
-    	}else if(orginalName.toLowerCase().equals("createdate")){
+    		return "case   when a.\"Title\" is null then '' " +
+        			        " else a.\"Title\" END Title ";
+    	}else if(orginalName.toLowerCase().equals("createddate")){
     		if(groupBy.length()>0){
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"CreatedDate\"");
-    		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate";
+    		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreatedDate";
     	}else if(orginalName.toLowerCase().equals("company")){
     		columnJoinTables.add(getAdvancedJoinTable("company"));
-    		return " string_agg(distinct c.\"ts2__Name__c\",',') as Company,lower(string_agg(c.\"ts2__Name__c\",',')) as \"lCompany\"";
+    		return " case when string_agg(distinct c.\"ts2__Name__c\",',') is null then '' else string_agg(distinct c.\"ts2__Name__c\",',') end  Company";
     	}else if(orginalName.toLowerCase().equals("skill")){
     		columnJoinTables.add(getAdvancedJoinTable("skill"));
-    		return "string_agg(distinct b.\"ts2__Skill_Name__c\",',') as Skill,lower(string_agg(b.\"ts2__Skill_Name__c\",',')) as \"lSkill\"";
+    		return "case when string_agg(distinct b.\"ts2__Skill_Name__c\",',') is null then '' else string_agg(distinct b.\"ts2__Skill_Name__c\",',') end  Skill";
     	}else if(orginalName.toLowerCase().equals("education")){
     		columnJoinTables.add(getAdvancedJoinTable("education"));
-    		return "string_agg(distinct d.\"ts2__Name__c\",',') as Education,lower(string_agg(d.\"ts2__Name__c\",',')) as \"lEducation\"";
+    		return " case when string_agg(distinct c.\"ts2__Name__c\",',') is null then '' else string_agg(distinct c.\"ts2__Name__c\",',') end  Education";
     	}
     	
     	return orginalName;
     }
     
+    private String getSearchColumnsForOuter(String searchColumns){
+    	StringBuilder sb = new StringBuilder();
+    	for(String column:searchColumns.split(",")){
+    	if(column.toLowerCase().equals("name")){
+    		sb.append("name,");
+    	}else if(column.toLowerCase().equals("id")){
+    		sb.append("id,");
+    	}else if(column.toLowerCase().equals("title")){
+    		sb.append("title,lower(title) as \"lTitle\",");
+    	}else if(column.toLowerCase().equals("createddate")){
+    		sb.append("createddate as \"CreatedDate\",");
+    	}else if(column.toLowerCase().equals("company")){
+    		sb.append("company,lower(company) as \"lCompany\",");
+    	}else if(column.toLowerCase().equals("skill")){
+    		sb.append("skill,lower(skill) as \"lSkill\",");
+    	}else if(column.toLowerCase().equals("education")){
+    		sb.append("education,lower(education) as \"lEducation\",");
+    	}
+    	
+    	}
+        sb.deleteCharAt(sb.length()-1);
+        
+        return sb.toString();
+    }
     
     private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy){
     	StringBuilder columnsSql = new StringBuilder();
     	 if(searchColumns==null){
-             columnsSql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,a.\"Title\" as Title,lower(a.\"Title\") as lTitle,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreateDate");
+             columnsSql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,case   when a.\"Title\" is null then ''  else a.\"Title\" END Title ,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreatedDate");
              groupBy.append(",a.\"Name\",a.\"Title\",a.\"CreatedDate\"");
     	 }else{
  	        for(String column:searchColumns.split(",")){
@@ -389,7 +412,9 @@ public class SearchDao {
         StringBuilder groupBy= new StringBuilder("a.\"id\"");
         // the params will be put in sql
         List values = new ArrayList();
-        
+        querySql.append("select ");
+        querySql.append(getSearchColumnsForOuter(searchColumns));
+        querySql.append(" from ( ");
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
@@ -431,6 +456,7 @@ public class SearchDao {
 	        querySql.append(" group by "+groupBy);
         }
         
+        querySql.append(") b ");
     	if(orderCon!=null&&!"".equals(orderCon)){
     		querySql.append(" order by "+orderCon);
     	}
