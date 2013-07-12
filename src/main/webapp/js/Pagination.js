@@ -58,9 +58,6 @@
                       view.$el.bView("ContentView").$el.find(".tableContainer input[type='checkbox']").prop("checked", true);
                   }
               },
-              "btap; span .btn":function(event){
-                  console.log("Add to Sourceing Project");
-              },
               "change; select":function(event){
                   event.stopPropagation();
                   var view = this;

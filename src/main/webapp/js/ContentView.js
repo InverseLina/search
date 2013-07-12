@@ -60,6 +60,13 @@
             "btap; div.btnPopupColumns":function(event){
                 brite.display("SelectColumns");
 			},
+            "btap; .btnAddToSourcingProject":function(event){
+              event.stopPropagation();
+              alert("Not implement yet.");
+			},
+            "btap; .resume-ico":function(event){
+              alert("Not implement yet.");
+			},
 
 			"keypress;.search-input":function(event){
 			  var view = this;
