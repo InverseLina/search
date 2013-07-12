@@ -179,7 +179,7 @@
             tableWidth = tableWidth - 80;
             colLen --;
         }
-        if($.inArray("createdate", columns)>=0){
+        if($.inArray("CreatedDate", columns)>=0){
             tableWidth = tableWidth - 110;
             colLen --;
         }
@@ -197,7 +197,7 @@
             colName = $(item).attr("data-column");
             if(colName == "id" ){
                 realWidth = 80;
-            }else if(colName == "createdate"){
+            }else if(colName == "CreatedDate"){
                 realWidth = 110;
             }else if($(item).hasClass("checkbox")){
                 realWidth = 30;
