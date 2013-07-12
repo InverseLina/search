@@ -62,6 +62,9 @@
                     }
                     //remove cookie
                     app.preference.store(view.cname + ".values", null);
+                    //clear all the text input value
+                    view.$el.find(".control-group").removeClass("has-value").find(":text").val("");
+                    view.$el.find(":checkbox:not([data-name])").prop("checked",false);
                     view.$el.trigger("DO_SEARCH");
                 },
                 
