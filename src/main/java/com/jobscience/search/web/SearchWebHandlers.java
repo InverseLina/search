@@ -107,8 +107,7 @@ public class SearchWebHandlers {
 			return "l"+originalName.substring(0,1).toUpperCase()+originalName.substring(1);
 		}else if("createddate".equalsIgnoreCase(originalName)){
 			return "CreatedDate";
-		}
-		
+		}		
 		return originalName;
     }
 }

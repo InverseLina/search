@@ -318,6 +318,8 @@ public class SearchDao {
     		return "a.\"Name\" as Name,lower(a.\"Name\") as \"lName\"";
     	}else if(orginalName.toLowerCase().equals("id")){
     		return " a.\"id\" as id";
+    	}else if(orginalName.toLowerCase().equals("resume")){
+    		return " a.\"id\" as resume";
     	}else if(orginalName.toLowerCase().equals("title")){
     		if(groupBy.length()>0){
     			groupBy.append(",");
@@ -362,6 +364,8 @@ public class SearchDao {
     		sb.append("skill,lower(skill) as \"lSkill\",");
     	}else if(column.toLowerCase().equals("education")){
     		sb.append("education,lower(education) as \"lEducation\",");
+    	}else if(column.toLowerCase().equals("resume")){
+    		sb.append("resume,");
     	}
     	
     	}
@@ -627,26 +631,22 @@ public class SearchDao {
         //add the 'radius' filter
         if (searchValues.get("radiusFlag")!=null&&
         	searchValues.get("radius") != null && !"".equals(searchValues.get("radius"))) {
-        	boolean searchZip = false;
         	StringBuilder condition = new StringBuilder();
         	//add the 'Zip' filter
             if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))) {
             	condition.append(" and zipcode_us.zip= '"+searchValues.get("Zip")+"'" );
-                searchZip = true;
             }
             
           //add the 'City' filter
             if (searchValues.get("City") != null && !"".equals(searchValues.get("City"))) {
             	String city = searchValues.get("City");
                 condition.append(" and zipcode_us.City= '"+city+"'" );
-                searchZip = true;
             }
             
             //add the 'State' filter
             if (searchValues.get("State") != null && !"".equals(searchValues.get("State"))) {
             	String state = searchValues.get("State");
             	condition.append(" and zipcode_us.State= '"+state+"'" );
-                searchZip = true;
             }
             
             Double[] latLong = getLatLong(condition.toString());
@@ -671,6 +671,9 @@ public class SearchDao {
         joinSql.append(" where 1=1 "+conditions);
         countSql = new StringBuilder(joinSql.toString());
         if(!Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
+        	if(orderCon.contains("resume")){
+    			orderCon = orderCon.replace("resume", "id");
+    		}
         	if(orderCon!=null&&!"".equals(orderCon)){
         		joinSql.append(" order by "+orderCon);
         	}

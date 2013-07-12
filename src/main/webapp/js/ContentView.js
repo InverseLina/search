@@ -152,6 +152,8 @@
            for(var j = 0; j < columns.length; j++) {
                if(columns[j] == "skill"){
                    item.push({name:columns[j], value: translate(items[i][columns[j]]), notLast:colLen - j >1});
+               }else if(columns[j]=="resume"){
+            	   item.push({name:columns[j], value:"<i data-id='"+items[i][columns[j]]+"' title='Not implement yet.' class='resume-ico icon-file icon-white'></i>", notLast:colLen - j >1});
                }else{
                    item.push({name:columns[j], value: items[i][columns[j]], notLast:colLen - j >1});
                }
