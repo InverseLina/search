@@ -96,6 +96,7 @@
             view.$searchInfo.empty();
             view.$searchResult.find(".page").empty();
             view.$searchResult.find(".tableContainer").html(render("search-loading"));
+            fixColWidth.call(view);
         },
 
 		parentEvents: {
@@ -194,8 +195,12 @@
         }
         //checkbox
         tableWidth = tableWidth - 30;
-
-        colWidth = tableWidth / colLen;
+        if(colLen != 0){
+          colWidth = tableWidth / colLen;
+        }else{
+          colWidth = tableWidth;
+        }
+        console.log(colWidth);
         var realWidth;
 
         var $body = view.$el.find("tbody");
@@ -206,8 +211,14 @@
             colName = $(item).attr("data-column");
             if(colName == "id" ){
                 realWidth = 80;
+                if(idx == tlen){
+                  realWidth = colWidth + 80;
+                }
             }else if(colName == "CreatedDate"){
                 realWidth = 110;
+                if(idx == tlen){
+                  realWidth = colWidth + 110;
+                }
             }else if($(item).hasClass("checkbox")){
                 realWidth = 30;
             }else {
