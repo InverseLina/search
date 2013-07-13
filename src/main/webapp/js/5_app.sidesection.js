@@ -39,7 +39,8 @@ var app = app || {};
             var view = this;
             view.clearValues();
         },
-        "btap; li[data-name] label":function(event) {
+        "btap; li[data-name]":function(event) {
+            event.stopPropagation();
             var view = this;
             var $li = $(event.target).closest("li");
             var $ul = $li.parent("ul");
@@ -82,7 +83,11 @@ var app = app || {};
                 view.$el.trigger("DO_SEARCH");
             }, 200);
         },
+        "btap; li[data-name] .filter":function(event) {
+          event.stopPropagation();
+        },
         "change; li[data-name] input[type='checkbox']": function(event) {
+            event.preventDefault();
             var view = this;
             var values = view.getSearchValues();
             app.preference.store(view.name + ".values", JSON.stringify(values));
@@ -298,13 +303,15 @@ var app = app || {};
 
   BaseSideAdvanced.prototype.clearValues = function() {
     var view = this;
-    view.$el.find("li[data-name!='ALL']").removeClass("selected").find(":checkbox").prop("checked", false);
-    var $allLi = view.$el.find("li[data-name='ALL']");
+    var $e = view.$el;
+    $e.find("li[data-name!='ALL']").removeClass("selected").find(":checkbox").prop("checked", false);
+    var $allLi = $e.find("li[data-name='ALL']");
     if (!$allLi.hasClass("selected")) {
       $allLi.addClass("selected");
     }
     $allLi.find(":checkbox").prop("checked", true);
-    view.$el.find("input[type='text']").val(""); 
+    $e.find("input[type='text']").val(""); 
+    $(".filter", $e).hide();
 
   };
   BaseSideAdvanced.prototype.updateScore = function($e, result) {
