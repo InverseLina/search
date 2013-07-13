@@ -137,7 +137,26 @@
         for(var k in obj){
             val = obj[k];
             if(k=="companyNames" || k=="skillNames" || k == "educationNames"){
-                result += " " + val;
+                if(val.length && val.length > 0){
+                  var value = "";
+                  var pairs = val.split(",");
+                  for(var i = 0; i < pairs.length; i++){
+                    if(i!=0){
+                      value += ",";
+                    }
+                    var values = pairs[i].split("|");
+                    if(values[1] == ""  && values[2] == ""){
+                      value = value + values[0];
+                    }else{
+                      value = value + values[0] + "("+values[1]+"~"+values[2]+")";
+                    }
+                  }
+                  
+                  result += " " + value;
+                }else{
+                  result += " " + val;
+                }
+                
             }else{
                 result = result +" " + k + ":" + obj[k];
             }
