@@ -367,7 +367,7 @@ var app = app || {};
 
   function showFilter($li){
       if($(".filter", $li).length==0){
-          var templName = this.name + "_filter";
+          var templName = this.name + "-filter";
           if(hasTemplate(templName)){
               $li.append(render(templName));
           }
