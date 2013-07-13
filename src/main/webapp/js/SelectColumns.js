@@ -40,14 +40,18 @@
 
             },
             events: {
-                "click; input[type='checkbox']":function(){
+                "click; input[type='checkbox']":function(e){
                     var view = this;
+                    var $checkbox = $(e.target);
                     var columns = [];
                     view.$el.find("input[type='checkbox']:checked").each(function(){
                         columns.push($(this).val());
                     });
                     if(columns.length > 0 ) {
                         view.$el.trigger("DO_SET_COLUMNS", {columns:columns});
+                    }else{
+                        alert("Please a column at least!");
+                        $checkbox.prop("checked",true);
                     }
 
                 }
