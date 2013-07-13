@@ -92,6 +92,7 @@
                         if( view.$el.find("div."+view.cname).size()>0){
                       		view.$el.find("div."+view.cname).show();
                       		view.$el.find("span.not-open").hide();
+  	                      view.subComponent.refreshSelections();
                       	}else{
   	                        brite.display(view.cname , view.$el.find(".content")).done(function(component){
   	                            if(component.$el.bView(view.name) == view){
