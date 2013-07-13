@@ -206,7 +206,35 @@ public class SearchDao {
                             joinTables.append(baseTableIns+".\"ts2__Contact__c\" = b.\"ts2__Contact__c\" ");
                         }
                     }
-                    conditions.append(getConditionForThirdNames(value, values, "skill"));
+                    
+                    Iterator<String> skillNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
+                    int i = 0;
+                    conditions.append(" and (");
+                    while(skillNames.hasNext()){
+                        if(i!=0){
+                            conditions.append(" or ");
+                        }
+                        conditions.append(" (");
+                        String n = skillNames.next();
+                        String[] companyParams = n.split("\\|");
+                        conditions.append("b.\"ts2__Skill_Name__c\" = ? ");
+                        values.add(companyParams[0]);
+                        if(companyParams.length>1){
+                            if(companyParams[1]!=null&&!"".equals(companyParams[1])){
+                              conditions.append(" and b.\"ts2__Rating__c\" >= ?");
+                              values.add(Double.parseDouble(companyParams[1]));
+                            }
+                            if(companyParams.length>2){
+                              if(companyParams[2]!=null&&!"".equals(companyParams[2])){
+                                conditions.append(" and b.\"ts2__Rating__c\" <= ?");
+                                values.add(Double.parseDouble(companyParams[2]));
+                              }
+                            }
+                       }
+                        conditions.append(") ");
+                        i++;
+                    }
+                    conditions.append(") ");
                 }
             }
 
@@ -622,11 +650,38 @@ public class SearchDao {
         if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
             String value = searchValues.get("skillNames");
             if(!"Any Skill".equals(value)){
-                joinSql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in  ");
-                joinSql.append("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
+                joinSql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where 1=1 ");
+                Iterator<String> skillNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
+                int i = 0;
+                joinSql.append(" and (");
+                while(skillNames.hasNext()){
+                    if(i != 0){
+                        joinSql.append(" or ");
+                    }
+                    joinSql.append(" (");
+                    String n = skillNames.next();
+                    String[] companyParams = n.split("\\|");
+                    joinSql.append("sk.\"ts2__Skill_Name__c\" = ? ");
+                    values.add(companyParams[0]);
+                    if(companyParams.length>1){
+                        if(companyParams[1]!=null&&!"".equals(companyParams[1])){
+                          joinSql.append(" and sk.\"ts2__Rating__c\" >= ?");
+                          values.add(Double.parseDouble(companyParams[1]));
+                        }
+                        if(companyParams.length>2){
+                          if(companyParams[2]!=null&&!"".equals(companyParams[2])){
+                            joinSql.append(" and sk.\"ts2__Rating__c\" <= ?");
+                            values.add(Double.parseDouble(companyParams[2]));
+                          }
+                        }
+                   }
+                    joinSql.append(" )");
+                    i++;
+                }
+                joinSql.append(" )");
                 joinSql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
-	            }
 	        }
+	    }
         
         //add the 'radius' filter
         if (searchValues.get("radiusFlag")!=null&&
