@@ -44,20 +44,6 @@
                   view.$el.bComponent("ContentView").pageSize = page.pageSize;
                   view.page.callback(page.pageIdx - 1, page.pageSize);
               },
-              "change; label.checkbox":function(event){
-                  event.stopPropagation();
-                  var view = this;
-                  var $target = $(event.currentTarget);
-                  if($target.hasClass("selected")){
-                      $target.removeClass("selected");
-                      $target.find("input").prop("checked", false);
-                      view.$el.bView("ContentView").$el.find(".tableContainer input[type='checkbox']").prop("checked", false);
-                  }else{
-                      $target.addClass("selected");
-                      $target.find("input").prop("checked", true);
-                      view.$el.bView("ContentView").$el.find(".tableContainer input[type='checkbox']").prop("checked", true);
-                  }
-              },
               "change; select":function(event){
                   event.stopPropagation();
                   var view = this;
