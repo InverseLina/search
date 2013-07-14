@@ -287,7 +287,7 @@ public class SearchDao {
                 }
                 values.add(value);
             }
-
+            
             //add the 'LastName' filter
             if (searchValues.get("LastName") != null && !"".equals(searchValues.get("LastName"))) {
                 String value = searchValues.get("LastName");
@@ -298,6 +298,23 @@ public class SearchDao {
                  }
                 
                 conditions.append(" and a.\"LastName\" ilike ? ");
+                if(!value.contains("%")){
+                    value = "%" + value + "%";
+                }
+                values.add(value);
+            }
+            
+            //add the 'Email' filter
+            if (searchValues.get("Email") != null && !"".equals(searchValues.get("Email"))) {
+                String value = searchValues.get("Email");
+                if(baseTable.indexOf("contact") ==-1){
+                    joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+                    baseTable = " contact ";
+                    baseTableIns = "a";
+                }
+                
+                
+                conditions.append(" and a.\"Email\" ilike ? ");
                 if(!value.contains("%")){
                     value = "%" + value + "%";
                 }
@@ -533,6 +550,16 @@ public class SearchDao {
             if (searchValues.get("LastName") != null && !"".equals(searchValues.get("LastName"))) {
                 String value = searchValues.get("LastName");
                 conditions.append(" and contact.\"LastName\" ilike ? ");
+                if(!value.contains("%")){
+                    value = "%" + value + "%";
+                }
+                values.add(value);
+            }
+            
+            //add the 'Email' filter
+            if (searchValues.get("Email") != null && !"".equals(searchValues.get("Email"))) {
+                String value = searchValues.get("Email");
+                conditions.append(" and contact.\"Email\" ilike ? ");
                 if(!value.contains("%")){
                     value = "%" + value + "%";
                 }
