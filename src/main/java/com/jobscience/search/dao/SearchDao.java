@@ -528,7 +528,7 @@ public class SearchDao {
     	StringBuilder joinSql = new StringBuilder();
     	StringBuilder countSql = new StringBuilder();
     	StringBuilder conditions = new StringBuilder();
-    	  
+    	List subValues = new ArrayList();
         if(!Strings.isNullOrEmpty(searchValue)){
 	        joinSql.append(getSearchValueJoinTable(searchValue, values,"contact"));
         }
@@ -543,7 +543,7 @@ public class SearchDao {
                 if(!value.contains("%")){
                     value = "%" + value + "%";
                 }
-                values.add(value);
+                subValues.add(value);
             }
 
             //add the 'LastName' filter
@@ -553,7 +553,7 @@ public class SearchDao {
                 if(!value.contains("%")){
                     value = "%" + value + "%";
                 }
-                values.add(value);
+                subValues.add(value);
             }
             
             //add the 'Email' filter
@@ -563,7 +563,7 @@ public class SearchDao {
                 if(!value.contains("%")){
                     value = "%" + value + "%";
                 }
-                values.add(value);
+                subValues.add(value);
             }
        
             
@@ -578,7 +578,7 @@ public class SearchDao {
                     if(!value.contains("%")){
                         value = "%" + value + "%";
                     }
-                    values.add(value);
+                    subValues.add(value);
                 }else{
                     
                 	joinEmploymentForTitle = " left join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em ";
@@ -586,8 +586,8 @@ public class SearchDao {
                     if(!value.contains("%")){
                         value = "%" + value + "%";
                     }
-                    values.add(value);
-                    values.add(value);
+                    subValues.add(value);
+                    subValues.add(value);
                 }
             }
             
@@ -751,6 +751,8 @@ public class SearchDao {
         }
         
         joinSql.append(" where 1=1 "+conditions);
+        //make subValues add the last
+        values.addAll(subValues);
         countSql = new StringBuilder(joinSql.toString());
         if(!Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
         	if(orderCon.contains("resume")){
