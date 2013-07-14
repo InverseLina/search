@@ -135,6 +135,7 @@
     function formatDisplay(obj){
         var val;
         var result = "";
+        var t = 0;
         for(var k in obj){
             val = obj[k];
             if(k=="companyNames" || k=="skillNames" || k == "educationNames"){
@@ -143,10 +144,10 @@
                   var pairs = val.split(",");
                   for(var i = 0; i < pairs.length; i++){
                     if(i!=0){
-                      value += ",";
+                      value += ", ";
                     }
                     var values = pairs[i].split("|");
-                    if(values[1] == ""  && values[2] == ""){
+                    if((!values[1] || values[1] == "")  && (!values[2] || values[2] == "")){
                       value = value + values[0];
                     }else{
                       value = value + values[0] + "("+values[1]+"~"+values[2]+")";
@@ -159,8 +160,12 @@
                 }
                 
             }else{
-                result = result +" " + k + ":" + obj[k];
+                if(t != 0){
+                  result = result + ", ";
+                }
+                result = result + k + ":" + obj[k];
             }
+            t++;
         }
         return result;
     }
