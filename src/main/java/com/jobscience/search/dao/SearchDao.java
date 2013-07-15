@@ -710,6 +710,7 @@ public class SearchDao {
 	        }
 	    }
         
+        boolean hasLocationCondition = false;
         //add the 'radius' filter
         if (searchValues.get("radiusFlag")!=null&&
         	searchValues.get("radius") != null && !"".equals(searchValues.get("radius"))) {
@@ -717,22 +718,25 @@ public class SearchDao {
         	//add the 'Zip' filter
             if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))) {
             	condition.append(" and zipcode_us.zip= '"+searchValues.get("Zip")+"'" );
+            	hasLocationCondition= true;
             }
             
           //add the 'City' filter
             if (searchValues.get("City") != null && !"".equals(searchValues.get("City"))) {
             	String city = searchValues.get("City");
                 condition.append(" and zipcode_us.City= '"+city+"'" );
+                hasLocationCondition = true;
             }
             
             //add the 'State' filter
             if (searchValues.get("State") != null && !"".equals(searchValues.get("State"))) {
             	String state = searchValues.get("State");
             	condition.append(" and zipcode_us.State= '"+state+"'" );
+            	 hasLocationCondition = true;
             }
             
             Double[] latLong = getLatLong(condition.toString());
-            if(latLong[0]==null||latLong[1]==null){
+            if(latLong[0]==null||latLong[1]==null|| !hasLocationCondition){
             	conditions.append(" and 1!=1 ");
             }else{
 	            double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(searchValues.get("radius")));
