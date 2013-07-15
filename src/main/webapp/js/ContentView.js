@@ -254,7 +254,6 @@
     } else {
       colWidth = tableWidth;
     }
-    console.log(colWidth);
     var realWidth;
 
     var $body = view.$el.find("tbody");
