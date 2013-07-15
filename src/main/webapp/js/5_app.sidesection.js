@@ -141,6 +141,7 @@ var app = app || {};
                     if (num == $hideLi.length) {
                         view.$el.trigger("DO_SEARCH");
                     }
+                    view.refreshSelections();
                 });
                 $btn.prev().show();
                 if ((itemNum - hideNum) <= app.defaultMenuSize) {
