@@ -2,6 +2,7 @@ package com.jobscience.search;
 
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -10,6 +11,7 @@ import com.britesnow.snow.util.MapUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.jobscience.search.dao.SearchDao;
+import com.jobscience.search.dao.SearchResult;
 
 public class SimpleTest extends SnowTestSupport {
 
@@ -19,17 +21,18 @@ public class SimpleTest extends SnowTestSupport {
         SnowTestSupport.initWebApplication("src/main/webapp");
     }
     
-    //@Test
+    @Test
     public void preparedTest(){
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
        Map values = MapUtil.mapIt("search","java");
        long start = System.currentTimeMillis();
-       searchDao.search(null,values, 1, 30,"");
+       SearchResult result = searchDao.search(null,values, 1, 30,"");
        long end = System.currentTimeMillis();
-       System.out.println("search result: " + (end - start));
+       Assert.assertEquals(1011, result.getCount());
+       System.out.println("search cost time: " + (end - start));
     }
     
-    //@Test
+    @Test
     public void stringTest(){
         String search = "Hello ";
         String searchTq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(search));

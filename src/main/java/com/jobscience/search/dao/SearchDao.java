@@ -583,28 +583,30 @@ public class SearchDao {
     
     private String getSearchColumnsForOuter(String searchColumns){
     	StringBuilder sb = new StringBuilder();
-    	for(String column:searchColumns.split(",")){
-    	if(column.toLowerCase().equals("name")){
-    		sb.append("name,");
-    	}else if(column.toLowerCase().equals("id")){
-    		sb.append("id,");
-    	}else if(column.toLowerCase().equals("title")){
-    		sb.append("title,lower(title) as \"lTitle\",");
-    	}else if(column.toLowerCase().equals("createddate")){
-    		sb.append("createddate as \"CreatedDate\",");
-    	}else if(column.toLowerCase().equals("company")){
-    		sb.append("company,lower(company) as \"lCompany\",");
-    	}else if(column.toLowerCase().equals("skill")){
-    		sb.append("skill,lower(skill) as \"lSkill\",");
-    	}else if(column.toLowerCase().equals("education")){
-    		sb.append("education,lower(education) as \"lEducation\",");
-    	}else if(column.toLowerCase().equals("resume")){
-    		sb.append("resume,");
+    	if(searchColumns==null){
+    		sb.append("id,name,lower(name) as \"lName\",lower(title) as \"lTitle\",title ,CreatedDate");
+    	}else{
+	    	for(String column:searchColumns.split(",")){
+		    	if(column.toLowerCase().equals("name")){
+		    		sb.append("name,lower(name) as \"lName\",");
+		    	}else if(column.toLowerCase().equals("id")){
+		    		sb.append("id,");
+		    	}else if(column.toLowerCase().equals("title")){
+		    		sb.append("title,lower(title) as \"lTitle\",");
+		    	}else if(column.toLowerCase().equals("createddate")){
+		    		sb.append("createddate as \"CreatedDate\",");
+		    	}else if(column.toLowerCase().equals("company")){
+		    		sb.append("company,lower(company) as \"lCompany\",");
+		    	}else if(column.toLowerCase().equals("skill")){
+		    		sb.append("skill,lower(skill) as \"lSkill\",");
+		    	}else if(column.toLowerCase().equals("education")){
+		    		sb.append("education,lower(education) as \"lEducation\",");
+		    	}else if(column.toLowerCase().equals("resume")){
+		    		sb.append("resume,");
+		    	}
+	    	}
+	        sb.deleteCharAt(sb.length()-1);
     	}
-    	
-    	}
-        sb.deleteCharAt(sb.length()-1);
-        
         return sb.toString();
     }
     
