@@ -140,6 +140,7 @@ public class SearchDao {
     	List subValues = new ArrayList();
     	boolean advanced = "advanced".equals(type);
     	String tableAliases = advanced?" a ":" contact ";
+    	boolean hasCondition = false;
     	   if (searchValues != null) {
                // for all search mode, we preform the same condition
                String search = searchValues.get("search");
@@ -152,6 +153,7 @@ public class SearchDao {
             	   }else{
             		   querySql.append(getSearchValueJoinTable(search, values,"contact"));
             	   }
+            	   hasCondition = true;
                }
            	
                //add the 'FirstName' filter
@@ -175,6 +177,7 @@ public class SearchDao {
                        }
                        subValues.add(value);
                    }
+                   hasCondition = true;
                }
                
                //add the 'LastName' filter
@@ -199,6 +202,7 @@ public class SearchDao {
                        }
                        subValues.add(value);
                    }
+                   hasCondition = true;
                }
                
                //add the 'Email' filter
@@ -222,6 +226,7 @@ public class SearchDao {
                        }
                        subValues.add(value);
                    }
+                   hasCondition = true;
                }
                  
                // add the 'educationNames' filter, and join Education table
@@ -244,6 +249,7 @@ public class SearchDao {
 	                		   querySql.append(" ) ed1 on contact.\"sfId\" = ed1.\"ts2__Contact__c\" ");
 	                	   }
 	                   }
+	                   hasCondition = true;
                }
                
                String joinEmploymentForTitle = "";
@@ -299,6 +305,7 @@ public class SearchDao {
                              subValues.add(value);
                          }
                      }
+                     hasCondition = true;
                  }
                
                // add the 'companyNames' filter, and join Education table
@@ -378,6 +385,7 @@ public class SearchDao {
 	                       	}
 	                	   }
 	                   }
+	                   hasCondition = true;
                }
                
                if (searchValues.get("searchCompany") != null && !"".equals(searchValues.get("searchCompany"))) {
@@ -394,8 +402,7 @@ public class SearchDao {
                   if(searchValues.get("curCompany") != null){
                   	joinEmploymentForCompanyName+=(" and em.\"ts2__Employment_End_Date__c\" is  null ");
                   }
-
-                  
+                  hasCondition = true;
               }
               
               if(joinEmploymentForCompanyName.equals("")&&!joinEmploymentForTitle.equals("")){
@@ -484,6 +491,7 @@ public class SearchDao {
                            querySql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
                 	   }
                    }
+                   hasCondition = true;
                }
 
                boolean hasLocationCondition = false;
@@ -506,8 +514,8 @@ public class SearchDao {
                    
                    //add the 'State' filter
                    if (searchValues.get("State") != null && !"".equals(searchValues.get("State"))) {
-                   	String state = searchValues.get("State");
-                   	condition.append(" and zipcode_us.State= '"+state+"'" );
+                   	 String state = searchValues.get("State");
+                   	 condition.append(" and zipcode_us.State= '"+state+"'" );
                    	 hasLocationCondition = true;
                    }
                    
@@ -521,7 +529,7 @@ public class SearchDao {
        	             conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" >"+latLongAround[1]);
        	             conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]);
                    }
-                 
+                   hasCondition = hasLocationCondition;
                }
            }
     	   if(advanced){
@@ -539,6 +547,10 @@ public class SearchDao {
     	   }else{
     		   querySql.append(" where 1=1 "+conditions);
     		   values.addAll(subValues);
+    	   }
+    	   
+    	   if(!hasCondition){
+    		   querySql.append(" and 1!=1 ");
     	   }
            return querySql.toString();
     }
