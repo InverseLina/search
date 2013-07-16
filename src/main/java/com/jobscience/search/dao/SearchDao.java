@@ -415,6 +415,7 @@ public class SearchDao {
             	  querySql.append(" )  c1 on contact.\"sfId\" = c1.\"ts2__Contact__c\"   ");
               }
               
+              boolean searchForSkill = false;
                // add the 'skillNames' filter, and join Education table
                if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
                    String value = searchValues.get("skillNames");
@@ -488,12 +489,47 @@ public class SearchDao {
                                i++;
                            }
                            querySql.append(" )");
-                           querySql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
+                         
                 	   }
+                	   searchForSkill = true;
                    }
                    hasCondition = true;
                }
 
+               
+               if (searchValues.get("searchSkill") != null && !"".equals(searchValues.get("searchSkill"))) {
+            	   if(advanced){
+            		   String value = searchValues.get("searchSkill");
+                       String columnName = " b.\"ts2__Skill_Name__c\" ilike ";
+                       value = "("+columnName+" '%"+Joiner.on("%' OR "+columnName+" '%").join(Splitter.on(",").omitEmptyStrings().split(value.replaceAll("[)(_]", "")))+"%')";
+                       if(baseTable.indexOf("ts2__skill__c") == -1 && joinTables.indexOf("ts2__skill__c") == -1){
+                           joinTables.append(" inner join ts2__skill__c b on ");
+                           if(baseTable.indexOf(" contact ") >= 0){
+                               joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
+                           }else{
+                               joinTables.append(baseTableIns+".\"ts2__Contact__c\" = b.\"ts2__Contact__c\" ");
+                           }
+                       }
+                       
+                       conditions.append(" and "+value);
+            	   }else{
+            		   String value = searchValues.get("searchSkill");
+                       String columnName = " sk.\"ts2__Skill_Name__c\" ilike ";
+                       value = "("+columnName+" '%"+Joiner.on("%' OR "+columnName+" '%").join(Splitter.on(",").omitEmptyStrings().split(value.replaceAll("[)(_]", "")))+"%')";
+            		   if(!searchForSkill){
+            			   querySql.append(" join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where 1=1 ");
+            		   }
+            		   querySql.append(" and "+value);
+            		   
+            	   }
+            	   searchForSkill = true;
+                   hasCondition = true;
+              }
+               
+               if(searchForSkill&&!advanced){
+            	   querySql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
+               }
+               
                boolean hasLocationCondition = false;
                //add the 'radius' filter
                if (searchValues.get("radiusFlag")!=null&&
@@ -670,7 +706,7 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
-        querySql.append(" from ( select  contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\"  ");
+        querySql.append(" from ( select  distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\"  ");
         if(orderCon.contains("Title")){
         	
         	
