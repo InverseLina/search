@@ -247,6 +247,10 @@
       tableWidth = tableWidth - 110;
       colLen--;
     }
+    if ($.inArray("resume", columns) >= 0) {
+        tableWidth = tableWidth - 65;
+        colLen--;
+      }
     //checkbox
     tableWidth = tableWidth - 30;
     if (colLen != 0) {
@@ -274,6 +278,8 @@
         }
       } else if ($(item).hasClass("checkbox")) {
         realWidth = 30;
+      } else if (colName=="resume") {
+        realWidth = 65;
       } else {
         realWidth = colWidth;
       }
@@ -296,7 +302,6 @@
         "min-width" : realWidth
       });
     })
-
   }
 
   function translate(value) {
