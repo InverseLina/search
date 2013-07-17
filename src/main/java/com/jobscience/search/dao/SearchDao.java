@@ -236,12 +236,8 @@ public class SearchDao {
 	                   if (!"Any Education".equals(value)) {
 	                	   if(advanced){
 		                       if(baseTable.indexOf("ts2__education_history__c") == -1 && joinTables.indexOf("ts2__education_history__c") == -1){
-		                           joinTables.append(" inner join ts2__education_history__c d on ");
-		                           if(baseTable.indexOf(" contact ") >= 0){
-		                               joinTables.append("a.\"sfId\" = d.\"ts2__Contact__c\" ");
-		                           }else{
-		                               joinTables.append(baseTableIns+".\"ts2__Contact__c\" = d.\"ts2__Contact__c\" ");
-		                           }
+		                    	   joinTables.append(" inner join ts2__education_history__c d on ");
+		                           joinTables.append("a.\"sfId\" = d.\"ts2__Contact__c\" ");
 		                       }
 		                       conditions.append(getConditionForThirdNames(value, values, "education"));
 	                	   }else{
@@ -262,11 +258,7 @@ public class SearchDao {
                        value = "("+columnName+" '%"+Joiner.on("%' OR "+columnName+" '%").join(Splitter.on(",").omitEmptyStrings().split(value.replaceAll("[)(_]", "")))+"%')";
                        if(!searchForEducation){
                            joinTables.append(" inner join ts2__education_history__c d on ");
-                           if(baseTable.indexOf(" contact ") >= 0){
-                               joinTables.append("a.\"sfId\" = d.\"ts2__Contact__c\" ");
-                           }else{
-                               joinTables.append(baseTableIns+".\"ts2__Contact__c\" = d.\"ts2__Contact__c\" ");
-                           }
+                           joinTables.append("a.\"sfId\" = d.\"ts2__Contact__c\" ");
                        }
                        conditions.append(" and "+value);
             	   }else{
@@ -289,7 +281,7 @@ public class SearchDao {
                
                String joinEmploymentForTitle = "";
                String joinEmploymentForCompanyName = "";
-
+               boolean searchForCompany = false;
                //add the 'Title' filter
                  if (searchValues.get("Title") != null && !"".equals(searchValues.get("Title"))) {
                      String value = searchValues.get("Title");
@@ -321,6 +313,7 @@ public class SearchDao {
                          }
                          values.add(value);
                          values.add(value);
+                         searchForCompany = true;
                      }
                      }else{
                     	 if(searchValues.get("curTitle")!=null){
@@ -338,10 +331,12 @@ public class SearchDao {
                              }
                              subValues.add(value);
                              subValues.add(value);
+                             searchForCompany = true;
                          }
                      }
                      hasCondition = true;
                  }
+               
                
                // add the 'companyNames' filter, and join Education table
                if (searchValues.get("companyNames") != null && !"".equals(searchValues.get("companyNames"))) {
@@ -349,13 +344,9 @@ public class SearchDao {
 	                   if (!"Any Company".equals(value)) {
 	                	   if(advanced){
 
-	                           if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
-	                               joinTables.append(" inner join ts2__employment_history__c c on ");
-	                               if(baseTable.indexOf(" contact ") >= 0){
-	                                   joinTables.append("a.\"sfId\" = c.\"ts2__Contact__c\" ");
-	                               }else{
-	                                   joinTables.append(baseTableIns+".\"ts2__Contact__c\" = c.\"ts2__Contact__c\" ");
-	                               }
+	                           if(!searchForCompany){
+	                        	   joinTables.append(" inner join ts2__employment_history__c c on ");
+	                               joinTables.append("a.\"sfId\" = c.\"ts2__Contact__c\" ");
 	                           }
 	                       	Iterator<String> companyNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
 	                       	boolean hasCompany = false;
@@ -420,23 +411,35 @@ public class SearchDao {
 	                       	}
 	                	   }
 	                   }
+	                   searchForCompany = true;
 	                   hasCondition = true;
                }
                
                if (searchValues.get("searchCompany") != null && !"".equals(searchValues.get("searchCompany"))) {
-                   String value = searchValues.get("searchCompany");
-                   String columnName = " em.\"ts2__Name__c\" ilike ";
-                   value = "("+columnName+" '%"+Joiner.on("%' OR "+columnName+" '%").join(Splitter.on(",").omitEmptyStrings().split(value.replaceAll("[)(_]", "")))+"%')";
-                   if(!joinEmploymentForCompanyName.equals("")){
-                  	 joinEmploymentForCompanyName+=" and   "+value;
-                   }else{
-                  	 joinEmploymentForCompanyName=(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where 1=1 ");
-                  	 joinEmploymentForCompanyName+=" and   "+value;
-                   }
-
-                  if(searchValues.get("curCompany") != null){
-                  	joinEmploymentForCompanyName+=(" and em.\"ts2__Employment_End_Date__c\" is  null ");
-                  }
+            	   String value = searchValues.get("searchCompany");
+            	   if(advanced){
+                       String columnName = " c.\"ts2__Name__c\" ilike ";
+                       value = "("+columnName+" '%"+Joiner.on("%' OR "+columnName+" '%").join(Splitter.on(",").omitEmptyStrings().split(value.replaceAll("[)(_]", "")))+"%')";
+                       if(!searchForCompany){
+                           joinTables.append(" inner join ts2__employment_history__c c on ");
+                           joinTables.append("a.\"sfId\" = c.\"ts2__Contact__c\" ");
+                       }
+                       
+                       conditions.append(" and "+value);
+            	   }else{
+	                   String columnName = " em.\"ts2__Name__c\" ilike ";
+	                   value = "("+columnName+" '%"+Joiner.on("%' OR "+columnName+" '%").join(Splitter.on(",").omitEmptyStrings().split(value.replaceAll("[)(_]", "")))+"%')";
+	                   if(!joinEmploymentForCompanyName.equals("")){
+	                  	 joinEmploymentForCompanyName+=" and   "+value;
+	                   }else{
+	                  	 joinEmploymentForCompanyName=(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where 1=1 ");
+	                  	 joinEmploymentForCompanyName+=" and   "+value;
+	                   }
+	
+	                  if(searchValues.get("curCompany") != null){
+	                  	joinEmploymentForCompanyName+=(" and em.\"ts2__Employment_End_Date__c\" is  null ");
+	                  }
+            	  }
                   hasCondition = true;
               }
               
@@ -457,11 +460,7 @@ public class SearchDao {
                    if (!"Any Skill".equals(value)) {
                 	   if(advanced){
 	                       joinTables.append(" inner join ts2__skill__c b on ");
-	                       if(baseTable.indexOf(" contact ") >= 0){
-	                           joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
-	                       }else{
-	                           joinTables.append(baseTableIns+".\"ts2__Contact__c\" = b.\"ts2__Contact__c\" ");
-	                       }
+	                       joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
 	                       Iterator<String> skillNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
 	                       int i = 0;
 	                       conditions.append(" and (");
@@ -536,11 +535,7 @@ public class SearchDao {
                        value = "("+columnName+" '%"+Joiner.on("%' OR "+columnName+" '%").join(Splitter.on(",").omitEmptyStrings().split(value.replaceAll("[)(_]", "")))+"%')";
                        if(!searchForSkill){
                            joinTables.append(" inner join ts2__skill__c b on ");
-                           if(baseTable.indexOf(" contact ") >= 0){
-                               joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
-                           }else{
-                               joinTables.append(baseTableIns+".\"ts2__Contact__c\" = b.\"ts2__Contact__c\" ");
-                           }
+                           joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
                        }
                        
                        conditions.append(" and "+value);
@@ -602,7 +597,9 @@ public class SearchDao {
            }
     	   if(advanced){
     		   if(joinTables.indexOf("contact")==-1&&!baseTable.contains("contact")){
-   	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+    			if(joinTables.indexOf(baseTable)==-1){
+    				joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+    			}
    	            baseTable = " contact ";
    	            baseTableIns = "a";
 	           }
