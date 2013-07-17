@@ -203,7 +203,7 @@ var app = app || {};
    }
    var searchName = "search" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
    if (data[searchName]) {
-       view.$el.find('input[type=text]').val(data[searchName]);
+       view.$el.find('input[name][type=text]').val(data[searchName]);
        view.$el.find("li.all").removeClass("selected").find(":checkbox").prop("checked", false);
    }
 
