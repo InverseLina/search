@@ -71,18 +71,27 @@
                     }else{
                         $target.closest(".control-group").removeClass("has-value");
                     }
-                    
+                    if($target.hasClass("radius")&&/^\s*$/.test(val)){
+                    	view.$el.find(":checkbox").prop("checked",false);
+                    	return false;
+                    }
                     if(view.$el.find(".has-value").length==0){
                     	view.$el.find(":checkbox").prop("checked",false);
                     }else{
+                    	if(view.$el.find(":input.radius").val()==""){
+                			view.$el.find(":input.radius").val(50);
+                		}
                     	view.$el.find(":checkbox").prop("checked",true);
                     }
                 },
                 "change; :checkbox":function(event){
                 	var view = this;
-                	if($(event.target).prop("checked")&&view.$el.find(".has-value").length==0){
-                		view.$el.find(":checkbox").prop("checked",false);
-                		return false;
+                	if($(event.target).prop("checked")){
+                		if(view.$el.find(":input.radius").val()==""){
+                			view.$el.find(":input.radius").val(50);
+                		}
+                	}else if(!$(event.target).prop("checked")){
+                		view.$el.find(":input.radius").val("");
                 	}
                     view.$el.trigger("DO_SEARCH");
                 }
