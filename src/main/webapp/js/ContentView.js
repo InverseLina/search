@@ -85,10 +85,10 @@
       },
       "btap; .btnAddToSourcingProject" : function(event) {
         event.stopPropagation();
-        alert("Not implement yet.");
+        alert("Not implement yet. (waiting for API)");
       },
       "btap; .resume-ico" : function(event) {
-        alert("Not implement yet.");
+        alert("Not implement yet. (waiting for API)");
       },
 
       "keypress;.search-input" : function(event) {

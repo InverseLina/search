@@ -20,7 +20,33 @@
     };
     CompanyView.prototype.events = $.extend(CompanyView.prototype.events, app.sidesection.BaseSideAdvanced.prototype.events);
 
+    CompanyView.prototype.validate =function(values){
+        var vals = values.split("|");
+        var v1=false, errors = ""
+        if(vals[1].length > 0 ){
+            if(!/\d+/g.test(vals[1])){
+                errors += "min value require be number,";
+            }else{
+                v1 = true;
+            }
+        }
+        if(vals[2].length > 0 ){
+            if(!/\d+/g.test(vals[2])){
+                errors += "max value require be number,";
+            }
+            if(v1){
+                if(parseInt(vals[2]) - parseInt(vals[1])<=0){
+                    errors += "max value must big than min value,";
+                }
+            }
+        }
 
+        if(errors.length>0) {
+            errors = vals[0] + " " + errors;
+
+        }
+        return errors;
+    }
 
     brite.registerView("Company", {emptyParent: true},function(){
       return new CompanyView();

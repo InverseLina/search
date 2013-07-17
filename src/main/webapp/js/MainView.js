@@ -67,8 +67,15 @@
             view.$el.trigger("NO_SEARCH");
             return false;
        }
+
+        var errorTxt = "";
         
         $.each(searchValues, function (key, val) {
+            if(!isValid) return;
+            if(/Errors$/g.test(key)){
+                errorTxt += val;
+                isValid = false;
+            }
             if(!/^\s*$/.test(val)){
                 if(/^\s*[^\s].+[^\s]\s*$/.test(val)||/.*(State).*/.test(key)){
                     qParams["q_" + key] = $.trim(val);
@@ -88,6 +95,11 @@
             view.contentView.empty();
             view.$el.trigger("NO_SEARCH");
         	return false;
+        }
+        if(errorTxt.length > 0) {
+            view.contentView.showErrorMessage(errorTxt);
+            view.$el.trigger("NO_SEARCH");
+            return false;
         }
         //if has some search text,but less than 3 letters
         if(!isValid){

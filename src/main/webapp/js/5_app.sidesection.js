@@ -219,10 +219,12 @@ var app = app || {};
     var $itemContainer = $e.find("ul."+dataType+"List");
     var itemALL = $itemContainer.find("li[data-name='ALL']").hasClass("selected");
     var itemStr = "";
+      var itemErrorStr = "";
     // get companies filter
     $itemContainer.find("li[data-name][data-name!='ALL']").find("input[type='checkbox']:checked").each(function(i) {
       var $li = $(this).closest("li");
       var value = $li.attr("data-name");
+      var errVal = "";
       $li.find(".filter input").each(function(idx, ele){
           var fval = $(ele).val();
           if(!/^\s*$/g.test(fval)){
@@ -231,11 +233,18 @@ var app = app || {};
               value = value + "|";
           }
       })
-      //get selected or all option is selected.
-      if (itemStr.length != 0) {
-        itemStr += ",";
+      if(view.validate && $.isFunction(view.validate)){
+          errVal = view.validate(value);
       }
-      itemStr += value;
+      //get selected or all option is selected.
+        if (errVal.length == 0) {
+            if (itemStr.length != 0) {
+                itemStr += ",";
+            }
+            itemStr += value;
+        } else {
+            itemErrorStr += errVal;
+        }
     });
 
     var result = {};
@@ -243,6 +252,11 @@ var app = app || {};
     if (!/^\s*$/.test(itemStr)) {
       result[dataType+"Names"] = itemStr;
     }
+    if (!/^\s*$/.test(itemErrorStr)) {
+      result[dataType+"Errors"] = itemErrorStr;
+    }
+
+
 
       var searchName = "search" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
       var searchValue = view.$el.find('input[type=text]').val();
