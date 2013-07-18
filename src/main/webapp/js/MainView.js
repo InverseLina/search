@@ -68,11 +68,11 @@
             return false;
        }
 
-        var errorTxt = "";
+        var errorTxt = [];
         $.each(searchValues, function (key, val) {
             if(!isValid) return;
             if(/Errors$/g.test(key)){
-                errorTxt += val;
+                errorTxt.push(val.join(","));
                 isValid = false;
             }
             if(!/^\s*$/.test(val)){
@@ -96,7 +96,7 @@
         	return false;
         }
         if(errorTxt.length > 0) {
-            view.contentView.showErrorMessage("Wrong Search Query", errorTxt);
+            view.contentView.showErrorMessage("Wrong Search Query", errorTxt.join(","));
             view.$el.trigger("NO_SEARCH");
             return false;
         }

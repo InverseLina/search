@@ -22,29 +22,25 @@
 
     CompanyView.prototype.validate =function(values){
         var vals = values.split("|");
-        var v1=false, errors = ""
+        var v1=false, errors = [];
         if(vals[1].length > 0 ){
             if(!/\d+/g.test(vals[1])){
-                errors += "min value require be number,";
+                errors.push(vals[0] + " min value require be number");
             }else{
                 v1 = true;
             }
         }
         if(vals[2].length > 0 ){
             if(!/\d+/g.test(vals[2])){
-                errors += "max value require be number,";
+                errors.push(vals[0] +  " max value require be number");
             }
             if(v1){
                 if(parseInt(vals[2]) - parseInt(vals[1])<=0){
-                    errors += "max value must big than min value,";
+                    errors.push(vals[0] + " max value must big than min value");
                 }
             }
         }
 
-        if(errors.length>0) {
-            errors = vals[0] + " " + errors;
-
-        }
         return errors;
     }
 

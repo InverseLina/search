@@ -219,12 +219,12 @@ var app = app || {};
     var $itemContainer = $e.find("ul."+dataType+"List");
     var itemALL = $itemContainer.find("li[data-name='ALL']").hasClass("selected");
     var itemStr = "";
-      var itemErrorStr = "";
+      var itemErrors = [];
     // get companies filter
     $itemContainer.find("li[data-name][data-name!='ALL']").find("input[type='checkbox']:checked").each(function(i) {
       var $li = $(this).closest("li");
       var value = $li.attr("data-name");
-      var errVal = "";
+      var errVal;
       $li.find(".filter input").each(function(idx, ele){
           var fval = $(ele).val();
           if(!/^\s*$/g.test(fval)){
@@ -243,7 +243,7 @@ var app = app || {};
             }
             itemStr += value;
         } else {
-            itemErrorStr += errVal;
+            itemErrors.push(errVal.join(","));
         }
     });
 
@@ -252,8 +252,8 @@ var app = app || {};
     if (!/^\s*$/.test(itemStr)) {
       result[dataType+"Names"] = itemStr;
     }
-    if (!/^\s*$/.test(itemErrorStr)) {
-      result[dataType+"Errors"] = itemErrorStr;
+    if (itemErrors.length > 0) {
+      result[dataType+"Errors"] = itemErrors;
     }
 
 
