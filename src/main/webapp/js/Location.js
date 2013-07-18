@@ -85,6 +85,7 @@
                 	}else if(!$(event.target).prop("checked")){
                 		view.$el.find(":input.radius").val("");
                 	}
+                	view.$el.bView("SideSection").$el.trigger("store");
                     view.$el.trigger("DO_SEARCH");
                 }
             },
