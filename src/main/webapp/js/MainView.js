@@ -69,7 +69,7 @@
        }
 
         var errorTxt = "";
-        
+        console.log(searchValues);
         $.each(searchValues, function (key, val) {
             if(!isValid) return;
             if(/Errors$/g.test(key)){
@@ -97,7 +97,7 @@
         	return false;
         }
         if(errorTxt.length > 0) {
-            view.contentView.showErrorMessage(errorTxt);
+            view.contentView.showErrorMessage("Wrong Search Query", errorTxt);
             view.$el.trigger("NO_SEARCH");
             return false;
         }
