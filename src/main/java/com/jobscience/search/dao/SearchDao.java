@@ -141,6 +141,13 @@ public class SearchDao {
     	boolean advanced = "advanced".equals(type);
     	String tableAliases = advanced?" a ":" contact ";
     	boolean hasCondition = false;
+    	
+    	if(baseTable==null){
+    		baseTable = "";
+    	}
+    	if(baseTableIns==null){
+    		baseTableIns = "";
+    	}
     	   if (searchValues != null) {
                // for all search mode, we preform the same condition
                String search = searchValues.get("search");
@@ -229,7 +236,7 @@ public class SearchDao {
                    hasCondition = true;
                }
                  
-               boolean searchForEducation = false;
+               boolean searchForEducation = (joinTables.indexOf("ts2__education_history__c")!=-1||baseTable.indexOf("ts2__education_history__c")!=-1);
                // add the 'educationNames' filter, and join Education table
                if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
             	   String value = searchValues.get("educationNames");
@@ -281,7 +288,7 @@ public class SearchDao {
                
                String joinEmploymentForTitle = "";
                String joinEmploymentForCompanyName = "";
-               boolean searchForCompany = false;
+               boolean searchForCompany = (joinTables.indexOf("ts2__employment_history__c")!=-1||baseTable.indexOf("ts2__employment_history__c")!=-1);
                //add the 'Title' filter
                  if (searchValues.get("Title") != null && !"".equals(searchValues.get("Title"))) {
                      String value = searchValues.get("Title");
@@ -343,7 +350,6 @@ public class SearchDao {
                    String value = searchValues.get("companyNames");
 	                   if (!"Any Company".equals(value)) {
 	                	   if(advanced){
-
 	                           if(!searchForCompany){
 	                        	   joinTables.append(" inner join ts2__employment_history__c c on ");
 	                               joinTables.append("a.\"sfId\" = c.\"ts2__Contact__c\" ");
@@ -453,14 +459,17 @@ public class SearchDao {
             	  querySql.append(" )  c1 on contact.\"sfId\" = c1.\"ts2__Contact__c\"   ");
               }
               
-              boolean searchForSkill = false;
+              boolean searchForSkill = (joinTables.indexOf("ts2__skill__c")!=-1||baseTable.indexOf("ts2__skill__c")!=-1);
                // add the 'skillNames' filter, and join Education table
                if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
                    String value = searchValues.get("skillNames");
                    if (!"Any Skill".equals(value)) {
                 	   if(advanced){
-	                       joinTables.append(" inner join ts2__skill__c b on ");
-	                       joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
+                		   if(!searchForSkill){
+                			   joinTables.append(" inner join ts2__skill__c b on ");
+                			   joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
+                		   }
+                		  
 	                       Iterator<String> skillNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
 	                       int i = 0;
 	                       conditions.append(" and (");
@@ -564,7 +573,8 @@ public class SearchDao {
                	StringBuilder condition = new StringBuilder();
                	//add the 'Zip' filter
                    if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))) {
-                   	condition.append(" and zipcode_us.zip= '"+searchValues.get("Zip")+"'" );
+                	   String value = searchValues.get("Zip").replaceAll("\\s", "");
+	                   	condition.append(" and zipcode_us.zip= '"+value+"'" );
                    	hasLocationCondition= true;
                    }
                    
@@ -593,6 +603,45 @@ public class SearchDao {
        	             conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]);
                    }
                    hasCondition = hasLocationCondition;
+               }else{
+            		StringBuilder condition = new StringBuilder();
+                   	//add the 'Zip' filter
+                   if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))) {
+                	    String value = searchValues.get("Zip").replaceAll("\\s", "");
+                	    System.out.println(value);
+	                   	condition.append(" and zipcode_us.zip= '"+value+"'" );
+	                   	hasLocationCondition= true;
+                   }
+                   
+                 //add the 'City' filter
+                   if (searchValues.get("City") != null && !"".equals(searchValues.get("City"))) {
+                   	String city = searchValues.get("City");
+                       condition.append(" and zipcode_us.City ilike '"+city+"'" );
+                       hasLocationCondition = true;
+                   }
+                   
+                   //add the 'State' filter
+                   if (searchValues.get("State") != null && !"".equals(searchValues.get("State"))) {
+                   	 String state = searchValues.get("State");
+                   	 condition.append(" and zipcode_us.State ilike '"+state+"'" );
+                   	 hasLocationCondition = true;
+                   }
+                       
+                   if(hasLocationCondition){
+                	   List<Map> zipcodes = getZipCode(condition.toString());
+                	   if(zipcodes.size()>0){
+                		   conditions.append(" and (1!=1 ");
+                		   for(Map m:zipcodes){
+                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" ilike '")
+                			   		   .append(m.get("zip"))
+                					   .append("%' ");
+                		   }
+                		   conditions.append(" )");
+                	   }else{
+                		   conditions.append(" and 1!=1 ");
+                	   }
+                   }
+                   hasCondition = hasLocationCondition||hasCondition;
                }
            }
     	   if(advanced){
@@ -998,7 +1047,7 @@ public class SearchDao {
      * @param raidus unit meter
      * return minLat,minLng,maxLat,maxLng 
      */  
-    public static double[] getAround(double lat,double lon,Double raidus){  
+    private static double[] getAround(double lat,double lon,Double raidus){  
           
         Double latitude = lat;  
         Double longitude = lon;  
@@ -1020,9 +1069,8 @@ public class SearchDao {
     }  
     
     
-    public Double[] getLatLong(String condition){
+    private Double[] getLatLong(String condition){
     	Double[] latLong = new Double[2];
-    	 System.out.println("select avg(longitude) as longitude,avg(latitude) as latitude from zipcode_us  where 1=1 "+condition);
     	Connection con = dbHelper.getConnection();
         PreparedStatement s =dbHelper.prepareStatement(con,"select avg(longitude) as longitude,avg(latitude) as latitude from zipcode_us  where 1=1 "+condition);
         List<Map> zip = dbHelper.preparedStatementExecuteQuery(s);
@@ -1037,6 +1085,19 @@ public class SearchDao {
         	 throw Throwables.propagate(e);
         }
         return latLong;
+    }
+    
+    private List<Map> getZipCode(String condition){
+    	Connection con = dbHelper.getConnection();
+        PreparedStatement s =dbHelper.prepareStatement(con,"select *  from zipcode_us  where 1=1 "+condition);
+        List<Map> zip = dbHelper.preparedStatementExecuteQuery(s);
+        try{
+	        s.close();
+	        con.close();
+        }catch(Exception e){
+        	 throw Throwables.propagate(e);
+        }
+        return zip;
     }
 }
 
