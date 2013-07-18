@@ -573,7 +573,8 @@ public class SearchDao {
                	StringBuilder condition = new StringBuilder();
                	//add the 'Zip' filter
                    if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))) {
-                   	condition.append(" and zipcode_us.zip= '"+searchValues.get("Zip")+"'" );
+                	   String value = searchValues.get("Zip").replaceAll("\\s", "");
+	                   	condition.append(" and zipcode_us.zip= '"+value+"'" );
                    	hasLocationCondition= true;
                    }
                    
@@ -602,10 +603,48 @@ public class SearchDao {
        	             conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]);
                    }
                    hasCondition = hasLocationCondition;
+               }else{
+            		StringBuilder condition = new StringBuilder();
+                   	//add the 'Zip' filter
+                   if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))) {
+                	    String value = searchValues.get("Zip").replaceAll("\\s", "");
+                	    System.out.println(value);
+	                   	condition.append(" and zipcode_us.zip= '"+value+"'" );
+	                   	hasLocationCondition= true;
+                   }
+                   
+                 //add the 'City' filter
+                   if (searchValues.get("City") != null && !"".equals(searchValues.get("City"))) {
+                   	String city = searchValues.get("City");
+                       condition.append(" and zipcode_us.City ilike '"+city+"'" );
+                       hasLocationCondition = true;
+                   }
+                   
+                   //add the 'State' filter
+                   if (searchValues.get("State") != null && !"".equals(searchValues.get("State"))) {
+                   	 String state = searchValues.get("State");
+                   	 condition.append(" and zipcode_us.State ilike '"+state+"'" );
+                   	 hasLocationCondition = true;
+                   }
+                       
+                   if(hasLocationCondition){
+                	   List<Map> zipcodes = getZipCode(condition.toString());
+                	   if(zipcodes.size()>0){
+                		   conditions.append(" and (1!=1 ");
+                		   for(Map m:zipcodes){
+                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" ilike '")
+                			   		   .append(m.get("zip"))
+                					   .append("%' ");
+                		   }
+                		   conditions.append(" )");
+                	   }else{
+                		   conditions.append(" and 1!=1 ");
+                	   }
+                   }
+                   hasCondition = hasLocationCondition||hasCondition;
                }
            }
     	   if(advanced){
-    		   System.out.println("------------"+joinTables);
     		   if(joinTables.indexOf("contact")==-1&&!baseTable.contains("contact")){
     			if(joinTables.indexOf(baseTable)==-1){
     				joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
@@ -1008,7 +1047,7 @@ public class SearchDao {
      * @param raidus unit meter
      * return minLat,minLng,maxLat,maxLng 
      */  
-    public static double[] getAround(double lat,double lon,Double raidus){  
+    private static double[] getAround(double lat,double lon,Double raidus){  
           
         Double latitude = lat;  
         Double longitude = lon;  
@@ -1030,9 +1069,8 @@ public class SearchDao {
     }  
     
     
-    public Double[] getLatLong(String condition){
+    private Double[] getLatLong(String condition){
     	Double[] latLong = new Double[2];
-    	 System.out.println("select avg(longitude) as longitude,avg(latitude) as latitude from zipcode_us  where 1=1 "+condition);
     	Connection con = dbHelper.getConnection();
         PreparedStatement s =dbHelper.prepareStatement(con,"select avg(longitude) as longitude,avg(latitude) as latitude from zipcode_us  where 1=1 "+condition);
         List<Map> zip = dbHelper.preparedStatementExecuteQuery(s);
@@ -1047,6 +1085,19 @@ public class SearchDao {
         	 throw Throwables.propagate(e);
         }
         return latLong;
+    }
+    
+    private List<Map> getZipCode(String condition){
+    	Connection con = dbHelper.getConnection();
+        PreparedStatement s =dbHelper.prepareStatement(con,"select *  from zipcode_us  where 1=1 "+condition);
+        List<Map> zip = dbHelper.preparedStatementExecuteQuery(s);
+        try{
+	        s.close();
+	        con.close();
+        }catch(Exception e){
+        	 throw Throwables.propagate(e);
+        }
+        return zip;
     }
 }
 

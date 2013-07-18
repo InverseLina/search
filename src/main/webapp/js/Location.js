@@ -18,21 +18,17 @@
             getSearchValues:function(){
                 var values = {};
                 var view = this;
-                var checked = false;
                 view.$el.find(":checkbox:checked").each(function(idx, item){
                 	var $item = $(item);
                 	values[$item.attr("name")] = true;
-                	checked = true;
                 });
-                if(checked){
-	                view.$el.find("input[type='text']").each(function(idx, item){
-	                    var $item = $(item);
-	                    var val = $item.val();
-	                    if(!/^\s*$/.test(val)){
-	                        values[$item.attr("name")] = val;
-	                    }
-	                });
-                }
+                view.$el.find("input[type='text']").each(function(idx, item){
+                    var $item = $(item);
+                    var val = $item.val();
+                    if(!/^\s*$/.test(val)){
+                        values[$item.attr("name")] = val;
+                    }
+                });
                 return values;
             },
             updateSearchValues:function(data){
@@ -71,18 +67,14 @@
                     }else{
                         $target.closest(".control-group").removeClass("has-value");
                     }
-                    if($target.hasClass("radius")&&/^\s*$/.test(val)){
-                    	view.$el.find(":checkbox").prop("checked",false);
-                    	return false;
+                    if($target.hasClass("radius")){
+                    	if(/^\s*$/.test(val)){
+                    		view.$el.find(":checkbox").prop("checked",false);
+                    	}else{
+                    		view.$el.find(":checkbox").prop("checked",true);
+                    	}
                     }
-                    if(view.$el.find(".has-value").length==0){
-                    	view.$el.find(":checkbox").prop("checked",false);
-                    }else{
-                    	if(view.$el.find(":input.radius").val()==""){
-                			view.$el.find(":input.radius").val(50);
-                		}
-                    	view.$el.find(":checkbox").prop("checked",true);
-                    }
+                    
                 },
                 "change; :checkbox":function(event){
                 	var view = this;
