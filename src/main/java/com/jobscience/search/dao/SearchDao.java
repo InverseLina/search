@@ -141,6 +141,13 @@ public class SearchDao {
     	boolean advanced = "advanced".equals(type);
     	String tableAliases = advanced?" a ":" contact ";
     	boolean hasCondition = false;
+    	
+    	if(baseTable==null){
+    		baseTable = "";
+    	}
+    	if(baseTableIns==null){
+    		baseTableIns = "";
+    	}
     	   if (searchValues != null) {
                // for all search mode, we preform the same condition
                String search = searchValues.get("search");
@@ -229,7 +236,7 @@ public class SearchDao {
                    hasCondition = true;
                }
                  
-               boolean searchForEducation = false;
+               boolean searchForEducation = (joinTables.indexOf("ts2__education_history__c")!=-1||baseTable.indexOf("ts2__education_history__c")!=-1);
                // add the 'educationNames' filter, and join Education table
                if (searchValues.get("educationNames") != null && !"".equals(searchValues.get("educationNames"))) {
             	   String value = searchValues.get("educationNames");
@@ -281,7 +288,7 @@ public class SearchDao {
                
                String joinEmploymentForTitle = "";
                String joinEmploymentForCompanyName = "";
-               boolean searchForCompany = false;
+               boolean searchForCompany = (joinTables.indexOf("ts2__employment_history__c")!=-1||baseTable.indexOf("ts2__employment_history__c")!=-1);
                //add the 'Title' filter
                  if (searchValues.get("Title") != null && !"".equals(searchValues.get("Title"))) {
                      String value = searchValues.get("Title");
@@ -343,7 +350,6 @@ public class SearchDao {
                    String value = searchValues.get("companyNames");
 	                   if (!"Any Company".equals(value)) {
 	                	   if(advanced){
-
 	                           if(!searchForCompany){
 	                        	   joinTables.append(" inner join ts2__employment_history__c c on ");
 	                               joinTables.append("a.\"sfId\" = c.\"ts2__Contact__c\" ");
@@ -453,14 +459,17 @@ public class SearchDao {
             	  querySql.append(" )  c1 on contact.\"sfId\" = c1.\"ts2__Contact__c\"   ");
               }
               
-              boolean searchForSkill = false;
+              boolean searchForSkill = (joinTables.indexOf("ts2__skill__c")!=-1||baseTable.indexOf("ts2__skill__c")!=-1);
                // add the 'skillNames' filter, and join Education table
                if (searchValues.get("skillNames") != null && !"".equals(searchValues.get("skillNames"))) {
                    String value = searchValues.get("skillNames");
                    if (!"Any Skill".equals(value)) {
                 	   if(advanced){
-	                       joinTables.append(" inner join ts2__skill__c b on ");
-	                       joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
+                		   if(!searchForSkill){
+                			   joinTables.append(" inner join ts2__skill__c b on ");
+                			   joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
+                		   }
+                		  
 	                       Iterator<String> skillNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
 	                       int i = 0;
 	                       conditions.append(" and (");
@@ -596,6 +605,7 @@ public class SearchDao {
                }
            }
     	   if(advanced){
+    		   System.out.println("------------"+joinTables);
     		   if(joinTables.indexOf("contact")==-1&&!baseTable.contains("contact")){
     			if(joinTables.indexOf(baseTable)==-1){
     				joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
