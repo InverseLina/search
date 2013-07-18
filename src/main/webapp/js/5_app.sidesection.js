@@ -224,7 +224,7 @@ var app = app || {};
     $itemContainer.find("li[data-name][data-name!='ALL']").find("input[type='checkbox']:checked").each(function(i) {
       var $li = $(this).closest("li");
       var value = $li.attr("data-name");
-      var errVal;
+      var errVal = [];
       $li.find(".filter input").each(function(idx, ele){
           var fval = $(ele).val();
           if(!/^\s*$/g.test(fval)){
