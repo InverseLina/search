@@ -69,7 +69,6 @@
        }
 
         var errorTxt = "";
-        console.log(searchValues);
         $.each(searchValues, function (key, val) {
             if(!isValid) return;
             if(/Errors$/g.test(key)){

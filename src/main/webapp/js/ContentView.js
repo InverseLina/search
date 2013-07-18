@@ -88,7 +88,8 @@
         alert("Not implement yet. (waiting for API)");
       },
       "btap; .resume-ico" : function(event) {
-        alert("Not implement yet. (waiting for API)");
+          var cid = $(event.currentTarget).closest("i").attr("data-id");
+          brite.display("ResumeView","body", {id: cid})
       },
 
       "keypress;.search-input" : function(event) {
@@ -207,7 +208,7 @@
         } else if (columns[j] == "resume") {
           item.push({
             name : columns[j],
-            value : "<i data-id='" + items[i][columns[j]] + "' title='Not implement yet.' class='resume-ico icon-file icon-white'></i>",
+            value : "<i data-id='" + items[i][columns[j]] + "' title='View Resume.' class='resume-ico icon-file icon-white'></i>",
             notLast : colLen - j > 1
           });
         } else {
