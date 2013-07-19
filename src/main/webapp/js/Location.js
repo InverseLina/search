@@ -13,7 +13,21 @@
             },
 
             postDisplay: function (data) {
-
+            	var view = this;
+            	 $.ajax({
+           			url:"/config/get/local_distance",
+           			type:"Get",
+           			dataType:'json'
+         	  	  }).done(function(data){
+         	  		if(data.success){
+         	  			if(data.result[0]&&data.result[0].value=="k"){
+         	  				view.$el.find("span.unit").html("kilometers");
+         	  				if(app.preference.get("Location.values")){
+                        		view.$el.find("input[name='radius']").val(parseFloat(JSON.parse(app.preference.get("Location.values")).radius)/1000);
+                        	}
+         	  			}
+         	  		}
+         	  	  });
             },
             getSearchValues:function(){
                 var values = {};
@@ -22,10 +36,14 @@
                 	var $item = $(item);
                 	values[$item.attr("name")] = true;
                 });
+                
                 view.$el.find("input[type='text']").each(function(idx, item){
                     var $item = $(item);
                     var val = $item.val();
                     if(!/^\s*$/.test(val)){
+                    	if($item.hasClass("radius")&&view.$el.find("span.unit").html()=="kilometers"){
+                    		val = parseFloat(val)*1000;
+                    	}
                         values[$item.attr("name")] = val;
                     }
                 });
