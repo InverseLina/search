@@ -29,6 +29,9 @@
 	 	
 	 	"DO_SEARCH": function(event,opts){
 	 		doSearch.call(this,opts);	
+	 	},
+	 	"click;.admin":function(event){
+	 		brite.display("Admin");
 	 	}
 	 },
      docEvents: {
