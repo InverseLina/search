@@ -136,6 +136,19 @@
         "SEARCH_RESULT_CHANGE" : function(event, result) {
           var view = this;
           var $e = view.$el;
+          $.ajax({
+  			url:"/config/get/action_add_to_sourcing",
+  			type:"Get",
+  			dataType:'json'
+	  	  }).done(function(data){
+	  		if(data.success){
+	  			if(data.result[0]&&data.result[0].value=="true"){
+	  				view.$el.find(".btnAddToSourcingProject").removeClass("hide");
+	  			}else{
+	  				view.$el.find(".btnAddToSourcingProject").addClass("hide");
+	  			}
+	  		}
+	  	  });
           var html;
           var htmlInfo = "Result size: " + result.count + " | Duration: " + result.duration + "ms";
           htmlInfo += " (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)";
