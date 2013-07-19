@@ -1,0 +1,14 @@
+DROP TABLE if EXISTS savedsearches;
+
+-- DROP TABLE savedsearches;
+
+CREATE TABLE savedsearches
+(
+  userid bigint,
+  create_date date,
+  update_date date,
+  search character varying(255) NOT NULL,
+  name character varying(64) NOT NULL,
+  id bigserial NOT NULL,
+  CONSTRAINT pk_savedsearched PRIMARY KEY (id)
+);

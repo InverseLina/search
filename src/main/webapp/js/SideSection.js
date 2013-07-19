@@ -40,7 +40,12 @@
             getSearchValues: function(){
                 var view = this;
                 if(view.status == "open"){
-                    return view.subComponent.getSearchValues();
+                    if(view.subComponent.getSearchValues && $.isFunction(view.subComponent.getSearchValues)){
+                        return view.subComponent.getSearchValues();
+                    }else{
+                        return {};
+                    }
+
                 }else{
                     return JSON.parse(app.preference.get(view.cname + ".values", ""));
                 }
@@ -61,6 +66,7 @@
                         view.$el.find(".not-open").remove();
                     }
                     //remove cookie
+                    app.preference.store(view.cname + ".values", null);
                     //clear all the text input value
                     view.$el.find(".control-group").removeClass("has-value").find(":text").val("");
                     view.$el.find(":checkbox:not([data-name])").prop("checked",false);
@@ -90,7 +96,9 @@
                         if( view.$el.find("div."+view.cname).size()>0){
                       		view.$el.find("div."+view.cname).show();
                       		view.$el.find("span.not-open").hide();
-  	                      view.subComponent.refreshSelections();
+                            if(view.view.subComponent.refreshSelections){
+  	                            view.subComponent.refreshSelections();
+                            }
                       	}else{
   	                        brite.display(view.cname , view.$el.find(".content")).done(function(component){
   	                            if(component.$el.bView(view.name) == view){

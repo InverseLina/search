@@ -83,6 +83,15 @@ public class DBHelper {
             throw Throwables.propagate(e);
         }
     }
+    public int executeUpdate(String query, Object... vals) {
+        try {
+            Connection con = getConnection();
+            PreparedStatement pstmt = con.prepareStatement(query);
+            return preparedStatementExecuteUpdate(pstmt, vals);
+        } catch (SQLException e) {
+            throw Throwables.propagate(e);
+        }
+    }
 
     // --------- PreparedStatement Executes --------- //
     public List<Map> preparedStatementExecuteQuery(PreparedStatement pstmt, Object... vals) {

@@ -1,0 +1,26 @@
+// Core variables and mixins
+@import "mixins.less";
+
+.SideSection .content .SavedSearches {
+    margin: 10px;
+    input {
+      width:130px;
+      height: 30px;
+    }
+    button.btn {
+     margin-top: -10px;
+     margin-left: 15px;
+   }
+   ul li[data-id] {
+     cursor: pointer;
+     position: relative;
+   }
+   ul li[data-id]:hover {
+     color: #336699;
+     .clear {
+        display: block;
+        top: 2px
+     }
+   }
+
+}
