@@ -86,12 +86,6 @@ var app = app || {};
         "btap; li[data-name] .filter":function(event) {
           event.stopPropagation();
         },
-        "change; li[data-name] input[type='checkbox']": function(event) {
-            event.preventDefault();
-            var view = this;
-            var values = view.getSearchValues();
-            app.preference.store(view.name + ".values", JSON.stringify(values));
-        },
         "btap; .btns span": function(event) {
             var view = this;
             var $btn = $(event.currentTarget);

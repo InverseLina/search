@@ -61,7 +61,6 @@
                         view.$el.find(".not-open").remove();
                     }
                     //remove cookie
-                    app.preference.store(view.cname + ".values", null);
                     //clear all the text input value
                     view.$el.find(".control-group").removeClass("has-value").find(":text").val("");
                     view.$el.find(":checkbox:not([data-name])").prop("checked",false);
@@ -79,7 +78,6 @@
                         view.status = "close";
                         app.preference.store(view.cname + ".status", "close");
                         if(!$.isEmptyObject(values)){
-                            app.preference.store(view.cname + ".values", JSON.stringify(values));
                             view.$el.find(".content .not-open").remove();
                             view.$el.find(".content").append(render("SideSection-close", {value: formatDisplay(values)}))
                         }
@@ -104,29 +102,6 @@
   	                        });
                       	}
                         view.$el.find(".open").removeClass("icon-chevron-right").addClass("icon-chevron-down");
-                    }
-                },
-                "store":function(){
-                    //force store value
-                    var view = this;
-                    var values = view.subComponent.getSearchValues();
-                    if(!$.isEmptyObject(values)){
-                        app.preference.store(view.cname + ".values", JSON.stringify(values));
-                    }else {
-                        app.preference.store(view.cname + ".values", null);
-                    }
-                }
-            },
-            parentEvents: {
-                MainView : {
-                    "SEARCH_RESULT_CHANGE": function(event, result){
-                        var view = this;
-                        if (view.status == "open") {
-                            var values = view.subComponent.getSearchValues();
-                            if (!$.isEmptyObject(values)) {
-                                app.preference.store(view.cname + ".values", JSON.stringify(values));
-                            }
-                        }
                     }
                 }
             }

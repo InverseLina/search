@@ -18,16 +18,7 @@
            			url:"/config/get/local_distance",
            			type:"Get",
            			dataType:'json'
-         	  	  }).done(function(data){
-         	  		if(data.success){
-         	  			if(data.result[0]&&data.result[0].value=="k"){
-         	  				view.$el.find("span.unit").html("kilometers");
-         	  				if(app.preference.get("Location.values")){
-                        		view.$el.find("input[name='radius']").val(parseFloat(JSON.parse(app.preference.get("Location.values")).radius)/1000);
-                        	}
-         	  			}
-         	  		}
-         	  	  });
+         	  	  }).done(function(data){});
             },
             getSearchValues:function(){
                 var values = {};
@@ -65,7 +56,6 @@
                     var $group =$(event.currentTarget).closest(".control-group");
                     $group.removeClass("has-value");
                     $group.find("input").val("");
-                    view.$el.bView("SideSection").$el.trigger("store");
                     view.$el.trigger("DO_SEARCH");
                     if(view.$el.find(".has-value").length==0){
                     	view.$el.find(":checkbox").prop("checked",false);
@@ -103,7 +93,6 @@
                 	}else if(!$(event.target).prop("checked")){
                 		view.$el.find(":input.radius").val("");
                 	}
-                	view.$el.bView("SideSection").$el.trigger("store");
                     view.$el.trigger("DO_SEARCH");
                 }
             },

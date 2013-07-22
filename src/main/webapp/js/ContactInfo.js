@@ -43,7 +43,6 @@
                     var $group =$(event.currentTarget).closest(".control-group");
                     $group.removeClass("has-value");
                     $group.find("input").val("");
-                    view.$el.bView("SideSection").$el.trigger("store");
                     view.$el.trigger("DO_SEARCH");
                     event.stopPropagation();
                 },
