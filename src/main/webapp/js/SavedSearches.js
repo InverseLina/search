@@ -12,6 +12,7 @@
                 var dfd = $.Deferred();
                 var item, data = [];
                 app.SavedSearchesDaoHandler.list({offset:0, limit:6}).done(function (result) {
+                    console.log(result)
                     var html;
                     if(result.length > 5) {
                        html = render("SavedSearches", {data: result.slice(0,5), display:"show"});
@@ -75,6 +76,7 @@
                     var flag = $btn.attr("data-show");
                     var $ul = $btn.closest("ul");
                     var offset = $btn.attr("data-offset")
+                    var $btns = $("li.btns", $ul);
 
                     // show more items
                     if (flag == "more") {
@@ -86,7 +88,7 @@
                             }else{
                                 data = {display:"hide", offset:offset+result.length, data: result, toHide: result.length }
                             }
-                            view.$el.find("ul").append(render("SavedSearches-detail", data));
+                            view.$el.find("ul").append(render("SavedSearches-more", data));
                         });
                         // show less items
                     } else {
@@ -95,18 +97,14 @@
                         console.log(hideNum)
                         console.log(itemNum)
                         var num = 0;
-                        console.log("li[data-id]:gt(" + 4 +")")
-                        console.log($ul)
                         var $hideLi = $("li:gt(" + (itemNum - hideNum )   +")", $ul);
-                        $btn.prev().prev().show();
-
+                        $($btns.get($btns.length-2)).find("[data-show='more']").show();
                         $hideLi.hide(1000, function() {
                             $(this).remove();
                         });
-                        $btn.prev().show();
-/*                        if(itemNum -hideNum < 20){
-                            $btn.hide();
-                        }*/
+
+
+
                     }
 
                 },
@@ -136,9 +134,16 @@
     }
 
     function updateDetail(){
+        console.log("xxxxxxxxxxxxxx")
         var view = this;
         app.SavedSearchesDaoHandler.list().done(function (result) {
-            var html = render("SavedSearches-detail", {data: result});
+            var html;
+            if(result.length > 5) {
+                html = render("SavedSearches-detail", {data: result.slice(0,5), display:"show"});
+            }else{
+                html = render("SavedSearches-detail", {data: result, display:"hide"});
+            }
+            console.log(html);
             view.$el.find("ul").html(html);
         });
     }
