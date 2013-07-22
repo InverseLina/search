@@ -156,24 +156,25 @@
           view.$searchInfo.html(htmlInfo);
           if (result.count > 0) {
             $e.find(".actions").show();
+            buildResult(result.result).done(function(data){
+        	   html = render("search-items", {
+                 items : data,
+                 colWidth : getColWidth.call(view)
+               });
+               view.$searchResult.find(".tableContainer").html(html);
 
-            html = render("search-items", {
-              items : buildResult(result.result),
-              colWidth : getColWidth.call(view)
-            });
-            view.$searchResult.find(".tableContainer").html(html);
+               //show desc/asc
+               if (view.tableOrderColumn && view.tableOrderType) {
+                 $e.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
+               }
+               fixColWidth.call(view);
 
-            //show desc/asc
-            if (view.tableOrderColumn && view.tableOrderType) {
-              $e.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
-            }
-            fixColWidth.call(view);
-
-            brite.display("Pagination", view.$el.find(".page"), {
-              pageIdx : result.pageIdx,
-              pageSize : result.pageSize,
-              totalCount : result.count,
-              callback : result.callback
+               brite.display("Pagination", view.$el.find(".page"), {
+                 pageIdx : result.pageIdx,
+                 pageSize : result.pageSize,
+                 totalCount : result.count,
+                 callback : result.callback
+               });
             });
           } else {
             $e.find(".actions").hide();
@@ -209,34 +210,53 @@
     var item;
     var columns = app.preference.columns();
     var colLen = columns.length;
-    for (var i = 0; i < items.length; i++) {
-      item = [];
-      for (var j = 0; j < columns.length; j++) {
-        if (columns[j] == "skill") {
-          item.push({
-            name : columns[j],
-            value : translate(items[i][columns[j]]),
-            notLast : colLen - j > 1
-          });
-        } else if (columns[j] == "resume") {
-          item.push({
-            name : columns[j],
-            value : "<i data-id='" + items[i][columns[j]] + "' title='View Resume.' class='resume-ico icon-file icon-white'></i>",
-            notLast : colLen - j > 1
-          });
-        } else {
-          item.push({
-            name : columns[j],
-            value : items[i][columns[j]],
-            notLast : colLen - j > 1
-          });
-        }
-      }
-      result.push({
-        row : item
-      });
-    }
-    return result;
+    var view = this;
+    var dtd = $.Deferred();
+	 $.ajax({
+			url:"/config/get/local_date",
+			type:"Get",
+			dataType:'json'
+  	  }).done(function(config){
+  		var dateFormat = "YYYY-MM-DD";
+  		if(config.result&&config.result[0]){
+  			dateFormat = config.result[0].value;
+  		}
+  	    for (var i = 0; i < items.length; i++) {
+  	      item = [];
+  	      for (var j = 0; j < columns.length; j++) {
+  	        if (columns[j] == "skill") {
+  	          item.push({
+  	            name : columns[j],
+  	            value : translate(items[i][columns[j]]),
+  	            notLast : colLen - j > 1
+  	          });
+  	        } else if (columns[j] == "resume") {
+  	          item.push({
+  	            name : columns[j],
+  	            value : "<i data-id='" + items[i][columns[j]] + "' title='View Resume.' class='resume-ico icon-file icon-white'></i>",
+  	            notLast : colLen - j > 1
+  	          });
+  	        } else if (columns[j] == "CreatedDate") {
+  	            item.push({
+  	                name : columns[j],
+  	                value : formateDate(items[i][columns[j]],dateFormat),
+  	                notLast : colLen - j > 1
+  	              });
+  	         } else {
+  	          item.push({
+  	            name : columns[j],
+  	            value : items[i][columns[j]],
+  	            notLast : colLen - j > 1
+  	          });
+  	        }
+  	      }
+  	      result.push({
+  	        row : item
+  	      });
+  	    }
+  	    dtd.resolve(result);
+  	  });
+   return dtd.promise();
   }
 
   function getColWidth() {
@@ -334,4 +354,20 @@
     return result.join(",");
   }
 
+  function formateDate(date,format){
+	  if(!date||date==""){
+		  return "";
+	  }
+	  date = new Date(date);
+	  var year = date.getYear()+1900;
+	  var month = date.getMonth()+1;
+	  if(month<10){
+		  month="0"+month;
+	  }
+	  var day = date.getDate();
+	  if(day<10){
+		  day="0"+day;
+	  }
+	  return format.replace("YYYY",year).replace("MM",month).replace("DD",day);
+  }
 })(jQuery); 
