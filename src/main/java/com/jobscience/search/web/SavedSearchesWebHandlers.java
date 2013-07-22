@@ -18,15 +18,21 @@ public class SavedSearchesWebHandlers {
     @Inject
     private DBHelper dbHelper;
 
-    public static final String getSql = "select * from savedsearches";
+    public static final String getSql = "select * from savedsearches offset ? limit ?";
     public static final String deleteSql = "delete from savedsearches where id = ?";
     public static final String insertSql = "INSERT INTO savedsearches(create_date,name, search)  VALUES (?,?, ?);";
     public static final String updateSql = "UPDATE savedsearches SET   update_date=?, search=?  WHERE id = ?";
 
 
     @WebGet("/getSavedSearches")
-    public WebResponse search() {
-        List<Map> map = dbHelper.executeQuery(getSql);
+    public WebResponse search(@WebParam("offset") Integer offset, @WebParam("limit") Integer limit) {
+        if (offset == null) {
+            offset = 0;
+        }
+        if (limit == null) {
+            limit = 6;
+        }
+        List<Map> map = dbHelper.executeQuery(getSql, offset, limit);
         return WebResponse.success(map);
     }
 

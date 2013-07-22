@@ -9,7 +9,8 @@ var app = app || {};
 		return $.ajax({
 			type : "GET",
 			url : "getSavedSearches",
-			dataType : "json"
+			dataType : "json",
+            data:limitData
 		}).pipe(function(val) {
 			return val.result;
 		});
