@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.britesnow.snow.web.handler.annotation.WebModelHandler;
+import com.britesnow.snow.web.param.annotation.WebModel;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebPath;
 import com.britesnow.snow.web.rest.annotation.WebGet;
@@ -34,6 +36,10 @@ public class ConfigWebHandlers {
 	@WebGet("/config/get/{name}")
 	public WebResponse getConfig(@WebPath(2)String name) throws SQLException{
 		return WebResponse.success(configManager.getConfig(name));
+	}
+	
+	@WebModelHandler(startsWith="/admin")
+	public void contactInfo(@WebModel Map m){
 	}
 	
 }
