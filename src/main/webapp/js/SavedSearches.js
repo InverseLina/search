@@ -34,6 +34,7 @@
                     if (!/^\s*$/g.test(name)) {
                         name = $.trim(name);
                         var value = buildSearchParameter();
+                        console.log(value)
                         if (value.length > 0) {
                             var exits = view.$el.find("li[data-name='" + name + "']");
                             var data = JSON.stringify(value);
@@ -58,7 +59,6 @@
                     view.$el.find("input").val(name);
                     var value = $(event.currentTarget).closest("li").attr("data-value");
                     value = JSON.parse(value);
-                    console.log(value);
                     restoreSearchValue.call(view, value);
                 },
                 "btap; li .clear": function (event) {
@@ -94,8 +94,6 @@
                     } else {
                         var hideNum = $btn.attr("data-hide");
                         var itemNum = view.$el.find("li[data-id]").length;
-                        console.log(hideNum)
-                        console.log(itemNum)
                         var num = 0;
                         var $hideLi = $("li:gt(" + (itemNum - hideNum )   +")", $ul);
                         $($btns.get($btns.length-2)).find("[data-show='more']").show();
@@ -125,7 +123,6 @@
 
         });
         var contentValue = mainView.contentView.getSearchValues();
-        console.log(contentValue);
         if(!/^\s*$/g.test(contentValue.search)){
             result.push({name: "contentView", value:contentValue })
         }
@@ -134,7 +131,6 @@
     }
 
     function updateDetail(){
-        console.log("xxxxxxxxxxxxxx")
         var view = this;
         app.SavedSearchesDaoHandler.list().done(function (result) {
             var html;
@@ -143,7 +139,6 @@
             }else{
                 html = render("SavedSearches-detail", {data: result, display:"hide"});
             }
-            console.log(html);
             view.$el.find("ul").html(html);
         });
     }

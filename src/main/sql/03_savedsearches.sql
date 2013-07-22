@@ -5,8 +5,8 @@ DROP TABLE if EXISTS savedsearches;
 CREATE TABLE savedsearches
 (
   userid bigint,
-  create_date date,
-  update_date date,
+  create_date timestamp ,
+  update_date timestamp,
   search character varying(255) NOT NULL,
   name character varying(64) NOT NULL,
   id bigserial NOT NULL,

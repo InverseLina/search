@@ -75,21 +75,57 @@ public class DBHelper {
     }
 
     public List<Map> executeQuery(String query, Object... vals) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
         try {
-            Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(query);
+
+            con = getConnection();
+
+            pstmt = con.prepareStatement(query);
             return preparedStatementExecuteQuery(pstmt, vals);
         } catch (SQLException e) {
             throw Throwables.propagate(e);
+        }finally {
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    //
+                }
+            }
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    //
+                }
+            }
         }
     }
     public int executeUpdate(String query, Object... vals) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
         try {
-            Connection con = getConnection();
-            PreparedStatement pstmt = con.prepareStatement(query);
+            con = getConnection();
+            pstmt = con.prepareStatement(query);
             return preparedStatementExecuteUpdate(pstmt, vals);
         } catch (SQLException e) {
             throw Throwables.propagate(e);
+        }finally {
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    //
+                }
+            }
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    //
+                }
+            }
         }
     }
 
