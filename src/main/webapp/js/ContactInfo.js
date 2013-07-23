@@ -32,13 +32,19 @@
             },
             clearValues:function(){
               view = this;
-              view.$el.find("input").val("");
+              view.$el.find("input[type='text']").val("");
+              view.$el.find("input[type='checkbox']").prop("checked", false);
             },
             updateSearchValues:function(data){
                 var view = this;
                 for (var k in data) {
-                   view.$el.find("input[name='" + k + "']").val(data[k]);
-                    view.$el.find("input[name='" + k + "']").closest(".control-group").removeClass("has-value").addClass("has-value");
+                    if(k =="curTitle") {
+                        view.$el.find("input[name='" + k + "']").attr("checked", true)
+                    }else{
+                        view.$el.find("input[name='" + k + "']").val(data[k]);
+                    }
+
+                   view.$el.find("input[name='" + k + "']").closest(".control-group").removeClass("has-value").addClass("has-value");
                 }
             },
             events: {

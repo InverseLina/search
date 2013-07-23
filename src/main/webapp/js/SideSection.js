@@ -58,6 +58,9 @@
                         view.subComponent.updateSearchValues(values);
                     }
                 }else{
+                    if(view.subComponent){
+                        view.subComponent.updateSearchValues(values);
+                    }
                     if(!$.isEmptyObject(values)){
                         view.$el.find(".content .not-open").remove();
                         view.$el.find(".content").append(render("SideSection-close", {value: formatDisplay(values)}))
