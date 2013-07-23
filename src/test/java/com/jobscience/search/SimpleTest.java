@@ -26,7 +26,7 @@ public class SimpleTest extends SnowTestSupport {
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
        Map values = MapUtil.mapIt("search","java");
        long start = System.currentTimeMillis();
-       SearchResult result = searchDao.search(null,values, 1, 30,"");
+       SearchResult result = searchDao.search("id,name,title",values, 1, 30,"");
        long end = System.currentTimeMillis();
        Assert.assertEquals(1011, result.getCount());
        System.out.println("search cost time: " + (end - start));
