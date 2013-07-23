@@ -241,7 +241,7 @@ var app = app || {};
     var $itemContainer = $e.find("ul."+dataType+"List");
     var itemALL = $itemContainer.find("li[data-name='ALL']").hasClass("selected");
     var itemStr = "";
-      var itemErrors = [];
+    var itemErrors = [];
     // get companies filter
     $itemContainer.find("li[data-name][data-name!='ALL']").find("input[type='checkbox']:checked").each(function(i) {
       var $li = $(this).closest("li");
@@ -291,6 +291,7 @@ var app = app || {};
           result[curName] = curValue;
       }
 
+      view.values=result;
     return result;
   };
 

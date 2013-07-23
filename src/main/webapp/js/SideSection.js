@@ -49,6 +49,9 @@
                     }
 
                 }else{
+                	if(view.subComponent){
+                        return view.subComponent.values;
+                    }
                     return JSON.parse(app.preference.get(view.cname + ".values", ""));
                 }
             },
