@@ -18,7 +18,14 @@
            			url:"/config/get/local_distance",
            			type:"Get",
            			dataType:'json'
-         	  	  }).done(function(data){});
+         	  	  }).done(function(data){
+         	  		if(data.success){
+	                   if(data.result[0]&&data.result[0].value=="k"){
+	                     view.$el.find("span.unit").html("kilometers");
+	                     view.$el.find(":text.radius").css("width","40px");
+	                   }
+	                 }
+         	  	  });
             },
             getSearchValues:function(){
                 var values = {};
