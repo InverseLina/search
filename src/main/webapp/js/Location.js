@@ -50,6 +50,11 @@
                    } 
                 }
             },
+            clearValues:function(){
+                var view = this;
+                view.$el.find("input[type='text']").val("");
+                view.$el.find("input[type='checkbox']").prop("checked", false);
+            },
             events: {
                 "btap; .clear": function(event){
                     var view = this;

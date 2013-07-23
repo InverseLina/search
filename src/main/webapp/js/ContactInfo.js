@@ -30,6 +30,10 @@
                 }
                 return values;
             },
+            clearValues:function(){
+              view = this;
+              view.$el.find("input").val("");
+            },
             updateSearchValues:function(data){
                 var view = this;
                 for (var k in data) {

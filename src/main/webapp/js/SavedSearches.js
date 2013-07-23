@@ -12,7 +12,6 @@
                 var dfd = $.Deferred();
                 var item, data = [];
                 app.SavedSearchesDaoHandler.list({offset:0, limit:6}).done(function (result) {
-                    console.log(result)
                     var html;
                     if(result.length > 5) {
                        html = render("SavedSearches", {data: result.slice(0,5), display:"show"});
@@ -34,7 +33,6 @@
                     if (!/^\s*$/g.test(name)) {
                         name = $.trim(name);
                         var value = buildSearchParameter();
-                        console.log(value)
                         if (value.length > 0) {
                             var exits = view.$el.find("li[data-name='" + name + "']");
                             var data = JSON.stringify(value);
@@ -146,12 +144,26 @@
     function restoreSearchValue(values) {
         var view = this;
         var mainView = view.$el.bView("MainView");
+        clean.call(view);
+
         $.each(values, function(idx, item){
               if(item.name == "contentView"){
                   mainView.contentView.$el.find(".search-query").val(item.value.search);
               }else{
                   mainView.sideNav.$el.bFindFirstComponent(item.name)[0].updateSearchValues(item.value);
               }
+        });
+    }
+
+    function clean(){
+        var view = this;
+        var mainView = view.$el.bView("MainView");
+        mainView.contentView.$el.find(".search-query").val("");
+        var ss = mainView.$el.bFindComponents("SideSection");
+        $.each(ss, function(idx, item){
+            if(item.subComponent && item.subComponent.clearValues){
+                item.subComponent.clearValues();
+            }
         });
     }
 
