@@ -682,11 +682,7 @@ public class SearchDao {
     	}else if(orginalName.toLowerCase().equals("id")){
     		return " a.\"id\" as id";
     	}else if(orginalName.toLowerCase().equals("resume")){
-            if(groupBy.length()>0){
-                groupBy.append(",");
-            }
-            groupBy.append("a.resume");
-    		return " a.resume as resume";
+    		return " a.id as resume";
     	}else if(orginalName.toLowerCase().equals("email")){
      		if(groupBy.length()>0){
 	     			groupBy.append(",");
