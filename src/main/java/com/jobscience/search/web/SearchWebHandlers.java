@@ -49,7 +49,7 @@ public class SearchWebHandlers {
     
     @WebGet("/getTopCompaniesAndEducations")
     public WebResponse getTopCompanies(@WebParam("type") String type, @WebParam("offset") Integer offset,
-                            @WebParam("limit") Integer limit) throws SQLException {
+                            @WebParam("limit") Integer limit,@WebParam("match")String match) throws SQLException {
     	Map result = new HashMap();
         if(offset==null){
         	offset = 0;
@@ -60,21 +60,21 @@ public class SearchWebHandlers {
         
         long start = System.currentTimeMillis();
         if(type==null || "".equals(type) || "company".equals(type)){
-	        List companies = searchDao.getTopAdvancedType(offset,limit,"company");
+	        List companies = searchDao.getTopAdvancedType(offset,limit,"company",match);
 	        result.put("companies", companies);
 	        long tempEnd = System.currentTimeMillis();
 	        result.put("companyDuration", tempEnd - start);
         }
         long mid = System.currentTimeMillis();
         if(type==null || "".equals(type) || "education".equals(type)){
-	        List educations = searchDao.getTopAdvancedType(offset,limit,"education");
+	        List educations = searchDao.getTopAdvancedType(offset,limit,"education",match);
 	        result.put("educations", educations);
 	        long tempEnd = System.currentTimeMillis();
 	        result.put("educationDuration", tempEnd - mid);
         }
         long mid1 = System.currentTimeMillis();
         if(type==null || "".equals(type) || "skill".equals(type)){
-	        List skills = searchDao.getTopAdvancedType(offset,limit,"skill");
+	        List skills = searchDao.getTopAdvancedType(offset,limit,"skill",match);
 	        result.put("skills", skills);
 	        long tempEnd = System.currentTimeMillis();
             result.put("skillDuration", tempEnd - mid1);

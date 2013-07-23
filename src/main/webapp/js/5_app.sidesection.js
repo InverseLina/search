@@ -50,7 +50,7 @@ var app = app || {};
 
             if ($li.hasClass("all") ) {
                 view.$el.find("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
-                $ul.find("input[type='text']").val("");
+                //$ul.find("input[type='text']").val("");
                 $ul.find("li .filter").hide();
                 setTimeout(function() {
                     $li.find(":checkbox").prop("checked", true);
@@ -94,24 +94,31 @@ var app = app || {};
             var $ul = $btn.closest("ul");
             var type = view.dataType;
             var dataName = view.dataName;
+            var $input=$ul.find(":text");
             // show more items
             if (flag == "more") {
                 // get advanced menu data from server
                 searchDao.getAdvancedMenu({
                     type : type,
                     offset : app.preference.get(type, app.defaultMenuSize),
-                    limit : 20
+                    limit : 20,
+                    match:$input.val()
                 }).pipe(function(data) {
                         view.updateResultInfo(data);
                         $li.before(render(view.name+"-add", data));
+                        if($input.val()){
+	                        $li.closest("ul").find(".toShow").addClass("selected").each(function(index,li){
+	    	                	  showFilter.call(view,$(li));
+	    	                	  $(":checkbox",li).prop("checked",true);
+	    	                });
+                        }
                         $li.closest("ul").find(".toShow").show(1000, function() {
                             $(this).removeClass("toShow");
-                        })
-
+                        });
                         //save the offset
                         app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
                         $btn.next().show();
-                        if (data.length < 20) {
+                        if (data[dataName].length < 20) {
                             $btn.hide();
                         }
                         view.$el.trigger("DO_SEARCH");
@@ -147,12 +154,38 @@ var app = app || {};
         "keyup;input[type='text']":function(event){
             var $input = $(event.target);
             var view = this;
-            if($input.val().length>0){
-                view.$el.find("li[data-name='ALL']").removeClass("selected").find(":checkbox").prop("checked", false);
-            }else{
-                if (view.$el.find("li:not(.all).selected").length === 0) {
-                    view.$el.find("li.all").addClass("selected").find(":checkbox").prop("checked", true);
-                }
+            var $li = $input.parent("li");
+            var flag = $input.attr("data-show");
+            var $ul = $input.closest("ul");
+            var type = view.dataType;
+            var dataName = view.dataName;
+            if(event.which===13){
+            	if($input.parent().hasClass("control-group")){
+	        	   searchDao.getAdvancedMenu({
+	                   type : type,
+	                   match:$input.val()
+	               }).pipe(function(data) {
+	                  $ul.find("li[data-name][data-name!='ALL']:not('.btns')").remove();
+	                  $ul.find("li.btns").before(render(view.name+"-add", data));
+	                  $ul.find(".toShow").show();
+	                  //save the offset
+	                  app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize))));
+	                  if($input.val()){
+		                  $ul.find(".toShow").addClass("selected").find(":checkbox").prop("checked", true);
+		                  $ul.find(".toShow").each(function(index,li){
+		                	  showFilter.call(view,$(li));
+		                	  $(li).removeClass("toShow");
+		                  });
+		                  
+		                  $ul.find("li[data-name='ALL']").removeClass("selected").find(":checkbox").prop("checked",false);
+	                  }else{
+	                	  $ul.find("li[data-name='ALL']").addClass("selected").find(":checkbox").prop("checked",true);
+	                  }
+	                  view.$el.trigger("DO_SEARCH");
+	               });
+            	}else{
+            		view.$el.trigger("DO_SEARCH");
+            	}
             }
         }
     };
@@ -252,11 +285,11 @@ var app = app || {};
 
 
 
-      var searchName = "search" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
+      /*var searchName = "search" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
       var searchValue = view.$el.find('input[type=text]').val();
       if (!/^\s*$/.test(searchValue)) {
           result[searchName] = searchValue;
-      }
+      }*/
       var curName = "cur" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
       var curValue = view.$el.find("input[name='" + curName + "']").prop("checked");
       if (curValue) {

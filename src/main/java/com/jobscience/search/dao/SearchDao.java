@@ -57,7 +57,7 @@ public class SearchDao {
         return searchResult;
     }
     
-    public List getTopAdvancedType(Integer offset,Integer size,String type) throws SQLException {
+    public List getTopAdvancedType(Integer offset,Integer size,String type,String match) throws SQLException {
         if(size == null||size<6){
             size = 5;
         }
@@ -68,12 +68,17 @@ public class SearchDao {
         StringBuilder querySql = new StringBuilder(" select a.name, count(a.contact) from ( ").
                                 append( " select e."+name+" as name, e.\"ts2__Contact__c\" as contact ").
                                 append( " from "+table+" e  ").
-                                append( " where e."+name+" !='' group by e.\"ts2__Contact__c\", e."+name+") a  ").
-                                append( " group by a.name order by a.count desc offset " ).
-                                append( offset).
-                                append( " limit ").
-                                append( size);
+                                append( " where e."+name+" !='' ");
+        if(match!=null&&!"".equals(match)){
+        	querySql.append(" AND (e."+name+" ilike '%"+ Joiner.on("%' OR e."+name+" ilike '%").join(Splitter.on(",").omitEmptyStrings().split(match))+"%')");
+        }
         
+        querySql.append(" group by e.\"ts2__Contact__c\", e."+name+") a  ").
+				 append( " group by a.name order by a.count desc offset " ).
+                 append( offset).
+                 append( " limit ").
+                 append( size);
+        System.out.println(querySql);
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
         prepareStatement.close();
@@ -1099,6 +1104,7 @@ public class SearchDao {
         }
         return zip;
     }
+
 }
 
 class SearchStatements {
