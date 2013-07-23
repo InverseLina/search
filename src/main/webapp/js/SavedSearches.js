@@ -150,7 +150,8 @@
               if(item.name == "contentView"){
                   mainView.contentView.$el.find(".search-query").val(item.value.search);
               }else{
-                  mainView.sideNav.$el.bFindFirstComponent(item.name)[0].updateSearchValues(item.value);
+                  console.log(mainView.sideNav.$el.find(".SideSection[data-subComponent='" + item.name + "']").bView())
+                  mainView.sideNav.$el.find(".SideSection[data-subComponent='" + item.name + "']").bView().updateSearchValues(item.value);
               }
         });
     }
@@ -161,9 +162,7 @@
         mainView.contentView.$el.find(".search-query").val("");
         var ss = mainView.$el.bFindComponents("SideSection");
         $.each(ss, function(idx, item){
-            if(item.subComponent && item.subComponent.clearValues){
-                item.subComponent.clearValues();
-            }
+            item.clearSearchValues();
         });
     }
 

@@ -19,6 +19,7 @@
 
             postDisplay: function (data) {
                 var view = this;
+                view.$el.attr("data-subComponent", view.cname);
                 if(view.status == "open"){
                     brite.display(data.component , view.$el.find(".content")).done(function(component){
                       if(component.$el.bView(view.name) == view){
@@ -50,7 +51,29 @@
                     return JSON.parse(app.preference.get(view.cname + ".values", ""));
                 }
             },
-            
+            updateSearchValues: function(values){
+                var view = this;
+                if(view.status == "open"){
+                    if(view.subComponent){
+                        view.subComponent.updateSearchValues(values);
+                    }
+                }else{
+                    if(!$.isEmptyObject(values)){
+                        view.$el.find(".content .not-open").remove();
+                        view.$el.find(".content").append(render("SideSection-close", {value: formatDisplay(values)}))
+                    }
+                }
+            },
+            clearSearchValues: function(){
+                var view = this;
+                if(view.status == "open"){
+                    if(view.subComponent && view.subComponent.clearValues){
+                        view.subComponent.clearValues();
+                    }
+                }else{
+                    view.$el.find(".content .not-open").remove();
+                }
+            },
             events: {
             	
                 "btap; .not-open .clear":function(event){
