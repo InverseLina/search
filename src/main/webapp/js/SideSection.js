@@ -33,7 +33,8 @@
                 }else {
                     view.$el.find(".open").removeClass("icon-chevron-down").addClass("icon-chevron-right");
                     if(!$.isEmptyObject(view.values)){
-                        view.$el.find(".content").html(render("SideSection-close", {value: formatDisplay(view.values)}))
+                        view.$el.find(".content").html(render("SideSection-close",
+                            {value: formatDisplay(view.values), realValue:JSON.stringify(view.values)}))
                     }
                 }
             },
@@ -63,7 +64,8 @@
                     }
                     if(!$.isEmptyObject(values)){
                         view.$el.find(".content .not-open").remove();
-                        view.$el.find(".content").append(render("SideSection-close", {value: formatDisplay(values)}))
+                        view.$el.find(".content").append(render("SideSection-close",
+                            {realValue:JSON.stringify(values), value: formatDisplay(values)}))
                     }
                 }
             },
@@ -105,24 +107,32 @@
                         //close
                         view.status == close;
                         var values = view.subComponent.getSearchValues();
+                        view.clearSearchValues();
+
 
                         view.$el.find("." + view.cname).hide();
                         view.status = "close";
                         app.preference.store(view.cname + ".status", "close");
                         if(!$.isEmptyObject(values)){
                             view.$el.find(".content .not-open").remove();
-                            view.$el.find(".content").append(render("SideSection-close", {value: formatDisplay(values)}))
+                            view.$el.find(".content").append(render("SideSection-close",
+                                {value: formatDisplay(values), realValue:JSON.stringify(values)}))
                         }
                         view.$el.find(".open").removeClass("icon-chevron-down").addClass("icon-chevron-right");
                     }else{
                         //open
-                        view.values = JSON.parse(app.preference.get(view.cname + ".values", ""));
+                        view.values = view.$el.find("span.not-open").attr("data-value");
+                        if(view.values){
+                            view.values = JSON.parse(view.values);
+                        }else{
+                            view.values={};
+                        }
                         view.status = "open";
                         app.preference.store(view.cname + ".status", "open");
                         if( view.$el.find("div."+view.cname).size()>0){
                       		view.$el.find("div."+view.cname).show();
                       		view.$el.find("span.not-open").hide();
-                            if(view.view.subComponent.refreshSelections){
+                            if(view.subComponent.refreshSelections){
   	                            view.subComponent.refreshSelections();
                             }
                       	}else{

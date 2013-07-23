@@ -150,7 +150,6 @@
               if(item.name == "contentView"){
                   mainView.contentView.$el.find(".search-query").val(item.value.search);
               }else{
-                  console.log(mainView.sideNav.$el.find(".SideSection[data-subComponent='" + item.name + "']").bView())
                   mainView.sideNav.$el.find(".SideSection[data-subComponent='" + item.name + "']").bView().updateSearchValues(item.value);
               }
         });

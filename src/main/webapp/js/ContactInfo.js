@@ -36,10 +36,12 @@
               view.$el.find("input[type='checkbox']").prop("checked", false);
             },
             updateSearchValues:function(data){
+                console.log(data)
                 var view = this;
                 for (var k in data) {
                     if(k =="curTitle") {
-                        view.$el.find("input[name='" + k + "']").attr("checked", true)
+                        console.log("kkkkkkkkkk")
+                        view.$el.find("input[name='" + k + "']").prop("checked", data[k])
                     }else{
                         view.$el.find("input[name='" + k + "']").val(data[k]);
                     }
