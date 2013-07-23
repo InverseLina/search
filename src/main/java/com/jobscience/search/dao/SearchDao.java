@@ -78,7 +78,6 @@ public class SearchDao {
                  append( offset).
                  append( " limit ").
                  append( size);
-        System.out.println(querySql);
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
         prepareStatement.close();
@@ -613,7 +612,6 @@ public class SearchDao {
                    	//add the 'Zip' filter
                    if (searchValues.get("Zip") != null && !"".equals(searchValues.get("Zip"))) {
                 	    String value = searchValues.get("Zip").replaceAll("\\s", "");
-                	    System.out.println(value);
 	                   	condition.append(" and zipcode_us.zip= '"+value+"'" );
 	                   	hasLocationCondition= true;
                    }
@@ -689,6 +687,12 @@ public class SearchDao {
             }
             groupBy.append("a.resume");
     		return " a.resume as resume";
+    	}else if(orginalName.toLowerCase().equals("email")){
+     		if(groupBy.length()>0){
+	     			groupBy.append(",");
+     		}
+     		groupBy.append("a.\"Email\"");
+    		return " a.\"Email\" as email,lower(a.\"Email\") as \"lEmail\" ";
     	}else if(orginalName.toLowerCase().equals("title")){
     		if(groupBy.length()>0){
     			groupBy.append(",");
@@ -719,7 +723,7 @@ public class SearchDao {
     private String getSearchColumnsForOuter(String searchColumns){
     	StringBuilder sb = new StringBuilder();
     	if(searchColumns==null){
-    		sb.append("id,name,lower(name) as \"lName\",lower(title) as \"lTitle\",title ,CreatedDate");
+    		sb.append("id,name,lower(name) as \"lName\",Email,lower(\"Email\") as \"lEmail\"lower(title) as \"lTitle\",title ,CreatedDate");
     	}else{
 	    	for(String column:searchColumns.split(",")){
 		    	if(column.toLowerCase().equals("name")){
@@ -728,6 +732,8 @@ public class SearchDao {
 		    		sb.append("id,");
 		    	}else if(column.toLowerCase().equals("title")){
 		    		sb.append("title,lower(title) as \"lTitle\",");
+		    	}else if(column.toLowerCase().equals("email")){
+		    		sb.append( " email ,lower(email) as \"lEmail\",");
 		    	}else if(column.toLowerCase().equals("createddate")){
 		    		sb.append("createddate as \"CreatedDate\",");
 		    	}else if(column.toLowerCase().equals("company")){
@@ -793,19 +799,18 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
-        querySql.append(" from ( select  distinct contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\", case  when contact.\"ts2__Text_Resume__c\" is null  or char_length(contact.\"ts2__Text_Resume__c\") = 0 then -1  else contact.id end as resume  ");
+        querySql.append(" from ( select  distinct contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\"  ");
         if(orderCon.contains("Title")){
-        	
-        	
-        	
         	querySql.append(",case   when contact.\"Title\" is null then '' " +
         			        " else lower(contact.\"Title\") END \"lTitle\" ");
         }else if(orderCon.contains("Name")){
         	querySql.append(",lower(contact.\"Name\") as \"lName\" ");
+        }else if(orderCon.contains("Email")){
+        	querySql.append(",lower(contact.\"Email\") as \"lEmail\" ");
         }
         
         querySql.append(" from contact contact  ");
-        countSql.append(" from ( select  contact.id,contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
+        countSql.append(" from ( select  contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition

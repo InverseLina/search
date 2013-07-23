@@ -16,7 +16,7 @@ var app = app || {};
     }
 
     var displayColumns = [{name:"id", display:"ID"},{name:"name", display:"Name"},{name:"CreatedDate",display:"Create Date"}
-        ,{name:"title",display:"Title"}, {name:"company",display:"Company"}
+        ,{name:"title",display:"Title"},{name:"email",display:"Email"},{name:"company",display:"Company"}
         ,{name:"skill",display:"Skill"},{name:"education",display:"Education"},{name:"resume",display:"Resume"}];
     var defaultColumns = "id,name,CreatedDate,title";
     var defaultSectionOpen = {

@@ -103,7 +103,8 @@ public class SearchWebHandlers {
 		   "Title".equalsIgnoreCase(originalName)||
 		   "Company".equalsIgnoreCase(originalName)||
 		   "Skill".equalsIgnoreCase(originalName)||
-		   "Education".equalsIgnoreCase(originalName)){
+		   "Education".equalsIgnoreCase(originalName)||
+		   "email".equalsIgnoreCase(originalName)){
 			return "l"+originalName.substring(0,1).toUpperCase()+originalName.substring(1);
 		}else if("createddate".equalsIgnoreCase(originalName)){
 			return "CreatedDate";

@@ -27,11 +27,9 @@ public class ConfigManager {
 		names.append("'-1')");
 		sql.deleteCharAt(sql.length()-1);
 		PreparedStatement statement = con.prepareStatement("delete from config where name in "+names);
-		System.out.println("delete from config where name in "+names);
 		statement.executeUpdate();
 		statement.close();
 		statement = con.prepareStatement("insert into config(name,value) values "+sql);
-		System.out.println("insert into config(name,value) values "+sql);
 		statement.executeUpdate();
 		statement.close();
 		con.close();
