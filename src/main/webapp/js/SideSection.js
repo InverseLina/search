@@ -106,7 +106,7 @@
                     if(view.status=="open"){
                         //close
                         view.status = "close";
-                        app.preference.store(view.cname + ".status", "close");
+                       // app.preference.store(view.cname + ".status", "close");
                         view.$el.find("." + view.cname).hide();
                         view.$el.find(".open").removeClass("icon-chevron-down").addClass("icon-chevron-right");
 
@@ -130,7 +130,7 @@
                             view.values={};
                         }
                         view.status = "open";
-                        app.preference.store(view.cname + ".status", "open");
+                        //app.preference.store(view.cname + ".status", "open");
                         if( view.$el.find("div."+view.cname).size()>0){
                       		view.$el.find("div."+view.cname).show();
                       		view.$el.find("span.not-open").hide();

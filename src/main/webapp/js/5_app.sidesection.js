@@ -76,7 +76,6 @@ var app = app || {};
                 //show filter
                 showFilter.call(view, $li);
             }
-
             view.refreshSelections();
 
             setTimeout(function() {
@@ -116,7 +115,7 @@ var app = app || {};
                             $(this).removeClass("toShow");
                         });
                         //save the offset
-                        app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
+                        //app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
                         $btn.next().show();
                         if (data[dataName].length < 20) {
                             $btn.hide();
@@ -132,7 +131,7 @@ var app = app || {};
                 } else {
                     hideNum = (itemNum - app.defaultMenuSize) % 20;
                 }
-                app.preference.store(type, (itemNum - hideNum));
+               // app.preference.store(type, (itemNum - hideNum));
                 var num = 0;
                 var $hideLi = $("li[data-name][data-name!='ALL']:not('.btns'):gt(" + (itemNum - hideNum - 1) + ")", $ul);
 
@@ -149,7 +148,6 @@ var app = app || {};
                     $btn.hide();
                 }
             }
-
         },
         "keyup;input[type='text']":function(event){
             var $input = $(event.target);
@@ -202,9 +200,6 @@ var app = app || {};
               }
           }
       };
-
-
-
 
    BaseSideAdvanced.prototype.updateSearchValues = function(data) {
     var view = this;
