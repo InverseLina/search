@@ -116,6 +116,7 @@ var app = app || {};
                         });
                         //save the offset
                         //app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
+                        view.itemNum = (view.itemNum?view.itemNum:5) + data[dataName].length;
                         $btn.next().show();
                         if (data[dataName].length < 20) {
                             $btn.hide();
@@ -124,13 +125,14 @@ var app = app || {};
                     });
                 // show less items
             } else {
-                var itemNum = parseInt(app.preference.get(type, app.defaultMenuSize));
+                var itemNum =view.itemNum;
                 var hideNum = 0;
                 if ((itemNum - app.defaultMenuSize) % 20 == 0) {
                     hideNum = 20;
                 } else {
                     hideNum = (itemNum - app.defaultMenuSize) % 20;
                 }
+                view.itemNum = view.itemNum-hideNum;
                // app.preference.store(type, (itemNum - hideNum));
                 var num = 0;
                 var $hideLi = $("li[data-name][data-name!='ALL']:not('.btns'):gt(" + (itemNum - hideNum - 1) + ")", $ul);
