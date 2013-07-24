@@ -35,6 +35,7 @@
               view = this;
               view.$el.find("input[type='text']").val("");
               view.$el.find("input[type='checkbox']").prop("checked", false);
+                view.$el.find(".control-group").removeClass("has-value")
             },
             updateSearchValues:function(data){
                 console.log(data)

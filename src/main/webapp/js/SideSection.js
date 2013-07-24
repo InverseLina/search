@@ -51,8 +51,15 @@
                 }else{
                 	if(view.subComponent){
                         return view.subComponent.values;
+                    }else{
+                        var sv = view.$el.find(".content .not-open").attr("data-value");
+                        if(sv){
+                          return JSON.parse(sv);
+                        }else{
+                            return {};
+                        }
                     }
-                    return JSON.parse(app.preference.get(view.cname + ".values", ""));
+//                    return JSON.parse(app.preference.get(view.cname + ".values", ""));
                 }
             },
             updateSearchValues: function(values, itemNum){
@@ -84,6 +91,9 @@
                         view.subComponent.clearValues();
                     }
                 }else{
+                    if(view.subComponent && view.subComponent.clearValues){
+                        view.subComponent.clearValues();
+                    }
                     view.$el.find(".content .not-open").remove();
                 }
             },
@@ -118,7 +128,10 @@
                     //clear all the text input value
                     view.$el.find(".control-group").removeClass("has-value").find(":text").val("");
                     view.$el.find(":checkbox:not([data-name])").prop("checked",false);
-                    view.subComponent.values={};
+                    if(view.subComponent){
+                        view.subComponent.values={};
+                    }
+
                     view.$el.trigger("DO_SEARCH");
                 },
                 
