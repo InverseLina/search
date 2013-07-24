@@ -44,9 +44,10 @@
                         view.$el.find("input[name='" + k + "']").prop("checked", data[k])
                     }else{
                         view.$el.find("input[name='" + k + "']").val(data[k]);
+                        view.$el.find("input[name='" + k + "']").closest(".control-group").removeClass("has-value").addClass("has-value");
                     }
 
-                   view.$el.find("input[name='" + k + "']").closest(".control-group").removeClass("has-value").addClass("has-value");
+
                 }
             },
             events: {
