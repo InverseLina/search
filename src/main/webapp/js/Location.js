@@ -45,6 +45,7 @@
                         values[$item.attr("name")] = val;
                     }
                 });
+                view.values=values;
                 return values;
             },
             updateSearchValues:function(data){
@@ -74,6 +75,7 @@
                     }else{
                     	view.$el.find(":checkbox").prop("checked",true);
                     }
+                    view.values={};
                     event.stopPropagation();
                 },
                 "keyup; input[type='text']":function(event){
@@ -94,7 +96,6 @@
                     		view.$el.find(":checkbox").prop("checked",true);
                     	}
                     }
-                    
                 },
                 "change; :checkbox":function(event){
                 	var view = this;

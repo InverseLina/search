@@ -16,7 +16,7 @@
 
             },
             getSearchValues:function(){
-                 var values = {};
+                var values = {};
                 var view = this;
                 view.$el.find("input[type='text']").each(function(idx, item){
                     var $item = $(item);
@@ -28,6 +28,7 @@
                 if(view.$el.find("input:checked").length > 0){
                     values.curTitle = true;
                 }
+                view.values = values;
                 return values;
             },
             clearValues:function(){
@@ -40,7 +41,6 @@
                 var view = this;
                 for (var k in data) {
                     if(k =="curTitle") {
-                        console.log("kkkkkkkkkk")
                         view.$el.find("input[name='" + k + "']").prop("checked", data[k])
                     }else{
                         view.$el.find("input[name='" + k + "']").val(data[k]);
@@ -56,6 +56,7 @@
                     $group.removeClass("has-value");
                     $group.find("input").val("");
                     view.$el.trigger("DO_SEARCH");
+                    view.values={};
                     event.stopPropagation();
                 },
                 "change; input[name='curTitle']" : function(event) {
