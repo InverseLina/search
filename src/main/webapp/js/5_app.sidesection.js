@@ -94,12 +94,13 @@ var app = app || {};
             var type = view.dataType;
             var dataName = view.dataName;
             var $input=$ul.find(":text");
+            view.itemNum=view.itemNum?view.itemNum:5;
             // show more items
             if (flag == "more") {
                 // get advanced menu data from server
                 searchDao.getAdvancedMenu({
                     type : type,
-                    offset : app.preference.get(type, app.defaultMenuSize),
+                    offset : view.itemNum,
                     limit : 20,
                     match:$input.val()
                 }).pipe(function(data) {
