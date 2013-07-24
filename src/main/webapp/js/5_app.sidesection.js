@@ -253,8 +253,15 @@ var app = app || {};
           }
       };
 
-   BaseSideAdvanced.prototype.updateSearchValues = function(data) {
+   BaseSideAdvanced.prototype.updateSearchValues = function(data, itemNum) {
     var view = this;
+       if(!itemNum){
+           itemNum = 0;
+       }
+    if(itemNum > view.$el.bView("SideSection").getItemNum()){
+       view.$el.trigger("restoreSearchList", {value:data, itemNum:itemNum});
+       return;
+    }
     var dataType = this.dataType;
     var names = data[dataType+"Names"];
     if (names) {

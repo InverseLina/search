@@ -86,7 +86,8 @@
                             }else{
                                 data = {display:"hide", offset:offset+result.length, data: result, toHide: result.length }
                             }
-                            view.$el.find("ul").append(render("SavedSearches-more", data));
+                            $li.before(render("SavedSearches-more", data));
+//                            view.$el.find("ul").append(render("SavedSearches-more", data));
                         });
                         // show less items
                     } else {
@@ -145,8 +146,6 @@
         var mainView = view.$el.bView("MainView");
         clean.call(view);
 
-        console.log(values);
-
         $.each(values, function(idx, item){
               if(item.name == "contentView"){
                   mainView.contentView.$el.find(".search-query").val(item.value.search);
@@ -155,7 +154,10 @@
                   if(sideSection.subComponent){
                       sideSection.subComponent.$el.trigger("restoreSearchList", {itemNum: item.itemNum, value: item.value});
                   }
-                  sideSection.updateSearchValues(item.value);
+                  setTimeout(function(){
+                      sideSection.updateSearchValues(item.value, item.itemNum);
+                  }, 500);
+
               }
         });
         view.$el.trigger("DO_SEARCH");

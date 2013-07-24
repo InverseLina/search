@@ -55,7 +55,10 @@
                     return JSON.parse(app.preference.get(view.cname + ".values", ""));
                 }
             },
-            updateSearchValues: function(values){
+            updateSearchValues: function(values, itemNum){
+                if(!itemNum){
+                    itemNum = 0;
+                }
                 var view = this;
                 if(view.status == "open"){
                     if(view.subComponent){
@@ -70,6 +73,8 @@
                         view.$el.find(".content").append(render("SideSection-close",
                             {realValue:JSON.stringify(values), value: formatDisplay(values)}))
                     }
+
+                    view.$el.find(".content .not-open").attr("data-itemNum", itemNum);
                 }
             },
             clearSearchValues: function(){
@@ -133,12 +138,17 @@
                             if(!$.isEmptyObject(values)){
                                 view.$el.find(".content .not-open").remove();
                                 view.$el.find(".content").append(render("SideSection-close",
-                                    {value: formatDisplay(values), realValue:JSON.stringify(values)}))
+                                    {value: formatDisplay(values), realValue:JSON.stringify(values), itemNum: view.getItemNum()}))
                             }
                         }
 
                     }else{
                         //open
+                        var itemNum = view.$el.find("span.not-open").attr("data-itemNum");
+                        if(!itemNum){
+                            itemNum = 0;
+                        }
+
                         view.values = view.$el.find("span.not-open").attr("data-value");
                         if(view.values){
                             view.values = JSON.parse(view.values);
@@ -158,7 +168,7 @@
   	                            if(component.$el.bView(view.name) == view){
   	                                view.subComponent = component;
   	                                if(!$.isEmptyObject(view.values)){
-  	                                    view.subComponent.updateSearchValues(view.values);
+  	                                    view.subComponent.updateSearchValues(view.values, itemNum);
   	                                }
   	                            }
   	                        });
