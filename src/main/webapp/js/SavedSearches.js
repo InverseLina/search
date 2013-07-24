@@ -116,7 +116,7 @@
         $.each($e.bFindComponents("SideSection"), function (idx, item) {
             val = item.getSearchValues();
             if (val && !$.isEmptyObject(val)) {
-                result.push({name: item.cname, value: val});
+                result.push({name: item.cname, value: val, itemNum: item.getItemNum()});
             }
 
         });
@@ -124,7 +124,6 @@
         if(!/^\s*$/g.test(contentValue.search)){
             result.push({name: "contentView", value:contentValue })
         }
-
         return result;
     }
 
@@ -146,13 +145,20 @@
         var mainView = view.$el.bView("MainView");
         clean.call(view);
 
+        console.log(values);
+
         $.each(values, function(idx, item){
               if(item.name == "contentView"){
                   mainView.contentView.$el.find(".search-query").val(item.value.search);
               }else{
-                  mainView.sideNav.$el.find(".SideSection[data-subComponent='" + item.name + "']").bView().updateSearchValues(item.value);
+                  var sideSection = mainView.sideNav.$el.find(".SideSection[data-subComponent='" + item.name + "']").bView();
+                  if(sideSection.subComponent){
+                      sideSection.subComponent.$el.trigger("restoreSearchList", {itemNum: item.itemNum, value: item.value});
+                  }
+                  sideSection.updateSearchValues(item.value);
               }
         });
+        view.$el.trigger("DO_SEARCH");
     }
 
     function clean(){

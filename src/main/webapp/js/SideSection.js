@@ -82,6 +82,18 @@
                     view.$el.find(".content .not-open").remove();
                 }
             },
+            getItemNum: function(){
+                var view = this;
+                if(view.status == "open"){
+                    if(view.subComponent && view.subComponent.itemNum){
+                        return view.subComponent.itemNum;
+                    }else{
+                        return 0;
+                    }
+                }else{
+                    return 0;
+                }
+            },
             events: {
             	
                 "btap; .not-open .clear":function(event){

@@ -187,6 +187,56 @@ var app = app || {};
             		view.$el.trigger("DO_SEARCH");
             	}
             }
+        },
+        "restoreSearchList": function(event, data){
+            var restoreValue = data.value;
+            var view = this;
+            var limit, offset;
+            if(!view.itemNum){
+                view.itemNum = app.defaultMenuSize;
+            }
+            if(data.itemNum > view.itemNum){
+                offset = view.itemNum;
+                limit = data.itemNum - offset;
+                //view.itemNum = data.itemNum;
+            }
+            $btn = view.$el.find("span[data-show='more']");
+            var $li = $btn.parent("li");
+            var $ul = $btn.closest("ul");
+            var type = view.dataType;
+            var dataName = view.dataName;
+            var $input=$ul.find(":text");
+            // show more items
+
+                // get advanced menu data from server
+                searchDao.getAdvancedMenu({
+                    type : type,
+                    offset : offset,
+                    limit : limit,
+                    match:$input.val()
+                }).pipe(function(data) {
+                        view.updateResultInfo(data);
+                        $li.before(render(view.name+"-add", data));
+                        if($input.val()){
+                            $li.closest("ul").find(".toShow").addClass("selected").each(function(index,li){
+                                showFilter.call(view,$(li));
+                                $(":checkbox",li).prop("checked",true);
+                            });
+                        }
+                        $li.closest("ul").find(".toShow").show(1000, function() {
+                            $(this).removeClass("toShow");
+                        });
+                        //save the offset
+                        //app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
+                        view.itemNum = (view.itemNum?view.itemNum:5) + data[dataName].length;
+                        $btn.next().show();
+                        if (data[dataName].length < 20) {
+                            $btn.hide();
+                        }
+
+                        view.$el.bView("SideSection").updateSearchValues(restoreValue);
+
+                    });
         }
     };
 
