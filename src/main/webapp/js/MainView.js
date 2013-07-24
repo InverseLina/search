@@ -2,18 +2,22 @@
 	
 	var searchDao = app.SearchDaoHandler;
 	brite.registerView("MainView",{parent:"body"},{
-		create: function(){
+		create: function(data){
 			return render("MainView");
 	 }, 
 	 
-	 postDisplay: function(){
-     var view = this;
-		 brite.display("SideNav",this.$el.find(".sidenav-ctn")).done(function(sideNav){
-				view.sideNav = sideNav;
-		 });
-		 brite.display("ContentView",this.$el.find(".contentview-ctn")).done(function(contentView){
-		 	 view.contentView = contentView;
-		 });
+	 postDisplay: function(data){
+		 var view = this;
+		 if(data&&data.type=="admin"){
+			 brite.display("Admin");
+		 }else{
+			 brite.display("SideNav",this.$el.find(".sidenav-ctn")).done(function(sideNav){
+					view.sideNav = sideNav;
+			 });
+			 brite.display("ContentView",this.$el.find(".contentview-ctn")).done(function(contentView){
+			 	 view.contentView = contentView;
+			 });
+		 }
 	 },
 	 
 	 events: {

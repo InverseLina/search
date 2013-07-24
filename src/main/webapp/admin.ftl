@@ -1,4 +1,3 @@
 <script>
-	brite.display("MainView");
-	brite.display("Admin");
+	brite.display("MainView","body",{type:"admin"});
 </script>
