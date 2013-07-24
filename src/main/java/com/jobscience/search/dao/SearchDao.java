@@ -682,7 +682,11 @@ public class SearchDao {
     	}else if(orginalName.toLowerCase().equals("id")){
     		return " a.\"id\" as id";
     	}else if(orginalName.toLowerCase().equals("resume")){
-    		return " a.id as resume";
+            if(groupBy.length()>0){
+                groupBy.append(",");
+            }
+            groupBy.append("a.resume");
+            return " a.resume as resume";
     	}else if(orginalName.toLowerCase().equals("email")){
      		if(groupBy.length()>0){
 	     			groupBy.append(",");
@@ -795,7 +799,7 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
-        querySql.append(" from ( select  distinct contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\"  ");
+        querySql.append(" from ( select  distinct contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\", case  when contact.\"ts2__Text_Resume__c\" is null  or char_length(contact.\"ts2__Text_Resume__c\") = 0 then -1  else contact.id end as resume  ");
         if(orderCon.contains("Title")){
         	querySql.append(",case   when contact.\"Title\" is null then '' " +
         			        " else lower(contact.\"Title\") END \"lTitle\" ");
