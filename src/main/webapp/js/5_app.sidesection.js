@@ -209,6 +209,13 @@ var app = app || {};
             var type = view.dataType;
             var dataName = view.dataName;
             var $input=$ul.find(":text");
+            var match="";
+            if(data.value["search" + view.name]){
+                match = data.value["search" + view.name];
+                $input.val(match);
+            }
+            console.log(match);
+            console.log(data.value["search" + view.name]);
             // show more items
 
                 // get advanced menu data from server
@@ -219,6 +226,10 @@ var app = app || {};
                     match:$input.val()
                 }).pipe(function(data) {
                         view.updateResultInfo(data);
+                        if(match && match.length > 0){
+                            console.log($("li[data-name][data-name!='ALL']:not('.btns')", $ul))
+                            $("li[data-name][data-name!='ALL']:not('.btns')", $ul).remove();
+                        }
                         $li.before(render(view.name+"-add", data));
                         if($input.val()){
                             $li.closest("ul").find(".toShow").addClass("selected").each(function(index,li){
@@ -255,6 +266,33 @@ var app = app || {};
               }
           }
       };
+
+    BaseSideAdvanced.prototype.validate =function(values){
+        var vals = values.split("|");
+        var v1=false, errors = [];
+        if(vals.length < 2) {
+            return errors;
+        }
+        if(vals[1].length > 0 ){
+            if(!/\d+/g.test(vals[1])){
+                errors.push(vals[0] + " min value require be number");
+            }else{
+                v1 = true;
+            }
+        }
+        if(vals[2].length > 0 ){
+            if(!/\d+/g.test(vals[2])){
+                errors.push(vals[0] +  " max value require be number");
+            }
+            if(v1){
+                if(parseInt(vals[2]) - parseInt(vals[1])<=0){
+                    errors.push(vals[0] + " max value must big than min value");
+                }
+            }
+        }
+
+        return errors;
+    };
 
    BaseSideAdvanced.prototype.updateSearchValues = function(data, itemNum) {
     var view = this;
@@ -342,11 +380,11 @@ var app = app || {};
 
 
 
-      /*var searchName = "search" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
+      var searchName = "search" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
       var searchValue = view.$el.find('input[type=text]').val();
       if (!/^\s*$/.test(searchValue)) {
           result[searchName] = searchValue;
-      }*/
+      }
       var curName = "cur" + dataType.substr(0,1).toUpperCase() + dataType.substr(1);
       var curValue = view.$el.find("input[name='" + curName + "']").prop("checked");
       if (curValue) {
@@ -410,8 +448,20 @@ var app = app || {};
       $allLi.addClass("selected");
     }
     $allLi.find(":checkbox").prop("checked", true);
-    $e.find("input[type='text']").val(""); 
+    var match = $e.find("input[type='text']").val();
+    $e.find("input[type='text']").val("");
     $(".filter", $e).hide();
+/*    if(match.length>0){
+        var limit = app.preference.get(view.dataType, app.defaultMenuSize);
+        console.log($("li[data-name][data-name!='ALL']:not('.btns')", view.$el))
+        $("li[data-name][data-name!='ALL']:not('.btns')", view.$el).remove();
+        searchDao.getAdvancedMenu({limit : limit, type : view.dataType}).always(function(result) {
+           var html = render(view.name+"-add", result || {});
+            $e.append(html);
+            view.updateResultInfo(result,$e);
+            view.refreshSelections($e);
+        });
+    }*/
 
   };
   BaseSideAdvanced.prototype.updateScore = function($e, result) {

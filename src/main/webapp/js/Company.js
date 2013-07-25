@@ -20,7 +20,7 @@
     };
     CompanyView.prototype.events = $.extend(CompanyView.prototype.events, app.sidesection.BaseSideAdvanced.prototype.events);
 
-    CompanyView.prototype.validate =function(values){
+/*    CompanyView.prototype.validate =function(values){
         var vals = values.split("|");
         var v1=false, errors = [];
         if(vals[1].length > 0 ){
@@ -42,7 +42,7 @@
         }
 
         return errors;
-    }
+    }*/
 
     brite.registerView("Company", {emptyParent: true},function(){
       return new CompanyView();
