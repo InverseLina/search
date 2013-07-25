@@ -8,7 +8,7 @@
 		postDisplay: function(){
 		  // save serarch mode to the view
           var view = this;
-          //brite.display("SideSection", view.$el, {title: "Save Searches", component: "SavedSearches"});
+          brite.display("SideSection", view.$el, {title: "Save Searches", component: "SavedSearches"});
           brite.display("SideSection", view.$el, {title: "Contact Info", component: "ContactInfo"});
           brite.display("SideSection", view.$el, {title: "Company", component: "Company"});
           brite.display("SideSection", view.$el, {title: "Education", component: "Education"});
