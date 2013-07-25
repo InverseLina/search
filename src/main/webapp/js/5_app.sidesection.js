@@ -190,7 +190,6 @@ var app = app || {};
             }
         },
         "restoreSearchList": function(event, data){
-            console.log(data);
             var restoreValue = data.value;
             var view = this;
             var limit, offset;
@@ -224,10 +223,7 @@ var app = app || {};
                             data = data.slice(0, view.itemNum)
                         }
                         view.updateResultInfo(data);
-                          console.log($("li[data-name][data-name!='ALL']:not('.btns')", $ul))
                             $("li[data-name][data-name!='ALL']:not('.btns')", $ul).remove();
-                          console.log(data);
-                          console.log(render(view.name+"-add", data));
                         $li.before(render(view.name+"-add", data));
                         if($input.val()){
                             $li.closest("ul").find(".toShow").addClass("selected").each(function(index,li){

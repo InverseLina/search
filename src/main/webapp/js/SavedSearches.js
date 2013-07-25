@@ -157,13 +157,14 @@
                   }else{
                 	  sideSection.values=item.value;
                   }
-                  setTimeout(function(){
                       sideSection.updateSearchValues(item.value, item.itemNum);
-                  }, 500);
 
               }
         });
-        view.$el.trigger("DO_SEARCH");
+        setTimeout(function(){
+        	 view.$el.trigger("DO_SEARCH");
+        }, 100);
+       
     }
 
     function clean(){

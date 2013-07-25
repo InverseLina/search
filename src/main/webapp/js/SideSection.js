@@ -132,7 +132,7 @@
                     if(view.subComponent){
                         view.subComponent.values={};
                     }
-
+                    view.values={};
                     view.$el.trigger("DO_SEARCH");
                 },
                 
@@ -165,13 +165,11 @@
                         }
 
                         view.values = view.$el.find("span.not-open").attr("data-value");
-                        console.log(view.values);
                         if(view.values){
                             view.values = JSON.parse(view.values);
                         }else{
                             view.values={};
                         }
-                        console.log(view.values);
                         view.status = "open";
                         //app.preference.store(view.cname + ".status", "open");
                         if( view.$el.find("div."+view.cname).size()>0){
