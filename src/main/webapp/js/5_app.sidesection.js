@@ -190,12 +190,14 @@ var app = app || {};
             }
         },
         "restoreSearchList": function(event, data){
+            console.log(data);
             var restoreValue = data.value;
             var view = this;
             var limit, offset;
             if(!view.itemNum){
                 view.itemNum = app.defaultMenuSize;
             }
+            console.log(view)
             if(data.itemNum > view.itemNum){
                 offset = view.itemNum;
                 limit = data.itemNum - offset;

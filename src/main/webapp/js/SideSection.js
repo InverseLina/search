@@ -103,10 +103,14 @@
                     if(view.subComponent && view.subComponent.itemNum){
                         return view.subComponent.itemNum;
                     }else{
-                        return 0;
+                        return app.defaultMenuSize;
                     }
                 }else{
-                    return 0;
+                    var num = view.$el.find(".content .not-open").attr("data-itemNum");
+                    if(!num){
+                        num = app.defaultMenuSize;
+                    }
+                    return num;
                 }
             },
             events: {
@@ -151,7 +155,8 @@
                             if(!$.isEmptyObject(values)){
                                 view.$el.find(".content .not-open").remove();
                                 view.$el.find(".content").append(render("SideSection-close",
-                                    {value: formatDisplay(values), realValue:JSON.stringify(values), itemNum: view.getItemNum()}))
+                                    {value: formatDisplay(values), realValue:JSON.stringify(values), itemNum: view.subComponent.itemNum||app.defaultMenuSize}))
+                                view.$el.find(".content .not-open").attr("data-itemNum", view.subComponent.itemNum||app.defaultMenuSize);
                             }
                         }
 
