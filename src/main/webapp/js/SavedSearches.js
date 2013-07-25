@@ -152,7 +152,10 @@
               }else{
                   var sideSection = mainView.sideNav.$el.find(".SideSection[data-subComponent='" + item.name + "']").bView();
                   if(sideSection.subComponent){
+                	  sideSection.subComponent.values=item.value;
                       sideSection.subComponent.$el.trigger("restoreSearchList", {itemNum: item.itemNum, value: item.value});
+                  }else{
+                	  sideSection.values=item.value;
                   }
                   setTimeout(function(){
                       sideSection.updateSearchValues(item.value, item.itemNum);

@@ -52,12 +52,8 @@
                 	if(view.subComponent){
                         return view.subComponent.values;
                     }else{
-                        var sv = view.$el.find(".content .not-open").attr("data-value");
-                        if(sv){
-                          return JSON.parse(sv);
-                        }else{
-                            return {};
-                        }
+                        var sv = view.values;
+                        return sv;
                     }
 //                    return JSON.parse(app.preference.get(view.cname + ".values", ""));
                 }
@@ -86,6 +82,7 @@
             },
             clearSearchValues: function(){
                 var view = this;
+                view.values={};
                 if(view.status == "open"){
                     if(view.subComponent && view.subComponent.clearValues){
                         view.subComponent.clearValues();

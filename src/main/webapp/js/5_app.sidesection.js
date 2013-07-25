@@ -216,7 +216,7 @@ var app = app || {};
                 searchDao.getAdvancedMenu({
                     type : type,
                     offset : 0,
-                    limit : data.itemNum +1,
+                    limit : data.itemNum,
                     match:$input.val()
                 }).pipe(function(data) {
                         var length = data.length;
@@ -226,7 +226,8 @@ var app = app || {};
                         view.updateResultInfo(data);
                           console.log($("li[data-name][data-name!='ALL']:not('.btns')", $ul))
                             $("li[data-name][data-name!='ALL']:not('.btns')", $ul).remove();
-
+                          console.log(data);
+                          console.log(render(view.name+"-add", data));
                         $li.before(render(view.name+"-add", data));
                         if($input.val()){
                             $li.closest("ul").find(".toShow").addClass("selected").each(function(index,li){
