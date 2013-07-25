@@ -74,7 +74,7 @@ public class SearchDao {
         }
         
         querySql.append(" group by e.\"ts2__Contact__c\", e."+name+") a  ").
-				 append( " group by a.name order by a.count desc offset " ).
+				 append( " group by a.name order by a.count desc,a.name offset " ).
                  append( offset).
                  append( " limit ").
                  append( size);
