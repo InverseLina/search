@@ -74,7 +74,7 @@ public class SearchDao {
         }
         
         querySql.append(" group by e.\"ts2__Contact__c\", e."+name+") a  ").
-				 append( " group by a.name order by a.count desc offset " ).
+				 append( " group by a.name order by a.count desc,a.name offset " ).
                  append( offset).
                  append( " limit ").
                  append( size);
@@ -452,7 +452,13 @@ public class SearchDao {
             	  }
                   hasCondition = true;
               }
-              
+              if(searchValues.get("curCompany") != null&&searchForCompany){
+            	  if(advanced){
+            		  conditions.append(" and c.\"ts2__Employment_End_Date__c\" is null ");
+            	  }else{
+            		  joinEmploymentForCompanyName+=(" and em.\"ts2__Employment_End_Date__c\" is  null ");
+            	  }
+              }
               if(joinEmploymentForCompanyName.equals("")&&!joinEmploymentForTitle.equals("")){
             	  querySql.append(joinEmploymentForTitle);
               }else if(!joinEmploymentForCompanyName.equals("")){
