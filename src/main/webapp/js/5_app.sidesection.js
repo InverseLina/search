@@ -197,12 +197,7 @@ var app = app || {};
             if(!view.itemNum){
                 view.itemNum = app.defaultMenuSize;
             }
-            console.log(view)
-            if(data.itemNum > view.itemNum){
-                offset = view.itemNum;
-                limit = data.itemNum - offset;
-                //view.itemNum = data.itemNum;
-            }
+
             $btn = view.$el.find("span[data-show='more']");
             var $li = $btn.parent("li");
             var $ul = $btn.closest("ul");
@@ -214,22 +209,24 @@ var app = app || {};
                 match = data.value["search" + view.name];
                 $input.val(match);
             }
-            console.log(match);
-            console.log(data.value["search" + view.name]);
+
             // show more items
 
                 // get advanced menu data from server
                 searchDao.getAdvancedMenu({
                     type : type,
-                    offset : offset,
-                    limit : limit,
+                    offset : 0,
+                    limit : data.itemNum +1,
                     match:$input.val()
                 }).pipe(function(data) {
-                        view.updateResultInfo(data);
-                        if(match && match.length > 0){
-                            console.log($("li[data-name][data-name!='ALL']:not('.btns')", $ul))
-                            $("li[data-name][data-name!='ALL']:not('.btns')", $ul).remove();
+                        var length = data.length;
+                        if(length > view.itemNum){
+                            data = data.slice(0, view.itemNum)
                         }
+                        view.updateResultInfo(data);
+                          console.log($("li[data-name][data-name!='ALL']:not('.btns')", $ul))
+                            $("li[data-name][data-name!='ALL']:not('.btns')", $ul).remove();
+
                         $li.before(render(view.name+"-add", data));
                         if($input.val()){
                             $li.closest("ul").find(".toShow").addClass("selected").each(function(index,li){
@@ -242,9 +239,9 @@ var app = app || {};
                         });
                         //save the offset
                         //app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
-                        view.itemNum = (view.itemNum?view.itemNum:5) + data[dataName].length;
+                        view.itemNum =  data[dataName].length;
                         $btn.next().show();
-                        if (data[dataName].length < 20) {
+                        if (view.itemNum < length) {
                             $btn.hide();
                         }
 
