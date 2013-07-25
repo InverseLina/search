@@ -165,11 +165,13 @@
                         }
 
                         view.values = view.$el.find("span.not-open").attr("data-value");
+                        console.log(view.values);
                         if(view.values){
                             view.values = JSON.parse(view.values);
                         }else{
                             view.values={};
                         }
+                        console.log(view.values);
                         view.status = "open";
                         //app.preference.store(view.cname + ".status", "open");
                         if( view.$el.find("div."+view.cname).size()>0){
@@ -177,6 +179,9 @@
                       		view.$el.find("span.not-open").hide();
                             if(view.subComponent.refreshSelections){
   	                            view.subComponent.refreshSelections();
+                            }
+                            if(!$.isEmptyObject(view.values)){
+                                view.subComponent.updateSearchValues(view.values, itemNum);
                             }
                       	}else{
   	                        brite.display(view.cname , view.$el.find(".content")).done(function(component){
