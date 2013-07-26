@@ -10,5 +10,6 @@ CREATE TABLE savedsearches
   search character varying(255) NOT NULL,
   name character varying(64) NOT NULL,
   id bigserial NOT NULL,
-  CONSTRAINT pk_savedsearched PRIMARY KEY (id)
+  CONSTRAINT pk_savedsearched PRIMARY KEY (id),
+  CONSTRAINT unq_name UNIQUE (name)
 );

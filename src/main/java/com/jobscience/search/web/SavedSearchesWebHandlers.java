@@ -38,8 +38,12 @@ public class SavedSearchesWebHandlers {
 
     @WebPost("/saveSavedSearches")
     public WebResponse save(@WebParam("name") String name, @WebParam("content") String content) {
+        try {
             dbHelper.executeUpdate(insertSql, new Timestamp(System.currentTimeMillis()),name, content);
-        return WebResponse.success();
+            return WebResponse.success();
+        } catch (Exception e) {
+            return WebResponse.fail(e.getMessage());
+        }
     }
 
     @WebPost("/deleteSavedSearches")
