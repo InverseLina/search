@@ -101,9 +101,13 @@ var app = app || {};
                 searchDao.getAdvancedMenu({
                     type : type,
                     offset : view.itemNum,
-                    limit : 20,
+                    limit : 21,
                     match:$input.val()
                 }).pipe(function(data) {
+                        var dataLen = data[dataName].length;
+                        if(dataLen > 20){
+                            data[dataName] = data[dataName].slice(0,20);
+                        }
                         view.updateResultInfo(data);
                         $li.before(render(view.name+"-add", data));
                         if($input.val()){
@@ -119,7 +123,7 @@ var app = app || {};
                         //app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
                         view.itemNum = (view.itemNum?view.itemNum:5) + data[dataName].length;
                         $btn.next().show();
-                        if (data[dataName].length < 20) {
+                        if (dataLen <= 20) {
                             $btn.hide();
                         }
                         view.$el.trigger("DO_SEARCH");

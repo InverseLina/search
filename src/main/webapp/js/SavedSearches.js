@@ -1,3 +1,4 @@
+
 /**
  * View: SavedSearches
  *
@@ -11,14 +12,10 @@
             create: function (data, config) {
                 var dfd = $.Deferred();
                 var item, data = [];
+                var $e =  $(render("SavedSearches"));
                 app.SavedSearchesDaoHandler.list({offset:0, limit:6}).done(function (result) {
-                    var html;
-                    if(result.length > 5) {
-                       html = render("SavedSearches", {data: result.slice(0,5), display:"show"});
-                    }else{
-                        html = render("SavedSearches", {data: result, display:"hide"});
-                    }
-                    dfd.resolve(html);
+                    showDetail(result, $e);
+                    dfd.resolve($e);
                 });
                 return  dfd.promise();
             },
@@ -70,35 +67,35 @@
                 "btap; .btns span": function(event) {
                     var view = this;
                     var $btn = $(event.currentTarget);
-                    var $li = $btn.parent("li");
                     var flag = $btn.attr("data-show");
                     var $ul = $btn.closest("ul");
-                    var offset = $btn.attr("data-offset")
+                    var offset = view.$el.find("li[data-id]").length;
                     var $btns = $("li.btns", $ul);
 
                     // show more items
                     if (flag == "more") {
-                        $btn.hide();
                         app.SavedSearchesDaoHandler.list({offset: offset, limit: 21}).done(function(result){
-                            var data;
-                            if(result.length>21){
-                                data = {display:"show", offset:offset+20, data: result.slice(0,20), toHide:20}
-                            }else{
-                                data = {display:"hide", offset:offset+result.length, data: result, toHide: result.length }
-                            }
-                            $li.before(render("SavedSearches-more", data));
-//                            view.$el.find("ul").append(render("SavedSearches-more", data));
+                            showDetail(result, view.$el, 20)
                         });
                         // show less items
                     } else {
-                        var hideNum = $btn.attr("data-hide");
-                        var itemNum = view.$el.find("li[data-id]").length;
+                        var hideNum = (offset-5) % 20;
+                        if(hideNum == 0){
+                            hideNum = 20;
+                        }
+                        var itemNum = offset
                         var num = 0;
-                        var $hideLi = $("li:gt(" + (itemNum - hideNum )   +")", $ul);
-                        $($btns.get($btns.length-2)).find("[data-show='more']").show();
+                        var $hideLi = $("li[data-id]:gt(" + (itemNum - hideNum -1)   +")", $ul);
+
                         $hideLi.hide(1000, function() {
                             $(this).remove();
                         });
+
+                        $btns.find("span[data-show='more']").show();
+
+                        if(offset <= 25){
+                            $btns.find("span[data-show='less']").hide();
+                        }
 
 
 
@@ -175,6 +172,31 @@
         $.each(ss, function(idx, item){
             item.clearSearchValues();
         });
+    }
+
+
+    function showDetail(result, $e, limit) {
+        var html;
+        limit = limit||5;
+        if (result.length > limit) {
+            html = render("SavedSearches-detail", {data: result.slice(0, limit), display: "show"});
+        } else {
+            html = render("SavedSearches-detail", {data: result, display: "hide"});
+        }
+        var $btns = $e.find(".btns");
+        $btns.before(html);
+        var $more = $btns.find("span[data-show='more']");
+        var $less = $btns.find("span[data-show='less']");
+        if (result.length > limit) {
+            $more.show();
+        }else{
+            $more.hide();
+        }
+        if ($e.find("li[data-id]").length > 5) {
+            $less.show();
+        }else{
+            $less.hide();
+        }
     }
 
 })(jQuery);
