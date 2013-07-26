@@ -104,10 +104,16 @@ var app = app || {};
                     limit : 21,
                     match:$input.val()
                 }).pipe(function(data) {
-                        var dataLen = data[dataName].length;
-                        if(dataLen > 20){
-                            data[dataName] = data[dataName].slice(0,20);
-                        }
+	                	var hideMore = false;
+	            		if(data[dataName].length==21){
+	        		    	var newItems=[];
+	        		    	 for(var i=0;i<20;i++){
+	        		    		 newItems[i]=data[dataName][i]; 
+	        		    	 }
+	        		    	 data[dataName] = newItems;
+	            		}else{
+	            			hideMore = true;
+	            		}
                         view.updateResultInfo(data);
                         $li.before(render(view.name+"-add", data));
                         if($input.val()){
@@ -123,7 +129,7 @@ var app = app || {};
                         //app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize)) + data[dataName].length));
                         view.itemNum = (view.itemNum?view.itemNum:5) + data[dataName].length;
                         $btn.next().show();
-                        if (dataLen <= 20) {
+                        if (hideMore) {
                             $btn.hide();
                         }
                         view.$el.trigger("DO_SEARCH");
@@ -406,7 +412,14 @@ var app = app || {};
     var dataName = this.dataName;
 
     var duration = result.duration, items = result[dataName], callDuration = result[dataType+"Duration"];
-
+    if(items.length==21){
+    	var newItems=[];
+    	 for(var i=0;i<20;i++){
+    		 newItems[i]=items[i]; 
+    	 }
+    	 items = newItems;
+    	 
+    }
     if (items && items.length) {
       //except the no company
       count = count + items.length;
