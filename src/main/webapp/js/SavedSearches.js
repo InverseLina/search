@@ -69,7 +69,7 @@
                     // show more items
                     if (flag == "more") {
                         app.SavedSearchesDaoHandler.list({offset: offset, limit: 21}).done(function(result){
-                            showDetail(result, view.$el, 20)
+                            showDetail(result, view.$el, 20, true)
                         });
                         // show less items
                     } else {
@@ -79,19 +79,17 @@
                         }
                         var itemNum = offset
                         var num = 0;
-                        var $hideLi = $("li[data-id]:gt(" + (itemNum - hideNum -1)   +")", $ul).remove();
+                        var $hideLi = $("li[data-id]:gt(" + (itemNum - hideNum -1)   +")", $ul);
 
-/*                        $hideLi.hide(1000, function() {
+                        $hideLi.hide(300, function() {
                             $(this).remove();
-                        });*/
+                        });
 
                         $btns.find("span[data-show='more']").show();
 
                         if(offset <= 25){
                             $btns.find("span[data-show='less']").hide();
                         }
-
-
 
                     }
 
@@ -172,7 +170,7 @@
     }
 
 
-    function showDetail(result, $e, limit) {
+    function showDetail(result, $e, limit, animate) {
         var html;
         limit = limit||5;
         if (result.length > limit) {
@@ -182,6 +180,13 @@
         }
         var $btns = $e.find(".btns");
         $btns.before(html);
+        if(animate){
+            $e.find("li.hide").show(300, function() {
+                $(this).show();
+            });
+        }else{
+            $e.find("li.hide").show();
+        }
         var $more = $btns.find("span[data-show='more']");
         var $less = $btns.find("span[data-show='less']");
         if (result.length > limit) {
