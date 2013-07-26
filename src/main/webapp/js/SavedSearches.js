@@ -79,11 +79,11 @@
                         }
                         var itemNum = offset
                         var num = 0;
-                        var $hideLi = $("li[data-id]:gt(" + (itemNum - hideNum -1)   +")", $ul);
+                        var $hideLi = $("li[data-id]:gt(" + (itemNum - hideNum -1)   +")", $ul).remove();
 
-                        $hideLi.hide(1000, function() {
+/*                        $hideLi.hide(1000, function() {
                             $(this).remove();
-                        });
+                        });*/
 
                         $btns.find("span[data-show='more']").show();
 
