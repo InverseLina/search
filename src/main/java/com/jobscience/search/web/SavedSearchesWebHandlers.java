@@ -19,9 +19,10 @@ public class SavedSearchesWebHandlers {
     private DBHelper dbHelper;
 
     public static final String getSql = "select * from savedsearches offset ? limit ?";
+    public static final String getByNameSql = "select 1 from savedsearches where name = ?";
     public static final String deleteSql = "delete from savedsearches where id = ?";
     public static final String insertSql = "INSERT INTO savedsearches(create_date,name, search)  VALUES (?,?, ?);";
-    public static final String updateSql = "UPDATE savedsearches SET   update_date=?, search=?  WHERE id = ?";
+    public static final String updateSql = "UPDATE savedsearches SET   update_date=?, search=?  WHERE name = ?";
 
 
     @WebGet("/getSavedSearches")
@@ -39,7 +40,13 @@ public class SavedSearchesWebHandlers {
     @WebPost("/saveSavedSearches")
     public WebResponse save(@WebParam("name") String name, @WebParam("content") String content) {
         try {
-            dbHelper.executeUpdate(insertSql, new Timestamp(System.currentTimeMillis()),name, content);
+            List<Map> list = dbHelper.executeQuery(getByNameSql, name);
+            if(list.size()==0){
+                dbHelper.executeUpdate(insertSql, new Timestamp(System.currentTimeMillis()), name, content);
+            }else{
+                dbHelper.executeUpdate(updateSql, new Timestamp(System.currentTimeMillis()), content, name);
+            }
+
             return WebResponse.success();
         } catch (Exception e) {
             return WebResponse.fail(e.getMessage());
@@ -49,12 +56,6 @@ public class SavedSearchesWebHandlers {
     @WebPost("/deleteSavedSearches")
     public WebResponse delete(@WebParam("id") Long id) {
          dbHelper.executeUpdate(deleteSql, id);
-        return WebResponse.success();
-    }
-
-    @WebPost("/updateSavedSearches")
-    public WebResponse update(@WebParam("id") Long id, @WebParam("content") String content) {
-         dbHelper.executeUpdate(updateSql, new Timestamp(System.currentTimeMillis()), content, id);
         return WebResponse.success();
     }
 }

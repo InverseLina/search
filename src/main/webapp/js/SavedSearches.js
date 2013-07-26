@@ -34,16 +34,10 @@
                             var exits = view.$el.find("li[data-name='" + name + "']");
                             var data = JSON.stringify(value);
 
-                            if (exits.length == 1) {
-                                var id = $(exits[0]).attr("data-id");
-                                app.SavedSearchesDaoHandler.update(id, data).done(function () {
-                                    updateDetail.call(view);
-                                })
-                            } else {
-                                app.SavedSearchesDaoHandler.save(name, data).done(function () {
-                                    updateDetail.call(view);
-                                })
-                            }
+                            app.SavedSearchesDaoHandler.save(name, data).done(function () {
+                                updateDetail.call(view);
+                            })
+
                         }
 
                     }
@@ -80,7 +74,7 @@
                         // show less items
                     } else {
                         var hideNum = (offset-5) % 20;
-                        if(hideNum == 0){
+                        if(hideNum <= 0){
                             hideNum = 20;
                         }
                         var itemNum = offset
@@ -127,14 +121,17 @@
 
     function updateDetail(){
         var view = this;
-        app.SavedSearchesDaoHandler.list().done(function (result) {
-            var html;
-            if(result.length > 5) {
-                html = render("SavedSearches-detail", {data: result.slice(0,5), display:"show"});
-            }else{
-                html = render("SavedSearches-detail", {data: result, display:"hide"});
-            }
-            view.$el.find("ul").html(html);
+        var dataLen = view.$el.find("li[data-id]").length;
+        var offset = 5;
+        if(dataLen > 5){
+            offset = parseInt((dataLen -5)/20) * 20;
+        }
+        if((dataLen - 5) % 20 > 0){
+            offset+=20;
+        }
+        view.$el.find("li[data-id]").remove();
+        app.SavedSearchesDaoHandler.list({offset: 0, limit: offset+1}).done(function(result){
+            showDetail(result, view.$el, offset)
         });
     }
 

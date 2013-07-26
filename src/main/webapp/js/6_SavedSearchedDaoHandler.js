@@ -17,17 +17,6 @@ var app = app || {};
 	}
 
 
-    SavedSearchesDaoHandler.prototype.update = function(id, content){
-		return $.ajax({
-			type : "POST",
-			url : "updateSavedSearches",
-			data : {id:id, content: content},
-			dataType : "json"
-		}).pipe(function(val) {
-			return val.result;
-		});
-	}
-
     SavedSearchesDaoHandler.prototype.save = function(name, content){
 		return $.ajax({
 			type : "POST",
