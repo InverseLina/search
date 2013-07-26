@@ -50,15 +50,15 @@ var app = app || {};
 
             if ($li.hasClass("all") ) {
                 view.$el.find("li:not(.all)", $ul).removeClass("selected").find(":checkbox").prop("checked", false);
-                //$ul.find("input[type='text']").val("");
+                $ul.find("input[type='text']").val("");
                 $ul.find("li .filter").hide();
+                this.$el.trigger("doFilter",{input: $ul.find("input[type='text']")});
                 setTimeout(function() {
                     $li.find(":checkbox").prop("checked", true);
                     $li.removeClass("selected").addClass("selected");
-                    view.$el.trigger("DO_SEARCH");
                 }, 10);
                 return;
-            }
+             }
 
 
 
@@ -163,41 +163,45 @@ var app = app || {};
             }
         },
         "keyup;input[type='text']":function(event){
-            var $input = $(event.target);
+        	var $input = $(event.target);
+        	if(event.which===13){
+        		this.$el.trigger("doFilter",{input:$input});
+        	}
+        },
+        "doFilter":function(event,data){
+        	var $input = data.input;
             var view = this;
             var $li = $input.parent("li");
             var flag = $input.attr("data-show");
             var $ul = $input.closest("ul");
             var type = view.dataType;
             var dataName = view.dataName;
-            if(event.which===13){
-            	if($input.parent().hasClass("control-group")){
-	        	   searchDao.getAdvancedMenu({
-	                   type : type,
-	                   match:$input.val()
-	               }).pipe(function(data) {
-	                  $ul.find("li[data-name][data-name!='ALL']:not('.btns')").remove();
-	                  $ul.find("li.btns").before(render(view.name+"-add", data));
-	                  $ul.find(".toShow").show();
-	                  //save the offset
-	                  app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize))));
-	                  if($input.val()){
-		                  $ul.find(".toShow").addClass("selected").find(":checkbox").prop("checked", true);
-		                  $ul.find(".toShow").each(function(index,li){
-		                	  showFilter.call(view,$(li));
-		                	  $(li).removeClass("toShow");
-		                  });
-		                  
-		                  $ul.find("li[data-name='ALL']").removeClass("selected").find(":checkbox").prop("checked",false);
-	                  }else{
-	                	  $ul.find("li[data-name='ALL']").addClass("selected").find(":checkbox").prop("checked",true);
-	                  }
-	                  view.$el.trigger("DO_SEARCH");
-	               });
-            	}else{
-            		view.$el.trigger("DO_SEARCH");
-            	}
-            }
+        	if($input.parent().hasClass("control-group")){
+        	   searchDao.getAdvancedMenu({
+                   type : type,
+                   match:$input.val()
+               }).pipe(function(data) {
+                  $ul.find("li[data-name][data-name!='ALL']:not('.btns')").remove();
+                  $ul.find("li.btns").before(render(view.name+"-add", data));
+                  $ul.find(".toShow").show();
+                  //save the offset
+                  app.preference.store(type, (parseInt(app.preference.get(type, app.defaultMenuSize))));
+                  if($input.val()){
+	                  $ul.find(".toShow").addClass("selected").find(":checkbox").prop("checked", true);
+	                  $ul.find(".toShow").each(function(index,li){
+	                	  showFilter.call(view,$(li));
+	                	  $(li).removeClass("toShow");
+	                  });
+	                  
+	                  $ul.find("li[data-name='ALL']").removeClass("selected").find(":checkbox").prop("checked",false);
+                  }else{
+                	  $ul.find("li[data-name='ALL']").addClass("selected").find(":checkbox").prop("checked",true);
+                  }
+                  view.$el.trigger("DO_SEARCH");
+               });
+        	}else{
+        		view.$el.trigger("DO_SEARCH");
+        	}
         },
         "restoreSearchList": function(event, data){
             var restoreValue = data.value;
