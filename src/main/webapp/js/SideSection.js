@@ -67,6 +67,7 @@
                     if(view.subComponent){
                         view.subComponent.updateSearchValues(values);
                     }
+                    
                 }else{
                     if(view.subComponent){
                         view.subComponent.updateSearchValues(values);
@@ -211,7 +212,7 @@
                     if(i!=0){
                       value += ", ";
                     }
-                    var values = pairs[i].split("|");
+                    var values = pairs[i].replace(/#/g,"").split("|");
                     if((!values[1] || values[1] == "")  && (!values[2] || values[2] == "")){
                       value = value + values[0];
                     }else{

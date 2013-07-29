@@ -253,7 +253,7 @@ public class SearchDao {
 		                       conditions.append(getConditionForThirdNames(value, values, "education"));
 	                	   }else{
 	                		   querySql.append(" join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
-	                		   querySql.append("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
+	                		   querySql.append("('"+Joiner.on("','").join(Splitter.on("#,#").omitEmptyStrings().split(value))+"')");
 	                	   }
 	                   }
 	                   searchForEducation = true;
@@ -358,7 +358,7 @@ public class SearchDao {
 	                        	   joinTables.append(" inner join ts2__employment_history__c c on ");
 	                               joinTables.append("a.\"sfId\" = c.\"ts2__Contact__c\" ");
 	                           }
-	                       	Iterator<String> companyNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
+	                       	Iterator<String> companyNames = Splitter.on("#,#").omitEmptyStrings().split(value).iterator();
 	                       	boolean hasCompany = false;
 	                       	if(companyNames.hasNext()){
 	                       		conditions.append(" and ( 1!=1 ");
@@ -390,7 +390,7 @@ public class SearchDao {
 	                	   }else{
 	                		   joinEmploymentForCompanyName=(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where ");
 	                       	//joinEmploymentForCompanyName+=("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
-	                       	Iterator<String> companyNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
+	                       	Iterator<String> companyNames = Splitter.on("#,#").omitEmptyStrings().split(value).iterator();
 	                       	boolean hasCompany = false;
 	                       	if(companyNames.hasNext()){
 	                       		joinEmploymentForCompanyName+="( 1!=1 ";
@@ -480,7 +480,7 @@ public class SearchDao {
                 			   joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
                 		   }
                 		  
-	                       Iterator<String> skillNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
+	                       Iterator<String> skillNames = Splitter.on("#,#").omitEmptyStrings().split(value).iterator();
 	                       int i = 0;
 	                       conditions.append(" and (");
 	                       while(skillNames.hasNext()){
@@ -511,7 +511,7 @@ public class SearchDao {
                 	   }else{
                 		   
                 		   querySql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where 1=1 ");
-                           Iterator<String> skillNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
+                           Iterator<String> skillNames = Splitter.on("#,#").omitEmptyStrings().split(value).iterator();
                            int i = 0;
                            querySql.append(" and (");
                            while(skillNames.hasNext()){
@@ -965,7 +965,7 @@ public class SearchDao {
         String instance = getTableInstance(type);
         String nameExpr = getNameExpr(type);
         conditions.append("  and ( "+instance+"."+nameExpr+" in ");
-        conditions.append("('"+ Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(namesStr))+"')");
+        conditions.append("('"+ Joiner.on("','").join(Splitter.on("#,#").omitEmptyStrings().split(namesStr))+"')");
         conditions.append(")");
         return conditions.toString();
     }

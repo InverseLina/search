@@ -318,7 +318,7 @@ var app = app || {};
     var dataType = this.dataType;
     var names = data[dataType+"Names"];
     if (names) {
-      $.each(names.split(","), function(idx, item) {
+      $.each(names.split("#,#"), function(idx, item) {
           var vals = item.split("|");
           item = vals[0];
           vals = vals.slice(1);
@@ -373,7 +373,7 @@ var app = app || {};
       //get selected or all option is selected.
         if (errVal.length == 0) {
             if (itemStr.length != 0) {
-                itemStr += ",";
+                itemStr += "#,#";
             }
             itemStr += value;
         } else {
