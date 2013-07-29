@@ -21,7 +21,7 @@ public class SimpleTest extends SnowTestSupport {
         SnowTestSupport.initWebApplication("src/main/webapp");
     }
     
-    @Test
+    //@Test
     public void preparedTest(){
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
        Map values = MapUtil.mapIt("search","java");
