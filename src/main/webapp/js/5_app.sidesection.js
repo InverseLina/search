@@ -27,7 +27,7 @@ var app = app || {};
   BaseSideAdvanced.prototype.postDisplay = function(data) {
     var view = this;
     var $e = view.$el;
-    var dataType = this.dataType
+    var dataType = this.dataType;
     setTimeout(function(){
         view.updateScore($e);
     }, 300);  
@@ -176,6 +176,9 @@ var app = app || {};
             var $ul = $input.closest("ul");
             var type = view.dataType;
             var dataName = view.dataName;
+            var $btnContainer = $(".btns",$ul);
+            $btnContainer.find("[data-show='more']").show().next().hide();
+            
         	if($input.parent().hasClass("control-group")){
         	   searchDao.getAdvancedMenu({
                    type : type,
@@ -202,6 +205,7 @@ var app = app || {};
         	}else{
         		view.$el.trigger("DO_SEARCH");
         	}
+        	
         },
         "restoreSearchList": function(event, data){
             var restoreValue = data.value;
@@ -314,7 +318,7 @@ var app = app || {};
     var dataType = this.dataType;
     var names = data[dataType+"Names"];
     if (names) {
-      $.each(names.split(","), function(idx, item) {
+      $.each(names.split("#,#"), function(idx, item) {
           var vals = item.split("|");
           item = vals[0];
           vals = vals.slice(1);
@@ -369,7 +373,7 @@ var app = app || {};
       //get selected or all option is selected.
         if (errVal.length == 0) {
             if (itemStr.length != 0) {
-                itemStr += ",";
+                itemStr += "#,#";
             }
             itemStr += value;
         } else {
