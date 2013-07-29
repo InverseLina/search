@@ -18,7 +18,7 @@ public class SavedSearchesWebHandlers {
     @Inject
     private DBHelper dbHelper;
 
-    public static final String getSql = "select * from savedsearches offset ? limit ?";
+    public static final String getSql = "select * from savedsearches order by COALESCE(update_date, timestamp '1970-1-1 00:00:01') desc, create_date desc offset ? limit ? ";
     public static final String getByNameSql = "select 1 from savedsearches where name = ?";
     public static final String deleteSql = "delete from savedsearches where id = ?";
     public static final String insertSql = "INSERT INTO savedsearches(create_date,name, search)  VALUES (?,?, ?);";
