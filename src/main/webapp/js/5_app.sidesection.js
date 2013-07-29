@@ -293,8 +293,8 @@ var app = app || {};
                 errors.push(vals[0] +  " max value require be number");
             }
             if(v1){
-                if(parseInt(vals[2]) - parseInt(vals[1])<=0){
-                    errors.push(vals[0] + " max value must big than min value");
+                if(parseInt(vals[2]) - parseInt(vals[1])<0){
+                    errors.push(vals[0] + " max value must not less than min value");
                 }
             }
         }
