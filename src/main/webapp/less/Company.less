@@ -6,21 +6,24 @@
      width: 210px;
      height: 32px;
    }
-   ul li.currentCompany  {
-     position: relative;
-     height: 15px;
-     label {
-       display: block;
-       position: absolute;
-       top:0; right: 5px;
-       font-size: 10px;
-       input[type='checkbox'] {
-         margin-top: 1px;
+   ul{
+     padding-left:10px;
+     li.currentCompany  {
+       position: relative;
+       height: 15px;
+       label {
+         display: block;
+         position: absolute;
+         top:0; right: 5px;
+         font-size: 10px;
+         input[type='checkbox'] {
+           margin-top: 1px;
+         }
+         input[name='curCompany']{
+           margin-top:3px !important;
+         }
        }
-       input[name='curCompany']{
-         margin-top:3px !important;
-       }
+  
      }
-
    }
 }

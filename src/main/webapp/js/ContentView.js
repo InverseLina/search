@@ -316,7 +316,7 @@
         if (idx == tlen) {
           realWidth = colWidth + 110;
         }
-      } else if ($(item).hasClass("checkbox")) {
+      } else if ($(item).hasClass("checkboxCol")) {
         realWidth = 30;
       } else if (colName=="resume") {
         realWidth = 65;
