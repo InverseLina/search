@@ -38,7 +38,6 @@
     margin: 0px auto 20px auto;
     padding: 5px;
     min-width: 600px;
-
      
     span.actions {
       display: none;
@@ -50,7 +49,6 @@
         display:inline-block;
         font-weight: bold;
       }
-    
       label.checkbox.selected {
         color: #b25c05;
       }
@@ -73,7 +71,7 @@
       position: absolute;
       width: 40px;
       right: -45px;
-      top: 0;
+      top: 7px;
       height: 30px;
       font-size: 20px;
       background: #e0e0e0;
@@ -81,6 +79,8 @@
       color: #ffffff;
       border-radius: 0px;
       padding: 5px 12px;
+      height: 93px;
+	  padding-top: 35px;
     }
 
     .tableContainer {
@@ -104,17 +104,64 @@
           display: block;
           position: relative;
 
-          height: 30px;
           th {
-            background: #DDD;
-            border-bottom: 1px solid #dddddd;
             font-weight: bold;
-            cursor: pointer;
-
+			height:108px;
+			color:#fff;
+			font-size: 16px;
+			.headerTh{
+				height:100%;
+				padding: 4px 10px;
+				position: relative;
+				padding-left: 10px;
+				.addFilter{
+					position: absolute;
+					bottom: 0;
+					font-weight: normal;
+					cursor:pointer;
+					z-index:1;
+				}
+			    .columnName{
+			    	width: 90%;
+					display: inline-block;
+					cursor:pointer;
+			    }
+			}
+			.idTh{
+				background: #ccc;
+			}
+			.nameTh{
+				background: #d4c761;
+			}
+			.CreatedDateTh{
+				background: #E13CC7;
+			}
+			.titleTh{
+				background: #3CE198;
+			}
+			.emailTh{
+				background: #B33CE1;
+			}
+			.educationTh{
+				background: #dc7a4d;
+			}
+			.companyTh{
+				background: #33aad2;
+			}
+			.resumeTh{
+				background: #A7EE3C;
+			}
+			.locationTh{
+				background: #4bc272;
+			}
+			.skillTh{
+				background: #e13c5e;
+			}
             .desc, .asc {
               width: auto;
               display: none;
               margin-left: 5px;
+              float: right;
             }
           }
           th.checkbox {
@@ -129,7 +176,7 @@
           .fitparent();
           overflow-x:hidden;
           overflow-y: auto;
-          top: 30px;
+          top: 100px;
           tr {
             padding-bottom: 3px;
           }
@@ -170,6 +217,7 @@
       }
       table  tr.full {
         .fitparent();
+        top:100px;
         td {
           width: 100%;
           .empty-search {

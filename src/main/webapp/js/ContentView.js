@@ -27,9 +27,9 @@
 
     },
     events : {
-      "btap; table th[data-column]" : function(event) {
+      "btap; table th span.columnName" : function(event) {
         var view = this;
-        var $th = $(event.currentTarget);
+        var $th = $(event.currentTarget).closest("th");
         var $desc = $(".desc", $th);
         var $asc = $(".asc", $th);
         var column = $th.attr("data-column");

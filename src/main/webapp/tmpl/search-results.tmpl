@@ -19,19 +19,32 @@
          <tr>
              <th class="checkbox"></th>
              {{#each displayColumns}}
-                 <th style="width:{{../colWidth}}%" data-column="{{name}}">{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span></th>
+                 <th style="width:{{../colWidth}}%" data-column="{{name}}">
+                 <!--{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span>-->
+	                 <div class="headerTh {{name}}Th">
+		               <span class="columnName">{{display}}</span>
+		               <div class="addFilter">+&nbsp;add filter</div>
+		               <span class="desc">&darr;</span><span class="asc">&uarr;</span>
+		             </div>
+                 </th>
              {{/each}}
          </tr>
     </thead>
 </script>
 
-<script id="search-items-header-with-body" type="text/html">
+<script id="search-items-header-with-body" type="te6xt/html">
     <table>
         <thead>
              <tr>
                  <th class="checkbox"></th>
                  {{#each displayColumns}}
-                     <th style="width:{{../colWidth}}%" data-column="{{name}}">{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span></th>
+                     <th style="width:{{../colWidth}}%" data-column="{{name}}">
+						<div class="headerTh {{name}}Th">
+		                  <span class="columnName">{{display}}</span>
+		                  <div class="addFilter">+&nbsp;add filter</div>
+		                  <span class="desc">&darr;</span><span class="asc">&uarr;</span>
+		                </div>
+					 </th>
                  {{/each}}
              </tr>
         </thead>
