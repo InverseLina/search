@@ -60,29 +60,22 @@
                     }, view.delay);
                 },
                 "blur; input": function () {
-                    console.log("blur input");
                     var view = this;
-                    console.log(view);
                     setTimeout(function(){
                         hideResult.call(view);
                     },300);
 
                 },
                 "mouseover; li":function(event){
-                    console.log("out, li")
                     var view = this;
                     var $li =  $(event.currentTarget);
                     view.$el.find("li").removeClass("active");
                     $li.addClass("active");
                 },
                 "click; li":function(event){
-                    console.log("click li")
                     var view = this;
                     var val = $(event.currentTarget).html();
-                    console.log("XXXXXXXXXXXXXX");
-                    console.log(val);
-
-                        view.$input.val(val);
+                    view.$input.val(val);
 
                 },
                 "keydown; input":function(e){
@@ -234,6 +227,5 @@
         var reg=new RegExp("^"+str);
         return reg.test(key);
     }
-
 
 })(jQuery);
