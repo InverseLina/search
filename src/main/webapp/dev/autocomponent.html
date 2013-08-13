@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap-responsive.css">
+    <title>Auto Demo</title>
+    <script type="text/javascript" src="../js/0-jquery.min.js"></script>
+    <script type="text/javascript" src="../js/1-brite.js"></script>
+    <script type="text/javascript" src="../js/2-handlebars.runtime-1.0.rc.1.js"></script>
+    <script type="text/javascript" src="../js/3_handlebars.common.helper.js"></script>
+    <script type="text/javascript" src="js/AutoComplete.js"></script>
+    <style type="text/css">
+
+        .AutoComplete li.active {
+            color: #ffffff;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+            background-color: #0088cc;
+        }
+        .AutoComplete li {
+            cursor: pointer;
+        }
+        .AutoComplete ul{
+            border: red solid;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function(){
+           var data = ["Google Email", "Google Calendar", "Google Contact", "Facebook", "GitHub"];
+           brite.attach("AutoComplete", ".AutoComplete", {list:data})
+        });
+    </script>
+</head>
+<body>
+<div class="mainContent">
+    <div class="AutoComplete">
+      <input  type="text"  value=""/>
+    </div>
+</div>
+</body>
+</html>
