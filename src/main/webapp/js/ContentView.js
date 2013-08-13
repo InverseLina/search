@@ -61,7 +61,12 @@
     	  $("[data-b-view='Filter']",view.$el).bRemove();
     	  var $th = $(event.currentTarget);
     	  var position = {top:$th.get(0).offsetTop+$th.height(),left:$th.get(0).offsetLeft+$th.width()/2-175};
-    	  brite.display("Filter",".tableContainer",{position:position});
+    	  var type = $th.attr("data-column"); 
+    	  if(type=="name"){
+    		  type="contact";
+    	  }
+    	  if(type=="skill"||type=="contact")
+    	  brite.display("Filter",".tableContainer",{position:position,type:type});
       },
       "change; .tableContainer td input[type='checkbox']" : function(event) {
         var view = this;
