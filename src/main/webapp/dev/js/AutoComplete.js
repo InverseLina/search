@@ -106,7 +106,6 @@
 
         getResult.call(view, val);
 
-        // 关键词为空
         if (!val || view.rlen <=0) {
             hideResult.call(view);
         }
@@ -118,7 +117,7 @@
         var htmltemp = '', htmllen = 0;
 
         $.each(view.list, function (i, word) {
-            if (startWith(word, inputWord)) {
+            if (contains(word, inputWord)) {
                 htmltemp += '<li>' + word + '</li>';
                 htmllen++;
             }
@@ -171,6 +170,10 @@
 
     startWith = function (key, str) {
         var reg = new RegExp("^" + str);
+        return reg.test(key);
+    }
+    contains = function (key, str) {
+        var reg = new RegExp(str);
         return reg.test(key);
     }
 
