@@ -1,6 +1,6 @@
 (function ($) {
     function FilterEducation(){
-      this.constructor._super.constructor.call(this,"Contact");
+      this.constructor._super.constructor.call(this,"Education");
     }
 
     brite.inherit(FilterEducation,app.ThPopup);

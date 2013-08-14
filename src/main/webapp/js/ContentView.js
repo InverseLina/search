@@ -65,7 +65,10 @@
     	  if(type=="name"){
     		  type="contact";
     	  }
-    	  if(type=="skill"||type=="contact"||type=="education"){
+    	  if(type=="company"){
+    		  type="employer";
+    	  }
+    	  if(type=="skill"||type=="contact"||type=="education"||type=="employer"||type=="location"){
     		  brite.display("Filter"+type.substring(0, 1).toUpperCase()+type.substring(1),".tableContainer",{position:position,type:type});
     	  }
       },
