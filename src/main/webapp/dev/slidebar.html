@@ -2,36 +2,69 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap-responsive.css">
+    <!--<link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap-responsive.css">-->
     <title>Slide Demo</title>
-<!--    <script type="text/javascript" src="../js/0-jquery.min.js"></script>
-    <script type="text/javascript" src="../js/1-brite.js"></script>
-    <script type="text/javascript" src="../js/2-handlebars.runtime-1.0.rc.1.js"></script>
-    <script type="text/javascript" src="../js/3_handlebars.common.helper.js"></script>-->
+    <!--    <script type="text/javascript" src="../js/0-jquery.min.js"></script>
+        <script type="text/javascript" src="../js/1-brite.js"></script>
+        <script type="text/javascript" src="../js/2-handlebars.runtime-1.0.rc.1.js"></script>
+        <script type="text/javascript" src="../js/3_handlebars.common.helper.js"></script>-->
     <style type="text/css">
-        .Slider {
-            margin-top: 50px;
-            position: relative;
-            width:300px;
-            height:10px;
-            background: blue;
+        .mainContent {
+            margin: 30px;
         }
+
+        .Slider {
+            position: relative;
+            width: 320px;
+            height: 10px;
+            background: #fafafc; /* for non-css3 browsers */
+            background: -moz-linear-gradient(left, #fafafc, #676767); /* for firefox 3.6+ */
+            background: -webkit-gradient(linear, left top, right top, from(#fafafc), to(#676767)); /* Safari 4+, Chrome */
+            background: -webkit-linear-gradient(left top, right top, #fafafc, #676767); /* Chrome 10+, Safari 5.1+, iOS 5+ */
+            background: -o-linear-gradient(left, #fafafc, #676767); /* Opera 11.10+ */
+            background: -ms-filter : "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#fafafc, EndColorStr=#676767, GradientType=1)";
+            background: linear-gradient(to right, #fafafc, #676767); /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafc', endColorstr='#676767', GradientType='1'); /* for IE */
+        }
+
         .Slider .bar {
-            width:30px;
-            height: 30px;
+            width: 0;
+            height: 0;
+            border-width: 10px 320px 0px 0px;
+            border-style: solid solid none none;
+            border-color: #ffffff rgba(255, 255, 255, 0) rgba(255, 0, 0, 0);
+        }
+
+        .Slider .slide {
             position: absolute;
-            left: 200px;
-            font-size: 20px;
+            width: 35px;
+            height: 25px;
+            left: 150px;
             top: -5px;
-            border: #003399;
+            font-weight: bold;
+
+            background: #B6B4B4; /* for non-css3 browsers */
+            background: -moz-linear-gradient(left, #fff, #B6B4B4); /* for firefox 3.6+ */
+            background: -webkit-gradient(linear, left top, right top, from(#fff), to(#B6B4B4)); /* Safari 4+, Chrome */
+            background: -webkit-linear-gradient(left top, right top, #fff, #B6B4B4); /* Chrome 10+, Safari 5.1+, iOS 5+ */
+            background: -o-linear-gradient(left, #fff, #B6B4B4); /* Opera 11.10+ */
+            background: -ms-filter : "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#f8f8f8, EndColorStr=#B6B4B4, GradientType=1)";
+            background: linear-gradient(to right, #fff, #676767); /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff', endColorstr='#B6B4B4', GradientType='1'); /* for IE */
+
+            border: 2px solid #676767;
+            -moz-border-radius: 2px; /*Firefox*/
+            -webkit-border-radius: 2px; /*Safari, Chrome*/
+            border-radius: 2px;
+            padding-left: 10px;
+            padding-top: 2px;
         }
     </style>
-</head>
 <body>
 <div class="mainContent">
     <div class="Slider">
-        <div class="aa"></div>
-        <div class="bar">15</div>
+        <div class="slide">15</div>
+        <div class="bar"></div>
     </div>
 </div>
 </body>
