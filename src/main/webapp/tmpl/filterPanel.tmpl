@@ -3,39 +3,10 @@
 	<div class="popover bottom fade in" 
 		style="top:{{position.top}}px;left:{{position.left}}px;">
       <div class="arrow"></div>
+      
       <div class="popover-content">
-        <div class="selectedItems {{type}}">
-        	<span class="item">Ernst Blof<span class="clear">&times;</span></span>
-        	<span class="item">Ernst Blofeld<span class="clear">&times;</span></span>
-        	<span class="item">Ernst Blofeld<span class="clear">&times;</span></span>
-        	<span class="item">Ernst Blofeld<span class="clear">&times;</span></span>
-        	<span class="item">Ernst Blofeld<span class="clear">&times;</span></span>
-        	<span class="addContact">+&nbsp;new {{type}}</span>
-        </div>
-        <div class="content {{type}}">
-        {{#equal type "contact"}}
-        	<div class="contactRow"><span>first:</span><input type="text" /></div>
-        	<div class="contactRow"><span>last:</span><input type="text" /></div>
-        	<div class="contactRow"><span>email:</span><input type="text" /></div>
-        	<div class="contactRow"><span>title:</span><input type="text" /></div>
-        	<div class="contactRow"><input type="button" value="Save" class="save"/></div>
-        {{else}}
-        	  {{#equal type "skill"}}
-        	     <div class="skillRow"><span>min years:</span>
-	        	     <div class="progressContainer">
-	        	       <div class="progress">
-						  <div class="progress-bar progress-bar-info" style="width: 20%"></div>
-						</div>
-						 <div class="switch-icon">7</div>
-					</div>
-        	     </div>
-        	     
-        	     <div class="skillRow"><span class="contentText">Lua</span></div>
-        	     <div class="skillRow"><span class="contentText">Object C</span></div>
-        	  {{/equal}}
-        {{/equal}}
-        </div>
       </div>
+      
     </div>
   </div>
 </script>
