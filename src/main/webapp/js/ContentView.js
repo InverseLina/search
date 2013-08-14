@@ -65,8 +65,9 @@
     	  if(type=="name"){
     		  type="contact";
     	  }
-    	  if(type=="skill"||type=="contact")
-    	  brite.display("Filter",".tableContainer",{position:position,type:type});
+    	  if(type=="skill"||type=="contact"){
+    		  brite.display("Filter"+type.substring(0, 1).toUpperCase()+type.substring(1),".tableContainer",{position:position,type:type});
+    	  }
       },
       "change; .tableContainer td input[type='checkbox']" : function(event) {
         var view = this;
