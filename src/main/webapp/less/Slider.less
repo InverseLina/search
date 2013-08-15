@@ -1,0 +1,32 @@
+// Core variables and mixins
+@import "lesshat.less";
+
+.Slider {
+  position: relative;
+  display: inline-block;
+  background: #fafafc; /* for non-css3 browsers */
+  .gradient(~"linear-gradient(90deg, #fafafc 0%, #676767 100%)");
+  .bar {
+    width: 0;
+    height: 0;
+    border-width: 10px 320px 0px 0px;
+    border-style: solid solid none none;
+    border-color: #ffffff rgba(255, 255, 255, 0) rgba(255, 0, 0, 0);
+  }
+
+  .slider {
+    position: absolute;
+    height: 25px;
+    top: -5px;
+    font-weight: bold;
+    padding: 2px !important;
+    min-width: 25px;
+    text-align: center;
+
+    background: #B6B4B4; /* for non-css3 browsers */
+    .gradient(~"linear-gradient(90deg, #fff 0%, #B6B4B4 100%)");
+
+    border: 2px solid #676767;
+    .border-radius(2px);
+  }
+}

@@ -2,7 +2,14 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../css/Slider.css">
     <!--<link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap-responsive.css">-->
+    <script type="text/javascript" src="../js/0-jquery.min.js"></script>
+    <script type="text/javascript" src="../js/1-brite.js"></script>
+    <script type="text/javascript" src="../js/Slider.js"></script>
+    <script type="text/javascript" src="../js/2-handlebars.runtime-1.0.rc.1.js"></script>
+    <script type="text/javascript" src="../js/3_handlebars.common.helper.js"></script>
+    <script type="text/javascript" src="../js/templates.js"></script>
     <title>Slide Demo</title>
     <!--    <script type="text/javascript" src="../js/0-jquery.min.js"></script>
         <script type="text/javascript" src="../js/1-brite.js"></script>
@@ -13,18 +20,18 @@
             margin: 30px;
         }
 
-        .Slider {
+/*        .Slider {
             position: relative;
             width: 320px;
             height: 10px;
-            background: #fafafc; /* for non-css3 browsers */
-            background: -moz-linear-gradient(left, #fafafc, #676767); /* for firefox 3.6+ */
-            background: -webkit-gradient(linear, left top, right top, from(#fafafc), to(#676767)); /* Safari 4+, Chrome */
-            background: -webkit-linear-gradient(left top, right top, #fafafc, #676767); /* Chrome 10+, Safari 5.1+, iOS 5+ */
-            background: -o-linear-gradient(left, #fafafc, #676767); /* Opera 11.10+ */
+            background: #fafafc; *//* for non-css3 browsers *//*
+            background: -moz-linear-gradient(left, #fafafc, #676767); *//* for firefox 3.6+ *//*
+            background: -webkit-gradient(linear, left top, right top, from(#fafafc), to(#676767)); *//* Safari 4+, Chrome *//*
+            background: -webkit-linear-gradient(left top, right top, #fafafc, #676767); *//* Chrome 10+, Safari 5.1+, iOS 5+ *//*
+            background: -o-linear-gradient(left, #fafafc, #676767); *//* Opera 11.10+ *//*
             background: -ms-filter : "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#fafafc, EndColorStr=#676767, GradientType=1)";
-            background: linear-gradient(to right, #fafafc, #676767); /* W3C */
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafc', endColorstr='#676767', GradientType='1'); /* for IE */
+            background: linear-gradient(to right, #fafafc, #676767); *//* W3C *//*
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafc', endColorstr='#676767', GradientType='1'); *//* for IE *//*
         }
 
         .Slider .bar {
@@ -43,29 +50,53 @@
             top: -5px;
             font-weight: bold;
 
-            background: #B6B4B4; /* for non-css3 browsers */
-            background: -moz-linear-gradient(left, #fff, #B6B4B4); /* for firefox 3.6+ */
-            background: -webkit-gradient(linear, left top, right top, from(#fff), to(#B6B4B4)); /* Safari 4+, Chrome */
-            background: -webkit-linear-gradient(left top, right top, #fff, #B6B4B4); /* Chrome 10+, Safari 5.1+, iOS 5+ */
-            background: -o-linear-gradient(left, #fff, #B6B4B4); /* Opera 11.10+ */
+            background: #B6B4B4; *//* for non-css3 browsers *//*
+            background: -moz-linear-gradient(left, #fff, #B6B4B4); *//* for firefox 3.6+ *//*
+            background: -webkit-gradient(linear, left top, right top, from(#fff), to(#B6B4B4)); *//* Safari 4+, Chrome *//*
+            background: -webkit-linear-gradient(left top, right top, #fff, #B6B4B4); *//* Chrome 10+, Safari 5.1+, iOS 5+ *//*
+            background: -o-linear-gradient(left, #fff, #B6B4B4); *//* Opera 11.10+ *//*
             background: -ms-filter : "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#f8f8f8, EndColorStr=#B6B4B4, GradientType=1)";
-            background: linear-gradient(to right, #fff, #B6B4B4); /* W3C */
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff', endColorstr='#B6B4B4', GradientType='1'); /* for IE */
+            background: linear-gradient(to right, #fff, #B6B4B4); *//* W3C *//*
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff', endColorstr='#B6B4B4', GradientType='1'); *//* for IE *//*
 
             border: 2px solid #676767;
-            -moz-border-radius: 2px; /*Firefox*/
-            -webkit-border-radius: 2px; /*Safari, Chrome*/
+            -moz-border-radius: 2px; *//*Firefox*//*
+            -webkit-border-radius: 2px; *//*Safari, Chrome*//*
             border-radius: 2px;
             padding-left: 10px;
             padding-top: 2px;
-        }
+        }*/
     </style>
 <body>
 <div class="mainContent">
-    <div class="Slider">
-        <div class="slide">15</div>
-        <div class="bar"></div>
-    </div>
+    <script type="text/javascript">
+        (function(w){
+            w.render = function(templateName,data){
+                var tmpl = Handlebars.templates[templateName];
+                if (tmpl){
+                    return $.trim(tmpl(data));
+                }else{
+                    // obviously, handle this case as you think most appropriate.
+                    return "<small>Error: could not find template: " + templateName + "</small>";
+                }
+            };
+            w.hasTemplate = function(templateName){
+                var tmpl = Handlebars.templates[templateName];
+                if (tmpl){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+
+        })(window);
+        $(function(){
+            brite.loadTmpl = false;
+            brite.display("Slider", ".mainContent");
+        });
+
+    </script>
+
 </div>
 </body>
 </html>
