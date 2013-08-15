@@ -196,12 +196,10 @@
         var view = this;
         var val = view.$input.val();
         if(!/^\s*$/g.test(val)){
-            console.log("add class");
             if(!view.$el.hasClass("clear")){
                 view.$el.addClass("clear");
             }
         } else{
-            console.log("remove class")
             if(view.$el.hasClass("clear")){
                 view.$el.removeClass("clear");
             }
