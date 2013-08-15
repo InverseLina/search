@@ -11,9 +11,9 @@
 		 if(data&&data.type=="admin"){
 			 brite.display("Admin");
 		 }else{
-			 brite.display("SideNav",this.$el.find(".sidenav-ctn")).done(function(sideNav){
+			 /*brite.display("SideNav",this.$el.find(".sidenav-ctn")).done(function(sideNav){
 					view.sideNav = sideNav;
-			 });
+			 });*/
 			 brite.display("ContentView",this.$el.find(".contentview-ctn")).done(function(contentView){
 			 	 view.contentView = contentView;
 			 });
@@ -115,7 +115,7 @@
            view.contentView.loading();
            pageIdx = pageIdx||1;
             pageSize = pageSize||30;
-            searchDao.search(qParams,view.sideNav.searchMode,pageIdx,pageSize,app.preference.columns().join(",")).always(function (result) {
+            searchDao.search(qParams,"",pageIdx,pageSize,app.preference.columns().join(",")).always(function (result) {
 	            result.callback = callback;
 	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
             });
