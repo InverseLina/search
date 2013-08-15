@@ -31,12 +31,14 @@
             events: {
                 "focus; input": function(){
                     var view = this;
+                    showClear.call(view);
                     setTimeout(function () {
                         getKey.call(view);
                     }, view.delay);
                 },
                 "blur; input": function () {
                     var view = this;
+                    showClear.call(view);
                     setTimeout(function () {
                         hideResult.call(view);
                     }, 200);
@@ -53,6 +55,10 @@
                     var val = $(event.currentTarget).html();
                     view.$input.val(val);
                 },
+                "keyup; input": function(){
+                    var view = this;
+                    showClear.call(view);
+                },
                 "keydown; input": function (e) {
                     var view = this;
                     if (e.keyCode == borderKey.UP) {
@@ -65,7 +71,7 @@
                             view.index = Math.abs(view.rlen) - 1;
                         }
 
-                        changeSelect.call(view, false);
+                        changeSelect.call(view, true);
                         e.preventDefault();
                         return false;
                     } else if (e.keyCode == borderKey.DOWN) {
@@ -77,7 +83,7 @@
                         if (view.index >= view.rlen) {
                             view.index = 0;
                         }
-                        changeSelect.call(view, false);
+                        changeSelect.call(view, true);
                         e.preventDefault();
                         return false;
                     } else if (e.keyCode == borderKey.TAB) {
@@ -94,6 +100,15 @@
                             getKey.call(view);
                         }, view.delay);
                     }
+                },
+                "btap; span":function(){
+                    var view = this;
+                    view.$input.val("");
+                    showClear.call(view);
+                },
+                "focusout; input":function(){
+                    var view = this;
+                    showClear.call(view);
                 }
             },
             docEvents: {}
@@ -175,6 +190,22 @@
     contains = function (key, str) {
         var reg = new RegExp(str);
         return reg.test(key);
+    }
+
+    function showClear(){
+        var view = this;
+        var val = view.$input.val();
+        if(!/^\s*$/g.test(val)){
+            console.log("add class");
+            if(!view.$el.hasClass("clear")){
+                view.$el.addClass("clear");
+            }
+        } else{
+            console.log("remove class")
+            if(view.$el.hasClass("clear")){
+                view.$el.removeClass("clear");
+            }
+        }
     }
 
 })(jQuery);

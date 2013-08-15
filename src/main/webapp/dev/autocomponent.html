@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap-responsive.css">
+    <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap-glyphicons.css">
     <title>Auto Demo</title>
     <script type="text/javascript" src="../js/0-jquery.min.js"></script>
     <script type="text/javascript" src="../js/1-brite.js"></script>
@@ -10,11 +10,17 @@
     <script type="text/javascript" src="../js/3_handlebars.common.helper.js"></script>
     <script type="text/javascript" src="js/AutoComplete.js"></script>
     <style type="text/css">
-
+         .AutoComplete {
+             position: relative;
+             width: 300px;
+         }
+         .AutoComplete input {
+             width: 100%;
+         }
         .AutoComplete li.active {
-            color: #ffffff;
             text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
-            background-color: #0088cc;
+            background-color: #EEEEEE;
+
         }
         .AutoComplete li {
             cursor: pointer;
@@ -22,6 +28,17 @@
         .AutoComplete ul{
             /*border: red solid;*/
         }
+        .AutoComplete span {
+            display: none;
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            cursor: pointer;
+        }
+
+         .AutoComplete.clear span {
+             display: block;
+         }
     </style>
     <script type="text/javascript">
         $(function(){
@@ -34,6 +51,7 @@
 <div class="mainContent">
     <div class="AutoComplete">
       <input  type="text"  value=""/>
+      <span class="glyphicon glyphicon-remove"></span>
     </div>
 </div>
 </body>
