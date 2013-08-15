@@ -47,7 +47,7 @@ public class OldSearchWebHandlers {
         return wr;
     }
     
-    @WebGet("/getTopCompaniesAndEducations")
+    @WebGet("/old_getTopCompaniesAndEducations")
     public WebResponse getTopCompanies(@WebParam("type") String type, @WebParam("offset") Integer offset,
                             @WebParam("limit") Integer limit,@WebParam("match")String match) throws SQLException {
     	Map result = new HashMap();

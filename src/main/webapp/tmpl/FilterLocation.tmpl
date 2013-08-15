@@ -9,10 +9,9 @@
         	<span class="add">+&nbsp;new location</span>
         </div>
         <div class="content location">
-        	     <div class="skillRow"><span class="contentText">Atlanta</span></div>
-        	     <div class="skillRow"><span class="contentText">Austin</span></div>
-        	     <div class="skillRow"><span class="contentText">Los Angeles</span></div>
-        	     <div class="skillRow"><span class="contentText">New York</span></div>
+        		{{#each locations}}
+        		<div class="locationRow"><span class="contentText">{{name}}</span></div>
+        		{{/each}}
         </div>
    </div>
 </script>

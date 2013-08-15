@@ -1,5 +1,6 @@
 var app = app || {};
 (function($) {
+  var searchDao = app.SearchDaoHandler;
   function ThPopup(type) {
     this.type = type;
   };
@@ -8,10 +9,20 @@ var app = app || {};
     var dfd = $.Deferred();
     var view = this;
     var type = this.type;
-    var $e = $(render(view.name));
-    var $html = $(render("filterPanel",data));
-    $html.find(".popover-content").html($e);
-    dfd.resolve($html);
+    if(type=="company"||type=="education"||type=="skill"||type=="location"){
+	    searchDao.getAdvancedMenu({limit : 5, type : type}).always(function(result) {
+	        var $e = $(render(view.name,result));
+	        console.log(result);
+	        var $html = $(render("filterPanel",data));
+	        $html.find(".popover-content").html($e);
+	        dfd.resolve($html);
+	    }); 
+    }else{
+    	var $e = $(render(view.name));
+        var $html = $(render("filterPanel",data));
+        $html.find(".popover-content").html($e);
+        dfd.resolve($html);
+    }
     return dfd.promise();
   }
   

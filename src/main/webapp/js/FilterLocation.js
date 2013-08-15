@@ -1,6 +1,6 @@
 (function ($) {
     function FilterLocation(){
-      this.constructor._super.constructor.call(this,"Location");
+      this.constructor._super.constructor.call(this,"location");
     }
 
     brite.inherit(FilterLocation,app.ThPopup);

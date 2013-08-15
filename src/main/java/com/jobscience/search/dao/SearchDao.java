@@ -762,5 +762,66 @@ public class SearchDao {
         return zip;
     }
 
+    public List getTopAdvancedType(Integer offset,Integer size,String type,String match) throws SQLException {
+        if(size == null||size<6){
+            size = 5;
+        }
+        offset = offset < 0 ? 0 : offset;
+        Connection con = dbHelper.getConnection();
+        String name = getNameExpr(type);
+        String table = getTable(type);
+        StringBuilder querySql =new StringBuilder();
+        if("location".equals(type)){
+        	querySql.append("select city as name from zipcode_us group by city order by city offset ")
+		        	.append( offset)
+		            .append( " limit ") 
+		            .append( size); 
+        }else{
+	        querySql.append(" select a.name, count(a.contact) from ( ").
+	                                append( " select e."+name+" as name, e.\"ts2__Contact__c\" as contact ").
+	                                append( " from "+table+" e  ").
+	                                append( " where e."+name+" !='' ");
+	        if(match!=null&&!"".equals(match)){
+	        	querySql.append(" AND (e."+name+" ilike '%"+ Joiner.on("%' OR e."+name+" ilike '%").join(Splitter.on(",").omitEmptyStrings().split(match))+"%')");
+	        }
+	        
+	        querySql.append(" group by e.\"ts2__Contact__c\", e."+name+") a  ").
+					 append( " group by a.name order by a.count desc,a.name offset " ).
+	                 append( offset).
+	                 append( " limit ").
+	                 append( size);
+        }
+        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
+        prepareStatement.close();
+        con.close();
+        return result;
+    }
+    
+    private String getNameExpr(String type){
+        StringBuilder sql = new StringBuilder();
+        
+        if(type.equals("company")){
+            sql.append("\"ts2__Name__c\"");
+        }else if(type.equals("education")){
+            sql.append("\"ts2__Name__c\"");
+        }else if(type.equals("skill")){
+            sql.append("\"ts2__Skill_Name__c\"");
+        }
+        return sql.toString();
+    }
+    
+    private String getTable(String type){
+        String table = null;
+        
+        if(type.equals("company")){
+            table = "ts2__employment_history__c";
+        }else if(type.equals("education")){
+            table = "ts2__education_history__c";
+        }else if(type.equals("skill")){
+            table = "ts2__skill__c";
+        }
+        return table;
+    }
 }
 

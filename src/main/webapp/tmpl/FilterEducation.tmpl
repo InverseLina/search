@@ -9,7 +9,7 @@
         	<span class="add">+&nbsp;new education</span>
         </div>
         <div class="content education">
-        	<div class="skillRow"><span class="labelText">min years:</span>
+        	<div class="educationRow"><span class="labelText">min years:</span>
 	        	     <div class="progressContainer">
 	        	       <div class="progress">
 						  <div class="progress-bar progress-bar-info" style="width: 20%"></div>
@@ -18,10 +18,9 @@
 					</div>
         	     </div>
         	     
-        	     <div class="skillRow"><span class="contentText">Brown Univ</span></div>
-        	     <div class="skillRow"><span class="contentText">Cornell Univ</span></div>
-        	     <div class="skillRow"><span class="contentText">Dartmouth Univ</span></div>
-        	     <div class="skillRow"><span class="contentText">Univ of Edinburgh</span></div>
+        	     {{#each educations}}
+        	     <div class="educationRow"><span class="contentText">{{name}}</span></div>
+        	     {{/each}}
         </div>
    </div>
 </script>
