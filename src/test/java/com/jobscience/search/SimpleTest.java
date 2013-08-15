@@ -10,7 +10,7 @@ import com.britesnow.snow.testsupport.SnowTestSupport;
 import com.britesnow.snow.util.MapUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.jobscience.search.dao.SearchDao;
+import com.jobscience.search.dao.OldSearchDao;
 import com.jobscience.search.dao.SearchResult;
 
 public class SimpleTest extends SnowTestSupport {
@@ -23,7 +23,7 @@ public class SimpleTest extends SnowTestSupport {
     
     //@Test
     public void preparedTest(){
-       SearchDao searchDao = appInjector.getInstance(SearchDao.class);
+       OldSearchDao searchDao = appInjector.getInstance(OldSearchDao.class);
        Map values = MapUtil.mapIt("search","java");
        long start = System.currentTimeMillis();
        SearchResult result = searchDao.search("id,name,title",values, 1, 30,"");

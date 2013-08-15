@@ -1,6 +1,6 @@
 (function ($) {
     function FilterSkill(){
-      this.constructor._super.constructor.call(this,"Skill");
+      this.constructor._super.constructor.call(this,"skill");
     }
 
     brite.inherit(FilterSkill,app.ThPopup);
