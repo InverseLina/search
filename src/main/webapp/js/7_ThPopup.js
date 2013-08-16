@@ -39,12 +39,19 @@ var app = app || {};
               $(document).off("btap."+view.cid);
           }
       });
+     if(view.afterPostDisplay){
+         view.afterPostDisplay();
+     }
   };
 
     ThPopup.prototype.events = {
         "btap; span.add": function () {
             var view = this;
             view.$el.find("div.content").show();
+            if(view.$el.find(".sliderBarContainer").length > 0){
+                brite.display("Slider", ".sliderBarContainer");
+            }
+
         },
         "btap; div.content>div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
