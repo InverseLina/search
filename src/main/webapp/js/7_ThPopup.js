@@ -41,13 +41,21 @@ var app = app || {};
       });
   };
 
-  ThPopup.prototype.events = {
-      "click; span.add":function(){
-          view = this;
-          console.log(view.$el.find("span.add"));
-          view.$el.find("div.content").show();
-      }
-  };
+    ThPopup.prototype.events = {
+        "btap; span.add": function () {
+            var view = this;
+            view.$el.find("div.content").show();
+        },
+        "btap; div.content>div[class$='Row'][class!='contactRow']": function (event) {
+            var view = this;
+            var data = $(event.currentTarget).find(".contentText").text();
+            var len = view.$el.find(".selectedItems .item[data-name='" + data + "']").length;
+            if (len == 0) {
+                view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data}))
+            }
+        }
+
+    };
 
 
   
