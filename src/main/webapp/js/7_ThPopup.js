@@ -39,7 +39,17 @@ var app = app || {};
               $(document).off("btap."+view.cid);
           }
       });
-  }
+  };
+
+  ThPopup.prototype.events = {
+      "click; span.add":function(){
+          view = this;
+          console.log(view.$el.find("span.add"));
+          view.$el.find("div.content").show();
+      }
+  };
+
+
   
   app.ThPopup = ThPopup;
 })(jQuery); 
