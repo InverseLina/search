@@ -11,6 +11,7 @@ import com.britesnow.snow.util.MapUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.jobscience.search.dao.OldSearchDao;
+import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
 
 public class SimpleTest extends SnowTestSupport {
@@ -31,6 +32,21 @@ public class SimpleTest extends SnowTestSupport {
        Assert.assertEquals(1011, result.getCount());
        System.out.println("search cost time: " + (end - start));
     }
+    
+    @Test
+    public void newSearchTest(){
+       SearchDao searchDao = appInjector.getInstance(SearchDao.class);
+       Map values = MapUtil.mapIt("search","java");
+       values.put("contacts", "[{firstName:'kevin'},{lastName:'cook'}]");
+       values.put("educations", "['education1','education2']");
+       values.put("skills", "['skill1','skill2']");
+       values.put("employers", "['employer1','employer2']");
+       values.put("locations", "['location1','location2']");
+       values.put("radius", "100");
+       SearchResult result = searchDao.search("id,name,title",values, 1, 30,"");
+       System.out.println("new search result : "+result.getCount());
+    }
+    
     
     @Test
     public void stringTest(){
