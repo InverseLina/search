@@ -1,5 +1,7 @@
 package com.jobscience.search;
 
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -34,6 +36,17 @@ public class SimpleTest extends SnowTestSupport {
     }
     
     @Test
+    public void getTopAdvancedType() throws SQLException{
+       SearchDao searchDao = appInjector.getInstance(SearchDao.class);
+       List<Map> result = searchDao.getTopAdvancedType(0, 10, "company", "1");
+       searchDao.getTopAdvancedType(0, 10, "skill", "1");
+       searchDao.getTopAdvancedType(0, 10, "location", "1");
+       searchDao.getTopAdvancedType(0, 10, "education", "1");
+       for(Map m:result){
+    	   System.out.println(m.get("name"));
+       }
+    }
+    @Test
     public void newSearchTest(){
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
        Map values = MapUtil.mapIt("search","java");
@@ -46,7 +59,6 @@ public class SimpleTest extends SnowTestSupport {
        SearchResult result = searchDao.search("id,name,title",values, 1, 30,"");
        System.out.println("new search result : "+result.getCount());
     }
-    
     
     @Test
     public void stringTest(){

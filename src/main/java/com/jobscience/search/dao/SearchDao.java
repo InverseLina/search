@@ -307,7 +307,6 @@ public class SearchDao {
            }
 		   querySql.append(" where 1=1 "+conditions);
 		   values.addAll(subValues);
-    	   System.out.println(querySql);
     	   if(!hasCondition){
     		   querySql.append(" and 1!=1 ");
     	   }
@@ -690,7 +689,7 @@ public class SearchDao {
         return zip;
     }
 
-    public List getTopAdvancedType(Integer offset,Integer size,String type,String match) throws SQLException {
+    public List getTopAdvancedType(Integer offset,Integer size,String type,String min) throws SQLException {
         if(size == null||size<6){
             size = 5;
         }
@@ -709,10 +708,15 @@ public class SearchDao {
 	                                append( " select e."+name+" as name, e.\"ts2__Contact__c\" as contact ").
 	                                append( " from "+table+" e  ").
 	                                append( " where e."+name+" !='' ");
-	        if(match!=null&&!"".equals(match)){
-	        	querySql.append(" AND (e."+name+" ilike '%"+ Joiner.on("%' OR e."+name+" ilike '%").join(Splitter.on(",").omitEmptyStrings().split(match))+"%')");
+	        if(min!=null&&!"".equals(min)){
+	        	if("company".equals(type)){
+	        	    querySql.append(" AND EXTRACT(year from age(e.\"ts2__Employment_End_Date__c\",e.\"ts2__Employment_Start_Date__c\"))>="+min);
+	        	}else if("education".equals("type")){
+	        		querySql.append(" AND EXTRACT(year from age(now(),e.\"ts2__GraduationDate__c\"))>="+min);
+	        	}else if("skill".equals("type")){
+	        		querySql.append(" AND e.\"ts2__Rating__c\" >=  "+min);
+	        	}
 	        }
-	        
 	        querySql.append(" group by e.\"ts2__Contact__c\", e."+name+") a  ").
 					 append( " group by a.name order by a.count desc,a.name offset " ).
 	                 append( offset).
@@ -751,11 +755,5 @@ public class SearchDao {
         }
         return table;
     }
-    
-    public static void main(String[] args) {
-		JSONArray ja = JSONArray.fromObject("[{name:'name'},{name:2}]");
-		JSONObject jo = JSONObject.fromObject(ja.get(0));
-		System.out.println(jo.get("he"));
-	}
 }
 

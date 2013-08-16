@@ -49,7 +49,7 @@ public class SearchWebHandlers {
     
     @WebGet("/getTopCompaniesAndEducations")
     public WebResponse getTopCompanies(@WebParam("type") String type, @WebParam("offset") Integer offset,
-                            @WebParam("limit") Integer limit,@WebParam("match")String match) throws SQLException {
+                            @WebParam("limit") Integer limit,@WebParam("min")String min) throws SQLException {
     	Map result = new HashMap();
         if(offset==null){
         	offset = 0;
@@ -60,22 +60,22 @@ public class SearchWebHandlers {
         
         long start = System.currentTimeMillis();
         if(type==null || "".equals(type) || "company".equals(type)){
-	        List companies = searchDao.getTopAdvancedType(offset,limit,"company",match);
+	        List companies = searchDao.getTopAdvancedType(offset,limit,"company",min);
 	        result.put("companies", companies);
         }
        
         if(type==null || "".equals(type) || "education".equals(type)){
-	        List educations = searchDao.getTopAdvancedType(offset,limit,"education",match);
+	        List educations = searchDao.getTopAdvancedType(offset,limit,"education",min);
 	        result.put("educations", educations);
         }
       
         if(type==null || "".equals(type) || "skill".equals(type)){
-	        List skills = searchDao.getTopAdvancedType(offset,limit,"skill",match);
+	        List skills = searchDao.getTopAdvancedType(offset,limit,"skill",min);
 	        result.put("skills", skills);
         }
         
         if(type==null || "".equals(type) || "location".equals(type)){
-	        List locations = searchDao.getTopAdvancedType(offset,limit,"location",match);
+	        List locations = searchDao.getTopAdvancedType(offset,limit,"location",min);
 	        result.put("locations", locations);
         }
         
