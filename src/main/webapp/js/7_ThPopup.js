@@ -39,7 +39,32 @@ var app = app || {};
               $(document).off("btap."+view.cid);
           }
       });
-  }
+     if(view.afterPostDisplay){
+         view.afterPostDisplay();
+     }
+  };
+
+    ThPopup.prototype.events = {
+        "btap; span.add": function () {
+            var view = this;
+            view.$el.find("div.content").show();
+            if(view.$el.find(".sliderBarContainer").length > 0){
+                brite.display("Slider", ".sliderBarContainer");
+            }
+
+        },
+        "btap; div.content>div[class$='Row'][class!='contactRow']": function (event) {
+            var view = this;
+            var data = $(event.currentTarget).find(".contentText").text();
+            var len = view.$el.find(".selectedItems .item[data-name='" + data + "']").length;
+            if (len == 0) {
+                view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data}))
+            }
+        }
+
+    };
+
+
   
   app.ThPopup = ThPopup;
 })(jQuery); 
