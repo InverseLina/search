@@ -19,6 +19,36 @@
 			 });
 		 }
 	 },
+
+     getSearchValues: function(){
+         var key, view = this;
+         var result = {};
+         var searchData = result.searchValues = {};
+         var contentSearchValues = view.contentView.getSearchValues();
+//         console.log(contentSearchValues);
+         result.searchColumns = app.preference.columns().join(",");
+         if(contentSearchValues.sort){
+             result.orderBy = contentSearchValues.sort.column;
+             result.orderType =  !!(contentSearchValues.sort.order === "asc");
+         }
+         if(!/^\s*$/.test(contentSearchValues.search)){
+             searchData.q_search = $.trim(contentSearchValues.search)
+         }
+
+         if(view._searchValues){
+             for(key in view._searchValues){
+                 if(key == "q_contacts"){
+                     searchData[key] = view._searchValues[key];
+                 }else{
+                     searchData[key] = {values: view._searchValues[key]}
+                 }
+             }
+         }
+         result.pageIndex = view.contentView.pageIdx || 1;
+         result.pageSize = view.contentView.pageSize || 15;
+//         console.log(result);
+         return result;
+     },
 	 
 	 events: {
 	 	"click; [data-action='DO_SEARCH']": function(){
@@ -42,6 +72,30 @@
                  app.preference.columns(extra.columns);
                  view.$el.trigger("DO_SEARCH");
              }
+         },
+         "SEARCH_PARAMS_CHANGE":function(event, extra){
+             var view = this;
+             var result = {};
+             view.contentView.$el.find("th").each(function(idx, th){
+                 var type = $(th).closest("th").attr("data-column");
+                 if(type == "name"){
+                     type = "contact";
+                 }
+                 type = "q_" + type + "s";
+                 var data = [], val;
+                 $(th).find(".selectedItems .item").each(function(index, item){
+                       val = $(item).data("value");
+                     if(val){
+                         data.push(val);
+                     }
+                 });
+//                 console.log(data);
+                 if(data.length > 0 || !$.isEmptyObject(data)){
+                     result[type] = data;
+                 }
+             });
+             view._searchValues = result;
+//             console.log(view._searchValues);
          }
      }
 	});
@@ -49,7 +103,7 @@
 
     function doSearch(opts) {
         var view = this;
-        var valCount = 0;
+        /*var valCount = 0;
         var isValid = true;
         var contentSearchValues = view.contentView.getSearchValues();
 
@@ -80,7 +134,7 @@
                 isValid = false;
             }
             if(!/^\s*$/.test(val)){
-                if(/^\s*[^\s].+[^\s]\s*$/.test(val)||/.*(State).*/.test(key)){
+                if(/^\s*[^\s].+[^\s]\s*$/.test(val)||/.*(State).*//*.test(key)){
                     qParams["q_" + key] = $.trim(val);
                 }else{
                 	if(key=="radius"){
@@ -109,18 +163,19 @@
             view.contentView.showErrorMessage("Wrong Search Query", "Search query needs to be at least 3 character long");
             view.$el.trigger("NO_SEARCH");
             return false;
-        }
-        qParams=$.extend({},qParams,opts);
-        var callback = function(pageIdx, pageSize){
-           view.contentView.loading();
-           pageIdx = pageIdx||1;
-            pageSize = pageSize||30;
-            searchDao.search(qParams,"",pageIdx,pageSize,app.preference.columns().join(",")).always(function (result) {
+        }*/
+
+        var callback = function(){
+            view.contentView.loading();
+//            qParams.pageIndex = pageIdx||qParams.pageIndex;
+//            qParams.pageSize =  pageSize||qParams.pageSize;
+//            var qParams=view.getSearchValues();
+            searchDao.search(view.getSearchValues()).always(function (result) {
 	            result.callback = callback;
 	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
             });
         };
-        callback(qParams.pageIdx,qParams.pageSize);
+        callback();
 
     }
 	

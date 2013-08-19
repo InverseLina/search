@@ -58,7 +58,7 @@
       },
       "btap; table th[data-column]" : function(event) {
     	  var view = this;
-    	  $("[data-b-view^='Filter']",view.$el).bRemove();
+    	  //$("[data-b-view^='Filter']",view.$el).bRemove();
     	  var $th = $(event.currentTarget);
     	  var position = {top:$th.get(0).offsetTop+$th.height(),left:$th.get(0).offsetLeft+$th.width()/2-175};
     	  var type = $th.attr("data-column"); 
@@ -68,8 +68,18 @@
     	  if(type=="company"){
     		  type="employer";
     	  }
+          var viewName = "Filter"+type.substring(0, 1).toUpperCase()+type.substring(1);
     	  if(type=="skill"||type=="contact"||type=="education"||type=="employer"||type=="location"){
-    		  brite.display("Filter"+type.substring(0, 1).toUpperCase()+type.substring(1),".tableContainer",{position:position,type:type});
+              var bviews = view.$el.bFindComponents(viewName);
+              if(bviews.length > 0){
+                  setTimeout(function(){
+                  view.$el.find('div[data-b-view="' + viewName + '"]').show();
+                  },200);
+                  console.log(view.$el.find('div[data-b-view="' + viewName + '"]'))
+              }else{
+                  brite.display(viewName,".tableContainer",{position:position,type:type});
+              }
+
     	  }
       },
       "change; .tableContainer td input[type='checkbox']" : function(event) {
@@ -146,7 +156,44 @@
       view.$searchResult.find(".tableContainer").html(render("search-loading"));
       fixColWidth.call(view);
     },
+    docEvents: {
+      "ADD_FILTER":function(event, extra){
+          var type, view = this;
+//          console.log(extra);
+          if(extra) {
+              if(extra.type == "Contact"){
+                  type = "name";
+              }else{
+                  type = extra.type.substring(0,1).toLocaleLowerCase() + extra.type.substring(1);
+              }
+          }
+          var $th = view.$el.find("th[data-column='" + type + "']");
+          $th.find("span.addFilter").before(render("search-items-header-add-item", {name: extra.name}));
+          var ele = $th.find(".selectedItems span.item[data-name='" + extra.name + "']");
+          ele.data("value", extra.value);
+          view.$el.trigger("SEARCH_PARAMS_CHANGE")
+//          console.log(ele);
+//          console.log(ele.data("value"));
+      },
+      "REMOVE_FILTER":function(event, extra){
+          var type, view = this;
+          if(extra) {
+              if(extra.type == "Contact"){
+                  type = "name";
+              }else{
+                  type = extra.type.substring(0,1).toLocaleLowerCase() + extra.type.substring(1);
+              }
+          }
+          view.$el.find("th[data-column='" + type + "']").find(".selectedItems span.item[data-name='" + extra.name + "']").remove();
+          setTimeout(function(){
+              view.$el.trigger("SEARCH_PARAMS_CHANGE");
+          }, 200);
 
+      },
+      UPDATE_FILTER: function(event, extra){
+
+      }
+    },
     parentEvents : {
 
       MainView : {
@@ -296,6 +343,7 @@
     var columns = app.preference.columns();
     var colLen = columns.length;
     var tableWidth = view.$el.find(".tableContainer").width() - 20;
+      var excludes = ["id", "CreatedDate","title","email", "resume"];
     if ($.inArray("id", columns) >= 0) {
       tableWidth = tableWidth - 80;
       colLen--;
@@ -322,7 +370,8 @@
     var tlen = $head.find("th").length - 1;
 
     $head.find("th").each(function(idx, item) {
-      colName = $(item).attr("data-column");
+      var $item  = $(item);
+      colName = $item.attr("data-column");
       if (colName == "id") {
         realWidth = 80;
         if (idx == tlen) {
@@ -333,7 +382,7 @@
         if (idx == tlen) {
           realWidth = colWidth + 110;
         }
-      } else if ($(item).hasClass("checkboxCol")) {
+      } else if ($item.hasClass("checkboxCol")) {
         realWidth = 30;
       } else if (colName=="resume") {
         realWidth = 65;
@@ -341,13 +390,13 @@
         realWidth = colWidth;
       }
       if (idx == tlen) {
-        $(item).css({
+          $item.css({
           width : realWidth + 20,
           "max-width" : realWidth + 20,
           "min-width" : realWidth
         });
       } else {
-        $(item).css({
+          $item.css({
           width : realWidth,
           "max-width" : realWidth,
           "min-width" : realWidth
@@ -358,8 +407,15 @@
         "max-width" : realWidth,
         "min-width" : realWidth
       });
+        //hide filter
+        if($.inArray(colName, excludes) >= 0){
+            $item.find(".addFilter").hide();
+        }
+
     })
   }
+
+
 
   function translate(value) {
     if (!value) {

@@ -126,13 +126,39 @@
 				padding: 4px 10px;
 				position: relative;
 				padding-left: 10px;
-				.addFilter{
+/*				.addFilter{
 					position: absolute;
 					bottom: 0;
 					font-weight: normal;
 					cursor:pointer;
 					z-index:1;
-				}
+				}*/
+                .selectedItems{
+                  /*padding-left:14px;
+                  padding-right:14px;*/
+                  position: absolute;
+                  bottom: 5px;
+                  left: 5px;
+                  right: 5px;
+                  max-height: 65px;
+                  font-size: 12px;
+                  vertical-align: bottom;
+                  .item, .addFilter{
+                    padding: 2px;
+                    margin: 1px;
+                    line-height: 12px;
+                    display:inline-block;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    word-break: normal;
+                    font-size: 12px;
+                    vertical-align: bottom;
+                  }
+                .addFilter{
+                  cursor:pointer;
+                }
+              }
 			    .columnName{
 			    	width: 90%;
 					display: inline-block;
