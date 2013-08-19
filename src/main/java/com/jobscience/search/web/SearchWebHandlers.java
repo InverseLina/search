@@ -23,7 +23,7 @@ public class SearchWebHandlers {
     @WebGet("/search")
     public WebResponse search(@WebParam("q_") Map searchValues,
                               @WebParam("pageIdx") Integer pageIdx, @WebParam("pageSize") Integer pageSize,
-                              @WebParam("column")String column,@WebParam("order")String order,
+                              @WebParam("column")String orderBy,@WebParam("order")Boolean orderType,
                               @WebParam("searchColumns")String searchColumns ){
         
         
@@ -34,14 +34,15 @@ public class SearchWebHandlers {
             pageSize = 30;
         }
         String orderCon = "";
-        if(column!=null){
-        	if(searchColumns.contains(column)){
-        		orderCon = "\""+getOrderColumn(column)+ "\" " +(("desc".equals(order))?"desc":"asc");
+        if(orderBy!=null){
+        	if(searchColumns.contains(orderBy)){
+        		if(orderType==null){
+        			orderType = true;
+        		}
+        		orderCon = " \""+getOrderColumn(orderBy)+ "\" " +(orderType?"asc":"desc");
         	}
         }
         
-        // FIXME: needs to get the search map from request.
-        // Map searchValues = MapUtil.mapIt("search",search);
         SearchResult searchResult = searchDao.search(searchColumns,searchValues, pageIdx, pageSize,orderCon);
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
@@ -95,7 +96,9 @@ public class SearchWebHandlers {
 			return "l"+originalName.substring(0,1).toUpperCase()+originalName.substring(1);
 		}else if("createddate".equalsIgnoreCase(originalName)){
 			return "CreatedDate";
-		}		
+		}else if( "Location".equalsIgnoreCase(originalName)){
+			return "location";
+		}
 		return originalName;
     }
 }

@@ -51,12 +51,11 @@ public class SimpleTest extends SnowTestSupport {
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
        Map values = MapUtil.mapIt("search","java");
        values.put("contacts", "[{firstName:'kevin'},{lastName:'cook'}]");
-       values.put("educations", "['education1','education2']");
-       values.put("skills", "['skill1','skill2']");
-       values.put("employers", "['employer1','employer2']");
-       values.put("locations", "['location1','location2']");
-       values.put("radius", "100");
-       SearchResult result = searchDao.search("id,name,title",values, 1, 30,"");
+       values.put("educations", "{values:['education1','education2'],minYear:2}");
+       values.put("skills", "{values:['skill1','skill2'],minYear:2}");
+       values.put("companies", "{values:['employer1','employer2'],minYear:2}");
+       values.put("locations", "{values:['New York','Amherst'],minRadius:30}");
+       SearchResult result = searchDao.search("id,name,title,location",values, 1, 30,"");
        System.out.println("new search result : "+result.getCount());
     }
     

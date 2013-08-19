@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -17,8 +16,6 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.jobscience.search.db.DBHelper;
@@ -62,7 +59,6 @@ public class SearchDao {
     
     
     private String renderSearchCondition(Map<String, String> searchValues,String type,String baseTable,String baseTableIns,List values){
-        StringBuilder joinTables = new StringBuilder();
         StringBuilder querySql = new StringBuilder();
     	StringBuilder conditions = new StringBuilder();
     	List subValues = new ArrayList();
@@ -131,178 +127,123 @@ public class SearchDao {
                if(contacts.size()>0)
                conditions.append(" ) ");
          
-               // add the 'educationNames' filter, and join Education table
+               // add the 'educations' filter, and join Education table
                if (searchValues.get("educations") != null && !"".equals(searchValues.get("educations"))) {
             	   String value = searchValues.get("educations");
-	                   if (!"Any Education".equals(value)) {
-	                	   value = value.substring(1,value.length()-1);
-                		   querySql.append(" join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
-                		   querySql.append("("+Joiner.on(",").join(Splitter.on(",").omitEmptyStrings().split(value))+")");
-                	   }
+            	   JSONObject jObject = JSONObject.fromObject(value);
+            	   String educationValues = jObject.getString("values");
+            	   String minYear = jObject.getString("minYear");
+            	   if(educationValues!=null){
+	                   if (!"Any Education".equals(educationValues)) {
+	                	   educationValues = educationValues.substring(1,educationValues.length()-1);
+	            		   querySql.append(" join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
+	            		   querySql.append("("+educationValues.replaceAll("\"", "\'")+")");
+	            	   }
+	                   if(minYear!=null){
+	                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__GraduationDate__c\"))>="+minYear);
+	                   }
 	                   querySql.append(" ) ed1 on contact.\"sfId\" = ed1.\"ts2__Contact__c\" ");
 	                   hasCondition = true;
+            	   }
+               }
+            
+               // add the 'companies' filter, and join Education table
+               if (searchValues.get("companies") != null && !"".equals(searchValues.get("companies"))) {
+                   String value = searchValues.get("companies");
+                   JSONObject jObject = JSONObject.fromObject(value);
+            	   String companyValues = jObject.getString("values");
+            	   String minYear = jObject.getString("minYear");
+                   if (companyValues!=null&&!"Any Company".equals(companyValues)) {
+                	   companyValues = companyValues.substring(1,companyValues.length()-1);
+                	   querySql.append(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
+                	   querySql.append(" ("+companyValues.replaceAll("\"", "\'")+")");
+                       	if(minYear!=null){
+                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))>= "+minYear);
+                   		}
+                       	querySql.append(" ) em1 on contact.\"sfId\" = em1.\"ts2__Contact__c\"");
+                        hasCondition = true;
+	                }
                }
                
-               
-               String joinEmploymentForTitle = "";
-               String joinEmploymentForCompanyName = "";
-               boolean searchForCompany = (joinTables.indexOf("ts2__employment_history__c")!=-1||baseTable.indexOf("ts2__employment_history__c")!=-1);
-              
-               
-               
-               // add the 'companyNames' filter, and join Education table
-               if (searchValues.get("employers") != null && !"".equals(searchValues.get("employers"))) {
-                   String value = searchValues.get("employers");
-                   if (!"Any Company".equals(value)) {
-                	   	value = value.substring(1,value.length()-1);
-                		joinEmploymentForCompanyName=(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where ");
-                       	//joinEmploymentForCompanyName+=("('"+Joiner.on("','").join(Splitter.on(",").omitEmptyStrings().split(value))+"')");
-                       	Iterator<String> companyNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
-                       	boolean hasCompany = false;
-                       	if(companyNames.hasNext()){
-                       		joinEmploymentForCompanyName+="( 1!=1 ";
-                       		hasCompany = true;
-                       	}
-                       	while(companyNames.hasNext()){
-                       		joinEmploymentForCompanyName+=" or (";
-                       		String n = companyNames.next();
-                       		String[] companyParams = n.split("\\|");
-                       	    joinEmploymentForCompanyName+="  em.\"ts2__Name__c\" = ? ";
-                       		values.add(companyParams[0]);
-                       		if(companyParams.length>1){
-           	        			if(companyParams[1]!=null&&!"".equals(companyParams[1])){
-           	            		  joinEmploymentForCompanyName+=" and EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))>=? ";
-           	            		  values.add(Double.parseDouble(companyParams[1]));
-           	        			}
-           	        		    if(companyParams.length>2){
-           	        		      if(companyParams[2]!=null&&!"".equals(companyParams[2])){
-           	            		    joinEmploymentForCompanyName+=" and EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))<=? ";
-           	            		    values.add(Double.parseDouble(companyParams[2]));
-           	        		      }
-           	            	    }
-                       	   }
-                       		joinEmploymentForCompanyName+=")";
-                       	}
-                       	if(hasCompany){
-                       		joinEmploymentForCompanyName+=" ) ";
-                       	}
-	                   }
-	                   searchForCompany = true;
-	                   hasCondition = true;
-               }
-               
-              if(searchValues.get("curCompany") != null&&searchForCompany){
-            	  joinEmploymentForCompanyName+=(" and em.\"ts2__Employment_End_Date__c\" is  null ");
-              }
-              if(joinEmploymentForCompanyName.equals("")&&!joinEmploymentForTitle.equals("")){
-            	  querySql.append(joinEmploymentForTitle);
-              }else if(!joinEmploymentForCompanyName.equals("")){
-            	  querySql.append(joinEmploymentForCompanyName);
-              }
-              
-              if(!joinEmploymentForCompanyName.equals("")||!joinEmploymentForTitle.equals("")){
-            	  querySql.append(" )  c1 on contact.\"sfId\" = c1.\"ts2__Contact__c\"   ");
-              }
-              
                // add the 'skillNames' filter, and join Education table
                if (searchValues.get("skills") != null && !"".equals(searchValues.get("skills"))) {
                    String value = searchValues.get("skills");
-                   if (!"Any Skill".equals(value)) {
-                	   value = value.substring(1,value.length()-1);
-            		   querySql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where 1=1 ");
-                       Iterator<String> skillNames = Splitter.on(",").omitEmptyStrings().split(value).iterator();
-                       int i = 0;
-                       querySql.append(" and (");
-                       while(skillNames.hasNext()){
-                           if(i != 0){
-                        	   querySql.append(" or ");
-                           }
-                           querySql.append(" (");
-                           String n = skillNames.next();
-                           String[] companyParams = n.split("\\|");
-                           querySql.append("sk.\"ts2__Skill_Name__c\" = ? ");
-                           values.add(companyParams[0]);
-                           if(companyParams.length>1){
-                               if(companyParams[1]!=null&&!"".equals(companyParams[1])){
-                            	 querySql.append(" and sk.\"ts2__Rating__c\" >= ?");
-                                 values.add(Double.parseDouble(companyParams[1]));
-                               }
-                               if(companyParams.length>2){
-                                 if(companyParams[2]!=null&&!"".equals(companyParams[2])){
-                                   querySql.append(" and sk.\"ts2__Rating__c\" <= ?");
-                                   values.add(Double.parseDouble(companyParams[2]));
-                                 }
-                               }
-                          }
-                           querySql.append(" )");
-                           i++;
-                       }
-                       querySql.append(" )");
-                       querySql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
-                   }
-                   hasCondition = true;
+                   JSONObject jObject = JSONObject.fromObject(value);
+            	   String skillValues = jObject.getString("values");
+            	   String minYear = jObject.getString("minYear");
+            	   if(skillValues!=null){
+	                   if (!"Any Skill".equals(skillValues)) {
+	                	   skillValues = skillValues.substring(1,skillValues.length()-1);
+	            		   querySql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in ");
+	            		   querySql.append(" ("+skillValues.replaceAll("\"", "\'")+")");
+	            		   if(minYear!=null){
+	            			   querySql.append(" AND sk.\"ts2__Rating__c\" >=  "+minYear);
+	            		   }
+	                       querySql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
+	                   }
+	                   hasCondition = true;
+            	   }
                }
 
                
                boolean hasLocationCondition = false;
                //add the 'radius' filter
-               if (searchValues.get("radius") != null && !"".equals(searchValues.get("radius"))) {
+               if (searchValues.get("locations") != null && !"".equals(searchValues.get("locations"))) {
                	StringBuilder condition = new StringBuilder();
-               	JSONArray locations = JSONArray.fromObject(searchValues.get("locations"));
-                if("0".equals(searchValues.get("radius"))){
-                   	//add the 'Zip' filter
-                	if(locations.size()>0)
-                		condition.append(" AND (1!=1 ");
-                	 for(int i=0,j=locations.size();i<j;i++){
-	                   	String city = (String) locations.get(i);
-	                    condition.append(" or zipcode_us.City ilike '"+city+"'" );
-	                    hasLocationCondition = true;
-                	 }
-                	 if(locations.size()>0)
-                 		condition.append(" ) ");
-                	 
-                   if(hasLocationCondition){
-                	   List<Map> zipcodes = getZipCode(condition.toString());
-                	   if(zipcodes.size()>0){
-                		   conditions.append(" and (1!=1 ");
-                		   for(Map m:zipcodes){
-                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" ilike '")
-                			   		   .append(m.get("zip"))
-                					   .append("%' ");
-                		   }
-                		   conditions.append(" )");
-                	   }else{
-                		   conditions.append(" and 1!=1 ");
-                	   }
-                   }
-                   hasCondition = hasLocationCondition||hasCondition;
-               
-                }else{
-                if(locations.size()>0)
-                	conditions.append(" AND (1!=1 ");
-                for(int i=0,j=locations.size();i<j;i++){
-             	   String location = (String) locations.get(i);
-	               if (location != null && !"".equals(location)) {
-	                 String city =location;
-	                 condition.append(" and zipcode_us.City= '"+city+"'" );
-	                 hasLocationCondition = true;
-	               }
-	               Double[] latLong = getLatLong(condition.toString());
-	               if(latLong[0]==null||latLong[1]==null|| !hasLocationCondition){
-	                 conditions.append(" OR ( 1!=1) ");
-	               }else{
-	     	          double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(searchValues.get("radius")));
-	     	          conditions.append(" OR (  "+tableAliases+".\"ts2__Latitude__c\" >"+latLongAround[0]);
-	     	          conditions.append(" and "+tableAliases+".\"ts2__Latitude__c\" <"+latLongAround[2]);
-	     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" >"+latLongAround[1]);
-	     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]+")");
-	              }
-	               condition = new StringBuilder();
-                }
-                if(locations.size()>0)
-                	conditions.append(" ) ");
-                   hasCondition = hasLocationCondition;
-                }
+               	String value = searchValues.get("locations");
+                JSONObject jObject = JSONObject.fromObject(value);
+         	    String locationValues = jObject.getString("values");
+         	    String minRadius = jObject.getString("minRadius");
+         	    if(locationValues!=null){
+	         	    locationValues = locationValues.substring(1,locationValues.length()-1);
+	                if("0".equals(minRadius)){
+	                   	//add the 'Zip' filter
+	                	 if(locationValues.length()>0){
+		                	 condition.append(" AND zipcode_us.City in ("+locationValues+")");
+		                	 hasLocationCondition = true;
+	                	 }
+	                   if(hasLocationCondition){
+	                	   List<Map> zipcodes = getZipCode(condition.toString());
+	                	   if(zipcodes.size()>0){
+	                		   conditions.append(" and (1!=1 ");
+	                		   for(Map m:zipcodes){
+	                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" ilike '")
+	                			   		   .append(m.get("zip"))
+	                					   .append("%' ");
+	                		   }
+	                		   conditions.append(" )");
+	                	   }else{
+	                		   conditions.append(" and 1!=1 ");
+	                	   }
+	                   }
+	                   hasCondition = hasLocationCondition||hasCondition;
+	               
+	                }else{
+		                if(locationValues.length()>0)
+		                	conditions.append(" AND (1!=1 ");
+		                for(String location:locationValues.split(",")){
+			               if (location != null && !"".equals(location)) {
+			                 String city =location.replaceAll("\'", "").replaceAll("\"", "");
+			                 condition.append(" and zipcode_us.City= '"+city+"'" );
+			                 hasLocationCondition = true;
+			               }
+			               Double[] latLong = getLatLong(condition.toString());
+			               if(latLong[0]==null||latLong[1]==null|| !hasLocationCondition){
+			                 conditions.append(" OR ( 1!=1) ");
+			               }else{
+			     	          double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(minRadius));
+			     	          conditions.append(" OR (  "+tableAliases+".\"ts2__Latitude__c\" >"+latLongAround[0]);
+			     	          conditions.append(" and "+tableAliases+".\"ts2__Latitude__c\" <"+latLongAround[2]);
+			     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" >"+latLongAround[1]);
+			     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]+")");
+			              }
+			               condition = new StringBuilder();
+		                }
+		                if(locationValues.length()>0)
+		                	conditions.append(" ) ");
+		                   hasCondition = hasLocationCondition;
+		            }
+	         	  }
                } 
            }
 		   querySql.append(" where 1=1 "+conditions);
@@ -356,6 +297,13 @@ public class SearchDao {
     	}else if(orginalName.toLowerCase().equals("education")){
     		columnJoinTables.add(getAdvancedJoinTable("education"));
     		return " case when string_agg(distinct d.\"ts2__Name__c\",',') is null then '' else string_agg(distinct d.\"ts2__Name__c\",',') end  Education";
+    	}else if(orginalName.toLowerCase().equals("location")){
+    		columnJoinTables.add(getAdvancedJoinTable("location"));
+    		 if(groupBy.length()>0){
+                 groupBy.append(",");
+             }
+             groupBy.append("z.\"city\"");
+    		return "  z.\"city\" as location ";
     	}
     	
     	return orginalName;
@@ -385,6 +333,12 @@ public class SearchDao {
 		    		sb.append("education,lower(education) as \"lEducation\",");
 		    	}else if(column.toLowerCase().equals("resume")){
 		    		sb.append("resume,");
+		    	}else if(column.toLowerCase().equals("location")){
+		    		sb.append("location as \"location\",");
+		    	}else if(column.toLowerCase().equals("contact")){
+		    		sb.append("name,lower(name) as \"lName\",");
+		    		sb.append("title,lower(title) as \"lTitle\",");
+		    		sb.append( " email ,lower(email) as \"lEmail\",");
 		    	}
 	    	}
 	        sb.deleteCharAt(sb.length()-1);
@@ -440,7 +394,7 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
-        querySql.append(" from ( select  distinct contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\", case  when contact.\"ts2__Text_Resume__c\" is null  or char_length(contact.\"ts2__Text_Resume__c\") = 0 then -1  else contact.id end as resume  ");
+        querySql.append(" from ( select  distinct contact.\"MailingPostalCode\",contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\", case  when contact.\"ts2__Text_Resume__c\" is null  or char_length(contact.\"ts2__Text_Resume__c\") = 0 then -1  else contact.id end as resume  ");
         if(orderCon.contains("Title")){
         	querySql.append(",case   when contact.\"Title\" is null then '' " +
         			        " else lower(contact.\"Title\") END \"lTitle\" ");
@@ -451,7 +405,7 @@ public class SearchDao {
         }
         
         querySql.append(" from contact contact  ");
-        countSql.append(" from ( select  contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
+        countSql.append(" from ( select  contact.\"MailingPostalCode\",contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   ");
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
@@ -481,14 +435,13 @@ public class SearchDao {
     	if(orderCon!=null&&!"".equals(orderCon)){
     		querySql.append(" order by "+orderCon);
     	}
-    	if(Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
+    	if(Pattern.matches("^.*(Company|Skill|Education|location)+.*$", orderCon)){
         	querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         }
         if(log.isDebugEnabled()){
             log.debug(querySql);
             log.debug(countSql);
         }
-
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
@@ -505,7 +458,7 @@ public class SearchDao {
         //make subValues add the last
        // values.addAll(subValues);
         countSql = new StringBuilder(joinSql.toString());
-        if(!Pattern.matches("^.*(Company|Skill|Education)+.*$", orderCon)){
+        if(!Pattern.matches("^.*(Company|Skill|Education|location)+.*$", orderCon)){
         	if(orderCon.contains("resume")){
     			orderCon = orderCon.replace("resume", "id");
     		}
@@ -532,6 +485,8 @@ public class SearchDao {
             joinSql.append(" left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" and d.\"ts2__Name__c\"!='' ");
         }else if(type.equals("skill")){
             joinSql.append(" left join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" and b.\"ts2__Skill_Name__c\"!='' ");
+        }else if(type.equals("location")){
+            joinSql.append(" left join zipcode_us z on a.\"MailingPostalCode\" = z.\"zip\" ");
         }
         return joinSql.toString();
     }
@@ -546,7 +501,7 @@ public class SearchDao {
     }
     
     
-    public static String booleanSearchHandler(String searchValue,String type, List values){
+    public  String booleanSearchHandler(String searchValue,String type, List values){
     	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
     	if(searchValue.equals("")){
