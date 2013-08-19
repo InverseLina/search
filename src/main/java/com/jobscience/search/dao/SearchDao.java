@@ -78,7 +78,7 @@ public class SearchDao {
             	   querySql.append(getSearchValueJoinTable(search, values,"contact"));
             	   hasCondition = true;
                }
-           	
+           	   
                JSONArray contacts = JSONArray.fromObject(searchValues.get("contacts"));
                if(contacts.size()>0)
                conditions.append(" AND (1!=1 ");
@@ -86,7 +86,7 @@ public class SearchDao {
             	   JSONObject contact = JSONObject.fromObject(contacts.get(i));
             	   conditions.append(" OR (1=1 ");
             	   String value ;
-            	  if(contact.containsKey("firstName")){
+            	  if(contact.containsKey("firstName")&&!"".equals(contact.getString("firstName"))){
             		  conditions.append("  and contact.\"FirstName\" = ? ");
             		  value = contact.getString("firstName");
             		  if(!value.contains("%")){
@@ -95,7 +95,7 @@ public class SearchDao {
                       subValues.add(value);
                       hasCondition = true;
             	  }
-            	  if(contact.containsKey("lastName")){
+            	  if(contact.containsKey("lastName")&&!"".equals(contact.getString("lastName"))){
             		  conditions.append("  and contact.\"LastName\" = ? ");
             		  value = contact.getString("lastName");
             		  if(!value.contains("%")){
@@ -104,7 +104,7 @@ public class SearchDao {
                       subValues.add(value);
                       hasCondition = true;
             	  }
-            	  if(contact.containsKey("email")){
+            	  if(contact.containsKey("email")&&!"".equals(contact.getString("email"))){
             		  conditions.append("  and contact.\"Email\" = ? ");
             		  value = contact.getString("email");
             		  if(!value.contains("%")){
@@ -113,7 +113,7 @@ public class SearchDao {
                       subValues.add(value);
                       hasCondition = true;
             	  }
-            	  if(contact.containsKey("title")){
+            	  if(contact.containsKey("title")&&!"".equals(contact.getString("title"))){
             		  conditions.append("  and contact.\"Title\" = ? ");
             		  value = contact.getString("title");
             		  if(!value.contains("%")){
@@ -124,6 +124,7 @@ public class SearchDao {
             	  }
             	  conditions.append(" ) ");
                }
+               
                if(contacts.size()>0)
                conditions.append(" ) ");
          
@@ -132,7 +133,10 @@ public class SearchDao {
             	   String value = searchValues.get("educations");
             	   JSONObject jObject = JSONObject.fromObject(value);
             	   String educationValues = jObject.getString("values");
-            	   String minYears = jObject.getString("minYears");
+            	   String minYears  = null;
+            	   if(jObject.containsKey("minYears")){
+            	      minYears = jObject.getString("minYears");
+            	   }
             	   if(educationValues!=null){
 	                   if (!"Any Education".equals(educationValues)) {
 	                	   educationValues = educationValues.substring(1,educationValues.length()-1);
@@ -152,7 +156,10 @@ public class SearchDao {
                    String value = searchValues.get("companies");
                    JSONObject jObject = JSONObject.fromObject(value);
             	   String companyValues = jObject.getString("values");
-            	   String minYears = jObject.getString("minYears");
+            	   String minYears  = null;
+            	   if(jObject.containsKey("minYears")){
+            	      minYears = jObject.getString("minYears");
+            	   }
                    if (companyValues!=null&&!"Any Company".equals(companyValues)) {
                 	   companyValues = companyValues.substring(1,companyValues.length()-1);
                 	   querySql.append(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
@@ -170,7 +177,10 @@ public class SearchDao {
                    String value = searchValues.get("skills");
                    JSONObject jObject = JSONObject.fromObject(value);
             	   String skillValues = jObject.getString("values");
-            	   String minYears = jObject.getString("minYears");
+            	   String minYears  = null;
+            	   if(jObject.containsKey("minYears")){
+            	      minYears = jObject.getString("minYears");
+            	   }
             	   if(skillValues!=null){
 	                   if (!"Any Skill".equals(skillValues)) {
 	                	   skillValues = skillValues.substring(1,skillValues.length()-1);
@@ -193,7 +203,10 @@ public class SearchDao {
                	String value = searchValues.get("locations");
                 JSONObject jObject = JSONObject.fromObject(value);
          	    String locationValues = jObject.getString("values");
-         	    String minRadius = jObject.getString("minRadius");
+         	    String minRadius  = null;
+        	    if(jObject.containsKey("minRadius")){
+        	    	minRadius = jObject.getString("minRadius");
+        	    }
          	    if(locationValues!=null){
 	         	    locationValues = locationValues.substring(1,locationValues.length()-1);
 	                if("0".equals(minRadius)){
