@@ -207,56 +207,58 @@ public class SearchDao {
         	    if(jObject.containsKey("minRadius")){
         	    	minRadius = jObject.getString("minRadius");
         	    }
-         	    if(locationValues!=null){
-	         	    locationValues = locationValues.substring(1,locationValues.length()-1);
-	                if("0".equals(minRadius)){
-	                   	//add the 'Zip' filter
-	                	 if(locationValues.length()>0){
-		                	 condition.append(" AND zipcode_us.City in ("+locationValues+")");
-		                	 hasLocationCondition = true;
-	                	 }
-	                   if(hasLocationCondition){
-	                	   List<Map> zipcodes = getZipCode(condition.toString());
-	                	   if(zipcodes.size()>0){
-	                		   conditions.append(" and (1!=1 ");
-	                		   for(Map m:zipcodes){
-	                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" ilike '")
-	                			   		   .append(m.get("zip"))
-	                					   .append("%' ");
-	                		   }
-	                		   conditions.append(" )");
-	                	   }else{
-	                		   conditions.append(" and 1!=1 ");
-	                	   }
-	                   }
-	                   hasCondition = hasLocationCondition||hasCondition;
-	               
-	                }else{
-		                if(locationValues.length()>0)
-		                	conditions.append(" AND (1!=1 ");
-		                for(String location:locationValues.split(",")){
-			               if (location != null && !"".equals(location)) {
-			                 String city =location.replaceAll("\'", "").replaceAll("\"", "");
-			                 condition.append(" and zipcode_us.City= '"+city+"'" );
-			                 hasLocationCondition = true;
-			               }
-			               Double[] latLong = getLatLong(condition.toString());
-			               if(latLong[0]==null||latLong[1]==null|| !hasLocationCondition){
-			                 conditions.append(" OR ( 1!=1) ");
-			               }else{
-			     	          double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(minRadius));
-			     	          conditions.append(" OR (  "+tableAliases+".\"ts2__Latitude__c\" >"+latLongAround[0]);
-			     	          conditions.append(" and "+tableAliases+".\"ts2__Latitude__c\" <"+latLongAround[2]);
-			     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" >"+latLongAround[1]);
-			     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]+")");
-			              }
-			               condition = new StringBuilder();
-		                }
-		                if(locationValues.length()>0)
-		                	conditions.append(" ) ");
-		                   hasCondition = hasLocationCondition;
-		            }
-	         	  }
+        	    if(minRadius!=null){
+	         	    if(locationValues!=null){
+		         	    locationValues = locationValues.substring(1,locationValues.length()-1);
+		                if("0".equals(minRadius)){
+		                   	//add the 'Zip' filter
+		                	 if(locationValues.length()>0){
+			                	 condition.append(" AND zipcode_us.City in ("+locationValues+")");
+			                	 hasLocationCondition = true;
+		                	 }
+		                   if(hasLocationCondition){
+		                	   List<Map> zipcodes = getZipCode(condition.toString());
+		                	   if(zipcodes.size()>0){
+		                		   conditions.append(" and (1!=1 ");
+		                		   for(Map m:zipcodes){
+		                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" ilike '")
+		                			   		   .append(m.get("zip"))
+		                					   .append("%' ");
+		                		   }
+		                		   conditions.append(" )");
+		                	   }else{
+		                		   conditions.append(" and 1!=1 ");
+		                	   }
+		                   }
+		                   hasCondition = hasLocationCondition||hasCondition;
+		               
+		                }else{
+			                if(locationValues.length()>0)
+			                	conditions.append(" AND (1!=1 ");
+			                for(String location:locationValues.split(",")){
+				               if (location != null && !"".equals(location)) {
+				                 String city =location.replaceAll("\'", "").replaceAll("\"", "");
+				                 condition.append(" and zipcode_us.City= '"+city+"'" );
+				                 hasLocationCondition = true;
+				               }
+				               Double[] latLong = getLatLong(condition.toString());
+				               if(latLong[0]==null||latLong[1]==null|| !hasLocationCondition){
+				                 conditions.append(" OR ( 1!=1) ");
+				               }else{
+				     	          double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(minRadius));
+				     	          conditions.append(" OR (  "+tableAliases+".\"ts2__Latitude__c\" >"+latLongAround[0]);
+				     	          conditions.append(" and "+tableAliases+".\"ts2__Latitude__c\" <"+latLongAround[2]);
+				     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" >"+latLongAround[1]);
+				     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]+")");
+				              }
+				               condition = new StringBuilder();
+			                }
+			                if(locationValues.length()>0)
+			                	conditions.append(" ) ");
+			                   hasCondition = hasLocationCondition;
+			            }
+		         	  }
+        	    }
                } 
            }
 		   querySql.append(" where 1=1 "+conditions);
