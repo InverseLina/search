@@ -25,8 +25,21 @@ var app = app || {};
     }
     return dfd.promise();
   }
-  
-  ThPopup.prototype.postDisplay=function(data){
+
+    ThPopup.prototype.getValue = function () {
+        console.log("get value");
+        var datasName = this.type.substring(0,1).toLocaleLowerCase() + this.type.substring(1) + "s";
+        var data = {};
+        var values = data[datasName] = [], value;
+        var view = this;
+        view.$el.find(".item").each(function(){
+            value = $(this).data("value");
+            values.push(value);
+        });
+        return data;
+    }
+
+    ThPopup.prototype.postDisplay=function(data){
 	  var view = this;
       $(document).on("btap."+view.cid, function(event){
           var width = view.$el.find(".popover").width();
@@ -35,8 +48,7 @@ var app = app || {};
           if(event.pageX > pos.left && event.pageX < pos.left + width
               && event.pageY > pos.top && event.pageY < pos.top + height){
           }else{
-              view.$el.bRemove();
-              $(document).off("btap."+view.cid);
+             view.$el.hide();
           }
       });
      if(view.afterPostDisplay){
@@ -55,11 +67,15 @@ var app = app || {};
         },
         "btap; div.content>div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
-            var data = $(event.currentTarget).find(".contentText").text();
+            var data = $.trim($(event.currentTarget).find(".contentText").text());
             var len = view.$el.find(".selectedItems .item[data-name='" + data + "']").length;
             if (len == 0) {
                 view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data}))
+                var $ele = $(view.$el.find(".selectedItems .item[data-name='" + data + "']")[0]);
+                $ele.data("value", data);
+                view.$el.trigger("ADD_FILTER", {type:view.type, name: data, value: data})
             }
+
         }
 
     };

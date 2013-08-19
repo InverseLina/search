@@ -20,9 +20,11 @@
                view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add",
                 {name: displayName }));
                 $eles = view.$el.find(".selectedItems .item[data-name='" + displayName + "']");
+                view.$el.trigger("ADD_FILTER", {type:view.type, name: displayName, value: data})
             }
             ele = $($eles[0]);
             ele.data("value", data);
+
 
         }
     }, FilterContact.prototype.events||{});

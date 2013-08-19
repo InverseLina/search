@@ -23,6 +23,10 @@
                  <!--{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span>-->
 	                 <div class="headerTh {{name}}Th">
 		               <span class="columnName">{{display}}</span>
+                         <div class="selectedItems contact">
+                             <span class="item" data-name="aaa bbb">aaa bbb<span class="clear">×</span></span>
+                             <span class="addFilter">+&nbsp;new contact</span>
+                         </div>
 		               <div class="addFilter">+&nbsp;add filter</div>
 		               <span class="desc">&darr;</span><span class="asc">&uarr;</span>
 		             </div>
@@ -41,7 +45,12 @@
                      <th style="width:{{../colWidth}}%" data-column="{{name}}">
 						<div class="headerTh {{name}}Th">
 		                  <span class="columnName">{{display}}</span>
-		                  <div class="addFilter">+&nbsp;add filter</div>
+                            <div class="selectedItems">
+                                <!--<span class="item" data-name="aaa bbb">aaa bbb</span>
+                                <span class="item" data-name="aaa bbb">aaa bbb</span>
+                                <span class="item" data-name="aaa bbb">aaa bbb</span>-->
+                                <span class="addFilter" styee="display:none">+&nbsp;add filter</span>
+                            </div>
 		                  <span class="desc">&darr;</span><span class="asc">&uarr;</span>
 		                </div>
 					 </th>
@@ -89,4 +98,8 @@
             <strong>{{title}}:</strong> {{detail}}
         </div>
     {{/colBody}}
+</script>
+
+<script id="search-items-header-add-item" type="text/html">
+    <span class="item" data-name="{{name}}">{{name}}</span>
 </script>
