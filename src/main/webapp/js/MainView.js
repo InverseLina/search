@@ -44,6 +44,7 @@
                  }
              }
          }
+         result.searchValues = JSON.stringify(searchData);
          result.pageIndex = view.contentView.pageIdx || 1;
          result.pageSize = view.contentView.pageSize || 15;
 //         console.log(result);

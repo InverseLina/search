@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import net.sf.json.JSONObject;
+
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.jobscience.search.dao.SearchDao;
@@ -21,7 +23,7 @@ public class SearchWebHandlers {
     private SearchDao searchDao;
     
     @WebGet("/search")
-    public WebResponse search(@WebParam("q_") Map searchValues,
+    public WebResponse search(@WebParam("searchValues") String searchValues,
                               @WebParam("pageIdx") Integer pageIdx, @WebParam("pageSize") Integer pageSize,
                               @WebParam("orderBy")String orderBy,@WebParam("orderType")Boolean orderType,
                               @WebParam("searchColumns")String searchColumns ){
@@ -34,6 +36,12 @@ public class SearchWebHandlers {
             pageSize = 30;
         }
         String orderCon = "";
+        JSONObject jo = JSONObject.fromObject(searchValues);
+        Map searchMap = new HashMap();
+        for(Object key:jo.keySet()){
+        	searchMap.put(key.toString().substring(2),jo.get(key) );
+        }
+        
         if(orderBy!=null){
         	if(searchColumns.contains(orderBy)){
         		if(orderType==null){
@@ -43,7 +51,7 @@ public class SearchWebHandlers {
         	}
         }
         
-        SearchResult searchResult = searchDao.search(searchColumns,searchValues, pageIdx, pageSize,orderCon);
+        SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIdx, pageSize,orderCon);
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }
