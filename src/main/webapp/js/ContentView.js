@@ -159,7 +159,7 @@
     docEvents: {
       "ADD_FILTER":function(event, extra){
           var type, view = this;
-          console.log(extra);
+//          console.log(extra);
           if(extra) {
               if(extra.type == "Contact"){
                   type = "name";
