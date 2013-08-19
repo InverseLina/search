@@ -74,8 +74,17 @@ var app = app || {};
                 var $ele = $(view.$el.find(".selectedItems .item[data-name='" + data + "']")[0]);
                 $ele.data("value", data);
                 view.$el.trigger("ADD_FILTER", {type:view.type, name: data, value: data})
+
             }
 
+        },
+        "btap; span.clear":function(event){
+            var view = this;
+            var dataName = $(event.currentTarget).closest("span[data-name]").attr("data-name");
+            setTimeout(function(){
+                view.$el.find("span[data-name='" + dataName + "']").remove();
+                view.$el.trigger("REMOVE_FILTER", {name: dataName, type: view.type});
+            }, 200);
         }
 
     };

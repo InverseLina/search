@@ -42,6 +42,30 @@
                  app.preference.columns(extra.columns);
                  view.$el.trigger("DO_SEARCH");
              }
+         },
+         "SEARCH_PARAMS_CHANGE":function(event, extra){
+             var view = this;
+             var result = {};
+             view.contentView.$el.find("th").each(function(idx, th){
+                 var type = $(th).closest("th").attr("data-column");
+                 if(type == "name"){
+                     type = "contact";
+                 }
+                 type = type + "s";
+                 var data = [], val;
+                 $(th).find(".selectedItems .item").each(function(index, item){
+                       val = $(item).data("value");
+                     if(val){
+                         data.push(val);
+                     }
+                 });
+//                 console.log(data);
+                 if(data.length > 0 || !$.isEmptyObject(data)){
+                     result[type] = data;
+                 }
+             });
+             view._searchValues = result;
+//             console.log(view._searchValues);
          }
      }
 	});
