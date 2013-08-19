@@ -23,7 +23,7 @@ public class SearchWebHandlers {
     @WebGet("/search")
     public WebResponse search(@WebParam("q_") Map searchValues,
                               @WebParam("pageIdx") Integer pageIdx, @WebParam("pageSize") Integer pageSize,
-                              @WebParam("column")String orderBy,@WebParam("order")Boolean orderType,
+                              @WebParam("orderBy")String orderBy,@WebParam("orderType")Boolean orderType,
                               @WebParam("searchColumns")String searchColumns ){
         
         

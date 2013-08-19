@@ -132,15 +132,15 @@ public class SearchDao {
             	   String value = searchValues.get("educations");
             	   JSONObject jObject = JSONObject.fromObject(value);
             	   String educationValues = jObject.getString("values");
-            	   String minYear = jObject.getString("minYear");
+            	   String minYears = jObject.getString("minYears");
             	   if(educationValues!=null){
 	                   if (!"Any Education".equals(educationValues)) {
 	                	   educationValues = educationValues.substring(1,educationValues.length()-1);
 	            		   querySql.append(" join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
 	            		   querySql.append("("+educationValues.replaceAll("\"", "\'")+")");
 	            	   }
-	                   if(minYear!=null){
-	                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__GraduationDate__c\"))>="+minYear);
+	                   if(minYears!=null){
+	                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__GraduationDate__c\"))>="+minYears);
 	                   }
 	                   querySql.append(" ) ed1 on contact.\"sfId\" = ed1.\"ts2__Contact__c\" ");
 	                   hasCondition = true;
@@ -152,13 +152,13 @@ public class SearchDao {
                    String value = searchValues.get("companies");
                    JSONObject jObject = JSONObject.fromObject(value);
             	   String companyValues = jObject.getString("values");
-            	   String minYear = jObject.getString("minYear");
+            	   String minYears = jObject.getString("minYears");
                    if (companyValues!=null&&!"Any Company".equals(companyValues)) {
                 	   companyValues = companyValues.substring(1,companyValues.length()-1);
                 	   querySql.append(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
                 	   querySql.append(" ("+companyValues.replaceAll("\"", "\'")+")");
-                       	if(minYear!=null){
-                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))>= "+minYear);
+                       	if(minYears!=null){
+                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))>= "+minYears);
                    		}
                        	querySql.append(" ) em1 on contact.\"sfId\" = em1.\"ts2__Contact__c\"");
                         hasCondition = true;
@@ -170,14 +170,14 @@ public class SearchDao {
                    String value = searchValues.get("skills");
                    JSONObject jObject = JSONObject.fromObject(value);
             	   String skillValues = jObject.getString("values");
-            	   String minYear = jObject.getString("minYear");
+            	   String minYears = jObject.getString("minYears");
             	   if(skillValues!=null){
 	                   if (!"Any Skill".equals(skillValues)) {
 	                	   skillValues = skillValues.substring(1,skillValues.length()-1);
 	            		   querySql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in ");
 	            		   querySql.append(" ("+skillValues.replaceAll("\"", "\'")+")");
-	            		   if(minYear!=null){
-	            			   querySql.append(" AND sk.\"ts2__Rating__c\" >=  "+minYear);
+	            		   if(minYears!=null){
+	            			   querySql.append(" AND sk.\"ts2__Rating__c\" >=  "+minYears);
 	            		   }
 	                       querySql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
 	                   }
