@@ -12,7 +12,6 @@ var app = app || {};
     if(type=="company"||type=="education"||type=="skill"||type=="location"){
 	    searchDao.getAutoCompleteData({limit : 5, type : type}).always(function(result) {
 	        var $e = $(render(view.name,result));
-	        console.log(result);
 	        var $html = $(render("filterPanel",data));
 	        $html.find(".popover-content").html($e);
 	        dfd.resolve($html);
@@ -29,6 +28,10 @@ var app = app || {};
     ThPopup.prototype.getValue = function () {
         console.log("get value");
         var datasName = this.type.substring(0,1).toLocaleLowerCase() + this.type.substring(1) + "s";
+        if(datasName=="companys"){
+        	dataName="companies";
+        }
+        alert(dataName);
         var data = {};
         var values = data[datasName] = [], value;
         var view = this;

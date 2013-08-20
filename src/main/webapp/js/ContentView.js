@@ -284,7 +284,6 @@
     var colLen = columns.length;
     var view = this;
     var dtd = $.Deferred();
-    console.log(items);
 	 $.ajax({
 			url:"/config/get/local_date",
 			type:"Get",

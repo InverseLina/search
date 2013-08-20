@@ -82,6 +82,9 @@
                  if(type == "name"){
                      type = "contact";
                  }
+                 if(type=="company"){
+                	 type = "companie";
+                 }
                  type = "q_" + type + "s";
                  var data = [], val;
                  $(th).find(".selectedItems .item").each(function(index, item){
