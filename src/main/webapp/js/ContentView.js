@@ -172,8 +172,13 @@
           var ele = $th.find(".selectedItems span.item[data-name='" + extra.name + "']");
           ele.data("value", extra.value);
           view.$el.trigger("SEARCH_PARAMS_CHANGE")
-//          console.log(ele);
-//          console.log(ele.data("value"));
+
+          var $th = view.$el.find("th[data-column='" + type + "']");
+          if($th.find(".selectedItems .item").length > 0) {
+              $th.find(".selectedItems .addFilter").hide();
+          }else{
+              $th.find(".selectedItems .addFilter").show();
+          }
       },
       "REMOVE_FILTER":function(event, extra){
           var type, view = this;
@@ -188,6 +193,13 @@
           setTimeout(function(){
               view.$el.trigger("SEARCH_PARAMS_CHANGE");
           }, 200);
+
+          var $th = view.$el.find("th[data-column='" + type + "']");
+          if($th.find(".selectedItems .item").length > 0) {
+              $th.find(".selectedItems .addFilter").hide();
+          }else{
+              $th.find(".selectedItems .addFilter").show();
+          }
 
       },
       UPDATE_FILTER: function(event, extra){
