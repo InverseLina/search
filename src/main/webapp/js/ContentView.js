@@ -161,11 +161,7 @@
           var type, view = this;
 //          console.log(extra);
           if(extra) {
-              if(extra.type == "Contact"){
-                  type = "name";
-              }else{
-                  type = extra.type.substring(0,1).toLocaleLowerCase() + extra.type.substring(1);
-              }
+             type = extra.type.substring(0,1).toLocaleLowerCase() + extra.type.substring(1);
           }
           var $th = view.$el.find("th[data-column='" + type + "']");
           $th.find("span.addFilter").before(render("search-items-header-add-item", {name: extra.name}));
@@ -288,6 +284,7 @@
     var colLen = columns.length;
     var view = this;
     var dtd = $.Deferred();
+    console.log(items);
 	 $.ajax({
 			url:"/config/get/local_date",
 			type:"Get",
@@ -322,6 +319,12 @@
   	            item.push({
   	                name : columns[j],
   	                value : formateDate(items[i][columns[j]],dateFormat),
+  	                notLast : colLen - j > 1
+  	              });
+  	         } else if (columns[j] == "contact") {
+  	            item.push({
+  	                name : columns[j],
+  	                value : items[i]["name"]+"<br/>"+items[i]["email"]+"<br/>"+items[i]["title"],
   	                notLast : colLen - j > 1
   	              });
   	         } else {

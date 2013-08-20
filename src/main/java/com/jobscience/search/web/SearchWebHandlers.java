@@ -47,16 +47,19 @@ public class SearchWebHandlers {
         		if(orderType==null){
         			orderType = true;
         		}
+        		if(orderBy.equals("contact")){
+        			orderBy = "name";
+        		}
         		orderCon = " \""+getOrderColumn(orderBy)+ "\" " +(orderType?"asc":"desc");
         	}
         }
-        
+        searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
         SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIdx, pageSize,orderCon);
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }
     
-    @WebGet("/getTopCompaniesAndEducations")
+    @WebGet("/getAutoCompleteData")
     public WebResponse getTopCompanies(@WebParam("type") String type, @WebParam("offset") Integer offset,
                             @WebParam("limit") Integer limit,@WebParam("min")String min,@WebParam("keyword") String keyword) throws SQLException {
     	Map result = new HashMap();
