@@ -20,6 +20,12 @@
                 var view = this;
                 var $e = this.$el;
 
+
+                var width = $e.parent().outerHeight();
+                var height = $e.parent().outerWidth();
+                if(width >0 && height > 0){
+                    $e.find(".bar").css({"border-width": "{0}px {1}px 0 0".format(width, height)});
+                }
                 //get the length from bar height
                 view.barLength = $e.find(".bar").outerWidth();
                 setPosition.call(view);

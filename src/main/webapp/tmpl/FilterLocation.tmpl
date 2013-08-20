@@ -4,6 +4,15 @@
         	<span class="add">+&nbsp;new location</span>
         </div>
         <div class="content location" sytle="display:none;">
+            <div class="locationRow sliderRow clearfix">
+                <span class="labelText">min radius:</span>
+                <div class="sliderBarContainer">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-info" style="width: 20%"></div>
+                    </div>
+                    <div class="switch-icon">7</div>
+                </div>
+            </div>
         		{{#each locations}}
         		<div class="locationRow"><span class="contentText">{{name}}</span></div>
         		{{/each}}

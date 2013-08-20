@@ -3,19 +3,20 @@
 	<div class="selectedItems education">
         	<span class="add">+&nbsp;new education</span>
         </div>
-        <div class="content education" >
-        	<div class="educationRow"><span class="labelText">min years:</span>
-	        	     <div class="sliderBarContainer">
-	        	       <div class="progress">
-						  <div class="progress-bar progress-bar-info" style="width: 20%"></div>
-						</div>
-						 <div class="switch-icon">7</div>
-					</div>
-        	     </div>
-        	     
-        	     {{#each educations}}
-        	     <div class="educationRow"><span class="contentText">{{name}}</span></div>
-        	     {{/each}}
-        </div>
+      <div class="content education">
+          <div class="educationRow sliderRow">
+              <span class="labelText">min years:</span>
+              <div class="sliderBarContainer">
+                  <div class="progress">
+                      <div class="progress-bar progress-bar-info" style="width: 20%"></div>
+                  </div>
+                  <div class="switch-icon">7</div>
+              </div>
+          </div>
+
+          {{#each educations}}
+              <div class="educationRow"><span class="contentText">{{name}}</span></div>
+          {{/each}}
+      </div>
    </div>
 </script>
