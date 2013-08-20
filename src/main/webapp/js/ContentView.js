@@ -219,7 +219,7 @@
 
           view.$searchInfo.html(htmlInfo);
           if (result.count > 0) {
-            $e.find(".actions").show();
+//            $e.find(".actions").show();
             buildResult(result.result).done(function(data){
         	   html = render("search-items", {
                  items : data,
@@ -391,8 +391,8 @@
       }
       if (idx == tlen) {
           $item.css({
-          width : realWidth + 20,
-          "max-width" : realWidth + 20,
+          width : realWidth + 50,
+          "max-width" : realWidth + 50,
           "min-width" : realWidth
         });
       } else {

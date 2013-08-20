@@ -15,12 +15,17 @@
   }
 
   .search-form {
-    position: relative;
-    width: 500px;
+    position: absolute;
+    left: 250px;
+    right: 200px;
+    top: -90px;
     margin: 40px auto 40px auto;
 
     input {
-      width: 700px;
+      display: block;
+      position: absolute;
+      left: 20px;
+      right: 50px;
       height: 40px;
       border-radius: 5px;
       border-width: 2px;
@@ -33,18 +38,19 @@
     i.glyphicon-search {
       position: absolute;
       top: 10px;
-      left: 5px;
+      left: 25px;
       font-size: 20px;
+      z-index: 900;
     }
 
   }
 
 
   .search-result {
-    top: 155px;
-    right: 120px;
+    top: 50px;
+    right: 100px;
     bottom: 0;
-    left: 30px;
+    left: 0px;
     position: absolute;
     margin: 0px auto 20px auto;
     padding: 5px;
@@ -107,7 +113,7 @@
         tr {
           vertical-align: top;
           td, th {
-            padding-left: 10px;
+            padding-left: 4px;
             padding-top: 7px;
             text-align: left;
           }
@@ -117,7 +123,7 @@
           position: relative;
 
           th {
-            font-weight: bold;
+//            font-weight: bold;
 			height:108px;
 			color:#fff;
 			font-size: 16px;
@@ -125,7 +131,7 @@
 				height:100%;
 				padding: 4px 10px;
 				position: relative;
-				padding-left: 10px;
+				padding-left: 4px;
 /*				.addFilter{
 					position: absolute;
 					bottom: 0;
@@ -162,6 +168,7 @@
 			    .columnName{
 			    	width: 90%;
 					display: inline-block;
+                    font-weight: normal;
 					cursor:pointer;
 			    }
 			}
