@@ -13,3 +13,8 @@
 <script id="filterPanel-selectedItem-add" type="text/html">
     <span class="item" data-name="{{name}}">{{name}}<span class="clear">&times;</span></span>
 </script>
+<script id="filterPanel-autoComplete-list" type="text/html">
+	{{#each results}}
+	  <div class="{{../type}}Row"><span class="contentText">{{name}}</span></div>
+	{{/each}}
+</script>

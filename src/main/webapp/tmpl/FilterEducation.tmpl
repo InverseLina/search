@@ -1,7 +1,11 @@
 <script id="FilterEducation" type="text/html">
   <div class="FilterEducation">
 	<div class="selectedItems education">
-        	<span class="add">+&nbsp;new education</span>
+        	<span class="add" data-auto-complete="true">+&nbsp;new education</span>
+        	<span class="hide">
+        		<input type="text" class="autoComplete" data-type="education"/>
+        		<i class="glyphicon glyphicon-remove"></i> 
+        	</span>
         </div>
       <div class="content education">
           <div class="educationRow sliderRow">
@@ -14,9 +18,11 @@
               </div>
           </div>
 
-          {{#each educations}}
-              <div class="educationRow"><span class="contentText">{{name}}</span></div>
-          {{/each}}
+          <div class="autoCompleteList">
+    	     {{#each educations}}
+    	     <div class="educationRow"><span class="contentText">{{name}}</span></div>
+    	     {{/each}}
+	      </div>
       </div>
    </div>
 </script>

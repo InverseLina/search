@@ -10,7 +10,7 @@ var app = app || {};
     var view = this;
     var type = this.type;
     if(type=="company"||type=="education"||type=="skill"||type=="location"){
-	    searchDao.getAdvancedMenu({limit : 5, type : type}).always(function(result) {
+	    searchDao.getAutoCompleteData({limit : 5, type : type}).always(function(result) {
 	        var $e = $(render(view.name,result));
 	        console.log(result);
 	        var $html = $(render("filterPanel",data));
@@ -54,18 +54,43 @@ var app = app || {};
      if(view.afterPostDisplay){
          view.afterPostDisplay();
      }
+     if(view.$el.find(".sliderBarContainer").length > 0){
+         brite.display("Slider", ".sliderBarContainer");
+     }
   };
 
     ThPopup.prototype.events = {
-        "btap; span.add": function () {
+        "btap; span.add": function (event) {
             var view = this;
-            view.$el.find("div.content").show();
-            if(view.$el.find(".sliderBarContainer").length > 0){
-                brite.display("Slider", ".sliderBarContainer");
+            view.$el.find(".save").parent().removeClass("hide");
+            var $span =$(event.target);
+            var autoComplete = $span.attr("data-auto-complete");
+            if(autoComplete){
+            	$span.addClass("hide").next().removeClass("hide");
             }
-
+//            view.$el.find("div.content").show();
+//            if(view.$el.find(".sliderBarContainer").length > 0){
+//                brite.display("Slider", ".sliderBarContainer");
+//            }
         },
-        "btap; div.content>div[class$='Row'][class!='contactRow']": function (event) {
+        "click;.glyphicon-remove":function(event){
+        	var view = this;
+        	var $icon = $(event.target);
+        	$icon.parent().addClass("hide").prev().removeClass("hide");
+        },
+        "keyup;.autoComplete":function(event){
+        	 var view = this;
+        	 var $input = $(event.currentTarget);
+        	 var type = $input.attr("data-type");
+        	 var resultType = (type=="company")?"companies":(type+"s");
+        	 searchDao.getAutoCompleteData({limit : 5, type : type,keyword:$input.val()}).always(function(result) {
+        		 if(type=="company"){
+        			 type = "employer";
+        		 }
+       	        $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result[resultType],type:type}));
+       	    }); 
+        },
+        "btap; div.content div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
             var data = $.trim($(event.currentTarget).find(".contentText").text());
             var len = view.$el.find(".selectedItems .item[data-name='" + data + "']").length;

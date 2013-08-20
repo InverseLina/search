@@ -24,8 +24,7 @@
             }
             ele = $($eles[0]);
             ele.data("value", data);
-
-
+            view.$el.find(".save").parent().addClass("hide");
         }
     }, FilterContact.prototype.events||{});
 

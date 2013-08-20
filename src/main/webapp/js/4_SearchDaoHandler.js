@@ -50,11 +50,11 @@ var app = app || {};
    * get menu data
    * @Param opts, Object, which contains type, offset,limit
    */ 
-	SearchDaoHandler.prototype.getAdvancedMenu = function(opts){
+	SearchDaoHandler.prototype.getAutoCompleteData = function(opts){
 		opts = opts||{};
 		return $.ajax({
 			type : "GET",
-			url : "getTopCompaniesAndEducations",
+			url : "getAutoCompleteData",
 			data:opts,
 			dataType : "json"
 		}).pipe(function(val) {

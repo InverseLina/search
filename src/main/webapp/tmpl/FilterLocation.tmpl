@@ -1,7 +1,11 @@
 <script id="FilterLocation" type="text/html">
   <div class="FilterLocation">
 	<div class="selectedItems location">
-        	<span class="add">+&nbsp;new location</span>
+        	<span class="add" data-auto-complete="true">+&nbsp;new location</span>
+        	<span class="hide">
+        		<input type="text" class="autoComplete" data-type="location"/>
+        		<i class="glyphicon glyphicon-remove"></i> 
+        	</span>
         </div>
         <div class="content location" sytle="display:none;">
             <div class="locationRow sliderRow clearfix">
@@ -13,9 +17,11 @@
                     <div class="switch-icon">7</div>
                 </div>
             </div>
+    		<div class="autoCompleteList">
         		{{#each locations}}
         		<div class="locationRow"><span class="contentText">{{name}}</span></div>
         		{{/each}}
+        	 </div>
         </div>
    </div>
 </script>
