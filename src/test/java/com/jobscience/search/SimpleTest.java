@@ -38,10 +38,10 @@ public class SimpleTest extends SnowTestSupport {
     @Test
     public void getTopAdvancedType() throws SQLException{
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
-       List<Map> result = searchDao.getTopAdvancedType(0, 10, "company", "1");
-       searchDao.getTopAdvancedType(0, 10, "skill", "1");
-       searchDao.getTopAdvancedType(0, 10, "location", "1");
-       searchDao.getTopAdvancedType(0, 10, "education", "1");
+       List<Map> result = searchDao.getTopAdvancedType(0, 10, "company", "IBM","1");
+       searchDao.getTopAdvancedType(0, 10, "skill", "Excel","1");
+       searchDao.getTopAdvancedType(0, 10, "location", "new york","1");
+       searchDao.getTopAdvancedType(0, 10, "education", "uni","1");
        for(Map m:result){
     	   System.out.println(m.get("name"));
        }

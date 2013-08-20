@@ -659,7 +659,7 @@ public class SearchDao {
         return zip;
     }
 
-    public List getTopAdvancedType(Integer offset,Integer size,String type,String min) throws SQLException {
+    public List getTopAdvancedType(Integer offset,Integer size,String type,String keyword,String min) throws SQLException {
         if(size == null||size<6){
             size = 5;
         }
@@ -669,8 +669,11 @@ public class SearchDao {
         String table = getTable(type);
         StringBuilder querySql =new StringBuilder();
         if("location".equals(type)){
-        	querySql.append("select city as name from zipcode_us group by city order by city offset ")
-		        	.append( offset)
+        	querySql.append("select city as name from zipcode_us  ");
+        	if(keyword!=null&&!"".equals(keyword)){
+	        	querySql.append(" where city ilike'"+(keyword.length()>3?"%":"")+keyword+ "%' ");
+	        }
+		    querySql.append(" group by city order by city offset ").append( offset)
 		            .append( " limit ") 
 		            .append( size); 
         }else{
@@ -687,11 +690,14 @@ public class SearchDao {
 	        		querySql.append(" AND e.\"ts2__Rating__c\" >=  "+min);
 	        	}
 	        }
+	        if(keyword!=null&&!"".equals(keyword)){
+	        	querySql.append(" AND e."+name+" ilike '"+(keyword.length()>3?"%":"")+keyword+ "%' ");
+	        }
 	        querySql.append(" group by e.\"ts2__Contact__c\", e."+name+") a  ").
-					 append( " group by a.name order by a.count desc,a.name offset " ).
-	                 append( offset).
-	                 append( " limit ").
-	                 append( size);
+					 append(" group by a.name order by a.count desc,a.name offset " ).
+	                 append(offset).
+	                 append(" limit ").
+	                 append(size);
         }
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
@@ -725,5 +731,7 @@ public class SearchDao {
         }
         return table;
     }
+
+
 }
 
