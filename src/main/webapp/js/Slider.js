@@ -27,8 +27,10 @@
                     $e.find(".bar").css({"border-width": "{0}px {1}px 0 0".format(width, height)});
                 }
                 //get the length from bar height
-                view.barLength = $e.find(".bar").outerWidth();
-                setPosition.call(view);
+                setTimeout(function () {
+                    view.barLength = $e.find(".bar").outerWidth();
+                    setPosition.call(view);
+                }, 200);
             },
             events: {
                 "btap; .bar" : function(e) {
