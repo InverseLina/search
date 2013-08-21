@@ -229,6 +229,13 @@
           top: 100px;
           tr {
             padding-bottom: 3px;
+            min-height: 60px;
+          }
+          tr:nth-of-type(odd){
+
+          }
+          tr:nth-of-type(even){
+            background: #ECECEC;
           }
           td {
             span {
@@ -248,7 +255,7 @@
           }
           td[data-column='skill'],td[data-column='company'],td[data-column='education']{
              span {
-               max-height: 50px;
+//               min-height: 90px;
                overflow-y: auto;
              }
           }

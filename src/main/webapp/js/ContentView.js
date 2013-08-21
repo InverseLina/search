@@ -172,7 +172,7 @@
           var type, view = this;
           if(extra) {
               if(extra.type == "Contact"){
-                  type = "name";
+                  type = "contact";
               }else{
                   type = extra.type.substring(0,1).toLocaleLowerCase() + extra.type.substring(1);
               }
