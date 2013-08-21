@@ -24,13 +24,13 @@ public class SearchWebHandlers {
     
     @WebGet("/search")
     public WebResponse search(@WebParam("searchValues") String searchValues,
-                              @WebParam("pageIdx") Integer pageIdx, @WebParam("pageSize") Integer pageSize,
+                              @WebParam("pageIndex") Integer pageIndex, @WebParam("pageSize") Integer pageSize,
                               @WebParam("orderBy")String orderBy,@WebParam("orderType")Boolean orderType,
                               @WebParam("searchColumns")String searchColumns ){
         
         
-        if(pageIdx == null ){
-            pageIdx = 0;
+        if(pageIndex == null ){
+        	pageIndex = 0;
         }
         if(pageSize == null ){
             pageSize = 30;
@@ -54,7 +54,7 @@ public class SearchWebHandlers {
         	}
         }
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-        SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIdx, pageSize,orderCon);
+        SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon);
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }
