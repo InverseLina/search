@@ -34,6 +34,15 @@
         	view.$el.find(".save").parent().addClass("hide");
         	view.$el.find(".selectedItems .add").removeClass("hide");
         	view.$el.find(":text").val("");
+        },
+        "btap;.selectedItems .item":function(event){
+        	var view = this;
+        	var $span = $(event.target);
+        	var value = $span.data("value");
+        	view.$el.find(":input[name='FirstName']").val(value.firstName);
+            view.$el.find(":input[name='LastName']").val(value.lastName);
+            view.$el.find(":input[name='Email']").val(value.email);
+            view.$el.find(":input[name='Title']").val(value.title);
         }
     }, FilterContact.prototype.events||{});
 
