@@ -177,6 +177,7 @@
 
         var callback = function(){
             view.contentView.loading();
+            restoreSearchParam.call(view);
 //            qParams.pageIndex = pageIdx||qParams.pageIndex;
 //            qParams.pageSize =  pageSize||qParams.pageSize;
 //            var qParams=view.getSearchValues();
