@@ -99,7 +99,13 @@
                  }
              });
              view._searchValues = result;
-//             console.log(view._searchValues);
+             console.log(view._searchValues);
+         },
+         "SEARCH_RESULT_CHANGE": function () {
+             var view = this;
+             setTimeout(function () {
+                 restoreSearchParam.call(view);
+             }, 200);
          }
      }
 	});
@@ -180,6 +186,35 @@
             });
         };
         callback();
+
+    }
+
+    function restoreSearchParam(){
+        var key, dataName, data, displayName, $html, $th, view = this;
+        var result = view._searchValues || {};
+        if(view.$el.find("table th .selectedItems .item").length > 0){
+            return;
+        }
+        for(key in result){
+            if(key == "q_companies"){
+                dataName = "company"
+            }else{
+                dataName = key.substring(2, key.length-1);
+            }
+            $th = view.contentView.$el.find("table thead th[data-column='{0}']".format(dataName));
+            var data = result[key];
+            $.each(data, function (index, val) {
+                if (dataName == "contact") {
+                    displayName = (val.firstName||"")  + " " + (val.lastName||"")  ;
+                } else {
+                    displayName = val;
+                }
+                $html = $(render("search-items-header-add-item", {name: displayName}));
+                $html.data("value", val);
+                $th.find(".addFilter").before($html);
+            })
+            $th.find(".addFilter").hide();
+        }
 
     }
 	
