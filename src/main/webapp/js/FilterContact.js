@@ -25,6 +25,15 @@
             ele = $($eles[0]);
             ele.data("value", data);
             view.$el.find(".save").parent().addClass("hide");
+            view.$el.find(".selectedItems .add").removeClass("hide");
+            view.$el.find(":text").val("");
+        },
+        "btap;.cancel":function(event){
+        	var view = this;
+        	var $span =$(event.target);
+        	view.$el.find(".save").parent().addClass("hide");
+        	view.$el.find(".selectedItems .add").removeClass("hide");
+        	view.$el.find(":text").val("");
         }
     }, FilterContact.prototype.events||{});
 
