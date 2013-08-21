@@ -89,36 +89,24 @@ public class SearchDao {
             	  if(contact.containsKey("firstName")&&!"".equals(contact.getString("firstName"))){
             		  conditions.append("  and contact.\"FirstName\" = ? ");
             		  value = contact.getString("firstName");
-            		  if(!value.contains("%")){
-                          value = "%" + value + "%";
-                      }
                       subValues.add(value);
                       hasCondition = true;
             	  }
             	  if(contact.containsKey("lastName")&&!"".equals(contact.getString("lastName"))){
             		  conditions.append("  and contact.\"LastName\" = ? ");
             		  value = contact.getString("lastName");
-            		  if(!value.contains("%")){
-                          value = "%" + value + "%";
-                      }
                       subValues.add(value);
                       hasCondition = true;
             	  }
             	  if(contact.containsKey("email")&&!"".equals(contact.getString("email"))){
             		  conditions.append("  and contact.\"Email\" = ? ");
             		  value = contact.getString("email");
-            		  if(!value.contains("%")){
-                          value = "%" + value + "%";
-                      }
                       subValues.add(value);
                       hasCondition = true;
             	  }
             	  if(contact.containsKey("title")&&!"".equals(contact.getString("title"))){
             		  conditions.append("  and contact.\"Title\" = ? ");
             		  value = contact.getString("title");
-            		  if(!value.contains("%")){
-                          value = "%" + value + "%";
-                      }
                       subValues.add(value);
                       hasCondition = true;
             	  }
