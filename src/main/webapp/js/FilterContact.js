@@ -38,7 +38,7 @@
         "btap;.selectedItems .item":function(event){
         	var view = this;
         	var $span = $(event.target);
-        	var value = $span.data("value");
+        	var value = $("[data-column='contact']").find("[data-name='"+$span.attr("data-name")+"']").data("value");
         	view.$el.find(":input[name='FirstName']").val(value.firstName);
             view.$el.find(":input[name='LastName']").val(value.lastName);
             view.$el.find(":input[name='Email']").val(value.email);
