@@ -62,25 +62,17 @@
     	  var $th = $(event.currentTarget);
     	  var position = {top:$th.get(0).offsetTop+$th.height(),left:$th.get(0).offsetLeft+$th.width()/2-175};
     	  var type = $th.attr("data-column"); 
-    	  if(type=="name"){
-    		  type="contact";
-    	  }
+    	  var qName = "q_{0}s".format(type);
+
     	  if(type=="company"){
-    		  type="employer";
+              qName="q_companies";
+              type= "employer";
     	  }
+          var data = (view.$el.bView("MainView")._searchValues||{})[qName]||[];
           var viewName = "Filter"+type.substring(0, 1).toUpperCase()+type.substring(1);
     	  if(type=="skill"||type=="contact"||type=="education"||type=="employer"||type=="location"){
-              var bviews = view.$el.bFindComponents(viewName);
-              if(bviews.length > 0){
-                  setTimeout(function(){
-                  view.$el.find('div[data-b-view="' + viewName + '"]').show();
-                  },200);
-                  console.log(view.$el.find('div[data-b-view="' + viewName + '"]'))
-              }else{
-                  brite.display(viewName,".tableContainer",{position:position,type:type});
-              }
-
-    	  }
+              brite.display(viewName,".tableContainer",{position:position,type:type, data:data});
+           }
       },
       "change; .tableContainer td input[type='checkbox']" : function(event) {
         var view = this;

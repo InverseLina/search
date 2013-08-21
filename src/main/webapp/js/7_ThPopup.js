@@ -26,7 +26,6 @@ var app = app || {};
   }
 
     ThPopup.prototype.getValue = function () {
-        console.log("get value");
         var datasName = this.type.substring(0,1).toLocaleLowerCase() + this.type.substring(1) + "s";
         if(datasName=="companys"){
         	dataName="companies";
@@ -43,7 +42,7 @@ var app = app || {};
     }
 
     ThPopup.prototype.postDisplay=function(data){
-	  var view = this;
+	  var html, displayName, view = this;
       $(document).on("btap."+view.cid, function(event){
           var width = view.$el.find(".popover").width();
           var height = view.$el.find(".popover").height();
@@ -51,9 +50,22 @@ var app = app || {};
           if(event.pageX > pos.left && event.pageX < pos.left + width
               && event.pageY > pos.top && event.pageY < pos.top + height){
           }else{
-             view.$el.hide();
+              view.$el.bRemove();
+              $(document).off("btap."+view.cid);
           }
       });
+      data = (data||{}).data||[];
+        $.each(data, function(idx, val){
+           if(view.type == "Contact"){
+               displayName = (val.firstName||"")  + " " + (val.lastName||"")
+           }else{
+               displayName = val;
+           }
+           var html = render("filterPanel-selectedItem-add", {name:displayName});
+            view.$el.find("span.add").before(html);
+
+        });
+
      if(view.afterPostDisplay){
          view.afterPostDisplay();
      }

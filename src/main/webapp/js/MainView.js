@@ -99,7 +99,7 @@
                  }
              });
              view._searchValues = result;
-             console.log(view._searchValues);
+//             console.log(view._searchValues);
          },
          "SEARCH_RESULT_CHANGE": function () {
              var view = this;
@@ -212,7 +212,7 @@
                 $html = $(render("search-items-header-add-item", {name: displayName}));
                 $html.data("value", val);
                 $th.find(".addFilter").before($html);
-            })
+            });
             $th.find(".addFilter").hide();
         }
 
