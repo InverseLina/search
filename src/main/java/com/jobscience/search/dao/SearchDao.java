@@ -89,36 +89,24 @@ public class SearchDao {
             	  if(contact.containsKey("firstName")&&!"".equals(contact.getString("firstName"))){
             		  conditions.append("  and contact.\"FirstName\" = ? ");
             		  value = contact.getString("firstName");
-            		  if(!value.contains("%")){
-                          value = "%" + value + "%";
-                      }
                       subValues.add(value);
                       hasCondition = true;
             	  }
             	  if(contact.containsKey("lastName")&&!"".equals(contact.getString("lastName"))){
             		  conditions.append("  and contact.\"LastName\" = ? ");
             		  value = contact.getString("lastName");
-            		  if(!value.contains("%")){
-                          value = "%" + value + "%";
-                      }
                       subValues.add(value);
                       hasCondition = true;
             	  }
             	  if(contact.containsKey("email")&&!"".equals(contact.getString("email"))){
             		  conditions.append("  and contact.\"Email\" = ? ");
             		  value = contact.getString("email");
-            		  if(!value.contains("%")){
-                          value = "%" + value + "%";
-                      }
                       subValues.add(value);
                       hasCondition = true;
             	  }
             	  if(contact.containsKey("title")&&!"".equals(contact.getString("title"))){
             		  conditions.append("  and contact.\"Title\" = ? ");
             		  value = contact.getString("title");
-            		  if(!value.contains("%")){
-                          value = "%" + value + "%";
-                      }
                       subValues.add(value);
                       hasCondition = true;
             	  }
@@ -671,7 +659,7 @@ public class SearchDao {
         if("location".equals(type)){
         	querySql.append("select city as name from zipcode_us  ");
         	if(keyword!=null&&!"".equals(keyword)){
-	        	querySql.append(" where city ilike'"+(keyword.length()>3?"%":"")+keyword+ "%' ");
+	        	querySql.append(" where city ilike '%"+keyword+ (keyword.length()>2?"%":"")+"' ");
 	        }
 		    querySql.append(" group by city order by city offset ").append( offset)
 		            .append( " limit ") 
@@ -691,7 +679,7 @@ public class SearchDao {
 	        	}
 	        }
 	        if(keyword!=null&&!"".equals(keyword)){
-	        	querySql.append(" AND e."+name+" ilike '"+(keyword.length()>3?"%":"")+keyword+ "%' ");
+	        	querySql.append(" AND e."+name+" ilike '%"+keyword+(keyword.length()>2?"%":"")+ "' ");
 	        }
 	        querySql.append(" group by e.\"ts2__Contact__c\", e."+name+") a  ").
 					 append(" group by a.name order by a.count desc,a.name offset " ).

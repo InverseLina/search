@@ -77,11 +77,13 @@ var app = app || {};
     ThPopup.prototype.events = {
         "btap; span.add": function (event) {
             var view = this;
-            view.$el.find(".save").parent().removeClass("hide");
             var $span =$(event.target);
             var autoComplete = $span.attr("data-auto-complete");
             if(autoComplete){
             	$span.addClass("hide").next().removeClass("hide");
+            }else{
+            	view.$el.find(".save").parent().removeClass("hide");
+            	$span.addClass("hide");
             }
 //            view.$el.find("div.content").show();
 //            if(view.$el.find(".sliderBarContainer").length > 0){
