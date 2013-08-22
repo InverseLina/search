@@ -1,6 +1,7 @@
 var app = app || {};
 (function($) {
   var searchDao = app.SearchDaoHandler;
+    var borderKey = { UP: 38, DOWN: 40, TAB: 9, ESC: 27, ENTER: 13 };
   function ThPopup(type) {
     this.type = type;
   };
@@ -50,8 +51,7 @@ var app = app || {};
           if(event.pageX > pos.left && event.pageX < pos.left + width
               && event.pageY > pos.top && event.pageY < pos.top + height){
           }else{
-              view.$el.bRemove();
-              $(document).off("btap."+view.cid);
+              close.call(view);
           }
       });
       data = (data||{}).data||[];
@@ -72,7 +72,12 @@ var app = app || {};
      if(view.$el.find(".sliderBarContainer").length > 0){
          brite.display("Slider", ".sliderBarContainer");
      }
+     view.$el.find("input.autoComplete:first").focus();
   };
+
+    ThPopup.prototype.close = function(){
+        close.call(this);
+    }
 
     ThPopup.prototype.events = {
         "btap; span.add": function (event) {
@@ -100,38 +105,125 @@ var app = app || {};
         	 var $input = $(event.currentTarget);
         	 var type = $input.attr("data-type");
         	 var resultType = (type=="company")?"companies":(type+"s");
-        	 searchDao.getAutoCompleteData({limit : 5, type : type,keyword:$input.val()}).always(function(result) {
-        		 if(type=="company"){
-        			 type = "employer";
-        		 }
-       	        $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result[resultType],type:type}));
-       	    }); 
+             event.stopPropagation();
+             event.preventDefault();
+             switch(event.keyCode){
+                 case borderKey.ENTER:
+                     var val = view.$el.find("input:focus").val();
+                     view.$el.find(".contentText").each(function(idx,item){
+                        if($(item).text() == val){
+                            addItem.call(view, val);
+                        }
+                     });
+
+                     break;
+                 case borderKey.ESC:
+                     close.call(view);
+                     break;
+                 case borderKey.DOWN:
+                     nextItem.call(view);
+                     break;
+                 case borderKey.UP:
+                     prevItem.call(view);
+                     break;
+                 default:
+                     searchDao.getAutoCompleteData({limit : 5, type : type,keyword:$input.val()}).always(function(result) {
+                         if(type=="company"){
+                             type = "employer";
+                         }
+                         $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result[resultType],type:type}));
+                     });
+             }
+
         },
         "btap; div.content div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
             var data = $.trim($(event.currentTarget).find(".contentText").text());
-            var len = view.$el.find(".selectedItems .item[data-name='" + data + "']").length;
-            if (len == 0) {
-                view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data}))
-                var $ele = $(view.$el.find(".selectedItems .item[data-name='" + data + "']")[0]);
-                $ele.data("value", data);
-                view.$el.trigger("ADD_FILTER", {type:view.type, name: data, value: data})
-
-            }
+            addItem.call(view, data);
+            view.$el.find("input").focus();
 
         },
+        "mouseover; div.content div[class$='Row'][class!='contactRow']": function(event){
+            var view = this;
+            view.$el.find("div.content div[class$='Row'][class!='contactRow'] span").removeClass("active");
+            $(event.currentTarget).find("span").addClass("active");
+        },
         "btap; span.clear":function(event){
+            event.preventDefault();
+            event.stopPropagation();
             var view = this;
             var dataName = $(event.currentTarget).closest("span[data-name]").attr("data-name");
             setTimeout(function(){
                 view.$el.find("span[data-name='" + dataName + "']").remove();
                 view.$el.trigger("REMOVE_FILTER", {name: dataName, type: view.type});
             }, 200);
+            view.$el.find("input:first").focus();
         }
 
     };
 
+  function close(){
+      var view = this;
+      view.$el.bRemove();
+      $(document).off("btap."+view.cid);
+  }
 
+  function nextItem(){
+      var $nextItem, view = this;
+      var $item = view.$el.find(".contentText.active");
+      if($item.length > 0){
+          $nextItem = $item.closest("div").next("div").find(".contentText");
+          if($nextItem.length == 0){
+              $nextItem = view.$el.find(".contentText:first");
+          }
+      }else{
+          $nextItem = view.$el.find(".contentText:first");
+      }
+      if($nextItem.length > 0){
+          view.$el.find(".contentText").removeClass("active");
+          $nextItem.addClass("active");
+      }
+      changeInput.call(view);
+
+  }
+  function prevItem(){
+      var $nextItem, view = this;
+      var $item = view.$el.find(".contentText.active");
+      if($item.length > 0){
+          $nextItem = $item.closest("div").prev("div").find(".contentText");
+          if($nextItem.length == 0){
+              $nextItem = view.$el.find(".contentText:last");
+          }
+      }else{
+          $nextItem = view.$el.find(".contentText:last");
+      }
+      if($nextItem.length > 0){
+          view.$el.find(".contentText").removeClass("active");
+          $nextItem.addClass("active");
+      }
+      changeInput.call(view);
+  }
+
+  function changeInput(){
+      var view = this;
+      var $item = view.$el.find(".contentText.active");
+      if($item.length > 0){
+          view.$el.find("input:focus").val($item.text());
+      }
+
+  }
+
+  function addItem(data){
+      var view = this;
+      var len = view.$el.find(".selectedItems .item[data-name='" + data + "']").length;
+      if (len == 0) {
+          view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data}))
+          var $ele = $(view.$el.find(".selectedItems .item[data-name='" + data + "']")[0]);
+          $ele.data("value", data);
+          view.$el.trigger("ADD_FILTER", {type:view.type, name: data, value: data})
+          view.$el.find("input").val("").focus();
+      }
+  }
   
   app.ThPopup = ThPopup;
 })(jQuery); 

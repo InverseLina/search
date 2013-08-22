@@ -61,7 +61,7 @@
     	  //$("[data-b-view^='Filter']",view.$el).bRemove();
     	  var $th = $(event.currentTarget);
     	  var position = {top:$th.get(0).offsetTop+$th.height(),left:$th.get(0).offsetLeft+$th.width()/2-175};
-          console.log(position);
+//          console.log(position);
           if(position.left <  20 ){
               position.left = 20;
           }
