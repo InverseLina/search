@@ -17,6 +17,8 @@
         }
     }
 
+
+
 })(window);
 
 
@@ -49,6 +51,22 @@ String.prototype.format = function(args) {
  
 var app = app||{};
 app.defaultMenuSize = 5;
+
+(function(){
+    var fields = ["firstName","lastName","email","title"];
+    app.getContactDisplayName = function(contact){
+
+        contact = contact||{};
+        var regex = /^\s*$/g;
+        var displayName = "";
+        for (var i = 0; i < fields.length; i++) {
+            var field = fields[i];
+            displayName +=" " + contact[field]||"";
+        }
+        displayName = $.trim(displayName.replace(/\s+/, " "));
+        return displayName;
+    }
+})();
 
 
 

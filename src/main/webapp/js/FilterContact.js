@@ -51,7 +51,7 @@
         data.lastName = view.$el.find(":input[name='LastName']").val();
         data.email = view.$el.find(":input[name='Email']").val();
         data.title = view.$el.find(":input[name='Title']").val();
-        var displayName = $.trim(data.firstName + " " +  data.lastName);
+        var displayName = app.getContactDisplayName(data);
         var $eles = view.$el.find(".selectedItems .item[data-name='" + displayName + "']");
         var len = $eles.length;
         if (len == 0) {

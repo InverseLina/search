@@ -206,7 +206,7 @@
             var data = result[key];
             $.each(data, function (index, val) {
                 if (dataName == "contact") {
-                    displayName = (val.firstName||"")  + " " + (val.lastName||"")  ;
+                    displayName = app.getContactDisplayName(val)  ;
                 } else {
                     displayName = val;
                 }

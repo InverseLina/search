@@ -57,7 +57,7 @@ var app = app || {};
       data = (data||{}).data||[];
         $.each(data, function(idx, val){
            if(view.type == "Contact"){
-               displayName = (val.firstName||"")  + " " + (val.lastName||"")
+               displayName = app.getContactDisplayName(val);
            }else{
                displayName = val;
            }
