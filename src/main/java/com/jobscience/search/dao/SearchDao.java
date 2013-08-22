@@ -87,26 +87,38 @@ public class SearchDao {
             	   conditions.append(" OR (1=1 ");
             	   String value ;
             	  if(contact.containsKey("firstName")&&!"".equals(contact.getString("firstName"))){
-            		  conditions.append("  and contact.\"FirstName\" = ? ");
+            		  conditions.append("  and contact.\"FirstName\" ilike ? ");
             		  value = contact.getString("firstName");
+            		  if(!value.contains("%")){
+            			  value = "%"+value+"%";	
+              		  }
                       subValues.add(value);
                       hasCondition = true;
             	  }
             	  if(contact.containsKey("lastName")&&!"".equals(contact.getString("lastName"))){
-            		  conditions.append("  and contact.\"LastName\" = ? ");
+            		  conditions.append("  and contact.\"LastName\" ilike ? ");
             		  value = contact.getString("lastName");
+            		  if(!value.contains("%")){
+            			  value = "%"+value+"%";	
+              		  }
                       subValues.add(value);
                       hasCondition = true;
             	  }
             	  if(contact.containsKey("email")&&!"".equals(contact.getString("email"))){
-            		  conditions.append("  and contact.\"Email\" = ? ");
+            		  conditions.append("  and contact.\"Email\" ilike ? ");
             		  value = contact.getString("email");
+            		  if(!value.contains("%")){
+            			  value = "%"+value+"%";	
+              		  }
                       subValues.add(value);
                       hasCondition = true;
             	  }
             	  if(contact.containsKey("title")&&!"".equals(contact.getString("title"))){
-            		  conditions.append("  and contact.\"Title\" = ? ");
+            		  conditions.append("  and contact.\"Title\" ilike ? ");
             		  value = contact.getString("title");
+            		  if(!value.contains("%")){
+            			  value = "%"+value+"%";	
+              		  }
                       subValues.add(value);
                       hasCondition = true;
             	  }
