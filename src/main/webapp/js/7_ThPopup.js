@@ -100,16 +100,37 @@ var app = app || {};
         	var $icon = $(event.target);
         	$icon.parent().addClass("hide").prev().removeClass("hide");
         },
+        "btap; .autoCompleteContainer.active .clear":function(){
+            var $input = $(event.currentTarget).closest(".autoCompleteContainer").find("input");
+             $input.val("").focus().change();
+        },
+        "change; .autoComplete":function(event){
+            var view = this;
+            var $input = $(event.currentTarget);
+            var val = $input.val();
+            event.stopPropagation();
+            if(!/^\s*$/.test(val)){
+                $input.closest("span.autoCompleteContainer").addClass("active");
+            }else{
+                $input.closest("span.autoCompleteContainer").removeClass("active");
+            }
+        },
         "keyup;.autoComplete":function(event){
         	 var view = this;
         	 var $input = $(event.currentTarget);
         	 var type = $input.attr("data-type");
         	 var resultType = (type=="company")?"companies":(type+"s");
+            var val = $input.val();
              event.stopPropagation();
+             if(!/^\s*$/.test(val)){
+                 $input.closest("span.autoCompleteContainer").addClass("active");
+             }else{
+                 $input.closest("span.autoCompleteContainer").removeClass("active");
+             }
              event.preventDefault();
              switch(event.keyCode){
                  case borderKey.ENTER:
-                     var val = view.$el.find("input:focus").val();
+
                      view.$el.find(".contentText").each(function(idx,item){
                         if($(item).text() == val){
                             addItem.call(view, val);
@@ -208,7 +229,7 @@ var app = app || {};
       var view = this;
       var $item = view.$el.find(".contentText.active");
       if($item.length > 0){
-          view.$el.find("input:focus").val($item.text());
+          view.$el.find("input:focus").val($item.text()).change();
       }
 
   }
@@ -221,7 +242,7 @@ var app = app || {};
           var $ele = $(view.$el.find(".selectedItems .item[data-name='" + data + "']")[0]);
           $ele.data("value", data);
           view.$el.trigger("ADD_FILTER", {type:view.type, name: data, value: data})
-          view.$el.find("input").val("").focus();
+          view.$el.find("input").val("").focus().change();
       }
   }
   

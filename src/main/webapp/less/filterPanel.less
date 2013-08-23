@@ -120,8 +120,21 @@
 	    	cursor:pointer;
 	    }
 	    .autoComplete{
-	    	width: 94%;
+	    	width: 98%;
 			margin-bottom: 5px;
 	    }
+
+        .autoCompleteContainer {
+           position: relative;
+           .clear {
+             display:none;
+             right: 10px;
+           }
+        }
+      .autoCompleteContainer.active {
+          .clear {
+             display:block;
+          }
+      }
 	}
 }
