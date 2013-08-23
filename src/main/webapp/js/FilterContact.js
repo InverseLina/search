@@ -30,12 +30,28 @@
             view.$el.find(":input[name='Email']").val(value.email);
             view.$el.find(":input[name='Title']").val(value.title);
         },
-        "keyup; input[type='text']": function(event){
+        "btap; .content .contactRow i.clear": function (event) {
+            console.log("xxxxxxxxxxxx")
+            event.preventDefault();
+            event.stopPropagation();
             var view = this;
+            var $input = $(event.currentTarget).closest("div").find("input");
+            $input.val("").focus().change();
+        },
+        "keyup change; input[type='text']": function(event){
+            var val, $input, view = this;
             if(event.keyCode == 13){
                 addItem.call(view);
             }else if(event.keyCode == 27){
                 view.close();
+            }else{
+                $input = $(event.currentTarget);
+                val = $input.val();
+                if(/^\s*$/.test(val)){
+                    $input.closest("div").removeClass("active");
+                }else{
+                    $input.closest("div").addClass("active");
+                }
             }
         }
     }, FilterContact.prototype.events||{});
@@ -64,7 +80,7 @@
         ele.data("value", data);
 //        view.$el.find(".save").parent().addClass("hide");
         view.$el.find(".selectedItems .add").removeClass("hide");
-        view.$el.find(":text").val("");
+        view.$el.find(":text").val("").change();
         view.$el.find("input:first").focus();
     }
 })(jQuery);

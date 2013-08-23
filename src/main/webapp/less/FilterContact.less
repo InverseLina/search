@@ -1,16 +1,26 @@
-.FilterContact{
-	.contact .item{
-			background: #d4c761;
-			cursor:pointer;
-	}
-	.contactRow{
-		margin-top:5px;
-	}
-    .selectedItems  .item {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      word-break: normal;
-      max-width: 100px;
+.FilterContact {
+  .contact .item {
+    background: #d4c761;
+    cursor: pointer;
+  }
+  .contactRow {
+    margin-top: 5px;
+    position: relative;
+    .clear {
+      display:none;
+      right:20px !important;
     }
+  }
+
+  .contactRow.active .clear {
+    display:block;
+
+  }
+  .selectedItems  .item {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: normal;
+    max-width: 100px;
+  }
 }
