@@ -114,7 +114,6 @@
           var cid = $(event.currentTarget).closest("i").attr("data-id");
           brite.display("ResumeView","body", {id: cid})
       },
-
       "keypress;.search-input" : function(event) {
         var view = this;
         if (event.which === 13) {
