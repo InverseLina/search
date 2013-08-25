@@ -33,9 +33,35 @@
       
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.4</version>
         <executions>
+          
+          <!-- clean the compile HTML assets -->
           <execution>
-            <phase>prepare-package</phase>
+            <id>delete-html-assets</id>
+            <phase>compile</phase>  
+            <goals>  
+                <goal>run</goal>  
+            </goals>  
+            <configuration>
+              <tasks>           
+              <delete>
+                <fileset dir="src/main/webapp/css">
+                  <include name="*.css"/>
+                </fileset>
+              </delete>
+              </tasks>
+            </configuration>
+          </execution>          
+          <!-- /clean the compile HTML assets -->
+          
+          <!-- jCruncher -->
+          <execution>
+            <id>compile-html-assets</id>
+            <phase>compile</phase>  
+            <goals>  
+                <goal>run</goal>  
+            </goals>  
             <configuration>
               <tasks>
                 <exec executable="java">
@@ -44,20 +70,16 @@
                 </exec> 
               </tasks>
             </configuration>
+          </execution>
+          <!-- /jCruncher -->
+          
+          <!-- Copy to War -->
+          <execution>
+            <id>copy-to-war</id>
+            <phase>package</phase>
             <goals>
               <goal>run</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>     
-      
-<!-- Copy war files to ../war -->
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
             <configuration>
               <tasks>
                 <mkdir dir="../war" />
@@ -69,10 +91,18 @@
                 </copy>
               </tasks>
             </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
+          </execution>          
+          <!-- /Copy to War -->
+          
+        </executions>
+      </plugin>     
+      
+<!-- Copy war files to ../war -->
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        
+        <executions>
+          
         </executions>
       </plugin>
       <!-- /Copy war files to ../war -->      
