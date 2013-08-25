@@ -39,7 +39,7 @@
           <!-- clean the compile HTML assets -->
           <execution>
             <id>delete-html-assets</id>
-            <phase>compile</phase>  
+            <phase>prepare-package</phase>  
             <goals>  
                 <goal>run</goal>  
             </goals>  
@@ -58,7 +58,7 @@
           <!-- jCruncher -->
           <execution>
             <id>compile-html-assets</id>
-            <phase>compile</phase>  
+            <phase>prepare-package</phase>  
             <goals>  
                 <goal>run</goal>  
             </goals>  
