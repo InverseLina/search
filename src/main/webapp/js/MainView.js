@@ -99,6 +99,7 @@
                  }
              });
              view._searchValues = result;
+             doSearch.call(view);
 //             console.log(view._searchValues);
          },
          "SEARCH_RESULT_CHANGE": function () {

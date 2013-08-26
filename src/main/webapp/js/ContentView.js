@@ -75,7 +75,7 @@
           var data = (view.$el.bView("MainView")._searchValues||{})[qName]||[];
           var viewName = "Filter"+type.substring(0, 1).toUpperCase()+type.substring(1);
     	  if(type=="skill"||type=="contact"||type=="education"||type=="employer"||type=="location"){
-              brite.display(viewName,".tableContainer",{position:position,type:type, data:data});
+              brite.display(viewName,".ContentView",{position:position,type:type, data:data});
            }
       },
       "change; .tableContainer td input[type='checkbox']" : function(event) {
@@ -170,6 +170,8 @@
           }else{
               $th.find(".selectedItems .addFilter").show();
           }
+
+
       },
       "REMOVE_FILTER":function(event, extra){
           var type, view = this;
@@ -218,7 +220,7 @@
 	  	  });
           var html;
           var htmlInfo = "<span class='resultCount'>" + result.count + " Matches</span>";
-          htmlInfo += " <span class='resultTime'> (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)</span>";
+          htmlInfo += " <span class='resultTime'> (c:" + result.countDuration + "ms," + " s:" + result.selectDuration + "ms)</span>";
 
           view.$searchInfo.html(htmlInfo);
           if (result.count > 0) {
