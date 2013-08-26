@@ -2,18 +2,24 @@
 @import "mixins.less";
 
 .ResumeView {
-/*  position: absolute;
-  .border-radius(5px);
-  background: #fff;
-  padding: 10px;
-   width: 600px;
-   top: 50px;
-   bottom: 50px;
-   overflow: auto;
-   border: #003399 solid medium;
-   h3 {
-     background: #ffffff;
-     margin: 0;
-     padding: 10px;
-   }*/
+  display:block;
+  .modal-dialog{
+  	outline:0;
+  	height:100%;
+  	.modal-content{
+  		height:100%;
+  		.modal-body{
+  			position:absolute;
+  			top: 87px;
+   			bottom: 70px;
+   			overflow: scroll;
+  		}
+  		.modal-footer{
+  			position: absolute;
+			bottom: 0;
+			right: 0;
+			left: 0;
+  		}
+  	}
+  }
 }

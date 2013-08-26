@@ -1,16 +1,19 @@
 <script id="ResumeView" type="text/html">
-    <!-- Modal -->
-    <div id="resumeModal" class="ResumeView, modal" tabindex="-1" role="dialog" aria-labelledby="resumeModalLabel"
+<div class="modal ResumeView">
+    <div id="resumeModal" class="modal-dialog" tabindex="-1" role="dialog" aria-labelledby="resumeModalLabel"
          aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="resumeModalLabel">Resume of {{name}}</h3>
-        </div>
-        <div class="modal-body">
-            <pre>{{resume}}</pre>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+        <div class="modal-content">
+	        <div class="modal-header">
+	            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	            <h3 id="resumeModalLabel">Resume of {{name}}</h3>
+	        </div>
+	        <div class="modal-body">
+	            <pre>{{resume}}</pre>
+	        </div>
+	        <div class="modal-footer">
+	            <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+	        </div>
         </div>
     </div>
+</div>
 </script>

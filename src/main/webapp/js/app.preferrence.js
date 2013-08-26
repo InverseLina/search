@@ -16,8 +16,9 @@ var app = app || {};
     }
 
     var displayColumns = [{name:"contact",display:"Contact"},{name:"company",display:"Company"}
-        ,{name:"skill",display:"Skill"},{name:"education",display:"Education"},{name:"location",display:"Location"}];
-    var defaultColumns = "contact,company";
+        ,{name:"skill",display:"Skill"},{name:"education",display:"Education"},{name:"location",display:"Location"},
+        {name:"resume",display:"Resume"}];
+    var defaultColumns = "contact,company,skill,education,location";
     var defaultSectionOpen = {
         ContactInfo: 'close',
         Company: 'open',

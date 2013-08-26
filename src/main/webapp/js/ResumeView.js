@@ -21,7 +21,7 @@
                     }
                 }).fail(function (result) {
                         console.log(result);
-                    });
+                });
                 return dfd.promise();
             },
 
