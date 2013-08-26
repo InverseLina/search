@@ -85,7 +85,7 @@ public class OldSearchWebHandlers {
         return wr;
     }
     
-    @WebGet("/getGroupValuesForAdvanced")
+    @WebGet("/old_getGroupValuesForAdvanced")
     public WebResponse getGroupValuesForAdvanced(@WebParam("q_") Map searchValues,@WebParam("type")String type) throws SQLException{
          // FIXME: needs to get the search map from request.
         // Map searchValues = MapUtil.mapIt("search",search);

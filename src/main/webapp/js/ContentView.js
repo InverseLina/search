@@ -310,7 +310,7 @@
               var value = "", resume = items[i][columns[j]];
 
                if(items[i][columns[j]] != -1){
-                  value = "<i data-id='" + items[i][columns[j]] + "' title='View Resume.' class='resume-ico icon-file icon-white'></i>";
+                  value = "<i data-id='" + items[i][columns[j]] + "' title='View Resume.' class='resume-ico glyphicon glyphicon-file'></i>";
                }
 
   	          item.push({
