@@ -217,8 +217,8 @@
 	  		}
 	  	  });
           var html;
-          var htmlInfo = "Result size: " + result.count + " | Duration: " + result.duration + "ms";
-          htmlInfo += " (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)";
+          var htmlInfo = "<span class='resultCount'>" + result.count + " Matches</span>";
+          htmlInfo += " <span class='resultTime'> (c: " + result.countDuration + "ms," + " s: " + result.selectDuration + "ms)</span>";
 
           view.$searchInfo.html(htmlInfo);
           if (result.count > 0) {
