@@ -219,11 +219,12 @@
 	  			}
 	  		}
 	  	  });
-          var html;
-          var htmlInfo = "<span class='resultCount'>" + result.count + " Matches</span>";
-          htmlInfo += " <span class='resultTime'> (c:" + result.countDuration + "ms," + " s:" + result.selectDuration + "ms)</span>";
 
-          view.$searchInfo.html(htmlInfo);
+
+          var html;
+          var htmlInfo = " <span class='resultTime'> (c:{0}ms, s:{1}ms)</span>".format(result.countDuration , result.selectDuration);
+          htmlInfo += "<span class='resultCount' style='{2}: {3}px'>{0} Matche{1}</span>";
+
           if (result.count > 0) {
 //            $e.find(".actions").show();
             buildResult(result.result).done(function(data){
@@ -244,7 +245,10 @@
                  pageSize : result.pageSize,
                  totalCount : result.count,
                  callback : result.callback
-               });
+               }).done(function(){
+                       var pagination = view.$el.find(".pagination");
+                       showSearchInfo.call(view, result, htmlInfo, "left", (pagination.offset().left - view.$searchInfo.offset().left -155 ))
+                   });
             });
           } else {
             $e.find(".actions").hide();
@@ -253,7 +257,9 @@
             }));
             view.$searchResult.find(".page").empty();
             fixColWidth.call(view);
+              showSearchInfo.call(view, result, htmlInfo, "right", 0);
           }
+
         }
 
       }
@@ -460,5 +466,10 @@
 		  day="0"+day;
 	  }
 	  return format.replace("YYYY",year).replace("MM",month).replace("DD",day);
+  }
+
+  function showSearchInfo(result, htmlInfo, direct,  offset){
+       var view = this;
+      view.$searchInfo.html(htmlInfo.format(result.count, result.count > 1 ? "s":"", direct, offset));
   }
 })(jQuery); 

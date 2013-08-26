@@ -10,14 +10,24 @@
     brite.registerView("Pagination", {emptyParent: true},
         {
             create: function (data, config){
-                return render("Pagination");
+                var dfd = $.Deferred();
+                var $el = $(render("Pagination"));
+                if(data.totalCount > 0){
+                    var view = this;
+                        var page = view.page = {pageIdx: data.pageIdx||1, pageSize: data.pageSize||10, totalCount: data.totalCount, callback: data.callback};
+                        calc(view.page);
+                        var html = render("Pagination-detail", page);
+                        $el.empty().append(html);
+                        $el.find("select").val(page.pageSize);
+                }
+                return dfd.resolve($el).promise();
             },
 
             postDisplay: function (data) {
-                var view = this;
+                /*var view = this;
                 if(data.totalCount>0){
                   renderPage.call(view, data.pageIdx||1, data.pageSize||10, data.totalCount, data.callback);
-                }
+                }*/
             },
             events: {
               "btap; a[data-page]":function(event){
