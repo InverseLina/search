@@ -223,7 +223,7 @@
 
           var html;
           var htmlInfo = " <span class='resultTime'> (c:{0}ms, s:{1}ms)</span>".format(result.countDuration , result.selectDuration);
-          htmlInfo += "<span class='resultCount' style='{2}: {3}px'>{0} Matche{1}</span>";
+          htmlInfo += "<span class='resultCount' style='{2}: {3}px'>{0} match{1}</span>";
 
           if (result.count > 0) {
 //            $e.find(".actions").show();
@@ -470,6 +470,6 @@
 
   function showSearchInfo(result, htmlInfo, direct,  offset){
        var view = this;
-      view.$searchInfo.html(htmlInfo.format(result.count, result.count > 1 ? "s":"", direct, offset));
+      view.$searchInfo.html(htmlInfo.format(result.count, result.count > 1 ? "es":"", direct, offset));
   }
 })(jQuery); 
