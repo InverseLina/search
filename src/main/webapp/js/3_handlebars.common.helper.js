@@ -157,9 +157,22 @@
 
     });
 
-    Handlebars.registerHelper("decode", function(data){
-        return $('<textarea />').html(data).val();
+    function htmlDecode(str) {
+        var s = "";
+        if (str.length == 0)    return    "";
+        s = str.replace(/&gt;/g, "&");
+        s = s.replace(/&lt;/g, "<");
+        s = s.replace(/&gt;/g, ">");
+        s = s.replace(/&nbsp;/g, "    ");
+        s = s.replace(/'/g, "\'");
+        s = s.replace(/&quot;/g, "\"");
+        s = s.replace(/<br>/g, "\n");
+        return    s;
+    }
 
+    Handlebars.registerHelper("decode", function(data){
+        //return $('<textarea />').html(data).val();
+        return htmlDecode(data);
     });
 
 
