@@ -21,19 +21,26 @@
     top: -90px;
     margin: 40px auto 40px auto;
 
-    input {
+    .input-wrapper {
       display: block;
       position: absolute;
       left: 20px;
       right: 50px;
       height: 40px;
-      border-radius: 5px;
-      border-width: 2px;
-      border-style: solid;
-      border-color: #D8D8D9;
-      padding: 5px 10px 5px 40px;
-      margin-right: 10px;
-      background: #F0F0F0;
+      margin: 0;
+      padding:0;
+      input {
+        width: 100%;
+        height: 100%;
+        background: #F0F0F0;
+        border-radius: 5px;
+        border-width: 2px;
+        border-style: solid;
+        border-color: #D8D8D9;
+        padding: 5px 10px 5px 40px;
+        margin-right: 10px;
+      }
+
     }
     i.glyphicon-search {
       position: absolute;
@@ -116,16 +123,16 @@
       position: absolute;
       width: 40px;
       right: -45px;
-      top: 7px;
-      height: 30px;
+      top: 0px;
+      line-height: 100px;
       font-size: 60px;
       background: #e0e0e0;
       border: none;
       color: #ffffff;
       border-radius: 0px;
       padding: 0px 12px;
-      height: 93px;
-	  padding-top: 4px;
+      height: 100px;
+//	  padding-top: 4px;
 	  padding-left:3px;
     }
 
@@ -142,7 +149,7 @@
           vertical-align: top;
           td, th {
             padding-left: 4px;
-            padding-top: 7px;
+//            padding-top: 7px;
             text-align: left;
           }
         }
@@ -156,10 +163,9 @@
 			color:#fff;
 			font-size: 18px;
 			.headerTh{
-				height:100%;
+				height:100px;
 				padding: 4px 10px;
 				position: relative;
-				padding-left: 4px;
 /*				.addFilter{
 					position: absolute;
 					bottom: 0;
@@ -260,7 +266,7 @@
           .fitparent();
           overflow-x:hidden;
           overflow-y: auto;
-          top: 100px;
+          top: 108px;
           tr {
             padding-bottom: 3px;
             min-height: 60px;

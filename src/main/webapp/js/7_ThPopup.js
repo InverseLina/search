@@ -100,7 +100,7 @@ var app = app || {};
         	var $icon = $(event.target);
         	$icon.parent().addClass("hide").prev().removeClass("hide");
         },*/
-        "btap; .autoCompleteContainer.active .clear":function(){
+        "btap; .autoCompleteContainer.active .clear":function(event){
             var $input = $(event.currentTarget).closest(".autoCompleteContainer").find("input");
              $input.val("").focus().change();
         },
