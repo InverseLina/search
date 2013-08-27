@@ -72,7 +72,11 @@ var app = app || {};
      if(view.$el.find(".sliderBarContainer").length > 0){
          brite.display("Slider", ".sliderBarContainer");
      }
-     view.$el.find("input.autoComplete:first").focus();
+     var $input = view.$el.find("input.autoComplete:first");
+     $input.focus();
+     view.lastQueryString = $input.val();
+     var type = $input.attr("data-type");
+ 	 view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
   };
 
     ThPopup.prototype.close = function(){
@@ -153,18 +157,28 @@ var app = app || {};
                          }
                          $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result[resultType],type:type}));
                      });
-                 
-                 searchDao.getGroupValuesForAdvanced({
-                	 "searchValues": $(".MainView").bComponent().getSearchValues().searchValues,
-                	 type:type,
-                	 queryString:$input.val()
-                 }).done(function(data){
-                	 
-                 });
+                 	 view.lastQueryString = $input.val();
+                 	 view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
              }
         },
-        "SHOWSEARCHRESULT":function(event){
+        "SHOWSEARCHRESULT":function(event,params){
         	var view = this;
+        	 searchDao.getGroupValuesForAdvanced({
+            	 "searchValues": $(".MainView").bComponent().getSearchValues().searchValues,
+            	 "type":params.type,
+            	 queryString:params.keyword
+             }).done(function(data){
+            	 console.log(data);
+            	 if(view.lastQueryString==params.keyword){
+	            	 var result = {};
+	            	 $.each(data.list,function(index,d){
+	            		 result[d.name]=d.count;
+	            	 });
+	            	 view.$el.find(".autoCompleteList [data-name]").each(function(index,e){
+	            		$(e).find("span").html("("+(result[$(e).attr("data-name")]||0)+")"); 
+	            	 });
+            	 }
+             });
         },
         "btap; div.content div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
