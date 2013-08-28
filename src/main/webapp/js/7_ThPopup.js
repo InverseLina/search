@@ -56,12 +56,7 @@ var app = app || {};
       });
       data = (data||{}).data||[];
         $.each(data, function(idx, val){
-           if(view.type == "Contact"){
-               displayName = app.getContactDisplayName(val);
-           }else{
-               displayName = val;
-           }
-           var html = render("filterPanel-selectedItem-add", {name:displayName});
+           var html = render("filterPanel-selectedItem-add", {name:val.name});
             view.$el.find("span.add").before(html);
 
         });
@@ -76,7 +71,9 @@ var app = app || {};
      $input.focus();
      view.lastQueryString = $input.val();
      var type = $input.attr("data-type");
- 	 view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
+     if(view.type != 'Contact'){
+ 	    view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
+     }
   };
 
     ThPopup.prototype.close = function(){
@@ -164,11 +161,11 @@ var app = app || {};
         "SHOWSEARCHRESULT":function(event,params){
         	var view = this;
         	 searchDao.getGroupValuesForAdvanced({
-            	 "searchValues": $(".MainView").bComponent().getSearchValues().searchValues,
+            	 "searchValues": app.ParamsControl.getParamsForSearch().searchValues,
             	 "type":params.type,
             	 queryString:params.keyword
              }).done(function(data){
-            	 console.log(data);
+//            	 console.log(data);
             	 if(view.lastQueryString==params.keyword){
 	            	 var result = {};
 	            	 $.each(data.list,function(index,d){

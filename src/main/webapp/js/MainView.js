@@ -20,7 +20,7 @@
 		 }
 	 },
 
-     getSearchValues: function(){
+/*     getSearchValues: function(){
          var key, view = this;
          var result = {};
          var searchData = result.searchValues = {};
@@ -49,7 +49,7 @@
          result.pageSize = view.contentView.pageSize || 15;
 //         console.log(result);
          return result;
-     },
+     },*/
 	 
 	 events: {
 	 	"click; [data-action='DO_SEARCH']": function(){
@@ -75,7 +75,7 @@
              }
          },
          "SEARCH_PARAMS_CHANGE":function(event, extra){
-             var view = this;
+/*             var view = this;
              var result = {};
              view.contentView.$el.find("th").each(function(idx, th){
                  var type = $(th).closest("th").attr("data-column");
@@ -99,8 +99,7 @@
                  }
              });
              view._searchValues = result;
-             doSearch.call(view);
-//             console.log(view._searchValues);
+//             console.log(view._searchValues);*/
          },
          "SEARCH_RESULT_CHANGE": function () {
              var view = this;
@@ -182,7 +181,7 @@
 //            qParams.pageIndex = pageIdx||qParams.pageIndex;
 //            qParams.pageSize =  pageSize||qParams.pageSize;
 //            var qParams=view.getSearchValues();
-            searchDao.search(view.getSearchValues()).always(function (result) {
+            searchDao.search(app.ParamsControl.getParamsForSearch()).always(function (result) {
 	            result.callback = callback;
 	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
             });
@@ -193,26 +192,26 @@
 
     function restoreSearchParam(){
         var key, dataName, data, displayName, $html, $th, view = this;
-        var result = view._searchValues || {};
+
         if(view.$el.find("table th .selectedItems .item").length > 0){
             return;
         }
+        var result = app.ParamsControl.getFilterParams() || {};
+        console.log(result);
         for(key in result){
-            if(key == "q_companies"){
-                dataName = "company"
-            }else{
-                dataName = key.substring(2, key.length-1);
+            dataName = key;
+            if(key == "Contact"){
+                dataName = "contact";
             }
             $th = view.contentView.$el.find("table thead th[data-column='{0}']".format(dataName));
             var data = result[key];
             $.each(data, function (index, val) {
-                if (dataName == "contact") {
-                    displayName = app.getContactDisplayName(val)  ;
+               /* if (dataName == "contact") {
+                    displayName = app.getContactDisplayName(val.value)  ;
                 } else {
                     displayName = val;
-                }
-                $html = $(render("search-items-header-add-item", {name: displayName}));
-                $html.data("value", val);
+                }*/
+                $html = $(render("search-items-header-add-item", {name: val.name}));
                 $th.find(".addFilter").before($html);
             });
             $th.find(".addFilter").hide();

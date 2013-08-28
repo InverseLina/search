@@ -24,14 +24,21 @@
         "btap;.selectedItems .item":function(event){
         	var view = this;
         	var $span = $(event.target);
-        	var value = $("[data-column='contact']").find("[data-name='"+$span.attr("data-name")+"']").data("value");
-        	view.$el.find(":input[name='FirstName']").val(value.firstName);
-            view.$el.find(":input[name='LastName']").val(value.lastName);
-            view.$el.find(":input[name='Email']").val(value.email);
-            view.$el.find(":input[name='Title']").val(value.title);
+//        	var value = $("[data-column='contact']").find("[data-name='"+$span.attr("data-name")+"']").data("value");
+            var dataName = $span.attr("data-name");
+            var contacts =  app.ParamsControl.getFilterParams()["Contact"]||[];
+            $.each(contacts, function(idx, contact){
+                if(contact.name == dataName){
+                    var value = contact.value;
+                    view.$el.find(":input[name='FirstName']").val(value.firstName);
+                    view.$el.find(":input[name='LastName']").val(value.lastName);
+                    view.$el.find(":input[name='Email']").val(value.email);
+                    view.$el.find(":input[name='Title']").val(value.title);
+                }
+            });
+
         },
         "btap; .content .contactRow i.clear": function (event) {
-            console.log("xxxxxxxxxxxx")
             event.preventDefault();
             event.stopPropagation();
             var view = this;

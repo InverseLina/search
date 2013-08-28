@@ -65,15 +65,18 @@
           if(position.left <  20 ){
               position.left = 20;
           }
-
     	  var type = $th.attr("data-column"); 
-    	  var qName = "q_{0}s".format(type);
 
-    	  if(type=="company"){
-              qName="q_companies";
+          var data = app.ParamsControl.getFilterParams()[type]||[];
+
+          if(type=="company") {
               type= "employer";
-    	  }
-          var data = (view.$el.bView("MainView")._searchValues||{})[qName]||[];
+          }
+          if(type=="contact") {
+              data = app.ParamsControl.getFilterParams()["Contact"]||[];
+          }
+          console.log(type);
+          console.log(data);
           var viewName = "Filter"+type.substring(0, 1).toUpperCase()+type.substring(1);
     	  if(type=="skill"||type=="contact"||type=="education"||type=="employer"||type=="location"){
               brite.display(viewName,".ContentView",{position:position,type:type, data:data});
@@ -115,6 +118,7 @@
           var cid = $(event.currentTarget).closest("i").attr("data-id");
           brite.display("ResumeView","body", {id: cid})
       },
+
       "keypress;.search-input" : function(event) {
         var view = this;
         if (event.which === 13) {
@@ -162,8 +166,9 @@
           var $th = view.$el.find("th[data-column='" + type + "']");
           $th.find("span.addFilter").before(render("search-items-header-add-item", {name: extra.name}));
           var ele = $th.find(".selectedItems span.item[data-name='" + extra.name + "']");
-          ele.data("value", extra.value);
-          view.$el.trigger("SEARCH_PARAMS_CHANGE")
+//          ele.data("value", extra.value);
+//          view.$el.trigger("SEARCH_PARAMS_CHANGE")
+//          console.log(extra);
 
           var $th = view.$el.find("th[data-column='" + type + "']");
           if($th.find(".selectedItems .item").length > 0) {
@@ -171,8 +176,7 @@
           }else{
               $th.find(".selectedItems .addFilter").show();
           }
-
-
+          app.ParamsControl.save(extra);
       },
       "REMOVE_FILTER":function(event, extra){
           var type, view = this;
@@ -184,9 +188,9 @@
               }
           }
           view.$el.find("th[data-column='" + type + "']").find(".selectedItems span.item[data-name='" + extra.name + "']").remove();
-          setTimeout(function(){
+/*          setTimeout(function(){
               view.$el.trigger("SEARCH_PARAMS_CHANGE");
-          }, 200);
+          }, 200);*/
 
           var $th = view.$el.find("th[data-column='" + type + "']");
           if($th.find(".selectedItems .item").length > 0) {
@@ -194,6 +198,8 @@
           }else{
               $th.find(".selectedItems .addFilter").show();
           }
+          console.log(extra);
+          app.ParamsControl.remove(extra);
 
       },
       UPDATE_FILTER: function(event, extra){
