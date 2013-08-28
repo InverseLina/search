@@ -167,7 +167,7 @@
           $th.find("span.addFilter").before(render("search-items-header-add-item", {name: extra.name}));
           var ele = $th.find(".selectedItems span.item[data-name='" + extra.name + "']");
 //          ele.data("value", extra.value);
-//          view.$el.trigger("SEARCH_PARAMS_CHANGE")
+//          c
 //          console.log(extra);
 
           var $th = view.$el.find("th[data-column='" + type + "']");
@@ -177,6 +177,7 @@
               $th.find(".selectedItems .addFilter").show();
           }
           app.ParamsControl.save(extra);
+          view.$el.trigger("DO_SEARCH");
       },
       "REMOVE_FILTER":function(event, extra){
           var type, view = this;
@@ -198,8 +199,8 @@
           }else{
               $th.find(".selectedItems .addFilter").show();
           }
-          console.log(extra);
           app.ParamsControl.remove(extra);
+          view.$el.trigger("DO_SEARCH");
 
       },
       UPDATE_FILTER: function(event, extra){
