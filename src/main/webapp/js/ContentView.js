@@ -37,6 +37,9 @@
         var bPagination = view.$el.bComponent("ContentView");
         var pageIdx = bPagination.pageIdx || 1;
         var pageSize = bPagination.pageSize || 30;
+        if(column=="company"||column=="skill"||column=="education"||column=="resume"){
+        	return false;
+        }
         if ($asc.is(":hidden")) {
           $(".desc,.asc", $th.parent()).hide();
           $asc.show();
