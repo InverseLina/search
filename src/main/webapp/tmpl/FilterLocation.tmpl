@@ -19,7 +19,10 @@
             </div>
     		<div class="autoCompleteList">
         		{{#each locations}}
-        		<div class="locationRow"><span class="contentText" data-name="{{name}}">{{name}}<span>(...)</span></span></div>
+        		<div class="locationRow"><span class="contentText" data-name="{{name}}">
+        		  <span class="itemName">{{name}}</span>
+        		  <span>(...)</span></span>
+        		</div>
         		{{/each}}
         	 </div>
         </div>

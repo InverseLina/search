@@ -175,7 +175,7 @@ var app = app || {};
 	            		 result[d.name]=d.count;
 	            	 });
 	            	 view.$el.find(".autoCompleteList [data-name]").each(function(index,e){
-	            		$(e).find("span").html("("+(result[$(e).attr("data-name")]||0)+")"); 
+	            		$(e).find("span.count").html("("+(result[$(e).attr("data-name")]||0)+")"); 
 	            	 });
             	 }
              });

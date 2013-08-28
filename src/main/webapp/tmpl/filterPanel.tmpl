@@ -15,6 +15,9 @@
 </script>
 <script id="filterPanel-autoComplete-list" type="text/html">
 	{{#each results}}
-	  <div class="{{../type}}Row"><span class="contentText" data-name="{{name}}">{{name}}<span>(...)</span></span></div>
+	  <div class="{{../type}}Row"><span class="contentText" data-name="{{name}}">
+	  	<span class="itemName">{{name}}</span>
+  		<span>(...)</span></span>
+	  </div>
 	{{/each}}
 </script>

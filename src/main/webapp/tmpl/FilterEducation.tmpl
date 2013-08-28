@@ -20,7 +20,10 @@
 
           <div class="autoCompleteList">
     	     {{#each educations}}
-    	     <div class="educationRow"><span class="contentText" data-name="{{name}}">{{name}}<span>(...)</span></span></div>
+    	      <div class="educationRow"><span class="contentText" data-name="{{name}}">
+				<span class="itemName">{{name}}</span>
+				<span>(...)</span></span>
+			  </div>
     	     {{/each}}
 	      </div>
       </div>
