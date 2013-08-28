@@ -103,7 +103,6 @@ public class SearchDao {
         }
         Connection con = dbHelper.getConnection();
         
-        System.out.println(querySql);
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
         prepareStatement.close();
@@ -267,7 +266,7 @@ public class SearchDao {
 	                       }
 	                       conditions.append(getConditionForThirdNames(educationValues,minYears, values, "education"));
                 	   }else{
-	            		   querySql.append(" join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
+	            		   querySql.append(" inner join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
 	            		   querySql.append("("+educationValues+")");
 	            		   if(minYears!=null){
 		                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__GraduationDate__c\"))>="+minYears);
@@ -290,7 +289,6 @@ public class SearchDao {
             	   if (companyValues!=null&&!"Any Company".equals(companyValues)) {
             		   companyValues = companyValues.substring(1,companyValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
 	            	   
-            		   System.out.println(companyValues);
             		   if(advanced){
 	            		   if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
 	                           joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" =c.\"ts2__Contact__c\" ");
@@ -619,7 +617,7 @@ public class SearchDao {
         for(String join:columnJoinTables){
         	if(!join.equals("No Join")){
 	        	querySql.append(join);
-	        	countSql.append(join);
+	        	//countSql.append(join);
         	}
         }
         

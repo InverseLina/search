@@ -155,7 +155,9 @@ var app = app || {};
                          $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result[resultType],type:type}));
                      });
                  	 view.lastQueryString = $input.val();
-                 	 view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
+                 	if(type){
+                 	  view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
+                 	}
              }
         },
         "SHOWSEARCHRESULT":function(event,params){
