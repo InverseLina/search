@@ -197,7 +197,7 @@
             return;
         }
         var result = app.ParamsControl.getFilterParams() || {};
-        console.log(result);
+
         for(key in result){
             dataName = key;
             if(key == "Contact"){
@@ -205,16 +205,18 @@
             }
             $th = view.contentView.$el.find("table thead th[data-column='{0}']".format(dataName));
             var data = result[key];
-            $.each(data, function (index, val) {
-               /* if (dataName == "contact") {
-                    displayName = app.getContactDisplayName(val.value)  ;
-                } else {
-                    displayName = val;
-                }*/
-                $html = $(render("search-items-header-add-item", {name: val.name}));
-                $th.find(".addFilter").before($html);
-            });
-            $th.find(".addFilter").hide();
+            if (data && data.length > 0) {
+                $.each(data, function (index, val) {
+                    /* if (dataName == "contact") {
+                     displayName = app.getContactDisplayName(val.value)  ;
+                     } else {
+                     displayName = val;
+                     }*/
+                    $html = $(render("search-items-header-add-item", {name: val.name}));
+                    $th.find(".addFilter").before($html);
+                });
+                $th.find(".addFilter").hide();
+            }
         }
 
     }
