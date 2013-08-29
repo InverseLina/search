@@ -1,18 +1,8 @@
 var app = app || {};
 (function($){
     function getCookie(key, defaultVal){
-        var cookie = document.cookie;
-        var startIndex = cookie.indexOf(key+"=");
-        if(startIndex==-1){
-            return defaultVal?defaultVal:null;
-        }else{
-            var endIndex = cookie.indexOf(";",startIndex)
-            if(endIndex==-1){
-                return cookie.substring(startIndex+key.length+1);
-            }else{
-                return cookie.substring(startIndex+key.length+1,endIndex);
-            }
-        }
+        var val = app.cookie(key);
+        return val?val:defaultVal;
     }
 
     var displayColumns = [{name:"contact",display:"Contact"},{name:"company",display:"Company"}
@@ -41,8 +31,10 @@ var app = app || {};
             }else{
                 if(arguments[0] && $.type(arguments[0]) == "array" ){
                     columns = arguments[0];
+                    console.log(columns);
                     if(columns.length > 0) {
-                        document.cookie = "columns=" + columns.join(",") + "; expires=0";
+//                        document.cookie = "columns=" + columns.join(",") + ";expires=0;path=/;domain=localhost";
+                        app.cookie("columns", columns.join(","));
                     }
                 }
             }
@@ -51,4 +43,43 @@ var app = app || {};
         defaultSectionOpen: defaultSectionOpen,
         displayColumns: displayColumns
     }
+
+    app.cookie = function(name, value, options) {
+        if (typeof value != 'undefined') {
+            options = options || {};
+            if (value === null) {
+                value = '';
+                options = $.extend({}, options);
+                options.expires = -1;
+            }
+            var expires = '';
+            if (options.expires && (typeof options.expires == 'number' || options.expires.toUTCString)) {
+                var date;
+                if (typeof options.expires == 'number') {
+                    date = new Date();
+                    date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
+                } else {
+                    date = options.expires;
+                }
+                expires = '; expires=' + date.toUTCString();
+            }
+            var path = options.path ? '; path=' + (options.path) : '';
+            var domain = options.domain ? '; domain=' + (options.domain) : '';
+            var secure = options.secure ? '; secure' : '';
+            document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
+        } else {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    };
 })(jQuery);
