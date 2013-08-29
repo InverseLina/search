@@ -29,7 +29,7 @@ var app = app || {};
 	}
 
 
-    SavedSearchesDaoHandler.prototype.delete = function(id){
+    SavedSearchesDaoHandler.prototype["delete"] = function(id){
 		return $.ajax({
 			type : "POST",
 			url : "deleteSavedSearches",

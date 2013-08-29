@@ -53,7 +53,7 @@
                 "btap; li .clear": function (event) {
                     var view = this;
                     var id = $(event.currentTarget).closest("li").attr("data-id");
-                    app.SavedSearchesDaoHandler.delete(id).done(function (result) {
+                    app.SavedSearchesDaoHandler["delete"](id).done(function (result) {
                         updateDetail.call(view);
                     });
                     event.stopPropagation();
