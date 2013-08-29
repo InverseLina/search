@@ -259,21 +259,23 @@ public class SearchDao {
             	   }
             	   if(educationValues!=null){
             		   educationValues = educationValues.substring(1,educationValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
-                	   if(advanced){
-	                       if(baseTable.indexOf("ts2__education_history__c") == -1 && joinTables.indexOf("ts2__education_history__c") == -1){
-	                    	   joinTables.append(" inner join ts2__education_history__c d on ");
-	                           joinTables.append("a.\"sfId\" = d.\"ts2__Contact__c\" ");
-	                       }
-	                       conditions.append(getConditionForThirdNames(educationValues,minYears, values, "education"));
-                	   }else{
-	            		   querySql.append(" inner join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
-	            		   querySql.append("("+educationValues+")");
-	            		   if(minYears!=null){
-		                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__GraduationDate__c\"))>="+minYears);
-		                   }
-		                   querySql.append(" ) ed1 on contact.\"sfId\" = ed1.\"ts2__Contact__c\" ");
+                	   if(!educationValues.trim().equals("")){
+	            		   if(advanced){
+		                       if(baseTable.indexOf("ts2__education_history__c") == -1 && joinTables.indexOf("ts2__education_history__c") == -1){
+		                    	   joinTables.append(" inner join ts2__education_history__c d on ");
+		                           joinTables.append("a.\"sfId\" = d.\"ts2__Contact__c\" ");
+		                       }
+		                       conditions.append(getConditionForThirdNames(educationValues,minYears, values, "education"));
+	                	   }else{
+		            		   querySql.append(" inner join (select ed.\"ts2__Contact__c\" from ts2__education_history__c ed where \"ts2__Name__c\" in ");
+		            		   querySql.append("("+educationValues+")");
+		            		   if(minYears!=null){
+			                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__GraduationDate__c\"))>="+minYears);
+			                   }
+			                   querySql.append(" ) ed1 on contact.\"sfId\" = ed1.\"ts2__Contact__c\" ");
+	                	   }
+		                   hasCondition = true;
                 	   }
-	                   hasCondition = true;
             	   }
                }
             
@@ -288,21 +290,22 @@ public class SearchDao {
             	   }
             	   if (companyValues!=null&&!"Any Company".equals(companyValues)) {
             		   companyValues = companyValues.substring(1,companyValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
-	            	   
-            		   if(advanced){
-	            		   if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
-	                           joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" =c.\"ts2__Contact__c\" ");
-	                       }
-	            		   conditions.append(getConditionForThirdNames(companyValues,minYears, values, "company"));
-	            	   }else{
-	                	   querySql.append(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
-	                	   querySql.append(" ("+companyValues+")");
-	                       	if(minYears!=null){
-	                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))>= "+minYears);
-	                   		}
-	                       	querySql.append(" ) em1 on contact.\"sfId\" = em1.\"ts2__Contact__c\"");
-	                        hasCondition = true;
-			           }
+            		   if(!companyValues.trim().equals("")){
+	            		   if(advanced){
+		            		   if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
+		                           joinTables.append(" inner join ts2__employment_history__c c on a.\"sfId\" =c.\"ts2__Contact__c\" ");
+		                       }
+		            		   conditions.append(getConditionForThirdNames(companyValues,minYears, values, "company"));
+		            	   }else{
+		                	   querySql.append(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from ts2__employment_history__c em where em.\"ts2__Name__c\" in ");
+		                	   querySql.append(" ("+companyValues+")");
+		                       	if(minYears!=null){
+		                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))>= "+minYears);
+		                   		}
+		                       	querySql.append(" ) em1 on contact.\"sfId\" = em1.\"ts2__Contact__c\"");
+				           }
+	            		   hasCondition = true;
+            		   }
             	   }
                }
                
@@ -317,21 +320,23 @@ public class SearchDao {
             	   }
             	   if(skillValues!=null){
                 	   skillValues = skillValues.substring(1,skillValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
-                	   if(advanced){
-	            		   if(baseTable.indexOf("ts2__skill__c") == -1 && joinTables.indexOf("ts2__skill__c") == -1){
-	            			   joinTables.append(" inner join ts2__skill__c b on ");
-                			   joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
-	                       }
-	            		   conditions.append(getConditionForThirdNames(skillValues,minYears, values, "skill"));
-	            	   }else{
-                	   querySql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in ");
-            		   querySql.append(" ("+skillValues+")");
-            		   if(minYears!=null){
-            			   querySql.append(" AND sk.\"ts2__Rating__c\" >=  "+minYears);
-            		   }
-                       querySql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
-	            	   }
-                	   hasCondition = true;
+                	   if(!skillValues.trim().equals("")){
+	                	   if(advanced){
+		            		   if(baseTable.indexOf("ts2__skill__c") == -1 && joinTables.indexOf("ts2__skill__c") == -1){
+		            			   joinTables.append(" inner join ts2__skill__c b on ");
+	                			   joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
+		                       }
+		            		   conditions.append(getConditionForThirdNames(skillValues,minYears, values, "skill"));
+		            	   }else{
+	                	   querySql.append("join (select sk.\"ts2__Contact__c\" from ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in ");
+	            		   querySql.append(" ("+skillValues+")");
+	            		   if(minYears!=null){
+	            			   querySql.append(" AND sk.\"ts2__Rating__c\" >=  "+minYears);
+	            		   }
+	                       querySql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
+		            	   }
+	                	   hasCondition = true;
+                	   }
             	   }
                }
 
@@ -349,76 +354,78 @@ public class SearchDao {
         	    }
 	         	    if(locationValues!=null){
 		         	    locationValues = locationValues.substring(1,locationValues.length()-1).replaceAll("\"", "'");
-		         	   if(advanced){
-	                       if(baseTable.indexOf("zipcode_us") == -1 && joinTables.indexOf("zipcode_us") == -1){
-	                    	   joinTables.append("  join zipcode_us z on ");
-	                           joinTables.append("a.\"MailingPostalCode\" =z.\"zip\"");
-	                       }
-	                       
-			               condition.append(" AND zipcode_us.City in ("+locationValues+")");
-	                	   List<Map> zipcodes = getZipCode(condition.toString());
-	                	   if(zipcodes.size()>0){
-	                		   conditions.append(" and (1!=1 ");
-	                		   for(Map m:zipcodes){
-	                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" = '")
-	                			   		   .append(m.get("zip"))
-	                					   .append("' ");
-	                		   }
-	                		   conditions.append(" )");
+		         	   if(!locationValues.trim().equals("")){
+			         	    if(advanced){
+		                       if(baseTable.indexOf("zipcode_us") == -1 && joinTables.indexOf("zipcode_us") == -1){
+		                    	   joinTables.append("  join zipcode_us z on ");
+		                           joinTables.append("a.\"MailingPostalCode\" =z.\"zip\"");
+		                       }
+		                       
+				               condition.append(" AND zipcode_us.City in ("+locationValues+")");
+		                	   List<Map> zipcodes = getZipCode(condition.toString());
+		                	   if(zipcodes.size()>0){
+		                		   conditions.append(" and (1!=1 ");
+		                		   for(Map m:zipcodes){
+		                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" = '")
+		                			   		   .append(m.get("zip"))
+		                					   .append("' ");
+		                		   }
+		                		   conditions.append(" )");
+		                	   }else{
+		                		   conditions.append(" and 1!=1 ");
+		                	   }
+		                     //  conditions.append(getConditionForThirdNames(locationValues,minRadius, values, "location"));
 	                	   }else{
-	                		   conditions.append(" and 1!=1 ");
+				         	    if(minRadius==null||"0".equals(minRadius)){
+				                   	//add the 'Zip' filter
+				                	 if(locationValues.length()>0){
+					                	 condition.append(" AND zipcode_us.City in ("+locationValues+")");
+					                	 hasLocationCondition = true;
+				                	 }
+				                   if(hasLocationCondition){
+				                	   List<Map> zipcodes = getZipCode(condition.toString());
+				                	   if(zipcodes.size()>0){
+				                		   conditions.append(" and (1!=1 ");
+				                		   for(Map m:zipcodes){
+				                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" = '")
+				                			   		   .append(m.get("zip"))
+				                					   .append("' ");
+				                		   }
+				                		   conditions.append(" )");
+				                	   }else{
+				                		   conditions.append(" and 1!=1 ");
+				                	   }
+				                   }
+				                   hasCondition = hasLocationCondition||hasCondition;
+				               
+				                }else{
+					                if(locationValues.length()>0)
+					                	conditions.append(" AND (1!=1 ");
+					                for(String location:locationValues.split(",")){
+						               if (location != null && !"".equals(location)) {
+						                 String city =location.replaceAll("\'", "").replaceAll("\"", "");
+						                 condition.append(" and zipcode_us.City= '"+city+"'" );
+						                 hasLocationCondition = true;
+						               }
+						               Double[] latLong = getLatLong(condition.toString());
+						               if(latLong[0]==null||latLong[1]==null|| !hasLocationCondition){
+						                 conditions.append(" OR ( 1!=1) ");
+						               }else{
+						     	          double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(minRadius));
+						     	          conditions.append(" OR (  "+tableAliases+".\"ts2__Latitude__c\" >"+latLongAround[0]);
+						     	          conditions.append(" and "+tableAliases+".\"ts2__Latitude__c\" <"+latLongAround[2]);
+						     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" >"+latLongAround[1]);
+						     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]+")");
+						              }
+						               condition = new StringBuilder();
+					                }
+					                if(locationValues.length()>0)
+					                	conditions.append(" ) ");
+					                   hasCondition = hasLocationCondition;
+					            }
 	                	   }
-	                     //  conditions.append(getConditionForThirdNames(locationValues,minRadius, values, "location"));
-                	   }else{
-			         	    if(minRadius==null||"0".equals(minRadius)){
-			                   	//add the 'Zip' filter
-			                	 if(locationValues.length()>0){
-				                	 condition.append(" AND zipcode_us.City in ("+locationValues+")");
-				                	 hasLocationCondition = true;
-			                	 }
-			                   if(hasLocationCondition){
-			                	   List<Map> zipcodes = getZipCode(condition.toString());
-			                	   if(zipcodes.size()>0){
-			                		   conditions.append(" and (1!=1 ");
-			                		   for(Map m:zipcodes){
-			                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" = '")
-			                			   		   .append(m.get("zip"))
-			                					   .append("' ");
-			                		   }
-			                		   conditions.append(" )");
-			                	   }else{
-			                		   conditions.append(" and 1!=1 ");
-			                	   }
-			                   }
-			                   hasCondition = hasLocationCondition||hasCondition;
-			               
-			                }else{
-				                if(locationValues.length()>0)
-				                	conditions.append(" AND (1!=1 ");
-				                for(String location:locationValues.split(",")){
-					               if (location != null && !"".equals(location)) {
-					                 String city =location.replaceAll("\'", "").replaceAll("\"", "");
-					                 condition.append(" and zipcode_us.City= '"+city+"'" );
-					                 hasLocationCondition = true;
-					               }
-					               Double[] latLong = getLatLong(condition.toString());
-					               if(latLong[0]==null||latLong[1]==null|| !hasLocationCondition){
-					                 conditions.append(" OR ( 1!=1) ");
-					               }else{
-					     	          double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(minRadius));
-					     	          conditions.append(" OR (  "+tableAliases+".\"ts2__Latitude__c\" >"+latLongAround[0]);
-					     	          conditions.append(" and "+tableAliases+".\"ts2__Latitude__c\" <"+latLongAround[2]);
-					     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" >"+latLongAround[1]);
-					     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]+")");
-					              }
-					               condition = new StringBuilder();
-				                }
-				                if(locationValues.length()>0)
-				                	conditions.append(" ) ");
-				                   hasCondition = hasLocationCondition;
-				            }
-                	   }
-        	    }
+		         	   }
+        	      }
                } 
            }
     	   if(advanced){
