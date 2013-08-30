@@ -1,5 +1,7 @@
 package com.jobscience.search;
 
+import com.britesnow.snow.web.auth.AuthRequest;
+import com.jobscience.search.web.AppAuthRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,5 +13,6 @@ public class AppConfig extends AbstractModule {
     
     @Override
     protected void configure() {
+        bind(AuthRequest.class).to(AppAuthRequest.class);
     }
 }
