@@ -8,13 +8,19 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.db.DBHelper;
+
+import static java.lang.String.format;
 
 @Singleton
 public class ConfigManager {
 
 	@Inject
 	private DBHelper dbHelper;
+    @Inject
+    private CurrentOrgHolder orgHolder;
+
 	public void saveOrUpdateConfig(Map<String,String> params) throws SQLException{
 		Connection con = dbHelper.getConnection();
 		StringBuilder names = new StringBuilder("(");
@@ -26,10 +32,11 @@ public class ConfigManager {
 		}
 		names.append("'-1')");
 		sql.deleteCharAt(sql.length()-1);
-		PreparedStatement statement = con.prepareStatement("delete from config where name in "+names);
+		PreparedStatement statement = con.prepareStatement(format("delete from %s.config where name in %s",
+                orgHolder.getSchema(), names));
 		statement.executeUpdate();
 		statement.close();
-		statement = con.prepareStatement("insert into config(name,value) values "+sql);
+		statement = con.prepareStatement(format("insert into  %s.config(name,value) values ", orgHolder.getSchema()) +sql);
 		statement.executeUpdate();
 		statement.close();
 		con.close();
@@ -37,7 +44,7 @@ public class ConfigManager {
 	
 	
 	public List<Map> getConfig(String name){
-		String sql = "select * from config";
+		String sql = format("select * from %s.config", orgHolder.getSchema());
 		if(name!=null){
 			sql+=" where name='"+name+"'";
 		}

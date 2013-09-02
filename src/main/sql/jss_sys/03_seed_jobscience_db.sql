@@ -1,0 +1,1 @@
+insert into jss_sys.org (name, shemaname, sfid) values ('JobScience','jobscience_db', null);

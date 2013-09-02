@@ -27,6 +27,8 @@ public class AppAuthRequest implements AuthRequest {
 
     @WebModelHandler(startsWith = "/")
     public void home(@WebModel Map m, @WebUser OAuthToken user, RequestContext rc) {
+        String orgName = rc.getParam("org");
+        rc.setCookie("org", orgName);
         m.put("user", user);
     }
 
