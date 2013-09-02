@@ -964,3 +964,10 @@ public class SearchDao {
     }
 }
 
+class SearchStatements {
+
+    PreparedStatement queryStmt;
+    PreparedStatement countStmt;
+    Object[]          values;
+
+}

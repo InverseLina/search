@@ -31,7 +31,7 @@
           }
       });
   [#else]
-      window.location.href = "authorize";
+      window.location.href = "sf1";
   [/#if]
 
     
