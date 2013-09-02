@@ -16,7 +16,7 @@ public class OauthWebHandlers {
     @Inject
     private ForceAuthService forceAuthService;
 
-    @WebGet("/sf")
+    @WebGet("/sf1")
     public void authorize(RequestContext rc) throws IOException {
         String url = forceAuthService.getAuthorizationUrl();
         rc.getRes().sendRedirect(url);
