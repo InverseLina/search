@@ -1,9 +1,6 @@
 package com.jobscience.search.oauth;
 
 import com.google.inject.Singleton;
-import net.sf.json.JSONException;
-
-import java.io.IOException;
 
 @Singleton
 public class SalesForceService {

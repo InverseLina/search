@@ -2,8 +2,6 @@ package com.jobscience.search.web;
 
 import com.britesnow.snow.web.RequestContext;
 
-import java.util.Date;
-
 public class OAuthToken {
     private String token;
     private long expire;

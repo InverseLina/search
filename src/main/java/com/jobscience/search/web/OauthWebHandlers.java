@@ -1,16 +1,15 @@
 package com.jobscience.search.web;
 
+import java.io.IOException;
+
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebParam;
-import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.oauth.ForceAuthService;
 import com.jobscience.search.oauth.api.ForceDotComApi;
-
-import java.io.IOException;
 
 @Singleton
 public class OauthWebHandlers {
