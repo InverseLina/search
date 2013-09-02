@@ -19,9 +19,9 @@ public class SysManager {
     Connection con = dbHelper.getConnection();
     String sql = "";
     if(params.size() > 0 && "true".equals(params.get("isEdit"))){
-        sql = "update org set name = '"+params.get("name")+"',shemaname = '"+params.get("shemaname")+"',sfid='"+params.get("sfid")+"'  where name = '"+params.get("name")+"'";
+        sql = "update jss_sys.org set name = '"+params.get("name")+"',shemaname = '"+params.get("shemaname")+"',sfid='"+params.get("sfid")+"'  where name = '"+params.get("name")+"'";
     }else{
-        sql = " insert into org(name,shemaname,sfid) values ('"+params.get("name")+"','"+params.get("shemaname")+"','"+params.get("sfid")+"')";
+        sql = " insert into jss_sys.org(name,shemaname,sfid) values ('"+params.get("name")+"','"+params.get("shemaname")+"','"+params.get("sfid")+"')";
     }
     PreparedStatement statement = con.prepareStatement(sql);
     statement.executeUpdate();
@@ -31,19 +31,19 @@ public class SysManager {
   
   public void deleteEntity(String name) throws SQLException{
       Connection con = dbHelper.getConnection();
-      PreparedStatement statement = con.prepareStatement("delete from org where name  = '"+name+"'");
+      PreparedStatement statement = con.prepareStatement("delete from jss_sys.org where name  = '"+name+"'");
       statement.executeUpdate();
       statement.close();
       con.close();
     }
   
   public Object getEntity(String name){
-    String sql = "select * from org where name='"+name+"'";
+    String sql = "select * from jss_sys.org where name='"+name+"'";
     return dbHelper.executeQuery(sql);    
   }
   
   public List getEntityList(String keyWords){
-        String sql = "select * from org";
+        String sql = "select * from jss_sys.org";
         return dbHelper.executeQuery(sql);      
     }
 }
