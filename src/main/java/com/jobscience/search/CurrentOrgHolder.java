@@ -14,6 +14,8 @@ import java.util.Map;
 @Singleton
 public class CurrentOrgHolder {
 
+    private org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CurrentOrgHolder.class);
+
     @Inject
     private CurrentRequestContextHolder crh;
     @Inject
@@ -41,8 +43,8 @@ public class CurrentOrgHolder {
                 }
             }
         }
-        //return null;
-        throw new IllegalArgumentException("current org name is null");
+        log.warn("current org name is null",  new IllegalArgumentException("current org name is null"));
+        return null;
     }
 
 }
