@@ -10,7 +10,9 @@
 		 var view = this;
 		 if(data&&data.type=="admin"){
 			 brite.display("Admin");
-		 }else{
+		 }else if(data&&data.type=="organization"){
+			 brite.display("Organization");
+	      }else{
 			 /*brite.display("SideNav",this.$el.find(".sidenav-ctn")).done(function(sideNav){
 					view.sideNav = sideNav;
 			 });*/

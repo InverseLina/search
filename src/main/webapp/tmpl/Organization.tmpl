@@ -1,0 +1,55 @@
+<script id="Organization" type="text/html">
+<div class="Organization">
+<h3 class="title">Organization</h3>
+  <div class="tab-content">
+    
+  </div>
+</div>
+</script>
+
+<script id="Organization-list" type="text/html">
+<div class="btns">
+      <button class="btn btn-primary add">Add</button>
+    </div>
+    <div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th style="">name</th>
+        <th style="">shemaname</th>
+        <th style="">sfid</th>
+        <th style="width:35px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each list}}
+      <tr >
+        <td class="name"><span class="edit" data-entity="{{name}}">{{name}}</span>
+        </td>
+        <td>{{shemaname}}</td>
+        <td>{{sfid}}</td>
+        <td><i class="del" data-entity="{{name}}">X</i></td>
+      </tr>
+      {{/each}}
+    </tbody>    
+  </table>
+  </div>
+</script>
+
+<script id="Organization-content" type="text/html">
+	<div class="locals">
+      <div class="header">
+      <table>
+	      <tr><td width="120px;algin-text"left"><span>name: </span></td><td><input type="hidden" name="isEdit"/><input type="text" name="name" value="{{data.name}}" style="width:120px"/></td>
+	      <tr>
+	      <tr><td width="120px;algin-text"left"><span>shemaname: </span></td><td><input type="text" name="shemaname" value="{{data.shemaname}}" style="width:120px"/></td>
+	      <tr>
+	      <tr><td width="120px;algin-text"left"><span>sfid: </span></td><td><input type="text" name="sfid" value="{{data.sfid}}" style="width:120px"/></td>
+	      <tr>
+      </table>
+    </div>
+    <div class="btns">
+      <button class="btn btn-primary save ">Save</button>
+      <button class="btn cancel">Cancel</button>
+    </div>
+</script>
