@@ -99,14 +99,17 @@ public class SearchWebHandlers {
     
     @WebGet("/getGroupValuesForAdvanced")
     public WebResponse getGroupValuesForAdvanced(@WebParam("searchValues") String searchValues,@WebParam("type")String type,
-    											 @WebParam("queryString")String queryString) throws SQLException{
+    											 @WebParam("queryString")String queryString,@WebParam("orderByCount")Boolean orderByCount) throws SQLException{
         Map result = new HashMap();
         JSONObject jo = JSONObject.fromObject(searchValues);
         Map searchMap = new HashMap();
         for(Object key:jo.keySet()){
         	searchMap.put(key.toString().substring(2),jo.get(key).toString());
         }
-        List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString);
+        if(orderByCount==null){
+        	orderByCount = false;
+        }
+        List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount);
         
         result.put("list", list);
         WebResponse wr = WebResponse.success(result);

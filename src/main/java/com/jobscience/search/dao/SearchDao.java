@@ -63,7 +63,7 @@ public class SearchDao {
         return searchResult;
     }
     
-    public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString) throws SQLException {
+    public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount) throws SQLException {
         //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
@@ -104,12 +104,16 @@ public class SearchDao {
             querySql.append(groupBy);
         }
         
-        querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.name offset 0 limit 10");
+        if(orderByCount){
+        	querySql.append(") result where result.name != ''  group by result.name order by result.count desc offset 0 limit 5");
+        }else{
+        	querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.name offset 0 limit 10");
+        }
         if(log.isDebugEnabled()){
             log.debug(querySql);
         }
         Connection con = dbHelper.getConnection();
-        
+        System.out.println(querySql);
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
         prepareStatement.close();
