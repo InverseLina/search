@@ -1,6 +1,5 @@
 (function($){
   
-  var searchDao = app.SearchDaoHandler;
   brite.registerView("Organization",{parent:".container",emptyParent:true},{
     create: function(){
       return render("Organization");
@@ -13,27 +12,34 @@
     events:{
       "btap;.save":function(event){
         var view = this;
-        var $btn = $(event.target);
         var values = {};
         values["name"]=view.$el.find("[name='name']").val();
-        values["shemaname"]=view.$el.find("[name='shemaname']").val();
+        values["oldname"]=view.$el.find("[name='oldname']").val();
+        values["schemaname"]=view.$el.find("[name='schemaname']").val();
         values["sfid"]=view.$el.find("[name='sfid']").val();
-        values["isEdit"]=view.$el.find("[name='isEdit']").val();
-          $.ajax({
-            url:"/sys/save",
-            type:"Post",
-            dataType:'json',
-            data:values
-          }).done(function(data){
-            if(data.success){
-              refreshEntityTable.call(view);
-            }
-          });
+        doValidate.call(view);
+        if(view.validation){
+        	 $.ajax({
+                 url:"/sys/save",
+                 type:"Post",
+                 dataType:'json',
+                 data:values
+               }).done(function(data){
+                 if(data.success){
+                   refreshEntityTable.call(view);
+                 }
+               });
+        }
       },
       "btap;.cancel":function(event){
         var view = this;
         refreshEntityTable.call(view);
       },
+      
+      "btap;.home":function(event){
+    	  window.location.href="/";
+        },
+      
       "btap;.add":function(event){
         var view = this;
         var html = render("Organization-content",{data:null});
@@ -90,13 +96,35 @@
       data:{name:name},
       dataType:'json',
     }).done(function(data){
-      console.log(data);
       if(data.success){
         var html = render("Organization-content",{data:data.result[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
-        view.$tabContent.find("input[name='isEdit']").val("true");
       }
     });
   }
+  
+  function doValidate(){
+	    var view = this;
+		var $nameMsg = view.$el.find(".alert-error.name");
+		var $schemanameMsg = view.$el.find(".alert-error.schemaname");
+		
+		if(view.$el.find("[name='name']").val() == ''){
+			$nameMsg.removeClass("hide");
+		}else{
+			$nameMsg.addClass("hide");
+		}
+		
+		if(view.$el.find("[name='schemaname']").val() == ''){
+			$schemanameMsg.removeClass("hide");
+		}else{
+			$schemanameMsg.addClass("hide");
+		}
+		
+		if(view.$el.find(".alert-error:not(.hide)").length>0){
+			view.validation=false;
+		}else{
+			view.validation=true;
+		}
+	  }
 })(jQuery);
