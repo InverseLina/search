@@ -11,7 +11,13 @@ var app = app || {};
     var view = this;
     var type = this.type;
     if(type=="company"||type=="education"||type=="skill"||type=="location"){
-	    searchDao.getAutoCompleteData({limit : 5, type : type}).always(function(result) {
+    	var listName = (type=="company"?"companies":(type+"s"));
+    	 searchDao.getGroupValuesForAdvanced({
+    		 "searchValues": app.ParamsControl.getParamsForSearch().searchValues,
+        	 "type":type,
+        	 "orderByCount":true
+    	 }).always(function(result) {
+    		result[listName]=result.list;
 	        var $e = $(render(view.name,result));
 	        var $html = $(render("filterPanel",data));
 	        $html.find(".popover-content").html($e);
@@ -70,10 +76,10 @@ var app = app || {};
      var $input = view.$el.find("input.autoComplete:first");
      $input.focus();
      view.lastQueryString = $input.val();
-     var type = $input.attr("data-type");
+  /*   var type = $input.attr("data-type");
      if(view.type != 'Contact'){
  	    view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
-     }
+     }*/
   };
 
     ThPopup.prototype.close = function(){
