@@ -1,3 +1,4 @@
+--schema :jobscience_db
 CREATE TABLE config
 (
   name character varying(45) NOT NULL,

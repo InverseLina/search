@@ -1,3 +1,4 @@
+--schema :jobscience_db
 CREATE EXTENSION pg_trgm; 
 
 --ALTER TABLE contact disable trigger c5_c5_contact_logtrigger;
