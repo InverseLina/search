@@ -10,7 +10,7 @@ SET search_path TO jss_sys;
 CREATE TABLE org
 (
   name character varying(255) NOT NULL,
-  shemaname character varying(64) NOT NULL,
+  schemaname character varying(64) NOT NULL,
   sfid character varying(255),
   CONSTRAINT org_pkey PRIMARY KEY (name)
 );

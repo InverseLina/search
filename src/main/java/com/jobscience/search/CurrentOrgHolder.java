@@ -38,7 +38,7 @@ public class CurrentOrgHolder {
 
                     Map map = orgMap.get(orgName);
                     if (map != null) {
-                        return (String) map.get("shemaname");
+                        return (String) map.get("schemaname");
                     }
                 }
             }
