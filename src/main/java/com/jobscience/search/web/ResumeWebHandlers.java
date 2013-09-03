@@ -2,6 +2,7 @@ package com.jobscience.search.web;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
+import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.db.DBHelper;
 
 import javax.inject.Inject;
@@ -16,11 +17,18 @@ public class ResumeWebHandlers {
     @Inject
     private DBHelper dbHelper;
 
-    public static final String sql = "select \"Name\", \"ts2__Text_Resume__c\" from contact where id = ?";
+    @Inject
+    private CurrentOrgHolder orgHolder;
+    
+    
     
     @WebGet("/getResume")
     public WebResponse search(@WebParam("cid") Long cid) {
-        List<Map> map = dbHelper.executeQuery(sql, cid);
-        return WebResponse.success(map);
+    	
+    	String sql = "select \"Name\", \"ts2__Text_Resume__c\" from "+orgHolder.getSchema()+".contact where id = ?";
+        
+    	List<Map> map = dbHelper.executeQuery(sql, cid);
+        
+    	return WebResponse.success(map);
     }
 }

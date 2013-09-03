@@ -113,7 +113,6 @@ public class SearchDao {
             log.debug(querySql);
         }
         Connection con = dbHelper.getConnection();
-        System.out.println(querySql);
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
         prepareStatement.close();
