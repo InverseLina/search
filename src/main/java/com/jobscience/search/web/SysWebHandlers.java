@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
-import com.britesnow.snow.web.param.annotation.WebPath;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
@@ -20,12 +19,12 @@ public class SysWebHandlers {
   private SysManager sysManager;
   
   @WebPost("/sys/save")
-  public WebResponse saveEntity(@WebParam("name")String name,@WebParam("shemaname")String shemaname,@WebParam("sfid")String sfid,@WebParam("isEdit")String isEdit) throws SQLException{
+  public WebResponse saveEntity(@WebParam("name")String name,@WebParam("schemaname")String schemaname,@WebParam("sfid")String sfid,@WebParam("oldname")String oldname) throws SQLException{
     Map<String,String> params = new HashMap<String,String>();
     params.put("name", name);
-    params.put("shemaname", shemaname);
+    params.put("oldname", oldname);
+    params.put("schemaname", schemaname);
     params.put("sfid", sfid);
-    params.put("isEdit", isEdit);
     sysManager.saveOrUpdateEntity(params);
     return WebResponse.success();
   }

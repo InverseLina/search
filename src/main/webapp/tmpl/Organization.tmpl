@@ -8,15 +8,16 @@
 </script>
 
 <script id="Organization-list" type="text/html">
-<div class="btns">
+<div >
       <button class="btn btn-primary add">Add</button>
+      <button class="btn home">Cancel</button>
     </div>
     <div>
   <table class="table">
     <thead>
       <tr>
         <th style="">name</th>
-        <th style="">shemaname</th>
+        <th style="">schemaname</th>
         <th style="">sfid</th>
         <th style="width:35px"></th>
       </tr>
@@ -26,9 +27,9 @@
       <tr >
         <td class="name"><span class="edit" data-entity="{{name}}">{{name}}</span>
         </td>
-        <td>{{shemaname}}</td>
+        <td>{{schemaname}}</td>
         <td>{{sfid}}</td>
-        <td><i class="del" data-entity="{{name}}">X</i></td>
+        <td><i class="f-icon-remove icon-remove del" data-entity="{{name}}"></i></td>
       </tr>
       {{/each}}
     </tbody>    
@@ -37,14 +38,14 @@
 </script>
 
 <script id="Organization-content" type="text/html">
-	<div class="locals">
-      <div class="header">
-      <table>
-	      <tr><td width="120px;algin-text"left"><span>name: </span></td><td><input type="hidden" name="isEdit"/><input type="text" name="name" value="{{data.name}}" style="width:120px"/></td>
+	<div >
+      <div >
+      <table class="content-table">
+	      <tr><td class="left"><span>name: </span></td><td class="right"><input type="hidden" name="oldname" value="{{data.name}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
 	      <tr>
-	      <tr><td width="120px;algin-text"left"><span>shemaname: </span></td><td><input type="text" name="shemaname" value="{{data.shemaname}}" style="width:120px"/></td>
+	      <tr><td class="left"><span>schemaname: </span></td><td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="schemaname" /></td><td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
 	      <tr>
-	      <tr><td width="120px;algin-text"left"><span>sfid: </span></td><td><input type="text" name="sfid" value="{{data.sfid}}" style="width:120px"/></td>
+	      <tr><td class="left"><span>sfid: </span></td><td class="right"><input type="text" name="sfid" value="{{data.sfid}}" class="text" placeholder="sfid" /></td><td><div class="alert alert-error hide msg sfid">Please Add some approvers.</div></td>
 	      <tr>
       </table>
     </div>
