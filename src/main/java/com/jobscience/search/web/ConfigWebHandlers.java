@@ -39,7 +39,7 @@ public class ConfigWebHandlers {
 	}
 	
 	@WebModelHandler(startsWith="/admin")
-	public void contactInfo(@WebModel Map m){
+	public void admin(@WebModel Map m){
 	}
 	
 }

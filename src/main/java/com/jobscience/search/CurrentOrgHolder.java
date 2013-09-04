@@ -23,6 +23,14 @@ public class CurrentOrgHolder {
     private Map<String, Map> orgMap = new HashMap<String, Map>();
 
     public String getSchema() {
+        return (String) getFieldValue("schemaname");
+    }
+
+    public Integer getId(){
+        return (Integer) getFieldValue("id");
+    }
+
+    protected Object getFieldValue(String fieldName){
         if (crh != null) {
             RequestContext rc = crh.getCurrentRequestContext();
             if (rc != null) {
@@ -38,7 +46,7 @@ public class CurrentOrgHolder {
 
                     Map map = orgMap.get(orgName);
                     if (map != null) {
-                        return (String) map.get("schemaname");
+                        return  map.get(fieldName);
                     }
                 }
             }
