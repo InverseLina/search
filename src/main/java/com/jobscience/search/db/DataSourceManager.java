@@ -64,75 +64,76 @@ public class DataSourceManager {
         return new DataSourceWrapper(ds, schema);
     }
 
-    class DataSourceWrapper implements DataSource {
-        private final DataSource ds;
-        private final String schema;
+}
 
-        DataSourceWrapper(DataSource ds, String schema) {
-            this.ds = ds;
-            this.schema = schema;
-        }
+class DataSourceWrapper implements DataSource {
+    private final DataSource ds;
+    private final String schema;
 
-        @Override
-        public Connection getConnection() throws SQLException {
-            Connection con = ds.getConnection();
-            return intConnection(con);
-        }
+    DataSourceWrapper(DataSource ds, String schema) {
+        this.ds = ds;
+        this.schema = schema;
+    }
 
-        private Connection intConnection(Connection con) {
-            PreparedStatement pstmt = null;
-            try {
-                pstmt = con.prepareStatement("SET search_path = " + schema);
-                pstmt.execute();
-                return con;
-            } catch (SQLException e) {
-                throw Throwables.propagate(e);
-            } finally {
-                if (pstmt != null) {
-                    try {
-                        pstmt.close();
-                    } catch (SQLException e) {
-                        //
-                    }
+    @Override
+    public Connection getConnection() throws SQLException {
+        Connection con = ds.getConnection();
+        return intConnection(con);
+    }
+
+    private Connection intConnection(Connection con) {
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = con.prepareStatement("SET search_path = " + schema);
+            pstmt.execute();
+            return con;
+        } catch (SQLException e) {
+            throw Throwables.propagate(e);
+        } finally {
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    //
                 }
             }
         }
+    }
 
-        @Override
-        public Connection getConnection(String username, String password) throws SQLException {
-            Connection con = ds.getConnection(username, password);
-            return intConnection(con);
-        }
+    @Override
+    public Connection getConnection(String username, String password) throws SQLException {
+        Connection con = ds.getConnection(username, password);
+        return intConnection(con);
+    }
 
-        @Override
-        public PrintWriter getLogWriter() throws SQLException {
-            return ds.getLogWriter();
-        }
+    @Override
+    public PrintWriter getLogWriter() throws SQLException {
+        return ds.getLogWriter();
+    }
 
-        @Override
-        public void setLogWriter(PrintWriter out) throws SQLException {
-            ds.setLogWriter(out);
-        }
+    @Override
+    public void setLogWriter(PrintWriter out) throws SQLException {
+        ds.setLogWriter(out);
+    }
 
-        @Override
-        public int getLoginTimeout() throws SQLException {
-            return ds.getLoginTimeout();
-        }
+    @Override
+    public int getLoginTimeout() throws SQLException {
+        return ds.getLoginTimeout();
+    }
 
-        @Override
-        public void setLoginTimeout(int seconds) throws SQLException {
-            ds.setLoginTimeout(seconds);
-        }
+    @Override
+    public void setLoginTimeout(int seconds) throws SQLException {
+        ds.setLoginTimeout(seconds);
+    }
 
-        @Override
-        public <T> T unwrap(Class<T> iface) throws SQLException {
-            return ds.unwrap(iface);
-        }
+    @Override
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        return ds.unwrap(iface);
+    }
 
-        @Override
-        public boolean isWrapperFor(Class<?> iface) throws SQLException {
-            return ds.isWrapperFor(iface);
-        }
+    @Override
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        return ds.isWrapperFor(iface);
     }
 }
 

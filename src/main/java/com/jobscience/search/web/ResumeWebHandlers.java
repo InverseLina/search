@@ -19,15 +19,17 @@ public class ResumeWebHandlers {
 
     @Inject
     private CurrentOrgHolder orgHolder;
+
+
     
     
     
     @WebGet("/getResume")
     public WebResponse search(@WebParam("cid") Long cid) {
     	
-    	String sql = "select \"Name\", \"ts2__Text_Resume__c\" from "+orgHolder.getSchema()+".contact where id = ?";
+    	String sql = "select \"Name\", \"ts2__Text_Resume__c\" from  contact where id = ?";
         
-    	List<Map> map = dbHelper.executeQuery(sql, cid);
+    	List<Map> map = dbHelper.executeQuery(orgHolder.getOrgName(), sql, cid);
         
     	return WebResponse.success(map);
     }

@@ -3,6 +3,7 @@ package com.jobscience.search.web;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
+import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.db.DBHelper;
 
 import javax.inject.Inject;
@@ -17,6 +18,9 @@ public class SavedSearchesWebHandlers {
 
     @Inject
     private DBHelper dbHelper;
+
+    @Inject
+    private CurrentOrgHolder orgHolder;
 
     public static final String getSql = "select id, search, name, " +
             "   case when create_date > COALESCE(update_date, timestamp '1970-1-1 00:00:01') then create_date " +
@@ -36,7 +40,7 @@ public class SavedSearchesWebHandlers {
         if (limit == null) {
             limit = 6;
         }
-        List<Map> map = dbHelper.executeQuery(getSql, offset, limit);
+        List<Map> map = dbHelper.executeQuery(orgHolder.getOrgName(), getSql, offset, limit);
         return WebResponse.success(map);
     }
 
@@ -45,9 +49,9 @@ public class SavedSearchesWebHandlers {
         try {
             List<Map> list = dbHelper.executeQuery(getByNameSql, name);
             if(list.size()==0){
-                dbHelper.executeUpdate(insertSql, new Timestamp(System.currentTimeMillis()), name, content);
+                dbHelper.executeUpdate(orgHolder.getOrgName(), insertSql, new Timestamp(System.currentTimeMillis()), name, content);
             }else{
-                dbHelper.executeUpdate(updateSql, new Timestamp(System.currentTimeMillis()), content, name);
+                dbHelper.executeUpdate(orgHolder.getOrgName(),updateSql, new Timestamp(System.currentTimeMillis()), content, name);
             }
 
             return WebResponse.success();
@@ -58,7 +62,7 @@ public class SavedSearchesWebHandlers {
 
     @WebPost("/deleteSavedSearches")
     public WebResponse delete(@WebParam("id") Long id) {
-         dbHelper.executeUpdate(deleteSql, id);
+         dbHelper.executeUpdate(orgHolder.getOrgName(),deleteSql, id);
         return WebResponse.success();
     }
 }
