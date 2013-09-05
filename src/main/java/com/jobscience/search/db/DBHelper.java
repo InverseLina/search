@@ -1,40 +1,38 @@
 package com.jobscience.search.db;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.google.common.base.Throwables;
+import com.google.inject.Inject;
+
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Singleton;
-
-import com.google.common.base.Throwables;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
 @Singleton
 public class DBHelper {
 
-    private ComboPooledDataSource cpds;
+    //private ComboPooledDataSource dataSource;
 
+    /*    @Inject
+        public void init(@Named("db.url") String url,@Named("db.user") String user, @Named("db.password") String password){
+            dataSource = new ComboPooledDataSource();
+            dataSource.setJdbcUrl(url);
+            dataSource.setUser(user);
+            dataSource.setPassword(password);
+            dataSource.setUnreturnedConnectionTimeout(0);
+        }*/
     @Inject
-    public void init(@Named("db.url") String url,@Named("db.user") String user, @Named("db.password") String password){
-        cpds = new ComboPooledDataSource();
-        cpds.setJdbcUrl(url);
-        cpds.setUser(user);
-        cpds.setPassword(password);
-        cpds.setUnreturnedConnectionTimeout(0);
-    }
+    private DataSourceManager dsMng;
 
-    public Connection getConnection() {
+    public Connection getConnection(String orgName) {
+        return getConnection(dsMng.getOrgDataSource(orgName));
+    }
+    public Connection getConnection(DataSource dataSource) {
         try {
-            Connection con = cpds.getConnection();
+            Connection con = dataSource.getConnection();
             return con;
         } catch (SQLException e) {
             throw Throwables.propagate(e);
@@ -51,11 +49,14 @@ public class DBHelper {
         }
     }
 
-    public List<Map> executeQuery(String query) {
+    public List<Map> executeQuery(String orgName,  String query) {
+        return executeQuery(dsMng.getOrgDataSource(orgName), query);
+    }
+    public List<Map> executeQuery(DataSource ds, String query) {
         List<Map> results = null;
         Statement stmt = null;
         try {
-            Connection con = getConnection();
+            Connection con = getConnection(ds);
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             results = buildResults(rs);
@@ -74,18 +75,21 @@ public class DBHelper {
         return results;
     }
 
-    public List<Map> executeQuery(String query, Object... vals) {
+    public List<Map> executeQuery(String orgName,  String query, Object... vals) {
+        return executeQuery(dsMng.getOrgDataSource(orgName), query, vals);
+    }
+    public List<Map> executeQuery(DataSource ds, String query, Object... vals) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
 
-            con = getConnection();
+            con = getConnection(ds);
 
             pstmt = con.prepareStatement(query);
             return preparedStatementExecuteQuery(pstmt, vals);
         } catch (SQLException e) {
             throw Throwables.propagate(e);
-        }finally {
+        } finally {
             if (pstmt != null) {
                 try {
                     pstmt.close();
@@ -102,16 +106,20 @@ public class DBHelper {
             }
         }
     }
-    public int executeUpdate(String query, Object... vals) {
+    public int executeUpdate(String orgName, String query, Object... vals) {
+        return executeUpdate(dsMng.getOrgDataSource(orgName), query, vals);
+    }
+
+    public int executeUpdate(DataSource ds, String query, Object... vals) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
-            con = getConnection();
+            con = getConnection(ds);
             pstmt = con.prepareStatement(query);
             return preparedStatementExecuteUpdate(pstmt, vals);
         } catch (SQLException e) {
             throw Throwables.propagate(e);
-        }finally {
+        } finally {
             if (pstmt != null) {
                 try {
                     pstmt.close();
@@ -129,10 +137,11 @@ public class DBHelper {
         }
     }
 
+
     // --------- PreparedStatement Executes --------- //
     public List<Map> preparedStatementExecuteQuery(PreparedStatement pstmt, Object... vals) {
         try {
-            ResultSet rs = setValues(pstmt,vals).executeQuery();
+            ResultSet rs = setValues(pstmt, vals).executeQuery();
             List<Map> results = buildResults(rs);
             return results;
         } catch (SQLException e) {
@@ -142,18 +151,18 @@ public class DBHelper {
 
     public int preparedStatementExecuteCount(PreparedStatement pstmt, Object... vals) {
         try {
-            ResultSet rs = setValues(pstmt,vals).executeQuery();
+            ResultSet rs = setValues(pstmt, vals).executeQuery();
             rs.next();
-            int count = rs.getInt(1);  
+            int count = rs.getInt(1);
             return count;
         } catch (SQLException e) {
             throw Throwables.propagate(e);
         }
     }
 
-    public int preparedStatementExecuteUpdate(PreparedStatement pstmt, Object... vals) {
+    private int preparedStatementExecuteUpdate(PreparedStatement pstmt, Object... vals) {
         try {
-            return setValues(pstmt,vals).executeUpdate();
+            return setValues(pstmt, vals).executeUpdate();
         } catch (SQLException e) {
             throw Throwables.propagate(e);
         }

@@ -9,14 +9,18 @@ import java.util.Map;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.db.DBHelper;
+import com.jobscience.search.db.DataSourceManager;
 
 @Singleton
 public class SysManager {
 
   @Inject
   private DBHelper dbHelper;
+    @Inject
+    private DataSourceManager dm;
+
   public void saveOrUpdateEntity(Map<String,String> params) throws SQLException{
-    Connection con = dbHelper.getConnection();
+    Connection con = dbHelper.getConnection(dm.getSysDataSource());
     String sql = "";
     if(params.size() > 0 && !"".equals(params.get("oldname"))){
         sql = "update jss_sys.org set name = '"+params.get("name")+"',schemaname = '"+params.get("schemaname")+"',sfid='"+params.get("sfid")+"'  where name = '"+params.get("oldname")+"'";
@@ -30,8 +34,8 @@ public class SysManager {
   }
   
   public void deleteEntity(String name) throws SQLException{
-      Connection con = dbHelper.getConnection();
-      PreparedStatement statement = con.prepareStatement("delete from jss_sys.org where name  = '"+name+"'");
+      Connection con = dbHelper.getConnection(dm.getSysDataSource());
+      PreparedStatement statement = con.prepareStatement("delete from jss_sysorg where name  = '"+name+"'");
       statement.executeUpdate();
       statement.close();
       con.close();
@@ -39,11 +43,11 @@ public class SysManager {
   
   public Object getEntity(String name){
     String sql = "select * from jss_sys.org where name='"+name+"'";
-    return dbHelper.executeQuery(sql);    
+    return dbHelper.executeQuery(dm.getSysDataSource(), sql);
   }
   
   public List getEntityList(String keyWords){
         String sql = "select * from jss_sys.org";
-        return dbHelper.executeQuery(sql);      
+        return dbHelper.executeQuery(dm.getSysDataSource(), sql);
     }
 }

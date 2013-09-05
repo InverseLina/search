@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.jobscience.search.CurrentOrgHolder;
+import com.jobscience.search.db.DataSourceManager;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -34,11 +35,13 @@ public class SearchDao {
     @Inject
     private DBHelper      dbHelper;
 
+
+
     @Inject
     private CurrentOrgHolder orgHolder;
 
     public SearchResult search(String searchColumns,Map<String, String> searchValues,  Integer pageIdx, Integer pageSize,String orderCon) {
-        Connection con = dbHelper.getConnection();
+        Connection con = dbHelper.getConnection(orgHolder.getOrgName());
         
         //builder statements
         SearchStatements statementAndValues = buildSearchStatements(con,searchColumns,searchValues, pageIdx, pageSize,orderCon);
@@ -67,7 +70,6 @@ public class SearchDao {
         //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
-        String schema = orgHolder.getSchema();
         String column = null;
         String baseTableIns = null;
         querySql.append("select result.name, count(*) as count from ( select ");
@@ -75,18 +77,18 @@ public class SearchDao {
         List values = new ArrayList();
         
         if(type.equals("company")){
-            baseTable = format(" %s.ts2__employment_history__c ", schema);
+            baseTable = " ts2__employment_history__c ";
             baseTableIns = "c";
             column = " c.\"ts2__Contact__c\" as id, c.\"ts2__Name__c\" as name";
             groupBy.append(" group by c.\"ts2__Contact__c\", c.\"ts2__Name__c\" ");
         }else if(type.equals("education")){
             baseTableIns = "d";
-            baseTable = format(" %s.ts2__education_history__c ", schema);
+            baseTable = "ts2__education_history__c ";
             groupBy.append(" group by d.\"ts2__Contact__c\", d.\"ts2__Name__c\" ");
             column = " d.\"ts2__Contact__c\" as id, d.\"ts2__Name__c\" as name";
         }else if(type.equals("skill")){
             baseTableIns = "b";
-            baseTable = format(" %s.ts2__skill__c ", schema);
+            baseTable = "ts2__skill__c ";
             groupBy.append(" group by b.\"ts2__Contact__c\", b.\"ts2__Skill_Name__c\" ");
             column = " b.\"ts2__Contact__c\" as id, b.\"ts2__Skill_Name__c\" as name";
         }else if(type.equals("location")){
@@ -112,7 +114,7 @@ public class SearchDao {
         if(log.isDebugEnabled()){
             log.debug(querySql);
         }
-        Connection con = dbHelper.getConnection();
+        Connection con = dbHelper.getConnection(orgHolder.getOrgName());
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
         prepareStatement.close();
@@ -125,7 +127,6 @@ public class SearchDao {
         StringBuilder searchConditions = new StringBuilder();
         StringBuilder querySql = new StringBuilder();
     	StringBuilder conditions = new StringBuilder();
-        String schema = orgHolder.getSchema();
     	List subValues = new ArrayList();
     	boolean advanced = "advanced".equals(type);
     	String tableAliases = advanced?" a ":" contact ";
@@ -148,7 +149,7 @@ public class SearchDao {
 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
 	       			
 	       				}
-	                   baseTable = format(" %s.contact ", schema);
+	                   baseTable = " contact ";
 	                   baseTableIns = "a";
 	                   searchConditions.append(getSearchValueJoinTable(search, values,"a"));
             	   }else{
@@ -191,7 +192,7 @@ public class SearchDao {
             		  if(advanced){
    	                   if(baseTable.indexOf("contact") ==-1){
    	        	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
-   	        	            baseTable = format(" %s.contact ", schema);
+   	        	            baseTable =  "  contact " ;
    	        	            baseTableIns = "a";
    	                    }
    	                   
@@ -214,7 +215,7 @@ public class SearchDao {
             		  if(advanced){
    	                   if(baseTable.indexOf("contact") ==-1){
    	                       joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
-                           baseTable = format(" %s.contact ", schema);
+                           baseTable =  " contact ";
                            baseTableIns = "a";
    	                   }
    	                   conditions.append(" and a.\"Email\" ilike ? ");
@@ -236,7 +237,7 @@ public class SearchDao {
             		  if(advanced){
       	                   if(baseTable.indexOf("contact") ==-1){
       	                       joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
-                               baseTable = format(" %s.contact ", schema);
+                               baseTable = " contact ";
                                baseTableIns = "a";
       	                   }
       	                   conditions.append(" and a.\"Title\" ilike ? ");
@@ -273,12 +274,12 @@ public class SearchDao {
                 	   if(!educationValues.trim().equals("")){
 	            		   if(advanced){
 		                       if(baseTable.indexOf("ts2__education_history__c") == -1 && joinTables.indexOf("ts2__education_history__c") == -1){
-		                    	   joinTables.append(format(" inner join  %s.ts2__education_history__c d on ", schema));
+		                    	   joinTables.append( " inner join   ts2__education_history__c d on " );
 		                           joinTables.append("a.\"sfId\" = d.\"ts2__Contact__c\" ");
 		                       }
 		                       conditions.append(getConditionForThirdNames(educationValues,minYears, values, "education"));
 	                	   }else{
-		            		   querySql.append(format(" inner join (select ed.\"ts2__Contact__c\" from %s.ts2__education_history__c ed where \"ts2__Name__c\" in ", schema));
+		            		   querySql.append( " inner join (select ed.\"ts2__Contact__c\" from  ts2__education_history__c ed where \"ts2__Name__c\" in " );
 		            		   querySql.append("("+educationValues+")");
 		            		   if(minYears!=null){
 			                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__GraduationDate__c\"))>="+minYears);
@@ -304,11 +305,11 @@ public class SearchDao {
             		   if(!companyValues.trim().equals("")){
 	            		   if(advanced){
 		            		   if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
-		                           joinTables.append(format(" inner join %s.ts2__employment_history__c c on a.\"sfId\" =c.\"ts2__Contact__c\" ", schema));
+		                           joinTables.append( " inner join  ts2__employment_history__c c on a.\"sfId\" =c.\"ts2__Contact__c\" " );
 		                       }
 		            		   conditions.append(getConditionForThirdNames(companyValues,minYears, values, "company"));
 		            	   }else{
-		                	   querySql.append(format(" join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from %s.ts2__employment_history__c em where em.\"ts2__Name__c\" in ", schema));
+		                	   querySql.append( " join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from  ts2__employment_history__c em where em.\"ts2__Name__c\" in " );
 		                	   querySql.append(" ("+companyValues+")");
 		                       	if(minYears!=null){
 		                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))>= "+minYears);
@@ -334,12 +335,12 @@ public class SearchDao {
                 	   if(!skillValues.trim().equals("")){
 	                	   if(advanced){
 		            		   if(baseTable.indexOf("ts2__skill__c") == -1 && joinTables.indexOf("ts2__skill__c") == -1){
-		            			   joinTables.append(format(" inner join %s.ts2__skill__c b on ", schema));
+		            			   joinTables.append( " inner join ts2__skill__c b on " );
 	                			   joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
 		                       }
 		            		   conditions.append(getConditionForThirdNames(skillValues,minYears, values, "skill"));
 		            	   }else{
-	                	   querySql.append(format("join (select sk.\"ts2__Contact__c\" from %s.ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in ", schema));
+	                	   querySql.append( " join (select sk.\"ts2__Contact__c\" from  ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in " );
 	            		   querySql.append(" ("+skillValues+")");
 	            		   if(minYears!=null){
 	            			   querySql.append(" AND sk.\"ts2__Rating__c\" >=  "+minYears);
@@ -449,7 +450,7 @@ public class SearchDao {
     			
     				}
     			}
-   	            baseTable = format(" %s.contact ", schema);
+   	            baseTable =  " contact " ;
    	            baseTableIns = "a";
 	           }
 	    	   querySql.append(baseTable);
@@ -583,7 +584,7 @@ public class SearchDao {
     private SearchStatements buildSearchStatements(Connection con,String searchColumns, Map<String, String> searchValues,
                                                    Integer pageIdx, Integer pageSize,String orderCon) {
         SearchStatements ss = new SearchStatements();
-        String schema =orgHolder.getSchema();
+
         if(pageIdx < 1){
             pageIdx = 1;
         }
@@ -619,8 +620,8 @@ public class SearchDao {
         	querySql.append(",lower(contact.\"Email\") as \"lEmail\" ");
         }
         
-        querySql.append(format(" from %s.contact contact  ", schema));
-        countSql.append(format(" from ( select  contact.\"MailingPostalCode\",contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from %s.contact contact   ", schema));
+        querySql.append( " from contact contact  " );
+        countSql.append( " from ( select  contact.\"MailingPostalCode\",contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   " );
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
@@ -693,14 +694,14 @@ public class SearchDao {
     
     private String getAdvancedJoinTable(String type){
         StringBuilder joinSql = new StringBuilder();
-        String schema = orgHolder.getSchema();
+
         
         if(type.equals("company")){
-            joinSql.append(format(" left join %s.ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" and c.\"ts2__Name__c\"!='' ", schema));
+            joinSql.append( " left join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" and c.\"ts2__Name__c\"!='' " );
         }else if(type.equals("education")){
-            joinSql.append(format(" left join %s.ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" and d.\"ts2__Name__c\"!='' ", schema));
+            joinSql.append( " left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" and d.\"ts2__Name__c\"!='' " );
         }else if(type.equals("skill")){
-            joinSql.append(format(" left join %s.ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" and b.\"ts2__Skill_Name__c\"!='' ", schema));
+            joinSql.append( " left join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" and b.\"ts2__Skill_Name__c\"!='' " );
         }else if(type.equals("location")){
             joinSql.append(" left join jss_sys.zipcode_us z on a.\"MailingPostalCode\" = z.\"zip\" ");
         }
@@ -720,9 +721,9 @@ public class SearchDao {
     public  String booleanSearchHandler(String searchValue,String type, List values){
     	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
-        String schema = orgHolder.getSchema();
+
     	if(searchValue.equals("")){
-    		return format(" select id from %s.contact where 1!=1 ", schema);
+    		return  " select id from contact where 1!=1 ";
     	}
     	String temp = "";
     	if(type==null||"OR".equals(type)){
@@ -733,7 +734,7 @@ public class SearchDao {
 	    		sb.append(booleanSearchHandler(orCondition, "AND",values));
 	    		sb.append(" a_extr"+i+" union ");
 	    	}
-	    	sb.append(format("(select 1 as id from %s.contact where 1!=1)", schema));
+	    	sb.append( "(select 1 as id from contact where 1!=1)" );
     	}else if("AND".equals(type)){
     		String[] andConditions = searchValue.trim().split("\\s+AND\\s+");
 	    	for(int i=0;i<andConditions.length;i++){
@@ -748,7 +749,7 @@ public class SearchDao {
 		    		}
 		    		sb.append(" join ");
 	    	}
-	    	sb.append(format(" (select 1 from %s.contact limit 1) last on 1=1) ", schema));
+	    	sb.append( " (select 1 from  contact limit 1) last on 1=1) " );
     	}else if("NOT".equals(type)){
     		String[] notConditions = searchValue.trim().split("\\s+NOT\\s+");
     		if(notConditions.length==1){
@@ -759,9 +760,9 @@ public class SearchDao {
     		
     		temp = notConditions[0].trim();
 
-			sb.append(format(" select a_copy.id as id from %s.contact a_copy right join (select ex.id from %s.contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)) b on a_copy.id = b.id " + " union "
-                + " select a_copy1.id as id from %s.contact a_copy1 "
-                + " where a_copy1.\"Title\" ilike ? or  a_copy1.\"Name\" ilike ? ", schema, schema,schema));
+			sb.append( " select a_copy.id as id from  contact a_copy right join (select ex.id from  contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)) b on a_copy.id = b.id " + " union "
+                + " select a_copy1.id as id from  contact a_copy1 "
+                + " where a_copy1.\"Title\" ilike ? or  a_copy1.\"Name\" ilike ? "  );
     		
 			if(notConditions.length==1){
     			sb.append(") n_ext");
@@ -782,9 +783,9 @@ public class SearchDao {
 	    		temp = notConditions[i].trim();
 	    		sb.append(" except ");
                         
-	    		sb.append(format("  (select ex.id from %s.contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)" + " union "
-                        + " (select a_copy1.id as id from %s.contact a_copy1 "
-                        + " where a_copy1.\"Title\"  ilike ? or  a_copy1.\"Name\"  ilike ? ) ) ", schema,schema));
+	    		sb.append("  (select ex.id from contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)" + " union "
+                        + " (select a_copy1.id as id from contact a_copy1 "
+                        + " where a_copy1.\"Title\"  ilike ? or  a_copy1.\"Name\"  ilike ? ) ) ");
 	    		values.add(temp);
 	    		if(!temp.contains("%")){
 	    			values.add("%"+temp+"%");
@@ -833,7 +834,7 @@ public class SearchDao {
     
     private Double[] getLatLong(String condition){
     	Double[] latLong = new Double[2];
-    	Connection con = dbHelper.getConnection();
+    	Connection con = dbHelper.getConnection(orgHolder.getOrgName());
         PreparedStatement s =dbHelper.prepareStatement(con,"select avg(longitude) as longitude,avg(latitude) as latitude from jss_sys.zipcode_us  where 1=1 "+condition);
         List<Map> zip = dbHelper.preparedStatementExecuteQuery(s);
         if(zip.size()>0){
@@ -850,7 +851,7 @@ public class SearchDao {
     }
     
     private List<Map> getZipCode(String condition){
-    	Connection con = dbHelper.getConnection();
+    	Connection con = dbHelper.getConnection(orgHolder.getOrgName());
         PreparedStatement s =dbHelper.prepareStatement(con,"select *  from jss_sys.zipcode_us  where 1=1 "+condition);
         List<Map> zip = dbHelper.preparedStatementExecuteQuery(s);
         try{
@@ -867,7 +868,7 @@ public class SearchDao {
             size = 5;
         }
         offset = offset < 0 ? 0 : offset;
-        Connection con = dbHelper.getConnection();
+        Connection con = dbHelper.getConnection(orgHolder.getOrgName());
         String name = getNameExpr(type);
         String table = getTable(type);
         StringBuilder querySql =new StringBuilder();
@@ -938,9 +939,8 @@ public class SearchDao {
         }
         if (table.equals("zipcode_us")) {
             table = "jss_sys." + table;
-        }else{
-            table = orgHolder.getSchema() + "." + table;
         }
+
         return table;
     }
     private String getConditionForThirdNames(String namesStr,String minYear, List values, String type){

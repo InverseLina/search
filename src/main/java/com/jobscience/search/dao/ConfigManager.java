@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.db.DBHelper;
+import com.jobscience.search.db.DataSourceManager;
 
 @Singleton
 public class ConfigManager {
@@ -18,6 +19,9 @@ public class ConfigManager {
 	private DBHelper dbHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
+
+    @Inject
+    private DataSourceManager dsMng;
 
 	public void saveOrUpdateConfig(Map<String,String> params) throws SQLException{
 		StringBuilder names = new StringBuilder("(");
@@ -30,8 +34,8 @@ public class ConfigManager {
 		}
 		names.append("'-1')");
 		sql.deleteCharAt(sql.length()-1);
-		dbHelper.executeUpdate(format("delete from jss_sys.config where org_id = %s and  name in %s", orgHolder.getId(), names));
-        dbHelper.executeUpdate(format("insert into  jss_sys.config(org_id, name,value) values %s ", sql));
+		dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from jss_sys.config where org_id = %s and  name in %s", orgHolder.getId(), names));
+        dbHelper.executeUpdate(dsMng.getSysDataSource(), format("insert into  jss_sys.config(org_id, name,value) values %s ", sql));
 
 	}
 	
@@ -41,7 +45,7 @@ public class ConfigManager {
 		if(name!=null){
 			sql+=" and name='"+name+"'";
 		}
-		return dbHelper.executeQuery(sql, orgHolder.getId());
+		return dbHelper.executeQuery(orgHolder.getOrgName().trim(), sql, orgHolder.getId());
 		
 	}
 }

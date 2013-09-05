@@ -6,6 +6,7 @@ import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.britesnow.snow.web.RequestContext;
 import com.google.inject.Singleton;
 import com.jobscience.search.db.DBHelper;
+import com.jobscience.search.db.DataSourceManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,17 +16,27 @@ import java.util.Map;
 public class CurrentOrgHolder {
 
     private org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CurrentOrgHolder.class);
-
     @Inject
     private CurrentRequestContextHolder crh;
     @Inject
     private DBHelper dbHelper;
+    @Inject
+    private DataSourceManager dm;
     private Map<String, Map> orgMap = new HashMap<String, Map>();
 
-    public String getSchema() {
+    public String getOrgName() {
+        RequestContext rc = crh.getCurrentRequestContext();
+        if (rc != null) {
+            return rc.getCookie("org");
+        }else{
+            return null;
+        }
+    }
+ /*
+  public String getSchema() {
         return (String) getFieldValue("schemaname");
     }
-
+   */
     public Integer getId(){
         return (Integer) getFieldValue("id");
     }
@@ -37,7 +48,7 @@ public class CurrentOrgHolder {
                 String orgName = rc.getCookie("org");
                 if (orgName != null) {
                     if (orgMap.size() == 0) {
-                        List<Map> list = dbHelper.executeQuery("select * from jss_sys.org");
+                        List<Map> list = dbHelper.executeQuery(dm.getSysDataSource(),"select * from jss_sys.org");
                         for (Map map : list) {
                             orgMap.put((String) map.get("name"), map);
                         }
