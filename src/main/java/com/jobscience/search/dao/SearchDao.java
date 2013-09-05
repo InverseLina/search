@@ -1,5 +1,15 @@
 package com.jobscience.search.dao;
 
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.jobscience.search.CurrentOrgHolder;
+import com.jobscience.search.db.DBHelper;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.log4j.Logger;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -7,22 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DataSourceManager;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.apache.log4j.Logger;
-
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.jobscience.search.db.DBHelper;
-
-import static java.lang.String.format;
 
 @Singleton
 public class SearchDao {
