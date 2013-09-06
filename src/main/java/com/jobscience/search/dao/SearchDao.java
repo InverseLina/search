@@ -435,7 +435,7 @@ public class SearchDao {
                } 
            }
     	   if(advanced){
-    		   if(joinTables.indexOf("contact")==-1&&!baseTable.contains("contact")){
+    		   if(joinTables.indexOf(" contact ")==-1&&!baseTable.contains("contact")){
     			if(joinTables.indexOf(baseTable)==-1){
     				if(baseTableIns.indexOf("z")>-1){
     					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
@@ -447,6 +447,7 @@ public class SearchDao {
    	            baseTable =  " contact " ;
    	            baseTableIns = "a";
 	           }
+    		   
 	    	   querySql.append(baseTable);
 	           querySql.append(baseTableIns);
 	           querySql.append(searchConditions);
