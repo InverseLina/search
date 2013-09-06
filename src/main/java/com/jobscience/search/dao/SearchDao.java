@@ -303,7 +303,7 @@ public class SearchDao {
 		                       }
 		            		   conditions.append(getConditionForThirdNames(companyValues,minYears, values, "company"));
 		            	   }else{
-		                	   querySql.append( " join (select em.\"ts2__contact__c\",em.\"ts2_job_title__c\" from  ts2__employment_history__c em where em.\"ts2__name__c\" in " );
+		                	   querySql.append( " join (select em.\"ts2__contact__c\",em.\"ts2__job_title__c\" from  ts2__employment_history__c em where em.\"ts2__name__c\" in " );
 		                	   querySql.append(" ("+companyValues+")");
 		                       	if(minYears!=null){
 		                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__employment_end_date__c\",em.\"ts2__employment_start_date__c\"))>= "+minYears);
