@@ -19,15 +19,15 @@ CREATE INDEX contact_ex_idx_resume_gin
   USING gin
   (resume_tsv);
   
-INSERT INTO contact_ex(id,resume_tsv) select id, to_tsvector('english', "ts2__Text_Resume__c" ) from contact;
+INSERT INTO contact_ex(id,resume_tsv) select id, to_tsvector('english', "ts2__text_resume__c" ) from contact;
 
 
 CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
 BEGIN
 IF( TG_OP='INSERT' ) THEN
-    insert into contact_ex(id,resume_tsv) values(new.id,to_tsvector('english', new."ts2__Text_Resume__c" ));
+    insert into contact_ex(id,resume_tsv) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ));
 ELSIF (TG_OP = 'UPDATE') THEN
-    UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__Text_Resume__c" )  where id = new.id;
+    UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" )  where id = new.id;
 END IF;
 RETURN NEW;
 END;
@@ -36,16 +36,16 @@ LANGUAGE 'plpgsql';
 
 
 CREATE TRIGGER contact_trg_resume_tsv
-  BEFORE INSERT OR UPDATE OF "ts2__Text_Resume__c"
+  BEFORE INSERT OR UPDATE OF "ts2__text_resume__c"
   ON contact
   FOR EACH ROW
   EXECUTE PROCEDURE update_context_ex_resume();
   
   
-CREATE INDEX contact_Title_trgm_gin ON contact USING gin ("Title" gin_trgm_ops);
-CREATE INDEX contact_Name_trgm_gin ON contact USING gin ("Name" gin_trgm_ops);
-CREATE INDEX contact_FirstName_trgm_gin ON contact USING gin ("FirstName" gin_trgm_ops);
-CREATE INDEX contact_LastName_trgm_gin ON contact USING gin ("LastName" gin_trgm_ops);
+CREATE INDEX contact_Title_trgm_gin ON contact USING gin ("title" gin_trgm_ops);
+CREATE INDEX contact_Name_trgm_gin ON contact USING gin ("name" gin_trgm_ops);
+CREATE INDEX contact_FirstName_trgm_gin ON contact USING gin ("firstname" gin_trgm_ops);
+CREATE INDEX contact_LastName_trgm_gin ON contact USING gin ("lastname" gin_trgm_ops);
 
   
 -- ALTER TABLE contact enable trigger c5_c5_contact_logtrigger;

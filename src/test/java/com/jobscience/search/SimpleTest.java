@@ -23,7 +23,7 @@ public class SimpleTest extends SnowTestSupport {
     }
     
     
-    @Test
+   // @Test
     public void getTopAdvancedType() throws SQLException{
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
        List<Map> result = searchDao.getTopAdvancedType(0, 10, "company", "IBM","1");
@@ -34,15 +34,15 @@ public class SimpleTest extends SnowTestSupport {
     	   System.out.println(m.get("name"));
        }
     }
-    @Test
+    //@Test
     public void newSearchTest(){
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
        Map values = MapUtil.mapIt("search","java");
-       values.put("contacts", "[{firstName:'kevin'},{lastName:'cook'}]");
-       values.put("educations", "{values:['education1','education2'],minYears:2}");
-       values.put("skills", "{values:['skill1','skill2'],minYears:2}");
-       values.put("companies", "{values:['employer1','employer2'],minYears:2}");
-       values.put("locations", "{values:['New York','Amherst'],minRadius:30}");
+       values.put("contacts", "[{firstname:'kevin'},{lastname:'cook'}]");
+       values.put("educations", "{values:['education1','education2'],minyears:2}");
+       values.put("skills", "{values:['skill1','skill2'],minyears:2}");
+       values.put("companies", "{values:['employer1','employer2'],minyears:2}");
+       values.put("locations", "{values:['New York','Amherst'],minradius:30}");
        SearchResult result = searchDao.search("id,name,title,location",values, 1, 30,"");
        System.out.println("new search result : "+result.getCount());
     }
