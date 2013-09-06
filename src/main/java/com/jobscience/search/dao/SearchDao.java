@@ -73,18 +73,18 @@ public class SearchDao {
         if(type.equals("company")){
             baseTable = " ts2__employment_history__c ";
             baseTableIns = "c";
-            column = " c.\"ts2__Contact__c\" as id, c.\"ts2__Name__c\" as name";
-            groupBy.append(" group by c.\"ts2__Contact__c\", c.\"ts2__Name__c\" ");
+            column = " c.\"ts2__contact__c\" as id, c.\"ts2__name__c\" as name";
+            groupBy.append(" group by c.\"ts2__contact__c\", c.\"ts2__name__c\" ");
         }else if(type.equals("education")){
             baseTableIns = "d";
             baseTable = "ts2__education_history__c ";
-            groupBy.append(" group by d.\"ts2__Contact__c\", d.\"ts2__Name__c\" ");
-            column = " d.\"ts2__Contact__c\" as id, d.\"ts2__Name__c\" as name";
+            groupBy.append(" group by d.\"ts2__contact__c\", d.\"ts2__name__c\" ");
+            column = " d.\"ts2__contact__c\" as id, d.\"ts2__name__c\" as name";
         }else if(type.equals("skill")){
             baseTableIns = "b";
             baseTable = "ts2__skill__c ";
-            groupBy.append(" group by b.\"ts2__Contact__c\", b.\"ts2__Skill_Name__c\" ");
-            column = " b.\"ts2__Contact__c\" as id, b.\"ts2__Skill_Name__c\" as name";
+            groupBy.append(" group by b.\"ts2__contact__c\", b.\"ts2__skill_name__c\" ");
+            column = " b.\"ts2__contact__c\" as id, b.\"ts2__skill_name__c\" as name";
         }else if(type.equals("location")){
             baseTableIns = "z";
             baseTable = " jss_sys.zipcode_us ";
@@ -138,9 +138,9 @@ public class SearchDao {
                if (!Strings.isNullOrEmpty(search)) {
             	   if(advanced){
             		   if(baseTableIns.indexOf("z")>-1){
-	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"zip\" = a.\"MailingPostalCode\" ");
+	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
 	       				}else{
-	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
 	       			
 	       				}
 	                   baseTable = " contact ";
@@ -159,21 +159,21 @@ public class SearchDao {
             	   JSONObject contact = JSONObject.fromObject(contacts.get(i));
             	   conditions.append(" OR (1=1 ");
             	   String value ;
-            	  if(contact.containsKey("firstName")&&!"".equals(contact.getString("firstName"))){
-            		  value = contact.getString("firstName");
+            	  if(contact.containsKey("firstname")&&!"".equals(contact.getString("firstname"))){
+            		  value = contact.getString("firstname");
             		  if(advanced){
    	                   if(baseTable.indexOf("contact") ==-1){
-   	        	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+   	        	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
    	        	            baseTable = " contact ";
    	        	            baseTableIns = "a";
    	                    }
-   	                   conditions.append(" and a.\"FirstName\" ilike ? ");
+   	                   conditions.append(" and a.\"firstname\" ilike ? ");
    	                   if(!value.contains("%")){
    	                       value = "%" + value + "%";
    	                   }
    	                   values.add(value);
                       }else{
-	            		  conditions.append("  and contact.\"FirstName\" ilike ? ");
+	            		  conditions.append("  and contact.\"firstname\" ilike ? ");
 	            		  if(!value.contains("%")){
 	            			  value = "%"+value+"%";	
 	              		  }
@@ -185,18 +185,18 @@ public class SearchDao {
             		  value = contact.getString("lastName");
             		  if(advanced){
    	                   if(baseTable.indexOf("contact") ==-1){
-   	        	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+   	        	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
    	        	            baseTable =  "  contact " ;
    	        	            baseTableIns = "a";
    	                    }
    	                   
-   	                   conditions.append(" and a.\"LastName\" ilike ? ");
+   	                   conditions.append(" and a.\"lastname\" ilike ? ");
    	                   if(!value.contains("%")){
    	                       value = "%" + value + "%";
    	                   }
    	                   values.add(value);
                       }else{
-	            		  conditions.append("  and contact.\"LastName\" ilike ? ");
+	            		  conditions.append("  and contact.\"lastname\" ilike ? ");
 	            		  if(!value.contains("%")){
 	            			  value = "%"+value+"%";	
 	              		  }
@@ -208,17 +208,17 @@ public class SearchDao {
             		  value = contact.getString("email");
             		  if(advanced){
    	                   if(baseTable.indexOf("contact") ==-1){
-   	                       joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+   	                       joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
                            baseTable =  " contact ";
                            baseTableIns = "a";
    	                   }
-   	                   conditions.append(" and a.\"Email\" ilike ? ");
+   	                   conditions.append(" and a.\"email\" ilike ? ");
    	                   if(!value.contains("%")){
    	                       value = "%" + value + "%";
    	                   }
    	                   values.add(value);
                       }else{
-	            		  conditions.append("  and contact.\"Email\" ilike ? ");
+	            		  conditions.append("  and contact.\"email\" ilike ? ");
 	            		  if(!value.contains("%")){
 	            			  value = "%"+value+"%";	
 	              		  }
@@ -230,17 +230,17 @@ public class SearchDao {
             		  value = contact.getString("title");
             		  if(advanced){
       	                   if(baseTable.indexOf("contact") ==-1){
-      	                       joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+      	                       joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
                                baseTable = " contact ";
                                baseTableIns = "a";
       	                   }
-      	                   conditions.append(" and a.\"Title\" ilike ? ");
+      	                   conditions.append(" and a.\"title\" ilike ? ");
       	                   if(!value.contains("%")){
       	                       value = "%" + value + "%";
       	                   }
       	                   values.add(value);
                          }else{
-	            		  conditions.append("  and contact.\"Title\" ilike ? ");
+	            		  conditions.append("  and contact.\"title\" ilike ? ");
 	            		  if(!value.contains("%")){
 	            			  value = "%"+value+"%";	
 	              		  }
@@ -260,8 +260,8 @@ public class SearchDao {
             	   JSONObject jObject = JSONObject.fromObject(value);
             	   String educationValues = jObject.getString("values");
             	   String minYears  = null;
-            	   if(jObject.containsKey("minYears")){
-            	      minYears = jObject.getString("minYears");
+            	   if(jObject.containsKey("minyears")){
+            	      minYears = jObject.getString("minyears");
             	   }
             	   if(educationValues!=null){
             		   educationValues = educationValues.substring(1,educationValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
@@ -269,16 +269,16 @@ public class SearchDao {
 	            		   if(advanced){
 		                       if(baseTable.indexOf("ts2__education_history__c") == -1 && joinTables.indexOf("ts2__education_history__c") == -1){
 		                    	   joinTables.append( " inner join   ts2__education_history__c d on " );
-		                           joinTables.append("a.\"sfId\" = d.\"ts2__Contact__c\" ");
+		                           joinTables.append("a.\"sfid\" = d.\"ts2__contact__c\" ");
 		                       }
 		                       conditions.append(getConditionForThirdNames(educationValues,minYears, values, "education"));
 	                	   }else{
-		            		   querySql.append( " inner join (select ed.\"ts2__Contact__c\" from  ts2__education_history__c ed where \"ts2__Name__c\" in " );
+		            		   querySql.append( " inner join (select ed.\"ts2__contact__c\" from  ts2__education_history__c ed where \"ts2__name__c\" in " );
 		            		   querySql.append("("+educationValues+")");
 		            		   if(minYears!=null){
-			                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__GraduationDate__c\"))>="+minYears);
+			                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__graduationdate__c\"))>="+minYears);
 			                   }
-			                   querySql.append(" ) ed1 on contact.\"sfId\" = ed1.\"ts2__Contact__c\" ");
+			                   querySql.append(" ) ed1 on contact.\"sfid\" = ed1.\"ts2__contact__c\" ");
 	                	   }
 		                   hasCondition = true;
                 	   }
@@ -291,24 +291,24 @@ public class SearchDao {
                    JSONObject jObject = JSONObject.fromObject(value);
             	   String companyValues = jObject.getString("values");
             	   String minYears  = null;
-            	   if(jObject.containsKey("minYears")){
-            	      minYears = jObject.getString("minYears");
+            	   if(jObject.containsKey("minyears")){
+            	      minYears = jObject.getString("minyears");
             	   }
             	   if (companyValues!=null&&!"Any Company".equals(companyValues)) {
             		   companyValues = companyValues.substring(1,companyValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
             		   if(!companyValues.trim().equals("")){
 	            		   if(advanced){
 		            		   if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
-		                           joinTables.append( " inner join  ts2__employment_history__c c on a.\"sfId\" =c.\"ts2__Contact__c\" " );
+		                           joinTables.append( " inner join  ts2__employment_history__c c on a.\"sfid\" =c.\"ts2__contact__c\" " );
 		                       }
 		            		   conditions.append(getConditionForThirdNames(companyValues,minYears, values, "company"));
 		            	   }else{
-		                	   querySql.append( " join (select em.\"ts2__Contact__c\",em.\"ts2__Job_Title__c\" from  ts2__employment_history__c em where em.\"ts2__Name__c\" in " );
+		                	   querySql.append( " join (select em.\"ts2__contact__c\",em.\"ts2_job_title__c\" from  ts2__employment_history__c em where em.\"ts2__name__c\" in " );
 		                	   querySql.append(" ("+companyValues+")");
 		                       	if(minYears!=null){
-		                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__Employment_End_Date__c\",em.\"ts2__Employment_Start_Date__c\"))>= "+minYears);
+		                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__employment_end_date__c\",em.\"ts2__employment_start_date__c\"))>= "+minYears);
 		                   		}
-		                       	querySql.append(" ) em1 on contact.\"sfId\" = em1.\"ts2__Contact__c\"");
+		                       	querySql.append(" ) em1 on contact.\"sfid\" = em1.\"ts2__contact__c\"");
 				           }
 	            		   hasCondition = true;
             		   }
@@ -321,8 +321,8 @@ public class SearchDao {
                    JSONObject jObject = JSONObject.fromObject(value);
             	   String skillValues = jObject.getString("values");
             	   String minYears  = null;
-            	   if(jObject.containsKey("minYears")){
-            	      minYears = jObject.getString("minYears");
+            	   if(jObject.containsKey("minyears")){
+            	      minYears = jObject.getString("minyears");
             	   }
             	   if(skillValues!=null){
                 	   skillValues = skillValues.substring(1,skillValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
@@ -330,16 +330,16 @@ public class SearchDao {
 	                	   if(advanced){
 		            		   if(baseTable.indexOf("ts2__skill__c") == -1 && joinTables.indexOf("ts2__skill__c") == -1){
 		            			   joinTables.append( " inner join ts2__skill__c b on " );
-	                			   joinTables.append("a.\"sfId\" = b.\"ts2__Contact__c\" ");
+	                			   joinTables.append("a.\"sfid\" = b.\"ts2__contact__c\" ");
 		                       }
 		            		   conditions.append(getConditionForThirdNames(skillValues,minYears, values, "skill"));
 		            	   }else{
-	                	   querySql.append( " join (select sk.\"ts2__Contact__c\" from  ts2__skill__c sk where sk.\"ts2__Skill_Name__c\" in " );
+	                	   querySql.append( " join (select sk.\"ts2__contact__c\" from  ts2__skill__c sk where sk.\"ts2__skill_name__c\" in " );
 	            		   querySql.append(" ("+skillValues+")");
 	            		   if(minYears!=null){
-	            			   querySql.append(" AND sk.\"ts2__Rating__c\" >=  "+minYears);
+	            			   querySql.append(" AND sk.\"ts2__rating__c\" >=  "+minYears);
 	            		   }
-	                       querySql.append(" ) sk1 on contact.\"sfId\" = sk1.\"ts2__Contact__c\" ");
+	                       querySql.append(" ) sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\" ");
 		            	   }
 	                	   hasCondition = true;
                 	   }
@@ -355,8 +355,8 @@ public class SearchDao {
                 JSONObject jObject = JSONObject.fromObject(value);
          	    String locationValues = jObject.getString("values");
          	    String minRadius  = null;
-        	    if(jObject.containsKey("minRadius")){
-        	    	minRadius = jObject.getString("minRadius");
+        	    if(jObject.containsKey("minradius")){
+        	    	minRadius = jObject.getString("minradius");
         	    }
 	         	    if(locationValues!=null){
 		         	    locationValues = locationValues.substring(1,locationValues.length()-1).replaceAll("\"", "'");
@@ -364,7 +364,7 @@ public class SearchDao {
 			         	    if(advanced){
 		                       if(baseTable.indexOf("zipcode_us") == -1 && joinTables.indexOf("zipcode_us") == -1){
 		                    	   joinTables.append("  join jss_sys.zipcode_us z on ");
-		                           joinTables.append("a.\"MailingPostalCode\" =z.\"zip\"");
+		                           joinTables.append("a.\"mailingpostalcode\" =z.\"zip\"");
 		                       }
 		                       
 				               condition.append(" AND zipcode_us.City in ("+locationValues+")");
@@ -372,7 +372,7 @@ public class SearchDao {
 		                	   if(zipcodes.size()>0){
 		                		   conditions.append(" and (1!=1 ");
 		                		   for(Map m:zipcodes){
-		                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" = '")
+		                			   conditions.append(" or "+tableAliases+".\"mailingpostalcode\" = '")
 		                			   		   .append(m.get("zip"))
 		                					   .append("' ");
 		                		   }
@@ -393,7 +393,7 @@ public class SearchDao {
 				                	   if(zipcodes.size()>0){
 				                		   conditions.append(" and (1!=1 ");
 				                		   for(Map m:zipcodes){
-				                			   conditions.append(" or "+tableAliases+".\"MailingPostalCode\" = '")
+				                			   conditions.append(" or "+tableAliases+".\"mailingpostalcode\" = '")
 				                			   		   .append(m.get("zip"))
 				                					   .append("' ");
 				                		   }
@@ -418,10 +418,10 @@ public class SearchDao {
 						                 conditions.append(" OR ( 1!=1) ");
 						               }else{
 						     	          double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(minRadius));
-						     	          conditions.append(" OR (  "+tableAliases+".\"ts2__Latitude__c\" >"+latLongAround[0]);
-						     	          conditions.append(" and "+tableAliases+".\"ts2__Latitude__c\" <"+latLongAround[2]);
-						     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" >"+latLongAround[1]);
-						     	          conditions.append(" and "+tableAliases+".\"ts2__Longitude__c\" <"+latLongAround[3]+")");
+						     	          conditions.append(" OR (  "+tableAliases+".\"ts2__latitude__c\" >"+latLongAround[0]);
+						     	          conditions.append(" and "+tableAliases+".\"ts2__latitude__c\" <"+latLongAround[2]);
+						     	          conditions.append(" and "+tableAliases+".\"ts2__longitude__c\" >"+latLongAround[1]);
+						     	          conditions.append(" and "+tableAliases+".\"ts2__longitude__c\" <"+latLongAround[3]+")");
 						              }
 						               condition = new StringBuilder();
 					                }
@@ -438,9 +438,9 @@ public class SearchDao {
     		   if(joinTables.indexOf("contact")==-1&&!baseTable.contains("contact")){
     			if(joinTables.indexOf(baseTable)==-1){
     				if(baseTableIns.indexOf("z")>-1){
-    					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"zip\" = a.\"MailingPostalCode\" ");
+    					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
     				}else{
-    					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__Contact__c\" = a.\"sfId\" ");
+    					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
     			
     				}
     			}
@@ -469,8 +469,8 @@ public class SearchDao {
     		if(groupBy.length()>0){
     			groupBy.append(",");
     		}
-    		groupBy.append("a.\"Name\"");
-    		return "a.\"Name\" as Name,lower(a.\"Name\") as \"lName\"";
+    		groupBy.append("a.\"name\"");
+    		return "a.\"name\" as name,lower(a.\"name\") as \"lname\"";
     	}else if(orginalName.toLowerCase().equals("id")){
     		return " a.\"id\" as id";
     	}else if(orginalName.toLowerCase().equals("resume")){
@@ -483,30 +483,30 @@ public class SearchDao {
      		if(groupBy.length()>0){
 	     			groupBy.append(",");
      		}
-     		groupBy.append("a.\"Email\"");
-    		return " a.\"Email\" as email,lower(a.\"Email\") as \"lEmail\" ";
+     		groupBy.append("a.\"email\"");
+    		return " a.\"email\" as email,lower(a.\"email\") as \"lemail\" ";
     	}else if(orginalName.toLowerCase().equals("title")){
     		if(groupBy.length()>0){
     			groupBy.append(",");
     		}
-    		groupBy.append("a.\"Title\"");
-    		return "case   when a.\"Title\" is null then '' " +
-        			        " else a.\"Title\" END Title ";
+    		groupBy.append("a.\"title\"");
+    		return "case   when a.\"title\" is null then '' " +
+        			        " else a.\"title\" END title ";
     	}else if(orginalName.toLowerCase().equals("createddate")){
     		if(groupBy.length()>0){
     			groupBy.append(",");
     		}
-    		groupBy.append("a.\"CreatedDate\"");
-    		return "to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreatedDate";
+    		groupBy.append("a.\"createddate\"");
+    		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
     	}else if(orginalName.toLowerCase().equals("company")){
     		columnJoinTables.add(getAdvancedJoinTable("company"));
-    		return " case when string_agg(distinct c.\"ts2__Name__c\",',') is null then '' else string_agg(distinct c.\"ts2__Name__c\",',') end  Company";
+    		return " case when string_agg(distinct c.\"ts2__name__c\",',') is null then '' else string_agg(distinct c.\"ts2__name__c\",',') end  company";
     	}else if(orginalName.toLowerCase().equals("skill")){
     		columnJoinTables.add(getAdvancedJoinTable("skill"));
-    		return "case when string_agg(distinct b.\"ts2__Skill_Name__c\",',') is null then '' else string_agg(distinct b.\"ts2__Skill_Name__c\",',') end  Skill";
+    		return "case when string_agg(distinct b.\"ts2__skill_name__c\",',') is null then '' else string_agg(distinct b.\"ts2__skill_name__c\",',') end  skill";
     	}else if(orginalName.toLowerCase().equals("education")){
     		columnJoinTables.add(getAdvancedJoinTable("education"));
-    		return " case when string_agg(distinct d.\"ts2__Name__c\",',') is null then '' else string_agg(distinct d.\"ts2__Name__c\",',') end  Education";
+    		return " case when string_agg(distinct d.\"ts2__name__c\",',') is null then '' else string_agg(distinct d.\"ts2__name__c\",',') end  education";
     	}else if(orginalName.toLowerCase().equals("location")){
     		columnJoinTables.add(getAdvancedJoinTable("location"));
     		 if(groupBy.length()>0){
@@ -522,33 +522,33 @@ public class SearchDao {
     private String getSearchColumnsForOuter(String searchColumns){
     	StringBuilder sb = new StringBuilder();
     	if(searchColumns==null){
-    		sb.append("id,name,lower(name) as \"lName\",Email,lower(\"Email\") as \"lEmail\"lower(title) as \"lTitle\",title ,CreatedDate");
+    		sb.append("id,name,lower(name) as \"lname\",email,lower(\"email\") as \"lemail\"lower(title) as \"ltitle\",title ,createddate");
     	}else{
 	    	for(String column:searchColumns.split(",")){
 		    	if(column.toLowerCase().equals("name")){
-		    		sb.append("name,lower(name) as \"lName\",");
+		    		sb.append("name,lower(name) as \"lname\",");
 		    	}else if(column.toLowerCase().equals("id")){
 		    		sb.append("id,");
 		    	}else if(column.toLowerCase().equals("title")){
-		    		sb.append("title,lower(title) as \"lTitle\",");
+		    		sb.append("title,lower(title) as \"ltitle\",");
 		    	}else if(column.toLowerCase().equals("email")){
-		    		sb.append( " email ,lower(email) as \"lEmail\",");
+		    		sb.append( " email ,lower(email) as \"lemail\",");
 		    	}else if(column.toLowerCase().equals("createddate")){
-		    		sb.append("createddate as \"CreatedDate\",");
+		    		sb.append("createddate as \"createddate\",");
 		    	}else if(column.toLowerCase().equals("company")){
-		    		sb.append("company,lower(company) as \"lCompany\",");
+		    		sb.append("company,lower(company) as \"lcompany\",");
 		    	}else if(column.toLowerCase().equals("skill")){
-		    		sb.append("skill,lower(skill) as \"lSkill\",");
+		    		sb.append("skill,lower(skill) as \"lskill\",");
 		    	}else if(column.toLowerCase().equals("education")){
-		    		sb.append("education,lower(education) as \"lEducation\",");
+		    		sb.append("education,lower(education) as \"leducation\",");
 		    	}else if(column.toLowerCase().equals("resume")){
 		    		sb.append("resume,");
 		    	}else if(column.toLowerCase().equals("location")){
 		    		sb.append("location as \"location\",");
 		    	}else if(column.toLowerCase().equals("contact")){
-		    		sb.append("name,lower(name) as \"lName\",");
-		    		sb.append("title,lower(title) as \"lTitle\",");
-		    		sb.append( " email ,lower(email) as \"lEmail\",");
+		    		sb.append("name,lower(name) as \"lname\",");
+		    		sb.append("title,lower(title) as \"ltitle\",");
+		    		sb.append( " email ,lower(email) as \"lemail\",");
 		    	}
 	    	}
 	        sb.deleteCharAt(sb.length()-1);
@@ -559,8 +559,8 @@ public class SearchDao {
     private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy){
     	StringBuilder columnsSql = new StringBuilder();
     	 if(searchColumns==null){
-             columnsSql.append("a.\"id\" as id,a.\"Name\" as Name,lower(a.\"Name\") as lName,case   when a.\"Title\" is null then ''  else a.\"Title\" END Title ,to_char(a.\"CreatedDate\",'yyyy-mm-dd') as CreatedDate");
-             groupBy.append(",a.\"Name\",a.\"Title\",a.\"CreatedDate\"");
+             columnsSql.append("a.\"id\" as id,a.\"name\" as name,lower(a.\"name\") as lname,case   when a.\"title\" is null then ''  else a.\"title\" end title ,to_char(a.\"createddate\",'yyyy-mm-dd') as createddate");
+             groupBy.append(",a.\"name\",a.\"title\",a.\"createddate\"");
     	 }else{
  	        for(String column:searchColumns.split(",")){
  	            columnsSql.append(getQueryColumnName(column,columnJoinTables,groupBy));
@@ -604,18 +604,18 @@ public class SearchDao {
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
-        querySql.append(" from ( select  distinct contact.\"MailingPostalCode\",contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\", case  when contact.\"ts2__Text_Resume__c\" is null  or char_length(contact.\"ts2__Text_Resume__c\") = 0 then -1  else contact.id end as resume  ");
-        if(orderCon.contains("Title")){
-        	querySql.append(",case   when contact.\"Title\" is null then '' " +
-        			        " else lower(contact.\"Title\") END \"lTitle\" ");
-        }else if(orderCon.contains("Name")){
-        	querySql.append(",lower(contact.\"Name\") as \"lName\" ");
-        }else if(orderCon.contains("Email")){
-        	querySql.append(",lower(contact.\"Email\") as \"lEmail\" ");
+        querySql.append(" from ( select  distinct contact.\"mailingpostalcode\",contact.id,contact.\"email\",contact.\"sfid\",contact.\"name\",contact.\"lastname\",contact.\"firstname\",contact.\"title\",contact.\"createddate\", case  when contact.\"ts2__text_resume__c\" is null  or char_length(contact.\"ts2__text_resume__c\") = 0 then -1  else contact.id end as resume  ");
+        if(orderCon.contains("title")){
+        	querySql.append(",case   when contact.\"title\" is null then '' " +
+        			        " else lower(contact.\"title\") END \"ltitle\" ");
+        }else if(orderCon.contains("name")){
+        	querySql.append(",lower(contact.\"name\") as \"lname\" ");
+        }else if(orderCon.contains("email")){
+        	querySql.append(",lower(contact.\"email\") as \"lemail\" ");
         }
         
         querySql.append( " from contact contact  " );
-        countSql.append( " from ( select  contact.\"MailingPostalCode\",contact.id,contact.\"Email\",contact.\"sfId\",contact.\"Name\",contact.\"LastName\",contact.\"FirstName\",contact.\"Title\",contact.\"CreatedDate\" from contact contact   " );
+        countSql.append( " from ( select  contact.\"mailingpostalcode\",contact.id,contact.\"email\",contact.\"sfid\",contact.\"name\",contact.\"lastname\",contact.\"firstname\",contact.\"title\",contact.\"createddate\" from contact contact   " );
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
@@ -691,13 +691,13 @@ public class SearchDao {
 
         
         if(type.equals("company")){
-            joinSql.append( " left join ts2__employment_history__c c on a.\"sfId\" = c.\"ts2__Contact__c\" and c.\"ts2__Name__c\"!='' " );
+            joinSql.append( " left join ts2__employment_history__c c on a.\"sfid\" = c.\"ts2__contact__c\" and c.\"ts2__name__c\"!='' " );
         }else if(type.equals("education")){
-            joinSql.append( " left join ts2__education_history__c d on a.\"sfId\" = d.\"ts2__Contact__c\" and d.\"ts2__Name__c\"!='' " );
+            joinSql.append( " left join ts2__education_history__c d on a.\"sfid\" = d.\"ts2__contact__c\" and d.\"ts2__name__c\"!='' " );
         }else if(type.equals("skill")){
-            joinSql.append( " left join ts2__skill__c b on a.\"sfId\" = b.\"ts2__Contact__c\" and b.\"ts2__Skill_Name__c\"!='' " );
+            joinSql.append( " left join ts2__skill__c b on a.\"sfid\" = b.\"ts2__contact__c\" and b.\"ts2__skill_name__c\"!='' " );
         }else if(type.equals("location")){
-            joinSql.append(" left join jss_sys.zipcode_us z on a.\"MailingPostalCode\" = z.\"zip\" ");
+            joinSql.append(" left join jss_sys.zipcode_us z on a.\"mailingpostalcode\" = z.\"zip\" ");
         }
         return joinSql.toString();
     }
@@ -756,7 +756,7 @@ public class SearchDao {
 
 			sb.append( " select a_copy.id as id from  contact a_copy right join (select ex.id from  contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)) b on a_copy.id = b.id " + " union "
                 + " select a_copy1.id as id from  contact a_copy1 "
-                + " where a_copy1.\"Title\" ilike ? or  a_copy1.\"Name\" ilike ? "  );
+                + " where a_copy1.\"title\" ilike ? or  a_copy1.\"name\" ilike ? "  );
     		
 			if(notConditions.length==1){
     			sb.append(") n_ext");
@@ -779,7 +779,7 @@ public class SearchDao {
                         
 	    		sb.append("  (select ex.id from contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)" + " union "
                         + " (select a_copy1.id as id from contact a_copy1 "
-                        + " where a_copy1.\"Title\"  ilike ? or  a_copy1.\"Name\"  ilike ? ) ) ");
+                        + " where a_copy1.\"title\"  ilike ? or  a_copy1.\"name\"  ilike ? ) ) ");
 	    		values.add(temp);
 	    		if(!temp.contains("%")){
 	    			values.add("%"+temp+"%");
@@ -876,22 +876,22 @@ public class SearchDao {
 		            .append( size); 
         }else{
 	        querySql.append(" select a.name, count(a.contact) from ( ").
-	                                append( " select e."+name+" as name, e.\"ts2__Contact__c\" as contact ").
+	                                append( " select e."+name+" as name, e.\"ts2__contact__c\" as contact ").
 	                                append( " from "+table+" e  ").
 	                                append( " where e."+name+" !='' ");
 	        if(min!=null&&!"".equals(min)){
 	        	if("company".equals(type)){
-	        	    querySql.append(" AND EXTRACT(year from age(e.\"ts2__Employment_End_Date__c\",e.\"ts2__Employment_Start_Date__c\"))>="+min);
+	        	    querySql.append(" AND EXTRACT(year from age(e.\"ts2__employment_end_date__c\",e.\"ts2__employment_start_date__c\"))>="+min);
 	        	}else if("education".equals("type")){
-	        		querySql.append(" AND EXTRACT(year from age(now(),e.\"ts2__GraduationDate__c\"))>="+min);
+	        		querySql.append(" AND EXTRACT(year from age(now(),e.\"ts2__graduationdate__c\"))>="+min);
 	        	}else if("skill".equals("type")){
-	        		querySql.append(" AND e.\"ts2__Rating__c\" >=  "+min);
+	        		querySql.append(" AND e.\"ts2__rating__c\" >=  "+min);
 	        	}
 	        }
 	        if(keyword!=null&&!"".equals(keyword)){
 	        	querySql.append(" AND e."+name+" ilike '%"+keyword+(keyword.length()>2?"%":"")+ "' ");
 	        }
-	        querySql.append(" group by e.\"ts2__Contact__c\", e."+name+") a  ").
+	        querySql.append(" group by e.\"ts2__contact__c\", e."+name+") a  ").
 					 append(" group by a.name order by a.name offset " ).
 	                 append(offset).
 	                 append(" limit ").
@@ -908,11 +908,11 @@ public class SearchDao {
         StringBuilder sql = new StringBuilder();
         
         if(type.equals("company")){
-            sql.append("\"ts2__Name__c\"");
+            sql.append("\"ts2__name__c\"");
         }else if(type.equals("education")){
-            sql.append("\"ts2__Name__c\"");
+            sql.append("\"ts2__name__c\"");
         }else if(type.equals("skill")){
-            sql.append("\"ts2__Skill_Name__c\"");
+            sql.append("\"ts2__skill_name__c\"");
         }else if(type.equals("location")){
             sql.append("\"zip\"");
         }

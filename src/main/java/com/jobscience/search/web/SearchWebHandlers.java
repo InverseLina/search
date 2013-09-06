@@ -118,16 +118,16 @@ public class SearchWebHandlers {
 
     
     private String getOrderColumn(String originalName){
-		if("Name".equalsIgnoreCase(originalName)||
-		   "Title".equalsIgnoreCase(originalName)||
-		   "Company".equalsIgnoreCase(originalName)||
-		   "Skill".equalsIgnoreCase(originalName)||
-		   "Education".equalsIgnoreCase(originalName)||
+		if("name".equalsIgnoreCase(originalName)||
+		   "title".equalsIgnoreCase(originalName)||
+		   "company".equalsIgnoreCase(originalName)||
+		   "skill".equalsIgnoreCase(originalName)||
+		   "education".equalsIgnoreCase(originalName)||
 		   "email".equalsIgnoreCase(originalName)){
-			return "l"+originalName.substring(0,1).toUpperCase()+originalName.substring(1);
+			return "l"+originalName;
 		}else if("createddate".equalsIgnoreCase(originalName)){
-			return "CreatedDate";
-		}else if( "Location".equalsIgnoreCase(originalName)){
+			return "createddate";
+		}else if( "location".equalsIgnoreCase(originalName)){
 			return "location";
 		}
 		return originalName;
