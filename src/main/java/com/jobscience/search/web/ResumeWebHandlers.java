@@ -27,7 +27,7 @@ public class ResumeWebHandlers {
     @WebGet("/getResume")
     public WebResponse search(@WebParam("cid") Long cid) {
     	
-    	String sql = "select \"Name\", \"ts2__Text_Resume__c\" from  contact where id = ?";
+    	String sql = "select \"name\", \"ts2__text_resume__c\" from  contact where id = ?";
         
     	List<Map> map = dbHelper.executeQuery(orgHolder.getOrgName(), sql, cid);
         
