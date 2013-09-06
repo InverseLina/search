@@ -34,18 +34,18 @@ public class ConfigManager {
 		}
 		names.append("'-1')");
 		sql.deleteCharAt(sql.length()-1);
-		dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from jss_sys.config where org_id = %s and  name in %s", orgHolder.getId(), names));
-        dbHelper.executeUpdate(dsMng.getSysDataSource(), format("insert into  jss_sys.config(org_id, name,value) values %s ", sql));
+		dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id = %s and  name in %s", orgHolder.getId(), names));
+        dbHelper.executeUpdate(dsMng.getSysDataSource(), format("insert into  config(org_id, name,value) values %s ", sql));
 
 	}
 	
 	
 	public List<Map> getConfig(String name){
-		String sql = "select * from jss_sys.config where org_id = ? " ;
+		String sql = "select * from config where org_id = ? " ;
 		if(name!=null){
 			sql+=" and name='"+name+"'";
 		}
-		return dbHelper.executeQuery(orgHolder.getOrgName().trim(), sql, orgHolder.getId());
+		return dbHelper.executeQuery(dsMng.getSysDataSource(), sql, orgHolder.getId());
 		
 	}
 }
