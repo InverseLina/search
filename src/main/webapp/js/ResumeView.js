@@ -13,9 +13,10 @@
                 var dfd = $.Deferred();
 
                 $.ajax({type: "GET", url: "getResume", data: {cid: data.id}, dataType: "json"}).success(function (result) {
+                    console.log(result)
                     if (result.success && result.result.length > 0) {
-                        dfd.resolve(render("ResumeView", {name: result.result[0]["Name"],
-                            resume: result.result[0]["ts2__Text_Resume__c"]}));
+                        dfd.resolve(render("ResumeView", {name: result.result[0]["name"],
+                            resume: result.result[0]["ts2__text_resume__c"]}));
                     } else {
                         dfd.resolve(render("ResumeView", {resume: "not resume"}));
                     }
