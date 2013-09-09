@@ -129,4 +129,15 @@
     	}
         return new Handlebars.SafeString(src);
     });
+    
+    /**
+     * check the var is exist or not
+     */
+    Handlebars.registerHelper('ifExist', function(src, options) {
+    	if(typeof(src)=='undefined'){
+    		return options.inverse(this);
+    	}else{
+    		 return options.fn(this);
+    	}
+    });
 })(jQuery);

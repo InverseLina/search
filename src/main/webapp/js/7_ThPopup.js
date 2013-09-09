@@ -11,18 +11,10 @@ var app = app || {};
     var view = this;
     var type = this.type;
     if(type=="company"||type=="education"||type=="skill"||type=="location"){
-    	var listName = (type=="company"?"companies":(type+"s"));
-    	 searchDao.getGroupValuesForAdvanced({
-    		 "searchValues": app.ParamsControl.getParamsForSearch().searchValues,
-        	 "type":type,
-        	 "orderByCount":true
-    	 }).always(function(result) {
-    		result[listName]=result.list;
-	        var $e = $(render(view.name,result));
-	        var $html = $(render("filterPanel",data));
-	        $html.find(".popover-content").html($e);
-	        dfd.resolve($html);
-	    }); 
+    	var $e = $(render(view.name,{}));
+        var $html = $(render("filterPanel",data));
+        $html.find(".popover-content").html($e);
+        dfd.resolve($html);
     }else{
     	var $e = $(render(view.name));
         var $html = $(render("filterPanel",data));
@@ -76,10 +68,20 @@ var app = app || {};
      var $input = view.$el.find("input.autoComplete:first");
      $input.focus();
      view.lastQueryString = $input.val();
-  /*   var type = $input.attr("data-type");
+     var type = $input.attr("data-type");
      if(view.type != 'Contact'){
- 	    view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
-     }*/
+    	 var listName = (type=="company"?"companies":(type+"s"));
+    	 searchDao.getGroupValuesForAdvanced({
+    		 "searchValues": app.ParamsControl.getParamsForSearch().searchValues,
+        	 "type":type,
+        	 "orderByCount":true
+    	 }).always(function(result) {
+    		if(type=="company"){
+               type = "employer";
+            }
+	        $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result["list"],type:type}));
+	    }); 
+     }
   };
 
     ThPopup.prototype.close = function(){
@@ -185,14 +187,14 @@ var app = app || {};
             	 }
              });
         },
-        "btap; div.content div[class$='Row'][class!='contactRow']": function (event) {
+        "btap; div.content .autoCompleteList  div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
             var data = $.trim($(event.currentTarget).find(".contentText").attr("data-name"));
             addItem.call(view, data);
             view.$el.find("input").focus();
 
         },
-        "mouseover; div.content div[class$='Row'][class!='contactRow']": function(event){
+        "mouseover; div.content .autoCompleteList div[class$='Row'][class!='contactRow']": function(event){
             var view = this;
             view.$el.find("div.content div[class$='Row'][class!='contactRow'] span").removeClass("active");
             $(event.currentTarget).find("span").addClass("active");
