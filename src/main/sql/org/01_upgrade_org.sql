@@ -1,7 +1,5 @@
---schema :jobscience_db
-CREATE EXTENSION pg_trgm; 
+CREATE EXTENSION pg_trgm;
 
---ALTER TABLE contact disable trigger c5_c5_contact_logtrigger;
 
 CREATE TABLE contact_ex
 (
@@ -47,5 +45,3 @@ CREATE INDEX contact_Name_trgm_gin ON contact USING gin ("name" gin_trgm_ops);
 CREATE INDEX contact_FirstName_trgm_gin ON contact USING gin ("firstname" gin_trgm_ops);
 CREATE INDEX contact_LastName_trgm_gin ON contact USING gin ("lastname" gin_trgm_ops);
 
-  
--- ALTER TABLE contact enable trigger c5_c5_contact_logtrigger;

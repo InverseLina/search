@@ -3,9 +3,6 @@ CREATE SCHEMA jss_sys AUTHORIZATION postgres;
 
 SET search_path TO jss_sys;
 
--- Table: jss_sys.org
-
--- DROP TABLE jss_sys.org;
 
 CREATE TABLE org
 (

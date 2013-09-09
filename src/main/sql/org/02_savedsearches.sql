@@ -1,7 +1,4 @@
---schema :jobscience_db
 DROP TABLE if EXISTS savedsearches;
-
--- DROP TABLE savedsearches;
 
 CREATE TABLE savedsearches
 (
