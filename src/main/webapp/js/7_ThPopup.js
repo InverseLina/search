@@ -187,7 +187,7 @@ var app = app || {};
             	 }
              });
         },
-        "btap; div.content.autoCompleteList  div[class$='Row'][class!='contactRow']": function (event) {
+        "btap; div.content .autoCompleteList  div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
             var data = $.trim($(event.currentTarget).find(".contentText").attr("data-name"));
             addItem.call(view, data);

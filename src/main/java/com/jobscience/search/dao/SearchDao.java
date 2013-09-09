@@ -159,8 +159,8 @@ public class SearchDao {
             	   JSONObject contact = JSONObject.fromObject(contacts.get(i));
             	   conditions.append(" OR (1=1 ");
             	   String value ;
-            	  if(contact.containsKey("firstname")&&!"".equals(contact.getString("firstname"))){
-            		  value = contact.getString("firstname");
+            	  if(contact.containsKey("firstName")&&!"".equals(contact.getString("firstName"))){
+            		  value = contact.getString("firstName");
             		  if(advanced){
    	                   if(baseTable.indexOf("contact") ==-1){
    	        	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
