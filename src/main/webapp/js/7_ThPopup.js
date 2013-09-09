@@ -187,14 +187,14 @@ var app = app || {};
             	 }
              });
         },
-        "btap; div.content div[class$='Row'][class!='contactRow']": function (event) {
+        "btap; div.content.autoCompleteList  div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
             var data = $.trim($(event.currentTarget).find(".contentText").attr("data-name"));
             addItem.call(view, data);
             view.$el.find("input").focus();
 
         },
-        "mouseover; div.content div[class$='Row'][class!='contactRow']": function(event){
+        "mouseover; div.content .autoCompleteList div[class$='Row'][class!='contactRow']": function(event){
             var view = this;
             view.$el.find("div.content div[class$='Row'][class!='contactRow'] span").removeClass("active");
             $(event.currentTarget).find("span").addClass("active");
