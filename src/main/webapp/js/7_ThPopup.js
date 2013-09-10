@@ -29,7 +29,6 @@ var app = app || {};
         if(datasName=="companys"){
         	dataName="companies";
         }
-        alert(dataName);
         var data = {};
         var values = data[datasName] = [], value;
         var view = this;
@@ -174,8 +173,11 @@ var app = app || {};
         },
         "SHOWSEARCHRESULT":function(event,params){
         	var view = this;
+        	var listName = (params.type=="company"?"companies":(params.type+"s"));
+        	var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
+       	 	delete params["q_"+listName];
         	 searchDao.getGroupValuesForAdvanced({
-            	 "searchValues": app.ParamsControl.getParamsForSearch().searchValues,
+            	 "searchValues": params,
             	 "type":params.type,
             	 queryString:params.keyword
              }).done(function(data){
