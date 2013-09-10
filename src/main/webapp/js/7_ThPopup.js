@@ -183,12 +183,14 @@ var app = app || {};
             delete params["q_"+listName];
             var keyword = $.trim($input.val());
             var searchCond = {
-                "searchValues": app.ParamsControl.getParamsForSearch().searchValues,
-                "type":type
+                "searchValues": params,
+                "type":type,
+                 queryString: keyword,
+                 orderByCount: true
             };
-            if(keyword.length > 0){
+/*            if(keyword.length > 0){
                 searchCond.queryString = keyword;
-            }
+            }*/
         	 searchDao.getGroupValuesForAdvanced(searchCond).done(function(data){
             	 if(view.lastQueryString==keyword){
 
@@ -196,8 +198,8 @@ var app = app || {};
 	            	 $.each(data.list,function(index,d){
 	            		 result[d.name]=d.count;
 	            	 });
-                     if (view.$el.find(".autoCompleteList [data-name]").length > 0) {
-                         console.log("has data")
+                     if (view.$el.find(".selectedItems .item").length > 0) {
+                         console.log("has filter")
                          view.$el.find(".autoCompleteList [data-name]").each(function (index, e) {
                              $(e).find("span.count").html("(" + (result[$(e).attr("data-name")] || 0) + ")");
                          });
