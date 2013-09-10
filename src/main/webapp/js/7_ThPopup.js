@@ -73,8 +73,10 @@ var app = app || {};
      var type = $input.attr("data-type");
      if(view.type != 'Contact'){
     	 var listName = (type=="company"?"companies":(type+"s"));
+    	 var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
+    	 delete params["q_"+listName];
     	 searchDao.getGroupValuesForAdvanced({
-    		 "searchValues": app.ParamsControl.getParamsForSearch().searchValues,
+    		 "searchValues": params,
         	 "type":type,
         	 "orderByCount":true
     	 }).always(function(result) {
