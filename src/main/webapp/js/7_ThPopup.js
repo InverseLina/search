@@ -74,8 +74,9 @@ var app = app || {};
     	 var listName = (type=="company"?"companies":(type+"s"));
     	 var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
     	 delete params["q_"+listName];
+    	 console.log(params);
     	 searchDao.getGroupValuesForAdvanced({
-    		 "searchValues": params,
+    		 "searchValues": JSON.stringify(params),
         	 "type":type,
         	 "orderByCount":true
     	 }).always(function(result) {
