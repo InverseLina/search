@@ -173,23 +173,41 @@ var app = app || {};
         },
         "SHOWSEARCHRESULT":function(event,params){
         	var view = this;
-        	var listName = (params.type=="company"?"companies":(params.type+"s"));
-        	var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
-       	 	delete params["q_"+listName];
-        	 searchDao.getGroupValuesForAdvanced({
-            	 "searchValues": params,
-            	 "type":params.type,
-            	 queryString:params.keyword
-             }).done(function(data){
-//            	 console.log(data);
-            	 if(view.lastQueryString==params.keyword){
+            var $input = view.$el.find("input.autoComplete:first");
+            var type = $input.attr("data-type");
+/*            if(type=="company"){
+                type = "employer";
+            }*/
+            var listName = (type=="company"?"companies":(type+"s"));
+            var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
+            delete params["q_"+listName];
+            var keyword = $.trim($input.val());
+            var searchCond = {
+                "searchValues": app.ParamsControl.getParamsForSearch().searchValues,
+                "type":type
+            };
+            if(keyword.length > 0){
+                searchCond.queryString = keyword;
+            }
+        	 searchDao.getGroupValuesForAdvanced(searchCond).done(function(data){
+            	 if(view.lastQueryString==keyword){
+
 	            	 var result = {};
 	            	 $.each(data.list,function(index,d){
 	            		 result[d.name]=d.count;
 	            	 });
-	            	 view.$el.find(".autoCompleteList [data-name]").each(function(index,e){
-	            		$(e).find("span.count").html("("+(result[$(e).attr("data-name")]||0)+")"); 
-	            	 });
+                     if (view.$el.find(".autoCompleteList [data-name]").length > 0) {
+                         console.log("has data")
+                         view.$el.find(".autoCompleteList [data-name]").each(function (index, e) {
+                             $(e).find("span.count").html("(" + (result[$(e).attr("data-name")] || 0) + ")");
+                         });
+                     }else{
+                         if(type=="company"){
+                             type = "employer";
+                         }
+                         $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data["list"],type:type}));
+
+                     }
             	 }
              });
         },
@@ -221,8 +239,10 @@ var app = app || {};
 
   function close(){
       var view = this;
-      view.$el.bRemove();
-      $(document).off("btap."+view.cid);
+      if (view && view.$el) {
+          view.$el.bRemove();
+          $(document).off("btap." + view.cid);
+      }
   }
 
   function nextItem(){

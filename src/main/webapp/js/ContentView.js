@@ -60,6 +60,8 @@
         event.stopPropagation();
       },
       "btap; table th[data-column]" : function(event) {
+          event.preventDefault();
+          event.stopPropagation();
     	  var view = this;
     	  //$("[data-b-view^='Filter']",view.$el).bRemove();
     	  var $th = $(event.currentTarget);
@@ -78,11 +80,14 @@
           if(type=="contact") {
               data = app.ParamsControl.getFilterParams()["Contact"]||[];
           }
-          console.log(type);
-          console.log(data);
           var viewName = "Filter"+type.substring(0, 1).toUpperCase()+type.substring(1);
     	  if(type=="skill"||type=="contact"||type=="education"||type=="employer"||type=="location"){
-              brite.display(viewName,".ContentView",{position:position,type:type, data:data});
+              if(view.filterDlg){
+                  view.filterDlg.close();
+              }
+              brite.display(viewName,".ContentView",{position:position,type:type, data:data}).done(function(filterDlg){
+                   view.filterDlg =  filterDlg
+              });
            }
       },
       "change; .tableContainer td input[type='checkbox']" : function(event) {
@@ -181,6 +186,9 @@
           }
           app.ParamsControl.save(extra);
           view.$el.trigger("DO_SEARCH");
+          if(view.filterDlg && view.filterDlg.$el) {
+              view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
+          }
       },
       "REMOVE_FILTER":function(event, extra){
           var type, view = this;
@@ -204,6 +212,9 @@
           }
           app.ParamsControl.remove(extra);
           view.$el.trigger("DO_SEARCH");
+          if(view.filterDlg && view.filterDlg.$el) {
+              view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
+          }
 
       },
       UPDATE_FILTER: function(event, extra){
