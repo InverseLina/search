@@ -5,7 +5,7 @@ var app = app || {};
         return val?val:defaultVal;
     }
 
-    var displayColumns = [{name:"contact",display:"Contact"},{name:"company",display:"Company"}
+    var displayColumns = [{name:"contact",display:"Contact"},{name:"company",display:"Employer"}
         ,{name:"skill",display:"Skill"},{name:"education",display:"Education"},{name:"location",display:"Location"},
         {name:"resume",display:"Resume"}];
     var defaultColumns = "contact,company,skill,education,location";
