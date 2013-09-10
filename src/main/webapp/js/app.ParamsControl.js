@@ -6,7 +6,7 @@ var app = app || {};
     }
     app.ParamsControl = {
         getParamsForSearch: function(){
-            var view = getMainView();
+            var   view = getMainView();
 //            console.log(_storeValue);
             var obj, key, newKey;
             var data, result = {};
@@ -31,6 +31,15 @@ var app = app || {};
                        data = searchData["q_companies"] = {};
                     }else{
                         data = searchData["q_" + newKey + "s"] = {};
+                    }
+
+
+                    if(_storeValue[key].minVal){
+                        if(newKey == "location"){
+                            data.minRadius = _storeValue[key].minVal;
+                        }else{
+                            data.minYears = _storeValue[key].minVal;
+                        }
                     }
                     data = data.values = [];
                 }
@@ -60,6 +69,9 @@ var app = app || {};
             store = _storeValue[data.type];
 //            store[data.name] = data.value;
             store.push({name: data.name, value: data.value});
+            if(data.minVal){
+                store.minVal = data.minVal;
+            }
         },
         /**
          * remove data format {type:xxx, name: xxx}

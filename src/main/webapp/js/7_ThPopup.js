@@ -63,7 +63,9 @@ var app = app || {};
          view.afterPostDisplay();
      }
      if(view.$el.find(".sliderBarContainer").length > 0){
-         brite.display("Slider", ".sliderBarContainer");
+         brite.display("Slider", ".sliderBarContainer").done(function(slider){
+             view.slider = slider;
+         });
      }
      var $input = view.$el.find("input.autoComplete:first");
      $input.focus();
@@ -265,13 +267,18 @@ var app = app || {};
   }
 
   function addItem(data){
-      var view = this;
+      var item, view = this;
       var len = view.$el.find(".selectedItems .item[data-name='" + data + "']").length;
       if (len == 0) {
           view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data}))
           var $ele = $(view.$el.find(".selectedItems .item[data-name='" + data + "']")[0]);
           $ele.data("value", data);
-          view.$el.trigger("ADD_FILTER", {type:view.type, name: data, value: data})
+          item = {type:view.type, name: data, value: data};
+          if(view.slider){
+              item['minVal'] = view.slider.getValue();
+          }
+
+          view.$el.trigger("ADD_FILTER", item);
           view.$el.find("input").val("").focus().change();
       }
   }
