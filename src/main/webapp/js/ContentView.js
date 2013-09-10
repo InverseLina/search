@@ -33,7 +33,6 @@
         var $desc = $(".desc", $th);
         var $asc = $(".asc", $th);
         var column = $th.attr("data-column");
-        view.tableOrderColumn = column;
         var bPagination = view.$el.bComponent("ContentView");
         var pageIdx = bPagination.pageIdx || 1;
         var pageSize = bPagination.pageSize || 30;
@@ -57,6 +56,7 @@
             pageSize : pageSize
           });
         }
+        view.tableOrderColumn = column;
         event.stopPropagation();
       },
       "btap; table th[data-column]" : function(event) {
