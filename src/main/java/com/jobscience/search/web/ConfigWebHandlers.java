@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebModel;
 import com.britesnow.snow.web.param.annotation.WebParam;
@@ -12,6 +13,7 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.jobscience.search.dao.ConfigManager;
 
 @Singleton
@@ -19,6 +21,7 @@ public class ConfigWebHandlers {
 
 	@Inject
 	private ConfigManager configManager;
+	
 	
 	@WebPost("/config/save")
 	public WebResponse saveConfig(@WebParam("local_distance")String distance,@WebParam("local_date")String date,
@@ -39,7 +42,20 @@ public class ConfigWebHandlers {
 	}
 	
 	@WebModelHandler(startsWith="/admin")
-	public void admin(@WebModel Map m){
+	public void admin(@WebModel Map m,RequestContext rc){
+		m.put("login", rc.getCookie("login")==null?false:Boolean.parseBoolean(rc.getCookie("login")));
+	}
+	
+	@WebPost("/admin/validate")
+	public WebResponse doValidate(@Named("jss.sysadmin.pwd")String configPassword, RequestContext rc,@WebParam("password") String password) throws SQLException{
+		
+		if(configPassword.equals(password)){
+			rc.setCookie("login", true);
+			return WebResponse.success();
+		}else{
+			rc.setCookie("login", false);
+			return WebResponse.fail();
+		}
 	}
 	
 }

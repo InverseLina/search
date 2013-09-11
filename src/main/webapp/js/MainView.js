@@ -66,6 +66,13 @@
 	 	
 	 	"DO_SEARCH": function(event,opts){
 	 		doSearch.call(this,opts);	
+	 	},
+	 	"btap;.config":function(event){
+	 		if(app.cookie("login")!="true"){
+	 		brite.display("LoginModal");
+	 		}else{
+        		window.location.href="/admin";
+	 		}
 	 	}
 	 },
      docEvents: {
