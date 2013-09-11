@@ -1,9 +1,3 @@
-DROP SCHEMA IF EXISTS  jss_sys  CASCADE;
-CREATE SCHEMA jss_sys AUTHORIZATION postgres;
-
-SET search_path TO jss_sys;
-
-
 CREATE TABLE org
 (
   id serial NOT NULL,

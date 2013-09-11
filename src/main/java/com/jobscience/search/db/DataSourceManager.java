@@ -11,14 +11,14 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 public class DataSourceManager {
     private DataSource sysDs;
-    private Map<String, DataSource> dsMap = new HashMap<String, DataSource>();
+    private Map<String, DataSource> dsMap = new ConcurrentHashMap<String, DataSource>();
     private String url;
     private String orgUser;
     private String orgPwd;
@@ -61,6 +61,7 @@ public class DataSourceManager {
         ds.setUser(user);
         ds.setPassword(pwd);
         ds.setUnreturnedConnectionTimeout(0);
+        //System.out.println("buildDS: " + url + " " + user + "/" + pwd + " schema: " + schema);
         return new DataSourceWrapper(ds, schema);
     }
 
