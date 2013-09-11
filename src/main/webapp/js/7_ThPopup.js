@@ -184,7 +184,7 @@ var app = app || {};
             delete params["q_"+listName];
             var keyword = $.trim($input.val());
             var searchCond = {
-                "searchValues": params,
+                "searchValues": JSON.stringify(params),
                 "type":type,
                  queryString: keyword,
                  orderByCount: true

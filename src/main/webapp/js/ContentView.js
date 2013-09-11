@@ -27,7 +27,7 @@
 
     },
     events : {
-      "btap; table .locationTh span.columnName,table .ccontactTh span.columnName" : function(event) {
+      "btap; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
         var view = this;
         var $th = $(event.currentTarget).closest("th");
         var $desc = $(".desc", $th);
@@ -187,7 +187,7 @@
           app.ParamsControl.save(extra);
           view.$el.trigger("DO_SEARCH");
           if(view.filterDlg && view.filterDlg.$el) {
-              view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
+              //view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
           }
       },
       "REMOVE_FILTER":function(event, extra){
