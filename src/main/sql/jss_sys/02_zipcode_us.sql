@@ -1,5 +1,3 @@
-DROP TABLE if EXISTS jss_sys.zipcode_us;
-
 CREATE TABLE zipcode_us
 (
   zip character(5) NOT NULL,
