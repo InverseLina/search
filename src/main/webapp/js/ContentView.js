@@ -27,7 +27,7 @@
 
     },
     events : {
-      "btap; table .locationTh span.columnName,table .ccontactTh span.columnName" : function(event) {
+      "btap; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
         var view = this;
         var $th = $(event.currentTarget).closest("th");
         var $desc = $(".desc", $th);
