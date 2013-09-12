@@ -111,6 +111,33 @@
           </execution>          
           <!-- /Copy to War -->
           
+          <!-- Copy to heroku-deploy -->
+          <execution>
+            <id>copy-to-heroku</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <mkdir dir="../heroku-deploy" />
+                <mkdir dir="../heroku-deploy/src" />
+                <delete includeemptydirs="true">
+                  <fileset dir="../heroku-deploy" includes="**/*" excludes=".git/"/>
+                </delete>
+                <!-- copy to java sources -->
+                <copy todir="../heroku-deploy/src" >
+                  <fileset dir="src/" />
+                </copy>
+                <!-- /copy to java sources -->
+                <copy todir="../heroku-deploy" overwrite="true">
+                  <fileset dir="heroku/" />
+                </copy>
+              </tasks>
+            </configuration>
+          </execution>
+          <!-- Copy to heroku-deploy -->
+          
         </executions>
       </plugin>     
       
