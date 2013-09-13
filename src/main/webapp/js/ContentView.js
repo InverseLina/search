@@ -164,6 +164,36 @@
       view.$searchResult.find(".tableContainer").html(render("search-loading"));
       fixColWidth.call(view);
     },
+      restoreSearchParam: function (){
+        var key, dataName, data, displayName, $html, $th, view = this;
+
+        if(view.$el.find("table th .selectedItems .item").length > 0){
+            return;
+        }
+        var result = app.ParamsControl.getFilterParams() || {};
+
+        for(key in result){
+            dataName = key;
+            if(key == "Contact"){
+                dataName = "contact";
+            }
+            $th = view.$el.find("table thead th[data-column='{0}']".format(dataName));
+            var data = result[key];
+            if (data && data.length > 0) {
+                $.each(data, function (index, val) {
+                    /* if (dataName == "contact") {
+                     displayName = app.getContactDisplayName(val.value)  ;
+                     } else {
+                     displayName = val;
+                     }*/
+                    $html = $(render("search-items-header-add-item", {name: val.name}));
+                    $th.find(".addFilter").before($html);
+                });
+                $th.find(".addFilter").hide();
+            }
+        }
+
+    },
     docEvents: {
       "ADD_FILTER":function(event, extra){
           var type, view = this;
@@ -276,7 +306,11 @@
                        var pagination = view.$el.find(".pagination");
                        showSearchInfo.call(view, result, htmlInfo, "left", (pagination.offset().left - view.$searchInfo.offset().left -155 ))
                    });
+
+                view.restoreSearchParam();
             });
+
+
           } else {
             $e.find(".actions").hide();
             view.$searchResult.find(".tableContainer").html(render("search-query-notfound", {
@@ -285,7 +319,9 @@
             view.$searchResult.find(".page").empty();
             fixColWidth.call(view);
               showSearchInfo.call(view, result, htmlInfo, "right", 0);
+              view.restoreSearchParam();
           }
+
 
         }
 
@@ -499,4 +535,6 @@
        var view = this;
       view.$searchInfo.html(htmlInfo.format(result.count, result.count > 1 ? "es":"", direct, offset));
   }
+
+
 })(jQuery); 
