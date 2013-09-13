@@ -213,7 +213,7 @@
           app.ParamsControl.remove(extra);
           view.$el.trigger("DO_SEARCH");
           if(view.filterDlg && view.filterDlg.$el) {
-              view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
+              //view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
           }
 
       },

@@ -232,7 +232,7 @@ var app = app || {};
             var view = this;
             var dataName = $(event.currentTarget).closest("span[data-name]").attr("data-name");
             setTimeout(function(){
-                view.$el.find("span[data-name='" + dataName + "']").remove();
+                view.$el.find(".selectedItems span[data-name='" + dataName + "']").remove();
                 view.$el.trigger("REMOVE_FILTER", {name: dataName, type: view.type});
             }, 200);
             view.$el.find("input:first").focus();
