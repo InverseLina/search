@@ -19,15 +19,8 @@
         values["sfid"]=view.$el.find("[name='sfid']").val();
         doValidate.call(view);
         if(view.validation){
-        	 $.ajax({
-                 url:"/sys/save",
-                 type:"Post",
-                 dataType:'json',
-                 data:values
-               }).done(function(data){
-                 if(data.success){
+            app.getJsonData("/sys/save", values,"Post").done(function(data){
                    refreshEntityTable.call(view);
-                 }
                });
         }
       },
@@ -61,46 +54,26 @@
   
   function refreshEntityTable(){
     var view = this;
-    $.ajax({
-      url:"/sys/list",
-      type:"Get",
-      dataType:'json'
-    }).done(function(data){
-      if(data.success){
-        var html = render("Organization-list",{list:data.result});
+    app.getJsonData("/sys/list").done(function(data){
+        var html = render("Organization-list",{list:data});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
-      }
     });
   }
   
   function doDelete(name){
     var view = this;
-    $.ajax({
-      url:"/sys/del/",
-      type:"Get",
-      data:{name:name},
-      dataType:'json'
-    }).done(function(data){
-      if(data.success){
+      app.getJsonData("/sys/del/",{name:name},"Post").done(function(data){
         refreshEntityTable.call(view);
-      }
     });
   }
   
   function getDate(name){
     var view = this;
-    $.ajax({
-      url:"/sys/get/",
-      type:"Get",
-      data:{name:name},
-      dataType:'json',
-    }).done(function(data){
-      if(data.success){
-        var html = render("Organization-content",{data:data.result[0]});
+    app.getJsonData("/sys/get/", {name:name}).done(function(data){
+        var html = render("Organization-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
-      }
     });
   }
   

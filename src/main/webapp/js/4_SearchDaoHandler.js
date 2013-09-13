@@ -19,13 +19,8 @@ var app = app || {};
 //		data.pageSize = pageSize;
 //        data.searchColumns = searchColumns;
 		
-		return $.ajax({
-			type : "GET",
-			url : "search",
-			data : qParams,
-			dataType : "json"
-		}).pipe(function(val) {
-			return val.result;
+		return app.getJsonData("search", qParams).pipe(function(result) {
+			return result;
 		});
 	}
 	
@@ -35,14 +30,9 @@ var app = app || {};
 	 */ 
 	SearchDaoHandler.prototype.getGroupValuesForAdvanced = function(qParams,limitData){
 		var data = $.extend({},qParams,limitData);
-		
-		return $.ajax({
-			type : "GET",
-			url : "getGroupValuesForAdvanced",
-			data : data,
-			dataType : "json"
-		}).pipe(function(val) {
-			return val.result;
+
+        return app.getJsonData("getGroupValuesForAdvanced", data).pipe(function(val) {
+			return val;
 		});
 	}
 	
@@ -52,13 +42,8 @@ var app = app || {};
    */ 
 	SearchDaoHandler.prototype.getAutoCompleteData = function(opts){
 		opts = opts||{};
-		return $.ajax({
-			type : "GET",
-			url : "getAutoCompleteData",
-			data:opts,
-			dataType : "json"
-		}).pipe(function(val) {
-			return val.result;
+        return app.getJsonData("getAutoCompleteData", opts).pipe(function(val) {
+			return val;
 		});
 	}
 	

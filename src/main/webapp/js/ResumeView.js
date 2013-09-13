@@ -12,16 +12,14 @@
                 $("#resumeModal").bRemove();
                 var dfd = $.Deferred();
 
-                $.ajax({type: "GET", url: "getResume", data: {cid: data.id}, dataType: "json"}).success(function (result) {
+                app.getJsonData("getResume", {cid: data.id}).done(function (result) {
                     console.log(result)
-                    if (result.success && result.result.length > 0) {
-                        dfd.resolve(render("ResumeView", {name: result.result[0]["name"],
-                            resume: result.result[0]["ts2__text_resume__c"]}));
+                    if (result.length > 0) {
+                        dfd.resolve(render("ResumeView", {name: result[0]["name"],
+                            resume: result[0]["ts2__text_resume__c"]}));
                     } else {
                         dfd.resolve(render("ResumeView", {resume: "not resume"}));
                     }
-                }).fail(function (result) {
-                        console.log(result);
                 });
                 return dfd.promise();
             },

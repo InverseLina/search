@@ -219,6 +219,12 @@
       },
       UPDATE_FILTER: function(event, extra){
 
+      },
+      ON_ERROR:function(event, extra) {
+          var view = this;
+          if(extra){
+            view.showErrorMessage(extra.errorCode||"", extra.errorMessage||"");
+          }
       }
     },
     parentEvents : {

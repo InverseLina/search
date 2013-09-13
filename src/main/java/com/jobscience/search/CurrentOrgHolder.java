@@ -27,10 +27,15 @@ public class CurrentOrgHolder {
     public String getOrgName() {
         RequestContext rc = crh.getCurrentRequestContext();
         if (rc != null) {
-            return rc.getCookie("org");
-        }else{
-            return null;
+            String orgName = rc.getCookie("org");
+            if (orgName != null) {
+                return orgName;
+            }
         }
+
+        OrganizationNotSelectException e = new OrganizationNotSelectException();
+        log.warn("current org name is null", e);
+        throw e;
     }
  /*
   public String getSchema() {
@@ -62,8 +67,9 @@ public class CurrentOrgHolder {
                 }
             }
         }
-        log.warn("current org name is null",  new IllegalArgumentException("current org name is null"));
-        return null;
+        OrganizationNotSelectException e = new OrganizationNotSelectException();
+        log.warn("current org name is null", e);
+        throw e;
     }
 
 }
