@@ -11,7 +11,6 @@ public class WebResponse {
     private Boolean             success;
     private Object              result;
     private String              errorMessage;
-    private String errorCode;
     private Throwable           t;
     private Map<String, Object> extra;
 
@@ -94,7 +93,6 @@ public class WebResponse {
     }
 
     public WebResponse setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
         return this;
     }
 

@@ -103,7 +103,7 @@ public class SearchDao {
         if(orderByCount){
         	querySql.append(") result where result.name != ''  group by result.name order by result.count desc offset 0 limit 5");
         }else{
-        	querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.name offset 0 limit 5");
+        	querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.name offset 0 limit 50");
         }
         if(log.isDebugEnabled()){
             log.debug(querySql);

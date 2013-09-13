@@ -165,11 +165,12 @@ var app = app || {};
                              type = "employer";
                          }
                          $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result[resultType],type:type}));
+                         view.lastQueryString = $input.val();
+                      	if(type){
+                      	  view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
+                      	}
                      });
-                 	 view.lastQueryString = $input.val();
-                 	if(type){
-                 	  view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
-                 	}
+                 	
              }
         },
         "SHOWSEARCHRESULT":function(event,params){
@@ -194,25 +195,17 @@ var app = app || {};
             }*/
         	 searchDao.getGroupValuesForAdvanced(searchCond).done(function(data){
             	 if(view.lastQueryString==keyword){
-
 	            	 var result = {};
 	            	 $.each(data.list,function(index,d){
 	            		 result[d.name]=d.count;
 	            	 });
-                     if (view.$el.find(".selectedItems .item").length > 0) {
-                         console.log("has filter")
-                         view.$el.find(".autoCompleteList [data-name]").each(function (index, e) {
-                             $(e).find("span.count").html("(" + (result[$(e).attr("data-name")] || 0) + ")");
-                         });
-                     }else{
-                         if(type=="company"){
-                             type = "employer";
-                         }
-                         $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data["list"],type:type}));
-
-                     }
+	            	 view.$el.find(".autoCompleteList [data-name]").each(function (index, e) {
+	            		 console.log($(e).attr("data-name"));
+                         $(e).find("span.count").html("(" + (result[$(e).attr("data-name")] || 0) + ")");
+                     });
             	 }
              });
+        	
         },
         "btap; div.content .autoCompleteList  div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
