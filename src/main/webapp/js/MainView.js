@@ -109,12 +109,6 @@
              });
              view._searchValues = result;
 //             console.log(view._searchValues);*/
-         },
-         "SEARCH_RESULT_CHANGE": function () {
-             var view = this;
-             setTimeout(function () {
-                 restoreSearchParam.call(view);
-             }, 200);
          }
      }
 	});
@@ -125,7 +119,7 @@
 
         var callback = function(pageIdx, pageSize){
             view.contentView.loading();
-            restoreSearchParam.call(view);
+            view.contentView.restoreSearchParam();
             var searchParameter = app.ParamsControl.getParamsForSearch();
 //            qParams.pageIndex = pageIdx||qParams.pageIndex;
 //            qParams.pageSize =  pageSize||qParams.pageSize;
@@ -140,35 +134,6 @@
 
     }
 
-    function restoreSearchParam(){
-        var key, dataName, data, displayName, $html, $th, view = this;
 
-        if(view.$el.find("table th .selectedItems .item").length > 0){
-            return;
-        }
-        var result = app.ParamsControl.getFilterParams() || {};
-
-        for(key in result){
-            dataName = key;
-            if(key == "Contact"){
-                dataName = "contact";
-            }
-            $th = view.contentView.$el.find("table thead th[data-column='{0}']".format(dataName));
-            var data = result[key];
-            if (data && data.length > 0) {
-                $.each(data, function (index, val) {
-                    /* if (dataName == "contact") {
-                     displayName = app.getContactDisplayName(val.value)  ;
-                     } else {
-                     displayName = val;
-                     }*/
-                    $html = $(render("search-items-header-add-item", {name: val.name}));
-                    $th.find(".addFilter").before($html);
-                });
-                $th.find(".addFilter").hide();
-            }
-        }
-
-    }
 	
 })(jQuery);
