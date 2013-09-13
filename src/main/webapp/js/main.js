@@ -66,6 +66,54 @@ app.defaultMenuSize = 5;
         displayName = $.trim(displayName.replace(/\s+/, " "));
         return displayName;
     }
+
+
+    /**
+     * A method about use ajax to get json data
+     */
+    var defaultOption = {dataType:"json", async: true,type:"Get"};
+    app.getJsonData = function(url, params, options) {
+        var dfd =  $.Deferred();
+        params = params || {};
+        if($.isPlainObject(options)){
+            options = $.extend({}, defaultOption, options||{});
+        }else{
+            options = $.extend({}, defaultOption, {type:options||"Get"})
+        }
+
+        jQuery.ajax({
+            type : options.type || "Get",
+            url : url,
+            async : options.async,
+            data : params,
+            dataType : options.dataType
+        }).success(function(data) {
+                //console.log(data);
+                if(data.success === true){
+                    dfd.resolve(data.result);
+                }else{
+                    $(document).trigger("ON_ERROR", data);
+                }
+
+            }).fail(function(jxhr, arg2) {
+                try {
+                    if (jxhr.responseText) {
+                        console.log(" WARNING: json not well formatted, falling back to JS eval");
+                        var data = eval("(" + jxhr.responseText + ")");
+                        dfd.resolve(data);
+                    } else {
+                        throw " EXCEPTION: Cannot get content for " + url;
+                    }
+                } catch (ex) {
+                    console.log(" ERROR: " + ex + " Fail parsing JSON for url: " + url + "\nContent received:\n" + jxhr.responseText);
+                }
+            });
+
+        return dfd.promise();
+    };
+
+
+
 })();
 
 

@@ -6,6 +6,9 @@
     <title>JobScience Search (Demo)</title>
     [@webBundle path="${_r.contextPath}/css/" type="css" /]
     [@webBundle path="${_r.contextPath}/js/" type="js" /]
+      <!--[if IE 8]>
+      <link rel="stylesheet" type="text/css" href="${_r.contextPath}/hack/ie8_hack.css">
+      <![endif]-->
     
     [#if signedRequestJson??]
     

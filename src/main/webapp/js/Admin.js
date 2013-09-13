@@ -1,20 +1,13 @@
 (function($){
 	
-	var searchDao = app.SearchDaoHandler;
 	brite.registerView("Admin",{parent:".container",emptyParent:true},{
 		create: function(){
 			return render("Admin");
 		},
 		postDisplay:function(data){
 			var view = this;
-			$.ajax({
-				url:"/config/get/",
-				type:"Get",
-				dataType:'json'
-			}).done(function(data){
-				if(data.success){
-					view.$el.trigger("FILLDATA",data);
-				}
+            app.getJsonData("/config/get/").done(function(data){
+				view.$el.trigger("FILLDATA",{data:data});
 			});
 		},
 		events:{
@@ -32,25 +25,19 @@
 				values["action_add_to_sourcing"]=view.$el.find("[name='action_add_to_sourcing']").prop("checked");
 				values["action_favorite"]=view.$el.find("[name='action_favorite']").prop("checked");
 				if(!$btn.hasClass("disabled")){
-					$.ajax({
-						url:"/config/save",
-						type:"Post",
-						dataType:'json',
-						data:values
-					}).done(function(data){
-						if(data.success){
-							window.location.href="/";
-						}
+                    app.getJsonData("/config/save", values,"Post").done(function(data){
+				        window.location.href="/";
 					});
 				}
 			},
 			"btap;.cancel":function(event){
 				window.location.href="/";
 			},
-			"FILLDATA":function(event,data){
+
+			"FILLDATA":function(event,result){
 				var view = this;
 				var currentField;
-				$.each(data.result,function(index,e){
+				$.each(result.data,function(index,e){
 					currentField = view.$el.find("[name='"+e.name+"']");
 					if(currentField.length>0){
 						if(currentField.get(0).tagName=='INPUT'){
@@ -61,6 +48,15 @@
 					}
 				});
 			}
-		}
+		},
+        docEvents: {
+            ON_ERROR:function(event, extra){
+                view = this;
+                if(extra.errorCode === "NO_ORG"){
+                    view.$el.find(".alert").show();
+                }
+            }
+        }
+
 	});
 })(jQuery);

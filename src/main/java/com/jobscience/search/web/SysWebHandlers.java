@@ -34,7 +34,7 @@ public class SysWebHandlers {
     return WebResponse.success(sysManager.getEntity(name));
   }
   
-  @WebGet("/sys/del/{name}")
+  @WebPost("/sys/del/{name}")
     public WebResponse delEntity(@WebParam("name")String name) throws SQLException{
       sysManager.deleteEntity(name);
         return WebResponse.success();

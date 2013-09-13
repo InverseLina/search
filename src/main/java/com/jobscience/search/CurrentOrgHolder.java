@@ -25,12 +25,7 @@ public class CurrentOrgHolder {
     private Map<String, Map> orgMap = new HashMap<String, Map>();
 
     public String getOrgName() {
-        RequestContext rc = crh.getCurrentRequestContext();
-        if (rc != null) {
-            return rc.getCookie("org");
-        }else{
-            return null;
-        }
+        return (String)getFieldValue("name");
     }
  /*
   public String getSchema() {
@@ -62,8 +57,9 @@ public class CurrentOrgHolder {
                 }
             }
         }
-        log.warn("current org name is null",  new IllegalArgumentException("current org name is null"));
-        return null;
+        OrganizationNotSelectException e = new OrganizationNotSelectException();
+        log.warn("current org name is null", e);
+        throw e;
     }
 
 }
