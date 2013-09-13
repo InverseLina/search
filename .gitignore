@@ -16,3 +16,4 @@ templates.js
 *.css
 !src/main/webapp/bootstrap/css/*
 !src/main/webapp/canvassdk/css/*
+!src/main/webapp/hack/*.css
