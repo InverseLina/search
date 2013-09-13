@@ -23,7 +23,7 @@
       view.empty();
       $(window).resize(function() {
         fixColWidth.call(view);
-      })
+      });
 
     },
     events : {
@@ -39,6 +39,7 @@
         if(column=="company"||column=="skill"||column=="education"||column=="resume"){
         	return false;
         }
+        view.tableOrderColumn = column;
         if ($asc.is(":hidden")) {
           $(".desc,.asc", $th.parent()).hide();
           $asc.show();
@@ -56,7 +57,6 @@
             pageSize : pageSize
           });
         }
-        view.tableOrderColumn = column;
         event.stopPropagation();
       },
       "btap; table th[data-column]" : function(event) {
