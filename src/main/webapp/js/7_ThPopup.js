@@ -187,7 +187,7 @@ var app = app || {};
                 "searchValues": JSON.stringify(params),
                 "type":type,
                  queryString: keyword,
-                 orderByCount: true
+                 orderByCount: false
             };
 /*            if(keyword.length > 0){
                 searchCond.queryString = keyword;
