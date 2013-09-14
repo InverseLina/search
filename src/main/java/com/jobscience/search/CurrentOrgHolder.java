@@ -7,6 +7,8 @@ import com.britesnow.snow.web.RequestContext;
 import com.google.inject.Singleton;
 import com.jobscience.search.db.DBHelper;
 import com.jobscience.search.db.DataSourceManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.Map;
 @Singleton
 public class CurrentOrgHolder {
 
-    private org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CurrentOrgHolder.class);
+    private Logger log = LoggerFactory.getLogger(CurrentOrgHolder.class);
     @Inject
     private CurrentRequestContextHolder crh;
     @Inject

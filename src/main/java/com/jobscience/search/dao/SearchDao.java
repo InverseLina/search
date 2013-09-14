@@ -6,7 +6,9 @@ import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.db.DBHelper;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,7 +27,7 @@ public class SearchDao {
 
     static private String QUERY_COUNT  = "select count (distinct a.id) ";
 
-    private Logger log = Logger.getLogger(SearchDao.class);
+    private Logger log = LoggerFactory.getLogger(SearchDao.class);
     @Inject
     private DBHelper      dbHelper;
 
@@ -106,7 +108,7 @@ public class SearchDao {
         	querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.name offset 0 limit 50");
         }
         if(log.isDebugEnabled()){
-            log.debug(querySql);
+            log.debug(querySql.toString());
         }
         Connection con = dbHelper.getConnection(orgHolder.getOrgName());
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
@@ -650,8 +652,8 @@ public class SearchDao {
         	querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
         }
         if(log.isDebugEnabled()){
-            log.debug(querySql);
-            log.debug(countSql);
+            log.debug(querySql.toString());
+            log.debug(countSql.toString());
         }
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
