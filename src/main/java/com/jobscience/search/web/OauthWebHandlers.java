@@ -1,11 +1,10 @@
 package com.jobscience.search.web;
 
-import java.io.IOException;
 
+import com.britesnow.snow.web.AbortWithHttpRedirectException;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebParam;
-import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.oauth.ForceAuthService;
@@ -16,10 +15,10 @@ public class OauthWebHandlers {
     @Inject
     private ForceAuthService forceAuthService;
 
-    @WebGet("/sf1")
-    public void authorize(RequestContext rc) throws IOException {
+    @WebModelHandler(startsWith="/sf1")
+    public void authorize(RequestContext rc) {
         String url = forceAuthService.getAuthorizationUrl();
-        rc.getRes().sendRedirect(url);
+        throw new AbortWithHttpRedirectException(url);
     }
 
     @WebModelHandler(startsWith = "/forceCallback")
