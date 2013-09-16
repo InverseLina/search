@@ -9,12 +9,15 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.canvas.SignedRequest;
+import com.jobscience.search.dao.UserDao;
 
 @Singleton
 public class CanvasWebHandler {
     @Inject
     @Named("saleforce.apiSecret")
     private String  consumerSecret;
+    @Inject
+    private UserDao userDao;
     
     @WebModelHandler(startsWith = "/sf2")
     public void canvasApp(@WebModel Map m, RequestContext rc,@Named("salesforce.canvasapp.key") String key) {
@@ -24,6 +27,8 @@ public class CanvasWebHandler {
         if (signedRequest != null) {
             String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, consumerSecret);
             m.put("signedRequestJson", signedRequestJson);
+            String ctoken = userDao.checkAndUpdateUser(2, signedRequestJson);
+            rc.setCookie("ctoken", ctoken);
         }
     }
     
