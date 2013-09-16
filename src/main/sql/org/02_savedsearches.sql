@@ -12,8 +12,8 @@ CREATE TABLE savedsearches
   CONSTRAINT unq_name UNIQUE (name)
 );
 
-DROP TABLE if EXISTS user;
-CREATE TABLE user
+DROP TABLE if EXISTS "user";
+CREATE TABLE "user"
 (
   id bigserial NOT NULL,
   sfid character varying(255) NOT NULL,
