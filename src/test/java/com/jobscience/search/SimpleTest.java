@@ -39,10 +39,10 @@ public class SimpleTest extends SnowTestSupport {
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
        Map values = MapUtil.mapIt("search","java");
        values.put("contacts", "[{firstname:'kevin'},{lastname:'cook'}]");
-       values.put("educations", "{values:['education1','education2'],minyears:2}");
-       values.put("skills", "{values:['skill1','skill2'],minyears:2}");
-       values.put("companies", "{values:['employer1','employer2'],minyears:2}");
-       values.put("locations", "{values:['New York','Amherst'],minradius:30}");
+       values.put("educations", "[{name:'education1',minYears:2},{name:'education2'}]");
+       values.put("skills", "[{name:'skill1',minYears:2},{name:'skill2',minYears:0}]");
+       values.put("companies", "[{name:'employer1',minYears:2},{name:'employer2',minYears:0}]");
+       values.put("locations", "[{name:'New York',minRadius:3000000}]");
        SearchResult result = searchDao.search("id,name,title,location",values, 1, 30,"");
        System.out.println("new search result : "+result.getCount());
     }
@@ -53,6 +53,4 @@ public class SimpleTest extends SnowTestSupport {
         String searchTq = Joiner.on(" & ").join(Splitter.on(" ").omitEmptyStrings().split(search));
         System.out.println("-" + searchTq + "-");
     }
-    
-    
 }
