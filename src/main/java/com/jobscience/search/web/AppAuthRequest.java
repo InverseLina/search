@@ -40,7 +40,7 @@ public class AppAuthRequest implements AuthRequest {
         if (path.equals("/")) {
             String ctoken = rc.getCookie("ctoken");
             if (ctoken == null) {
-                ctoken = UserDao.buildCToken(null);
+                ctoken = userDao.buildCToken(null);
                 userDao.insertUser(null,ctoken);
                 rc.setCookie("ctoken", ctoken);
             }
