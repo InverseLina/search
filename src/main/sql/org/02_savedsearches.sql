@@ -16,7 +16,7 @@ DROP TABLE if EXISTS "user";
 CREATE TABLE "user"
 (
   id bigserial NOT NULL,
-  sfid character varying(255) NOT NULL,
+  sfid character varying(255) NULL,
   ctoken character varying(255) NOT NULL,
   CONSTRAINT pk_user PRIMARY KEY (id)
 );

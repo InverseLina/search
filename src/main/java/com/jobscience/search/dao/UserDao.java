@@ -79,7 +79,7 @@ public class UserDao {
         if (sfid != null) {
             return RandomStringUtils.random(32, sfid);
         }else {
-            return RandomStringUtils.random(32);
+            return RandomStringUtils.random(32,"01234567890abcdedfhijklmnopqrst");
         }
 
     }
