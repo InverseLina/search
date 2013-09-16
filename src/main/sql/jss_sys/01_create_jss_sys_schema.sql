@@ -10,10 +10,11 @@ CREATE TABLE org
 
 CREATE TABLE config
 (
-  org_id int not null,
-  name character varying(45) NOT NULL,
-  value character varying(45),
-  CONSTRAINT config_pkey PRIMARY KEY (org_id, name)
+  id serial not null,
+  org_id int,
+  name character varying(255) NOT NULL,
+  value character varying(512),
+  CONSTRAINT config_pkey PRIMARY KEY (id)
 )
 
 
