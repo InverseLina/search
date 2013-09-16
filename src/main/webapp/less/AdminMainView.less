@@ -1,0 +1,54 @@
+// Core variables and mixins
+@import "utils.less";
+
+// --------- AdminHomeView --------- //
+.AdminHomeView{
+  .fitparent();
+  overflow: hidden;
+  min-height: 600px;
+}
+
+.AdminHomeView header .brand img{
+  margin:10px;
+}
+
+.AdminHomeView header .navbar{
+  margin: 0;
+  padding: 0px;
+}
+
+.AdminHomeView header .navbar-inner{
+  border-radius: 0px;
+  background-image: none;
+  background-color: #fff;
+  .box-shadow(~"none");
+  height:60px;
+}
+
+.AdminHomeView header .navbar .brand{
+  padding-left: 10px;
+  color: #f4f4f4;
+  letter-spacing: .1em;
+  text-shadow: none;
+}
+
+.AdminHomeView .sidenav-ctn{
+  position: absolute;
+  top: 61px; left: 0; bottom: 0;
+  width: 250px;
+  background: #e5e5e5;
+  border-right: solid 1px #ccc;  
+  overflow: auto;
+}
+
+.AdminHomeView .contentview-ctn{
+  position: absolute;
+  top: 61px; left: 10px; bottom: 0; right: 0;
+}
+
+.AdminHomeView .admin{
+	float:right;
+	margin: 15px 8px;
+}
+
+// --------- /AdminHomeView --------- //
