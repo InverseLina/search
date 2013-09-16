@@ -1,5 +1,11 @@
 // Core variables and mixins
-@import "mixins.less";
+@import "utils";
+
+
+.border-right-radius(@radius) {
+  border-bottom-right-radius: @radius;
+  border-top-right-radius: @radius;
+}
 
 // --------- Pagination --------- //
 .Pagination{
@@ -13,8 +19,7 @@
 
       }
       li a.next {
-        .border-bottom-right-radius(4px);
-        .border-top-right-radius(4px);
+        .border-right-radius(4px);
       }
     .box-shadow(~"none");
     }

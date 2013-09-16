@@ -1,12 +1,13 @@
 // Core variables and mixins
-@import "lesshat.less";
+@import "utils";
 
 .Slider {
   position: relative;
   display: inline-block;
   margin-left: 15px;
   background: #fafafc; /* for non-css3 browsers */
-  .gradient(~"linear-gradient(90deg, #fafafc 0%, #676767 100%)");
+  #gradient>.vertical(#fafafc, #676767);
+//  .gradient(~"linear-gradient(90deg, #fafafc 0%, #676767 100%)");
   .bar {
     width: 0;
     height: 0;
@@ -29,9 +30,9 @@
     left: -8.5px;
 
     background: #B6B4B4; /* for non-css3 browsers */
-    .gradient(~"linear-gradient(90deg, #fff 0%, #B6B4B4 100%)");
+    #gradient>.vertical(#fff, #B6B4B4);
 
-    border: 2px solid #676767;
-    .border-radius(2px);
+  border: 2px solid #676767;
+    border-radius: 2px
   }
 }
