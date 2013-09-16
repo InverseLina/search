@@ -25,11 +25,11 @@
     <tbody>
       {{#each list}}
       <tr >
-        <td class="name"><span class="edit" data-entity="{{name}}">{{name}}</span>
+        <td class="name"><span class="edit" data-entity="{{id}}"><a href="#org/edit/{{id}}">{{name}}</a></span>
         </td>
         <td>{{schemaname}}</td>
         <td>{{sfid}}</td>
-        <td><i class="f-icon-remove icon-remove del" data-entity="{{name}}"></i></td>
+        <td><i class="f-icon-remove icon-remove del" data-entity="{{id}}"></i></td>
       </tr>
       {{/each}}
     </tbody>    
@@ -41,7 +41,7 @@
 	<div >
       <div >
       <table class="content-table">
-	      <tr><td class="left"><span>name: </span></td><td class="right"><input type="hidden" name="oldname" value="{{data.name}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
+	      <tr><td class="left"><span>name: </span></td><td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
 	      <tr>
 	      <tr><td class="left"><span>schemaname: </span></td><td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="schemaname" /></td><td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
 	      <tr>

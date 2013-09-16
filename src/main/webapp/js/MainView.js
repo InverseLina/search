@@ -1,4 +1,5 @@
 (function($){
+	var defaultPathInfo = {paths:["org"]};
 	
 	var searchDao = app.SearchDaoHandler;
 	brite.registerView("MainView",{parent:"body"},{
@@ -10,18 +11,21 @@
 		 var view = this;
 		 if(data&&data.type=="admin"){
 			 brite.display("Admin");
-		 }else if(data&&data.type=="organization"){
-			 brite.display("Organization");
-	      }else{
+		 }else{
 			 /*brite.display("SideNav",this.$el.find(".sidenav-ctn")).done(function(sideNav){
 					view.sideNav = sideNav;
 			 });*/
+	    	 this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
 			 brite.display("ContentView",this.$el.find(".contentview-ctn")).done(function(contentView){
 			 	 view.contentView = contentView;
 			 });
 		 }
 	 },
-
+	 winEvents: {
+	    	hashchange: function(event){
+	    	  this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
+	    	}
+	    },
 /*     getSearchValues: function(){
          var key, view = this;
          var result = {};
@@ -54,6 +58,9 @@
      },*/
 	 
 	 events: {
+		"PATH_INFO_CHANGE": function(event,pathInfo){
+	    	changeView.call(this,pathInfo);
+	    },
 	 	"click; [data-action='DO_SEARCH']": function(){
 	 		var view = this;
 	 		view.$el.trigger("DO_SEARCH");
@@ -134,6 +141,33 @@
 
     }
 
-
+    // --------- Private Methods --------- //
+    function changeView(pathInfo){
+      pathInfo = pathInfo || defaultPathInfo;
+        var url = window.location.href;
+        if(window.location.href.indexOf("org") > -1){
+          brite.display("Organization");
+        }
+        // change the nav selection
+    }
+    
+    // --------- /Private Methods --------- //  
+    
+    
+    // --------- Utilities --------- //
+    function buildPathInfo(){
+      var pathInfo = $.extend({},defaultPathInfo);
+      var hash = window.location.hash;
+      if (hash){
+        hash = hash.substring(1);
+        if (hash){
+          var pathAndParam = hash.split("!");
+          pathInfo.paths = pathAndParam[0].split("/");
+          // TODO: need to add the params
+        }
+      }
+      app.pathInfo = pathInfo;
+      return pathInfo;    
+    }
 	
 })(jQuery);
