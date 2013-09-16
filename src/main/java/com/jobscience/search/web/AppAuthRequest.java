@@ -7,6 +7,7 @@ import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebModel;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.google.inject.Singleton;
+import com.jobscience.search.dao.UserDao;
 
 import java.util.Map;
 
@@ -31,6 +32,14 @@ public class AppAuthRequest implements AuthRequest {
         if (orgName != null) {
             rc.setCookie("org", orgName);
             m.put("user", user);
+        }
+        String path = rc.getReq().getRequestURI();
+        if (path.equals("/")) {
+            String ctoken = rc.getCookie("ctoken");
+            if (ctoken == null) {
+                ctoken = UserDao.buildCToken(null);
+                rc.setCookie("ctoken", ctoken);
+            }
         }
     }
 
