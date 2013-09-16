@@ -53,7 +53,6 @@ public class UserDao {
        ctoken = buildCToken(sfid);
        List<Map> users = getUserMap(sfid);
        if (users.size() > 0) {
-           Map user = users.get(0);
            updateCToken(sfid, ctoken);
        }else{
            insertUser(sfid, ctoken);
