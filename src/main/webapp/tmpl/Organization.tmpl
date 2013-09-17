@@ -1,5 +1,9 @@
 <script id="Organization" type="text/html">
 <div class="Organization">
+<ul class="nav nav-tabs">
+    <li ><a href="#organization">Organization</a></li>
+    <li ><a href="#administration">Administration</a></li>
+  </ul>
 <h3 class="title">Organization</h3>
   <div class="tab-content">
     
@@ -25,7 +29,7 @@
     <tbody>
       {{#each list}}
       <tr >
-        <td class="name"><span class="edit" data-entity="{{id}}"><a href="#org/edit/{{id}}">{{name}}</a></span>
+        <td class="name"><span class="edit" data-entity="{{id}}"><a href="#organization/edit/{{id}}">{{name}}</a></span>
         </td>
         <td>{{schemaname}}</td>
         <td>{{sfid}}</td>

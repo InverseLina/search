@@ -1,21 +1,25 @@
 (function($){
-  
-  brite.registerView("Organization",{parent:".container",emptyParent:true},{
+	
+  brite.registerView("Organization",{parent:".admincontainer",emptyParent:true},{
     create: function(){
       return render("Organization");
     },
     postDisplay:function(data){
       var view = this;
-      view.$tabContent = view.$el.find(".tab-content");
+      
+      view.section = app.pathInfo.paths[0] || "organization";
+		
+	  view.$navTabs = view.$el.find(".nav-tabs");
+	  view.$tabContent = view.$el.find(".tab-content");
+	  view.$navTabs.find("li.active").removeClass("active");
+	  view.$navTabs.find("a[href='#organization']").closest("li").addClass("active");			
+      
       if(app.pathInfo.paths[1] == "add"){
     	  var html = render("Organization-content",{data:null});
-    	   view.$tabContent.html(html);
+    	  view.$tabContent.html(html);
        }else if(app.pathInfo.paths[1] == "edit"){
-    	   getDate.call(view,app.pathInfo.paths[2] * 1); 
+    	  getDate.call(view,app.pathInfo.paths[2] * 1); 
        }else{
-    	   if(window.location.href.indexOf("admin") > -1){
-    		   window.location.href="/#org";
-    		}
     	  refreshEntityTable.call(view);
        }
     },
@@ -31,12 +35,12 @@
         doValidate.call(view);
         if(view.validation){
             app.getJsonData("/org/save", values,"Post").done(function(data){
-            	window.location.href="/#org";
+            	window.location.href="/admin";
           });
         }
       },
       "btap;.cancel":function(event){
-        window.location.href="/#org";
+        window.location.href="/admin";
       },
       
       "btap;.home":function(event){
@@ -47,7 +51,7 @@
         var view = this;
         var html = render("Organization-content",{data:null});
         view.$tabContent.html(html);
-        window.location.href="/#org/add";
+        window.location.href="admin#organization/add";
       },
       "click; .del": function(event){
         var view = this;
@@ -111,6 +115,4 @@
 			view.validation=true;
 		}
 	  }
-  
- 
 })(jQuery);

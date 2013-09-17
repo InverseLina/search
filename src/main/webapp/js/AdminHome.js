@@ -1,11 +1,15 @@
 (function($){
-	
-	brite.registerView("Admin",{parent:".container",emptyParent:true},{
+	brite.registerView("AdminHome",{parent:".admincontainer",emptyParent:true},{
 		create: function(){
-			return render("Admin");
+			return render("AdminHome");
 		},
 		postDisplay:function(data){
 			var view = this;
+			view.section = app.pathInfo.paths[0] || "administration";
+			view.$navTabs = view.$el.find(".nav-tabs");
+			view.$navTabs.find("li.active").removeClass("active");
+			view.$navTabs.find("a[href='#administration']").closest("li").addClass("active");	
+			
             app.getJsonData("/config/get/").done(function(data){
 				view.$el.trigger("FILLDATA",{data:data});
 			});

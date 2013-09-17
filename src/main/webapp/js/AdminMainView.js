@@ -1,24 +1,25 @@
 (function($){
-	var defaultPathInfo = {paths:["org"]};
 	
-	brite.registerView("AdminMainView",{parent:"body"},{
+	var defaultPathInfo = {paths:["organization"]};
+	
+	brite.registerView("AdminMainView",{parent:".container",emptyParent:true},{
 		create: function(data){
 			return render("AdminMainView");
 	 }, 
 	 
 	 postDisplay: function(data){
-//		 window.location.href="#org";
+		 $(".home").removeClass("hide");
+		 $(".config").addClass("hide");
 		 this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
 	 },
 	 winEvents: {
-	    	hashchange: function(event){
-	    	  this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
-	    	}
-	    },
-	 
+	    hashchange: function(event){
+	     this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
+	    }
+	 },
 	 events: {
 		"PATH_INFO_CHANGE": function(event,pathInfo){
-	    	changeView.call(this,pathInfo);
+	      changeView.call(this,pathInfo);
 	    }
 	 }
 	});
@@ -26,7 +27,9 @@
     function changeView(pathInfo){
       pathInfo = pathInfo || defaultPathInfo;
       var viewName = pathInfo.paths[0];
-        if(viewName == "org"){
+        if(viewName == "administration"){
+          brite.display("AdminHome");
+        }else{
           brite.display("Organization");
         }
         // change the nav selection
