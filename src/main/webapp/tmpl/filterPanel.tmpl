@@ -11,7 +11,7 @@
   </div>
 </script>
 <script id="filterPanel-selectedItem-add" type="text/html">
-    <span class="item" data-name="{{name}}">{{name}}<span class="clear"><i class="glyphicon glyphicon-remove"></i> </span></span>
+    <span class="item" data-name="{{name}}">{{name}}{{#if min}}&nbsp;&nbsp;&nbsp;({{min}}){{/if}}<span class="clear"><i class="glyphicon glyphicon-remove"></i> </span></span>
 </script>
 <script id="filterPanel-autoComplete-list" type="text/html">
 	{{#each results}}

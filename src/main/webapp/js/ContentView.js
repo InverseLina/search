@@ -178,15 +178,17 @@
                 dataName = "contact";
             }
             $th = view.$el.find("table thead th[data-column='{0}']".format(dataName));
-            var data = result[key];
+            var item,  data = result[key];
             if (data && data.length > 0) {
                 $.each(data, function (index, val) {
-                    /* if (dataName == "contact") {
-                     displayName = app.getContactDisplayName(val.value)  ;
-                     } else {
-                     displayName = val;
-                     }*/
-                    $html = $(render("search-items-header-add-item", {name: val.name}));
+                    item = {name: val.name};
+                    val = val.value;
+                    if(val.minYears||val.minRadius){
+                        item.min = val.minYears||val.minRadius;
+                    }
+
+                    $html = $(render("search-items-header-add-item", item));
+
                     $th.find(".addFilter").before($html);
                 });
                 $th.find(".addFilter").hide();
@@ -196,17 +198,26 @@
     },
     docEvents: {
       "ADD_FILTER":function(event, extra){
-          var type, view = this;
+          var type, item, view = this;
 //          console.log(extra);
           if(extra) {
              type = extra.type.substring(0,1).toLocaleLowerCase() + extra.type.substring(1);
           }
           var $th = view.$el.find("th[data-column='" + type + "']");
-          $th.find("span.addFilter").before(render("search-items-header-add-item", {name: extra.name}));
-          var ele = $th.find(".selectedItems span.item[data-name='" + extra.name + "']");
-//          ele.data("value", extra.value);
-//          c
-//          console.log(extra);
+          item = {name: extra.name};
+          if(extra.type != "Contact"){
+              if(extra.type == "location" ){
+                  if(extra.minRadius){
+                    item.min = extra.minRadius;
+                  }
+              }else{
+                  if(extra.minYears){
+                    item.min = extra.minYears;
+                  }
+              }
+          }
+          $th.find("span.addFilter").before(render("search-items-header-add-item", item));
+
 
           var $th = view.$el.find("th[data-column='" + type + "']");
           if($th.find(".selectedItems .item").length > 0) {

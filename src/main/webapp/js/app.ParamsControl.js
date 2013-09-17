@@ -22,30 +22,23 @@ var app = app || {};
             }
 
             for (key in _storeValue) {
-                newKey = key.substring(0,1).toLocaleLowerCase() + key.substring(1);
-                if (newKey == "contact") {
-                    data = searchData["q_contacts"] = []; // = view._searchValues[key];
-
-                } else {
-                    if(newKey == "company"){
-                       data = searchData["q_companies"] = {};
-                    }else{
-                        data = searchData["q_" + newKey + "s"] = {};
-                    }
-
-
-                    if(_storeValue[key].minVal){
-                        if(newKey == "location"){
-                            data.minRadius = _storeValue[key].minVal;
-                        }else{
-                            data.minYears = _storeValue[key].minVal;
-                        }
-                    }
-                    data = data.values = [];
-                }
+                data = [];
                 $.each(_storeValue[key], function(idx, item){
                     data.push(item.value);
                 });
+                if (data.length > 0) {
+                    newKey = key.substring(0, 1).toLocaleLowerCase() + key.substring(1);
+                    if (newKey == "contact") {
+                        searchData["q_contacts"] = data; // = view._searchValues[key];
+
+                    } else {
+                        if (newKey == "company") {
+                            searchData["q_companies"] = data;
+                        } else {
+                            searchData["q_" + newKey + "s"] = data;
+                        }
+                    }
+                }
             }
             result.searchValues = JSON.stringify(searchData);
             result.pageIndex = view.contentView.pageIdx || 1;
@@ -68,10 +61,11 @@ var app = app || {};
            }
             store = _storeValue[data.type];
 //            store[data.name] = data.value;
-            store.push({name: data.name, value: data.value});
-            if(data.minVal){
+            delete data.type;
+            store.push({name: data.name, value: data});
+            /*if(data.minVal){
                 store.minVal = data.minVal;
-            }
+            }*/
         },
         /**
          * remove data format {type:xxx, name: xxx}

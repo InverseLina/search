@@ -1,17 +1,5 @@
 package com.jobscience.search.dao;
 
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DBHelper;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -19,6 +7,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.jobscience.search.CurrentOrgHolder;
+import com.jobscience.search.db.DBHelper;
 
 @Singleton
 public class SearchDao {
@@ -259,180 +261,159 @@ public class SearchDao {
                // add the 'educations' filter, and join Education table
                if (searchValues.get("educations") != null && !"".equals(searchValues.get("educations"))) {
             	   String value = searchValues.get("educations");
-            	   JSONObject jObject = JSONObject.fromObject(value);
-            	   String educationValues = jObject.getString("values");
-            	   String minYears  = null;
-            	   if(jObject.containsKey("minyears")){
-            	      minYears = jObject.getString("minyears");
-            	   }
+            	   JSONArray educationValues = JSONArray.fromObject(value);
             	   if(educationValues!=null){
-            		   educationValues = educationValues.substring(1,educationValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
-                	   if(!educationValues.trim().equals("")){
-	            		   if(advanced){
-		                       if(baseTable.indexOf("ts2__education_history__c") == -1 && joinTables.indexOf("ts2__education_history__c") == -1){
-		                    	   joinTables.append( " inner join   ts2__education_history__c d on " );
-		                           joinTables.append("a.\"sfid\" = d.\"ts2__contact__c\" ");
-		                       }
-		                       conditions.append(getConditionForThirdNames(educationValues,minYears, values, "education"));
-	                	   }else{
-		            		   querySql.append( " inner join (select ed.\"ts2__contact__c\" from  ts2__education_history__c ed where \"ts2__name__c\" in " );
-		            		   querySql.append("("+educationValues+")");
-		            		   if(minYears!=null){
-			                	   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__graduationdate__c\"))>="+minYears);
-			                   }
-			                   querySql.append(" ) ed1 on contact.\"sfid\" = ed1.\"ts2__contact__c\" ");
-	                	   }
-		                   hasCondition = true;
+            		   if(advanced){
+	                       if(baseTable.indexOf("ts2__education_history__c") == -1 && joinTables.indexOf("ts2__education_history__c") == -1){
+	                    	   joinTables.append( " inner join   ts2__education_history__c d on " );
+	                           joinTables.append("a.\"sfid\" = d.\"ts2__contact__c\" ");
+	                       }
+	                       conditions.append(getConditionForThirdNames(educationValues, "education"));
+                	   }else{
+	            		   querySql.append( " inner join (select ed.\"ts2__contact__c\" from  ts2__education_history__c ed where (1!=1 " );
+	            		   for(int i=0,j=educationValues.size();i<j;i++){
+	            			   JSONObject educationValue = JSONObject.fromObject(educationValues.get(i));
+	            			   querySql.append(" OR ( ed.\"ts2__name__c\" = ")
+	            			   		   .append("'"+educationValue.get("name")+"'");
+	            			   if(educationValue.containsKey("minYears")){
+	            				   Integer minYears = educationValue.getInt("minYears");
+	            				   if(!minYears.equals(0)){
+	            					   querySql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__graduationdate__c\"))>="+minYears);
+	            				   }
+	            			   }
+	            			   querySql.append(" ) ");		   
+	            		   }
+		                   querySql.append(") ) ed1 on contact.\"sfid\" = ed1.\"ts2__contact__c\" ");
                 	   }
+	                   hasCondition = true;
             	   }
                }
-            
                // add the 'companies' filter, and join Education table
                if (searchValues.get("companies") != null && !"".equals(searchValues.get("companies"))) {
                    String value = searchValues.get("companies");
-                   JSONObject jObject = JSONObject.fromObject(value);
-            	   String companyValues = jObject.getString("values");
-            	   String minYears  = null;
-            	   if(jObject.containsKey("minyears")){
-            	      minYears = jObject.getString("minyears");
-            	   }
-            	   if (companyValues!=null&&!"Any Company".equals(companyValues)) {
-            		   companyValues = companyValues.substring(1,companyValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
-            		   if(!companyValues.trim().equals("")){
+            	   JSONArray companyValues = JSONArray.fromObject(value);
+            	   if (companyValues!=null){
 	            		   if(advanced){
 		            		   if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
 		                           joinTables.append( " inner join  ts2__employment_history__c c on a.\"sfid\" =c.\"ts2__contact__c\" " );
 		                       }
-		            		   conditions.append(getConditionForThirdNames(companyValues,minYears, values, "company"));
+		            		  conditions.append(getConditionForThirdNames(companyValues, "company"));
 		            	   }else{
-		                	   querySql.append( " join (select em.\"ts2__contact__c\",em.\"ts2__job_title__c\" from  ts2__employment_history__c em where em.\"ts2__name__c\" in " );
-		                	   querySql.append(" ("+companyValues+")");
-		                       	if(minYears!=null){
-		                       		querySql.append(" AND EXTRACT(year from age(em.\"ts2__employment_end_date__c\",em.\"ts2__employment_start_date__c\"))>= "+minYears);
-		                   		}
-		                       	querySql.append(" ) em1 on contact.\"sfid\" = em1.\"ts2__contact__c\"");
-				           }
+		                	   querySql.append( " join (select em.\"ts2__contact__c\",em.\"ts2__job_title__c\" from  ts2__employment_history__c em where (1!=1  " );
+		            		   for(int i=0,j=companyValues.size();i<j;i++){
+		            			   JSONObject educationValue = JSONObject.fromObject(companyValues.get(i));
+		            			   querySql.append(" OR ( em.\"ts2__name__c\" = ")
+		            			   		   .append("'"+educationValue.get("name")+"'");
+		            			   if(educationValue.containsKey("minYears")){
+		            				   Integer minYears = educationValue.getInt("minYears");
+		            				   if(!minYears.equals(0)){
+		            					   querySql.append(" AND EXTRACT(year from age(em.\"ts2__employment_end_date__c\",em.\"ts2__employment_start_date__c\"))>="+minYears);
+		            				   }
+		            			   }
+		            			   querySql.append(" ) ");		   
+		            		   }
+		            			querySql.append(" ) ) em1 on contact.\"sfid\" = em1.\"ts2__contact__c\"");
+		            	   
+		            	   }
 	            		   hasCondition = true;
-            		   }
             	   }
                }
                
                // add the 'skillNames' filter, and join Education table
                if (searchValues.get("skills") != null && !"".equals(searchValues.get("skills"))) {
-                   String value = searchValues.get("skills");
-                   JSONObject jObject = JSONObject.fromObject(value);
-            	   String skillValues = jObject.getString("values");
-            	   String minYears  = null;
-            	   if(jObject.containsKey("minyears")){
-            	      minYears = jObject.getString("minyears");
-            	   }
+            	   String value = searchValues.get("skills");
+            	   JSONArray skillValues = JSONArray.fromObject(value);
             	   if(skillValues!=null){
-                	   skillValues = skillValues.substring(1,skillValues.length()-1).replaceAll("\"", "\'").replaceAll("\\\\\'", "\"");
-                	   if(!skillValues.trim().equals("")){
-	                	   if(advanced){
-		            		   if(baseTable.indexOf("ts2__skill__c") == -1 && joinTables.indexOf("ts2__skill__c") == -1){
-		            			   joinTables.append( " inner join ts2__skill__c b on " );
-	                			   joinTables.append("a.\"sfid\" = b.\"ts2__contact__c\" ");
-		                       }
-		            		   conditions.append(getConditionForThirdNames(skillValues,minYears, values, "skill"));
-		            	   }else{
-	                	   querySql.append( " join (select sk.\"ts2__contact__c\" from  ts2__skill__c sk where sk.\"ts2__skill_name__c\" in " );
-	            		   querySql.append(" ("+skillValues+")");
-	            		   if(minYears!=null){
-	            			   querySql.append(" AND sk.\"ts2__rating__c\" >=  "+minYears);
+                	   if(advanced){
+	            		   if(baseTable.indexOf("ts2__skill__c") == -1 && joinTables.indexOf("ts2__skill__c") == -1){
+	            			   joinTables.append( " inner join ts2__skill__c b on " );
+                			   joinTables.append("a.\"sfid\" = b.\"ts2__contact__c\" ");
+	                       }
+	            		   conditions.append(getConditionForThirdNames(skillValues, "skill"));
+	            	   }else{
+	                	   querySql.append( " join (select sk.\"ts2__contact__c\" from  ts2__skill__c sk where (1!=1  " );
+	            		   for(int i=0,j=skillValues.size();i<j;i++){
+	            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
+	            			   querySql.append(" OR ( sk.\"ts2__skill_name__c\" = ")
+	            			   		   .append("'"+skillValue.get("name")+"'");
+	            			   if(skillValue.containsKey("minYears")){
+	            				   Integer minYears = skillValue.getInt("minYears");
+	            				   if(!minYears.equals(0)){
+	            					   querySql.append(" AND sk.\"ts2__rating__c\" >="+minYears);
+	            				   }
+	            			   }
+	            			   querySql.append(" ) ");		   
 	            		   }
-	                       querySql.append(" ) sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\" ");
-		            	   }
-	                	   hasCondition = true;
-                	   }
+	            		    querySql.append(" )) sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\" ");
+	            	   }
+                	   hasCondition = true;
             	   }
                }
-
                
                boolean hasLocationCondition = false;
                //add the 'radius' filter
                if (searchValues.get("locations") != null && !"".equals(searchValues.get("locations"))) {
                	StringBuilder condition = new StringBuilder();
                	String value = searchValues.get("locations");
-                JSONObject jObject = JSONObject.fromObject(value);
-         	    String locationValues = jObject.getString("values");
-         	    String minRadius  = null;
-        	    if(jObject.containsKey("minradius")){
-        	    	minRadius = jObject.getString("minradius");
-        	    }
+         	    JSONArray locationValues = JSONArray.fromObject(value);
 	         	    if(locationValues!=null){
-		         	    locationValues = locationValues.substring(1,locationValues.length()-1).replaceAll("\"", "'");
-		         	   if(!locationValues.trim().equals("")){
-			         	    if(advanced){
-		                       if(baseTable.indexOf("zipcode_us") == -1 && joinTables.indexOf("zipcode_us") == -1){
-		                    	   joinTables.append("  join jss_sys.zipcode_us z on ");
-		                           joinTables.append("a.\"mailingpostalcode\" =z.\"zip\"");
-		                       }
-		                       
-				               condition.append(" AND zipcode_us.City in ("+locationValues+")");
-		                	   List<Map> zipcodes = getZipCode(condition.toString());
-		                	   if(zipcodes.size()>0){
-		                		   conditions.append(" and (1!=1 ");
-		                		   for(Map m:zipcodes){
-		                			   conditions.append(" or "+tableAliases+".\"mailingpostalcode\" = '")
-		                			   		   .append(m.get("zip"))
-		                					   .append("' ");
-		                		   }
-		                		   conditions.append(" )");
-		                	   }else{
-		                		   conditions.append(" and 1!=1 ");
-		                	   }
-		                     //  conditions.append(getConditionForThirdNames(locationValues,minRadius, values, "location"));
+		         	    if(advanced){
+	                       if(baseTable.indexOf("zipcode_us") == -1 && joinTables.indexOf("zipcode_us") == -1){
+	                    	   joinTables.append("  join jss_sys.zipcode_us z on ");
+	                           joinTables.append("a.\"mailingpostalcode\" =z.\"zip\"");
+	                       }
+	                       
+			               condition.append(" AND zipcode_us.City in ("+locationValues+")");
+	                	   List<Map> zipcodes = getZipCode(condition.toString());
+	                	   if(zipcodes.size()>0){
+	                		   conditions.append(" and (1!=1 ");
+	                		   for(Map m:zipcodes){
+	                			   conditions.append(" or "+tableAliases+".\"mailingpostalcode\" = '")
+	                			   		   .append(m.get("zip"))
+	                					   .append("' ");
+	                		   }
+	                		   conditions.append(" )");
 	                	   }else{
-				         	    if(minRadius==null||"0".equals(minRadius)){
-				                   	//add the 'Zip' filter
-				                	 if(locationValues.length()>0){
-					                	 condition.append(" AND zipcode_us.City in ("+locationValues+")");
-					                	 hasLocationCondition = true;
-				                	 }
-				                   if(hasLocationCondition){
-				                	   List<Map> zipcodes = getZipCode(condition.toString());
-				                	   if(zipcodes.size()>0){
-				                		   conditions.append(" and (1!=1 ");
-				                		   for(Map m:zipcodes){
-				                			   conditions.append(" or "+tableAliases+".\"mailingpostalcode\" = '")
-				                			   		   .append(m.get("zip"))
-				                					   .append("' ");
-				                		   }
-				                		   conditions.append(" )");
-				                	   }else{
-				                		   conditions.append(" and 1!=1 ");
-				                	   }
-				                   }
-				                   hasCondition = hasLocationCondition||hasCondition;
-				               
-				                }else{
-					                if(locationValues.length()>0)
-					                	conditions.append(" AND (1!=1 ");
-					                for(String location:locationValues.split(",")){
-						               if (location != null && !"".equals(location)) {
-						                 String city =location.replaceAll("\'", "").replaceAll("\"", "");
-						                 condition.append(" and zipcode_us.City= '"+city+"'" );
-						                 hasLocationCondition = true;
-						               }
-						               Double[] latLong = getLatLong(condition.toString());
+	                		   conditions.append(" and 1!=1 ");
+	                	   }
+	                     //  conditions.append(getConditionForThirdNames(locationValues,minRadius, values, "location"));
+                	   }else{
+                		   conditions.append(" AND (1!=1 ");
+                		   for(int i=0,j=locationValues.size();i<j;i++){
+	            			   JSONObject locationValue = JSONObject.fromObject(locationValues.get(i));
+	            			   condition.append(" AND zipcode_us.City = '"+locationValue.get("name")+"'");
+	            			   if(locationValue.containsKey("minRadius")){
+	            				   double minRadius = locationValue.getDouble("minRadius");
+	            				   if(minRadius>0){
+	            					   Double[] latLong = getLatLong(condition.toString());
 						               if(latLong[0]==null||latLong[1]==null|| !hasLocationCondition){
 						                 conditions.append(" OR ( 1!=1) ");
 						               }else{
-						     	          double[] latLongAround = getAround(latLong[0], latLong[1], Double.parseDouble(minRadius));
+						     	          double[] latLongAround = getAround(latLong[0], latLong[1],minRadius);
 						     	          conditions.append(" OR (  "+tableAliases+".\"ts2__latitude__c\" >"+latLongAround[0]);
 						     	          conditions.append(" and "+tableAliases+".\"ts2__latitude__c\" <"+latLongAround[2]);
 						     	          conditions.append(" and "+tableAliases+".\"ts2__longitude__c\" >"+latLongAround[1]);
 						     	          conditions.append(" and "+tableAliases+".\"ts2__longitude__c\" <"+latLongAround[3]+")");
 						              }
-						               condition = new StringBuilder();
-					                }
-					                if(locationValues.length()>0)
-					                	conditions.append(" ) ");
-					                   hasCondition = hasLocationCondition;
-					            }
-	                	   }
-		         	   }
+	            				   }else{
+	            					   List<Map> zipcodes = getZipCode(condition.toString());
+		            				   for(Map m:zipcodes){
+			                			   conditions.append(" OR "+tableAliases+".\"mailingpostalcode\" = '")
+			                			   		   .append(m.get("zip"))
+			                					   .append("' ");
+			                		   }
+	            				   }
+	            			   }else{
+	            				   List<Map> zipcodes = getZipCode(condition.toString());
+	            				   for(Map m:zipcodes){
+		                			   conditions.append(" OR "+tableAliases+".\"mailingpostalcode\" = '")
+		                			   		   .append(m.get("zip"))
+		                					   .append("' ");
+		                		   }
+	            			   }
+	            		   }
+                		   conditions.append(")");
+                	   }
         	      }
                } 
            }
@@ -456,6 +437,7 @@ public class SearchDao {
 	           querySql.append(joinTables);
 	           querySql.append("  where 1=1 ");
 	           querySql.append(conditions);
+	           System.out.println(querySql);
     	   }else{
     		   querySql.append(" where 1=1 "+conditions);
     		   values.addAll(subValues);
@@ -940,13 +922,30 @@ public class SearchDao {
 
         return table;
     }
-    private String getConditionForThirdNames(String namesStr,String minYear, List values, String type){
+    private String getConditionForThirdNames(JSONArray values, String type){
         StringBuilder conditions = new StringBuilder();
         String instance = getTableInstance(type);
         String nameExpr = getNameExpr(type);
-        conditions.append("  and ( "+instance+"."+nameExpr+" in (");
-        conditions.append(namesStr);
-        conditions.append(") )");
+        conditions.append(" AND (1!=1 ");
+        for(int i=0,j=values.size();i<j;i++){
+			   JSONObject educationValue = JSONObject.fromObject(values.get(i));
+			   conditions.append(" OR ( "+instance+"."+nameExpr+" = ")
+			   		   .append("'"+educationValue.get("name")+"' ");
+			   if(educationValue.containsKey("minYears")){
+				   Integer minYears = educationValue.getInt("minYears");
+				   if(!minYears.equals(0)){
+					   if(type.equals("education")){
+						   conditions.append(" AND EXTRACT(year from age(now(),"+instance+".\"ts2__graduationdate__c\"))>="+minYears);
+					   }else if(type.equals("company")){
+						   conditions.append(" AND EXTRACT(year from age("+instance+".\"ts2__employment_end_date__c\","+instance+".\"ts2__employment_start_date__c\"))>="+minYears);
+					   }else if(type.equals("skill")){
+						   conditions.append(" AND "+instance+".\"ts2__rating__c\">="+minYears);
+					   }
+				   }
+			   }
+			   conditions.append(" ) ");		   
+		   }
+        conditions.append(" ) "); 
         return conditions.toString();
     }
     private String getTableInstance(String type){
