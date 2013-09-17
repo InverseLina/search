@@ -40,7 +40,7 @@ var app = app || {};
     }
 
     ThPopup.prototype.postDisplay=function(data){
-	  var html, displayName, view = this;
+	  var item, html, displayName, view = this;
       $(document).on("btap."+view.cid, function(event){
           var width = view.$el.find(".popover").width();
           var height = view.$el.find(".popover").height();
@@ -53,7 +53,12 @@ var app = app || {};
       });
       data = (data||{}).data||[];
         $.each(data, function(idx, val){
-           var html = render("filterPanel-selectedItem-add", {name:val.name});
+            item =  {name:val.name};
+            val = val.value;
+            if(val.minYears||val.minRadius){
+                item.min = val.minYears||val.minRadius;
+            }
+           var html = render("filterPanel-selectedItem-add",item);
             view.$el.find("span.add").before(html);
 
         });
