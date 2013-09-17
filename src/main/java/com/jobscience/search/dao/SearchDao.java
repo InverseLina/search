@@ -321,7 +321,7 @@ public class SearchDao {
                
                // add the 'skillNames' filter, and join Education table
                if (searchValues.get("skills") != null && !"".equals(searchValues.get("skills"))) {
-            	   String value = searchValues.get("companies");
+            	   String value = searchValues.get("skills");
             	   JSONArray skillValues = JSONArray.fromObject(value);
             	   if(skillValues!=null){
                 	   if(advanced){
@@ -333,11 +333,11 @@ public class SearchDao {
 	            	   }else{
 	                	   querySql.append( " join (select sk.\"ts2__contact__c\" from  ts2__skill__c sk where (1!=1  " );
 	            		   for(int i=0,j=skillValues.size();i<j;i++){
-	            			   JSONObject educationValue = JSONObject.fromObject(skillValues.get(i));
+	            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
 	            			   querySql.append(" OR ( sk.\"ts2__skill_name__c\" = ")
-	            			   		   .append("'"+educationValue.get("name")+"'");
-	            			   if(educationValue.containsKey("minYears")){
-	            				   Integer minYears = educationValue.getInt("minYears");
+	            			   		   .append("'"+skillValue.get("name")+"'");
+	            			   if(skillValue.containsKey("minYears")){
+	            				   Integer minYears = skillValue.getInt("minYears");
 	            				   if(!minYears.equals(0)){
 	            					   querySql.append(" AND sk.\"ts2__rating__c\" >="+minYears);
 	            				   }
@@ -437,6 +437,7 @@ public class SearchDao {
 	           querySql.append(joinTables);
 	           querySql.append("  where 1=1 ");
 	           querySql.append(conditions);
+	           System.out.println(querySql);
     	   }else{
     		   querySql.append(" where 1=1 "+conditions);
     		   values.addAll(subValues);
@@ -925,24 +926,26 @@ public class SearchDao {
         StringBuilder conditions = new StringBuilder();
         String instance = getTableInstance(type);
         String nameExpr = getNameExpr(type);
+        conditions.append(" AND (1!=1 ");
         for(int i=0,j=values.size();i<j;i++){
 			   JSONObject educationValue = JSONObject.fromObject(values.get(i));
 			   conditions.append(" OR ( "+instance+"."+nameExpr+" = ")
-			   		   .append(educationValue.get("name"));
+			   		   .append("'"+educationValue.get("name")+"' ");
 			   if(educationValue.containsKey("minYears")){
 				   Integer minYears = educationValue.getInt("minYears");
 				   if(!minYears.equals(0)){
 					   if(type.equals("education")){
-						   conditions.append(" AND EXTRACT(year from age(now(),ed.\"ts2__graduationdate__c\"))>="+minYears);
+						   conditions.append(" AND EXTRACT(year from age(now(),"+instance+".\"ts2__graduationdate__c\"))>="+minYears);
 					   }else if(type.equals("company")){
-						   conditions.append(" AND EXTRACT(year from age(em.\"ts2__employment_end_date__c\",em.\"ts2__employment_start_date__c\"))>="+minYears);
+						   conditions.append(" AND EXTRACT(year from age("+instance+".\"ts2__employment_end_date__c\","+instance+".\"ts2__employment_start_date__c\"))>="+minYears);
 					   }else if(type.equals("skill")){
-						   conditions.append(" AND sk.\"ts2__rating__c\">="+minYears);
+						   conditions.append(" AND "+instance+".\"ts2__rating__c\">="+minYears);
 					   }
 				   }
 			   }
 			   conditions.append(" ) ");		   
 		   }
+        conditions.append(" ) "); 
         return conditions.toString();
     }
     private String getTableInstance(String type){
