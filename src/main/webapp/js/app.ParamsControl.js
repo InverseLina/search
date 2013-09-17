@@ -7,7 +7,7 @@ var app = app || {};
     app.ParamsControl = {
         getParamsForSearch: function(){
             var   view = getMainView();
-            console.log(_storeValue);
+//            console.log(_storeValue);
             var obj, key, newKey;
             var data, result = {};
             var searchData = result.searchValues = {};
