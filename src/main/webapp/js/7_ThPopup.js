@@ -74,7 +74,7 @@ var app = app || {};
     	 var listName = (type=="company"?"companies":(type+"s"));
     	 var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
     	 delete params["q_"+listName];
-    	 console.log(params);
+//    	 console.log(params);
     	 searchDao.getGroupValuesForAdvanced({
     		 "searchValues": JSON.stringify(params),
         	 "type":type,
@@ -287,17 +287,20 @@ var app = app || {};
   }
 
   function addItem(data){
-      var item, view = this;
+      var item, minValue, view = this;
       var len = view.$el.find(".selectedItems .item[data-name='" + data + "']").length;
       if (len == 0) {
-          view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data}))
-          var $ele = $(view.$el.find(".selectedItems .item[data-name='" + data + "']")[0]);
-          $ele.data("value", data);
-          item = {type:view.type, name: data, value: data};
-          if(view.slider){
-              item['minVal'] = view.slider.getValue();
-          }
 
+          item = {type:view.type, name: data};
+          if(view.slider && view.slider.getValue() > 0){
+              if(view.type == "location"){
+                 minValue = item['minRadius'] = view.slider.getValue();
+              }else{
+                  minValue = item['minYears'] = view.slider.getValue();
+              }
+
+          }
+          view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data, min: minValue||""}));
           view.$el.trigger("ADD_FILTER", item);
           view.$el.find("input").val("").focus().change();
       }
