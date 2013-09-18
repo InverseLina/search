@@ -24,7 +24,9 @@
       $(window).resize(function() {
         fixColWidth.call(view);
       });
-      view.$el.find(".sf-info").html(app.cookie("org")+":"+app.cookie("userName"));
+      if(app.cookie("userName")){
+    	  view.$el.find(".sf-info").html(app.cookie("org")+":"+app.cookie("userName"));
+      }
     },
     events : {
       "btap; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
