@@ -39,7 +39,7 @@ public class OauthWebHandlers {
         rc.setCookie("userName", info.get("userName").replaceAll("\"", ""));
         rc.setCookie("org", orgName);
         String ctoken = userDao.checkAndUpdateUser(1, token.getId());
-        
+
         OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
         oAuthToken.updateCookie(rc);
     }
