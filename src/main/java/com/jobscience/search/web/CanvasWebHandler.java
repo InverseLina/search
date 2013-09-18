@@ -27,8 +27,7 @@ public class CanvasWebHandler {
         if (signedRequest != null) {
             String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, consumerSecret);
             m.put("signedRequestJson", signedRequestJson);
-            String ctoken = userDao.checkAndUpdateUser(2, signedRequestJson);
-            rc.setCookie("ctoken", ctoken);
+            userDao.checkAndUpdateUser(2, signedRequestJson);
         }
     }
     

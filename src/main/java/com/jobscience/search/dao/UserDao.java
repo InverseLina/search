@@ -18,6 +18,7 @@ public class UserDao {
     @Inject
     private CurrentOrgHolder orgHolder;
 
+
     public static final String selectSql = "select * from \"user\" where sfid = ?";
     public static final String selectByTokenSql = "select * from \"user\" where ctoken = ?";
     public static final String updateSql = "update \"user\" set ctoken = ? where sfid = ?";
@@ -51,12 +52,14 @@ public class UserDao {
            sfid = getSFIDbySF2(content);
        }
        ctoken = buildCToken(sfid);
+       orgHolder.setOrg(ctoken, sfid);
        List<Map> users = getUserMap(sfid);
        if (users.size() > 0) {
            updateCToken(sfid, ctoken);
        }else{
            insertUser(sfid, ctoken);
        }
+
        return ctoken;
    }
 
@@ -64,15 +67,15 @@ public class UserDao {
         String[] parts = id.split("/");
         int len = parts.length;
         if(len > 3) {
-            return parts[len - 2] + "-" + parts[len - 1];
+            return parts[len - 2] ;
         }
         throw new IllegalArgumentException("id " + id + " is invalid");
     }
     public  String getSFIDbySF2(String signedRequest) {
         JSONObject map = (JSONObject) JsonUtil.toMapAndList(signedRequest);
         String orgId = (String) ((Map)((Map)map.get("context")).get("organization")).get("organizationId");
-        String userId = (String) ((Map)((Map)map.get("context")).get("user")).get("userId");
-        return orgId + "-" + userId;
+        //String userId = (String) ((Map)((Map)map.get("context")).get("user")).get("userId");
+        return orgId;
     }
 
     public  String buildCToken(String sfid) {

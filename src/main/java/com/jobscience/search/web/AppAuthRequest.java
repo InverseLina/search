@@ -41,64 +41,14 @@ public class AppAuthRequest implements AuthRequest {
             String ctoken = rc.getCookie("ctoken");
             if (ctoken == null) {
                 ctoken = userDao.buildCToken(null);
-                userDao.insertUser(null,ctoken);
+                try {
+                    userDao.insertUser(null,ctoken);
+                } catch (Exception e) {
+                    //e.printStackTrace();
+                }
                 rc.setCookie("ctoken", ctoken);
             }
         }
     }
 
-/*    @WebModelHandler(startsWith = "/logout")
-    public void logout(@WebModel Map m, @WebUser User user, RequestContext rc) {
-        if (user != null) {
-            //remove cookie
-//            for(Cookie c : rc.getReq().getCookies()){
-//                String userToken = "userToken";
-//                String userId = "userId";
-//                if(userToken.equals(c.getName()) || userId.equals(c.getName())){
-//                    c.setPath("/");
-//                    c.setMaxAge(0);
-//                    rc.getRes().addCookie(c);
-//                }
-//            }
-        }
-    }*/
-
-/*    @WebActionHandler
-    public Object login(@WebParam("userId") Long userId, @WebParam("username") String username,
-                            @WebParam("password") String password, RequestContext rc) {
-        User user = userDao.getUser(username);
-
-        if (user == null) {
-            user = new User();
-            user.setUsername(username);
-            user.setPassword(password);
-            userDao.save(user);
-            return user;
-        } else if (authentication(user, password)) {
-            setUserToSession(rc, user);
-            return user;
-        }
-        return "null";
-    }*/
-
-    // --------- Private Helpers --------- //
-    // store the user in the session. If user == null, then, remove it.
-/*    private void setUserToSession(RequestContext rc, User user) {
-        // TODO: need to implement session less login (to easy loadbalancing)
-        if (user != null) {
-            String userToken = Hashing.sha1().hashString(user.getUsername() + user.getId()).toString();
-            rc.setCookie("userToken", userToken);
-            rc.setCookie("userId", user.getId());
-            //
-        }
-    }
-
-    private boolean authentication(User user, String password) {
-        if (user != null && user.getPassword() != null && user.getPassword().equals(password)) {
-            return true;
-        } else {
-            return false;
-        }
-    }*/
-    // --------- /Private Helpers --------- //
 }
