@@ -53,7 +53,12 @@
             getValue : function(){
                 var view = this;
                 return view.opts.value;
+            },
+            reset: function(){
+                var view = this;
+                setValue.call(view, 0);
             }
+
         });
     /**
      * set position by value

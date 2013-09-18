@@ -303,6 +303,8 @@ var app = app || {};
               }else{
                   minValue = item['minYears'] = view.slider.getValue();
               }
+              console.log("reset");
+              view.slider.reset();
 
           }
           view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data, min: minValue||""}));
