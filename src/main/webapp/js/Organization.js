@@ -25,20 +25,6 @@
     },
     
     events:{
-      "btap;.save":function(event){
-        var view = this;
-        var values = {};
-        values["name"]=view.$el.find("[name='name']").val();
-        values["id"]=view.$el.find("[name='id']").val();
-        values["schemaname"]=view.$el.find("[name='schemaname']").val();
-        values["sfid"]=view.$el.find("[name='sfid']").val();
-        doValidate.call(view);
-        if(view.validation){
-            app.getJsonData("/org/save", values,"Post").done(function(data){
-            	window.location.href="/admin";
-          });
-        }
-      },
       "btap;.cancel":function(event){
         window.location.href="/admin";
       },
@@ -62,7 +48,48 @@
         var view = this;
         var entityInfo = $(event.target);
         getDate.call(view,entityInfo.attr("data-entity"));
-      }
+      },
+      "change;:checkbox,select":function(event){
+			var view = this;
+			var $saveBtn = view.$el.find(".save");
+			$saveBtn.removeClass("disabled");
+		},
+		"btap;.save":function(event){
+			var view = this;
+			var $btn = $(event.target);
+			var values = {};
+	        doValidate.call(view);
+	        if(view.validation){
+	        	values["local_distance"]=view.$el.find("[name='local_distance']").val();
+    			values["local_date"]=view.$el.find("[name='local_date']").val();
+    			values["action_add_to_sourcing"]=view.$el.find("[name='action_add_to_sourcing']").prop("checked");
+    			values["action_favorite"]=view.$el.find("[name='action_favorite']").prop("checked");
+	        	app.getJsonData("/config/save", values,"Post").done(function(data){
+	        		values = {};
+	        		values["name"]=view.$el.find("[name='name']").val();
+			        values["id"]=view.$el.find("[name='id']").val();
+			        values["schemaname"]=view.$el.find("[name='schemaname']").val();
+			        values["sfid"]=view.$el.find("[name='sfid']").val();
+	        		app.getJsonData("/org/save", values,"Post").done(function(data){
+		            	window.location.href="/admin";	
+		          });
+  				});
+	        }
+		},
+		"FILLDATA":function(event,result){
+			var view = this;
+			var currentField;
+			$.each(result.data,function(index,e){
+				currentField = view.$el.find("[name='"+e.name+"']");
+				if(currentField.length>0){
+					if(currentField.get(0).tagName=='INPUT'){
+						currentField.prop("checked",e.value=='true');
+					}else{
+						currentField.val(e.value);
+					}
+				}
+			});
+		}
     }
   });
   
@@ -90,6 +117,10 @@
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
     });
+    
+    app.getJsonData("/config/get/").done(function(data){
+		view.$el.trigger("FILLDATA",{data:data});
+	});
   }
   
   function doValidate(){
