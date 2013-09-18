@@ -69,7 +69,7 @@ public class ConfigManager {
 
     }
 
-    private List checkSaleforceInfo(List<Map> list) {
+    public List checkSaleforceInfo(List<Map> list) {
         if (list.size() > 0) {
             boolean isCanvasappKey = false;
             boolean isApiKey = false;
