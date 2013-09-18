@@ -31,6 +31,7 @@ public class SalesForceService {
         oauth.addHeader("X-PrettyPrint", "1");
         Map info = JsonUtil.toMapAndList(oauth.send().getBody());
         result.put("userName", (String) info.get("display_name"));
+        result.put("user_id", (String) info.get("user_id"));
         
         oauth = new OAuthRequest(Verb.GET,SF_QUERY_URL);
         oauth.addHeader("Authorization", "Bearer "+token);

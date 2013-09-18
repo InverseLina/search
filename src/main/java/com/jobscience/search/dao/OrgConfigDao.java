@@ -22,11 +22,12 @@ public class OrgConfigDao {
   public void saveOrUpdateEntity(Map<String,String> params) throws SQLException{
     Connection con = dbHelper.getConnection(dm.getSysDataSource());
     String sql = "";
-    if(params.size() > 0 && !"".equals(params.get("id"))){
+    if(params.size() > 0 && !"".equals(params.get("id"))&&params.get("id")!=null){
         sql = "update org set name = '"+params.get("name")+"',schemaname = '"+params.get("schemaname")+"',sfid='"+params.get("sfid")+"'  where id = "+params.get("id");
     }else{
         sql = " insert into org(name,schemaname,sfid) values ('"+params.get("name")+"','"+params.get("schemaname")+"','"+params.get("sfid")+"')";
     }
+    System.out.println(sql);
     PreparedStatement statement = con.prepareStatement(sql);
     statement.executeUpdate();
     statement.close();
@@ -45,6 +46,11 @@ public class OrgConfigDao {
     String sql = "select * from org where id="+id;
     return dbHelper.executeQuery(dm.getSysDataSource(), sql);
   }
+  
+  public List<Map> getOrgByName(String name){
+	    String sql = "select * from org where name='"+name+"'";
+	    return dbHelper.executeQuery(dm.getSysDataSource(), sql);
+ }
   
   public List getEntityList(String keyWords){
         String sql = "select * from org";
