@@ -12,14 +12,18 @@
 	  view.$navTabs = view.$el.find(".nav-tabs");
 	  view.$tabContent = view.$el.find(".tab-content");
 	  view.$navTabs.find("li.active").removeClass("active");
-	  view.$navTabs.find("a[href='#organization']").closest("li").addClass("active");			
       
       if(app.pathInfo.paths[1] == "add"){
+    	  var li = render("Organization-li",{type:"Add Organization",url:"#organization/add"});
+    	  view.$navTabs.append(li);	
     	  var html = render("Organization-content",{data:null});
     	  view.$tabContent.html(html);
        }else if(app.pathInfo.paths[1] == "edit"){
+    	  var li = render("Organization-li",{type:"Edit Organization",url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
+     	  view.$navTabs.append(li);	
     	  getDate.call(view,app.pathInfo.paths[2] * 1); 
        }else{
+    	  view.$navTabs.find("a[href='#organization']").closest("li").addClass("active");	
     	  refreshEntityTable.call(view);
        }
     },
