@@ -36,7 +36,7 @@ public class ConfigWebHandlers {
         params.put("action_favorite", favorite);
         params.put("config_canvasapp_key", canvasappKey);
         params.put("config_apiKey", apiKey);
-        params.put("config_apiSecret", apiSecret);
+        params.put("config_apiSecret", apiKey);
         params.put("config_callBackUrl", callBackUrl);
         
         configManager.saveOrUpdateConfig(params);
