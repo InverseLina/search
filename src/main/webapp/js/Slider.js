@@ -12,7 +12,7 @@
                 data = data || {};
 
                 // options, property for component
-                 this.opts = $.extend({}, {min:0,max:100,value:0}, data);
+                 this.opts = $.extend({}, {min:0,max:20,value:0}, data);
                 return render("Slider");
             },
 
