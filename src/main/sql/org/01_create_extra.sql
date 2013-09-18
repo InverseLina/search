@@ -7,18 +7,11 @@ CREATE TABLE contact_ex
   resume_tsv tsvector,
   CONSTRAINT contact_ex_pKey PRIMARY KEY (id )
 );
+
 ALTER TABLE contact_ex
   ADD CONSTRAINT fk_contact_ex_contact
     FOREIGN KEY (id)  REFERENCES  contact(id) ON DELETE cascade;
     
-    
-CREATE INDEX contact_ex_idx_resume_gin
-  ON contact_ex
-  USING gin
-  (resume_tsv);
-  
-INSERT INTO contact_ex(id,resume_tsv) select id, to_tsvector('english', "ts2__text_resume__c" ) from contact;
-
 
 CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
 BEGIN
@@ -40,8 +33,26 @@ CREATE TRIGGER contact_trg_resume_tsv
   EXECUTE PROCEDURE update_context_ex_resume();
   
   
-CREATE INDEX contact_Title_trgm_gin ON contact USING gin ("title" gin_trgm_ops);
-CREATE INDEX contact_Name_trgm_gin ON contact USING gin ("name" gin_trgm_ops);
-CREATE INDEX contact_FirstName_trgm_gin ON contact USING gin ("firstname" gin_trgm_ops);
-CREATE INDEX contact_LastName_trgm_gin ON contact USING gin ("lastname" gin_trgm_ops);
+DROP TABLE if EXISTS savedsearches;
+
+CREATE TABLE savedsearches
+(
+  id bigserial NOT NULL,
+  user_id bigint,
+  name character varying(64) NOT NULL,
+  create_date timestamp ,
+  update_date timestamp,
+  search character varying(255) NOT NULL,
+  CONSTRAINT pk_savedsearched PRIMARY KEY (id),
+  CONSTRAINT unq_name UNIQUE (name)
+);
+
+DROP TABLE if EXISTS "user";
+CREATE TABLE "user"
+(
+  id bigserial NOT NULL,
+  sfid character varying(255) NULL,
+  ctoken character varying(255) NOT NULL,
+  CONSTRAINT pk_user PRIMARY KEY (id)
+);
 
