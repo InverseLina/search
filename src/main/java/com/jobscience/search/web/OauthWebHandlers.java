@@ -1,6 +1,7 @@
 package com.jobscience.search.web;
 
 
+
 import java.util.Map;
 
 import com.britesnow.snow.web.AbortWithHttpRedirectException;
@@ -9,6 +10,7 @@ import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.dao.UserDao;
 import com.jobscience.search.oauth.ForceAuthService;
 import com.jobscience.search.oauth.SalesForceService;
@@ -24,6 +26,8 @@ public class OauthWebHandlers {
     private SalesForceService salesForceService;
     @Inject
     private UserDao userDao;
+    @Inject
+    private OrgConfigDao orgConfigDao;
 
     @WebModelHandler(startsWith="/sf1")
     public void authorize(RequestContext rc) {
@@ -38,8 +42,17 @@ public class OauthWebHandlers {
         String orgName = info.get("orgName").replaceAll("\"", "");
         rc.setCookie("userName", info.get("userName").replaceAll("\"", ""));
         rc.setCookie("org", orgName);
-        String ctoken = userDao.checkAndUpdateUser(1, token.getId());
-
+       /* Map<String,String> params = new HashMap<String, String>();
+        params.put("name", orgName);
+        params.put("schemaname", orgName);
+        params.put("sfid", info.get("user_id").replaceAll("\"", ""));
+        List<Map> orgs=orgConfigDao.getOrgByName(orgName);
+        if(orgs!=null&&orgs.size()==1){
+        	params.put("id", orgs.get(0).get("id").toString());
+        }
+        orgConfigDao.saveOrUpdateEntity(params);*/
+        userDao.checkAndUpdateUser(1, token.getId());
+        //rc.setCookie("ctoken", ctoken);
         OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
         oAuthToken.updateCookie(rc);
     }

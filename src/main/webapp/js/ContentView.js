@@ -25,7 +25,13 @@
         fixColWidth.call(view);
       });
       if(app.cookie("userName")){
-    	  view.$el.find(".sf-info").html(app.cookie("org")+":"+app.cookie("userName"));
+          var userName = app.cookie("userName");
+          if(userName) {
+              userName = ":"+ userName
+          }else{
+              userName="";
+          }
+    	  view.$el.find(".sf-info").html((app.cookie("org")||" ")+userName.replace(/"/g,""));
       }
     },
     events : {
