@@ -64,12 +64,17 @@
     			values["local_date"]=view.$el.find("[name='local_date']").val();
     			values["action_add_to_sourcing"]=view.$el.find("[name='action_add_to_sourcing']").prop("checked");
     			values["action_favorite"]=view.$el.find("[name='action_favorite']").prop("checked");
+    			values["config_canvasapp_key"]=view.$el.find("[name='config_canvasapp_key']").val();
+		        values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
+		        values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
+		        values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
 	        	app.getJsonData("/config/save", values,"Post").done(function(data){
 	        		values = {};
 	        		values["name"]=view.$el.find("[name='name']").val();
 			        values["id"]=view.$el.find("[name='id']").val();
 			        values["schemaname"]=view.$el.find("[name='schemaname']").val();
 			        values["sfid"]=view.$el.find("[name='sfid']").val();
+			        
 	        		app.getJsonData("/org/save", values,"Post").done(function(data){
 		            	window.location.href="/admin";	
 		          });
@@ -82,7 +87,7 @@
 			$.each(result.data,function(index,e){
 				currentField = view.$el.find("[name='"+e.name+"']");
 				if(currentField.length>0){
-					if(currentField.get(0).tagName=='INPUT'){
+					if(currentField.attr("type") == 'checkbox'){
 						currentField.prop("checked",e.value=='true');
 					}else{
 						currentField.val(e.value);
@@ -116,11 +121,10 @@
         var html = render("Organization-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
+        app.getJsonData("/config/get/").done(function(data){
+    		view.$el.trigger("FILLDATA",{data:data});
+    	});
     });
-    
-    app.getJsonData("/config/get/").done(function(data){
-		view.$el.trigger("FILLDATA",{data:data});
-	});
   }
   
   function doValidate(){

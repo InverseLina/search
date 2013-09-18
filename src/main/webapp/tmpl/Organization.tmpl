@@ -41,7 +41,6 @@
 </script>
 
 <script id="Organization-content" type="text/html">
-	<div >
       <div >
       <table class="content-table">
 	      <tr><td class="left"><span>name: </span></td><td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
@@ -92,14 +91,45 @@
 	  			<span>"Save As Favorites"(Not implement yet.)</span>
 	  		</label>
   		</div>
-        <div class="alert alert-block alert-danger fade in " style="display:none">
-            <strong>NO_ORG:</strong> No organization selected, please, authenticate via SalesForce.com
-        </div>
+  	</div>
+  	
+  	<div class="locals">
+  		<div class="header">
+	  		<span>Configs</span>
+	  		<div class="line"></div>
+  		</div>
+  		<div class="setting form-inline">
+  			<span class="subTitle">Canvasapp Key:</span>
+	  		<label>
+	  			<input type="text" name="config_canvasapp_key" class="text"/>
+	  		</label>
+  		</div>
+  		<div class="clear"></div>
+  		<div class="setting form-inline">
+  		<span class="subTitle">ApiKey:</span>
+	  		<label>
+	  			<input type="text" name="config_apiKey" class="text"/>
+	  		</label>
+  		</div>
+  		<div class="clear"></div>
+  		<div class="setting form-inline">
+  		<span class="subTitle">ApiSecret:</span>
+	  		<label>
+	  			<input type="text" name="config_apiSecret" class="text"/>
+	  		</label>
+  		</div>
+  		<div class="clear"></div>
+  		<div class="setting form-inline">
+  		<span class="subTitle">CallBackUrl:</span>
+	  		<label>
+	  			<input type="text" name="config_callBackUrl" class="text"/>
+	  		</label>
+  		</div>
+  		<div class="clear"></div>
   	</div>
   	
   	<div class="btns">
   		<button class="btn btn-primary save">Save</button>
   		<button class="btn cancel">Cancel</button>
   	</div>
-  </div>
 </script>
