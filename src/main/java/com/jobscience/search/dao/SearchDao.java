@@ -362,8 +362,21 @@ public class SearchDao {
 	                    	   joinTables.append("  join jss_sys.zipcode_us z on ");
 	                           joinTables.append("a.\"mailingpostalcode\" =z.\"zip\"");
 	                       }
-	                       
-			               condition.append(" AND zipcode_us.City in ("+locationValues+")");
+                            StringBuilder inBuilder = new StringBuilder();
+                            int count = 0;
+                            JSONObject ol;
+                            for (Object location : locationValues) {
+                                ol = (JSONObject) location;
+                                String name = (String) ol.get("name");
+                                if(count == 0){
+                                    count++;
+                                }else {
+                                    inBuilder.append(",");
+                                }
+                                inBuilder.append("\'").append(name).append("\'");
+                            }
+
+                            condition.append(" AND zipcode_us.City in ("+inBuilder.toString()+")");
 	                	   List<Map> zipcodes = getZipCode(condition.toString());
 	                	   if(zipcodes.size()>0){
 	                		   conditions.append(" and (1!=1 ");
