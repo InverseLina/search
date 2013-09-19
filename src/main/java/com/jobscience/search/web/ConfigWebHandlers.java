@@ -15,12 +15,16 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.dao.ConfigManager;
+import com.jobscience.search.oauth.ForceAuthService;
 
 @Singleton
 public class ConfigWebHandlers {
 
     @Inject
     private ConfigManager configManager;
+
+    @Inject
+    private ForceAuthService forceAuthService;
 
     @WebPost("/config/save")
     public WebResponse saveConfig(@WebParam("local_distance") String distance, @WebParam("local_date") String date,
@@ -40,6 +44,7 @@ public class ConfigWebHandlers {
         params.put("config_callBackUrl", callBackUrl);
         
         configManager.saveOrUpdateConfig(params);
+        forceAuthService.reloadService();
         return WebResponse.success();
     }
 

@@ -10,10 +10,12 @@ import static org.scribe.model.OAuthConstants.EMPTY_TOKEN;
 
 @Singleton
 public class ForceAuthService {
+    private final OAuthHelper helper;
     private OAuthService oAuthService;
 
     @Inject
     public ForceAuthService(OAuthHelper helper) {
+        this.helper = helper;
         oAuthService = helper.getService();
     }
 
@@ -25,5 +27,9 @@ public class ForceAuthService {
         Verifier verifier = new Verifier(code);
         Token accessToken = oAuthService.getAccessToken(EMPTY_TOKEN, verifier);
         return accessToken;
+    }
+
+    public void reloadService(){
+        oAuthService = helper.getService();
     }
 }
