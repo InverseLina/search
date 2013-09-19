@@ -90,6 +90,27 @@
           </execution>
           <!-- /jCruncher -->
           
+          <!-- Copy to SQL scripts -->
+          <execution>
+            <id>copy-sql-scripts</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <mkdir dir="src/main/webapp/WEB-INF/sql" />
+                <delete includeemptydirs="true">
+                  <fileset dir="src/main/webapp/WEB-INF/sql" includes="**/*"/>
+                </delete>
+                <copy todir="src/main/webapp/WEB-INF/sql">
+                  <fileset dir="src/main/sql"/>
+                </copy>
+              </tasks>
+            </configuration>
+          </execution>          
+          <!-- /Copy to scripts -->
+          
           <!-- Copy to War -->
           <execution>
             <id>copy-to-war</id>

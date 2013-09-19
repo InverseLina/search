@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 public class DataSourceManager {
+    private DataSource defaultDs;
     private DataSource sysDs;
     private Map<String, DataSource> dsMap = new ConcurrentHashMap<String, DataSource>();
     private String url;
@@ -33,6 +34,7 @@ public class DataSourceManager {
                      @Named("jss.org_db.user") String user,
                      @Named("jss.org_db.pwd") String pwd) {
         sysDs = buildDs(url, sysUser, sysPwd, sysSchema);
+        defaultDs = buildDs(url, sysUser, sysPwd,null);
         this.url = url;
         this.orgUser = user;
         this.orgPwd = pwd;
@@ -55,6 +57,10 @@ public class DataSourceManager {
         return ds;
     }
 
+    public Connection getDefaultConnection() throws SQLException {
+        return defaultDs.getConnection();
+    }
+
     private DataSource buildDs(String url, String user, String pwd, String schema) {
         ComboPooledDataSource ds = new ComboPooledDataSource();
         ds.setJdbcUrl(url);
@@ -62,8 +68,12 @@ public class DataSourceManager {
         ds.setPassword(pwd);
         ds.setUnreturnedConnectionTimeout(0);
         //System.out.println("buildDS: " + url + " " + user + "/" + pwd + " schema: " + schema);
+        if(schema == null || "".equals(schema)){
+            return ds;
+        }
         return new DataSourceWrapper(ds, schema);
     }
+
 
 }
 
