@@ -292,24 +292,38 @@ var app = app || {};
   }
 
   function addItem(data){
-      var item, minValue, view = this;
-      var len = view.$el.find(".selectedItems .item[data-name='" + data + "']").length;
+      var item, minValue=0, view = this;
+      var $dataItem = view.$el.find(".selectedItems .item[data-name='" + data + "']");
+      var len = $dataItem.length;
+      if(view.slider) {
+          minValue = view.slider.getValue();
+      }
       if (len == 0) {
-
           item = {type:view.type, name: data};
-          if(view.slider && view.slider.getValue() > 0){
+          if(minValue > 0){
               if(view.type == "location"){
-                 minValue = item['minRadius'] = view.slider.getValue();
+                  item['minRadius'] = minValue;
               }else{
-                  minValue = item['minYears'] = view.slider.getValue();
+                  item['minYears'] = minValue;
               }
-              console.log("reset");
               view.slider.reset();
-
           }
           view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data, min: minValue||""}));
           view.$el.trigger("ADD_FILTER", item);
           view.$el.find("input").val("").focus().change();
+      }else{
+          var obj = app.ParamsControl.get(view.type, data);
+          var oldMinValue = obj.value.minRadius||obj.value.minYears||0;
+          if(oldMinValue != minValue) {
+              if(view.type == "location"){
+                  obj.value['minRadius'] = minValue;
+              }else{
+                  obj.value['minYears'] = minValue;
+              }
+              var html =  render("filterPanel-selectedItem-add", {name: data, min: minValue>0?minValue:""});
+              $dataItem.html($(html).html());
+              view.$el.trigger("UPDATE_FILTER");
+          }
       }
   }
   

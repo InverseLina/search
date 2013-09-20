@@ -267,7 +267,8 @@
 
       },
       UPDATE_FILTER: function(event, extra){
-
+          var view = this;
+          view.$el.trigger("DO_SEARCH");
       },
       ON_ERROR:function(event, extra) {
           var view = this;
