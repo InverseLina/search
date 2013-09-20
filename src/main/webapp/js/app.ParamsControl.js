@@ -7,7 +7,6 @@ var app = app || {};
     app.ParamsControl = {
         getParamsForSearch: function(){
             var   view = getMainView();
-//            console.log(_storeValue);
             var obj, key, newKey;
             var data, result = {};
             var searchData = result.searchValues = {};
@@ -22,21 +21,20 @@ var app = app || {};
             }
 
             for (key in _storeValue) {
+                newKey = key.substring(0, 1).toLocaleLowerCase() + key.substring(1);
                 data = [];
                 $.each(_storeValue[key], function(idx, item){
-                    data.push(item.value);
+                    if (newKey == "contact") {
+                       data.push(item.value.value);
+                    }else{
+                        data.push(item.value);
+                    }
                 });
                 if (data.length > 0) {
-                    newKey = key.substring(0, 1).toLocaleLowerCase() + key.substring(1);
-                    if (newKey == "contact") {
-                        searchData["q_contacts"] = data; // = view._searchValues[key];
-
+                    if (newKey == "company") {
+                        searchData["q_companies"] = data;
                     } else {
-                        if (newKey == "company") {
-                            searchData["q_companies"] = data;
-                        } else {
-                            searchData["q_" + newKey + "s"] = data;
-                        }
+                        searchData["q_" + newKey + "s"] = data;
                     }
                 }
             }
