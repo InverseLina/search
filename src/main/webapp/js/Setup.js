@@ -15,31 +15,10 @@
     },
     
     events:{
-      "btap;.cancel":function(event){
-        window.location.href="/admin";
-      },
-      
       "btap;.home":function(event){
         window.location.href="/";
         }
     }
   });
-  
-  
-  function refreshEntityTable(){
-    var view = this;
-    app.getJsonData("/org/list").done(function(data){
-        var html = render("Organization-list",{list:data});
-        view.$tabContent.bEmpty();
-        view.$tabContent.html(html);
-    });
-  }
-  
-  function doDelete(id){
-    var view = this;
-      app.getJsonData("/org/del/",{id:id},"Post").done(function(data){
-      refreshEntityTable.call(view);
-    });
-  }
   
 })(jQuery);
