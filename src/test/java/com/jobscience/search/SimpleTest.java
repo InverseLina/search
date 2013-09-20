@@ -1,5 +1,6 @@
 package com.jobscience.search;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import com.britesnow.snow.testsupport.SnowTestSupport;
 import com.britesnow.snow.util.MapUtil;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
 
@@ -47,6 +49,11 @@ public class SimpleTest extends SnowTestSupport {
        System.out.println("new search result : "+result.getCount());
     }
     
+    @Test
+    public void updateZipcode() throws IOException{
+    	 DBSetupManager setupManager = appInjector.getInstance(DBSetupManager.class);
+    	 setupManager.updateZipCode();
+    }
     @Test
     public void stringTest(){
         String search = "Hello ";
