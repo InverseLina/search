@@ -26,16 +26,13 @@
         	var $span = $(event.target);
 //        	var value = $("[data-column='contact']").find("[data-name='"+$span.attr("data-name")+"']").data("value");
             var dataName = $span.attr("data-name");
-            var contacts =  app.ParamsControl.getFilterParams()["Contact"]||[];
-            $.each(contacts, function(idx, contact){
-                if(contact.name == dataName){
-                    var value = contact.value;
-                    view.$el.find(":input[name='FirstName']").val(value.firstName);
-                    view.$el.find(":input[name='LastName']").val(value.lastName);
-                    view.$el.find(":input[name='Email']").val(value.email);
-                    view.$el.find(":input[name='Title']").val(value.title);
-                }
-            });
+            var contact =  app.ParamsControl.get("Contact", dataName);
+
+            var value = contact.value.value;
+            view.$el.find(":input[name='FirstName']").val(value.firstName||"");
+            view.$el.find(":input[name='LastName']").val(value.lastName||"");
+            view.$el.find(":input[name='Email']").val(value.email||"");
+            view.$el.find(":input[name='Title']").val(value.title||"");
 
         },
         "btap; .content .contactRow i.clear": function (event) {
@@ -68,12 +65,27 @@
     });
 
     function addItem(){
-        var view = this, ele;
+        var $item, view = this, ele;
         var data = {};
-        data.firstName = view.$el.find(":input[name='FirstName']").val();
-        data.lastName = view.$el.find(":input[name='LastName']").val();
-        data.email = view.$el.find(":input[name='Email']").val();
-        data.title = view.$el.find(":input[name='Title']").val();
+        $item = view.$el.find(":input[name='FirstName']");
+        if(!/^\s*$/g.test($item.val())){
+            data.firstName = $item.val();
+        }
+        $item = view.$el.find(":input[name='LastName']");
+        if(!/^\s*$/g.test($item.val())){
+            data.lastName = $item.val();
+        }
+
+        $item = view.$el.find(":input[name='Email']");
+        if(!/^\s*$/g.test($item.val())){
+            data.email = $item.val();
+        }
+
+        $item = view.$el.find(":input[name='Title']");
+        if(!/^\s*$/g.test($item.val())){
+            data.title = $item.val();
+        }
+
         var displayName = app.getContactDisplayName(data);
         if(/^\s*$/g.test(displayName)){
             return;

@@ -57,11 +57,10 @@ app.defaultMenuSize = 5;
     app.getContactDisplayName = function(contact){
 
         contact = contact||{};
-        var regex = /^\s*$/g;
         var displayName = "";
         for (var i = 0; i < fields.length; i++) {
             var field = fields[i];
-            displayName +=" " + contact[field]||"";
+            displayName +=" " + (contact[field]||"");
         }
         displayName = $.trim(displayName.replace(/\s+/, " "));
         return displayName;
