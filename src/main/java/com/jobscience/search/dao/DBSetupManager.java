@@ -38,6 +38,9 @@ public class DBSetupManager {
     @Named("zipcode.path")
     @Inject
     private String zipcodePath;
+    @Named("org.path")
+    @Inject
+    private String orgPath;
     @Inject
     private DataSourceManager dsMng;
     
@@ -127,6 +130,48 @@ public class DBSetupManager {
 		}
     }
     
+    public void importOrgData(){
+    	try{
+			URL url = new URL(orgPath);
+			HttpURLConnection con =  (HttpURLConnection) url.openConnection();
+			ZipInputStream in = new ZipInputStream(con.getInputStream());
+			System.out.println(in.available());
+			in.getNextEntry();
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String line = br.readLine();
+			StringBuilder sqlContent = new StringBuilder();
+			List<String> sqlList = new ArrayList<String>();
+			while(line!=null){
+				sqlContent.append(line);
+				line = br.readLine();
+			}
+			 String sqls[] = sqlContent.toString().split(";");
+            for (String sql : sqls) {
+                sqlList.add(sql);
+            }
+            Connection conn = dbHelper.getConnection();
+            try {
+                conn.setAutoCommit(false);
+                Statement st = conn.createStatement();
+                for(String sql : sqlList){
+                    st.addBatch(sql);
+                }
+                st.executeBatch();
+                conn.commit();
+            } catch (SQLException e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+                e.printStackTrace();
+            }
+			in.close();
+    	}catch (IOException e) {
+			e.printStackTrace();
+		}
+    
+    }
     private String getRootSqlFolderPath(){
         StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
         path.append("/WEB-INF/sql");
