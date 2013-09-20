@@ -4,7 +4,6 @@
             <li ><a href="#setup">Setup</a></li>
             <li ><a href="#organization">Organizations</a></li>
         </ul>
-        <h3 class="title">OrganizationInfo</h3>
         <div class="tab-content">
 
         </div>
@@ -12,16 +11,32 @@
 </script>
 
 <script id="Organization-content" type="text/html">
+	<h3 class="title">OrganizationInfo</h3>
     <div class="Organization-content">
         <table class="content-table">
             <tr><td class="left"><span>name: </span></td><td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
-            <tr>
+            </tr>
             <tr><td class="left"><span>schemaname: </span></td><td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="schemaname" /></td><td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
-            <tr>
+            </tr>
             <tr><td class="left"><span>sfid: </span></td><td class="right"><input type="text" name="sfid" value="{{data.sfid}}" class="text" placeholder="sfid" /></td><td><div class="alert alert-error hide msg sfid">Please Add some approvers.</div></td>
-            <tr>
+            </tr>
         </table>
     </div>
+    
+    <h3 class="title">Setup</h3>
+    <div class="Setup-content">
+        <table class="content-table">
+            <tr><td class="left"><span>Import base data and tables: </span></td><td class="right"><button class="btn btn-primary save">Import</button></td>
+            </tr>
+            <tr><td class="left"><span>Create extra tables: </span></td><td class="right"><button class="btn btn-primary save">Create</button></td>
+            </tr>
+            <tr><td class="left"><span>Create Index Columns: </span></td><td class="right"><button class="btn btn-primary save">Create</button></td>
+            </tr>
+            <tr><td class="left"><span>Create Index Resume: </span></td><td class="right"><button class="btn btn-primary save">Create</button></td>
+            </tr>
+         </table>
+     </div>
+    
     <div class="AdminHome">
         <h3 class="title">Administration</h3>
         <div class="locals">
@@ -30,19 +45,26 @@
                 <div class="line"></div>
             </div>
             <div class="setting form-inline">
-                <span>Distance in:</span>
-                <select name="local_distance">
-                    <option value="k">Kilometers</option>
-                    <option value="m">Meters</option>
-                </select>
+              <table class="content-table">
+                <tr><td class="left"><span>Distance in: </span></td><td class="right"><select name="local_distance">
+                     <option value="k">Kilometers</option>
+                     <option value="m">Meters</option>
+                </select></td>
+                </tr>
+            </table>
             </div>
             <div class="setting form-inline">
                 <span>Date format:</span>
-                <select name="local_date">
-                    <option>YYYY-MM-DD</option>
-                    <option>MM/DD/YYYY</option>
-                    <option>YYYYMMDD</option>
-                </select>
+            <table class="content-table">
+           <tr>
+                <td class="left"><span>Date format: </span></td>
+                <td class="right"><select name="local_date">
+                     <option>YYYY-MM-DD</option>
+                     <option>MM/DD/YYYY</option>
+                     <option>YYYYMMDD</option>
+                  </select></td>
+           </tr>     
+          </table>
             </div>
         </div>
 
@@ -52,15 +74,20 @@
                 <div class="line"></div>
             </div>
             <span class="subTitle">Show Actions:</span>
-            <div class="setting">
-                <label>
+            <div class="setting form-inline">
+            <table class="content-table">
+           <tr>
+                <td class="left"><span>Show Actions: </span></td>
+                <td class="right"><label>
                     <input type="checkbox" name="action_add_to_sourcing"/>
                     <span>"Add To Source Project"</span>
-                </label>
-                <label>
+                </label></td>
+               <td><label>
                     <input type="checkbox" name="action_favorite"/>
                     <span>"Save As Favorites"(Not implement yet.)</span>
-                </label>
+                </label></td>
+                </tr>     
+          </table>
             </div>
         </div>
 
@@ -70,33 +97,36 @@
                 <div class="line"></div>
             </div>
             <div class="setting form-inline">
-                <span class="subTitle">Canvasapp Key:</span>
-                <label>
+		<table class="content-table">
+           <tr>
+                <td class="left"><span>Canvasapp Key: </span></td>
+                <td class="right"><label>
                     <input type="text" name="config_canvasapp_key" class="text"/>
-                </label>
-            </div>
-            <div class="clear"></div>
-            <div class="setting form-inline">
-                <span class="subTitle">ApiKey:</span>
-                <label>
+                </label></td>
+                <td></td>
+           </tr>
+           <tr>
+                <td class="left"><span>ApiKey: </span></td>
+                <td class="right"><label>
                     <input type="text" name="config_apiKey" class="text"/>
-                </label>
-            </div>
-            <div class="clear"></div>
-            <div class="setting form-inline">
-                <span class="subTitle">ApiSecret:</span>
-                <label>
+                </label></td>
+                <td></td>
+           </tr>  
+           <tr>
+                <td class="left"><span>ApiSecret: </span></td>
+                <td class="right"><label>
                     <input type="text" name="config_apiSecret" class="text"/>
-                </label>
-            </div>
-            <div class="clear"></div>
-            <div class="setting form-inline">
-                <span class="subTitle">CallBackUrl:</span>
-                <label>
+                </label></td>
+                <td></td>
+           </tr>
+           <tr>
+                <td class="left"><span>CallBackUrl: </span></td>
+                <td class="right"><label>
                     <input type="text" name="config_callBackUrl" class="text"/>
-                </label>
-            </div>
-            <div class="clear"></div>
+                </label></td>
+                <td><div class="alert alert-error hide msg callBackUrl">Please type right url.</div></td>
+           </tr>         
+          </table>
         </div>
 
         <div class="btns">

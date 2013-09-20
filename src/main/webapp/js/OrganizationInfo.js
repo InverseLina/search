@@ -27,9 +27,11 @@
     
     events:{
       "btap;.home":function(event){
-    	  window.location.href="/";
-        },
-      
+    	window.location.href="/";
+      },
+      "btap;.cancel":function(event){
+        window.location.href="/admin#organization";
+      },
       "btap;.add":function(event){
         var view = this;
         var html = render("Organization-content",{data:null});
@@ -103,6 +105,7 @@
 	    var view = this;
 		var $nameMsg = view.$el.find(".alert-error.name");
 		var $schemanameMsg = view.$el.find(".alert-error.schemaname");
+		var $callBackUrlMsg = view.$el.find(".alert-error.callBackUrl");
 		
 		if(view.$el.find("[name='name']").val() == ''){
 			$nameMsg.removeClass("hide");
@@ -115,6 +118,14 @@
 		}else{
 			$schemanameMsg.addClass("hide");
 		}
+		
+		var str = view.$el.find("[name='config_callBackUrl']").val();
+		str = str.match(/http:\/\/.+/) == null ? str.match(/https:\/\/.+/) : "true"; 
+		if (str == null){ 
+		   $callBackUrlMsg.removeClass("hide");
+		}else{ 
+		   $callBackUrlMsg.addClass("hide");
+		}   
 		
 		if(view.$el.find(".alert-error:not(.hide)").length>0){
 			view.validation=false;

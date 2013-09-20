@@ -22,10 +22,6 @@
     },
     
     events:{
-      "btap;.cancel":function(event){
-    	  window.location.href="/admin#organization";
-      },
-      
       "btap;.home":function(event){
     	  window.location.href="/";
         },
