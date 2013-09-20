@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipInputStream;
 
+import javax.swing.RepaintManager;
+
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -103,12 +105,15 @@ public class DBSetupManager {
 				line = br.readLine();
 				while(line!=null){
 					rowCount++;
-					st.addBatch(prefix+"("+line.replaceAll("\"", "\'")+");");
+					if(!line.trim().equals("")){
+						st.addBatch(prefix+"("+line.replaceAll("\'", "\'\'").replaceAll("\"", "\'")+");");
+					}
 					line = br.readLine();
 				}
-				//st.executeBatch();
-		       // conn.commit();
+				st.executeBatch();
+		        conn.commit();
 			}catch (SQLException e) {
+				e.printStackTrace();
 				try {
 					conn.rollback();
 				} catch (SQLException e1) {
