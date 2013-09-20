@@ -10,7 +10,6 @@ import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.dao.UserDao;
 import com.jobscience.search.oauth.ForceAuthService;
 import com.jobscience.search.oauth.SalesForceService;
@@ -26,8 +25,6 @@ public class OauthWebHandlers {
     private SalesForceService salesForceService;
     @Inject
     private UserDao userDao;
-    @Inject
-    private OrgConfigDao orgConfigDao;
 
     @WebModelHandler(startsWith="/sf1")
     public void authorize(RequestContext rc) {
