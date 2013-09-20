@@ -14,12 +14,12 @@
 	  view.$navTabs.find("li.active").removeClass("active");
       
       if(app.pathInfo.paths[1] == "add"){
-    	  var li = render("Organization-li",{type:"OrganizationInfo",url:"#organization/add"});
+    	  var li = render("OrganizationInfo-li",{type:"OrganizationInfo",url:"#organization/add"});
     	  view.$navTabs.append(li);	
-    	  var html = render("Organization-content",{data:null});
+    	  var html = render("OrganizationInfo-content",{data:null});
     	  view.$tabContent.html(html);
        }else if(app.pathInfo.paths[1] == "edit"){
-    	  var li = render("Organization-li",{type:"OrganizationInfo",url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
+    	  var li = render("OrganizationInfo-li",{type:"OrganizationInfo",url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
      	  view.$navTabs.append(li);	
     	  getDate.call(view,app.pathInfo.paths[2] * 1); 
        }
@@ -31,12 +31,6 @@
       },
       "btap;.cancel":function(event){
         window.location.href="/admin#organization";
-      },
-      "btap;.add":function(event){
-        var view = this;
-        var html = render("Organization-content",{data:null});
-        view.$tabContent.html(html);
-        window.location.href="admin#organization/add";
       },
       "change;:checkbox,select":function(event){
 			var view = this;
@@ -90,7 +84,7 @@
   function getDate(id){
     var view = this;
     app.getJsonData("/org/get/", {id:id}).done(function(data){
-        var html = render("Organization-content",{data:data[0]});
+        var html = render("OrganizationInfo-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
         app.getJsonData("/config/get/").done(function(data){
