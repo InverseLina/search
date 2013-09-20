@@ -9,7 +9,7 @@
       
       view.section = app.pathInfo.paths[0] || "organization";
 		
-	  view.$navTabs = view.$el.find(".nav-tabs");
+      view.$navTabs = $(".nav-tabs");
 	  view.$tabContent = view.$el.find(".tab-content");
 	  view.$navTabs.find("li.active").removeClass("active");
       

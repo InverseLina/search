@@ -9,10 +9,13 @@
       
       view.section = app.pathInfo.paths[0] || "organization";
 		
-	  view.$navTabs = view.$el.find(".nav-tabs");
+      view.$navTabs = $(".nav-tabs");
 	  view.$tabContent = view.$el.find(".tab-content");
 	  view.$navTabs.find("li.active").removeClass("active");
-      
+	  if(view.$navTabs.find('li').size() > 2){
+			 view.$navTabs.find('li:last').remove();
+		 } 
+	  
 	  if(app.pathInfo.paths[1] == "add" || app.pathInfo.paths[1] == "edit"){
 		   brite.display("OrganizationInfo");
 		  }else{

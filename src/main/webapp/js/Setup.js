@@ -8,10 +8,13 @@
       var view = this;
       view.section = app.pathInfo.paths[0] || "setup";
     
-    view.$navTabs = view.$el.find(".nav-tabs");
-    view.$tabContent = view.$el.find(".tab-content");
-    view.$navTabs.find("li.active").removeClass("active");
-    view.$navTabs.find("a[href='#setup']").closest("li").addClass("active");  
+      view.$navTabs = $(".nav-tabs");
+      view.$tabContent = view.$el.find(".tab-content");
+      view.$navTabs.find("li.active").removeClass("active");
+      if(view.$navTabs.find('li').size() > 2){
+			 view.$navTabs.find('li:last').remove();
+		 } 
+      view.$navTabs.find("a[href='#setup']").closest("li").addClass("active");  
     },
     
     events:{
