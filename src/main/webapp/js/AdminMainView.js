@@ -1,6 +1,6 @@
 (function($){
 	
-	var defaultPathInfo = {paths:["organization"]};
+	var defaultPathInfo = {paths:["setup"]};
 	
 	brite.registerView("AdminMainView",{parent:".container",emptyParent:true},{
 		create: function(data){
@@ -27,10 +27,10 @@
     function changeView(pathInfo){
       pathInfo = pathInfo || defaultPathInfo;
       var viewName = pathInfo.paths[0];
-        if(viewName == "administration"){
-          brite.display("AdminHome");
-        }else{
+        if(viewName == "organization"){
           brite.display("Organization");
+        }else{
+          brite.display("Setup");
         }
         // change the nav selection
     }
