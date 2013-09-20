@@ -126,7 +126,9 @@
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
         app.getJsonData("/config/get/").done(function(data){
-    		view.$el.trigger("FILLDATA",{data:data});
+           if(view && view.$el){
+    		    view.$el.trigger("FILLDATA",{data:data});
+           }
     	});
     });
   }
