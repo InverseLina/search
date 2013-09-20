@@ -12,13 +12,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipInputStream;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.db.DBHelper;
+import com.jobscience.search.db.DataSourceManager;
 
 @Singleton
 public class DBSetupManager {
@@ -30,9 +36,26 @@ public class DBSetupManager {
     @Named("zipcode.path")
     @Inject
     private String zipcodePath;
+    @Inject
+    private DataSourceManager dsMng;
+    
+    private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
+    .maximumSize(100).build(new CacheLoader<String,Object >() {
+		@Override
+		public Object load(String key) throws Exception {
+			
+			return key;
+	}});
+    
     public List checkSetupStatus(){
-        //TODO: get where we are now.
-        return null;
+    	List<SetupStatus> status = new ArrayList<SetupStatus>();
+        if(checkSysSchema()){
+        	status.add(SetupStatus.SYS_CREATE_SCHEMA);
+        }
+        if(checkZipcodeImported()){
+        	status.add(SetupStatus.SYS_IMPORT_ZIPCODE_DATA);
+        }
+        return status;
     }
     
     public void createSysSchema(){
@@ -64,6 +87,7 @@ public class DBSetupManager {
     
     public void updateZipCode(){
     	try{
+    		int rowCount = 0;
 			URL url = new URL(zipcodePath);
 			HttpURLConnection con =  (HttpURLConnection) url.openConnection();
 			ZipInputStream in = new ZipInputStream(con.getInputStream());
@@ -78,11 +102,12 @@ public class DBSetupManager {
 				conn.setAutoCommit(false);
 				line = br.readLine();
 				while(line!=null){
+					rowCount++;
 					st.addBatch(prefix+"("+line.replaceAll("\"", "\'")+");");
 					line = br.readLine();
 				}
-				st.executeBatch();
-		        conn.commit();
+				//st.executeBatch();
+		       // conn.commit();
 			}catch (SQLException e) {
 				try {
 					conn.rollback();
@@ -91,6 +116,7 @@ public class DBSetupManager {
 				}
 			}
 			in.close();
+			cache.put("zipcodeLoadCount", rowCount);
     	}catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -120,5 +146,26 @@ public class DBSetupManager {
             e.printStackTrace();
         }
         return sqlList;
+    }
+    
+    private  boolean checkSysSchema(){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
+        		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
+    	if(list.size()==1){
+    		if("3".equals(list.get(0).get("count").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    private boolean checkZipcodeImported(){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from zipcode_us");
+    	if(list.size()==1){
+    		if(list.get(0).get("count").toString().equals(cache.getIfPresent("zipcodeLoadCount").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
     }
 }

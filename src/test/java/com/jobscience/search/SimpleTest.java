@@ -1,6 +1,5 @@
 package com.jobscience.search;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +48,8 @@ public class SimpleTest extends SnowTestSupport {
        System.out.println("new search result : "+result.getCount());
     }
     
-    @Test
-    public void updateZipcode() throws IOException{
+    //@Test
+    public void updateZipcode() throws Exception{
     	 DBSetupManager setupManager = appInjector.getInstance(DBSetupManager.class);
     	 setupManager.updateZipCode();
     }
