@@ -111,7 +111,14 @@ app.defaultMenuSize = 5;
         return dfd.promise();
     };
 
-
+    app.in_array=function(element,array){
+    	for(var e in array){
+    		if(element==array[e]){
+    			return true;
+    		}
+    	}
+    	return false;
+    };
 
 })();
 

@@ -50,13 +50,18 @@ public class DBSetupManager {
 			return key;
 	}});
     
-    public List checkSetupStatus(){
+    public List checkSetupStatus(String types){
+    	types+=",";
     	List<SetupStatus> status = new ArrayList<SetupStatus>();
-        if(checkSysSchema()){
-        	status.add(SetupStatus.SYS_CREATE_SCHEMA);
+        if(types==null||types.contains(SetupStatus.SYS_CREATE_SCHEMA+",")){
+	    	if(checkSysSchema()){
+	        	status.add(SetupStatus.SYS_CREATE_SCHEMA);
+	        }
         }
-        if(checkZipcodeImported()){
-        	status.add(SetupStatus.SYS_IMPORT_ZIPCODE_DATA);
+        if(types==null||types.contains(SetupStatus.SYS_IMPORT_ZIPCODE_DATA+",")){
+	        if(checkZipcodeImported()){
+	        	status.add(SetupStatus.SYS_IMPORT_ZIPCODE_DATA);
+	        }
         }
         return status;
     }
@@ -89,12 +94,15 @@ public class DBSetupManager {
     }
     
     public void updateZipCode(){
+    	doUpdateZipCode(true);
+    }
+    
+    private int doUpdateZipCode(boolean updateDb){
     	try{
     		int rowCount = 0;
 			URL url = new URL(zipcodePath);
 			HttpURLConnection con =  (HttpURLConnection) url.openConnection();
 			ZipInputStream in = new ZipInputStream(con.getInputStream());
-			System.out.println(in.available());
 			in.getNextEntry();
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = br.readLine();
@@ -105,14 +113,18 @@ public class DBSetupManager {
 				conn.setAutoCommit(false);
 				line = br.readLine();
 				while(line!=null){
-					rowCount++;
 					if(!line.trim().equals("")){
-						st.addBatch(prefix+"("+line.replaceAll("\'", "\'\'").replaceAll("\"", "\'")+");");
+						if(updateDb){
+							st.addBatch(prefix+"("+line.replaceAll("\'", "\'\'").replaceAll("\"", "\'")+");");
+						}
+						rowCount++;
 					}
 					line = br.readLine();
 				}
-				st.executeBatch();
-		        conn.commit();
+				if(updateDb){
+					st.executeBatch();
+			        conn.commit();
+				}
 			}catch (SQLException e) {
 				e.printStackTrace();
 				try {
@@ -123,11 +135,12 @@ public class DBSetupManager {
 			}
 			in.close();
 			cache.put("zipcodeLoadCount", rowCount);
+			return rowCount;
     	}catch (IOException e) {
 			e.printStackTrace();
 		}
+    	return 0;
     }
-    
     public void importOrgData(){
     	try{
 			URL url = new URL(orgPath);
@@ -208,9 +221,13 @@ public class DBSetupManager {
     }
     
     private boolean checkZipcodeImported(){
+    	Integer zipcodeLoadCount = (Integer)cache.getIfPresent("zipcodeLoadCount");
+    	if(zipcodeLoadCount==null){
+    		zipcodeLoadCount = doUpdateZipCode(false);
+    	}
     	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from zipcode_us");
     	if(list.size()==1){
-    		if(list.get(0).get("count").toString().equals(cache.getIfPresent("zipcodeLoadCount").toString())){
+    		if(list.get(0).get("count").toString().equals(zipcodeLoadCount+"")){
     			return true;
     		}
     	}

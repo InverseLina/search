@@ -3,6 +3,7 @@ package com.jobscience.search.web;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
@@ -21,9 +22,14 @@ public class DBSetupWebHanlder {
         return WebResponse.success();
     }
     
+    @WebPost("/updateZipCode")
+    public WebResponse updateZipCode() {
+        dbSetupManager.updateZipCode();
+        return WebResponse.success();
+    }
     @WebGet("/checkSetupStatus")
-    public WebResponse checkSetupStatus() throws SQLException {
-        List list = dbSetupManager.checkSetupStatus();
+    public WebResponse checkSetupStatus(@WebParam("types")String types) throws SQLException {
+        List list = dbSetupManager.checkSetupStatus(types);
         return WebResponse.success(list);
     }
   
