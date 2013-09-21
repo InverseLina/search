@@ -41,16 +41,18 @@ public class DBSetupManager {
     private String orgPath;
     @Inject
     private DataSourceManager dsMng;
-    
+    @Inject
+    private OrgConfigDao orgConfigDao;
+    @Inject
+    private IndexerManager indexerManager;
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
 		@Override
 		public Object load(String key) throws Exception {
-			
 			return key;
 	}});
     
-    public List checkSetupStatus(String types){
+    public List checkSetupStatus(String types,String orgName){
     	types+=",";
     	List<SetupStatus> status = new ArrayList<SetupStatus>();
         if(types==null||types.contains(SetupStatus.SYS_CREATE_SCHEMA+",")){
@@ -62,6 +64,24 @@ public class DBSetupManager {
 	        if(checkZipcodeImported()){
 	        	status.add(SetupStatus.SYS_IMPORT_ZIPCODE_DATA);
 	        }
+        }
+        if(types==null||types.contains(SetupStatus.ORG_CREATE_EXTRA+",")){
+	        if(checkOrgExtra(orgName)){
+	        	status.add(SetupStatus.ORG_CREATE_EXTRA);
+	        }
+        }
+        if(types==null||types.contains(SetupStatus.ORG_CREATE_INDEX_COLUMNS+",")){
+	        if(checkOrgIndex()){
+	        	status.add(SetupStatus.ORG_CREATE_INDEX_COLUMNS);
+	        }
+        }
+        
+        if(types==null||types.contains(SetupStatus.ORG_CREATE_INDEX_RESUME+",")){
+        	if(checkOrgExtra(orgName)){
+		        if(indexerManager.getStatus(orgName).getRemaining()==0){
+		        	status.add(SetupStatus.ORG_CREATE_INDEX_RESUME);
+		        }
+        	}
         }
         return status;
     }
@@ -143,6 +163,22 @@ public class DBSetupManager {
     public  boolean checkSysSchema(){
     	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
         		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
+    	if(list.size()==1){
+    		if("3".equals(list.get(0).get("count").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    private  boolean checkOrgExtra(String orgName){
+    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+    	String schemaname="" ;
+    	if(orgs.size()==1){
+    		schemaname = orgs.get(0).get("schemaname").toString();
+    	}
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('contact_ex','savedsearches','user')");
     	if(list.size()==1){
     		if("3".equals(list.get(0).get("count").toString())){
     			return true;
@@ -294,5 +330,15 @@ public class DBSetupManager {
 			e.printStackTrace();
 		}
     	return 0;
+    }
+    
+    private boolean checkOrgIndex(){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from pg_indexes where indexname='contact_ex_idx_resume_gin'");
+    	if(list.size()==1){
+    		if(Integer.parseInt(list.get(0).get("count").toString())>0){
+    			return true;
+    		}
+    	}
+    	return false;
     }
 }    

@@ -23,6 +23,7 @@
      	  view.$navTabs.append(li);	
     	  getDate.call(view,app.pathInfo.paths[2] * 1); 
        }
+     
     },
     
     events:{
@@ -92,6 +93,46 @@
 			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 				$createIndexBtn.html("Created");
 			});
+		},
+		"click;.resume":function(event){
+			var view = this;
+			var $createIndexBtn = $(event.target);
+			if($createIndexBtn.html()=="Run"){
+				$createIndexBtn.html("Stop");
+				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+					$createIndexBtn.html("Run");
+					view.$el.trigger("CHANGEBTNSTATUS");
+				});
+			}else if($createIndexBtn.html()=="Stop"){
+				$createIndexBtn.prop("disabled",true).html("Stopping");
+				app.getJsonData("/stopCreateIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+					$createIndexBtn.prop("disabled",false).html("Run");
+					view.$el.trigger("CHANGEBTNSTATUS");
+				});
+			}
+		},
+		"click;.status":function(event){
+			var view = this;
+			view.$el.trigger("CHANGEBTNSTATUS");
+		},
+		"CHANGEBTNSTATUS":function(event){
+	      var view = this;
+	      var orgName = view.currentOrgName;
+		  app.getJsonData("/checkSetupStatus",{types:"ORG_CREATE_EXTRA,ORG_CREATE_INDEX_RESUME,ORG_CREATE_INDEX_COLUMNS",orgName:orgName},{type:"Get"}).done(function(data){
+		    	 if(app.in_array("ORG_CREATE_EXTRA",data)){
+		    	    view.$el.find(".extra").prop("disabled",true).html("Created");
+		    	    if(app.in_array("ORG_CREATE_INDEX_RESUME",data)){
+			    	    view.$el.find(".resume").prop("disabled",true).html("Created");
+			    	 }
+		    	    if(app.in_array("ORG_CREATE_INDEX_COLUMNS",data)){
+			    	    view.$el.find(".index").prop("disabled",true).html("Created");
+			    	 }
+		    	    app.getJsonData("/getResumeIndexStatus",{orgName:view.currentOrgName}).done(function(data){
+		 	    	   view.$el.find(".index-info").html("perform:"+data.perform+",remaining:"+data.remaining);
+		 	        });
+		    	 }
+		    	 
+			  });
 		}
     }
   });
@@ -104,6 +145,7 @@
         var html = render("OrganizationInfo-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
+        view.$el.trigger("CHANGEBTNSTATUS");
         app.getJsonData("/config/get/").done(function(data){
            if(view && view.$el){
     		    view.$el.trigger("FILLDATA",{data:data});

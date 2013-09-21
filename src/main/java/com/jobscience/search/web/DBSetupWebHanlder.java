@@ -9,6 +9,7 @@ import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.DBSetupManager;
+import com.jobscience.search.dao.IndexerManager;
 
 @Singleton
 public class DBSetupWebHanlder {
@@ -16,6 +17,9 @@ public class DBSetupWebHanlder {
     @Inject
     private DBSetupManager dbSetupManager;
 
+    @Inject
+    private IndexerManager indexerManager;
+    
     @WebPost("/createSysSchema")
     public WebResponse createSysSchema() throws SQLException {
         dbSetupManager.createSysSchema();
@@ -29,8 +33,8 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/checkSetupStatus")
-    public WebResponse checkSetupStatus(@WebParam("types")String types) throws SQLException {
-        List list = dbSetupManager.checkSetupStatus(types);
+    public WebResponse checkSetupStatus(@WebParam("types")String types,@WebParam("orgName")String orgName) throws SQLException {
+        List list = dbSetupManager.checkSetupStatus(types,orgName);
         return WebResponse.success(list);
     }
   
@@ -44,6 +48,23 @@ public class DBSetupWebHanlder {
     public WebResponse createIndexColumns(@WebParam("orgName")String orgName) {
         dbSetupManager.createIndexColumns(orgName);
         return WebResponse.success();
+    }
+    
+    @WebPost("/createIndexResume")
+    public WebResponse createIndexResume(@WebParam("orgName")String orgName) {
+    	indexerManager.run(orgName);
+        return WebResponse.success(indexerManager.getStatus(orgName));
+    }
+    
+    @WebGet("/getResumeIndexStatus")
+    public WebResponse getStatus(@WebParam("orgName")String orgName) {
+        return WebResponse.success(indexerManager.getStatus(orgName));
+    }
+    
+    @WebPost("/stopCreateIndexResume")
+    public WebResponse createIndesxResume(@WebParam("orgName")String orgName) {
+    	indexerManager.stop();
+        return WebResponse.success(indexerManager.getStatus(orgName));
     }
     
 }

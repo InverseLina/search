@@ -17,7 +17,6 @@
       view.$navTabs.find("a[href='#setup']").closest("li").addClass("active"); 
       view.$el.find(".create,.import").prop("disabled",true).html("Loading...");
       app.getJsonData("/checkSetupStatus",{types:"SYS_CREATE_SCHEMA"},{type:"Get"}).done(function(data){
-    	  console.log(data);
     	 if(app.in_array("SYS_CREATE_SCHEMA",data)){
     	    view.$el.find(".create").prop("disabled",true).html("Created");
     	    app.getJsonData("/checkSetupStatus",{types:"SYS_IMPORT_ZIPCODE_DATA"},{type:"Get"}).done(function(d){
