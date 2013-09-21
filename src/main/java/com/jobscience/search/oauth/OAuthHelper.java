@@ -10,6 +10,7 @@ import org.scribe.oauth.OAuthService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.ConfigManager;
+import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.db.DBHelper;
 import com.jobscience.search.db.DataSourceManager;
 import com.jobscience.search.oauth.api.ForceDotComApi;
@@ -24,15 +25,17 @@ public class OAuthHelper {
     
     @Inject
     private DataSourceManager dsMng;
-
+    @Inject
+    private DBSetupManager dbSetupManager;
     public OAuthService  getService(){
-        String sql = "select * from config  order by org_id ";
-        List<Map> configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
-        List<Map> list = new ArrayList();
-        if (configList != null && configList.size() > 0) {
-            list = configList;
-        }
-        
+    	 List<Map> list = new ArrayList();
+	    if(dbSetupManager.checkSysSchema()){
+	        String sql = "select * from config  order by org_id ";
+	        List<Map> configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
+	        if (configList != null && configList.size() > 0) {
+	            list = configList;
+	        }
+    	}
         list = configManager.checkSaleforceInfo(list);
         String apiKey = null;
         String apiSecret = null;

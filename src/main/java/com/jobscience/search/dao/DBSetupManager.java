@@ -196,7 +196,7 @@ public class DBSetupManager {
         return sqlList;
     }
     
-    private  boolean checkSysSchema(){
+    public  boolean checkSysSchema(){
     	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
         		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
     	if(list.size()==1){

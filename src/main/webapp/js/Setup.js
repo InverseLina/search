@@ -20,7 +20,15 @@
     events:{
       "btap;.home":function(event){
         window.location.href="/";
-        }
+        },
+      "click;.save":function(event){
+    	  alert("c");
+    	  var view = this;
+    	  var $createBtn = $(event.target);
+    	  app.getJsonData("/createSysSchema",{},{type:"Post"}).done(function(){
+    		  $createBtn.prop("disabled",true).html("Created");
+    	  });
+      }
     }
   });
   
