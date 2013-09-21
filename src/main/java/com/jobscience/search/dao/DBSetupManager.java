@@ -83,6 +83,10 @@ public class DBSetupManager {
 		        }
         	}
         }
+        
+    	if(indexerManager.isOn()){
+	        status.add(SetupStatus.ORG_CREATE_INDEX_RESUME_RUNNING);
+    	}
         return status;
     }
     

@@ -152,6 +152,9 @@
 		    	    if(app.in_array("ORG_CREATE_INDEX_COLUMNS",data)){
 			    	    view.$el.find(".index").prop("disabled",true).html("Created");
 			    	 }
+		    	    if(app.in_array("ORG_CREATE_INDEX_RESUME_RUNNING",data)){
+		    	    	 view.$el.find(".resume").prop("disabled",false).html("Stop");
+		    	    }
 		    	 }
 		    	 
 			  });

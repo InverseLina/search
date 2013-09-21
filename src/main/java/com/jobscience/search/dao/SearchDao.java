@@ -450,7 +450,6 @@ public class SearchDao {
 	           querySql.append(joinTables);
 	           querySql.append("  where 1=1 ");
 	           querySql.append(conditions);
-	           System.out.println(querySql);
     	   }else{
     		   querySql.append(" where 1=1 "+conditions);
     		   values.addAll(subValues);

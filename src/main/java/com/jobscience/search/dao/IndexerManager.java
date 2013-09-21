@@ -86,4 +86,8 @@ public class IndexerManager {
     	}
 		return 0;
 	 }
+
+	public boolean isOn() {
+		return on;
+	}
 }
