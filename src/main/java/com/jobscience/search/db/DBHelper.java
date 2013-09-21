@@ -40,6 +40,15 @@ public class DBHelper {
         return null;
     }
     
+    public Connection getSysConnection() {
+        try {
+            return dsMng.getSysDataSource().getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     public Connection getConnection(DataSource dataSource) {
         try {
             Connection con = dataSource.getConnection();

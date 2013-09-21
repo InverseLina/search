@@ -69,7 +69,7 @@ public class DBSetupManager {
             List subSqlList = loadSQLFile(file);
             allSqls.addAll(subSqlList);
         }
-        Connection conn = dbHelper.getConnection();
+        Connection conn = dbHelper.getSysConnection();
         try {
             conn.setAutoCommit(false);
             Statement st = conn.createStatement();
