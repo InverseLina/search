@@ -23,7 +23,6 @@
      	  view.$navTabs.append(li);	
     	  getDate.call(view,app.pathInfo.paths[2] * 1); 
        }
-     
     },
     
     events:{
@@ -81,6 +80,9 @@
 		"click;.extra":function(event){
 			var view = this;
 			var $createExtraBtn = $(event.target);
+			if($createExtraBtn.prop("disabled")){
+				return false;
+			}
 			$createExtraBtn.prop("disabled",true).html("Creating...");
 			app.getJsonData("/createExtraTables", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 				$createExtraBtn.html("Created");
@@ -89,6 +91,9 @@
 		"click;.index":function(event){
 			var view = this;
 			var $createIndexBtn = $(event.target);
+			if($createIndexBtn.prop("disabled")){
+				return false;
+			}
 			$createIndexBtn.prop("disabled",true).html("Creating...");
 			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 				$createIndexBtn.html("Created");
@@ -97,13 +102,20 @@
 		"click;.resume":function(event){
 			var view = this;
 			var $createIndexBtn = $(event.target);
+			if($createIndexBtn.prop("disabled")){
+				return false;
+			}
 			if($createIndexBtn.html()=="Run"){
 				$createIndexBtn.html("Stop");
 				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					$createIndexBtn.html("Run");
 					view.$el.trigger("CHANGEBTNSTATUS");
 				});
+				view.intervalId = window.setInterval(function(){
+			    	   $(view.el).trigger("RESUMEINDEXSTATUS");
+			      }, 3000);
 			}else if($createIndexBtn.html()=="Stop"){
+				window.clearInterval(view.intervalId);
 				$createIndexBtn.prop("disabled",true).html("Stopping");
 				app.getJsonData("/stopCreateIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					$createIndexBtn.prop("disabled",false).html("Run");
@@ -115,6 +127,13 @@
 			var view = this;
 			view.$el.trigger("CHANGEBTNSTATUS");
 		},
+		"RESUMEINDEXSTATUS":function(event){
+			var view = this;
+			 app.getJsonData("/getResumeIndexStatus",{orgName:view.currentOrgName}).done(function(data){
+				   view.$el.find(".index-info,.status").removeClass("hide");
+	 	    	   view.$el.find(".index-info").html("Perform:"+data.perform+",Remaining:"+data.remaining);
+	 	      });
+		},
 		"CHANGEBTNSTATUS":function(event){
 	      var view = this;
 	      var orgName = view.currentOrgName;
@@ -123,20 +142,22 @@
 		    	    view.$el.find(".extra").prop("disabled",true).html("Created");
 		    	    if(app.in_array("ORG_CREATE_INDEX_RESUME",data)){
 			    	    view.$el.find(".resume").prop("disabled",true).html("Created");
+			    	    view.$el.find(".index-info,.status").addClass("hide");
+			    	 }else{
+			    		 app.getJsonData("/getResumeIndexStatus",{orgName:view.currentOrgName}).done(function(data){
+				 	    	   view.$el.find(".index-info").html("Perform:"+data.perform+",Remaining:"+data.remaining);
+				 	      });
+			    		 view.$el.find(".index-info,.status").removeClass("hide");
 			    	 }
 		    	    if(app.in_array("ORG_CREATE_INDEX_COLUMNS",data)){
 			    	    view.$el.find(".index").prop("disabled",true).html("Created");
 			    	 }
-		    	    app.getJsonData("/getResumeIndexStatus",{orgName:view.currentOrgName}).done(function(data){
-		 	    	   view.$el.find(".index-info").html("perform:"+data.perform+",remaining:"+data.remaining);
-		 	        });
 		    	 }
 		    	 
 			  });
 		}
     }
   });
-  
   
   function getDate(id){
     var view = this;
