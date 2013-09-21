@@ -97,6 +97,130 @@ public class DBSetupManager {
     	doUpdateZipCode(true);
     }
     
+   
+    public void importOrgData(){
+    	try{
+			URL url = new URL(orgPath);
+			HttpURLConnection con =  (HttpURLConnection) url.openConnection();
+			ZipInputStream in = new ZipInputStream(con.getInputStream());
+			System.out.println(in.available());
+			in.getNextEntry();
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String line = br.readLine();
+			StringBuilder sqlContent = new StringBuilder();
+			List<String> sqlList = new ArrayList<String>();
+			while(line!=null){
+				sqlContent.append(line);
+				line = br.readLine();
+			}
+			 String sqls[] = sqlContent.toString().split(";");
+            for (String sql : sqls) {
+                sqlList.add(sql);
+            }
+            Connection conn = dbHelper.getConnection();
+            try {
+                conn.setAutoCommit(false);
+                Statement st = conn.createStatement();
+                for(String sql : sqlList){
+                    st.addBatch(sql);
+                }
+                st.executeBatch();
+                conn.commit();
+            } catch (SQLException e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+                e.printStackTrace();
+            }
+			in.close();
+    	}catch (IOException e) {
+			e.printStackTrace();
+		}
+    
+    }
+    
+    public  boolean checkSysSchema(){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
+        		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
+    	if(list.size()==1){
+    		if("3".equals(list.get(0).get("count").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    public void createExtraTables(String orgName){
+        File orgFolder = new File(getRootSqlFolderPath() + "/org");
+        File[] sqlFiles = orgFolder.listFiles();
+        List<String> allSqls = new ArrayList();
+        for(File file : sqlFiles){
+        	if(file.getName().startsWith("01_")){//only load the 01_create_extra.sql
+	            List<String> subSqlList = loadSQLFile(file);
+	            allSqls.addAll(subSqlList);
+        	}
+        }
+        Connection conn = dbHelper.getConnection(orgName);
+        try {
+            conn.setAutoCommit(false);
+            Statement st = conn.createStatement();
+            for(String sql : allSqls){
+        		st.addBatch(sql.replaceAll("#", ";"));
+            }
+            st.executeBatch();
+            conn.commit();
+        } catch (SQLException e) {
+        	e.printStackTrace();
+            try {
+                conn.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
+    
+    }
+    private String getRootSqlFolderPath(){
+        StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
+        path.append("/WEB-INF/sql");
+        return path.toString();
+    }
+    
+    private List<String> loadSQLFile(File file){
+        List<String> sqlList = new ArrayList<String>();
+        StringBuffer temp = new StringBuffer();
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(file));
+            String str;
+            while ((str = in.readLine()) != null) {
+                temp.append(str);
+            }
+            in.close();
+            String sqls[] = temp.toString().split(";");
+            for (String sql : sqls) {
+                sqlList.add(sql);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sqlList;
+    }
+    
+    private boolean checkZipcodeImported(){
+    	Integer zipcodeLoadCount = (Integer)cache.getIfPresent("zipcodeLoadCount");
+    	if(zipcodeLoadCount==null){
+    		zipcodeLoadCount = doUpdateZipCode(false);
+    	}
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from zipcode_us");
+    	if(list.size()==1){
+    		if(list.get(0).get("count").toString().equals(zipcodeLoadCount+"")){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
     private int doUpdateZipCode(boolean updateDb){
     	try{
     		int rowCount = 0;
@@ -141,96 +265,6 @@ public class DBSetupManager {
 		}
     	return 0;
     }
-    public void importOrgData(){
-    	try{
-			URL url = new URL(orgPath);
-			HttpURLConnection con =  (HttpURLConnection) url.openConnection();
-			ZipInputStream in = new ZipInputStream(con.getInputStream());
-			System.out.println(in.available());
-			in.getNextEntry();
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String line = br.readLine();
-			StringBuilder sqlContent = new StringBuilder();
-			List<String> sqlList = new ArrayList<String>();
-			while(line!=null){
-				sqlContent.append(line);
-				line = br.readLine();
-			}
-			 String sqls[] = sqlContent.toString().split(";");
-            for (String sql : sqls) {
-                sqlList.add(sql);
-            }
-            Connection conn = dbHelper.getConnection();
-            try {
-                conn.setAutoCommit(false);
-                Statement st = conn.createStatement();
-                for(String sql : sqlList){
-                    st.addBatch(sql);
-                }
-                st.executeBatch();
-                conn.commit();
-            } catch (SQLException e) {
-                try {
-                    conn.rollback();
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
-                }
-                e.printStackTrace();
-            }
-			in.close();
-    	}catch (IOException e) {
-			e.printStackTrace();
-		}
     
-    }
-    private String getRootSqlFolderPath(){
-        StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
-        path.append("/WEB-INF/sql");
-        return path.toString();
-    }
     
-    private List<String> loadSQLFile(File file){
-        List<String> sqlList = new ArrayList<String>();
-        StringBuffer temp = new StringBuffer();
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(file));
-            String str;
-            while ((str = in.readLine()) != null) {
-                temp.append(str);
-            }
-            in.close();
-            String sqls[] = temp.toString().split(";");
-            for (String sql : sqls) {
-                sqlList.add(sql);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return sqlList;
-    }
-    
-    public  boolean checkSysSchema(){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
-        		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
-    	if(list.size()==1){
-    		if("3".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
-    private boolean checkZipcodeImported(){
-    	Integer zipcodeLoadCount = (Integer)cache.getIfPresent("zipcodeLoadCount");
-    	if(zipcodeLoadCount==null){
-    		zipcodeLoadCount = doUpdateZipCode(false);
-    	}
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from zipcode_us");
-    	if(list.size()==1){
-    		if(list.get(0).get("count").toString().equals(zipcodeLoadCount+"")){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
 }

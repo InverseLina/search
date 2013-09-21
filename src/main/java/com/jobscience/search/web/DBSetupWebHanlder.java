@@ -27,10 +27,17 @@ public class DBSetupWebHanlder {
         dbSetupManager.updateZipCode();
         return WebResponse.success();
     }
+    
     @WebGet("/checkSetupStatus")
     public WebResponse checkSetupStatus(@WebParam("types")String types) throws SQLException {
         List list = dbSetupManager.checkSetupStatus(types);
         return WebResponse.success(list);
     }
   
+    @WebPost("/createExtraTables")
+    public WebResponse createExtraTables(@WebParam("orgName")String orgName) {
+        dbSetupManager.createExtraTables(orgName);
+        return WebResponse.success();
+    }
+    
 }

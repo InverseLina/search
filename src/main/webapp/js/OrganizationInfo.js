@@ -76,6 +76,14 @@
 					}
 				}
 			});
+		},
+		"click;.extra":function(event){
+			var view = this;
+			var $createExtraBtn = $(event.target);
+			$createExtraBtn.prop("disabled",true).html("Creating...");
+			app.getJsonData("/createExtraTables", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+				$createExtraBtn.html("Created");
+			});
 		}
     }
   });
@@ -84,6 +92,7 @@
   function getDate(id){
     var view = this;
     app.getJsonData("/org/get/", {id:id}).done(function(data){
+    	view.currentOrgName = data[0].name;
         var html = render("OrganizationInfo-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);

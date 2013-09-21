@@ -13,17 +13,17 @@ ALTER TABLE contact_ex
     FOREIGN KEY (id)  REFERENCES  contact(id) ON DELETE cascade;
     
 
-CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
-BEGIN
-IF( TG_OP='INSERT' ) THEN
-    insert into contact_ex(id,resume_tsv) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ));
-ELSIF (TG_OP = 'UPDATE') THEN
-    UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" )  where id = new.id;
-END IF;
-RETURN NEW;
-END;
-$Body$
-LANGUAGE 'plpgsql';
+	CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
+	BEGIN
+	IF( TG_OP='INSERT' ) THEN
+	    insert into contact_ex(id,resume_tsv) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ))#
+	ELSIF (TG_OP = 'UPDATE') THEN
+	    UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" )  where id = new.id#
+	END IF#
+	RETURN NEW#
+	END#
+	$Body$
+	LANGUAGE 'plpgsql';
 
 
 CREATE TRIGGER contact_trg_resume_tsv

@@ -96,6 +96,7 @@ class DataSourceWrapper implements DataSource {
         PreparedStatement pstmt = null;
         try {
             pstmt = con.prepareStatement("SET search_path = " + schema);
+            System.out.println("执行了这个..."+"SET search_path = " + schema);
             pstmt.execute();
             return con;
         } catch (SQLException e) {
