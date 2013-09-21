@@ -48,7 +48,7 @@ public class SimpleTest extends SnowTestSupport {
        System.out.println("new search result : "+result.getCount());
     }
     
-    @Test
+    //@Test
     public void updateZipcode() throws Exception{
     	 DBSetupManager setupManager = appInjector.getInstance(DBSetupManager.class);
     	 setupManager.updateZipCode();
