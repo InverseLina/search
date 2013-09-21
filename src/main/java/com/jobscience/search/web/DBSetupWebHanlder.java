@@ -40,4 +40,10 @@ public class DBSetupWebHanlder {
         return WebResponse.success();
     }
     
+    @WebPost("/createIndexColumns")
+    public WebResponse createIndexColumns(@WebParam("orgName")String orgName) {
+        dbSetupManager.createIndexColumns(orgName);
+        return WebResponse.success();
+    }
+    
 }

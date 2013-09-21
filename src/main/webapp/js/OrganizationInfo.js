@@ -84,6 +84,14 @@
 			app.getJsonData("/createExtraTables", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 				$createExtraBtn.html("Created");
 			});
+		},
+		"click;.index":function(event){
+			var view = this;
+			var $createIndexBtn = $(event.target);
+			$createIndexBtn.prop("disabled",true).html("Creating...");
+			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+				$createIndexBtn.html("Created");
+			});
 		}
     }
   });

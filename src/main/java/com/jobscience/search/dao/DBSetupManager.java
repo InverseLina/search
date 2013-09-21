@@ -103,7 +103,6 @@ public class DBSetupManager {
 			URL url = new URL(orgPath);
 			HttpURLConnection con =  (HttpURLConnection) url.openConnection();
 			ZipInputStream in = new ZipInputStream(con.getInputStream());
-			System.out.println(in.available());
 			in.getNextEntry();
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = br.readLine();
@@ -181,6 +180,37 @@ public class DBSetupManager {
         }
     
     }
+    
+    public void createIndexColumns(String orgName){
+        File orgFolder = new File(getRootSqlFolderPath() + "/org");
+        File[] sqlFiles = orgFolder.listFiles();
+        List<String> allSqls = new ArrayList();
+        for(File file : sqlFiles){
+        	if(file.getName().startsWith("02_")){//only load the 01_create_extra.sql
+	            List<String> subSqlList = loadSQLFile(file);
+	            allSqls.addAll(subSqlList);
+        	}
+        }
+        Connection conn = dbHelper.getConnection(orgName);
+        try {
+            conn.setAutoCommit(false);
+            Statement st = conn.createStatement();
+            for(String sql : allSqls){
+        		st.addBatch(sql);
+            }
+            st.executeBatch();
+            conn.commit();
+        } catch (SQLException e) {
+        	e.printStackTrace();
+            try {
+                conn.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
+    
+    }
+    
     private String getRootSqlFolderPath(){
         StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
         path.append("/WEB-INF/sql");
@@ -265,6 +295,4 @@ public class DBSetupManager {
 		}
     	return 0;
     }
-    
-    
-}
+}    
