@@ -48,6 +48,7 @@
     	  app.getJsonData("/createSysSchema",{},{type:"Post"}).done(function(){
     		  $createBtn.html("Created");
     		  view.$el.find(".import").prop("disabled",false);
+    		  $(".organization-tab").removeClass("hide");
     	  });
       },
       "click;.import":function(event){
