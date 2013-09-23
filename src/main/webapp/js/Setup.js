@@ -22,6 +22,8 @@
     	    app.getJsonData("/checkSetupStatus",{types:"SYS_IMPORT_ZIPCODE_DATA"},{type:"Get"}).done(function(d){
     	    	if(app.in_array("SYS_IMPORT_ZIPCODE_DATA",d)){
     	     	    view.$el.find(".import").prop("disabled",true).html("Imported");
+    	     	 }else{
+    	     		view.$el.find(".import").prop("disabled",false).html("Import");
     	     	 }
     	    });
     	 }else{
