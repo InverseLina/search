@@ -416,9 +416,11 @@ public class SearchDao {
 			                					   .append("' ");
 			                		   }
 	            				   }
+	            				   hasCondition = true;
 	            			   }else{
 	            				   List<Map> zipcodes = getZipCode(condition.toString());
 	            				   for(Map m:zipcodes){
+	            					   hasCondition = true;
 		                			   conditions.append(" OR "+tableAliases+".\"mailingpostalcode\" = '")
 		                			   		   .append(m.get("zip"))
 		                					   .append("' ");
