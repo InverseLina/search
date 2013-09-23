@@ -97,6 +97,7 @@
 			$createIndexBtn.prop("disabled",true).html("Creating...");
 			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 				$createIndexBtn.html("Created");
+				 view.$el.find(".resume").prop("disabled",false).html("Run");
 			});
 		},
 		"click;.resume":function(event){
@@ -108,8 +109,10 @@
 			if($createIndexBtn.html()=="Run"){
 				$createIndexBtn.html("Stop");
 				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-					$createIndexBtn.html("Run");
+					$createIndexBtn.prop("disabled",true).html("Created");
+					view.$el.find(".index-info,.status").addClass("hide");
 					view.$el.trigger("CHANGEBTNSTATUS");
+					window.clearInterval(view.intervalId);
 				});
 				view.intervalId = window.setInterval(function(){
 			    	   $(view.el).trigger("RESUMEINDEXSTATUS");
@@ -148,13 +151,15 @@
 				 	    	   view.$el.find(".index-info").html("Perform:"+data.perform+",Remaining:"+data.remaining);
 				 	      });
 			    		 view.$el.find(".index-info,.status").removeClass("hide");
+			    		 if(app.in_array("ORG_CREATE_INDEX_RESUME_RUNNING",data)){
+			    	    	 view.$el.find(".resume").prop("disabled",false).html("Stop");
+			    	    }
 			    	 }
 		    	    if(app.in_array("ORG_CREATE_INDEX_COLUMNS",data)){
 			    	    view.$el.find(".index").prop("disabled",true).html("Created");
 			    	 }
-		    	    if(app.in_array("ORG_CREATE_INDEX_RESUME_RUNNING",data)){
-		    	    	 view.$el.find(".resume").prop("disabled",false).html("Stop");
-		    	    }
+		    	 }else{
+		    		 view.$el.find(".resume").prop("disabled",true).html("Run");
 		    	 }
 		    	 
 			  });
