@@ -56,7 +56,7 @@ public class DBSetupManager {
     	types+=",";
     	List<SetupStatus> status = new ArrayList<SetupStatus>();
         if(types==null||types.contains(SetupStatus.SYS_CREATE_SCHEMA+",")){
-	    	if(checkSysSchema()){
+	    	if(checkSysTables()){
 	        	status.add(SetupStatus.SYS_CREATE_SCHEMA);
 	        }
         }
@@ -91,6 +91,7 @@ public class DBSetupManager {
     }
     
     public void createSysSchema(){
+    	dsMng.createSysSchemaIfNecessary();
         File sysFolder = new File(getRootSqlFolderPath() + "/jss_sys");
         File[] sqlFiles = sysFolder.listFiles();
         List<String> allSqls = new ArrayList();
@@ -164,8 +165,8 @@ public class DBSetupManager {
     
     }
     
-    public  boolean checkSysSchema(){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
+    public  boolean checkSysTables(){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select count(*) as count from information_schema.tables" +
         		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
     	if(list.size()==1){
     		if("3".equals(list.get(0).get("count").toString())){

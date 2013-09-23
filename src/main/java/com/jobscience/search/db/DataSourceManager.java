@@ -23,6 +23,9 @@ public class DataSourceManager {
     private String url;
     private String orgUser;
     private String orgPwd;
+    private String sysUser;
+    private String sysPwd;
+    private String sysSchema;
     @Inject
     private DBHelper dbHelper;
 
@@ -33,17 +36,32 @@ public class DataSourceManager {
                      @Named("jss.sys_db.pwd") String sysPwd,
                      @Named("jss.org_db.user") String user,
                      @Named("jss.org_db.pwd") String pwd) {
-        sysDs = buildDs(url, sysUser, sysPwd, sysSchema);
         defaultDs = buildDs(url, sysUser, sysPwd,null);
         this.url = url;
         this.orgUser = user;
         this.orgPwd = pwd;
+        this.sysPwd = sysPwd;
+        this.sysUser = sysUser;
+        this.sysSchema = sysSchema;
+        if(checkSysSchema()){
+        	sysDs = buildDs(url, sysUser, sysPwd, sysSchema);
+        }
     }
 
     public DataSource getSysDataSource() {
         return sysDs;
     }
-
+    
+    public DataSource createSysSchemaIfNecessary() {
+    	if(!checkSysSchema()){
+    		dbHelper.executeUpdate(defaultDs, "CREATE SCHEMA jss_sys AUTHORIZATION "+sysUser,new Object[0]);
+    		if(sysDs==null){
+    			sysDs = buildDs(url, sysUser, sysPwd, sysSchema);
+    		}
+    	}
+        return sysDs;
+    }
+    
     public DataSource getOrgDataSource(String orgName) {
         DataSource ds = dsMap.get(orgName);
         if (ds == null) {
@@ -61,6 +79,10 @@ public class DataSourceManager {
         return defaultDs.getConnection();
     }
 
+    public DataSource getDefaultDataSource() {
+        return defaultDs;
+    }
+    
     private DataSource buildDs(String url, String user, String pwd, String schema) {
         ComboPooledDataSource ds = new ComboPooledDataSource();
         ds.setJdbcUrl(url);
@@ -74,7 +96,16 @@ public class DataSourceManager {
         return new DataSourceWrapper(ds, schema);
     }
 
-
+    private  boolean checkSysSchema(){
+    	List<Map> list = dbHelper.executeQuery(getDefaultDataSource(), "select count(*) as count from information_schema.schemata" +
+        		" where schema_name='"+sysSchema+"'");
+    	if(list.size()==1){
+    		if("1".equals(list.get(0).get("count").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
 }
 
 class DataSourceWrapper implements DataSource {
@@ -95,8 +126,10 @@ class DataSourceWrapper implements DataSource {
     private Connection intConnection(Connection con) {
         PreparedStatement pstmt = null;
         try {
-            pstmt = con.prepareStatement("SET search_path = " + schema);
-            pstmt.execute();
+        	if(schema!=null){
+	            pstmt = con.prepareStatement("SET search_path = " + schema);
+	            pstmt.execute();
+        	}
             return con;
         } catch (SQLException e) {
             throw Throwables.propagate(e);

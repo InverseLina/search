@@ -29,7 +29,7 @@ public class OAuthHelper {
     private DBSetupManager dbSetupManager;
     public OAuthService  getService(){
     	 List<Map> list = new ArrayList();
-	    if(dbSetupManager.checkSysSchema()){
+	    if(dbSetupManager.checkSysTables()){
 	        String sql = "select * from config  order by org_id ";
 	        List<Map> configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
 	        if (configList != null && configList.size() > 0) {
