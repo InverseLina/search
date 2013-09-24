@@ -17,4 +17,3 @@ templates.js
 !src/main/webapp/bootstrap/css/*
 !src/main/webapp/canvassdk/css/*
 !src/main/webapp/hack/*.css
-src/main/webapp/WEB-INF/sql
