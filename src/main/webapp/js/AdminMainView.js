@@ -12,11 +12,14 @@
 		 $(".home").removeClass("hide");
 		 $(".config").addClass("hide");
 		 view.$el.find(".organization-tab").addClass("hide");
-		 app.getJsonData("/checkSetupStatus",{types:"SYS_CREATE_SCHEMA"},{type:"Get"}).done(function(data){
-			 if(app.in_array("SYS_CREATE_SCHEMA",data)){
-				 view.$el.find(".organization-tab").removeClass("hide");
-			 }
-		 });
+		 app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
+	    	  switch(result){
+		    	  case 1:	
+		    	  case 2:	view.$el.find(".organization-tab").removeClass("hide");
+		    	  			break;
+	    	  }
+	      });
+		 
 		 this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
 	 },
 	 winEvents: {

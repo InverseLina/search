@@ -57,6 +57,9 @@ public class IndexerManager {
 	    	int perform = getContactExCount(orgName);
 	    	indexerStatus = new IndexerStatus(indexerStatus.getPerform()+indexerStatus.getRemaining()-perform, perform);
 	    }
+	    if(indexerStatus.getRemaining()==0){
+	    	this.on = false;
+	    }
 	 }
 	 
 	 public void stop(){
@@ -64,12 +67,10 @@ public class IndexerManager {
 	 }
 	 
 	 public IndexerStatus getStatus(String orgName){
-		 if(indexerStatus==null){
-			 int all = getContactsCount(orgName);
-	    	int perform = getContactExCount(orgName);
-	    	indexerStatus = new IndexerStatus(all-perform, perform);
-		 }
-		 return indexerStatus;
+		int all = getContactsCount(orgName);
+    	int perform = getContactExCount(orgName);
+    	indexerStatus = new IndexerStatus(all-perform, perform);
+		return indexerStatus;
 	 }
 	 private int getContactsCount(String orgName){
     	List<Map> list = dbHelper.executeQuery(orgName, "select count(*) as count from contact");

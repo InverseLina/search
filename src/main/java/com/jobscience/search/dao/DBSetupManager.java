@@ -52,40 +52,36 @@ public class DBSetupManager {
 			return key;
 	}});
     
-    public List checkSetupStatus(String types,String orgName){
-    	types+=",";
-    	List<SetupStatus> status = new ArrayList<SetupStatus>();
-        if(types==null||types.contains(SetupStatus.SYS_CREATE_SCHEMA+",")){
-	    	if(checkSysTables()){
-	        	status.add(SetupStatus.SYS_CREATE_SCHEMA);
-	        }
+    public Integer checkSetupStatus(SchemaType type,String orgName){
+    	Integer status =0;
+    	if(checkSysTables()){
+    		status=SetupStatus.SYS_CREATE_SCHEMA.getValue();
         }
-        if(types==null||types.contains(SetupStatus.SYS_IMPORT_ZIPCODE_DATA+",")){
-	        if(checkZipcodeImported()){
-	        	status.add(SetupStatus.SYS_IMPORT_ZIPCODE_DATA);
+    	if(status==SetupStatus.SYS_CREATE_SCHEMA.getValue()){
+    		if(checkZipcodeImported()){
+	        	status = SetupStatus.SYS_IMPORT_ZIPCODE_DATA.getValue();
 	        }
-        }
-        if(types==null||types.contains(SetupStatus.ORG_CREATE_EXTRA+",")){
-	        if(checkOrgExtra(orgName)){
-	        	status.add(SetupStatus.ORG_CREATE_EXTRA);
-	        }
-        }
-        if(types==null||types.contains(SetupStatus.ORG_CREATE_INDEX_COLUMNS+",")){
-	        if(checkOrgIndex()){
-	        	status.add(SetupStatus.ORG_CREATE_INDEX_COLUMNS);
-	        }
-        }
-        
-        if(types==null||types.contains(SetupStatus.ORG_CREATE_INDEX_RESUME+",")){
-        	if(checkOrgExtra(orgName)){
-		        if(indexerManager.getStatus(orgName).getRemaining()==0){
-		        	status.add(SetupStatus.ORG_CREATE_INDEX_RESUME);
+    	}
+    	if(type.equals(SchemaType.ORG)){
+	    	if(status==SetupStatus.SYS_IMPORT_ZIPCODE_DATA.getValue()){
+	    		if(checkOrgExtra(orgName)){
+		        	status = SetupStatus.ORG_CREATE_EXTRA.getValue();
 		        }
-        	}
-        }
-        
-    	if(indexerManager.isOn()){
-	        status.add(SetupStatus.ORG_CREATE_INDEX_RESUME_RUNNING);
+	    	}
+	    	
+	    	if(status==SetupStatus.ORG_CREATE_EXTRA.getValue()){
+	    		boolean orgIndex = false;
+	    		if(checkOrgIndex()){
+		        	status = SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue();
+		        	orgIndex = true;
+		        }
+	    		if(indexerManager.isOn()){
+	    	        status=SetupStatus.ORG_CREATE_INDEX_RESUME_RUNNING.getValue()*(orgIndex?SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue():1);
+	        	}
+		        if(indexerManager.getStatus(orgName).getRemaining()==0){
+		        	status=SetupStatus.ORG_CREATE_INDEX_RESUME.getValue()*(orgIndex?SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue():1);
+		        }
+	    	}
     	}
         return status;
     }

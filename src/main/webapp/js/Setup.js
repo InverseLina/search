@@ -16,22 +16,7 @@
 	  } 
       view.$navTabs.find("a[href='#setup']").closest("li").addClass("active"); 
       view.$el.find(".create,.import").prop("disabled",true).html("Loading...");
-      app.getJsonData("/checkSetupStatus",{types:"SYS_CREATE_SCHEMA"},{type:"Get"}).done(function(data){
-    	 if(app.in_array("SYS_CREATE_SCHEMA",data)){
-    	    view.$el.find(".create").prop("disabled",true).html("Created");
-    	    app.getJsonData("/checkSetupStatus",{types:"SYS_IMPORT_ZIPCODE_DATA"},{type:"Get"}).done(function(d){
-    	    	if(app.in_array("SYS_IMPORT_ZIPCODE_DATA",d)){
-    	     	    view.$el.find(".import").prop("disabled",true).html("Imported");
-    	     	 }else{
-    	     		view.$el.find(".import").prop("disabled",false).html("Import");
-    	     	 }
-    	    });
-    	 }else{
-    		 view.$el.find(".create").prop("disabled",false).html("Create");
-    		 view.$el.find(".import").prop("disabled",true).html("Import");
-    	 }
-    	 
-	  });
+      view.$el.trigger("STATUS_CHANGE");
     },
     
     events:{
@@ -61,6 +46,22 @@
     	  app.getJsonData("/updateZipCode",{},{type:"Post"}).done(function(){
     		  $importBtn.html("Imported");
     	  });
+      },
+      "STATUS_CHANGE":function(event){
+    	  var view = this;
+    	  app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
+        	  switch(result){
+        	  case 0:	view.$el.find(".create").prop("disabled",false).html("Create");
+        	  			view.$el.find(".import").prop("disabled",false).html("Importe");
+        	  			break;
+        	  case 1:	view.$el.find(".create").prop("disabled",true).html("Created");
+        	  			view.$el.find(".import").prop("disabled",false).html("Import");
+    					break;
+        	  case 2:	view.$el.find(".create").prop("disabled",true).html("Created");
+    		  			view.$el.find(".import").prop("disabled",true).html("Imported");
+    					break;
+        	  }
+          });
       }
     }
   });

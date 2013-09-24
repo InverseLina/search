@@ -1,11 +1,17 @@
 package com.jobscience.search.dao;
 
 public enum SetupStatus {
-    SYS_CREATE_SCHEMA,
-    SYS_IMPORT_ZIPCODE_DATA,
-    ORG_IMPORT_BASE_DATA,
-    ORG_CREATE_EXTRA,
-    ORG_CREATE_INDEX_RESUME_RUNNING,
-    ORG_CREATE_INDEX_COLUMNS,
-    ORG_CREATE_INDEX_RESUME;
+    SYS_CREATE_SCHEMA(1),
+    SYS_IMPORT_ZIPCODE_DATA(2),
+    ORG_CREATE_EXTRA(3),
+    ORG_CREATE_INDEX_COLUMNS(4),
+    ORG_CREATE_INDEX_RESUME(5),
+    ORG_CREATE_INDEX_RESUME_RUNNING(6);
+	private Integer value;
+	public Integer getValue() {
+		return value;
+	}
+	SetupStatus(Integer value){
+		this.value=value;
+	}
 }

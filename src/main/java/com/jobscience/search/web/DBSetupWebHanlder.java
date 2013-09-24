@@ -1,7 +1,6 @@
 package com.jobscience.search.web;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
@@ -10,6 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.IndexerManager;
+import com.jobscience.search.dao.SchemaType;
 
 @Singleton
 public class DBSetupWebHanlder {
@@ -41,9 +41,9 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/checkSetupStatus")
-    public WebResponse checkSetupStatus(@WebParam("types")String types,@WebParam("orgName")String orgName) throws SQLException {
-        List list = dbSetupManager.checkSetupStatus(types,orgName);
-        return WebResponse.success(list);
+    public WebResponse checkSetupStatus(@WebParam("type")SchemaType type,@WebParam("orgName")String orgName) throws SQLException {
+        Integer result= dbSetupManager.checkSetupStatus(type,orgName);
+        return WebResponse.success(result);
     }
   
     @WebPost("/createExtraTables")

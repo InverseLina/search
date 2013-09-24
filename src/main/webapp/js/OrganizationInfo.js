@@ -109,9 +109,7 @@
 			if($createIndexBtn.html()=="Run"){
 				$createIndexBtn.html("Stop");
 				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-					$createIndexBtn.prop("disabled",true).html("Created");
-					view.$el.find(".index-info,.status").addClass("hide");
-					view.$el.trigger("CHANGEBTNSTATUS");
+					view.$el.trigger("STATUS_CHANGE");
 					window.clearInterval(view.intervalId);
 				});
 				view.intervalId = window.setInterval(function(){
@@ -122,13 +120,13 @@
 				$createIndexBtn.prop("disabled",true).html("Stopping");
 				app.getJsonData("/stopCreateIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					$createIndexBtn.prop("disabled",false).html("Run");
-					view.$el.trigger("CHANGEBTNSTATUS");
+					view.$el.trigger("STATUS_CHANGE");
 				});
 			}
 		},
 		"click;.status":function(event){
 			var view = this;
-			view.$el.trigger("CHANGEBTNSTATUS");
+			view.$el.trigger("STATUS_CHANGE");
 		},
 		"RESUMEINDEXSTATUS":function(event){
 			var view = this;
@@ -137,33 +135,41 @@
 	 	    	   view.$el.find(".index-info").html("Perform:"+data.perform+",Remaining:"+data.remaining);
 	 	      });
 		},
-		"CHANGEBTNSTATUS":function(event){
-	      var view = this;
-	      var orgName = view.currentOrgName;
-		  app.getJsonData("/checkSetupStatus",{types:"ORG_CREATE_EXTRA,ORG_CREATE_INDEX_RESUME,ORG_CREATE_INDEX_COLUMNS",orgName:orgName},{type:"Get"}).done(function(data){
-		    	 if(app.in_array("ORG_CREATE_EXTRA",data)){
-		    	    view.$el.find(".extra").prop("disabled",true).html("Created");
-		    	    if(app.in_array("ORG_CREATE_INDEX_RESUME",data)){
-			    	    view.$el.find(".resume").prop("disabled",true).html("Created");
-			    	    view.$el.find(".index-info,.status").addClass("hide");
-			    	 }else{
-			    		 app.getJsonData("/getResumeIndexStatus",{orgName:view.currentOrgName}).done(function(data){
-				 	    	   view.$el.find(".index-info").html("Perform:"+data.perform+",Remaining:"+data.remaining);
-				 	      });
-			    		 view.$el.find(".index-info,.status").removeClass("hide");
-			    		 if(app.in_array("ORG_CREATE_INDEX_RESUME_RUNNING",data)){
-			    	    	 view.$el.find(".resume").prop("disabled",false).html("Stop");
-			    	    }
-			    	 }
-		    	    if(app.in_array("ORG_CREATE_INDEX_COLUMNS",data)){
-			    	    view.$el.find(".index").prop("disabled",true).html("Created");
-			    	 }
-		    	 }else{
-		    		 view.$el.find(".resume").prop("disabled",true).html("Run");
-		    	 }
-		    	 
-			  });
-		}
+		 "STATUS_CHANGE":function(event){
+	    	  var view = this;
+	    	  var orgName = view.currentOrgName;
+	    	  app.getJsonData("/checkSetupStatus",{type:"ORG",orgName:orgName},{type:"Get"}).done(function(result){
+	    		  switch(result){
+	    		  case 1:
+	    		  case 2: 	view.$el.find(".resume").prop("disabled",true);
+	    		  			break;
+	        	  case 3:	view.$el.find(".extra").prop("disabled",true).html("Created");
+	        	  			view.$el.trigger("RESUMEINDEXSTATUS");
+	        	  			break;
+	        	  case 4:	view.$el.find(".extra,.index").prop("disabled",true).html("Created");
+	        	  			view.$el.find(".index-info,.status").removeClass("hide");
+	    					break;
+	        	  case 5:	view.$el.find(".extra").prop("disabled",true).html("Created");
+	        		  		view.$el.find(".resume").prop("disabled",true).html("Created");
+		    	    		view.$el.find(".index-info,.status").addClass("hide");
+	    					break;
+	        	  case 6:	view.$el.find(".extra").prop("disabled",true).html("Created");
+	        		  		view.$el.find(".resume").prop("disabled",false).html("Stop");
+	        		  		view.intervalId = window.setInterval(function(){
+	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS");
+	        		  		}, 3000);
+	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
+							break;
+	        	  case 20:	view.$el.find(".extra,.resume,.index").prop("disabled",true).html("Created");
+				    		view.$el.find(".index-info,.status").addClass("hide");
+							break;
+	        	  case 24:	view.$el.find(".extra,.index").prop("disabled",true).html("Created");
+	        	  			view.$el.find(".resume").prop("disabled",false).html("Stop");
+	        	  			view.$el.trigger("RESUMEINDEXSTATUS");
+							break;
+	        	  }
+	          });
+	      }
     }
   });
   
@@ -174,7 +180,7 @@
         var html = render("OrganizationInfo-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
-        view.$el.trigger("CHANGEBTNSTATUS");
+        view.$el.trigger("STATUS_CHANGE");
         app.getJsonData("/config/get/").done(function(data){
            if(view && view.$el){
     		    view.$el.trigger("FILLDATA",{data:data});
