@@ -22,14 +22,22 @@ public class DBSetupWebHanlder {
     
     @WebPost("/createSysSchema")
     public WebResponse createSysSchema() throws SQLException {
-        dbSetupManager.createSysSchema();
-        return WebResponse.success();
+        boolean result = dbSetupManager.createSysSchema();
+        if(result){
+        	return WebResponse.success();
+        }else{
+        	return WebResponse.fail();
+        }
     }
     
     @WebPost("/updateZipCode")
     public WebResponse updateZipCode() {
-        dbSetupManager.updateZipCode();
-        return WebResponse.success();
+    	boolean result = dbSetupManager.updateZipCode();
+        if(result){
+        	return WebResponse.success();
+        }else{
+        	return WebResponse.fail();
+        }
     }
     
     @WebGet("/checkSetupStatus")
@@ -40,14 +48,22 @@ public class DBSetupWebHanlder {
   
     @WebPost("/createExtraTables")
     public WebResponse createExtraTables(@WebParam("orgName")String orgName) {
-        dbSetupManager.createExtraTables(orgName);
-        return WebResponse.success();
+    	boolean result = dbSetupManager.createExtraTables(orgName);
+        if(result){
+        	return WebResponse.success();
+        }else{
+        	return WebResponse.fail();
+        }
     }
     
     @WebPost("/createIndexColumns")
     public WebResponse createIndexColumns(@WebParam("orgName")String orgName) {
-        dbSetupManager.createIndexColumns(orgName);
-        return WebResponse.success();
+    	boolean result = dbSetupManager.createIndexColumns(orgName);
+        if(result){
+        	return WebResponse.success();
+        }else{
+        	return WebResponse.fail();
+        }
     }
     
     @WebPost("/createIndexResume")

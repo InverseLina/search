@@ -86,6 +86,7 @@
 			$createExtraBtn.prop("disabled",true).html("Creating...");
 			app.getJsonData("/createExtraTables", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 				$createExtraBtn.html("Created");
+				 view.$el.find(".resume").prop("disabled",false).html("Run");
 			});
 		},
 		"click;.index":function(event){
@@ -97,7 +98,6 @@
 			$createIndexBtn.prop("disabled",true).html("Creating...");
 			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 				$createIndexBtn.html("Created");
-				 view.$el.find(".resume").prop("disabled",false).html("Run");
 			});
 		},
 		"click;.resume":function(event){

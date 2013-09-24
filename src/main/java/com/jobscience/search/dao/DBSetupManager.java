@@ -90,7 +90,8 @@ public class DBSetupManager {
         return status;
     }
     
-    public void createSysSchema(){
+    public boolean createSysSchema(){
+    	boolean result = true;
     	dsMng.createSysSchemaIfNecessary();
         File sysFolder = new File(getRootSqlFolderPath() + "/jss_sys");
         File[] sqlFiles = sysFolder.listFiles();
@@ -113,13 +114,16 @@ public class DBSetupManager {
                 conn.rollback();
             } catch (SQLException e1) {
                 e1.printStackTrace();
+                result = false;
             }
             e.printStackTrace();
+            result = false;
         }
+        return result;
     }
     
-    public void updateZipCode(){
-    	doUpdateZipCode(true);
+    public boolean updateZipCode(){
+    	return doUpdateZipCode(true)!=0;
     }
     
    
@@ -192,7 +196,8 @@ public class DBSetupManager {
     	return false;
     }
     
-    public void createExtraTables(String orgName){
+    public boolean createExtraTables(String orgName){
+    	boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
         File[] sqlFiles = orgFolder.listFiles();
         List<String> allSqls = new ArrayList();
@@ -213,16 +218,18 @@ public class DBSetupManager {
             conn.commit();
         } catch (SQLException e) {
         	e.printStackTrace();
+        	result = false;
             try {
                 conn.rollback();
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
         }
-    
+       return result;
     }
     
-    public void createIndexColumns(String orgName){
+    public boolean createIndexColumns(String orgName){
+    	boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
         File[] sqlFiles = orgFolder.listFiles();
         List<String> allSqls = new ArrayList();
@@ -242,6 +249,7 @@ public class DBSetupManager {
             st.executeBatch();
             conn.commit();
         } catch (SQLException e) {
+        	result = false;
         	e.printStackTrace();
             try {
                 conn.rollback();
@@ -249,7 +257,7 @@ public class DBSetupManager {
                 e1.printStackTrace();
             }
         }
-    
+        return result;
     }
     
     private String getRootSqlFolderPath(){
