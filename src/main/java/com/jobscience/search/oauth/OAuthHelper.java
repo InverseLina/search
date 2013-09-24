@@ -51,9 +51,10 @@ public class OAuthHelper {
                     callbackUrl = map.get("value");
                 }
             }
+            ServiceBuilder builder = new ServiceBuilder().provider(ForceDotComApi.class).apiKey(apiKey).apiSecret(apiSecret);
+            builder.callback(callbackUrl);
+            return builder.build();
         }
-        ServiceBuilder builder = new ServiceBuilder().provider(ForceDotComApi.class).apiKey(apiKey).apiSecret(apiSecret);
-        builder.callback(callbackUrl);
-        return builder.build();
+        return null;
     }
 }

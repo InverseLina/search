@@ -32,17 +32,18 @@ public class ConfigWebHandlers {
                             @WebParam("action_favorite") String favorite,
                             @WebParam("config_canvasapp_key") String canvasappKey,
                             @WebParam("config_apiKey") String apiKey, @WebParam("config_apiSecret") String apiSecret,
-                            @WebParam("config_callBackUrl") String callBackUrl) throws SQLException {
+                            @WebParam("config_callBackUrl") String callBackUrl,@WebParam("needAdmin") String needAdmin) throws SQLException {
         Map<String, String> params = new HashMap<String, String>();
-        params.put("local_distance", distance);
-        params.put("local_date", date);
-        params.put("action_add_to_sourcing", addToSourcing);
-        params.put("action_favorite", favorite);
+        if(!"false".equals(needAdmin)){
+            params.put("local_distance", distance);
+            params.put("local_date", date);
+            params.put("action_add_to_sourcing", addToSourcing);
+            params.put("action_favorite", favorite);
+        }
         params.put("config_canvasapp_key", canvasappKey);
         params.put("config_apiKey", apiKey);
         params.put("config_apiSecret", apiSecret);
         params.put("config_callBackUrl", callBackUrl);
-        
         configManager.saveOrUpdateConfig(params);
         forceAuthService.reloadService();
         return WebResponse.success();

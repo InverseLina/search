@@ -17,9 +17,18 @@
       view.$navTabs.find("a[href='#setup']").closest("li").addClass("active"); 
       view.$el.find(".create,.import").prop("disabled",true).html("Loading...");
       view.$el.trigger("STATUS_CHANGE");
+      
+      app.getJsonData("/config/get/").done(function(data){
+    	  if(view && view.$el){
+    	   view.$el.trigger("FILLDATA",{data:data});
+    	  }
+    	});
     },
     
     events:{
+       "btap;.cancel":function(event){
+    		window.location.href="/";
+       },
       "btap;.home":function(event){
         window.location.href="/";
         },
@@ -62,7 +71,29 @@
     					break;
         	  }
           });
-      }
+      },
+      "FILLDATA":function(event,result){
+    	  var view = this;
+    	  var currentField;
+    	  $.each(result.data,function(index,e){
+    	    currentField = view.$el.find("[name='"+e.name+"']");
+    	    if(currentField.length>0){
+    	      currentField.val(e.value);
+    	    }
+    	  });
+    	 },
+      "btap;.save":function(event){
+    	  var view = this;
+    	  var values = {};
+    	  values["config_canvasapp_key"]=view.$el.find("[name='config_canvasapp_key']").val();
+    	      values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
+    	      values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
+    	      values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
+    	      values["needAdmin"]="false";
+    	      app.getJsonData("/config/save", values,"Post").done(function(data){
+    	          window.location.href="/";  
+    	  });  
+    	}
     }
   });
   
