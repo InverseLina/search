@@ -41,25 +41,51 @@ public class ConfigManager {
     public void saveOrUpdateConfig(Map<String, String> params) throws SQLException {
         StringBuilder names = new StringBuilder("(");
         StringBuilder sql = new StringBuilder();
+        Integer it = 0;
+           try {
+               it = orgHolder.getId();
+           } catch (Exception e) {
+               e.printStackTrace();
+           }
         for (String key : params.keySet()) {
             names.append("'" + key + "'");
             names.append(",");
             // sql.append("('"+key+"','"+params.get(key)+"'),");
-            sql.append(format("(%s, '%s', '%s'),", orgHolder.getId(), key, params.get(key)));
+            if (it == 0) {
+                      sql.append(format("(%s, '%s', '%s'),", null, key, params.get(key)));
+                  } else {
+                      sql.append(format("(%s, '%s', '%s'),", orgHolder.getId(), key, params.get(key)));
+                  }
         }
         names.append("'-1')");
         sql.deleteCharAt(sql.length() - 1);
-        dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id = %s and  name in %s", orgHolder.getId(), names));
+        if (it != 0) {
+                 dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id = %s and  name in %s", orgHolder.getId(), names));
+             } else {
+                 dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id is null and  name in %s", names));
+             }
         dbHelper.executeUpdate(dsMng.getSysDataSource(), format("insert into  config(org_id, name,value) values %s ", sql));
 
     }
 
     public List<Map> getConfig(String name) {
-        String sql = "select * from config where org_id = ? ";
+        String sql = "select * from config where 1=1 ";
         if (name != null) {
             sql += " and name='" + name + "'";
         }
-        List<Map> configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql, orgHolder.getId());
+        Integer it = null;
+         try {
+             it = orgHolder.getId();
+         } catch (Exception e) {
+             // TODO: handle exception
+         }
+         if (it == null) {
+             sql += " and org_id is null ";
+         } else {
+             sql += " and org_id = " + it;
+         }
+         List<Map> configList = new ArrayList();
+         configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
         List list = new ArrayList();
         if (configList != null && configList.size() > 0) {
             list = configList;
@@ -76,13 +102,13 @@ public class ConfigManager {
             boolean isApiSecret = false;
             boolean isCallBackUrl = false;
             for (Map<String,String> map : list) {
-                if ("config_canvasapp_key".equals(map.get("name"))) {
+                if ("config_canvasapp_key".equals(map.get("name")) && !"".equals(map.get("value"))) {
                     isCanvasappKey = true;
-                } else if ("config_apiKey".equals((String)map.get("name"))) {
+                } else if ("config_apiKey".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isApiKey = true;
-                } else if ("config_apiSecret".equals((String)map.get("name"))) {
+                } else if ("config_apiSecret".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isApiSecret = true;
-                } else if ("config_callBackUrl".equals((String)map.get("name"))) {
+                } else if ("config_callBackUrl".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isCallBackUrl = true;
                 }
             }
