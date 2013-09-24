@@ -154,6 +154,7 @@
       view.$searchResult.find(".tableContainer").html(html);
       view.$searchResult.find(".page").empty();
       fixColWidth.call(view);
+      brite.display("MessagePanel",".search-result", {message: "No Organization selected"})
 
     },
     empty : function() {
@@ -275,7 +276,14 @@
           if(extra){
             view.showErrorMessage(extra.errorCode||"", extra.errorMessage||"");
           }
-      }
+      },
+      ERROR_PROCESS: function (event, extra) {
+            var view = this;
+            view.$searchInfo.empty();
+            view.$el.find("input").attr("disabled", true);
+
+            brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
+        }
     },
     parentEvents : {
 
