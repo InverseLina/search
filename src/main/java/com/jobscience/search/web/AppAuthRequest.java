@@ -9,6 +9,7 @@ import com.britesnow.snow.web.param.annotation.WebUser;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.DBSetupManager;
+import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.UserDao;
 
 import java.util.Map;
@@ -17,6 +18,8 @@ import java.util.Map;
 public class AppAuthRequest implements AuthRequest {
     @Inject
     private UserDao userDao;
+    @Inject
+    CurrentOrgHolder orgHolder;
 
     @Inject
     private DBSetupManager dbSetupManager;
@@ -52,6 +55,14 @@ public class AppAuthRequest implements AuthRequest {
                 }
                 rc.setCookie("ctoken", ctoken);
             }
+        }
+        //check org is set or not
+        try {
+            orgHolder.getOrgName();
+        } catch (Exception e) {
+            rc.getWebModel().put("errorCode", "NO_ORG");
+            rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
+            rc.getWebModel().put("success", "false");
         }
     }
 

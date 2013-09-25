@@ -2,6 +2,7 @@ package com.jobscience.search.web;
 
 
 import com.britesnow.snow.web.RequestContext;
+import com.britesnow.snow.web.WebRequestType;
 import com.britesnow.snow.web.exception.WebExceptionContext;
 import com.britesnow.snow.web.exception.annotation.WebExceptionCatcher;
 import com.britesnow.snow.web.renderer.JsonRenderer;
@@ -13,12 +14,17 @@ import com.jobscience.search.OrganizationNotSelectException;
 public class WebExceptionProcessor {
     @Inject
     private JsonRenderer jsonRenderer;
+
+
     @WebExceptionCatcher
-    public void processOauthException(OrganizationNotSelectException e, WebExceptionContext wec, RequestContext rc)  {
+    public void processOauthException(OrganizationNotSelectException e, WebExceptionContext wec, RequestContext rc) {
         rc.getWebModel().put("errorCode", "NO_ORG");
         rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
         rc.getWebModel().put("success", "false");
-        jsonRenderer.render(rc.getWebModel(), rc.getWriter());
+        if (rc.getWebRequestType() == WebRequestType.WEB_REST) {
+            jsonRenderer.render(rc.getWebModel(), rc.getWriter());
+        }
     }
 
 }
+

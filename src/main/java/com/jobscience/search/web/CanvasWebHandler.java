@@ -2,6 +2,7 @@ package com.jobscience.search.web;
 
 import java.util.Map;
 
+import com.britesnow.snow.web.AbortWithHttpRedirectException;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebModel;
@@ -27,7 +28,11 @@ public class CanvasWebHandler {
         if (signedRequest != null) {
             String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, consumerSecret);
             m.put("signedRequestJson", signedRequestJson);
-            userDao.checkAndUpdateUser(2, signedRequestJson);
+            try {
+                userDao.checkAndUpdateUser(2, signedRequestJson);
+            } catch (Exception e) {
+                throw new AbortWithHttpRedirectException("/");
+            }
         }
     }
     

@@ -36,6 +36,13 @@
 
     <div class="mainContent">
     [@includeFrameContent /]
+    [#if errorCode??]
+        <script type="text/javascript">
+            setTimeout(function(){
+                $(document).trigger("ERROR_PROCESS", {errorMessage:"${errorMessage}"});
+            }, 200);
+        </script>
+    [/#if]
     </div>
   </body>
 </html>

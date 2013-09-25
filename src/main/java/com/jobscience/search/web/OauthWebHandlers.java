@@ -47,7 +47,11 @@ public class OauthWebHandlers {
             rc.setCookie("org", orgName);
         }
 
-        userDao.checkAndUpdateUser(1, token.getId());
+        try {
+            userDao.checkAndUpdateUser(1, token.getId());
+        } catch (Exception e) {
+            throw new AbortWithHttpRedirectException("/");
+        }
         //rc.setCookie("ctoken", ctoken);
         OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
         oAuthToken.updateCookie(rc);
