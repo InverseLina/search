@@ -84,6 +84,7 @@
         	  case 2:	view.$el.find(".create").prop("disabled",true).html("Created");
     		  			view.$el.find(".import").prop("disabled",true).html("Imported");
     					break;
+    		  default: view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html("Fail to load status,Please try to refresh page.")
         	  }
           });
       },

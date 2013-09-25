@@ -44,9 +44,12 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/checkSetupStatus")
-    public WebResponse checkSetupStatus(@WebParam("type")SchemaType type,@WebParam("orgName")String orgName) throws SQLException, IOException {
-        Integer result= dbSetupManager.checkSetupStatus(type,orgName);
-        return WebResponse.success(result);
+    public WebResponse checkSetupStatus(@WebParam("type")SchemaType type,@WebParam("orgName")String orgName){
+        try{
+        	 return WebResponse.success(dbSetupManager.checkSetupStatus(type,orgName));
+        }catch (Exception e) {
+        	return WebResponse.success(new DBSetupResult(-1,e.getLocalizedMessage()) );
+		}
     }
   
     @WebPost("/createExtraTables")
