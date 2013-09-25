@@ -38,7 +38,7 @@ public class ConfigManager {
     @Named("saleforce.callBackUrl")
     private String            callBackUrl;
 
-    public void saveOrUpdateConfig(Map<String, String> params) throws SQLException {
+    public void saveOrUpdateConfig(Map<String, String> params,Integer orgId) throws SQLException {
         StringBuilder names = new StringBuilder("(");
         StringBuilder sql = new StringBuilder();
         Integer it = 0;
@@ -47,51 +47,55 @@ public class ConfigManager {
            } catch (Exception e) {
                e.printStackTrace();
            }
+           if(orgId!=null){
+        	   it=orgId;
+           }
+           if(it==null){
+        	   it = -1;
+           }
         for (String key : params.keySet()) {
             names.append("'" + key + "'");
             names.append(",");
             // sql.append("('"+key+"','"+params.get(key)+"'),");
-            if (it == 0) {
-                      sql.append(format("(%s, '%s', '%s'),", null, key, params.get(key)));
-                  } else {
-                      sql.append(format("(%s, '%s', '%s'),", orgHolder.getId(), key, params.get(key)));
-                  }
+            sql.append(format("(%s, '%s', '%s'),", it, key, params.get(key)));
         }
         names.append("'-1')");
         sql.deleteCharAt(sql.length() - 1);
-        if (it != 0) {
-                 dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id = %s and  name in %s", orgHolder.getId(), names));
-             } else {
-                 dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id is null and  name in %s", names));
-             }
+        
+        dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id = %s and  name in %s", it, names));
+        
         dbHelper.executeUpdate(dsMng.getSysDataSource(), format("insert into  config(org_id, name,value) values %s ", sql));
 
     }
 
-    public List<Map> getConfig(String name) {
+    public List<Map> getConfig(String name,Integer orgId) {
         String sql = "select * from config where 1=1 ";
         if (name != null) {
             sql += " and name='" + name + "'";
         }
-        Integer it = null;
+        Integer it = -1;
          try {
              it = orgHolder.getId();
          } catch (Exception e) {
              // TODO: handle exception
          }
-         if (it == null) {
-             sql += " and org_id is null ";
-         } else {
-             sql += " and org_id = " + it;
+         if(orgId!=null){
+        	 it = orgId;
          }
+         sql += " and (org_id = " + it;
+         
+         if(it!=-1){
+        	 sql += " or org_id = -1" ;
+         }
+         sql+=")";
          List<Map> configList = new ArrayList();
          configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
-        List list = new ArrayList();
-        if (configList != null && configList.size() > 0) {
+         List list = new ArrayList();
+          if (configList != null && configList.size() > 0) {
             list = configList;
-        }
-        list = checkSaleforceInfo(list);
-        return list;
+          }
+         list = checkSaleforceInfo(list);
+         return list;
 
     }
 

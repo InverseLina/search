@@ -18,7 +18,7 @@
       view.$el.find(".create,.import").prop("disabled",true).html("Loading...");
       view.$el.trigger("STATUS_CHANGE");
       
-      app.getJsonData("/config/get/").done(function(data){
+      app.getJsonData("/config/get/",{orgId:-1}).done(function(data){
     	  if(view && view.$el){
     	   view.$el.trigger("FILLDATA",{data:data});
     	  }
@@ -90,6 +90,7 @@
     	      values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
     	      values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
     	      values["needAdmin"]="false";
+    	      values["orgId"]=-1;
     	      app.getJsonData("/config/save", values,"Post").done(function(data){
     	          window.location.href="/";  
     	  });  
