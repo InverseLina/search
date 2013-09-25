@@ -10,6 +10,7 @@ import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.jobscience.search.dao.UserDao;
 import com.jobscience.search.oauth.ForceAuthService;
 import com.jobscience.search.oauth.SalesForceService;
@@ -26,6 +27,10 @@ public class OauthWebHandlers {
     @Inject
     private UserDao userDao;
 
+    @Named("jss.prod")
+    @javax.inject.Inject
+    private boolean productMode;
+
     @WebModelHandler(startsWith="/sf1")
     public void authorize(RequestContext rc) {
         String url = forceAuthService.getAuthorizationUrl();
@@ -38,16 +43,10 @@ public class OauthWebHandlers {
         Map<String,String> info = salesForceService.getloginInfo(token.getToken());
         String orgName = info.get("orgName").replaceAll("\"", "");
         rc.setCookie("userName", info.get("userName").replaceAll("\"", ""));
-        rc.setCookie("org", orgName);
-       /* Map<String,String> params = new HashMap<String, String>();
-        params.put("name", orgName);
-        params.put("schemaname", orgName);
-        params.put("sfid", info.get("user_id").replaceAll("\"", ""));
-        List<Map> orgs=orgConfigDao.getOrgByName(orgName);
-        if(orgs!=null&&orgs.size()==1){
-        	params.put("id", orgs.get(0).get("id").toString());
+        if(productMode){
+            rc.setCookie("org", orgName);
         }
-        orgConfigDao.saveOrUpdateEntity(params);*/
+
         userDao.checkAndUpdateUser(1, token.getId());
         //rc.setCookie("ctoken", ctoken);
         OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
