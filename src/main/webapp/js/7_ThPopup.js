@@ -165,16 +165,35 @@ var app = app || {};
                      prevItem.call(view);
                      break;
                  default:
-                     searchDao.getAutoCompleteData({limit : 5, type : type,keyword:$input.val()}).always(function(result) {
-                         if(type=="company"){
-                             type = "employer";
-                         }
-                         $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result[resultType],type:type}));
-                         view.lastQueryString = $input.val();
-                      	if(type){
-                      	  view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
-                      	}
-                     });
+                	 if($input.val()!=""){
+	                     searchDao.getAutoCompleteData({limit : 5, type : type,keyword:$input.val()}).always(function(result) {
+	                         if(type=="company"){
+	                             type = "employer";
+	                         }
+	                         $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result[resultType],type:type}));
+	                         view.lastQueryString = $input.val();
+	                      	if(type){
+	                      	  view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
+	                      	}
+	                     });
+                	 }else{
+                	     if(type != 'Contact'){
+                	    	 var listName = (type=="company"?"companies":(type+"s"));
+                	    	 var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
+                	    	 delete params["q_"+listName];
+//                	    	 console.log(params);
+                	    	 searchDao.getGroupValuesForAdvanced({
+                	    		 "searchValues": JSON.stringify(params),
+                	        	 "type":type,
+                	        	 "orderByCount":true
+                	    	 }).always(function(result) {
+                	    		if(type=="company"){
+                	               type = "employer";
+                	            }
+                		        $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result["list"],type:type}));
+                		    }); 
+                	     }
+                	 }
                  	
              }
         },
