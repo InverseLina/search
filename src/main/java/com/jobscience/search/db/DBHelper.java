@@ -72,6 +72,9 @@ public class DBHelper {
         return executeQuery(dsMng.getOrgDataSource(orgName), query);
     }
     public List<Map> executeQuery(DataSource ds, String query) {
+    	if(ds==null||query==null){
+    		return null;
+    	}
         List<Map> results = null;
         Statement stmt = null;
         try {
