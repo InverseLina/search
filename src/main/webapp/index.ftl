@@ -1,8 +1,10 @@
 <script type="text/javascript">
   $(function(){
-    
-    brite.display("MainView");
-    
+    if("${sys_schema?string('true','false')}"=="false"){
+    	window.location.href="/admin";
+    }else{
+    	 brite.display("MainView");
+    }
     var $searchInput = $("#search-input"); 
     var $searchResult = $("#search-result");
     var $searchInfo = $("#search-info");
