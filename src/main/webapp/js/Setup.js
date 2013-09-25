@@ -48,7 +48,7 @@
     		  }else{
     			  $createBtn.html("Created");
     			  view.$el.find(".import").prop("disabled",false);
-    			  $alert.empty().addClass("transparent");
+    			  $alert.html("&nbsp;").addClass("transparent");
         		  $(".organization-tab").removeClass("hide");
     		  }
     	  });
@@ -67,7 +67,7 @@
     			  $importBtn.prop("disabled",false).html("Import");
     		  }else{
     			  $importBtn.html("Imported");
-    			  $alert.empty().addClass("transparent");
+    			  $alert.html("&nbsp;").addClass("transparent");
     		  }
     	  });
       },
