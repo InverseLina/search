@@ -11,6 +11,7 @@
             create: function (data, config) {
                 data = data || {};
 
+
                 // options, property for component
                  this.opts = $.extend({}, {min:0,max:20,value:0}, data);
                 return render("Slider");
@@ -23,6 +24,7 @@
 
                 var width = $e.parent().outerHeight();
                 var height = $e.parent().outerWidth();
+                view.barOffset = $e.find(".bar").offset();
                 if(width >0 && height > 0){
                     $e.find(".bar").css({"border-width": "{0}px {1}px 0 0".format(width, height)});
                 }
@@ -36,15 +38,26 @@
                 "btap; .bar" : function(e) {
                     var view = this;
                     var $bar = $(e.currentTarget);
-                    var position = e.pageX - $bar.offset().left;
+                    var position = e.pageX - view.barOffset.left;
                     setValue.call(view, position);
                 },
                 //add drag event
                 "bdragmove;.slider":function(e){
                     var view = this;
-                    var position = view.position + e.bextra.deltaX;
+                    var position =   e.bextra.pageX - view.barOffset.left;
+
                     setValue.call(view,position);
                 },
+/*                "bdragstart; .slider":function(){
+                    var view = this;
+                    view.$el.find(".bar, .slider").css("cursor", "pointer");
+                    view.$el.css("cursor", "pointer")
+                },*/
+/*                "bdragend; .slider":function(){
+                    var view = this;
+                    view.$el.find(".bar").css("cursor", "default");
+                    view.$el.css("cursor", "default");
+                }*/
             },
             docEvents: {},
             /**

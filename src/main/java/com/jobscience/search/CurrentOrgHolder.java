@@ -92,7 +92,7 @@ public class CurrentOrgHolder {
         }
 
         OrganizationNotSelectException e = new OrganizationNotSelectException();
-        log.warn("current org name is null", e);
+//        log.warn("current org name is null", e);
         throw e;
     }
 
