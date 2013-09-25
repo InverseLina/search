@@ -60,7 +60,7 @@
     		  return false;
     	  }
     	  var $alert = $importBtn.closest(".setting").find(".alert");
-    	  $importBtn.prop("disabled",true).html("Importing...");
+    	  $importBtn.prop("disabled",true).html("importing...");
     	  app.getJsonData("/updateZipCode",{},{type:"Post"}).done(function(data){
     		  if(data){
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
