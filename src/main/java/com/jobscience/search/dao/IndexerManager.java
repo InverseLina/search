@@ -21,7 +21,7 @@ public class IndexerManager {
 	 private CurrentRequestContextHolder currentRequestContextHolder;
 	 
 	 private IndexerStatus indexerStatus ;
-	 public synchronized void run(String orgName){
+	 public synchronized void run(String orgName) throws Exception{
 		if(on){
 			return ;
 		}
@@ -45,7 +45,7 @@ public class IndexerManager {
 	        	}
 	        }
 	    }catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		}
 	    if(indexerStatus==null){
 	    	int all = getContactsCount(orgName);

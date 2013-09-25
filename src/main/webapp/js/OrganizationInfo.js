@@ -85,9 +85,17 @@
 				return false;
 			}
 			$createExtraBtn.prop("disabled",true).html("Creating...");
+			var $alert = $createExtraBtn.closest("tr").find(".alert");
+			$alert.addClass("transparent");
 			app.getJsonData("/createExtraTables", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-				$createExtraBtn.html("Created");
-				 view.$el.find(".resume").prop("disabled",false).html("Run");
+				if(data){
+					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+					$createExtraBtn.prop("disabled",false).html("Create");
+				}else{
+					$createExtraBtn.html("Created");
+					view.$el.find(".resume").prop("disabled",false).html("Run");
+					$alert.addClass("hide");
+				}
 			});
 		},
 		"click;.index":function(event){
@@ -96,9 +104,17 @@
 			if($createIndexBtn.prop("disabled")){
 				return false;
 			}
+			var $alert = $createIndexBtn.closest("tr").find(".alert");
 			$createIndexBtn.prop("disabled",true).html("Creating...");
+			$alert.addClass("transparent");
 			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-				$createIndexBtn.html("Created");
+				if(data){
+					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+					$createIndexBtn.prop("disabled",false).html("Create");
+				}else{
+					$createIndexBtn.html("Created");
+					$alert.addClass("hide");
+				}
 			});
 		},
 		"click;.resume":function(event){
@@ -107,10 +123,18 @@
 			if($createIndexBtn.prop("disabled")){
 				return false;
 			}
+			var $alert = $createIndexBtn.closest("tr").find(".alert");
 			if($createIndexBtn.html()=="Run"){
+				$alert.addClass("transparent");
 				$createIndexBtn.html("Stop");
 				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-					view.$el.trigger("STATUS_CHANGE");
+					if(data){
+						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+						$createIndexBtn.prop("disabled",false).html("Run");
+					}else{
+						view.$el.trigger("STATUS_CHANGE");
+						$alert.addClass("hide");
+					}
 					window.clearInterval(view.intervalId);
 				});
 				view.intervalId = window.setInterval(function(){
@@ -149,6 +173,7 @@
 	        	  			break;
 	        	  case 4:	view.$el.find(".extra,.index").prop("disabled",true).html("Created");
 	        	  			view.$el.find(".index-info,.status").removeClass("hide");
+	        	  			view.$el.trigger("RESUMEINDEXSTATUS");
 	    					break;
 	        	  case 5:	view.$el.find(".extra").prop("disabled",true).html("Created");
 	        		  		view.$el.find(".resume").prop("disabled",true).html("Created");
