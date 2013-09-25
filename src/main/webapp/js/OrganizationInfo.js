@@ -19,9 +19,10 @@
     	  var html = render("OrganizationInfo-content",{data:null});
     	  view.$tabContent.html(html);
        }else if(app.pathInfo.paths[1] == "edit"){
-    	  var li = render("OrganizationInfo-li",{type:"OrganizationInfo",url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
-     	  view.$navTabs.append(li);	
-    	  getDate.call(view,app.pathInfo.paths[2] * 1); 
+    	  getDate.call(view,app.pathInfo.paths[2] * 1).done(function(orgName){
+    		  var li = render("OrganizationInfo-li",{type:"Organization:"+orgName,url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
+         	  view.$navTabs.append(li);	
+    	  }); 
        }
     },
     
@@ -175,18 +176,21 @@
   
   function getDate(id){
     var view = this;
+    var dfd = $.Deferred();
     app.getJsonData("/org/get/", {id:id}).done(function(data){
     	view.currentOrgName = data[0].name;
         var html = render("OrganizationInfo-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
         view.$el.trigger("STATUS_CHANGE");
+        dfd.resolve(data[0].name);
         app.getJsonData("/config/get/").done(function(data){
            if(view && view.$el){
     		    view.$el.trigger("FILLDATA",{data:data});
            }
     	});
     });
+    return dfd.promise();
   }
   
   function doValidate(){

@@ -32,26 +32,28 @@ public class ConfigWebHandlers {
                             @WebParam("action_favorite") String favorite,
                             @WebParam("config_canvasapp_key") String canvasappKey,
                             @WebParam("config_apiKey") String apiKey, @WebParam("config_apiSecret") String apiSecret,
-                            @WebParam("config_callBackUrl") String callBackUrl,@WebParam("needAdmin") String needAdmin) throws SQLException {
+                            @WebParam("config_callBackUrl") String callBackUrl,@WebParam("needAdmin") String needAdmin,
+                            @WebParam("orgId") Integer orgId) throws SQLException {
         Map<String, String> params = new HashMap<String, String>();
         if(!"false".equals(needAdmin)){
             params.put("local_distance", distance);
             params.put("local_date", date);
             params.put("action_add_to_sourcing", addToSourcing);
             params.put("action_favorite", favorite);
+        }else{
+	        params.put("config_canvasapp_key", canvasappKey);
+	        params.put("config_apiKey", apiKey);
+	        params.put("config_apiSecret", apiSecret);
+	        params.put("config_callBackUrl", callBackUrl);
         }
-        params.put("config_canvasapp_key", canvasappKey);
-        params.put("config_apiKey", apiKey);
-        params.put("config_apiSecret", apiSecret);
-        params.put("config_callBackUrl", callBackUrl);
-        configManager.saveOrUpdateConfig(params);
+        configManager.saveOrUpdateConfig(params,orgId);
         forceAuthService.reloadService();
         return WebResponse.success();
     }
 
     @WebGet("/config/get/{name}")
-    public WebResponse getConfig(@WebPath(2) String name) throws SQLException {
-        return WebResponse.success(configManager.getConfig(name));
+    public WebResponse getConfig(@WebPath(2) String name,@WebParam("orgId") Integer orgId) throws SQLException {
+        return WebResponse.success(configManager.getConfig(name,orgId));
     }
 
     @WebModelHandler(startsWith = "/admin")

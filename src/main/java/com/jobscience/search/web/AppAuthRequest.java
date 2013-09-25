@@ -8,6 +8,7 @@ import com.britesnow.snow.web.param.annotation.WebModel;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.UserDao;
 
 import java.util.Map;
@@ -17,6 +18,8 @@ public class AppAuthRequest implements AuthRequest {
     @Inject
     private UserDao userDao;
 
+    @Inject
+    private DBSetupManager dbSetupManager;
     @Override
     public AuthToken authRequest(RequestContext rc) {
         OAuthToken token = OAuthToken.fromCookie(rc);
@@ -32,6 +35,7 @@ public class AppAuthRequest implements AuthRequest {
     @WebModelHandler(startsWith = "/")
     public void home(@WebModel Map m, @WebUser OAuthToken user, RequestContext rc) {
         String orgName = rc.getParam("org");
+        m.put("sys_schema", dbSetupManager.checkSysTables());
         if (orgName != null) {
             rc.setCookie("org", orgName);
             m.put("user", user);
