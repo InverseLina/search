@@ -8,7 +8,6 @@ import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import com.jobscience.search.canvas.SignedRequest;
 import com.jobscience.search.dao.UserDao;
 import com.jobscience.search.oauth.OAuthHelper;
