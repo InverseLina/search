@@ -185,30 +185,34 @@ var app = app || {};
 /*            if(type=="company"){
                 type = "employer";
             }*/
+
             var listName = (type=="company"?"companies":(type+"s"));
             var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
             delete params["q_"+listName];
             var keyword = $.trim($input.val());
+            var orderByCount = $.trim(keyword) == ""?true: false;
+            console.log(orderByCount);
             var searchCond = {
                 "searchValues": JSON.stringify(params),
                 "type":type,
                  queryString: keyword,
-                 orderByCount: false
+                 orderByCount: orderByCount
             };
 /*            if(keyword.length > 0){
                 searchCond.queryString = keyword;
             }*/
         	 searchDao.getGroupValuesForAdvanced(searchCond).done(function(data){
-            	 if(view.lastQueryString==keyword){
+            	 if(!orderByCount){
 	            	 var result = {};
 	            	 $.each(data.list,function(index,d){
 	            		 result[d.name]=d.count;
 	            	 });
 	            	 view.$el.find(".autoCompleteList [data-name]").each(function (index, e) {
-	            		 console.log($(e).attr("data-name"));
                          $(e).find("span.count").html("(" + (result[$(e).attr("data-name")] || 0) + ")");
                      });
-            	 }
+            	 }else{
+                     view.$el.find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data.list,type:type}));
+                 }
              });
         	
         },
