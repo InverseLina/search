@@ -27,6 +27,11 @@ public class OAuthHelper {
     private DataSourceManager dsMng;
     @Inject
     private DBSetupManager dbSetupManager;
+
+    String apiKey = null;
+    String apiSecret = null;
+    String callbackUrl = null;
+
     public OAuthService  getService(){
     	 List<Map> list = new ArrayList();
 	    if(dbSetupManager.checkSysTables()){
@@ -37,10 +42,8 @@ public class OAuthHelper {
 	        }
     	}
         list = configManager.checkSaleforceInfo(list);
-        String apiKey = null;
-        String apiSecret = null;
-        String callbackUrl = null;
-        
+
+
         if(list != null && list.size() > 0){
             for (Map<String,String> map : list) {
                 if ("config_apiKey".equals((String)map.get("name"))) {
@@ -56,5 +59,26 @@ public class OAuthHelper {
             return builder.build();
         }
         return null;
+    }
+
+    public String getApiKey() {
+        if (apiKey == null) {
+            getService();
+        }
+        return apiKey;
+    }
+
+    public String getApiSecret() {
+        if (callbackUrl == null) {
+            getService();
+        }
+        return apiSecret;
+    }
+
+    public String getCallbackUrl() {
+        if (callbackUrl == null) {
+            getService();
+        }
+        return callbackUrl;
     }
 }
