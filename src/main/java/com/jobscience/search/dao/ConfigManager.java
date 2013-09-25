@@ -89,7 +89,11 @@ public class ConfigManager {
          }
          sql+=")";
          List<Map> configList = new ArrayList();
-         configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
+         try{
+        	 configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
+         }catch (Exception e) {
+			
+		 }
          List list = new ArrayList();
           if (configList != null && configList.size() > 0) {
             list = configList;

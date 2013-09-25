@@ -38,11 +38,19 @@
     	  if($createBtn.prop("disabled")){
     		  return false;
     	  }
+    	  var $alert = $createBtn.closest(".setting").find(".alert");
+    	  $alert.addClass("transparent");
     	  $createBtn.prop("disabled",true).html("Creating...");
-    	  app.getJsonData("/createSysSchema",{},{type:"Post"}).done(function(){
-    		  $createBtn.html("Created");
-    		  view.$el.find(".import").prop("disabled",false);
-    		  $(".organization-tab").removeClass("hide");
+    	  app.getJsonData("/createSysSchema",{},{type:"Post"}).done(function(data){
+    		  if(data){
+    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+    			  $createBtn.prop("disabled",false).html("Create");
+    		  }else{
+    			  $createBtn.html("Created");
+    			  view.$el.find(".import").prop("disabled",false);
+    			  $alert.html("&nbsp;").addClass("transparent");
+        		  $(".organization-tab").removeClass("hide");
+    		  }
     	  });
       },
       "click;.import":function(event){
@@ -51,9 +59,16 @@
     	  if($importBtn.prop("disabled")){
     		  return false;
     	  }
-    	  $importBtn.prop("disabled",true).html("Importing...");
-    	  app.getJsonData("/updateZipCode",{},{type:"Post"}).done(function(){
-    		  $importBtn.html("Imported");
+    	  var $alert = $importBtn.closest(".setting").find(".alert");
+    	  $importBtn.prop("disabled",true).html("importing...");
+    	  app.getJsonData("/updateZipCode",{},{type:"Post"}).done(function(data){
+    		  if(data){
+    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+    			  $importBtn.prop("disabled",false).html("Import");
+    		  }else{
+    			  $importBtn.html("Imported");
+    			  $alert.html("&nbsp;").addClass("transparent");
+    		  }
     	  });
       },
       "STATUS_CHANGE":function(event){
@@ -61,7 +76,7 @@
     	  app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
         	  switch(result){
         	  case 0:	view.$el.find(".create").prop("disabled",false).html("Create");
-        	  			view.$el.find(".import").prop("disabled",false).html("Importe");
+        	  			view.$el.find(".import").prop("disabled",true).html("Import");
         	  			break;
         	  case 1:	view.$el.find(".create").prop("disabled",true).html("Created");
         	  			view.$el.find(".import").prop("disabled",false).html("Import");
@@ -69,6 +84,7 @@
         	  case 2:	view.$el.find(".create").prop("disabled",true).html("Created");
     		  			view.$el.find(".import").prop("disabled",true).html("Imported");
     					break;
+    		  default: view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html("Fail to load status,Please try to refresh page.")
         	  }
           });
       },

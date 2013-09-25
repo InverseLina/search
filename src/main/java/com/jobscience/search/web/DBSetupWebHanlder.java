@@ -1,5 +1,6 @@
 package com.jobscience.search.web;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
@@ -21,54 +22,63 @@ public class DBSetupWebHanlder {
     private IndexerManager indexerManager;
     
     @WebPost("/createSysSchema")
-    public WebResponse createSysSchema() throws SQLException {
-        boolean result = dbSetupManager.createSysSchema();
-        if(result){
-        	return WebResponse.success();
-        }else{
-        	return WebResponse.fail();
-        }
+    public WebResponse createSysSchema(){
+       try{
+    	   dbSetupManager.createSysSchema();
+       }catch (SQLException e) {
+    	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getLocalizedMessage()));
+       }
+       return WebResponse.success();
     }
     
     @WebPost("/updateZipCode")
     public WebResponse updateZipCode() {
-    	boolean result = dbSetupManager.updateZipCode();
-        if(result){
-        	return WebResponse.success();
-        }else{
-        	return WebResponse.fail();
-        }
+        try{
+        	dbSetupManager.updateZipCode();
+        }catch (SQLException e) {
+     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getLocalizedMessage()));
+        } catch (IOException e) {
+        	 return WebResponse.success(new DBSetupResult(-1,e.getLocalizedMessage()));
+		}
+        return WebResponse.success();
     }
     
     @WebGet("/checkSetupStatus")
-    public WebResponse checkSetupStatus(@WebParam("type")SchemaType type,@WebParam("orgName")String orgName) throws SQLException {
-        Integer result= dbSetupManager.checkSetupStatus(type,orgName);
-        return WebResponse.success(result);
+    public WebResponse checkSetupStatus(@WebParam("type")SchemaType type,@WebParam("orgName")String orgName){
+        try{
+        	 return WebResponse.success(dbSetupManager.checkSetupStatus(type,orgName));
+        }catch (Exception e) {
+        	return WebResponse.success(new DBSetupResult(-1,e.getLocalizedMessage()) );
+		}
     }
   
     @WebPost("/createExtraTables")
     public WebResponse createExtraTables(@WebParam("orgName")String orgName) {
-    	boolean result = dbSetupManager.createExtraTables(orgName);
-        if(result){
-        	return WebResponse.success();
-        }else{
-        	return WebResponse.fail();
+        try{
+        	dbSetupManager.createExtraTables(orgName);
+        }catch (SQLException e) {
+     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getLocalizedMessage()));
         }
+        return WebResponse.success();
     }
     
     @WebPost("/createIndexColumns")
     public WebResponse createIndexColumns(@WebParam("orgName")String orgName) {
-    	boolean result = dbSetupManager.createIndexColumns(orgName);
-        if(result){
-        	return WebResponse.success();
-        }else{
-        	return WebResponse.fail();
+        try{
+        	dbSetupManager.createIndexColumns(orgName);
+        }catch (SQLException e) {
+     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getLocalizedMessage()));
         }
+        return WebResponse.success();
     }
     
     @WebPost("/createIndexResume")
     public WebResponse createIndexResume(@WebParam("orgName")String orgName) {
-    	indexerManager.run(orgName);
+    	 try{
+    		 indexerManager.run(orgName);
+    	 }catch (Exception e) {
+       	    return WebResponse.success(new DBSetupResult(-1,e.getLocalizedMessage()));
+         }
         return WebResponse.success(indexerManager.getStatus(orgName));
     }
     
@@ -82,5 +92,4 @@ public class DBSetupWebHanlder {
     	indexerManager.stop();
         return WebResponse.success(indexerManager.getStatus(orgName));
     }
-    
 }

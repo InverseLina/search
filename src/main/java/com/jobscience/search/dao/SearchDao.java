@@ -105,7 +105,7 @@ public class SearchDao {
         }
         
         if(orderByCount){
-        	querySql.append(") result where result.name != ''  group by result.name order by result.count desc offset 0 limit 5");
+        	querySql.append(") result where result.name != ''  group by result.name order by result.count desc offset 0 limit 7");
         }else{
         	querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.name offset 0 limit 50");
         }
@@ -857,8 +857,8 @@ public class SearchDao {
     }
 
     public List getTopAdvancedType(Integer offset,Integer size,String type,String keyword,String min) throws SQLException {
-        if(size == null||size<6){
-            size = 5;
+        if(size == null||size<8){
+            size = 7;
         }
         offset = offset < 0 ? 0 : offset;
         Connection con = dbHelper.getConnection(orgHolder.getOrgName());

@@ -52,7 +52,7 @@ public class DBSetupManager {
 			return key;
 	}});
     
-    public Integer checkSetupStatus(SchemaType type,String orgName){
+    public Integer checkSetupStatus(SchemaType type,String orgName) throws SQLException, IOException{
     	Integer status =0;
     	if(checkSysTables()){
     		status=SetupStatus.SYS_CREATE_SCHEMA.getValue();
@@ -86,7 +86,7 @@ public class DBSetupManager {
         return status;
     }
     
-    public boolean createSysSchema(){
+    public boolean createSysSchema() throws SQLException{
     	boolean result = true;
     	dsMng.createSysSchemaIfNecessary();
         File sysFolder = new File(getRootSqlFolderPath() + "/jss_sys");
@@ -112,13 +112,12 @@ public class DBSetupManager {
                 e1.printStackTrace();
                 result = false;
             }
-            e.printStackTrace();
-            result = false;
+           throw e;
         }
         return result;
     }
     
-    public boolean updateZipCode(){
+    public boolean updateZipCode() throws SQLException, IOException{
     	return doUpdateZipCode(true)!=0;
     }
     
@@ -192,7 +191,7 @@ public class DBSetupManager {
     	return false;
     }
     
-    public boolean createExtraTables(String orgName){
+    public boolean createExtraTables(String orgName) throws SQLException{
     	boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
         File[] sqlFiles = orgFolder.listFiles();
@@ -220,11 +219,12 @@ public class DBSetupManager {
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
+            throw e;
         }
        return result;
     }
     
-    public boolean createIndexColumns(String orgName){
+    public boolean createIndexColumns(String orgName) throws SQLException{
     	boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
         File[] sqlFiles = orgFolder.listFiles();
@@ -252,6 +252,7 @@ public class DBSetupManager {
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
+            throw e;
         }
         return result;
     }
@@ -282,7 +283,7 @@ public class DBSetupManager {
         return sqlList;
     }
     
-    private boolean checkZipcodeImported(){
+    private boolean checkZipcodeImported() throws SQLException, IOException{
     	Integer zipcodeLoadCount = (Integer)cache.getIfPresent("zipcodeLoadCount");
     	if(zipcodeLoadCount==null){
     		zipcodeLoadCount = doUpdateZipCode(false);
@@ -296,7 +297,7 @@ public class DBSetupManager {
     	return false;
     }
     
-    private int doUpdateZipCode(boolean updateDb){
+    private int doUpdateZipCode(boolean updateDb) throws SQLException, IOException{
     	try{
     		int rowCount = 0;
 			URL url = new URL(zipcodePath);
@@ -331,14 +332,14 @@ public class DBSetupManager {
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
+				throw e;
 			}
 			in.close();
 			cache.put("zipcodeLoadCount", rowCount);
 			return rowCount;
     	}catch (IOException e) {
-			e.printStackTrace();
+			throw e;
 		}
-    	return 0;
     }
     
     private boolean checkOrgIndex(){
