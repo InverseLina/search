@@ -1,9 +1,10 @@
 package com.jobscience.search.oauth.api;
 
 
+import static com.jobscience.search.oauth.api.URLUtils.formURLEncode;
+
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 import org.scribe.builder.api.DefaultApi20;
 import org.scribe.exceptions.OAuthException;
@@ -17,7 +18,7 @@ import org.scribe.oauth.OAuth20ServiceImpl;
 import org.scribe.oauth.OAuthService;
 import org.scribe.utils.Preconditions;
 
-import static com.jobscience.search.oauth.api.URLUtils.formURLEncode;
+import com.britesnow.snow.util.JsonUtil;
 
 
 public class ForceDotComApi extends DefaultApi20
@@ -164,24 +165,21 @@ public class ForceDotComApi extends DefaultApi20
     public static class ForceDotComTokenExtractor implements AccessTokenExtractor
     {
 
-        private Pattern forceTokenPattern =
-                Pattern.compile("\"id\":\"(\\S*?)\",\"issued_at\":\"(\\d*?)\",.*,\"instance_url\":\"(\\S*?)\",.*,\"signature\":\"(\\S*?)\",\"access_token\":\"(\\S*?)\"");
+//        private Pattern forceTokenPattern =
+//                Pattern.compile("\"id\":\"(\\S*?)\",\"issued_at\":\"(\\d*?)\",.*,\"instance_url\":\"(\\S*?)\",.*,\"signature\":\"(\\S*?)\",\"access_token\":\"(\\S*?)\"");
 
         @Override
         public Token extract(String response)
         {
-            Preconditions.checkEmptyString(response, "Cannot extract a token from a null or empty String");
-            Matcher matcher = forceTokenPattern.matcher(response);
-            if (matcher.find())
-            {
+            try{
+                Map opts = JsonUtil.toMapAndList(response);
+                
                 return new ForceDotComToken(
-                        matcher.group(1) /*id*/, matcher.group(2) /*issuedAt*/,
-                        null /*refreshToken a.k.a secret*/, matcher.group(3) /*instanceUrl*/,
-                        matcher.group(4) /*signature*/, matcher.group(5) /*accessToken*/,
-                        response);
-            }
-            else
-            {
+                    String.valueOf(opts.get("id")) /*id*/, String.valueOf(opts.get("issued_at")) /*issuedAt*/,
+                    String.valueOf(opts.get("secret")) /*refreshToken a.k.a secret*/, String.valueOf(opts.get("instance_url")) /*instanceUrl*/,
+                    String.valueOf(opts.get("signature")) /*signature*/, String.valueOf(opts.get("access_token")) /*accessToken*/,
+                    response);
+            }catch(Exception e){
                 throw new OAuthException("Cannot extract a Force.com acces token. Response was: " + response);
             }
         }
