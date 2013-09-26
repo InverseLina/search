@@ -60,7 +60,7 @@ public class SearchWebHandlers {
     }
     
     @WebGet("/getAutoCompleteData")
-    public WebResponse getTopCompanies(@WebParam("type") String type, @WebParam("offset") Integer offset,
+    public WebResponse getAutoCompleteData(@WebParam("type") String type, @WebParam("offset") Integer offset,
                             @WebParam("limit") Integer limit,@WebParam("min")String min,@WebParam("keyword") String keyword) throws SQLException {
     	Map result = new HashMap();
         if(offset==null){
@@ -99,7 +99,7 @@ public class SearchWebHandlers {
     
     @WebGet("/getGroupValuesForAdvanced")
     public WebResponse getGroupValuesForAdvanced(@WebParam("searchValues") String searchValues,@WebParam("type")String type,
-    											 @WebParam("queryString")String queryString,@WebParam("orderByCount")Boolean orderByCount) throws SQLException{
+    											 @WebParam("queryString")String queryString,@WebParam("orderByCount")Boolean orderByCount,@WebParam("min")String min) throws SQLException{
         Map result = new HashMap();
         JSONObject jo = JSONObject.fromObject(searchValues);
         Map searchMap = new HashMap();
@@ -109,7 +109,7 @@ public class SearchWebHandlers {
         if(orderByCount==null){
         	orderByCount = false;
         }
-        List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount);
+        List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount,min);
         
         result.put("list", list);
         WebResponse wr = WebResponse.success(result);

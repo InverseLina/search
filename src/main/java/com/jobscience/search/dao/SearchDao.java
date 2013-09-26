@@ -64,7 +64,7 @@ public class SearchDao {
         return searchResult;
     }
     
-    public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount) throws SQLException {
+    public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min) throws SQLException {
         //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
@@ -100,6 +100,16 @@ public class SearchDao {
         querySql.append(" from ");
             
         querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values));
+        
+        if(min!=null&&!"0".equals(min)){
+	        if(type.equals("company")){
+	        	 querySql.append("  AND EXTRACT(year from age(c.\"ts2__employment_end_date__c\",c.\"ts2__employment_start_date__c\"))>="+min);
+	        }else if(type.equals("education")){
+	        	 querySql.append("  AND EXTRACT(year from age(now(),d.\"ts2__graduationdate__c\"))>="+min);
+	        }else if(type.equals("skill")){
+	        	 querySql.append("  AND b.\"ts2__rating__c\" >="+min);
+	        }
+        }
         if(!"".equals(groupBy.toString())){
             querySql.append(groupBy);
         }

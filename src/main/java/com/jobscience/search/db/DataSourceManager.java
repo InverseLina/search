@@ -11,9 +11,11 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 @Singleton
 public class DataSourceManager {
@@ -178,6 +180,11 @@ class DataSourceWrapper implements DataSource {
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return ds.isWrapperFor(iface);
+    }
+
+
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return null;
     }
 }
 

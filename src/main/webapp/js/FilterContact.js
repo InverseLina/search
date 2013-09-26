@@ -58,7 +58,7 @@
                 }
             }
         }
-    }, FilterContact.prototype.events||{});
+    }, app.ThPopup.prototype.events||{});
 
     brite.registerView("FilterContact", {emptyParent: false},function(){
       return new FilterContact();

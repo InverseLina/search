@@ -41,7 +41,7 @@ public class IndexerManager {
 	                    temp.append(str);
 	                }
 	                in.close();
-	                insertSql = temp.toString().split("-- EXTENSION")[1].trim();
+	                insertSql = temp.toString().split("-- SCRIPTS")[1].trim();
 	                if(insertSql.endsWith(";")){
 	                	insertSql=insertSql.substring(0,insertSql.length()-1);
 	                }

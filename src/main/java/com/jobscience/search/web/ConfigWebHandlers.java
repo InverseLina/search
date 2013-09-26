@@ -55,6 +55,10 @@ public class ConfigWebHandlers {
     public WebResponse getConfig(@WebPath(2) String name,@WebParam("orgId") Integer orgId) throws SQLException {
         return WebResponse.success(configManager.getConfig(name,orgId));
     }
+    @WebGet("/config/getByName/{name}")
+    public WebResponse getConfigByName(@WebPath(2) String name) throws Exception {
+        return WebResponse.success(configManager.getConfig(name));
+    }
 
     @WebModelHandler(startsWith = "/admin")
     public void admin(@WebModel Map m, RequestContext rc) {
