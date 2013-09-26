@@ -104,6 +104,7 @@
         view.position = position;
         var $valve = $e.find(".slider");
         $valve.css("left",(position - $valve.width()/2)+"px");
+        view.$el.trigger("SLIDER_VALUE_CHANGE");
     }
 
     /**

@@ -60,7 +60,7 @@ public class SearchWebHandlers {
     }
     
     @WebGet("/getAutoCompleteData")
-    public WebResponse getTopCompanies(@WebParam("type") String type, @WebParam("offset") Integer offset,
+    public WebResponse getAutoCompleteData(@WebParam("type") String type, @WebParam("offset") Integer offset,
                             @WebParam("limit") Integer limit,@WebParam("min")String min,@WebParam("keyword") String keyword) throws SQLException {
     	Map result = new HashMap();
         if(offset==null){
