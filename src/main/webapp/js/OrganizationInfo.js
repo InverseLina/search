@@ -170,7 +170,7 @@
 	    	  app.getJsonData("/checkSetupStatus",{type:"ORG",orgName:orgName},{type:"Get"}).done(function(result){
 	    		  switch(result){
 	    		  case 1:
-	    		  case 2: 	view.$el.find(".resume").prop("disabled",true);
+	    		  case 2: 	view.$el.find(".index,.resume").prop("disabled",true);
 	    		  			break;
 	        	  case 3:	view.$el.find(".extra").prop("disabled",true).html("Created");
 	        	  			view.$el.trigger("RESUMEINDEXSTATUS");

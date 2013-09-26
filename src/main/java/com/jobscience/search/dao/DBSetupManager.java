@@ -273,7 +273,7 @@ public class DBSetupManager {
                 temp.append(str);
             }
             in.close();
-            String sqls[] = temp.toString().split(";");
+            String sqls[] = temp.toString().split("-- EXTENSION");
             for (String sql : sqls) {
                 sqlList.add(sql);
             }

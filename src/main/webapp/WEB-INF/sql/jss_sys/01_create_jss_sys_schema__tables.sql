@@ -1,3 +1,4 @@
+-- EXTENSION
 CREATE TABLE org
 (
   id serial NOT NULL,
@@ -7,7 +8,7 @@ CREATE TABLE org
   CONSTRAINT org_pkey PRIMARY KEY (id),
   CONSTRAINT unique_name UNIQUE (name)
 );
-
+-- EXTENSION
 CREATE TABLE config
 (
   id serial not null,
