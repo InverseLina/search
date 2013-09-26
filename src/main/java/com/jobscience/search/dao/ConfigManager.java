@@ -103,6 +103,16 @@ public class ConfigManager {
 
     }
 
+    public Map getConfig(String name) {
+        String sql = "select * from config where name = ? and org_id = ? ";
+        List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), sql, name, orgHolder.getId());
+        if (list.size() == 1) {
+            return list.get(0);
+        }else{
+            return null;
+        }
+    }
+
     public List checkSaleforceInfo(List<Map> list) {
         if (list.size() > 0) {
             boolean isCanvasappKey = false;

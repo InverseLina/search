@@ -67,7 +67,11 @@ var app = app || {};
          view.afterPostDisplay();
      }
      if(view.$el.find(".sliderBarContainer").length > 0){
-         brite.display("Slider", ".sliderBarContainer").done(function(slider){
+         var opts = {max:20};
+         if(view.type=="location"){
+             opts.max = 100;
+         }
+         brite.display("Slider", ".sliderBarContainer", opts).done(function(slider){
              view.slider = slider;
          });
      }

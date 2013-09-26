@@ -11,8 +11,6 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.db.DBHelper;
 import com.jobscience.search.db.DataSourceManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class CurrentOrgHolder {
 
-    private Logger log = LoggerFactory.getLogger(CurrentOrgHolder.class);
+   
     @Inject
     private CurrentRequestContextHolder crh;
     @Inject
