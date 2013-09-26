@@ -354,11 +354,15 @@ var app = app || {};
                       var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
                       delete params["q_"+listName];
 //                	    	 console.log(params);
-                      searchDao.getGroupValuesForAdvanced({
+                      var groupSearchData = {
                           "searchValues": JSON.stringify(params),
                           "type":type,
                           "orderByCount":true
-                      }).always(function(result) {
+                      };
+                      if(view.slider && view.slider.getValue() > 0){
+                          groupSearchData.min = view.slider.getValue();
+                      }
+                      searchDao.getGroupValuesForAdvanced(groupSearchData).always(function(result) {
                               if(type=="company"){
                                   type = "employer";
                               }
