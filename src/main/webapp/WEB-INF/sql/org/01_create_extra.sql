@@ -1,5 +1,11 @@
 -- SCRIPTS
+drop extension if exists pg_trgm CASCADE;
+
+-- SCRIPTS
 CREATE SCRIPTS pg_trgm;
+
+-- SCRIPTS
+drop table if exists contact_ex;
 
 -- SCRIPTS
 CREATE TABLE contact_ex
