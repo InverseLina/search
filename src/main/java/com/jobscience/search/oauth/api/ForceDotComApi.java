@@ -165,7 +165,7 @@ public class ForceDotComApi extends DefaultApi20
     {
 
         private Pattern forceTokenPattern =
-                Pattern.compile("\"id\":\"(\\S*?)\",\"issued_at\":\"(\\d*?)\",.*,\"instance_url\":\"(\\S*?)\",\"signature\":\"(\\S*?)\",\"access_token\":\"(\\S*?)\"");
+                Pattern.compile("\"id\":\"(\\S*?)\",\"issued_at\":\"(\\d*?)\",.*,\"instance_url\":\"(\\S*?)\",.*,\"signature\":\"(\\S*?)\",\"access_token\":\"(\\S*?)\"");
 
         @Override
         public Token extract(String response)

@@ -40,7 +40,7 @@ public class OauthWebHandlers {
     @WebModelHandler(startsWith = "/forceCallback")
     public void callback(RequestContext rc, @WebParam("code") String code) throws Exception {
         ForceDotComApi.ForceDotComToken token = (ForceDotComApi.ForceDotComToken) forceAuthService.getAccessToken(code);
-        Map<String,String> info = salesForceService.getloginInfo(token.getToken());
+        Map<String,String> info = salesForceService.getloginInfo(token);
         String orgName = info.get("orgName").replaceAll("\"", "");
         rc.setCookie("userName", info.get("userName").replaceAll("\"", ""));
         if(productMode){
