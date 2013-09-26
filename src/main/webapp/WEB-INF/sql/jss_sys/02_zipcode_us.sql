@@ -1,3 +1,4 @@
+-- EXTENSION
 CREATE TABLE zipcode_us
 (
   zip character(5) NOT NULL,

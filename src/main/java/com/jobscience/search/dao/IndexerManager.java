@@ -41,10 +41,14 @@ public class IndexerManager {
 	                    temp.append(str);
 	                }
 	                in.close();
-	                insertSql = temp.toString().split(";")[0];
+	                insertSql = temp.toString().split("-- EXTENSION")[1].trim();
+	                if(insertSql.endsWith(";")){
+	                	insertSql=insertSql.substring(0,insertSql.length()-1);
+	                }
 	        	}
 	        }
 	    }catch (Exception e) {
+	    	e.printStackTrace();
 			throw e;
 		}
 	    if(indexerStatus==null){
