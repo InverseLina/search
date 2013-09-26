@@ -1,6 +1,7 @@
+-- EXTENSION
 CREATE EXTENSION pg_trgm;
 
-
+-- EXTENSION
 CREATE TABLE contact_ex
 (
   id bigint NOT NULL,
@@ -8,23 +9,25 @@ CREATE TABLE contact_ex
   CONSTRAINT contact_ex_pKey PRIMARY KEY (id )
 );
 
+-- EXTENSION
 ALTER TABLE contact_ex
   ADD CONSTRAINT fk_contact_ex_contact
     FOREIGN KEY (id)  REFERENCES  contact(id) ON DELETE cascade;
     
-
+-- EXTENSION
 	CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
 	BEGIN
 	IF( TG_OP='INSERT' ) THEN
-	    insert into contact_ex(id,resume_tsv) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ))#
+	    insert into contact_ex(id,resume_tsv) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ));
 	ELSIF (TG_OP = 'UPDATE') THEN
-	    UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" )  where id = new.id#
-	END IF#
-	RETURN NEW#
-	END#
+	    UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" )  where id = new.id;
+	END IF;
+	RETURN NEW;
+	END;
 	$Body$
 	LANGUAGE 'plpgsql';
 
+-- EXTENSION
 
 CREATE TRIGGER contact_trg_resume_tsv
   BEFORE INSERT OR UPDATE OF "ts2__text_resume__c"
@@ -32,9 +35,10 @@ CREATE TRIGGER contact_trg_resume_tsv
   FOR EACH ROW
   EXECUTE PROCEDURE update_context_ex_resume();
   
-  
+-- EXTENSION  
 DROP TABLE if EXISTS savedsearches;
 
+-- EXTENSION
 CREATE TABLE savedsearches
 (
   id bigserial NOT NULL,
@@ -47,7 +51,10 @@ CREATE TABLE savedsearches
   CONSTRAINT unq_name UNIQUE (name)
 );
 
+-- EXTENSION
 DROP TABLE if EXISTS "user";
+
+-- EXTENSION
 CREATE TABLE "user"
 (
   id bigserial NOT NULL,
