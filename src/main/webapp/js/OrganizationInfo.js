@@ -18,7 +18,9 @@
     	  view.$navTabs.append(li);	
     	  var html = render("OrganizationInfo-content",{data:null});
     	  view.$tabContent.html(html);
+    	  view.orgId = -1;
        }else if(app.pathInfo.paths[1] == "edit"){
+    	   view.orgId = app.pathInfo.paths[2] * 1;
     	  getDate.call(view,app.pathInfo.paths[2] * 1).done(function(orgName){
     		  var li = render("OrganizationInfo-li",{type:"Organization:"+orgName,url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
          	  view.$navTabs.append(li);	
@@ -47,10 +49,12 @@
     			values["local_date"]=view.$el.find("[name='local_date']").val();
     			values["action_add_to_sourcing"]=view.$el.find("[name='action_add_to_sourcing']").prop("checked");
     			values["action_favorite"]=view.$el.find("[name='action_favorite']").prop("checked");
-    			values["config_canvasapp_key"]=view.$el.find("[name='config_canvasapp_key']").val();
-		        values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
-		        values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
-		        values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
+    			//values["config_canvasapp_key"]=view.$el.find("[name='config_canvasapp_key']").val();
+		        //values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
+		        //values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
+		        //values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
+		        values["needAdmin"]="true";
+		        values["orgId"]= view.orgId;
 	        	app.getJsonData("/config/save", values,"Post").done(function(data){
 	        		values = {};
 	        		values["name"]=view.$el.find("[name='name']").val();
@@ -209,7 +213,7 @@
         view.$tabContent.html(html);
         view.$el.trigger("STATUS_CHANGE");
         dfd.resolve(data[0].name);
-        app.getJsonData("/config/get/").done(function(data){
+        app.getJsonData("/config/get/",{orgId:view.orgId}).done(function(data){
            if(view && view.$el){
     		    view.$el.trigger("FILLDATA",{data:data});
            }
@@ -222,7 +226,6 @@
 	    var view = this;
 		var $nameMsg = view.$el.find(".alert-error.name");
 		var $schemanameMsg = view.$el.find(".alert-error.schemaname");
-		var $callBackUrlMsg = view.$el.find(".alert-error.callBackUrl");
 		
 		if(view.$el.find("[name='name']").val() == ''){
 			$nameMsg.removeClass("hide");
@@ -235,14 +238,6 @@
 		}else{
 			$schemanameMsg.addClass("hide");
 		}
-		
-		var str = view.$el.find("[name='config_callBackUrl']").val();
-		str = str.match(/http:\/\/.+/) == null ? str.match(/https:\/\/.+/) : "true"; 
-		if (str == null){ 
-		   $callBackUrlMsg.removeClass("hide");
-		}else{ 
-		   $callBackUrlMsg.addClass("hide");
-		}   
 		
 		if(view.$el.find(".alert-error:not(.hide)").length>0){
 			view.validation=false;
