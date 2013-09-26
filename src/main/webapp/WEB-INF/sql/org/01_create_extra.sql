@@ -1,7 +1,7 @@
--- EXTENSION
-CREATE EXTENSION pg_trgm;
+-- SCRIPTS
+CREATE SCRIPTS pg_trgm;
 
--- EXTENSION
+-- SCRIPTS
 CREATE TABLE contact_ex
 (
   id bigint NOT NULL,
@@ -9,12 +9,12 @@ CREATE TABLE contact_ex
   CONSTRAINT contact_ex_pKey PRIMARY KEY (id )
 );
 
--- EXTENSION
+-- SCRIPTS
 ALTER TABLE contact_ex
   ADD CONSTRAINT fk_contact_ex_contact
     FOREIGN KEY (id)  REFERENCES  contact(id) ON DELETE cascade;
     
--- EXTENSION
+-- SCRIPTS
 	CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
 	BEGIN
 	IF( TG_OP='INSERT' ) THEN
@@ -27,7 +27,7 @@ ALTER TABLE contact_ex
 	$Body$
 	LANGUAGE 'plpgsql';
 
--- EXTENSION
+-- SCRIPTS
 
 CREATE TRIGGER contact_trg_resume_tsv
   BEFORE INSERT OR UPDATE OF "ts2__text_resume__c"
@@ -35,10 +35,10 @@ CREATE TRIGGER contact_trg_resume_tsv
   FOR EACH ROW
   EXECUTE PROCEDURE update_context_ex_resume();
   
--- EXTENSION  
+-- SCRIPTS  
 DROP TABLE if EXISTS savedsearches;
 
--- EXTENSION
+-- SCRIPTS
 CREATE TABLE savedsearches
 (
   id bigserial NOT NULL,
@@ -51,10 +51,10 @@ CREATE TABLE savedsearches
   CONSTRAINT unq_name UNIQUE (name)
 );
 
--- EXTENSION
+-- SCRIPTS
 DROP TABLE if EXISTS "user";
 
--- EXTENSION
+-- SCRIPTS
 CREATE TABLE "user"
 (
   id bigserial NOT NULL,
