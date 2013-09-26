@@ -1,10 +1,15 @@
+@import "utils";
 .Filter{
 	.popover{
 		display:block;
-		width:350px;
+		width:390px;
 		max-width:500px;
+        box-sizing: border-box;
+        .box-shadow(none);
+
+
 		.popover-content{
-			padding:9px 0;
+			padding:9px 0 28px;
 		}
 		.center{
 			text-align: center;
@@ -15,8 +20,8 @@
 			padding-right:14px;
 			.item{
 				padding: 4px 25px 4px 10px;
-				border-radius: 10px;
-                margin: 2px 2px 5px 2px;
+				border-radius: 8px;
+                margin: -1px 2px 5px 2px;
 				display: inline-block;
 				position:relative;
 				font-size: 12px;
@@ -32,8 +37,8 @@
 		.content{
 			   span{
 		    	 display: inline-block;
-				 width: 50px;
-				 padding-left: 10px;
+                 width: 50px;
+                 font-weight: bold;
 			   }
 			   span.count{
 		      	display:inline;
@@ -69,18 +74,21 @@
                .sliderRow {
                  position: relative;
                  height: 30px;
+                 margin-top: 10px;
                  .sliderBarContainer {
-                   width: 220px;
+                   width: 270px;
                    height: 10px;
                    float: left
                  }
 
                  span {
                    display:block;
-                   width:80px;
+                   width:70px;
                    font-size: 10px;
                    float: left;
-                   padding-top: 10px;
+                   padding-top: 5px;
+                   color: #7D9999;
+                   margin-left: 15px;
                  }
                }
 				.progressContainer{
@@ -94,6 +102,9 @@
 					width:100%;
 					cursor:pointer;
 					padding:2px;
+                  height: 30px;
+                  line-height: 30px;
+
 				}
 		}
 		
@@ -113,14 +124,14 @@
 	    .clear{
 	      position: absolute;
 	      font-size: 12px;
-		  width: 16px;
-		  height: 16px;
+		  width: 13px;
+		  height: 13px;
 		  text-align: center;
-		  line-height: 14px;
+		  line-height: 13px;
 	      vertical-align: middle;
-	      border-radius:18px;
+	      border-radius:13px;
 	      cursor: pointer;
-	      background:#000;
+	      background:#333;
 	      color:#ffffff;
 	      font-family: monospace;
 	      padding-top: 1.5px;
@@ -128,14 +139,30 @@
 	      right:2px;
 	      margin-top: 3px;
           top: 2px;
+          i {
+            font-family: monospace;
+            font-style: normal;
+            font-size: 6px;
+            font-weight: bold;
+            height: 13px;
+            line-height: 13px;
+            margin-top: -1px;
+            display: block;
+            color: #e13c5e;
+          }
 	    }
 	    .glyphicon-remove{
 	    	cursor:pointer;
 	    }
-	    .autoComplete{
-	    	width: 100%;
-			margin-bottom: 5px;
-	    }
+      .autoComplete {
+        width: 100%;
+        margin-bottom: 6px;
+        margin-top: 4px;
+        padding: 3px 3px;
+        margin-left: 3px;
+        margin-right: 3px;
+        width: 352px;
+      }
 
         .autoCompleteContainer {
            position: relative;
@@ -150,4 +177,27 @@
       }
       
 	}
+
+  .popover .arrow {
+    border-width: 18px;
+  }
+  .popover .arrow:after {
+    border-width: 17px;
+    content: "";
+  }
+
+  .popover {
+    &.bottom .arrow {
+      left: 50%;
+      margin-left: -18px;
+      top: -36px;
+      &:after {
+        top: 1px;
+        margin-left: -17px;
+        border-bottom-color: #ffffff;
+        border-top-width: 0;
+        content: " ";
+      }
+    }
+  }
 }
