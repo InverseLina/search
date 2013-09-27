@@ -104,6 +104,9 @@ public class SearchWebHandlers {
     											 @WebParam("pageNum")Integer pageNum) throws SQLException{
         Map result = new HashMap();
         JSONObject jo = JSONObject.fromObject(searchValues);
+        if (queryString == null) {
+            queryString = "";
+        }
         Map searchMap = new HashMap();
         for(Object key:jo.keySet()){
         	searchMap.put(key.toString().substring(2),jo.get(key).toString());
