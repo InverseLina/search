@@ -94,7 +94,7 @@
         }
         view.opts.value = value;
 
-        $e.find(".slider").html(view.opts.value);
+        $e.find(".slider").html(value==0?"-":value);
         var position = 0;
         if(view.opts.max != view.opts.min){
             position = (view.opts.value - view.opts.min) / (view.opts.max - view.opts.min) * view.barLength;

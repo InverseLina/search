@@ -73,12 +73,17 @@
     	  var view = this;
     	  //$("[data-b-view^='Filter']",view.$el).bRemove();
     	  var $th = $(event.currentTarget);
-    	  var position = {top:$th.get(0).offsetTop+$th.height() + 40,left:$th.get(0).offsetLeft+$th.width()/2-175};
-//          console.log(position);
+    	  var position = {top:$th.get(0).offsetTop+$th.height() + 40,left:$th.get(0).offsetLeft+$th.width()/2-195};
+          console.log(position);
           if(position.left <  20 ){
               position.left = 20;
           }
-    	  var type = $th.attr("data-column"); 
+          var popupOffset =  $(".btnPopupColumns", view.$el).offset();
+          console.log(popupOffset);
+          if(position.left +  400 > popupOffset.left){
+              position.left =  popupOffset.left - 400;
+          }
+    	  var type = $th.attr("data-column");
 
           var data = app.ParamsControl.getFilterParams()[type]||[];
 
