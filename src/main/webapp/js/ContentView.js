@@ -401,9 +401,10 @@
   	                notLast : colLen - j > 1
   	              });
   	         } else if (columns[j] == "contact") {
-  	           var displayValue = "<div><a href='"+org.instanceUrl+"/"+items[i]["sfid"]+"'><b>"+items[i]["name"]+"</b></a></div>";
-  	           displayValue += "<div> "+items[i]["title"]+"</div>";
-  	           displayValue += "<div><a href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a></div>";
+  	           var displayValue = "<a class='lineInfo name' href='"+org.instanceUrl+"/"+items[i]["sfid"]+"'>"+items[i]["name"]+"</a>";
+  	           displayValue += "<div class='lineInfo'>"+items[i]["title"]+"</div>";
+  	           displayValue += "<a class='lineInfo' href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a>";
+  	           displayValue += "<div class='lineInfo'>"+items[i]["phone"]+"</div>";
   	            item.push({
   	                name : columns[j],
   	                value : displayValue,
