@@ -62,6 +62,15 @@ public class DBSetupWebHanlder {
         return WebResponse.success();
     }
     
+    @WebPost("/createPgTrgm")
+    public WebResponse createExtraTables() {
+        try{
+        	dbSetupManager.createExtension("pg_trgm");
+        }catch (SQLException e) {
+     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getNextException().getLocalizedMessage()));
+        }
+        return WebResponse.success();
+    }
     @WebPost("/createIndexColumns")
     public WebResponse createIndexColumns(@WebParam("orgName")String orgName) {
         try{

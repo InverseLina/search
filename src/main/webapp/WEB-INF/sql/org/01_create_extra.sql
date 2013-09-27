@@ -1,10 +1,4 @@
 -- SCRIPTS
-drop extension if exists pg_trgm CASCADE;
-
--- SCRIPTS
-CREATE extension pg_trgm;
-
--- SCRIPTS
 drop table if exists contact_ex;
 
 -- SCRIPTS

@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class DBSetupManager {
 	        }
     	}
     	if(type.equals(SchemaType.ORG)){
-	    	if(status==SetupStatus.SYS_IMPORT_ZIPCODE_DATA.getValue()){
+	    	if(status==SetupStatus.SYS_IMPORT_ZIPCODE_DATA.getValue()||status==SetupStatus.SYS_CREATE_SCHEMA.getValue()){
 	    		if(checkOrgExtra(orgName)){
 		        	status = SetupStatus.ORG_CREATE_EXTRA.getValue();
 		        }
@@ -82,10 +83,30 @@ public class DBSetupManager {
 		        	status=SetupStatus.ORG_CREATE_INDEX_RESUME.getValue()*(orgIndex?SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue():1);
 		        }
 	    	}
+    	}else{
+    		if(checkExtension("pg_trgm")){
+        		status += SetupStatus.PG_TRGM.getValue();
+        	}
     	}
         return status;
     }
     
+    public boolean createExtension(String extName) throws SQLException{
+    	boolean result = false;
+    	if(checkExtension(extName)){
+    		return true;
+    	}
+    	try{
+	        Connection conn = dsMng.getDefaultConnection();
+	        PreparedStatement st = conn.prepareStatement("CREATE extension "+extName+";");
+	        result = st.execute();
+	        st.close();
+	        conn.close();
+    	}catch (SQLException e) {
+			throw e;
+		}
+		return result;
+    }
     public boolean createSysSchema() throws SQLException{
     	boolean result = true;
     	dsMng.createSysSchemaIfNecessary();
@@ -175,6 +196,16 @@ public class DBSetupManager {
     	return false;
     }
     
+    private boolean checkExtension(String extName){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from pg_catalog.pg_extension" +
+        		" where extname='"+extName+"' ");
+    	if(list.size()==1){
+    		if("1".equals(list.get(0).get("count").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
     private  boolean checkOrgExtra(String orgName){
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
     	String schemaname="" ;
