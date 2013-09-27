@@ -76,10 +76,16 @@ public class DBSetupManager {
 	    	
 	    	if(status==SetupStatus.ORG_CREATE_EXTRA.getValue()){
 	    		boolean orgIndex = false;
-	    		if(checkOrgIndex()){
-		        	status = SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue();
+	    		if(checkExtension("pg_trgm")){
+		        	status = SetupStatus.PG_TRGM.getValue();
+		        	if(checkOrgIndex()){
+			        	status = SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue();
+			        }
 		        	orgIndex = true;
+		        }else{
+		        	status = SetupStatus.ORG_SCHEMA_NOT_EXIST.getValue();
 		        }
+	    		
 	    		if(indexerManager.isOn()){
 	    	        status=SetupStatus.ORG_CREATE_INDEX_RESUME_RUNNING.getValue()*(orgIndex?SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue():1);
 	        	}

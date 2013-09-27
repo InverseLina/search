@@ -141,6 +141,8 @@
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
 						$createIndexBtn.prop("disabled",false).html("Create Index Resume");
 					}else{
+						$createIndexBtn.prop("disabled",true).html("Index Resume Created");
+						view.$el.find(".index-info,.status").addClass("hide");
 						view.$el.trigger("STATUS_CHANGE");
 						$alert.addClass("hide");
 					}
@@ -200,6 +202,10 @@
 	        		  		}, 3000);
 	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
 							break;
+	        	  case 7:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+			  	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
+				  			view.$el.find(".resume").prop("disabled",false).html("Create Index Resume");
+				  			break;
 	        	  case 20:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 	        	  			view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
 			  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
@@ -214,6 +220,22 @@
 	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
 							break;
 	        	  case 30:	view.$el.find(".extra,.resume,.index").prop("disabled",true); 
+							break;
+	        	  case 31:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+		  	  				view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+			  		  		view.$el.find(".resume").prop("disabled",false).html("Create Index Resume");
+							break;
+	        	  case 35:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	        	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+			  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
+							break;
+	        	  case 42:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+			  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+			  		  		view.$el.find(".resume").prop("disabled",false).html("Stop");
+					  		view.intervalId = window.setInterval(function(){
+						    	   $(view.el).trigger("RESUMEINDEXSTATUS");
+					  		}, 3000);
+					  		view.$el.trigger("RESUMEINDEXSTATUS");
 							break;
 	        	  }
 	          });

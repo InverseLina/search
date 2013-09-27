@@ -8,7 +8,8 @@ public enum SetupStatus {
     ORG_CREATE_INDEX_RESUME(5),
     ORG_CREATE_INDEX_RESUME_RUNNING(6),
     PG_TRGM(7),
-    SCHEMA_NOT_EXIST(30);
+    SCHEMA_NOT_EXIST(30),
+    ORG_SCHEMA_NOT_EXIST(31);
 	private Integer value;
 	public Integer getValue() {
 		return value;
