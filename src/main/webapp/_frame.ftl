@@ -28,9 +28,11 @@
     </script>
     [/#if]
     <script>
-      var orgGlobalConfig = {
-        instanceUrl:'${instanceUrl}'
-      };
+      [#if instanceUrl??]
+        var org = {
+          instanceUrl:'${instanceUrl}'
+        };
+      [/#if]
     </script>
     
   </head>
