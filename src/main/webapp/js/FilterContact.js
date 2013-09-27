@@ -12,7 +12,7 @@
     }
 
     FilterContact.prototype.events = $.extend({
-        "btap; input.save":function(){
+        "btap; .save":function(){
             addItem.call(this);
         },
         "btap;.cancel":function(event){
@@ -36,7 +36,7 @@
             view.$el.find(":input[name='Title']").val(value.title||"");
 
         },
-        "btap; .content .contactRow i.clear": function (event) {
+        "btap; .content .contactRow .clear": function (event) {
             event.preventDefault();
             event.stopPropagation();
             var view = this;
