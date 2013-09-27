@@ -139,7 +139,21 @@
           var cid = $(event.currentTarget).closest("i").attr("data-id");
           brite.display("ResumeView","body", {id: cid})
       },
-
+      "btap; table td[data-column]" : function(event) {
+        var view = this;
+        var $this = $(event.currentTarget);
+        var name = $this.attr("data-column");
+        var value = $this.find("span").text();
+        if(value != ""){
+          if(name=="company"){
+            brite.display("ExtraMessage",null,{title:"Company",message:value});
+          }else if(name=="skill"){
+            brite.display("ExtraMessage",null,{title:"Skill",message:value});
+          }else if(name=="education"){
+            brite.display("ExtraMessage",null,{title:"Education",message:value});
+          }
+        }
+      },
       "keypress;.search-input" : function(event) {
         var view = this;
         if (event.which === 13) {
@@ -421,9 +435,12 @@
   	                notLast : colLen - j > 1
   	              });
   	         } else if (columns[j] == "contact") {
+  	           var displayValue = "<b>"+items[i]["name"]+"</b><br/>";
+  	           displayValue += "<a href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a><br/>";
+  	           displayValue += items[i]["title"];
   	            item.push({
   	                name : columns[j],
-  	                value : items[i]["name"]+"<br/>"+items[i]["email"]+"<br/>"+items[i]["title"],
+  	                value : displayValue,
   	                notLast : colLen - j > 1
   	              });
   	         } else {

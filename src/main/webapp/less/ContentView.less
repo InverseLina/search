@@ -286,11 +286,12 @@
             background: #ECECEC;
           }
           td {
-            span {
+            > span {
               display:block;
               width: 100%;
               padding-left: 2px;
               text-overflow: ellipsis;
+              height:60px;
               word-break: break-word;
               overflow: hidden;
             }
@@ -300,12 +301,6 @@
             input[type="checkbox"]{
               margin-left: -5px;
             }
-          }
-          td[data-column='skill'],td[data-column='company'],td[data-column='education']{
-             span {
-//               min-height: 90px;
-               overflow-y: auto;
-             }
           }
         }
       }
