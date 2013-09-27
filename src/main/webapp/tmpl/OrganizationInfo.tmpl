@@ -7,38 +7,43 @@
 </script>
 
 <script id="OrganizationInfo-content" type="text/html">
-	<h3 class="title">OrganizationInfo</h3>
-    <div class="OrganizationInfo-content">
-        <table class="content-table">
-            <tr><td class="left"><span>name: </span></td><td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
-            </tr>
-            <tr><td class="left"><span>schemaname: </span></td><td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="schemaname" /></td><td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
-            </tr>
-            <tr><td class="left"><span>sfid: </span></td><td class="right"><input type="text" name="sfid" value="{{data.sfid}}" class="text" placeholder="sfid" /></td><td><div class="alert alert-error hide msg sfid">Please Add some approvers.</div></td>
-            </tr>
-        </table>
-    </div>
-    
-    <h3 class="title">Setup</h3>
-    <div class="Setup-content">
-        <table class="content-table">
-            <!--<tr><td class="left"><span>Import base data and tables: </span></td><td class="right"><button class="btn btn-primary save import">Import</button></td>
-            </tr>-->
-            <tr><td class="left"><span>Create extra tables: </span></td><td class="right"><button class="btn btn-primary  extra">Create</button></td>
-            	<td class="alert-td"><div class="alert alert-danger transparent"></div></td>
-            </tr>
-            <tr><td class="left"><span>Create Index Columns: </span></td><td class="right"><button class="btn btn-primary  index">Create</button></td>
-            	<td class="alert-td"><div class="alert alert-danger transparent"></div></td>
-            </tr>
-            <tr><td class="left"><span>Create Index Resume: </span></td><td class="right"><button class="btn btn-primary  resume">Run</button>
-                                 <button class="btn btn-primary status hide">Get Status</button><span class="index-info info"></span></td>
-            	<td class="alert-td"><div class="alert alert-danger transparent"></div></td>
-            </tr>
-         </table>
-     </div>
-    
-    <div class="AdminHome">
-        <h3 class="title">Administration</h3>
+        <div class="OrganizationInfo-content">
+        <h3 class="title">Setup</h3>
+        <div class="setup-content">
+            <table class="content-table">
+                <!--<tr><td class="left"><span>Import base data and tables: </span></td><td class="right"><button class="btn btn-primary save import">Import</button></td>
+                </tr>-->
+                <tr><td class="left"><span>Create extra tables: </span></td><td class="right"><button class="btn btn-primary  extra">Create</button></td>
+                  <td class="alert-td"><div class="alert alert-danger transparent"></div></td>
+                </tr>
+                <tr><td class="left"><span>Create Index Columns: </span></td><td class="right"><button class="btn btn-primary  index">Create</button></td>
+                  <td class="alert-td"><div class="alert alert-danger transparent"></div></td>
+                </tr>
+                <tr><td class="left"><span>Create Index Resume: </span></td><td class="right"><button class="btn btn-primary  resume">Run</button>
+                                     <button class="btn btn-primary status hide">Get Status</button><span class="index-info info"></span></td>
+                  <td class="alert-td"><div class="alert alert-danger transparent"></div></td>
+                </tr>
+             </table>
+         </div>
+         
+        <h3 class="title">Organization Info</h3>
+        <div class="baseInfo-content">
+            <table class="content-table">
+                <tr><td class="left"><span>Name: </span></td><td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="Name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
+                </tr>
+                <tr><td class="left"><span>Schema Name: </span></td><td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="Schema Name" /></td><td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
+                </tr>
+                <tr><td class="left"><span>SFID: </span></td><td class="right"><input type="text" name="sfid" value="{{data.sfid}}" class="text" placeholder="SFID" /></td><td><div class="alert alert-error hide msg sfid">Please Add some approvers.</div></td>
+                </tr>
+                <tr><td class="left"><span>Instance Url: </span></td><td class="right"><input type="text" name="instance_url" value="{{data.instance_url}}" class="text" placeholder="Instance Url" /></td><td><div class="alert alert-error hide msg sfid">Please Add some approvers.</div></td>
+                </tr>
+            </table>
+        </div>
+        <div class="btns">
+            <button class="btn btn-primary save">Save</button>
+            <button class="btn cancel">Cancel</button>
+            </div>
+        <h3 class="title">Other Info</h3>
         <div class="locals">
             <div class="header">
                 <span>Locals</span>
@@ -88,44 +93,6 @@
           </table>
             </div>
         </div>
-
-        <div class="locals">
-            <div class="header">
-                <span>Configs</span>
-                <div class="line"></div>
-            </div>
-            <!--<div class="setting form-inline">
-		<table class="content-table">
-           <tr>
-                <td class="left"><span>Canvasapp Key: </span></td>
-                <td class="right"><label>
-                    <input type="text" name="config_canvasapp_key" class="text"/>
-                </label></td>
-                <td></td>
-           </tr>
-           <tr>
-                <td class="left"><span>ApiKey: </span></td>
-                <td class="right"><label>
-                    <input type="text" name="config_apiKey" class="text"/>
-                </label></td>
-                <td></td>
-           </tr>  
-           <tr>
-                <td class="left"><span>ApiSecret: </span></td>
-                <td class="right"><label>
-                    <input type="text" name="config_apiSecret" class="text"/>
-                </label></td>
-                <td></td>
-           </tr>
-           <tr>
-                <td class="left"><span>CallBackUrl: </span></td>
-                <td class="right"><label>
-                    <input type="text" name="config_callBackUrl" class="text"/>
-                </label></td>
-                <td><div class="alert alert-error hide msg callBackUrl">Please type right url.</div></td>
-           </tr>         
-          </table>
-        </div>-->
 
         <div class="btns">
             <button class="btn btn-primary save">Save</button>

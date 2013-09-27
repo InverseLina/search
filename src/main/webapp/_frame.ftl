@@ -27,6 +27,11 @@
       });
     </script>
     [/#if]
+    <script>
+      var orgGlobalConfig = {
+        instanceUrl:'${instanceUrl}'
+      };
+    </script>
     
   </head>
   

@@ -22,7 +22,7 @@
        }else if(app.pathInfo.paths[1] == "edit"){
     	   view.orgId = app.pathInfo.paths[2] * 1;
     	  getDate.call(view,app.pathInfo.paths[2] * 1).done(function(orgName){
-    		  var li = render("OrganizationInfo-li",{type:"Organization:"+orgName,url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
+    		  var li = render("OrganizationInfo-li",{type:"Organization: "+orgName,url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
          	  view.$navTabs.append(li);	
     	  }); 
        }
@@ -55,6 +55,8 @@
 		        //values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
 		        values["needAdmin"]="true";
 		        values["orgId"]= view.orgId;
+			      values["instance_url"]=view.$el.find("[name='instance_url']").val();
+			      
 	        	app.getJsonData("/config/save", values,"Post").done(function(data){
 	        		values = {};
 	        		values["name"]=view.$el.find("[name='name']").val();

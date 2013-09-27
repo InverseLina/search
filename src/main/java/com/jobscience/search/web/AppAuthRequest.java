@@ -1,5 +1,8 @@
 package com.jobscience.search.web;
 
+import java.util.List;
+import java.util.Map;
+
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.auth.AuthRequest;
 import com.britesnow.snow.web.auth.AuthToken;
@@ -8,11 +11,10 @@ import com.britesnow.snow.web.param.annotation.WebModel;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.CurrentOrgHolder;
+import com.jobscience.search.dao.ConfigManager;
+import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.UserDao;
-
-import java.util.Map;
 
 @Singleton
 public class AppAuthRequest implements AuthRequest {
@@ -21,6 +23,8 @@ public class AppAuthRequest implements AuthRequest {
     @Inject
     CurrentOrgHolder orgHolder;
 
+    @Inject
+    private ConfigManager configManager;
     @Inject
     private DBSetupManager dbSetupManager;
     @Override
@@ -59,6 +63,12 @@ public class AppAuthRequest implements AuthRequest {
         //check org is set or not
         try {
             orgHolder.getOrgName();
+            List<Map> results = configManager.getConfig("instance_url",orgHolder.getId());
+            if(results.size() > 0){
+                Map configMap = results.get(0);
+                String instanceUrl = String.valueOf(configMap.get("value"));
+                m.put("instanceUrl", instanceUrl);
+            }
         } catch (Exception e) {
             rc.getWebModel().put("errorCode", "NO_ORG");
             rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
