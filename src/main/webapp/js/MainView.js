@@ -51,9 +51,16 @@
      },*/
 	 
 	 events: {
-	 	"click; [data-action='DO_SEARCH']": function(){
+	 	"click; [data-action='DO_SEARCH']": function(e){
 	 		var view = this;
-	 		view.$el.trigger("DO_SEARCH");
+	 		var $this = $(e.currentTarget);
+	 		var search;
+	 		// if click by the search icon
+	 		if($this.hasClass("glyphicon-search")){
+	 		  var $input = $this.closest(".input-wrapper").find("input[type='text']");
+	 		  search = $input.val();
+	 		}
+	 		view.$el.trigger("DO_SEARCH",{search:search});
 	 	},
 	 	//should trim the search value when focus out
         'focusout; input[type="text"]':function(event){
@@ -112,7 +119,8 @@
 
     function doSearch(opts) {
         var view = this;
-
+        opts = opts|| {};
+        var search = opts.search;
         var callback = function(pageIdx, pageSize){
             view.contentView.loading();
             view.contentView.restoreSearchParam();
@@ -121,8 +129,15 @@
 //            qParams.pageSize =  pageSize||qParams.pageSize;
 //            var qParams=view.getSearchValues();
             searchParameter.pageIndex = pageIdx||1;
+            if(search && search != ""){
+              var searchValues = JSON.parse(searchParameter.searchValues);
+              searchValues.q_search = $.trim(search); 
+              searchParameter.searchValues = JSON.stringify(searchValues);
+            }
+            
             searchDao.search(searchParameter).always(function (result) {
 	            result.callback = callback;
+	            result.q_search = search;
 	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
             });
         };

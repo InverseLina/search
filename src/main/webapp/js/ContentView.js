@@ -15,11 +15,6 @@
       view.tableOrderColumn = null;
       view.tableOrderType = null;
 
-      view.$searchInput.on("keypress", function(event) {
-        if (event.which === 13) {
-          view.$el.trigger("DO_SEARCH");
-        }
-      });
       view.empty();
       $(window).resize(function() {
         fixColWidth.call(view);
@@ -35,6 +30,14 @@
       }
     },
     events : {
+      "keypress; .search-input": function(event){
+        var view = this;
+        var $this = $(event.currentTarget);
+        var keyword = $this.val();
+        if (event.which === 13) {
+          view.$el.trigger("DO_SEARCH",{search:keyword});
+        }
+      },
       "btap; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
         var view = this;
         var $th = $(event.currentTarget).closest("th");
@@ -151,12 +154,6 @@
           }else if(name=="education"){
             brite.display("ExtraMessage",null,{title:"Education",message:value});
           }
-        }
-      },
-      "keypress;.search-input" : function(event) {
-        var view = this;
-        if (event.which === 13) {
-          view.$el.trigger("DO_SEARCH");
         }
       }
 
@@ -277,6 +274,7 @@
         "SEARCH_RESULT_CHANGE" : function(event, result) {
           var view = this;
           var $e = view.$el;
+          
           $.ajax({
   			url:"/config/get/action_add_to_sourcing",
   			type:"Get",
@@ -321,7 +319,11 @@
                        showSearchInfo.call(view, result, htmlInfo, "left", (pagination.offset().left - view.$searchInfo.offset().left -155 ))
                    });
 
-                view.restoreSearchParam();
+              
+              //restore input values
+              $e.find(".search-input").val(result.q_search);
+              
+              view.restoreSearchParam();
             });
 
 
