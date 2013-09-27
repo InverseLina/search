@@ -136,7 +136,7 @@
       "btap;.save":function(event){
     	  var view = this;
     	  var values = {};
-    	  values["config_canvasapp_key"]=view.$el.find("[name='config_canvasapp_key']").val();
+    	  values["config_canvasapp_secret"]=view.$el.find("[name='config_canvasapp_secret']").val();
     	      values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
     	      values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
     	      values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();

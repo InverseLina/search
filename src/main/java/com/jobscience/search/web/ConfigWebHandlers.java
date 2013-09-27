@@ -30,7 +30,7 @@ public class ConfigWebHandlers {
     public WebResponse saveConfig(@WebParam("local_distance") String distance, @WebParam("local_date") String date,
                             @WebParam("action_add_to_sourcing") String addToSourcing,
                             @WebParam("action_favorite") String favorite,
-                            @WebParam("config_canvasapp_key") String canvasappKey,
+                            @WebParam("config_canvasapp_secret") String canvasappSecret,
                             @WebParam("config_apiKey") String apiKey, @WebParam("config_apiSecret") String apiSecret,
                             @WebParam("config_callBackUrl") String callBackUrl,@WebParam("needAdmin") String needAdmin,@WebParam("instance_url") String instanceUrl,
                             @WebParam("orgId") Integer orgId) throws SQLException {
@@ -42,7 +42,7 @@ public class ConfigWebHandlers {
             params.put("action_favorite", favorite);
             params.put("instance_url", instanceUrl);
         }else{
-	        params.put("config_canvasapp_key", canvasappKey);
+	        params.put("config_canvasapp_secret", canvasappSecret);
 	        params.put("config_apiKey", apiKey);
 	        params.put("config_apiSecret", apiSecret);
 	        params.put("config_callBackUrl", callBackUrl);

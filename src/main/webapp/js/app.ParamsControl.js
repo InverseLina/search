@@ -17,7 +17,7 @@ var app = app || {};
                 result.orderType =  !!(contentSearchValues.sort.order === "asc");
             }
             if(!/^\s*$/.test(contentSearchValues.search)){
-                searchData.q_search = $.trim(contentSearchValues.search)
+                searchData.q_search = $.trim(contentSearchValues.search);
             }
 
             for (key in _storeValue) {
