@@ -94,12 +94,16 @@ var app = app || {};
         getFilterParams: function(){
             return _storeValue||{};
         },
-        get: function(type, name){
+        get: function (type, name) {
             var i, obj, data = _storeValue[type];
-            for (i = 0; i < data.length; i++) {
-                obj = data[i];
-                if(obj.name == name){
-                    return obj;
+            if (!name) {
+                return data;
+            } else {
+                for (i = 0; i < data.length; i++) {
+                    obj = data[i];
+                    if (obj.name == name) {
+                        return obj;
+                    }
                 }
             }
             return null;
