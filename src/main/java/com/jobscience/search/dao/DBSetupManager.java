@@ -65,9 +65,13 @@ public class DBSetupManager {
     	}
     	if(type.equals(SchemaType.ORG)){
 	    	if(status==SetupStatus.SYS_IMPORT_ZIPCODE_DATA.getValue()||status==SetupStatus.SYS_CREATE_SCHEMA.getValue()){
-	    		if(checkOrgExtra(orgName)){
-		        	status = SetupStatus.ORG_CREATE_EXTRA.getValue();
-		        }
+	    		if(checkSchema(orgName)){
+	    			if(checkOrgExtra(orgName)){
+			        	status = SetupStatus.ORG_CREATE_EXTRA.getValue();
+			        }
+	    		}else{
+	    			status = SetupStatus.SCHEMA_NOT_EXIST.getValue();
+	    		}
 	    	}
 	    	
 	    	if(status==SetupStatus.ORG_CREATE_EXTRA.getValue()){
@@ -216,6 +220,22 @@ public class DBSetupManager {
         		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('contact_ex','savedsearches','user')");
     	if(list.size()==1){
     		if("3".equals(list.get(0).get("count").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    private  boolean checkSchema(String orgName){
+    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+    	String schemaname="" ;
+    	if(orgs.size()==1){
+    		schemaname = orgs.get(0).get("schemaname").toString();
+    	}
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.schemata" +
+        		" where schema_name='"+schemaname+"'");
+    	if(list.size()==1){
+    		if("1".equals(list.get(0).get("count").toString())){
     			return true;
     		}
     	}
