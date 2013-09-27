@@ -8,6 +8,7 @@
     FilterContact.prototype.afterPostDisplay = function(){
         var view = this;
         view.$el.find("input:first").focus();
+        showSelectedItem.call(view);
     }
 
     FilterContact.prototype.events = $.extend({
@@ -99,11 +100,21 @@
             $eles = view.$el.find(".selectedItems .item[data-name='" + displayName + "']");
             view.$el.trigger("ADD_FILTER", {type:view.type, name: displayName, value: data})
         }
+
         ele = $($eles[0]);
         ele.data("value", data);
 //        view.$el.find(".save").parent().addClass("hide");
         view.$el.find(".selectedItems .add").removeClass("hide");
         view.$el.find(":text").val("").change();
         view.$el.find("input:first").focus();
+        showSelectedItem.call(view);
+    }
+
+    function showSelectedItem(){
+        var view = this;
+        var data = app.ParamsControl.get("Contact");
+        if(data && data.length > 0){
+            view.$el.find(".selectedItems").show();
+        }
     }
 })(jQuery);

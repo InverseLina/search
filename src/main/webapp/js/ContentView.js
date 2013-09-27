@@ -197,6 +197,7 @@
         if(view.$el.find("table th .selectedItems .item").length > 0){
             return;
         }
+
         var result = app.ParamsControl.getFilterParams() || {};
 
         for(key in result){

@@ -191,9 +191,15 @@ var app = app || {};
             var dataName = $(event.currentTarget).closest("span[data-name]").attr("data-name");
             setTimeout(function(){
                 view.$el.find(".selectedItems span[data-name='" + dataName + "']").remove();
+                if (view.type == "Contact") {
+                    if(view.$el.find(".selectedItems span[data-name]").length == 0){
+                        view.$el.find(".selectedItems").hide();
+                    }
+                }
                 view.$el.trigger("REMOVE_FILTER", {name: dataName, type: view.type});
             }, 200);
             view.$el.find("input:first").focus();
+
         },
         SLIDER_VALUE_CHANGE:function(event){
             var view = this;
