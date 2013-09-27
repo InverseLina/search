@@ -15,7 +15,7 @@
 		view.$navTabs.find('li:last').remove();
 	  } 
       view.$navTabs.find("a[href='#setup']").closest("li").addClass("active"); 
-      view.$el.find(".create,.import").prop("disabled",true).html("Loading...");
+      view.$el.find(".create,.import,.create_pg_trgm").prop("disabled",true).html("Loading...");
       view.$el.trigger("STATUS_CHANGE");
       
       app.getJsonData("/config/get/",{orgId:-1}).done(function(data){
@@ -44,12 +44,31 @@
     	  app.getJsonData("/createSysSchema",{},{type:"Post"}).done(function(data){
     		  if(data){
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
-    			  $createBtn.prop("disabled",false).html("Create");
+    			  $createBtn.prop("disabled",false).html("Create System schema");
     		  }else{
     			  $createBtn.html("Created");
     			  view.$el.find(".import").prop("disabled",false);
     			  $alert.html("&nbsp;").addClass("transparent");
         		  $(".organization-tab").removeClass("hide");
+    		  }
+    	  });
+      },
+      "click;.create_pg_trgm":function(event){
+    	  var view = this;
+    	  var $createBtn = $(event.target);
+    	  if($createBtn.prop("disabled")){
+    		  return false;
+    	  }
+    	  var $alert = $createBtn.closest(".setting").find(".alert");
+    	  $alert.addClass("transparent");
+    	  $createBtn.prop("disabled",true).html("Creating...");
+    	  app.getJsonData("/createPgTrgm",{},{type:"Post"}).done(function(data){
+    		  if(data){
+    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+    			  $createBtn.prop("disabled",false).html("Create pg_trgm");
+    		  }else{
+    			  $createBtn.html("pg_trgm Created");
+    			  $alert.html("&nbsp;").addClass("transparent");
     		  }
     	  });
       },
@@ -64,7 +83,7 @@
     	  app.getJsonData("/updateZipCode",{},{type:"Post"}).done(function(data){
     		  if(data){
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
-    			  $importBtn.prop("disabled",false).html("Import");
+    			  $importBtn.prop("disabled",false).html("Import Zipcode tables");
     		  }else{
     			  $importBtn.html("Imported");
     			  $alert.html("&nbsp;").addClass("transparent");
@@ -75,15 +94,26 @@
     	  var view = this;
     	  app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
         	  switch(result){
-        	  case 0:	view.$el.find(".create").prop("disabled",false).html("Create");
-        	  			view.$el.find(".import").prop("disabled",true).html("Import");
+        	  case 0:	view.$el.find(".create").prop("disabled",false).html("Create System schema");
+        	  			view.$el.find(".import").prop("disabled",true).html("Import Zipcode tables");
+        	  			view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm");
         	  			break;
-        	  case 1:	view.$el.find(".create").prop("disabled",true).html("Created");
-        	  			view.$el.find(".import").prop("disabled",false).html("Import");
+        	  case 1:	view.$el.find(".create").prop("disabled",true).html("System schema Created");
+        	  			view.$el.find(".import").prop("disabled",false).html("Import Zipcode tables");
+        	  			view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm")
     					break;
-        	  case 2:	view.$el.find(".create").prop("disabled",true).html("Created");
-    		  			view.$el.find(".import").prop("disabled",true).html("Imported");
+        	  case 2:	view.$el.find(".create").prop("disabled",true).html("System schema Created");
+    		  			view.$el.find(".import").prop("disabled",true).html("Zipcode tables Imported");
+    		  			view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm")
     					break;
+        	  case 8:	view.$el.find(".create").prop("disabled",true).html("System schema Created");
+        	  			view.$el.find(".import").prop("disabled",false).html("Import Zipcode tables");
+			  			view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
+						break;
+        	  case 9:	view.$el.find(".create").prop("disabled",true).html("System schema Created");
+			  			view.$el.find(".import").prop("disabled",true).html("Zipcode tables Imported");
+			  			view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
+			  			break;
     		  default: view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html("Fail to load status,Please try to refresh page.")
         	  }
           });
