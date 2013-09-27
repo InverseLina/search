@@ -1,6 +1,11 @@
 .FilterContact {
-  .selectedItems .clear i {
-    color: #d4c761 !important;
+  margin-top: -8px;
+  .selectedItems {
+    display:none;
+    margin-top: 8px;
+    .clear i {
+      color: #d4c761 !important;
+    }
   }
   .contact .item {
     background: #d4c761;
@@ -9,11 +14,21 @@
   .contactRow {
     margin-top: 10px;
     position: relative;
-    padding-left: 30px;
+    padding-left: 0px;
     .clear {
       display:none;
       right:20px !important;
       margin-right: 10px;
+    }
+    span {
+      width:80px !important;
+      text-align: right;
+      font-size: 12px;
+    }
+    input[type="text"]  {
+      width: 278px !important;
+      margin-left: 16px;
+
     }
   }
 

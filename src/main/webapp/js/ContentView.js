@@ -197,6 +197,7 @@
         if(view.$el.find("table th .selectedItems .item").length > 0){
             return;
         }
+
         var result = app.ParamsControl.getFilterParams() || {};
 
         for(key in result){
@@ -402,9 +403,9 @@
   	              });
   	         } else if (columns[j] == "contact") {
   	           var displayValue = "<a class='lineInfo name' href='"+org.instanceUrl+"/"+items[i]["sfid"]+"'>"+items[i]["name"]+"</a>";
-  	           displayValue += "<div class='lineInfo'>"+items[i]["title"]+"</div>";
-  	           displayValue += "<a class='lineInfo' href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a>";
-  	           displayValue += "<div class='lineInfo'>"+items[i]["phone"]+"</div>";
+  	           displayValue += "<div class='lineInfo title'>"+items[i]["title"]+"</div>";
+  	           displayValue += "<a class='lineInfo email' href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a>";
+  	           displayValue += "<div class='lineInfo phone'>"+items[i]["phone"]+"</div>";
   	            item.push({
   	                name : columns[j],
   	                value : displayValue,
