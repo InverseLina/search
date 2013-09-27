@@ -93,6 +93,7 @@
       "STATUS_CHANGE":function(event){
     	  var view = this;
     	  app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
+    		  console.log(result);
         	  switch(result){
         	  case 0:	view.$el.find(".create").prop("disabled",false).html("Create System schema");
         	  			view.$el.find(".import").prop("disabled",true).html("Import Zipcode table");
@@ -106,6 +107,10 @@
     		  			view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported");
     		  			view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm")
     					break;
+        	  case 7:	view.$el.find(".create").prop("disabled",false).html("Create System schema");
+			  			view.$el.find(".import").prop("disabled",true).html("Import Zipcode table");
+			  			view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
+						break;
         	  case 8:	view.$el.find(".create").prop("disabled",true).html("System schema Created");
         	  			view.$el.find(".import").prop("disabled",false).html("Import Zipcode table");
 			  			view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");

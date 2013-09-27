@@ -175,13 +175,17 @@
 	    	  app.getJsonData("/checkSetupStatus",{type:"ORG",orgName:orgName},{type:"Get"}).done(function(result){
 	    		  switch(result){
 	    		  case 1:
-	    		  case 2: 	view.$el.find(".index,.resume").prop("disabled",true);
+	    		  case 2: 	view.$el.find(".extra").prop("disabled",false);
+	    			  		view.$el.find(".index,.resume").prop("disabled",true);
 	    		  			break;
 	        	  case 3:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	        	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
+	        	  			view.$el.find(".resume").prop("disabled",false).html("Create Index Resume");
 	        	  			view.$el.trigger("RESUMEINDEXSTATUS");
 	        	  			break;
 	        	  case 4:  	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 				        	view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
+				        	view.$el.find(".resume").prop("disabled",false).html("Create Index Resume");
 	        	  			view.$el.find(".index-info,.status").removeClass("hide");
 	        	  			view.$el.trigger("RESUMEINDEXSTATUS");
 	    					break;
