@@ -252,17 +252,17 @@
           }
 
       },
-      UPDATE_FILTER: function(event, extra){
+      "UPDATE_FILTER": function(event, extra){
           var view = this;
           view.$el.trigger("DO_SEARCH");
       },
-      ON_ERROR:function(event, extra) {
+      "ON_ERROR":function(event, extra) {
           var view = this;
           if(extra){
             view.showErrorMessage(extra.errorCode||"", extra.errorMessage||"");
           }
       },
-      ERROR_PROCESS: function (event, extra) {
+      "ERROR_PROCESS": function (event, extra) {
             var view = this;
             view.$searchInfo.empty();
             view.$el.find("input").attr("disabled", true);
@@ -401,9 +401,9 @@
   	                notLast : colLen - j > 1
   	              });
   	         } else if (columns[j] == "contact") {
-  	           var displayValue = "<b>"+items[i]["name"]+"</b><br/>";
-  	           displayValue += "<a href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a><br/>";
-  	           displayValue += items[i]["title"];
+  	           var displayValue = "<div><a href='"+orgGlobalConfig.instanceUrl+"/"+items[i]["sfid"]+"'><b>"+items[i]["name"]+"</b></a></div>";
+  	           displayValue += "<div> "+items[i]["title"]+"</div>";
+  	           displayValue += "<div><a href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a></div>";
   	            item.push({
   	                name : columns[j],
   	                value : displayValue,

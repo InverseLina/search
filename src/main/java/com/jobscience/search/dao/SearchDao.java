@@ -562,20 +562,23 @@ public class SearchDao {
 	    	}
 	        sb.deleteCharAt(sb.length()-1);
     	}
+    	sb.append(",sfid");
         return sb.toString();
     }
     
     private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy){
     	StringBuilder columnsSql = new StringBuilder();
     	 if(searchColumns==null){
-             columnsSql.append("a.\"id\" as id,a.\"name\" as name,lower(a.\"name\") as lname,case   when a.\"title\" is null then ''  else a.\"title\" end title ,to_char(a.\"createddate\",'yyyy-mm-dd') as createddate");
-             groupBy.append(",a.\"name\",a.\"title\",a.\"createddate\"");
+             columnsSql.append("a.sfid, a.\"id\" as id,a.\"name\" as name,lower(a.\"name\") as lname,case   when a.\"title\" is null then ''  else a.\"title\" end title ,to_char(a.\"createddate\",'yyyy-mm-dd') as createddate");
+             groupBy.append(",a.sfid, a.\"name\",a.\"title\",a.\"createddate\"");
     	 }else{
  	        for(String column:searchColumns.split(",")){
  	            columnsSql.append(getQueryColumnName(column,columnJoinTables,groupBy));
  	            columnsSql.append(",");
  	        }
- 	        columnsSql.deleteCharAt(columnsSql.length()-1);
+ 	        columnsSql.append("a.sfid");
+ 	        groupBy.append(",a.sfid");
+// 	        columnsSql.deleteCharAt(columnsSql.length()-1);
          }
     	 return columnsSql.toString();
     }
