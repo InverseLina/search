@@ -76,7 +76,7 @@ public class DBSetupWebHanlder {
         try{
         	dbSetupManager.createIndexColumns(orgName);
         }catch (SQLException e) {
-     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getLocalizedMessage()));
+     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getNextException().getLocalizedMessage()));
         }
         return WebResponse.success();
     }
