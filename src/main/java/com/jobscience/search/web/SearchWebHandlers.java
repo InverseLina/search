@@ -99,7 +99,9 @@ public class SearchWebHandlers {
     
     @WebGet("/getGroupValuesForAdvanced")
     public WebResponse getGroupValuesForAdvanced(@WebParam("searchValues") String searchValues,@WebParam("type")String type,
-    											 @WebParam("queryString")String queryString,@WebParam("orderByCount")Boolean orderByCount,@WebParam("min")String min) throws SQLException{
+    											 @WebParam("queryString")String queryString,@WebParam("orderByCount")Boolean orderByCount,
+    											 @WebParam("min")String min, @WebParam("pageSize")Integer pageSize, 
+    											 @WebParam("pageNum")Integer pageNum) throws SQLException{
         Map result = new HashMap();
         JSONObject jo = JSONObject.fromObject(searchValues);
         Map searchMap = new HashMap();
@@ -107,9 +109,15 @@ public class SearchWebHandlers {
         	searchMap.put(key.toString().substring(2),jo.get(key).toString());
         }
         if(orderByCount==null){
-        	orderByCount = false;
+        	orderByCount = true;
         }
-        List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount,min);
+        if(pageNum==null||pageNum<1){
+        	pageNum=1;
+        }
+        if(pageSize==null||pageSize<1){
+        	pageSize=7;
+        }
+        List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount,min,pageSize,pageNum);
         
         result.put("list", list);
         WebResponse wr = WebResponse.success(result);

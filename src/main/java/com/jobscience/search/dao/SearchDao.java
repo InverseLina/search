@@ -64,7 +64,7 @@ public class SearchDao {
         return searchResult;
     }
     
-    public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min) throws SQLException {
+    public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
         //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
@@ -115,9 +115,9 @@ public class SearchDao {
         }
         
         if(orderByCount){
-        	querySql.append(") result where result.name != ''  group by result.name order by result.count desc offset 0 limit 7");
+        	querySql.append(") result where result.name != ''  group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
         }else{
-        	querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.name offset 0 limit 50");
+        	querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
         }
         if(log.isDebugEnabled()){
             log.debug(querySql.toString());
