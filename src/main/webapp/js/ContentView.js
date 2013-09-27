@@ -74,12 +74,11 @@
     	  //$("[data-b-view^='Filter']",view.$el).bRemove();
     	  var $th = $(event.currentTarget);
     	  var position = {top:$th.get(0).offsetTop+$th.height() + 40,left:$th.get(0).offsetLeft+$th.width()/2-195};
-          console.log(position);
+//          console.log(position);
           if(position.left <  20 ){
               position.left = 20;
           }
           var popupOffset =  $(".btnPopupColumns", view.$el).offset();
-          console.log(popupOffset);
           if(position.left +  400 > popupOffset.left){
               position.left =  popupOffset.left - 400;
           }
@@ -196,9 +195,18 @@
             if (data && data.length > 0) {
                 $.each(data, function (index, val) {
                     item = {name: val.name};
+
                     val = val.value;
                     if(val.minYears||val.minRadius){
                         item.min = val.minYears||val.minRadius;
+                    }
+                    if(item.min){
+                        item.display = val.name + " (" + item.min + ")";
+                    }else{
+                        item.display = val.name;
+                    }
+                    if(data.length > 1 && index != data.length-1){
+                        item.display = item.display + ",";
                     }
 
                     $html = $(render("search-items-header-add-item", item));
@@ -212,60 +220,18 @@
     },
     docEvents: {
       "ADD_FILTER":function(event, extra){
-          var type, item, view = this;
-//          console.log(extra);
-          if(extra) {
-             type = extra.type.substring(0,1).toLocaleLowerCase() + extra.type.substring(1);
-          }
-          var $th = view.$el.find("th[data-column='" + type + "']");
-          item = {name: extra.name};
-          if(extra.type != "Contact"){
-              if(extra.type == "location" ){
-                  if(extra.minRadius){
-                    item.min = extra.minRadius;
-                  }
-              }else{
-                  if(extra.minYears){
-                    item.min = extra.minYears;
-                  }
-              }
-          }
-          $th.find("span.addFilter").before(render("search-items-header-add-item", item));
-
-
-          var $th = view.$el.find("th[data-column='" + type + "']");
-          if($th.find(".selectedItems .item").length > 0) {
-              $th.find(".selectedItems .addFilter").hide();
-          }else{
-              $th.find(".selectedItems .addFilter").show();
-          }
+          var view = this;
           app.ParamsControl.save(extra);
+          view.restoreSearchParam();
           view.$el.trigger("DO_SEARCH");
           if(view.filterDlg && view.filterDlg.$el) {
               //view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
           }
       },
       "REMOVE_FILTER":function(event, extra){
-          var type, view = this;
-          if(extra) {
-              if(extra.type == "Contact"){
-                  type = "contact";
-              }else{
-                  type = extra.type.substring(0,1).toLocaleLowerCase() + extra.type.substring(1);
-              }
-          }
-          view.$el.find("th[data-column='" + type + "']").find(".selectedItems span.item[data-name='" + extra.name + "']").remove();
-/*          setTimeout(function(){
-              view.$el.trigger("SEARCH_PARAMS_CHANGE");
-          }, 200);*/
-
-          var $th = view.$el.find("th[data-column='" + type + "']");
-          if($th.find(".selectedItems .item").length > 0) {
-              $th.find(".selectedItems .addFilter").hide();
-          }else{
-              $th.find(".selectedItems .addFilter").show();
-          }
+          var view = this;
           app.ParamsControl.remove(extra);
+          view.restoreSearchParam();
           view.$el.trigger("DO_SEARCH");
           if(view.filterDlg && view.filterDlg.$el) {
               //view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
