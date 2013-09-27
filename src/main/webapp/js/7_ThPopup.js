@@ -159,7 +159,7 @@ var app = app || {};
                 "searchValues": JSON.stringify(params),
                 "type":type,
                  queryString: keyword,
-                 orderByCount: orderByCount
+                 orderByCount: true
             };
 
             if(view.slider && view.slider.getValue() > 0){
@@ -168,17 +168,7 @@ var app = app || {};
 
 
         	 searchDao.getGroupValuesForAdvanced(searchCond).done(function(data){
-            	 if(!orderByCount){
-	            	 var result = {};
-	            	 $.each(data.list,function(index,d){
-	            		 result[d.name]=d.count;
-	            	 });
-	            	 view.$el.find(".autoCompleteList [data-name]").each(function (index, e) {
-                         $(e).find("span.count").html("(" + (result[$(e).attr("data-name")] || 0) + ")");
-                     });
-            	 }else{
-                     view.$el.find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data.list,type:type}));
-                 }
+                  view.$el.find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data.list,type:type}));
              });
         	
         },
@@ -333,43 +323,7 @@ var app = app || {};
               prevItem.call(view);
               break;
           default:
-              if($input.val()!=""){
-                  searchData = {limit : 7, type : type,keyword:$input.val()};
-                  if(view.slider && view.slider.getValue() > 0){
-                      searchData.min = view.slider.getValue();
-                  }
-                  searchDao.getAutoCompleteData(searchData).always(function(result) {
-                      if(type=="company"){
-                          type = "employer";
-                      }
-                      $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result[resultType],type:type}));
-                      view.lastQueryString = $input.val();
-                      if(type){
-                          view.$el.trigger("SHOWSEARCHRESULT",{keyword:$input.val(),type:type});
-                      }
-                  });
-              }else{
-                  if(type != 'Contact'){
-                      var listName = (type=="company"?"companies":(type+"s"));
-                      var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
-                      delete params["q_"+listName];
-//                	    	 console.log(params);
-                      var groupSearchData = {
-                          "searchValues": JSON.stringify(params),
-                          "type":type,
-                          "orderByCount":true
-                      };
-                      if(view.slider && view.slider.getValue() > 0){
-                          groupSearchData.min = view.slider.getValue();
-                      }
-                      searchDao.getGroupValuesForAdvanced(groupSearchData).always(function(result) {
-                              if(type=="company"){
-                                  type = "employer";
-                              }
-                              $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result["list"],type:type}));
-                          });
-                  }
-              }
+              view.$el.trigger("SHOWSEARCHRESULT");
 
       }
   }
