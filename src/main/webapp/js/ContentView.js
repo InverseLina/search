@@ -401,7 +401,7 @@
   	                notLast : colLen - j > 1
   	              });
   	         } else if (columns[j] == "contact") {
-  	           var displayValue = "<div><a href='"+orgGlobalConfig.instanceUrl+"/"+items[i]["sfid"]+"'><b>"+items[i]["name"]+"</b></a></div>";
+  	           var displayValue = "<div><a href='"+org.instanceUrl+"/"+items[i]["sfid"]+"'><b>"+items[i]["name"]+"</b></a></div>";
   	           displayValue += "<div> "+items[i]["title"]+"</div>";
   	           displayValue += "<div><a href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a></div>";
   	            item.push({
