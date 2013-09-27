@@ -31,7 +31,7 @@
                 //get the length from bar height
                 setTimeout(function () {
                     view.barLength = $e.find(".bar").outerWidth();
-                    setPosition.call(view);
+                    setValue.call(view, view.opts.value);
                 }, 200);
             },
             events: {
@@ -112,7 +112,15 @@
      */
     function setValue(pos){
         var view = this;
-        var $e = this.$el;
+        pos = pos||0;
+        console.log(pos);
+        if(pos<=0){
+           view.$el.find(".slider").addClass("zero");
+           view.$el.addClass("zero");
+        }else{
+            view.$el.find(".slider").removeClass("zero");
+            view.$el.removeClass("zero");
+        }
         var value = pos/view.barLength * (view.opts.max - view.opts.min) + view.opts.min;
         value = Math.round(value);
         if(value > view.opts.max){
