@@ -15,7 +15,9 @@
 		 app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
 	    	  switch(result){
 		    	  case 1:	
-		    	  case 2:	view.$el.find(".organization-tab").removeClass("hide");
+		    	  case 2:
+		    	  case 8:
+		    	  case 9:  view.$el.find(".organization-tab").removeClass("hide");
 		    	  			break;
 	    	  }
 	      });

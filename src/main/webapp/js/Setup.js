@@ -46,7 +46,7 @@
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
     			  $createBtn.prop("disabled",false).html("Create System schema");
     		  }else{
-    			  $createBtn.html("Created");
+    			  $createBtn.html("System schema Created");
     			  view.$el.find(".import").prop("disabled",false);
     			  $alert.html("&nbsp;").addClass("transparent");
         		  $(".organization-tab").removeClass("hide");
@@ -83,9 +83,9 @@
     	  app.getJsonData("/updateZipCode",{},{type:"Post"}).done(function(data){
     		  if(data){
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
-    			  $importBtn.prop("disabled",false).html("Import Zipcode tables");
+    			  $importBtn.prop("disabled",false).html("Import Zipcode table");
     		  }else{
-    			  $importBtn.html("Imported");
+    			  $importBtn.html("Zipcode table Imported");
     			  $alert.html("&nbsp;").addClass("transparent");
     		  }
     	  });
@@ -95,23 +95,23 @@
     	  app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
         	  switch(result){
         	  case 0:	view.$el.find(".create").prop("disabled",false).html("Create System schema");
-        	  			view.$el.find(".import").prop("disabled",true).html("Import Zipcode tables");
+        	  			view.$el.find(".import").prop("disabled",true).html("Import Zipcode table");
         	  			view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm");
         	  			break;
         	  case 1:	view.$el.find(".create").prop("disabled",true).html("System schema Created");
-        	  			view.$el.find(".import").prop("disabled",false).html("Import Zipcode tables");
+        	  			view.$el.find(".import").prop("disabled",false).html("Import Zipcode table");
         	  			view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm")
     					break;
         	  case 2:	view.$el.find(".create").prop("disabled",true).html("System schema Created");
-    		  			view.$el.find(".import").prop("disabled",true).html("Zipcode tables Imported");
+    		  			view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported");
     		  			view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm")
     					break;
         	  case 8:	view.$el.find(".create").prop("disabled",true).html("System schema Created");
-        	  			view.$el.find(".import").prop("disabled",false).html("Import Zipcode tables");
+        	  			view.$el.find(".import").prop("disabled",false).html("Import Zipcode table");
 			  			view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
 						break;
         	  case 9:	view.$el.find(".create").prop("disabled",true).html("System schema Created");
-			  			view.$el.find(".import").prop("disabled",true).html("Zipcode tables Imported");
+			  			view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported");
 			  			view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
 			  			break;
     		  default: view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html("Fail to load status,Please try to refresh page.")
