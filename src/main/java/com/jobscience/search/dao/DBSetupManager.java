@@ -197,7 +197,7 @@ public class DBSetupManager {
     }
     
     private boolean checkExtension(String extName){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from pg_catalog.pg_extension" +
+    	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select count(*) as count from pg_catalog.pg_extension" +
         		" where extname='"+extName+"' ");
     	if(list.size()==1){
     		if("1".equals(list.get(0).get("count").toString())){

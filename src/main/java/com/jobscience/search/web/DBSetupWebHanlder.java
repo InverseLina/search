@@ -47,8 +47,10 @@ public class DBSetupWebHanlder {
     public WebResponse checkSetupStatus(@WebParam("type")SchemaType type,@WebParam("orgName")String orgName){
         try{
         	 return WebResponse.success(dbSetupManager.checkSetupStatus(type,orgName));
-        }catch (Exception e) {
-        	return WebResponse.success(new DBSetupResult(-1,e.getLocalizedMessage()) );
+        }catch (SQLException e) {
+        	return WebResponse.success(new DBSetupResult(3,e.getNextException().getLocalizedMessage()) );
+		} catch (IOException e) {
+			return WebResponse.success(new DBSetupResult(-1,e.getLocalizedMessage()) );
 		}
     }
   

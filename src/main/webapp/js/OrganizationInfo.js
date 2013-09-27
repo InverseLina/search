@@ -134,7 +134,7 @@
 				$alert.addClass("transparent");
 				$createIndexBtn.html("Stop");
 				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-					if(data){
+					if(data&&data.errorCode){
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
 						$createIndexBtn.prop("disabled",false).html("Run");
 					}else{
