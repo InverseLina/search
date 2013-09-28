@@ -121,6 +121,9 @@
         var view = this;
         opts = opts|| {};
         var search = opts.search;
+        if(!search){
+        	search=$(".search-input").val();
+        }
         var callback = function(pageIdx, pageSize){
             view.contentView.loading();
             view.contentView.restoreSearchParam();
