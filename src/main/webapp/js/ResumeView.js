@@ -11,7 +11,6 @@
             create: function (data, config) {
                 $("#resumeModal").bRemove();
                 var dfd = $.Deferred();
-
                 app.getJsonData("getResume", {cid: data.id}).done(function (result) {
                     console.log(result)
                     if (result.length > 0) {
