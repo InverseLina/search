@@ -168,7 +168,9 @@ var app = app || {};
 
 
         	 searchDao.getGroupValuesForAdvanced(searchCond).done(function(data){
-                  view.$el.find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data.list,type:type}));
+                 if(view && view.$el){
+                     view.$el.find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data.list,type:type}));
+                 }
              });
         	
         },

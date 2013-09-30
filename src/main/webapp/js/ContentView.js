@@ -139,9 +139,9 @@
       },
       "btap; .resume-ico" : function(event) {
           var cid = $(event.currentTarget).closest("i").attr("data-id");
-          brite.display("ResumeView","body", {id: cid})
+          brite.display("ResumeView","body", {id: cid});
       },
-      "btap; table td[data-column]" : function(event) {
+      "btap; table td[data-column='company'],td[data-column='skill'],td[data-column='education']" : function(event) {
         var view = this;
         var $this = $(event.currentTarget);
         var name = $this.attr("data-column");
@@ -321,7 +321,7 @@
 
               
               //restore input values
-              $e.find(".search-input").val(result.q_search);
+              $e.find(".search-input").val(app.ParamsControl.getQuery());
               
               view.restoreSearchParam();
             });
