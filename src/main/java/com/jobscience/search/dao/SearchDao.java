@@ -284,7 +284,7 @@ public class SearchDao {
 	            		   for(int i=0,j=educationValues.size();i<j;i++){
 	            			   JSONObject educationValue = JSONObject.fromObject(educationValues.get(i));
 	            			   querySql.append(" OR ( ed.\"ts2__name__c\" = ")
-	            			   		   .append("'"+educationValue.get("name")+"'");
+	            			   		   .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
 	            			   if(educationValue.containsKey("minYears")){
 	            				   Integer minYears = educationValue.getInt("minYears");
 	            				   if(!minYears.equals(0)){
@@ -313,7 +313,7 @@ public class SearchDao {
 		            		   for(int i=0,j=companyValues.size();i<j;i++){
 		            			   JSONObject educationValue = JSONObject.fromObject(companyValues.get(i));
 		            			   querySql.append(" OR ( em.\"ts2__name__c\" = ")
-		            			   		   .append("'"+educationValue.get("name")+"'");
+		            			   		   .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
 		            			   if(educationValue.containsKey("minYears")){
 		            				   Integer minYears = educationValue.getInt("minYears");
 		            				   if(!minYears.equals(0)){
@@ -345,7 +345,7 @@ public class SearchDao {
 	            		   for(int i=0,j=skillValues.size();i<j;i++){
 	            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
 	            			   querySql.append(" OR ( sk.\"ts2__skill_name__c\" = ")
-	            			   		   .append("'"+skillValue.get("name")+"'");
+	            			   		   .append("'"+skillValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
 	            			   if(skillValue.containsKey("minYears")){
 	            				   Integer minYears = skillValue.getInt("minYears");
 	            				   if(!minYears.equals(0)){
