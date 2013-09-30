@@ -41,6 +41,12 @@ var app = app || {};
 
     ThPopup.prototype.postDisplay=function(data){
 	  var item, html, displayName, view = this;
+      if(data.th){
+          var thCenter = data.th.offset().left + data.th.outerWidth()/2;
+          var left = thCenter - view.$el.find(".popover").offset().left;
+          view.$el.find(".bottom .arrow").css({left:left});
+      }
+
       $(document).on("btap."+view.cid, function(event){
           var width = view.$el.find(".popover").width();
           var height = view.$el.find(".popover").height();
@@ -123,8 +129,10 @@ var app = app || {};
         	$icon.parent().addClass("hide").prev().removeClass("hide");
         },*/
         "btap; .autoCompleteContainer.active .clear":function(event){
+            var view = this;
             var $input = $(event.currentTarget).closest(".autoCompleteContainer").find("input");
              $input.val("").focus().change();
+            changeAutoComplete.call(view, event);
         },
         "change; .autoComplete":function(event){
             var view = this;

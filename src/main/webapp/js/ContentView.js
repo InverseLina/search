@@ -100,7 +100,7 @@
               if(view.filterDlg){
                   view.filterDlg.close();
               }
-              brite.display(viewName,".ContentView",{position:position,type:type, data:data}).done(function(filterDlg){
+              brite.display(viewName,".ContentView",{position:position,type:type, data:data,th: $th }).done(function(filterDlg){
                    view.filterDlg =  filterDlg
               });
            }
