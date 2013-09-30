@@ -31,7 +31,7 @@ var app = app || {};
             }else{
                 if(arguments[0] && $.type(arguments[0]) == "array" ){
                     columns = arguments[0];
-                    console.log(columns);
+//                    console.log(columns);
                     if(columns.length > 0) {
 //                        document.cookie = "columns=" + columns.join(",") + ";expires=0;path=/;domain=localhost";
                         app.cookie("columns", columns.join(","));

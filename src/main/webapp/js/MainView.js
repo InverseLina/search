@@ -130,7 +130,7 @@
 //            qParams.pageSize =  pageSize||qParams.pageSize;
 //            var qParams=view.getSearchValues();
             searchParameter.pageIndex = pageIdx||1;
-            console.log(searchParameter);
+//            console.log(searchParameter);
             
             searchDao.search(searchParameter).always(function (result) {
 	            result.callback = callback;
