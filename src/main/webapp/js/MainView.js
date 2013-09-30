@@ -118,29 +118,22 @@
 	});
 
     function doSearch(opts) {
-        var view = this;
+        var searchValues, view = this;
         opts = opts|| {};
         var search = opts.search;
-        if(!search){
-        	search=$(".search-input").val();
-        }
+
         var callback = function(pageIdx, pageSize){
             view.contentView.loading();
             view.contentView.restoreSearchParam();
-            var searchParameter = app.ParamsControl.getParamsForSearch();
+            var searchParameter = app.ParamsControl.getParamsForSearch(search);
 //            qParams.pageIndex = pageIdx||qParams.pageIndex;
 //            qParams.pageSize =  pageSize||qParams.pageSize;
 //            var qParams=view.getSearchValues();
             searchParameter.pageIndex = pageIdx||1;
-            if(search && search != ""){
-              var searchValues = JSON.parse(searchParameter.searchValues);
-              searchValues.q_search = $.trim(search); 
-              searchParameter.searchValues = JSON.stringify(searchValues);
-            }
+//            console.log(searchParameter);
             
             searchDao.search(searchParameter).always(function (result) {
 	            result.callback = callback;
-	            result.q_search = search;
 	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
             });
         };
