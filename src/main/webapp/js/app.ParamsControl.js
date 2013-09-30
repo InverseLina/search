@@ -1,23 +1,25 @@
 var app = app || {};
 (function($){
     var _storeValue = {};
+    var queryKey = "";
     function getMainView(){
         return $("body .MainView").bView("MainView");
     }
     app.ParamsControl = {
-        getParamsForSearch: function(){
+        getParamsForSearch: function(search){
             var   view = getMainView();
             var obj, key, newKey;
             var data, result = {};
             var searchData = result.searchValues = {};
             var contentSearchValues = view.contentView.getSearchValues();
+            queryKey = $.trim(search||contentSearchValues.search);
             result.searchColumns = app.preference.columns().join(",");
             if(contentSearchValues.sort){
                 result.orderBy = contentSearchValues.sort.column;
                 result.orderType =  !!(contentSearchValues.sort.order === "asc");
             }
-            if(!/^\s*$/.test(contentSearchValues.search)){
-                searchData.q_search = $.trim(contentSearchValues.search);
+            if(!/^\s*$/.test(queryKey)){
+                searchData.q_search = queryKey;
             }
 
             for (key in _storeValue) {
@@ -107,6 +109,9 @@ var app = app || {};
                 }
             }
             return null;
+        },
+        getQuery: function(){
+            return queryKey;
         }
     }
 

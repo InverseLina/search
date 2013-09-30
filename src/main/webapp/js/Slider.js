@@ -113,7 +113,6 @@
     function setValue(pos){
         var view = this;
         pos = pos||0;
-        console.log(pos);
         if(pos<=0){
            view.$el.find(".slider").addClass("zero");
            view.$el.addClass("zero");

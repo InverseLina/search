@@ -321,7 +321,7 @@
 
               
               //restore input values
-              $e.find(".search-input").val(result.q_search);
+              $e.find(".search-input").val(app.ParamsControl.getQuery());
               
               view.restoreSearchParam();
             });
