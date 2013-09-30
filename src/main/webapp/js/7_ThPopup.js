@@ -123,8 +123,10 @@ var app = app || {};
         	$icon.parent().addClass("hide").prev().removeClass("hide");
         },*/
         "btap; .autoCompleteContainer.active .clear":function(event){
+            var view = this;
             var $input = $(event.currentTarget).closest(".autoCompleteContainer").find("input");
              $input.val("").focus().change();
+            changeAutoComplete.call(view, event);
         },
         "change; .autoComplete":function(event){
             var view = this;
