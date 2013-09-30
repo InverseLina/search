@@ -133,29 +133,26 @@
 				return false;
 			}
 			var $alert = $createIndexBtn.closest("tr").find(".alert");
-			if($createIndexBtn.html()=="Create Index Resume"){
+			if($createIndexBtn.html()=="Create Index Resume"||$createIndexBtn.html()=="Resume Index Resume"){
 				$alert.addClass("transparent");
-				$createIndexBtn.html("Stop");
+				$createIndexBtn.html("Pause Index Resume");
 				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					if(data&&data.errorCode){
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
-						$createIndexBtn.prop("disabled",false).html("Create Index Resume");
+						$createIndexBtn.prop("disabled",false).html("Resume Index Resume");
 					}else{
-						$createIndexBtn.prop("disabled",true).html("Index Resume Created");
-						view.$el.find(".index-info,.status").addClass("hide");
 						view.$el.trigger("STATUS_CHANGE");
-						$alert.addClass("hide");
 					}
 					window.clearInterval(view.intervalId);
 				});
 				view.intervalId = window.setInterval(function(){
 			    	   $(view.el).trigger("RESUMEINDEXSTATUS");
 			      }, 3000);
-			}else if($createIndexBtn.html()=="Stop"){
+			}else if($createIndexBtn.html()=="Pause Index Resume"){
 				window.clearInterval(view.intervalId);
-				$createIndexBtn.prop("disabled",true).html("Stopping");
+				$createIndexBtn.prop("disabled",true).html("Pausing");
 				app.getJsonData("/stopCreateIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-					$createIndexBtn.prop("disabled",false).html("Create Index Resume");
+					$createIndexBtn.prop("disabled",false).html("Resume Index Resume");
 					view.$el.trigger("STATUS_CHANGE");
 				});
 			}
@@ -164,14 +161,22 @@
 			var view = this;
 			view.$el.trigger("STATUS_CHANGE");
 		},
-		"RESUMEINDEXSTATUS":function(event){
+		"RESUMEINDEXSTATUS":function(event,init){
 			var view = this;
 			 app.getJsonData("/getResumeIndexStatus",{orgName:view.currentOrgName}).done(function(data){
-				   view.$el.find(".index-info,.status").removeClass("hide");
-	 	    	   view.$el.find(".index-info").html("Perform:"+data.perform+",Remaining:"+data.remaining);
-	 	      });
+				   //view.$el.find(".index-info,.status").removeClass("hide");
+	 	    	   //view.$el.find(".index-info").html("Perform:"+data.perform+",Remaining:"+data.remaining);
+	 	    	   var percentage = ((data.perform/( data.perform+data.remaining))*100)+"";
+	 	    	   if(init&&data.perform>0&&data.remaining>0){
+	 	    		   view.$el.find(".resume").html("Resume Index Resume");
+	 	    	   }
+	 	    	   if(percentage.indexOf(".")!=-1){
+	 	    		   percentage = percentage.substring(0,percentage.indexOf("."));
+	 	    	   }
+	 	    	   fillProgressBar.call(view,percentage,data.perform,data.perform+data.remaining); 
+			 });
 		},
-		 "STATUS_CHANGE":function(event){
+		 "STATUS_CHANGE":function(event,init){
 	    	  var view = this;
 	    	  var orgName = view.currentOrgName;
 	    	  app.getJsonData("/checkSetupStatus",{type:"ORG",orgName:orgName},{type:"Get"}).done(function(result){
@@ -182,40 +187,42 @@
 	    		  			break;
 	        	  case 3:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 	        	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
-	        	  			view.$el.find(".resume").prop("disabled",false).html("Create Index Resume");
-	        	  			view.$el.trigger("RESUMEINDEXSTATUS");
+	        	  			view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
+	        	  			view.$el.trigger("RESUMEINDEXSTATUS",init);
 	        	  			break;
 	        	  case 4:  	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 				        	view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
-				        	view.$el.find(".resume").prop("disabled",false).html("Create Index Resume");
+				        	view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
 	        	  			view.$el.find(".index-info,.status").removeClass("hide");
-	        	  			view.$el.trigger("RESUMEINDEXSTATUS");
+	        	  			view.$el.trigger("RESUMEINDEXSTATUS",init);
 	    					break;
 	        	  case 5:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 	        		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
 		    	    		view.$el.find(".index-info,.status").addClass("hide");
 	    					break;
 	        	  case 6:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	        		  		view.$el.find(".resume").prop("disabled",false).html("Stop");
+	        		  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
 	        		  		view.intervalId = window.setInterval(function(){
-	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS");
+	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS",init);
 	        		  		}, 3000);
 	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
 							break;
 	        	  case 7:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 			  	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
-				  			view.$el.find(".resume").prop("disabled",false).html("Create Index Resume");
+				  			view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
+				  			view.$el.trigger("RESUMEINDEXSTATUS",init);
 				  			break;
 	        	  case 20:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 	        	  			view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
 			  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
+			  		  		view.$el.trigger("RESUMEINDEXSTATUS");
 				    		view.$el.find(".index-info,.status").addClass("hide");
 							break;
 	        	  case 24:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
   	  						view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
-	        	  			view.$el.find(".resume").prop("disabled",false).html("Stop");
+	        	  			view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
 	        	  			view.intervalId = window.setInterval(function(){
-	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS");
+	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS",init);
 	        		  		}, 3000);
 	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
 							break;
@@ -223,17 +230,18 @@
 							break;
 	        	  case 31:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 		  	  				view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-			  		  		view.$el.find(".resume").prop("disabled",false).html("Create Index Resume");
+			  		  		view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
 							break;
 	        	  case 35:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 	        	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
 			  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
+			  		  		view.$el.trigger("RESUMEINDEXSTATUS",init);
 							break;
 	        	  case 42:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 			  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-			  		  		view.$el.find(".resume").prop("disabled",false).html("Stop");
+			  		  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
 					  		view.intervalId = window.setInterval(function(){
-						    	   $(view.el).trigger("RESUMEINDEXSTATUS");
+						    	   $(view.el).trigger("RESUMEINDEXSTATUS",init);
 					  		}, 3000);
 					  		view.$el.trigger("RESUMEINDEXSTATUS");
 							break;
@@ -243,6 +251,24 @@
     }
   });
   
+  function fillProgressBar(percentage,perform,all){
+	  var view = this;
+	  if(percentage==0){
+		  view.$el.find(".db-status-bar").hide();
+	  }else{
+		  view.$el.find(".db-status-bar").show();
+	  }
+	  view.$el.find(".db-status-bar .progress-bar-success").css("width",percentage+"%");
+	  if(perform==all){
+		  view.$el.find(".db-status-bar .db-percentage").html(all);
+		  view.$el.find(".db-status-bar .db-count-info").empty();
+	  }else{
+		  perform = perform/1000;
+		  all = all/1000;
+		  view.$el.find(".db-status-bar .db-percentage").html(percentage+"%");
+		  view.$el.find(".db-status-bar .db-count-info").html(perform+"k/"+all+"k");
+  	  }
+  }
   function getDate(id){
     var view = this;
     var dfd = $.Deferred();
@@ -251,7 +277,7 @@
         var html = render("OrganizationInfo-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
-        view.$el.trigger("STATUS_CHANGE");
+        view.$el.trigger("STATUS_CHANGE",true);
         dfd.resolve(data[0].name);
         app.getJsonData("/config/get/",{orgId:view.orgId}).done(function(data){
            if(view && view.$el){
