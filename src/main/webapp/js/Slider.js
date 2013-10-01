@@ -45,8 +45,13 @@
                 "bdragmove;.slider":function(e){
                     var view = this;
                     var position =   e.bextra.pageX - view.barOffset.left;
-
                     setValue.call(view,position);
+                },
+                "mousedown;.slider":function(e){
+                	var view = this;
+                	$(document).one("mouseup",function(){
+                		view.$el.trigger("CHANGEAUTOCOMPLETE");
+                	});
                 },
 /*                "bdragstart; .slider":function(){
                     var view = this;
@@ -104,7 +109,6 @@
         view.position = position;
         var $valve = $e.find(".slider");
         $valve.css("left",(position - $valve.width()/2)+"px");
-        view.$el.trigger("SLIDER_VALUE_CHANGE");
     }
 
     /**
@@ -129,7 +133,10 @@
             value = view.opts.min;
         }
 
-        view.opts.value = value;
+        if(value!=view.opts.value){
+        	view.opts.value = value;
+        	view.$el.trigger("SLIDER_VALUE_CHANGE");
+        }
         setPosition.call(view);
     }
 

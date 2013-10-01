@@ -213,6 +213,10 @@ var app = app || {};
         },
         SLIDER_VALUE_CHANGE:function(event){
             var view = this;
+           // changeAutoComplete.call(view, event);
+        },
+        "CHANGEAUTOCOMPLETE":function(event){
+        	var view = this;
             changeAutoComplete.call(view, event);
         }
     };
