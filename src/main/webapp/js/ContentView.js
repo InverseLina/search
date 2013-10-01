@@ -38,6 +38,11 @@
           view.$el.trigger("DO_SEARCH",{search:keyword});
         }
       },
+      "keyup; .big .search-input": function(event){
+        var view = this;
+        var $this = $(event.currentTarget);
+          view.$el.find(".search-form .search-input").val($this.val());
+      },
       "btap; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
         var view = this;
         var $th = $(event.currentTarget).closest("th");
