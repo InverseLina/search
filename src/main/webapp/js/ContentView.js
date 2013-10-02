@@ -28,6 +28,7 @@
           }
     	  view.$el.find(".sf-info").html((app.cookie("org")||" ")+userName.replace(/"/g,""));
       }
+        brite.display("SavedSearches");
     },
     events : {
       "keypress; .search-input": function(event){
@@ -42,6 +43,12 @@
         var view = this;
         var $this = $(event.currentTarget);
           view.$el.find(".search-form .search-input").val($this.val());
+          view.$el.trigger("SEARCH_QUERY_CHANGE");
+      },
+      "keyup; .search-form .search-input": function(event){
+        var view = this;
+        view.$el.trigger("SEARCH_QUERY_CHANGE");
+          console.log("search query change")
       },
       "btap; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
         var view = this;

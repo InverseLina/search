@@ -18,31 +18,43 @@ public class SavedSearchesWebHandlers {
 
 
 
-    @WebGet("/getSavedSearches")
-    public WebResponse search(@WebParam("offset") Integer offset, @WebParam("limit") Integer limit) {
+    @WebGet("/listSavedSearches")
+    public WebResponse list(@WebParam("offset") Integer offset, @WebParam("limit") Integer limit) {
         if (offset == null) {
             offset = 0;
         }
         if (limit == null) {
-            limit = 6;
+            limit = 999;
         }
-        List<Map> map = savedSearchesDao.getSavedSearches(offset, limit);
+        List<Map> map = savedSearchesDao.list(offset, limit);
         return WebResponse.success(map);
     }
 
     @WebPost("/saveSavedSearches")
     public WebResponse save(@WebParam("name") String name, @WebParam("content") String content) {
         try {
-            savedSearchesDao.saveSavedSearches(name, content);
+            savedSearchesDao.save(name, content);
             return WebResponse.success();
         } catch (Exception e) {
+            e.printStackTrace();
             return WebResponse.fail(e.getMessage());
         }
     }
 
     @WebPost("/deleteSavedSearches")
     public WebResponse delete(@WebParam("id") Long id) {
-        savedSearchesDao.deleteSavedSearches(id);
+        savedSearchesDao.delete(id);
         return WebResponse.success();
+    }
+    @WebGet("/countSavedSearches")
+    public WebResponse count(@WebParam("name") String name) {
+        int result = savedSearchesDao.count(name);
+        return WebResponse.success().setResult(result);
+    }
+    @WebGet("/getOneSavedSearches")
+    public WebResponse get(@WebParam("id") Long id) {
+
+        Map map = savedSearchesDao.get(id);
+        return WebResponse.success(map);
     }
 }

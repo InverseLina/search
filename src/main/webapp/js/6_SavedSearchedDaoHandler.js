@@ -6,38 +6,23 @@ var app = app || {};
 	}
 
     SavedSearchesDaoHandler.prototype.list = function(limitData){
-		return $.ajax({
-			type : "GET",
-			url : "getSavedSearches",
-			dataType : "json",
-            data:limitData
-		}).pipe(function(val) {
-			return val.result;
-		});
+        return app.getJsonData("listSavedSearches");
 	}
 
 
     SavedSearchesDaoHandler.prototype.save = function(name, content){
-		return $.ajax({
-			type : "POST",
-			url : "saveSavedSearches",
-			data : {name:name, content: content},
-			dataType : "json"
-		}).pipe(function(val) {
-			return val.result;
-		});
+        return app.getJsonData("saveSavedSearches",{name:name, content: content},"Post" );
 	}
 
-
     SavedSearchesDaoHandler.prototype["delete"] = function(id){
-		return $.ajax({
-			type : "POST",
-			url : "deleteSavedSearches",
-			data:{id:id},
-			dataType : "json"
-		}).pipe(function(val) {
-			return val.result;
-		});
+        return app.getJsonData("deleteSavedSearches",{id:id},"Post");
+	}
+
+    SavedSearchesDaoHandler.prototype["count"] = function(name){
+        return app.getJsonData("countSavedSearches",{name:name} );
+	}
+    SavedSearchesDaoHandler.prototype["get"] = function(id){
+        return app.getJsonData("getOneSavedSearches",{id:id} );
 	}
 	
 	//-------- /Search Dao handler ---------//

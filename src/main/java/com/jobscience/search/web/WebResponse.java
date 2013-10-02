@@ -66,8 +66,9 @@ public class WebResponse {
         return result;
     }
 
-    public void setResult(Object result) {
+    public WebResponse setResult(Object result) {
         this.result = result;
+        return this;
     }
 
     public String getErrorCode() {
