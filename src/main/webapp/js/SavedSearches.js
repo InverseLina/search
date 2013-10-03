@@ -86,9 +86,12 @@
                     event.preventDefault();
                     var view = this;
                     var $input = view.$el.find("input");
-                    $input.val("My search 1").select().focus();
-                    $input.trigger("SEARCH_QUERY_CHANGE");
-                    view.$el.find(".search-list").hide();
+                    getNewName().done(function(newName){
+                        $input.val(newName).select().focus();
+                        $input.trigger("SEARCH_QUERY_CHANGE");
+                        view.$el.find(".search-list").hide();
+                    })
+
                 },
                 "btap; li .remove i": function(event){
                     var view = this;
@@ -194,8 +197,6 @@
         }else{
             if(hasFilter || query!=""){
                 dao.count(searchName).done(function(count){
-                    console.log(count);
-                    console.log(searchName);
                    if(count>0){
                       if(justSearch){
                           if(isUpdate){
@@ -225,6 +226,26 @@
                 enableBtn(view, false);
             }
         }
+    }
+
+    function getNewName(){
+        var  baseName = "My search";
+        var dfd = $.Deferred();
+        var searchName;
+        var checkExist = function(dfd,index){
+            searchName = baseName + " " + index;
+            dao.count(searchName).done(function(count){
+                if(count==0){
+                   dfd.resolve(searchName);
+                }else{
+                    index++;
+                    checkExist(dfd, index);
+                }
+            });
+            return dfd.promise();
+        };
+        return checkExist(dfd, 1);
+
     }
 
 })(jQuery);
