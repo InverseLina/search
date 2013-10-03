@@ -47,7 +47,9 @@
       },
       "keyup; .search-form .search-input": function(event){
         var view = this;
-        view.$el.trigger("SEARCH_QUERY_CHANGE");
+        if(event.keyCode != 13){
+            view.$el.trigger("SEARCH_QUERY_CHANGE");
+        }
       },
       "btap; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
         var view = this;
