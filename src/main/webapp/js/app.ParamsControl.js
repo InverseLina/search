@@ -96,6 +96,9 @@ var app = app || {};
         getFilterParams: function(){
             return _storeValue||{};
         },
+        setFilterParams:function(filters){
+            _storeValue = filters||{};
+        },
         get: function (type, name) {
             var i, obj, data = _storeValue[type];
             if (!name) {

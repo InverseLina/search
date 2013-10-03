@@ -11,13 +11,13 @@
 <script id="SavedSearches-list" type="text/html">
         <ul>
             {{#each result}}
-                <li data-objId={{id}}>{{name}} <span class="remove"><i class="glyphicon glyphicon-remove"></i></span></li>
+                <li data-objId="{{id}}"><span  class="searchName">{{name}}</span><span class="remove"><i class="glyphicon glyphicon-remove"></i></span></li>
             {{/each}}
             <li class="createNew">Save as new search</li>
         </ul>
 </script>
 <script id="SavedSearches-list-line" type="text/html">
-      <li data-objId={{id}}>{{name}} <span class="remove"><i class="glyphicon glyphicon-remove"></i></span></li>
+      <li data-objId="{{id}}"><span class="searchName">{{name}}</span> <span class="remove"><i class="glyphicon glyphicon-remove"></i></span></li>
 </script>
 
 

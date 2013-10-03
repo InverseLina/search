@@ -23,7 +23,22 @@
             },
 
             postDisplay: function (data) {
-
+                var width, height, pos, view = this;
+                $(document).on("btap." + view.cid, function(event){
+                    var $ul = view.$el.find("ul:visible");
+                    if($ul.length > 0){
+                        width = $ul.outerWidth();
+                        height = $ul.outerHeight();
+                        pos = $ul.offset();
+                        if(event.pageX > pos.left && event.pageY < pos.left + width
+                            && event.pageY > pos.top && event.pageY < pos.top + height){
+                            //do nothing
+                            //view.$el.off("mouseleave");
+                        }else{
+                            $ul.hide();
+                        }
+                    }
+                });
             },
             events: {
                 "SEARCH_RESULT_CHANGE":function(){
@@ -76,6 +91,7 @@
                     view.$el.find(".search-list").hide();
                 },
                 "btap; li .remove i": function(event){
+                    var view = this;
                     event.stopPropagation();
                     event.preventDefault();
                     var $li = $(event.currentTarget).closest("li");
@@ -83,6 +99,7 @@
                     if(id) {
                         dao.delete(id).done(function(){
                            $li.remove();
+                            view.$el.trigger("SEARCH_QUERY_CHANGE");
                         });
                     }
                 },
@@ -91,15 +108,28 @@
                     var $li = $(event.currentTarget);
                     var id = $li.attr("data-objId");
                     var $input = view.$el.find("input");
+                    var contentView = view.$el.bView("ContentView");
                     dao.get(id).done(function(result){
                         if(result){
                             $input.val(result.name).focus().select();
                             enableBtn(view, false);
                             view.$el.find(".search-list").hide();
                             //todo should restore params
-
+                            var search = JSON.parse(result.search);
+                            contentView.$el.find(".search-form .search-input").val(search.query||"");
+/*                            console.log("remove");
+                            contentView.$el.find(".tableContainer thead .selectedItems .item").remove();
+                            if(search.filters){
+                                contentView.restoreSearchParam(search.filters);
+                            }*/
+                            app.ParamsControl.setFilterParams(search.filters);
+                            $input.trigger("DO_SEARCH");
                         }
                     });
+                },
+                "mouseleave; ul":function(){
+                    var view = this;
+                    view.$el.find(".search-list").hide();
                 }
             },
             docEvents: {
@@ -118,6 +148,9 @@
             if (!$btn.hasClass("disabled")) {
                 $btn.addClass("disabled");
             }
+            $btn.removeClass("update");
+            $btn.text("Save");
+
         }
     }
 
@@ -142,15 +175,17 @@
          justSearch = justSearch||false;
          var view = this;
         var $btn = view.$el.find(".btn");
+        var $input = view.$el.find("input");
 
         var query = getSearchQuery(view);
         var searchName = $.trim(view.$el.find("input").val());
 
         var hasName = searchName.length > 0;
         var isUpdate = $btn.hasClass("update");
-        if(isUpdate) {
-            searchName = searchName.substring(0, searchName.length -2)
+        if(/\s{1}\*$/g.test(searchName)){
+            searchName = searchName.substring(0, searchName.length - 2);
         }
+
 
         var hasFilter = hasSearchFilter();
 
@@ -159,6 +194,8 @@
         }else{
             if(hasFilter || query!=""){
                 dao.count(searchName).done(function(count){
+                    console.log(count);
+                    console.log(searchName);
                    if(count>0){
                       if(justSearch){
                           if(isUpdate){
@@ -178,6 +215,7 @@
                       if(isUpdate) {
                           $btn.removeClass("update");
                           $btn.text("Save");
+                          $input.val(searchName);
                       }else{
                         enableBtn(view, true);
                       }

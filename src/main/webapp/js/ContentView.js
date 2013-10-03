@@ -48,7 +48,6 @@
       "keyup; .search-form .search-input": function(event){
         var view = this;
         view.$el.trigger("SEARCH_QUERY_CHANGE");
-          console.log("search query change")
       },
       "btap; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
         var view = this;
@@ -200,14 +199,14 @@
       view.$searchResult.find(".tableContainer").html(render("search-loading"));
       fixColWidth.call(view);
     },
-      restoreSearchParam: function (){
+      restoreSearchParam: function (filters){
         var key, dataName, data, displayName, $html, $th, view = this;
 
         if(view.$el.find("table th .selectedItems .item").length > 0){
             return;
         }
 
-        var result = app.ParamsControl.getFilterParams() || {};
+        var result = filters||app.ParamsControl.getFilterParams() || {};
 
         for(key in result){
             dataName = key;
