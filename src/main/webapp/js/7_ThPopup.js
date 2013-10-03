@@ -249,6 +249,7 @@ var app = app || {};
       if($nextItem.length > 0){
           view.$el.find(".contentText").removeClass("active");
           $nextItem.addClass("active");
+          $nextItem.find(">span").addClass("active");
       }
       changeInput.call(view);
 
@@ -275,7 +276,7 @@ var app = app || {};
       var view = this;
       var $item = view.$el.find(".contentText.active");
       if($item.length > 0){
-          view.$el.find("input:focus").val($item.text()).change();
+          view.$el.find("input:focus").val($item.attr("data-name")).change();
       }
 
   }
@@ -334,9 +335,8 @@ var app = app || {};
       event.preventDefault();
       switch(event.keyCode){
           case borderKey.ENTER:
-
               view.$el.find(".contentText").each(function(idx,item){
-                  if($(item).text() == val){
+                  if($(item).attr("data-name") == val){
                       addItem.call(view, val);
                   }
               });
