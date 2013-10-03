@@ -198,6 +198,7 @@
 	    					break;
 	        	  case 5:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 	        		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
+	        		  		view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
 		    	    		view.$el.find(".index-info,.status").addClass("hide");
 	    					break;
 	        	  case 6:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");

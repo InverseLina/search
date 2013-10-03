@@ -64,6 +64,13 @@ public class DBSetupManager {
 	        }
     	}
     	if(type.equals(SchemaType.ORG)){
+    		
+    		List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+        	String schemaname="" ;
+        	if(orgs.size()==1){
+        		schemaname = orgs.get(0).get("schemaname").toString();
+        	}
+        	
 	    	if(status==SetupStatus.SYS_IMPORT_ZIPCODE_DATA.getValue()||status==SetupStatus.SYS_CREATE_SCHEMA.getValue()){
 	    		if(checkSchema(orgName)&&checkTable(orgName, "contact")){
 	    			if(checkOrgExtra(orgName)){
@@ -78,10 +85,10 @@ public class DBSetupManager {
 	    		boolean orgIndex = false;
 	    		if(checkExtension("pg_trgm")){
 		        	status = SetupStatus.PG_TRGM.getValue();
-		        	if(checkOrgIndex()){
+		        	if(checkOrgIndex(schemaname)){
 			        	status = SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue();
+			        	orgIndex = true;
 			        }
-		        	orgIndex = true;
 		        }else{
 		        	status = SetupStatus.ORG_SCHEMA_NOT_EXIST.getValue();
 		        }
@@ -415,8 +422,9 @@ public class DBSetupManager {
 		}
     }
     
-    private boolean checkOrgIndex(){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from pg_indexes where indexname='contact_ex_idx_resume_gin'");
+    private boolean checkOrgIndex(String schemaname){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from pg_indexes " +
+    			"where indexname='contact_ex_idx_resume_gin' and schemaname='"+schemaname+"'");
     	if(list.size()==1){
     		if(Integer.parseInt(list.get(0).get("count").toString())>0){
     			return true;
