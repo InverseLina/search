@@ -429,6 +429,7 @@ public class SearchDao {
 	            				   hasCondition = true;
 	            			   }else{
 	            				   List<Map> zipcodes = getZipCode(condition.toString());
+	            				   condition = new StringBuilder();
 	            				   for(Map m:zipcodes){
 	            					   hasCondition = true;
 		                			   conditions.append(" OR "+tableAliases+".\"mailingpostalcode\" = '")
@@ -469,7 +470,6 @@ public class SearchDao {
     	   if(!hasCondition&&!advanced){
     		   querySql.append(" and 1!=1 ");
     	   }
-    	   
            return querySql.toString();
     }
     
