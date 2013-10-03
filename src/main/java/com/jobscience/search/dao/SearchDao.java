@@ -177,7 +177,12 @@ public class SearchDao {
             		  value = contact.getString("firstName");
             		  if(advanced){
    	                   if(baseTable.indexOf("contact") ==-1){
-   	        	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
+	   	                	 if(baseTableIns.indexOf("z")>-1){
+	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
+	 	       				}else{
+	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
+	 	       			
+	 	       				}
    	        	            baseTable = " contact ";
    	        	            baseTableIns = "a";
    	                    }
@@ -199,7 +204,12 @@ public class SearchDao {
             		  value = contact.getString("lastName");
             		  if(advanced){
    	                   if(baseTable.indexOf("contact") ==-1){
-   	        	            joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
+   	                	 if(baseTableIns.indexOf("z")>-1){
+	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
+	 	       				}else{
+	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
+	 	       			
+	 	       				}
    	        	            baseTable =  "  contact " ;
    	        	            baseTableIns = "a";
    	                    }
@@ -222,7 +232,12 @@ public class SearchDao {
             		  value = contact.getString("email");
             		  if(advanced){
    	                   if(baseTable.indexOf("contact") ==-1){
-   	                       joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
+   	                	 if(baseTableIns.indexOf("z")>-1){
+	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
+	 	       				}else{
+	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
+	 	       			
+	 	       				}
                            baseTable =  " contact ";
                            baseTableIns = "a";
    	                   }
@@ -244,7 +259,12 @@ public class SearchDao {
             		  value = contact.getString("title");
             		  if(advanced){
       	                   if(baseTable.indexOf("contact") ==-1){
-      	                       joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
+	      	                	 if(baseTableIns.indexOf("z")>-1){
+	 	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
+	 	 	       				}else{
+	 	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
+	 	 	       			
+	 	 	       				}
                                baseTable = " contact ";
                                baseTableIns = "a";
       	                   }
@@ -429,6 +449,7 @@ public class SearchDao {
 	            				   hasCondition = true;
 	            			   }else{
 	            				   List<Map> zipcodes = getZipCode(condition.toString());
+	            				   condition = new StringBuilder();
 	            				   for(Map m:zipcodes){
 	            					   hasCondition = true;
 		                			   conditions.append(" OR "+tableAliases+".\"mailingpostalcode\" = '")
@@ -469,7 +490,6 @@ public class SearchDao {
     	   if(!hasCondition&&!advanced){
     		   querySql.append(" and 1!=1 ");
     	   }
-    	   
            return querySql.toString();
     }
     
