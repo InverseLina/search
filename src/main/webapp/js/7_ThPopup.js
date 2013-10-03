@@ -69,6 +69,11 @@ var app = app || {};
 
         });
 
+        var data = app.ParamsControl.get(view.type);
+        if(data && data.length > 0){
+            showSPline.call(view, true);
+        }
+
      if(view.afterPostDisplay){
          view.afterPostDisplay();
      }
@@ -201,8 +206,9 @@ var app = app || {};
             var dataName = $(event.currentTarget).closest("span[data-name]").attr("data-name");
             setTimeout(function(){
                 view.$el.find(".selectedItems span[data-name='" + dataName + "']").remove();
-                if (view.type == "Contact") {
-                    if(view.$el.find(".selectedItems span[data-name]").length == 0){
+                if (view.$el.find(".selectedItems span[data-name]").length == 0) {
+                    showSPline.call(view, false);
+                    if (view.type == "Contact") {
                         view.$el.find(".selectedItems").hide();
                     }
                 }
@@ -294,6 +300,7 @@ var app = app || {};
           view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {name: data, min: minValue||""}));
           view.$el.trigger("ADD_FILTER", item);
           view.$el.find("input").val("").focus().change();
+          showSPline.call(view, true);
       }else{
           var obj = app.ParamsControl.get(view.type, data);
           var oldMinValue = obj.value.minRadius||obj.value.minYears||0;
@@ -308,6 +315,7 @@ var app = app || {};
               view.$el.trigger("UPDATE_FILTER");
           }
       }
+
   }
 
   function changeAutoComplete(event){
@@ -347,6 +355,15 @@ var app = app || {};
 
       }
   }
+
+    function showSPline(status) {
+        var view = this;
+        if(status){
+            view.$el.find(".separateLine").show();
+        }else{
+            view.$el.find(".separateLine").hide();
+        }
+    }
 
 
   
