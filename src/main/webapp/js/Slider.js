@@ -29,40 +29,42 @@
                     $e.find(".bar").css({"border-width": "{0}px {1}px 0 0".format(width, height)});
                 }
                 //get the length from bar height
-                setTimeout(function () {
+//                setTimeout(function () {
                     view.barLength = $e.find(".bar").outerWidth();
-                    setValue.call(view, view.opts.value);
-                }, 200);
+//                    setPosition.call(view, view.opts.value);
+//                }, 200);
             },
             events: {
                 "btap; .bar" : function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
                     var view = this;
                     var $bar = $(e.currentTarget);
                     var position = e.pageX - view.barOffset.left;
-                    setValue.call(view, position);
+                    setPosition.call(view, position);
                 },
                 //add drag event
                 "bdragmove;.slider":function(e){
+                    e.stopPropagation();
+                    e.preventDefault();
                     var view = this;
                     var position =   e.bextra.pageX - view.barOffset.left;
-                    setValue.call(view,position);
-                },
-                "mousedown;.slider":function(e){
-                	var view = this;
-                	$(document).one("mouseup",function(){
-                		view.$el.trigger("CHANGEAUTOCOMPLETE");
-                	});
+
+                    setPosition.call(view,position, true);
                 },
 /*                "bdragstart; .slider":function(){
                     var view = this;
                     view.$el.find(".bar, .slider").css("cursor", "pointer");
                     view.$el.css("cursor", "pointer")
                 },*/
-/*                "bdragend; .slider":function(){
+                "bdragend; .slider":function(e){
+                    e.stopPropagation();
+                    e.preventDefault();
                     var view = this;
-                    view.$el.find(".bar").css("cursor", "default");
-                    view.$el.css("cursor", "default");
-                }*/
+                    var position =   e.bextra.pageX - view.barOffset.left;
+
+                    setPosition.call(view,position);
+                }
             },
             docEvents: {},
             /**
@@ -75,69 +77,76 @@
             reset: function(){
                 var view = this;
                 setValue.call(view, 0);
+            },
+            inc: function(){
+                var view = this;
+                setValue.call(view, (view.opts.value||0) + 1);
+            },
+            dec: function(){
+                var view = this;
+                setValue.call(view, (view.opts.value||0) - 1);
             }
 
         });
     /**
      * set position by value
      */
-    function setPosition(){
+    function setPosition(pos, force){
         var view = this;
         var $e = this.$el;
+        force = force||false;
 
-        var value = view.opts.value;
+        pos = pos||0;
+        if(pos<=0){
+            view.$el.find(".slider").addClass("zero");
+            view.$el.addClass("zero");
+            pos = 0;
+        }else{
+            view.$el.find(".slider").removeClass("zero");
+            view.$el.removeClass("zero");
+            if(pos > view.barLength){
+                pos = view.barLength;
+            }
+        }
+        var value = Math.round(pos/view.barLength * (view.opts.max - view.opts.min) + view.opts.min);
         if(isNaN(value)){
             value = view.opts.min;
         }
 
-        if (value > view.opts.max) {
+        view.opts.value = value;
+
+        $e.find(".slider").html(value==0?"-":value);
+
+        var $valve = $e.find(".slider");
+        $valve.css("left",(pos - $valve.width()/2)+"px");
+        if(view.position !== pos && !force){
+            view.position = pos;
+            view.$el.trigger("SLIDER_VALUE_CHANGE");
+        }
+    }
+
+    /**
+     * set value
+     */
+    function setValue(value) {
+        var view = this;
+        var position = 0;
+        value = value || 0;
+        value = Math.round(value);
+        if(value > view.opts.max){
             value = view.opts.max;
         }
 
         if (value < view.opts.min) {
             value = view.opts.min;
         }
-        view.opts.value = value;
 
-        $e.find(".slider").html(value==0?"-":value);
-        var position = 0;
-        if(view.opts.max != view.opts.min){
-            position = (view.opts.value - view.opts.min) / (view.opts.max - view.opts.min) * view.barLength;
-        }else{
+        if (view.opts.max != view.opts.min) {
+            position = Math.round((value - view.opts.min) / (view.opts.max - view.opts.min) * view.barLength);
+        } else {
             position = view.barLength;
         }
-        view.position = position;
-        var $valve = $e.find(".slider");
-        $valve.css("left",(position - $valve.width()/2)+"px");
-    }
-
-    /**
-     * set value by position
-     */
-    function setValue(pos){
-        var view = this;
-        pos = pos||0;
-        if(pos<=0){
-           view.$el.find(".slider").addClass("zero");
-           view.$el.addClass("zero");
-        }else{
-            view.$el.find(".slider").removeClass("zero");
-            view.$el.removeClass("zero");
-        }
-        var value = pos/view.barLength * (view.opts.max - view.opts.min) + view.opts.min;
-        value = Math.round(value);
-        if(value > view.opts.max){
-            value = view.opts.max;
-        }
-        if(value < view.opts.min){
-            value = view.opts.min;
-        }
-
-        if(value!=view.opts.value){
-        	view.opts.value = value;
-        	view.$el.trigger("SLIDER_VALUE_CHANGE");
-        }
-        setPosition.call(view);
+        setPosition.call(view, position);
     }
 
 })(jQuery);

@@ -1,7 +1,7 @@
 var app = app || {};
 (function($) {
   var searchDao = app.SearchDaoHandler;
-    var borderKey = { UP: 38, DOWN: 40, TAB: 9, ESC: 27, ENTER: 13 };
+    var borderKey = { LEFT:37, RIGHT:39, UP: 38, DOWN: 40, TAB: 9, ESC: 27, ENTER: 13 };
   function ThPopup(type) {
     this.type = type;
   };
@@ -104,6 +104,7 @@ var app = app || {};
                type = "employer";
             }
 	        $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result["list"],type:type}));
+                 activeFirstItem.call(view);
 	    }); 
      }
   };
@@ -153,7 +154,13 @@ var app = app || {};
         "keyup;.autoComplete":function(event){
             var view = this;
             changeAutoComplete.call(view, event);
-        },
+        },/*
+        "keydown;.autoComplete":function(event){
+            if(event.ctrlKey && (event.keyCode == borderKey.LEFT || event.keyCode == borderKey.RIGHT)){
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        },*/
         "SHOWSEARCHRESULT":function(event,params){
         	var view = this;
             var $input = view.$el.find("input.autoComplete:first");
@@ -183,6 +190,7 @@ var app = app || {};
         	 searchDao.getGroupValuesForAdvanced(searchCond).done(function(data){
                  if(view && view.$el){
                      view.$el.find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data.list,type:type}));
+                     activeFirstItem.call(view);
                  }
              });
         	
@@ -219,7 +227,7 @@ var app = app || {};
         },
         SLIDER_VALUE_CHANGE:function(event){
             var view = this;
-           // changeAutoComplete.call(view, event);
+            changeAutoComplete.call(view, event);
         },
         "CHANGEAUTOCOMPLETE":function(event){
         	var view = this;
@@ -249,10 +257,15 @@ var app = app || {};
       if($nextItem.length > 0){
           view.$el.find(".contentText").removeClass("active");
           $nextItem.addClass("active");
-          $nextItem.find(">span").addClass("active");
       }
       changeInput.call(view);
 
+  }
+
+  function activeFirstItem(){
+      var view = this;
+      view.$el.find(".contentText").removeClass("active");
+      view.$el.find(".contentText:first").addClass("active");
   }
   function prevItem(){
       var $nextItem, view = this;
@@ -320,7 +333,7 @@ var app = app || {};
   }
 
   function changeAutoComplete(event){
-      var view = this;
+      var $activeItem, view = this;
       var $input = view.$el.find("input.autoComplete:first");
       var type = $input.attr("data-type");
       var resultType = (type=="company")?"companies":(type+"s");
@@ -335,11 +348,16 @@ var app = app || {};
       event.preventDefault();
       switch(event.keyCode){
           case borderKey.ENTER:
-              view.$el.find(".contentText").each(function(idx,item){
+          case borderKey.TAB:
+/*              view.$el.find(".contentText").each(function(idx,item){
                   if($(item).attr("data-name") == val){
                       addItem.call(view, val);
                   }
-              });
+              });*/
+              $activeItem = view.$el.find(".contentText.active");
+              if($activeItem.length == 1){
+                  addItem.call(view, $activeItem.attr("data-name"));
+              }
               break;
           case borderKey.ESC:
               close.call(view);
@@ -350,6 +368,16 @@ var app = app || {};
           case borderKey.UP:
               prevItem.call(view);
               break;
+/*          case borderKey.RIGHT:
+              if(event.ctrlKey && view.slider){
+                  view.slider.inc();
+              }
+              break
+          case borderKey.LEFT:
+              if(event.ctrlKey && view.slider){
+                  view.slider.dec();
+              }
+              break;*/
           default:
               view.$el.trigger("SHOWSEARCHRESULT");
 
