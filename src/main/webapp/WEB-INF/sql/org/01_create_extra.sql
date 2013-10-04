@@ -46,7 +46,7 @@ CREATE TABLE savedsearches
   name character varying(64) NOT NULL,
   create_date timestamp ,
   update_date timestamp,
-  search character varying(255) NOT NULL,
+  search text NOT NULL,
   CONSTRAINT pk_savedsearched PRIMARY KEY (id),
   CONSTRAINT unq_name UNIQUE (name)
 );
