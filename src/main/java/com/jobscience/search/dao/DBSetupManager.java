@@ -213,64 +213,6 @@ public class DBSetupManager {
     	return false;
     }
     
-    private boolean checkExtension(String extName){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select count(*) as count from pg_catalog.pg_extension" +
-        		" where extname='"+extName+"' ");
-    	if(list.size()==1){
-    		if("1".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    private  boolean checkOrgExtra(String orgName){
-    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-    	String schemaname="" ;
-    	if(orgs.size()==1){
-    		schemaname = orgs.get(0).get("schemaname").toString();
-    	}
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('contact_ex','savedsearches','user')");
-    	if(list.size()==1){
-    		if("3".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
-    private  boolean checkSchema(String orgName){
-    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-    	String schemaname="" ;
-    	if(orgs.size()==1){
-    		schemaname = orgs.get(0).get("schemaname").toString();
-    	}
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.schemata" +
-        		" where schema_name='"+schemaname+"'");
-    	if(list.size()==1){
-    		if("1".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
-    private  boolean checkTable(String orgName,String table){
-    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-    	String schemaname="" ;
-    	if(orgs.size()==1){
-    		schemaname = orgs.get(0).get("schemaname").toString();
-    	}
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(),  "select count(*) as count from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name ='"+table+"'");
-    	if(list.size()==1){
-    		if("1".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
     public boolean createExtraTables(String orgName) throws SQLException{
     	boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
@@ -317,13 +259,12 @@ public class DBSetupManager {
         }
         Connection conn = dbHelper.getConnection(orgName);
         try {
-            conn.setAutoCommit(false);
             Statement st = conn.createStatement();
             for(String sql : allSqls){
         		st.addBatch(sql);
+        		st.executeBatch();
             }
             st.executeBatch();
-            conn.commit();
         } catch (SQLException e) {
         	result = false;
         	e.printStackTrace();
@@ -335,6 +276,28 @@ public class DBSetupManager {
             throw e;
         }
         return result;
+    }
+    
+    
+    public int getIndexCount(String orgName){
+    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+    	String schemaname="" ;
+    	if(orgs.size()==1){
+    		schemaname = orgs.get(0).get("schemaname").toString();
+    	}
+    	StringBuilder sql = new StringBuilder();
+    	sql.append(" select count(*) as count from pg_indexes ")
+    	   .append(" where indexname in ('contact_ex_idx_resume_gin',")
+    	   .append("'contact_title_trgm_gin','contact_name_trgm_gin',")
+    	   .append("'contact_firstname_trgm_gin','contact_lastname_trgm_gin')")
+    	   .append(" and schemaname='").append(schemaname)
+    	   .append("' ");
+    	   System.out.println(sql.toString());
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), sql.toString());
+    	if(list.size()==1){
+    			return Integer.parseInt(list.get(0).get("count").toString());
+    	}
+    	return 0;
     }
     
     private String getRootSqlFolderPath(){
@@ -427,6 +390,64 @@ public class DBSetupManager {
     			"where indexname='contact_ex_idx_resume_gin' and schemaname='"+schemaname+"'");
     	if(list.size()==1){
     		if(Integer.parseInt(list.get(0).get("count").toString())>0){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    private boolean checkExtension(String extName){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select count(*) as count from pg_catalog.pg_extension" +
+        		" where extname='"+extName+"' ");
+    	if(list.size()==1){
+    		if("1".equals(list.get(0).get("count").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    private  boolean checkOrgExtra(String orgName){
+    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+    	String schemaname="" ;
+    	if(orgs.size()==1){
+    		schemaname = orgs.get(0).get("schemaname").toString();
+    	}
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('contact_ex','savedsearches','user')");
+    	if(list.size()==1){
+    		if("3".equals(list.get(0).get("count").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    private  boolean checkSchema(String orgName){
+    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+    	String schemaname="" ;
+    	if(orgs.size()==1){
+    		schemaname = orgs.get(0).get("schemaname").toString();
+    	}
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.schemata" +
+        		" where schema_name='"+schemaname+"'");
+    	if(list.size()==1){
+    		if("1".equals(list.get(0).get("count").toString())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    private  boolean checkTable(String orgName,String table){
+    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+    	String schemaname="" ;
+    	if(orgs.size()==1){
+    		schemaname = orgs.get(0).get("schemaname").toString();
+    	}
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(),  "select count(*) as count from information_schema.tables" +
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name ='"+table+"'");
+    	if(list.size()==1){
+    		if("1".equals(list.get(0).get("count").toString())){
     			return true;
     		}
     	}

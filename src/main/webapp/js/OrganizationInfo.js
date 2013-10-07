@@ -116,14 +116,28 @@
 			var $alert = $createIndexBtn.closest("tr").find(".alert");
 			$createIndexBtn.prop("disabled",true).html("Creating...");
 			$alert.addClass("transparent");
+			view.$el.find(".index-status-bar").show();
+			view.indexIntervalId = window.setInterval(function(){
+		    	   $(view.el).trigger("INDEXCOLUMNSSTATUS");
+		      }, 3000);
 			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+				window.clearInterval(view.indexIntervalId);
 				if(data){
 					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
 					$createIndexBtn.prop("disabled",false).html("Create Index Columns");
 				}else{
 					$createIndexBtn.html("Index Columns Created");
 					$alert.addClass("hide");
+					view.$el.find(".index-status-bar").hide();
 				}
+			});
+		},
+		"INDEXCOLUMNSSTATUS":function(){
+			var view = this;
+			app.getJsonData("/getIndexColumnsStatus", {orgName:view.currentOrgName}).done(function(data){
+				percentage = data/5*100;
+			    view.$el.find(".index-status-bar .progress-bar-success").css("width",percentage+"%");
+			    view.$el.find(".index-status-bar .db-percentage").html(data+"/5");
 			});
 		},
 		"click;.resume":function(event){

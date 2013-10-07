@@ -83,6 +83,12 @@ public class DBSetupWebHanlder {
         return WebResponse.success();
     }
     
+    @WebGet("/getIndexColumnsStatus")
+    public WebResponse getIndexColumnsStatus(@WebParam("orgName")String orgName){
+       return WebResponse.success(dbSetupManager.getIndexCount(orgName));
+    }
+    
+    
     @WebPost("/createIndexResume")
     public WebResponse createIndexResume(@WebParam("orgName")String orgName) {
     	 try{
