@@ -292,7 +292,6 @@ public class DBSetupManager {
     	   .append("'contact_firstname_trgm_gin','contact_lastname_trgm_gin')")
     	   .append(" and schemaname='").append(schemaname)
     	   .append("' ");
-    	   System.out.println(sql.toString());
     	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());
