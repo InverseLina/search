@@ -331,6 +331,7 @@
               height:80px;
               word-break: break-word;
               overflow: hidden;
+
             }
             .lineInfo{
               display:block;
@@ -340,6 +341,14 @@
             }
             .lineInfo.name{
               font-weight:bold;
+            }
+          }
+          td[data-column='skill'],td[data-column='company'],td[data-column='education'] {
+            >span {
+              cursor: pointer;
+              &:empty {
+                cursor: default;
+              }
             }
           }
           td.checkboxCol {
