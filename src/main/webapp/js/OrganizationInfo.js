@@ -214,6 +214,7 @@
 	        		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
 	        		  		view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
 		    	    		view.$el.find(".index-info,.status").addClass("hide");
+		    	    		view.$el.trigger("RESUMEINDEXSTATUS",init);
 	    					break;
 	        	  case 6:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 	        		  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
