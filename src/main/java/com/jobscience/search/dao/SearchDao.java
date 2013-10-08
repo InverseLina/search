@@ -158,7 +158,7 @@ public class SearchDao {
 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
 	       			
 	       				}
-	                   baseTable = " contact ";
+            		   baseTable =  schemaname+".contact " ;
 	                   baseTableIns = "a";
 	                   searchConditions.append(getSearchValueJoinTable(search, values,"a"));
             	   }else{
@@ -184,7 +184,7 @@ public class SearchDao {
 	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
 	 	       			
 	 	       				}
-   	        	            baseTable = " contact ";
+	   	                	baseTable =  schemaname+".contact " ;
    	        	            baseTableIns = "a";
    	                    }
    	                   conditions.append(" and a.\"firstname\" ilike ? ");
@@ -211,7 +211,7 @@ public class SearchDao {
 	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
 	 	       			
 	 	       				}
-   	        	            baseTable =  "  contact " ;
+   	        	            baseTable =  schemaname+".contact " ;
    	        	            baseTableIns = "a";
    	                    }
    	                   
@@ -239,7 +239,7 @@ public class SearchDao {
 	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
 	 	       			
 	 	       				}
-                           baseTable =  " contact ";
+   	                	 	baseTable =  schemaname+".contact " ;
                            baseTableIns = "a";
    	                   }
    	                   conditions.append(" and a.\"email\" ilike ? ");
@@ -266,7 +266,7 @@ public class SearchDao {
 	 	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns + " on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
 	 	 	       			
 	 	 	       				}
-                               baseTable = " contact ";
+	      	                   baseTable =  schemaname+".contact " ;
                                baseTableIns = "a";
       	                   }
       	                   conditions.append(" and a.\"title\" ilike ? ");
@@ -498,6 +498,7 @@ public class SearchDao {
     	   if(!hasCondition&&!advanced){
     		   querySql.append(" and 1!=1 ");
     	   }
+    	   System.out.println(querySql);
            return querySql.toString();
     }
     
