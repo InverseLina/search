@@ -498,7 +498,6 @@ public class SearchDao {
     	   if(!hasCondition&&!advanced){
     		   querySql.append(" and 1!=1 ");
     	   }
-    	   System.out.println(querySql);
            return querySql.toString();
     }
     
