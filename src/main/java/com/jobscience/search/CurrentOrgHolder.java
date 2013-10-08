@@ -9,6 +9,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.db.DBHelper;
 import com.jobscience.search.db.DataSourceManager;
 
@@ -28,6 +29,9 @@ public class CurrentOrgHolder {
     @Inject
     private DataSourceManager dm;
 
+    @Inject
+    private OrgConfigDao orgConfigDao;
+
     private Cache<String, Map> cache;
 
     private Map<String, Map> orgMap = new HashMap<String, Map>();
@@ -38,6 +42,17 @@ public class CurrentOrgHolder {
 
     public String getOrgName() {
         return (String)getFieldValue("name");
+    }
+    
+    public String getSchemaName(){
+    	String schemaname =orgMap.get(getOrgName()).get("schemaname").toString();
+    	if(schemaname==null){
+	    	List<Map> orgs = orgConfigDao.getOrgByName(getOrgName());
+	    	if(orgs.size()==1){
+	    		schemaname = orgs.get(0).get("schemaname").toString();
+	    	}
+    	}
+    	return schemaname;
     }
 
     public CurrentOrgHolder() {

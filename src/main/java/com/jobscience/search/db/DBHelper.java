@@ -31,6 +31,15 @@ public class DBHelper {
         return getConnection(dsMng.getOrgDataSource(orgName));
     }
     
+    public Connection getPublicConnection() {
+        try {
+			return dsMng.getPublicDataSource().getConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+        return null;
+    }
+    
     public Connection getConnection() {
         try {
             return dsMng.getDefaultConnection();

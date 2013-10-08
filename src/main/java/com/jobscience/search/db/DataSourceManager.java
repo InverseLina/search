@@ -30,7 +30,7 @@ public class DataSourceManager {
     private String sysSchema;
     @Inject
     private DBHelper dbHelper;
-
+    private  DataSource publicDataSource;
     @Inject
     public void init(@Named("jss.db_url") String url,
                      @Named("jss.sys_db.schema") String sysSchema,
@@ -48,12 +48,16 @@ public class DataSourceManager {
         if(checkSysSchema()){
         	sysDs = buildDs(url, sysUser, sysPwd, sysSchema);
         }
+        publicDataSource = buildDs(url, sysUser, sysPwd,"public");
     }
 
     public DataSource getSysDataSource() {
         return sysDs;
     }
     
+    public DataSource getPublicDataSource(){
+    	return publicDataSource;
+    }
     public DataSource createSysSchemaIfNecessary() {
     	if(!checkSysSchema()){
     		dbHelper.executeUpdate(defaultDs, "CREATE SCHEMA jss_sys AUTHORIZATION "+sysUser,new Object[0]);
