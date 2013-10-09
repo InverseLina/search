@@ -154,13 +154,11 @@ var app = app || {};
         "keyup;.autoComplete":function(event){
             var view = this;
             changeAutoComplete.call(view, event);
-        },/*
+        },
         "keydown;.autoComplete":function(event){
-            if(event.ctrlKey && (event.keyCode == borderKey.LEFT || event.keyCode == borderKey.RIGHT)){
-                event.preventDefault();
-                event.stopPropagation();
-            }
-        },*/
+            var view = this;
+            changeAutoComplete.call(view, event, true);
+        },
         "SHOWSEARCHRESULT":function(event,params){
         	var view = this;
             var $input = view.$el.find("input.autoComplete:first");
@@ -332,41 +330,50 @@ var app = app || {};
 
   }
 
-  function changeAutoComplete(event){
+  function changeAutoComplete(event, keydown){
+      keydown = keydown||false;
       var $activeItem, view = this;
       var $input = view.$el.find("input.autoComplete:first");
       var type = $input.attr("data-type");
-      var resultType = (type=="company")?"companies":(type+"s");
+//      var resultType = (type=="company")?"companies":(type+"s");
       var val = $input.val();
-      var searchData;
+//      var searchData;
       event.stopPropagation();
       if(!/^\s*$/.test(val)){
           $input.closest("span.autoCompleteContainer").addClass("active");
       }else{
           $input.closest("span.autoCompleteContainer").removeClass("active");
       }
-      event.preventDefault();
+//      event.preventDefault();
+//      console.log(event.keyCode)
       switch(event.keyCode){
           case borderKey.ENTER:
           case borderKey.TAB:
-/*              view.$el.find(".contentText").each(function(idx,item){
-                  if($(item).attr("data-name") == val){
-                      addItem.call(view, val);
+             if(keydown){
+                  $activeItem = view.$el.find(".contentText.active");
+                  if($activeItem.length == 1){
+                      addItem.call(view, $activeItem.attr("data-name"));
                   }
-              });*/
-              $activeItem = view.$el.find(".contentText.active");
-              if($activeItem.length == 1){
-                  addItem.call(view, $activeItem.attr("data-name"));
+                 setTimeout(function(){
+                     $input.focus();
+                 }, 200)
+
               }
               break;
           case borderKey.ESC:
-              close.call(view);
+              if(keydown){
+                close.call(view);
+              }
               break;
           case borderKey.DOWN:
-              nextItem.call(view);
+              if(keydown){
+                nextItem.call(view);
+              }
               break;
           case borderKey.UP:
-              prevItem.call(view);
+              if(keydown){
+                prevItem.call(view);
+              }
               break;
 /*          case borderKey.RIGHT:
               if(event.ctrlKey && view.slider){
@@ -379,9 +386,12 @@ var app = app || {};
               }
               break;*/
           default:
-              view.$el.trigger("SHOWSEARCHRESULT");
+              if(!keydown){
+                view.$el.trigger("SHOWSEARCHRESULT");
+              }
 
       }
+
   }
 
     function showSPline(status) {

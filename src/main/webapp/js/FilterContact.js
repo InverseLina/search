@@ -43,14 +43,19 @@
             var $input = $(event.currentTarget).closest("div").find("input");
             $input.val("").focus().change();
         },
-        "keyup change; input[type='text']": function(event){
+        "keydown change; input[type='text']": function(event){
+            $input = $(event.currentTarget);
             var val, $input, view = this;
             if(event.keyCode == 13){
                 addItem.call(view);
+                setTimeout(function(){
+                    $input.focus();
+                }, 200);
+
             }else if(event.keyCode == 27){
                 view.close();
             }else{
-                $input = $(event.currentTarget);
+
                 val = $input.val();
                 if(/^\s*$/.test(val)){
                     $input.closest("div").removeClass("active");
@@ -58,6 +63,7 @@
                     $input.closest("div").addClass("active");
                 }
             }
+
         }
     }, app.ThPopup.prototype.events||{});
 
