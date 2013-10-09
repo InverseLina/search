@@ -68,6 +68,8 @@ public class DBSetupWebHanlder {
     public WebResponse createExtraTables() {
         try{
         	dbSetupManager.createExtension("pg_trgm");
+        	dbSetupManager.createExtension("cube");
+        	dbSetupManager.createExtension("earthdistance");
         }catch (SQLException e) {
      	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getNextException().getLocalizedMessage()));
         }

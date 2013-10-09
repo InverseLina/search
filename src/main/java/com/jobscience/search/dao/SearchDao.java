@@ -108,7 +108,7 @@ public class SearchDao {
 	        }else if(type.equals("skill")){
 	        	 querySql.append("  AND b.\"ts2__rating__c\" >="+min);
 	        }else if(type.equals("location")){
-	        	 querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))/1000>="+min);
+	        	 querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))/1000<="+min);
 	        }
         }
         if(!"".equals(groupBy.toString())){
@@ -123,6 +123,7 @@ public class SearchDao {
         if(log.isDebugEnabled()){
             log.debug(querySql.toString());
         }
+        System.out.println(querySql);
         Connection con = dbHelper.getPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
@@ -402,7 +403,7 @@ public class SearchDao {
                                 conditions.append(" OR ( z.\"city\"='").append(name).append("'");
                                  if(ol.containsKey("minRadius")){
 	            				   double minRadius = ol.getDouble("minRadius");
-	            				   conditions.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\"),ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))>=").append(minRadius*1000);
+	            				   conditions.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\"),ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))<=").append(minRadius*1000);
                                  }
                                  conditions.append(")");
                             }
@@ -421,7 +422,7 @@ public class SearchDao {
                                conditions.append(" OR ( z.\"city\"='").append(name).append("'");
                                 if(ol.containsKey("minRadius")){
 	            				   double minRadius = ol.getDouble("minRadius");
-	            				   conditions.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\"),ll_to_earth(contact.\"ts2__latitude__c\",contact.\"ts2__longitude__c\"))>=").append(minRadius*1000);
+	            				   conditions.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\"),ll_to_earth(contact.\"ts2__latitude__c\",contact.\"ts2__longitude__c\"))<=").append(minRadius*1000);
                                 }
                                 conditions.append(")");
                            }
@@ -693,7 +694,6 @@ public class SearchDao {
             log.debug(querySql.toString());
             log.debug(countSql.toString());
         }
-        
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
