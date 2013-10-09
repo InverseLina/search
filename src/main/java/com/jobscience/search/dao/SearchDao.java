@@ -116,9 +116,9 @@ public class SearchDao {
         }
 
         if(orderByCount){
-            querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
+            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString+"%' group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
         }else{
-            querySql.append(") result where result.name != '' and result.name ilike '%"+queryString+(queryString.length()>2?"%":"")+"' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
+            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString+"%' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
         }
         if(log.isDebugEnabled()){
             log.debug(querySql.toString());
