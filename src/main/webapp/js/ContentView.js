@@ -152,7 +152,9 @@
       },
       "btap; .resume-ico" : function(event) {
           var cid = $(event.currentTarget).closest("i").attr("data-id");
-          brite.display("ResumeView","body", {id: cid});
+          var sfid = $(event.currentTarget).closest("i").attr("data-sfid");
+          var cname = $(event.currentTarget).closest("i").attr("data-cname");
+          brite.display("ResumeView","body", {id: cid,sfid: sfid, name:cname});
       },
       "btap; table td[data-column='company'],td[data-column='skill'],td[data-column='education']" : function(event) {
         var view = this;
@@ -402,7 +404,7 @@
               var value = "", resume = items[i][columns[j]];
 
                if(items[i][columns[j]] != -1){
-                  value = "<i data-id='" + items[i][columns[j]] + "' title='View Resume.' class='resume-ico glyphicon glyphicon-file'></i>";
+                  value = "<i data-id='" + items[i][columns[j]] + "' data-sfid='"+items[i]["sfid"]+"' data-cname='"+items[i]["name"]+"' title='View Resume.' class='resume-ico glyphicon glyphicon-file'></i>";
                }
 
   	          item.push({
@@ -417,7 +419,7 @@
   	                notLast : colLen - j > 1
   	              });
   	         } else if (columns[j] == "contact") {
-  	           var displayValue = "<a class='lineInfo name' href='"+org.instance_url+"/"+items[i]["sfid"]+"'>"+items[i]["name"]+"</a>";
+  	           var displayValue = "<a class='lineInfo name' href='"+org.instanceUrl+"/"+items[i]["sfid"]+"'>"+items[i]["name"]+"</a>";
   	           displayValue += "<div class='lineInfo title'>"+items[i]["title"]+"</div>";
   	           displayValue += "<a class='lineInfo email' href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a>";
   	           displayValue += "<div class='lineInfo phone'>"+items[i]["phone"]+"</div>";
