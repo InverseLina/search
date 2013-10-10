@@ -695,6 +695,7 @@ public class SearchDao {
             log.debug(countSql.toString());
         }
         // build the statement
+        System.out.println(querySql);
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
         ss.values = values.toArray();

@@ -10,7 +10,9 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.OrgConfigDao;
+import com.jobscience.search.db.DataSourceManager;
 
 @Singleton
 public class OrgConfigWebHandlers {
@@ -18,6 +20,10 @@ public class OrgConfigWebHandlers {
   @Inject
   private OrgConfigDao orgConfigDao;
   
+  @Inject
+  private DataSourceManager dsmg;
+  @Inject
+  private CurrentOrgHolder currentOrgHolder;
   @WebPost("/org/save")
   public WebResponse saveEntity(@WebParam("name")String name,@WebParam("schemaname")String schemaname,@WebParam("sfid")String sfid,@WebParam("id")String id) throws SQLException{
     Map<String,String> params = new HashMap<String,String>();
@@ -26,6 +32,8 @@ public class OrgConfigWebHandlers {
     params.put("schemaname", schemaname);
     params.put("sfid", sfid);
     orgConfigDao.saveOrUpdateEntity(params);
+    dsmg.updateDataSource(name, schemaname);
+    currentOrgHolder.updateSchema();
     return WebResponse.success();
   }
   

@@ -112,17 +112,32 @@ public class DataSourceManager {
     	}
     	return false;
     }
+    
+    public DataSource updateDataSource(String orgName,String schemaName){
+    	 DataSourceWrapper ds = (DataSourceWrapper) dsMap.get(orgName);
+    	 if(ds!=null){
+    		 ds.update(schemaName);
+    	 }else{
+    		 ds = (DataSourceWrapper) buildDs(url, orgUser, orgPwd, schemaName);
+    	 }
+    	 dsMap.put(orgName.trim(), ds);
+         return ds;
+    }
 }
 
 class DataSourceWrapper implements DataSource {
     private final DataSource ds;
-    private final String schema;
+    private  String schema;
 
     DataSourceWrapper(DataSource ds, String schema) {
         this.ds = ds;
         this.schema = schema;
     }
-
+    
+    public void update(String schema) {
+         this.schema = schema;
+    }
+    
     @Override
     public Connection getConnection() throws SQLException {
         Connection con = ds.getConnection();

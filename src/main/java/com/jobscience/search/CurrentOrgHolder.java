@@ -44,6 +44,12 @@ public class CurrentOrgHolder {
         return (String)getFieldValue("name");
     }
     
+    public void updateSchema(){
+    	List<Map> orgs = orgConfigDao.getOrgByName(getOrgName());
+    	if(orgs.size()==1){
+    		orgMap.put(getOrgName(), orgs.get(0));
+    	}
+    }
     public String getSchemaName(){
     	String schemaname =orgMap.get(getOrgName()).get("schemaname").toString();
     	if(schemaname==null){
