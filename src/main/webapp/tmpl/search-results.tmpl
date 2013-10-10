@@ -3,7 +3,7 @@
         {{{colHeader "search-items-header" }}}
         <tbody>
             {{#each items}}
-            <tr>
+            <tr data-objId="{{names.id}}" data-contractName="{{names.name}}">
                 <!--<td class="checkboxCol"><input type="checkbox" checked="true"/></td>-->
                 {{#each row}}
                     <td data-column="{{name}}"><span>{{rmComma value}}</span></td>
