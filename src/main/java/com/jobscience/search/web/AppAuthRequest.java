@@ -1,7 +1,10 @@
 package com.jobscience.search.web;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.sf.json.JSONObject;
 
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.auth.AuthRequest;
@@ -63,12 +66,12 @@ public class AppAuthRequest implements AuthRequest {
         //check org is set or not
         try {
             orgHolder.getOrgName();
-            List<Map> results = configManager.getConfig("instance_url",orgHolder.getId());
-            if(results.size() > 0){
-                Map configMap = results.get(0);
-                String instanceUrl = String.valueOf(configMap.get("value"));
-                m.put("instanceUrl", instanceUrl);
+            List<Map> configs = configManager.getConfig(null,orgHolder.getId());
+            Map configMap = new HashMap();
+            for(Map c : configs){
+                configMap.put(c.get("name"), c.get("value"));
             }
+            m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
         } catch (Exception e) {
             rc.getWebModel().put("errorCode", "NO_ORG");
             rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");

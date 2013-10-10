@@ -1,9 +1,9 @@
 package com.jobscience.search.web;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 
+import com.britesnow.snow.util.JsonUtil;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebModel;
@@ -27,27 +27,10 @@ public class ConfigWebHandlers {
     private ForceAuthService forceAuthService;
 
     @WebPost("/config/save")
-    public WebResponse saveConfig(@WebParam("local_distance") String distance, @WebParam("local_date") String date,
-                            @WebParam("action_add_to_sourcing") String addToSourcing,
-                            @WebParam("action_favorite") String favorite,
-                            @WebParam("config_canvasapp_secret") String canvasappSecret,
-                            @WebParam("config_apiKey") String apiKey, @WebParam("config_apiSecret") String apiSecret,
-                            @WebParam("config_callBackUrl") String callBackUrl,@WebParam("needAdmin") String needAdmin,@WebParam("instance_url") String instanceUrl,
+    public WebResponse saveConfig(@WebParam("configsJson") String configsJson,
                             @WebParam("orgId") Integer orgId) throws SQLException {
-        Map<String, String> params = new HashMap<String, String>();
-        if(!"false".equals(needAdmin)){
-            params.put("local_distance", distance);
-            params.put("local_date", date);
-            params.put("action_add_to_sourcing", addToSourcing);
-            params.put("action_favorite", favorite);
-            params.put("instance_url", instanceUrl);
-        }else{
-	        params.put("config_canvasapp_secret", canvasappSecret);
-	        params.put("config_apiKey", apiKey);
-	        params.put("config_apiSecret", apiSecret);
-	        params.put("config_callBackUrl", callBackUrl);
-        }
-        configManager.saveOrUpdateConfig(params,orgId);
+        Map paramConfigs = JsonUtil.toMapAndList(configsJson);
+        configManager.saveOrUpdateConfig(paramConfigs,orgId);
         forceAuthService.reloadService();
         return WebResponse.success();
     }

@@ -44,32 +44,35 @@
 		"btap;.save":function(event){
 			var view = this;
 			var values = {};
-	        doValidate.call(view);
-	        if(view.validation){
-	        	values["local_distance"]=view.$el.find("[name='local_distance']").val();
-    			values["local_date"]=view.$el.find("[name='local_date']").val();
-    			values["action_add_to_sourcing"]=view.$el.find("[name='action_add_to_sourcing']").prop("checked");
-    			values["action_favorite"]=view.$el.find("[name='action_favorite']").prop("checked");
-    			//values["config_canvasapp_secret"]=view.$el.find("[name='config_canvasapp_secret']").val();
-		        //values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
-		        //values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
-		        //values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
-		        values["needAdmin"]="true";
-		        values["orgId"]= view.orgId;
-			      values["instance_url"]=view.$el.find("[name='instance_url']").val();
-			      
-	        	app.getJsonData("/config/save", values,"Post").done(function(data){
-	        		values = {};
-	        		values["name"]=view.$el.find("[name='name']").val();
-			        values["id"]=view.$el.find("[name='id']").val();
-			        values["schemaname"]=view.$el.find("[name='schemaname']").val();
-			        values["sfid"]=view.$el.find("[name='sfid']").val();
-			        
-	        		app.getJsonData("/org/save", values,"Post").done(function(data){
-	        			window.location.href="/admin#organization";  
-		          });
-  				});
-	        }
+        doValidate.call(view);
+        if (view.validation) {
+          var configs = {};
+          configs["local_distance"] = view.$el.find("[name='local_distance']").val();
+          configs["local_date"] = view.$el.find("[name='local_date']").val();
+          configs["action_add_to_sourcing"] = view.$el.find("[name='action_add_to_sourcing']").prop("checked");
+          configs["action_favorite"] = view.$el.find("[name='action_favorite']").prop("checked");
+          //values["config_canvasapp_secret"]=view.$el.find("[name='config_canvasapp_secret']").val();
+          //values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
+          //values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
+          //values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
+          //values["needAdmin"]="true";
+          values["orgId"] = view.orgId;
+          configs["instance_url"] = view.$el.find("[name='instance_url']").val();
+
+          values.configsJson = JSON.stringify(configs);
+          app.getJsonData("/config/save", values, "Post").done(function(data) {
+            values = {};
+            values["name"] = view.$el.find("[name='name']").val();
+            values["id"] = view.$el.find("[name='id']").val();
+            values["schemaname"] = view.$el.find("[name='schemaname']").val();
+            values["sfid"] = view.$el.find("[name='sfid']").val();
+
+            app.getJsonData("/org/save", values, "Post").done(function(data) {
+              window.location.href = "/admin#organization";
+            });
+          });
+        }
+
 		},
 		"FILLDATA":function(event,result){
 			var view = this;

@@ -28,10 +28,8 @@
     </script>
     [/#if]
     <script>
-      [#if instanceUrl??]
-        var org = {
-          instanceUrl:'${instanceUrl}'
-        };
+      [#if orgConfigs??]
+        var org = JSON.parse('${orgConfigs}');
       [/#if]
     </script>
     

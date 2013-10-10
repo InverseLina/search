@@ -136,12 +136,13 @@
       "btap;.save":function(event){
     	  var view = this;
     	  var values = {};
-    	  values["config_canvasapp_secret"]=view.$el.find("[name='config_canvasapp_secret']").val();
-    	      values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
-    	      values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
-    	      values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
-    	      values["needAdmin"]="false";
+    	  var configs = {};
+    	  configs["config_canvasapp_secret"]=view.$el.find("[name='config_canvasapp_secret']").val();
+    	      configs["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
+    	      configs["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
+    	      configs["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
     	      values["orgId"]=-1;
+    	      values.configsJson = JSON.stringify(configs);
     	      app.getJsonData("/config/save", values,"Post").done(function(data){
     	          window.location.href="/";  
     	  });  
