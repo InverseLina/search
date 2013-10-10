@@ -158,19 +158,11 @@
         var view = this;
         var $this = $(event.currentTarget);
         var name = $this.attr("data-column");
-        var value = $this.find("span").text();
+        var value = $this.closest("td").attr("data-value")||$this.find("span").text();
         $this.closest("tbody").find("tr").removeClass("select");
           $this.closest("tr").addClass("select");
           this.selectId = $this.closest("tr").attr("data-objId");
         if(value != ""){
-//          if(name=="company"){
-//            brite.display("ExtraMessage",null,{title:"Company",message:value});
-//          }else if(name=="skill"){
-//            brite.display("ExtraMessage",null,{title:"Skill",message:value});
-//          }else if(name=="education"){
-//            brite.display("ExtraMessage",null,{title:"Education",message:value});
-//          }
-//            console.log(event);
           var data = {type: name, contactName: $this.closest("tr").attr("data-contractName"), names:value.split(","), pos: {x:event.clientX, y:event.clientY}};
           if(name=="company"){
               data.title = "Company"
@@ -413,6 +405,7 @@
   	          item.push({
   	            name : columns[j],
   	            value : translate(items[i][columns[j]]),
+                realValue: items[i][columns[j]],
   	            notLast : colLen - j > 1
   	          });
   	        } else if (columns[j] == "resume") {
