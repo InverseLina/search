@@ -59,7 +59,7 @@
           values["orgId"] = view.orgId;
           configs["instance_url"] = view.$el.find("[name='instance_url']").val();
 
-          values.configJson = JSON.stringify(configs);
+          values.configsJson = JSON.stringify(configs);
           app.getJsonData("/config/save", values, "Post").done(function(data) {
             values = {};
             values["name"] = view.$el.find("[name='name']").val();

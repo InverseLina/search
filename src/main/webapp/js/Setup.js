@@ -142,7 +142,7 @@
     	      configs["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
     	      configs["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
     	      values["orgId"]=-1;
-    	      values.configJson = JSON.stringify(configs);
+    	      values.configsJson = JSON.stringify(configs);
     	      app.getJsonData("/config/save", values,"Post").done(function(data){
     	          window.location.href="/";  
     	  });  
