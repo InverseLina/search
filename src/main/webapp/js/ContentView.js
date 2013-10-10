@@ -160,15 +160,20 @@
         var view = this;
         var $this = $(event.currentTarget);
         var name = $this.attr("data-column");
-        var value = $this.find("span").text();
+        var value = $this.closest("td").attr("data-value")||$this.find("span").text();
+        $this.closest("tbody").find("tr").removeClass("select");
+          $this.closest("tr").addClass("select");
+          this.selectId = $this.closest("tr").attr("data-objId");
         if(value != ""){
+          var data = {type: name, contactName: $this.closest("tr").attr("data-contractName"), names:value.split(","), pos: {x:event.clientX, y:event.clientY}};
           if(name=="company"){
-            brite.display("ExtraMessage",null,{title:"Company",message:value});
+              data.title = "Company"
           }else if(name=="skill"){
-            brite.display("ExtraMessage",null,{title:"Skill",message:value});
+              data.title = "Skill";
           }else if(name=="education"){
-            brite.display("ExtraMessage",null,{title:"Education",message:value});
+              data.title = "Education";
           }
+            brite.display("CellPopup", null, data);
         }
       }
 
@@ -205,7 +210,9 @@
     },
       restoreSearchParam: function (filters){
         var key, dataName, data, displayName, $html, $th, view = this;
-
+          if (view.selectId) {
+              view.$el.find("tbody tr[data-objId='" + view.selectId + "']").addClass("select");
+          }
         if(view.$el.find("table th .selectedItems .item").length > 0){
             return;
         }
@@ -351,7 +358,9 @@
             fixColWidth.call(view);
               showSearchInfo.call(view, result, htmlInfo, "right", 0);
               view.restoreSearchParam();
+
           }
+
 
 
         }
@@ -398,6 +407,7 @@
   	          item.push({
   	            name : columns[j],
   	            value : translate(items[i][columns[j]]),
+                realValue: items[i][columns[j]],
   	            notLast : colLen - j > 1
   	          });
   	        } else if (columns[j] == "resume") {
@@ -437,7 +447,8 @@
   	        }
   	      }
   	      result.push({
-  	        row : item
+  	        row : item,
+            names: {id: items[i].id, name: items[i].name}
   	      });
   	    }
   	    dtd.resolve(result);

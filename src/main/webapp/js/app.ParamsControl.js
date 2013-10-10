@@ -100,7 +100,7 @@ var app = app || {};
             _storeValue = filters||{};
         },
         get: function (type, name) {
-            var i, obj, data = _storeValue[type];
+            var i, obj, data = _storeValue[type]||[];
             if (!name) {
                 return data;
             } else {
