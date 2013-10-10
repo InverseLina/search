@@ -123,7 +123,6 @@ public class SearchDao {
         if(log.isDebugEnabled()){
             log.debug(querySql.toString());
         }
-        System.out.println(querySql);
         Connection con = dbHelper.getPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
@@ -504,13 +503,9 @@ public class SearchDao {
     
     private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy){
     	if(orginalName.toLowerCase().equals("name")){
-    		if(groupBy.length()>0){
-    			groupBy.append(",");
-    		}
-    		groupBy.append("a.\"name\"");
-    		return "a.\"name\" as name,lower(a.\"name\") as \"lname\"";
+    		return "lower(a.\"name\") as \"lname\"";
     	}else if(orginalName.toLowerCase().equals("id")){
-    		return " a.\"id\" as id";
+    		return "";
     	}else if(orginalName.toLowerCase().equals("resume")){
             if(groupBy.length()>0){
                 groupBy.append(",");
@@ -564,10 +559,10 @@ public class SearchDao {
     	}else{
 	    	for(String column:searchColumns.split(",")){
 		    	if(column.toLowerCase().equals("name")){
-		    		sb.append("name,lower(name) as \"lname\",");
-		    	}else if(column.toLowerCase().equals("id")){
+		    		sb.append("lower(name) as \"lname\",");
+		    	}/*else if(column.toLowerCase().equals("id")){
 		    		sb.append("id,");
-		    	}else if(column.toLowerCase().equals("title")){
+		    	}*/else if(column.toLowerCase().equals("title")){
 		    		sb.append("title,lower(title) as \"ltitle\",");
 		    	}else if(column.toLowerCase().equals("email")){
 		    		sb.append( " email ,lower(email) as \"lemail\",");
@@ -589,7 +584,7 @@ public class SearchDao {
 		    		sb.append( " email ,lower(email) as \"lemail\",");
 		    	}
 	    	}
-	        sb.deleteCharAt(sb.length()-1);
+	    	sb.append("id,name");
     	}
     	sb.append(",sfid,phone");
         return sb.toString();
@@ -601,12 +596,19 @@ public class SearchDao {
              columnsSql.append("a.sfid,a.phone,  a.\"id\" as id,a.\"name\" as name,lower(a.\"name\") as lname,case   when a.\"title\" is null then ''  else a.\"title\" end title ,to_char(a.\"createddate\",'yyyy-mm-dd') as createddate");
              groupBy.append(",a.sfid,a.phone, a.\"name\",a.\"title\",a.\"createddate\"");
     	 }else{
+    		 String temp = "";
  	        for(String column:searchColumns.split(",")){
- 	            columnsSql.append(getQueryColumnName(column,columnJoinTables,groupBy));
- 	            columnsSql.append(",");
+ 	        	temp = getQueryColumnName(column,columnJoinTables,groupBy);
+ 	        	if(!temp.trim().equals("")){
+	 	            columnsSql.append(temp);
+	 	            columnsSql.append(",");
+ 	        	}
  	        }
- 	        columnsSql.append("a.sfid,a.phone");
- 	        groupBy.append(",a.sfid,a.phone");
+ 	        columnsSql.append("a.id,a.name,a.sfid,a.phone");
+ 	        if(groupBy.length()>0){
+ 	        	groupBy.append(",");
+ 	        }
+ 	        groupBy.append("a.name,a.sfid,a.phone");
 // 	        columnsSql.deleteCharAt(columnsSql.length()-1);
          }
     	 return columnsSql.toString();
@@ -694,8 +696,8 @@ public class SearchDao {
             log.debug(querySql.toString());
             log.debug(countSql.toString());
         }
+        
         // build the statement
-        System.out.println(querySql);
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
         ss.values = values.toArray();
