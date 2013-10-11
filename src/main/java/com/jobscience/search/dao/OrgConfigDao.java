@@ -27,7 +27,6 @@ public class OrgConfigDao {
     }else{
         sql = " insert into org(name,schemaname,sfid) values ('"+params.get("name")+"','"+params.get("schemaname")+"','"+params.get("sfid")+"')";
     }
-    System.out.println(sql);
     PreparedStatement statement = con.prepareStatement(sql);
     statement.executeUpdate();
     statement.close();
