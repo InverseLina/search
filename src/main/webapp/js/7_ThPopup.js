@@ -81,6 +81,8 @@ var app = app || {};
          var opts = {max:20};
          if(view.type=="location"){
              opts.max = 100;
+         }else  if(view.type=="skill"){
+             opts.max = 10;
          }
          brite.display("Slider", ".sliderBarContainer", opts).done(function(slider){
              view.slider = slider;

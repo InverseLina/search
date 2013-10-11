@@ -36,7 +36,9 @@ public class SearchDao {
 
     @Inject
     private CurrentOrgHolder orgHolder;
-
+    
+    @Inject
+    private ConfigManager configManager;
     public SearchResult search(String searchColumns,Map<String, String> searchValues,  Integer pageIdx, Integer pageSize,String orderCon) {
         Connection con = dbHelper.getPublicConnection();
         //builder statements
@@ -98,7 +100,20 @@ public class SearchDao {
         querySql.append(column);
         querySql.append(" from ");
             
-        querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values));
+        String appendJoinTable = "";
+        boolean skill_assessment_rating = false;
+        if(min!=null&&!"0".equals(min)&&type.equals("skill")){
+           Map m = configManager.getConfig("skill_assessment_rating");
+       	   if(m==null||!("true".equals((String)m.get("value")))){
+       		   skill_assessment_rating = false;
+       	   }else{
+       		   skill_assessment_rating = true;
+       	   }
+       	   appendJoinTable=(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
+        }
+        
+        
+        querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable));
         
         if(min!=null&&!"0".equals(min)){
 	        if(type.equals("company")){
@@ -106,7 +121,11 @@ public class SearchDao {
 	        }else if(type.equals("education")){
 	        	 querySql.append("  AND EXTRACT(year from age(now(),d.\"ts2__graduationdate__c\"))>="+min);
 	        }else if(type.equals("skill")){
-	        	 querySql.append("  AND b.\"ts2__rating__c\" >="+min);
+	        	   if(skill_assessment_rating){
+		        	   querySql.append("  AND ass.\"ts2__rating__c\" >="+min);
+		           }else{
+		        	   querySql.append("  AND b.\"ts2__rating__c\" >="+min);
+		           }
 	        }else if(type.equals("location")){
 	        	 querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))/1000<="+min);
 	        }
@@ -131,8 +150,8 @@ public class SearchDao {
         return result;
     }
       
-    private String renderSearchCondition(Map<String, String> searchValues,String type,String baseTable,String baseTableIns,List values){
-        StringBuilder joinTables = new StringBuilder();
+    private String renderSearchCondition(Map<String, String> searchValues,String type,String baseTable,String baseTableIns,List values,  String appendJoinTable ){
+    	StringBuilder joinTables = new StringBuilder();
         StringBuilder searchConditions = new StringBuilder();
         StringBuilder querySql = new StringBuilder();
     	StringBuilder conditions = new StringBuilder();
@@ -352,6 +371,15 @@ public class SearchDao {
                
                // add the 'skillNames' filter, and join Education table
                if (searchValues.get("skills") != null && !"".equals(searchValues.get("skills"))) {
+            	   
+            	   Map m = configManager.getConfig("skill_assessment_rating");
+             	   boolean skill_assessment_rating = false;
+             	   if(m==null||!("true".equals((String)m.get("value")))){
+             		   skill_assessment_rating = false;
+             	   }else{
+             		   skill_assessment_rating = true;
+             	   }
+             	   System.out.println(skill_assessment_rating);
             	   String value = searchValues.get("skills");
             	   JSONArray skillValues = JSONArray.fromObject(value);
             	   if(skillValues!=null){
@@ -360,22 +388,44 @@ public class SearchDao {
 	            			   joinTables.append( " inner join  "+schemaname+".ts2__skill__c b on " );
                 			   joinTables.append("a.\"sfid\" = b.\"ts2__contact__c\" ");
 	                       }
+	            		   if(skill_assessment_rating){
+	            			   System.out.println("添加了的............");
+	            			   joinTables.append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
+	            		   }
 	            		   conditions.append(getConditionForThirdNames(skillValues, "skill"));
 	            	   }else{
-	                	   querySql.append( " join (select sk.\"ts2__contact__c\" from   "+schemaname+".ts2__skill__c sk where (1!=1  " );
-	            		   for(int i=0,j=skillValues.size();i<j;i++){
-	            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
-	            			   querySql.append(" OR ( sk.\"ts2__skill_name__c\" = ")
-	            			   		   .append("'"+skillValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
-	            			   if(skillValue.containsKey("minYears")){
-	            				   Integer minYears = skillValue.getInt("minYears");
-	            				   if(!minYears.equals(0)){
-	            					   querySql.append(" AND sk.\"ts2__rating__c\" >="+minYears);
-	            				   }
-	            			   }
-	            			   querySql.append(" ) ");		   
+	            		   if(skill_assessment_rating){
+	            			   querySql.append( " join (select sk.\"ts2__contact__c\" from   "+schemaname+".ts2__skill__c sk " )
+	            			   		   .append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=sk.\"sfid\" where (1!=1 ");
+		            		   for(int i=0,j=skillValues.size();i<j;i++){
+		            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
+		            			   querySql.append(" OR ( sk.\"ts2__skill_name__c\" = ")
+		            			   		   .append("'"+skillValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
+		            			   if(skillValue.containsKey("minYears")){
+		            				   Integer minYears = skillValue.getInt("minYears");
+		            				   if(!minYears.equals(0)){
+		            					   querySql.append(" AND ass.\"ts2__rating__c\" >="+minYears);
+		            				   }
+		            			   }
+		            			   querySql.append(" ) ");		   
+		            		   }
+		            		    querySql.append(" )) sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\" ");
+	            		   }else{
+		                	   querySql.append( " join (select sk.\"ts2__contact__c\" from   "+schemaname+".ts2__skill__c sk where (1!=1  " );
+		            		   for(int i=0,j=skillValues.size();i<j;i++){
+		            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
+		            			   querySql.append(" OR ( sk.\"ts2__skill_name__c\" = ")
+		            			   		   .append("'"+skillValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
+		            			   if(skillValue.containsKey("minYears")){
+		            				   Integer minYears = skillValue.getInt("minYears");
+		            				   if(!minYears.equals(0)){
+		            					   querySql.append(" AND sk.\"ts2__rating__c\" >="+minYears);
+		            				   }
+		            			   }
+		            			   querySql.append(" ) ");		   
+		            		   }
+		            		    querySql.append(" )) sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\" ");
 	            		   }
-	            		    querySql.append(" )) sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\" ");
 	            	   }
                 	   hasCondition = true;
             	   }
@@ -489,6 +539,9 @@ public class SearchDao {
 	           querySql.append(baseTableIns);
 	           querySql.append(searchConditions);
 	           querySql.append(joinTables);
+	           if(appendJoinTable!=null){
+	        	   querySql.append(appendJoinTable);
+	           }
 	           querySql.append("  where 1=1 ");
 	           querySql.append(conditions);
     	   }else{
@@ -709,7 +762,7 @@ public class SearchDao {
     	StringBuilder countSql = new StringBuilder();
 
         if(searchValues!=null){
-        joinSql = new StringBuilder(renderSearchCondition(searchValues,"search",null,null,values));
+        joinSql = new StringBuilder(renderSearchCondition(searchValues,"search",null,null,values,null));
         //make subValues add the last
        // values.addAll(subValues);
         countSql = new StringBuilder(joinSql.toString());
