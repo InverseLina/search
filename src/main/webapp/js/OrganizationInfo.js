@@ -51,6 +51,7 @@
           configs["local_date"] = view.$el.find("[name='local_date']").val();
           configs["action_add_to_sourcing"] = view.$el.find("[name='action_add_to_sourcing']").prop("checked");
           configs["action_favorite"] = view.$el.find("[name='action_favorite']").prop("checked");
+          configs["skill_assessment_rating"] = view.$el.find("[name='skill_assessment_rating']").prop("checked");
           //values["config_canvasapp_secret"]=view.$el.find("[name='config_canvasapp_secret']").val();
           //values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
           //values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
