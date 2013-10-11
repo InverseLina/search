@@ -135,9 +135,9 @@ public class SearchDao {
         }
 
         if(orderByCount){
-            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString+"%' group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
+            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
         }else{
-            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString+"%' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
+            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
         }
         if(log.isDebugEnabled()){
             log.debug(querySql.toString());
@@ -318,7 +318,7 @@ public class SearchDao {
 	                    	   joinTables.append( " inner join    "+schemaname+".ts2__education_history__c d on " );
 	                           joinTables.append("a.\"sfid\" = d.\"ts2__contact__c\" ");
 	                       }
-	                       conditions.append(getConditionForThirdNames(educationValues, "education"));
+	                       conditions.append(getConditionForThirdNames(educationValues, "education",false));
                 	   }else{
 	            		   querySql.append( " inner join (select ed.\"ts2__contact__c\" from  "+schemaname+".ts2__education_history__c ed where (1!=1 " );
 	            		   for(int i=0,j=educationValues.size();i<j;i++){
@@ -347,7 +347,7 @@ public class SearchDao {
 		            		   if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
 		                           joinTables.append( " inner join  "+schemaname+".ts2__employment_history__c c on a.\"sfid\" =c.\"ts2__contact__c\" " );
 		                       }
-		            		  conditions.append(getConditionForThirdNames(companyValues, "company"));
+		            		  conditions.append(getConditionForThirdNames(companyValues, "company",false));
 		            	   }else{
 		                	   querySql.append( " join (select em.\"ts2__contact__c\",em.\"ts2__job_title__c\" from   "+schemaname+".ts2__employment_history__c em where (1!=1  " );
 		            		   for(int i=0,j=companyValues.size();i<j;i++){
@@ -379,7 +379,6 @@ public class SearchDao {
              	   }else{
              		   skill_assessment_rating = true;
              	   }
-             	   System.out.println(skill_assessment_rating);
             	   String value = searchValues.get("skills");
             	   JSONArray skillValues = JSONArray.fromObject(value);
             	   if(skillValues!=null){
@@ -389,15 +388,19 @@ public class SearchDao {
                 			   joinTables.append("a.\"sfid\" = b.\"ts2__contact__c\" ");
 	                       }
 	            		   if(skill_assessment_rating){
-	            			   System.out.println("添加了的............");
 	            			   joinTables.append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
 	            		   }
-	            		   conditions.append(getConditionForThirdNames(skillValues, "skill"));
+	            		   conditions.append(getConditionForThirdNames(skillValues, "skill",skill_assessment_rating));
 	            	   }else{
 	            		   if(skill_assessment_rating){
-	            			   querySql.append( " join (select sk.\"ts2__contact__c\" from   "+schemaname+".ts2__skill__c sk " )
-	            			   		   .append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=sk.\"sfid\" where (1!=1 ");
-		            		   for(int i=0,j=skillValues.size();i<j;i++){
+	            			   querySql.append( " join (select sk.\"ts2__contact__c\" from   "+schemaname+".ts2__skill__c sk " );
+	            			   		   
+		            		   if(value.contains("minYears")){
+		            			   querySql.append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=sk.\"sfid\" ");
+		            		   }
+		            		   
+		            		   querySql.append("  where (1!=1  ");
+	            			   for(int i=0,j=skillValues.size();i<j;i++){
 		            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
 		            			   querySql.append(" OR ( sk.\"ts2__skill_name__c\" = ")
 		            			   		   .append("'"+skillValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
@@ -551,6 +554,7 @@ public class SearchDao {
     	   if(!hasCondition&&!advanced){
     		   querySql.append(" and 1!=1 ");
     	   }
+    	   
            return querySql.toString();
     }
     
@@ -1036,7 +1040,7 @@ public class SearchDao {
 
         return table;
     }
-    private String getConditionForThirdNames(JSONArray values, String type){
+    private String getConditionForThirdNames(JSONArray values, String type,boolean skill_assessment_rating){
         StringBuilder conditions = new StringBuilder();
         String instance = getTableInstance(type);
         String nameExpr = getNameExpr(type);
@@ -1044,7 +1048,7 @@ public class SearchDao {
         for(int i=0,j=values.size();i<j;i++){
 			   JSONObject educationValue = JSONObject.fromObject(values.get(i));
 			   conditions.append(" OR ( "+instance+"."+nameExpr+" = ")
-			   		   .append("'"+educationValue.get("name")+"' ");
+			   		   .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"' ");
 			   if(educationValue.containsKey("minYears")){
 				   Integer minYears = educationValue.getInt("minYears");
 				   if(!minYears.equals(0)){
@@ -1053,7 +1057,11 @@ public class SearchDao {
 					   }else if(type.equals("company")){
 						   conditions.append(" AND EXTRACT(year from age("+instance+".\"ts2__employment_end_date__c\","+instance+".\"ts2__employment_start_date__c\"))>="+minYears);
 					   }else if(type.equals("skill")){
-						   conditions.append(" AND "+instance+".\"ts2__rating__c\">="+minYears);
+						   if(skill_assessment_rating){
+							   conditions.append(" AND ass.\"ts2__rating__c\">="+minYears);
+						   }else{
+							   conditions.append(" AND "+instance+".\"ts2__rating__c\">="+minYears);
+						   }
 					   }
 				   }
 			   }
