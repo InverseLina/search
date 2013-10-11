@@ -394,7 +394,7 @@ public class SearchDao {
 	                           joinTables.append("a.\"mailingpostalcode\" =z.\"zip\"");
 	                       }
                             JSONObject ol;
-                            conditions.append(" AND¡¡(1!=1  ");
+                            conditions.append(" AND (1!=1  ");
                             for (Object location : locationValues) {
                                 ol = (JSONObject) location;
                                 String name = (String) ol.get("name");
