@@ -17,18 +17,24 @@ import com.jobscience.search.dao.SearchResult;
 
 @Singleton
 public class SearchWebHandlers {
-
-
     @Inject
     private SearchDao searchDao;
     
+    /**
+     * api for main search
+     * @param searchValues
+     * @param pageIndex
+     * @param pageSize
+     * @param orderBy
+     * @param orderType
+     * @param searchColumns
+     * @return
+     */
     @WebGet("/search")
     public WebResponse search(@WebParam("searchValues") String searchValues,
                               @WebParam("pageIndex") Integer pageIndex, @WebParam("pageSize") Integer pageSize,
                               @WebParam("orderBy")String orderBy,@WebParam("orderType")Boolean orderType,
                               @WebParam("searchColumns")String searchColumns ){
-        
-        
         if(pageIndex == null ){
         	pageIndex = 0;
         }
@@ -38,6 +44,7 @@ public class SearchWebHandlers {
         String orderCon = "";
         JSONObject jo = JSONObject.fromObject(searchValues);
         Map searchMap = new HashMap();
+        // resolve the search parameters,cause all parameters begin with "q_"
         for(Object key:jo.keySet()){
         	searchMap.put(key.toString().substring(2),jo.get(key).toString());
         }
@@ -53,13 +60,25 @@ public class SearchWebHandlers {
         		orderCon = " \""+getOrderColumn(orderBy)+ "\" " +(orderType?"asc":"desc");
         	}
         }
+        //for contact,use id,name,title,email,CreatedDate instead
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
         SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon);
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }
     
+    /**
+     * use {@link #getGroupValuesForAdvanced(String, String, String, Boolean, String, Integer, Integer) instead
+     * @param type
+     * @param offset
+     * @param limit
+     * @param min
+     * @param keyword
+     * @return
+     * @throws SQLException
+     */
     @WebGet("/getAutoCompleteData")
+    @Deprecated
     public WebResponse getAutoCompleteData(@WebParam("type") String type, @WebParam("offset") Integer offset,
                             @WebParam("limit") Integer limit,@WebParam("min")String min,@WebParam("keyword") String keyword) throws SQLException {
     	Map result = new HashMap();
@@ -97,6 +116,18 @@ public class SearchWebHandlers {
         return wr;
     }
     
+    /**
+     * Get auto complete data order by count
+     * @param searchValues
+     * @param type
+     * @param queryString
+     * @param orderByCount
+     * @param min
+     * @param pageSize
+     * @param pageNum
+     * @return
+     * @throws SQLException
+     */
     @WebGet("/getGroupValuesForAdvanced")
     public WebResponse getGroupValuesForAdvanced(@WebParam("searchValues") String searchValues,@WebParam("type")String type,
     											 @WebParam("queryString")String queryString,@WebParam("orderByCount")Boolean orderByCount,
@@ -121,13 +152,16 @@ public class SearchWebHandlers {
         	pageSize=7;
         }
         List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount,min,pageSize,pageNum);
-        
         result.put("list", list);
         WebResponse wr = WebResponse.success(result);
         return wr;
     }
 
-    
+    /**
+     * get the order column name by original column
+     * @param originalName
+     * @return
+     */
     private String getOrderColumn(String originalName){
 		if("name".equalsIgnoreCase(originalName)||
 		   "title".equalsIgnoreCase(originalName)||
