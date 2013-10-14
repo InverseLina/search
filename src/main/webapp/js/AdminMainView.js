@@ -4,8 +4,8 @@
 	
 	brite.registerView("AdminMainView",{parent:".container",emptyParent:true},{
 
-// --------- View Interface Implement--------- //
-		create: function(data){
+    // --------- View Interface Implement--------- //
+	create: function(data){
 			return render("AdminMainView");
 	 }, 
 	 
@@ -27,23 +27,23 @@
 
 		 this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
 	 },
-// --------- /View Interface Implement--------- //
+    // --------- /View Interface Implement--------- //
 
-// --------- Windows Event--------- //
+    // --------- Windows Event--------- //
 	 winEvents: {
 	    hashchange: function(event){
 	     this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
 	    }
 	 },
-// --------- /Windows Event--------- //
+    // --------- /Windows Event--------- //
 
-// --------- Events--------- //
+    // --------- Events--------- //
 	 events: {
 		"PATH_INFO_CHANGE": function(event,pathInfo){
 	      changeView.call(this,pathInfo);
 	    }
 	 }
-// --------- /Events--------- //
+    // --------- /Events--------- //
 
 	});
     // --------- Private Methods --------- //
@@ -61,7 +61,7 @@
     // --------- /Private Methods --------- //  
     
     
-// --------- Utilities--------- //
+    // --------- Utilities--------- //
     function buildPathInfo(){
       var pathInfo = $.extend({},defaultPathInfo);
       var hash = window.location.hash;
@@ -76,6 +76,6 @@
       app.pathInfo = pathInfo;
       return pathInfo;
     }
-// --------- /Utilities--------- //
+    // --------- /Utilities--------- //
 	
 })(jQuery);

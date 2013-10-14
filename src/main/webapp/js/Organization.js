@@ -1,7 +1,8 @@
 (function($){
 	
   brite.registerView("Organization",{parent:".admincontainer",emptyParent:true},{
-// --------- View Interface Implement--------- //
+
+    // --------- View Interface Implement--------- //
     create: function(){
       return render("Organization");
     },
@@ -24,9 +25,9 @@
 		   refreshEntityTable.call(view);
 		  }
     },
-// --------- /View Interface Implement--------- //
+    // --------- /View Interface Implement--------- //
     
-// --------- Events--------- //
+   // --------- Events--------- //
     events:{
       "btap;.home":function(event){
     	  window.location.href="/";
@@ -44,7 +45,7 @@
         doDelete.call(view,entityInfo.attr("data-entity"));
       }
     }
-// --------- /Events--------- //
+   // --------- /Events--------- //
   });
   
   

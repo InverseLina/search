@@ -9,7 +9,7 @@
 (function ($) {
     brite.registerView("Pagination", {emptyParent: true},
         {
-// --------- View Interface Implement--------- //
+            // --------- View Interface Implement--------- //
             create: function (data, config){
                 var dfd = $.Deferred();
                 var $el = $(render("Pagination"));

@@ -5,7 +5,7 @@
 (function ($) {
     brite.registerView("ExtraMessage", {emptyParent: false, parent: "body"},
         {
-// --------- View Interface Implement--------- //
+            // --------- View Interface Implement--------- //
             create: function (data, config) {
                 var data = data || {};
                 var $e = $(render("ExtraMessage", {
@@ -18,16 +18,16 @@
 
             postDisplay: function (data) {
             },
-// --------- /View Interface Implement--------- //
+            // --------- /View Interface Implement--------- //
 
-// --------- Events--------- //
+            // --------- Events--------- //
             events: {
                 "btap; .btn-primary, .close": function(){
                     var view = this;
                     view.$el.bRemove();
                 },
             },
-// --------- /Events--------- //
+            // --------- /Events--------- //
             docEvents: {}
         });
 })(jQuery);

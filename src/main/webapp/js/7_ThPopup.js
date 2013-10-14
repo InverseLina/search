@@ -6,7 +6,7 @@ var app = app || {};
     this.type = type;
   };
 
-// --------- View Interface Implement--------- //
+  // --------- View Interface Implement--------- //
   ThPopup.prototype.create = function(data, config) {
     var dfd = $.Deferred();
     var view = this;
@@ -113,14 +113,14 @@ var app = app || {};
   };
     // --------- /View Interface Implement--------- //
 
-// --------- Prototype Function--------- //
+    // --------- Prototype Function--------- //
     ThPopup.prototype.close = function(){
         close.call(this);
     }
-// --------- /Prototype Function--------- //
+    // --------- /Prototype Function--------- //
 
 
-// --------- Popup Events--------- //
+    // --------- Popup Events--------- //
     ThPopup.prototype.events = {
         "btap; span.add": function (event) {
             var view = this;
@@ -229,9 +229,9 @@ var app = app || {};
             changeAutoComplete.call(view, event);
         }
     };
-// --------- /Popup Events--------- //
+    // --------- /Popup Events--------- //
 
-// --------- Private Methods--------- //
+  // --------- Private Methods--------- //
   function close(){
       var view = this;
       if (view && view.$el) {
@@ -401,7 +401,7 @@ var app = app || {};
             view.$el.find(".separateLine").hide();
         }
     }
-// --------- /Private Methods--------- //
+  // --------- /Private Methods--------- //
 
 
   

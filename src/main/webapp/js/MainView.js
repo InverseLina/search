@@ -1,7 +1,7 @@
 (function($){
 	var searchDao = app.SearchDaoHandler;
 	brite.registerView("MainView",{parent:"body"},{
-// --------- View Interface Implement--------- //
+    // --------- View Interface Implement--------- //
 	 create: function(data){
 			return render("MainView");
 	 },
@@ -20,9 +20,9 @@
 			 });
 		 }
 	 },
-// --------- /View Interface Implement--------- //
+    // --------- /View Interface Implement--------- //
 
-// --------- Events--------- //
+    // --------- Events--------- //
 	 events: {
 	 	"click; [data-action='DO_SEARCH']": function(e){
 	 		var view = this;
@@ -52,10 +52,10 @@
 	 		}
 	 	}
 	 },
-// --------- /Events--------- //
+    // --------- /Events--------- //
 
 
-// --------- Document Events--------- //
+    // --------- Document Events--------- //
      docEvents: {
          "DO_SET_COLUMNS":function(event, extra){
              var view = this;
@@ -68,10 +68,10 @@
 
          }
      }
-// --------- /Document Events--------- //
+    // --------- /Document Events--------- //
 	});
 
-// --------- Private Methods--------- //
+    // --------- Private Methods--------- //
     function doSearch(opts) {
         var searchValues, view = this;
         opts = opts|| {};
@@ -91,6 +91,6 @@
         callback();
 
     }
-// --------- /Private Methods--------- //
+    // --------- /Private Methods--------- //
 	
 })(jQuery);

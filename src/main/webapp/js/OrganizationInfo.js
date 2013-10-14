@@ -1,7 +1,7 @@
 (function($){
 	
   brite.registerView("OrganizationInfo",{parent:".admincontainer",emptyParent:true},{
-// --------- View Interface Implement--------- //
+    // --------- View Interface Implement--------- //
     create: function(){
       return render("OrganizationInfo");
     },
@@ -29,9 +29,9 @@
     	  });
        }
     },
-// --------- /View Interface Implement--------- //
+    // --------- /View Interface Implement--------- //
     
-// --------- Events--------- //
+    // --------- Events--------- //
     events:{
       "btap;.home":function(event){
     	window.location.href="/";
@@ -267,10 +267,10 @@
 	      }
     }
 
-// --------- /Events--------- //
+    // --------- /Events--------- //
    });
   
-// --------- Private Methods--------- //
+  // --------- Private Methods--------- //
   function fillProgressBar(percentage,perform,all){
 	  var view = this;
 	  if(percentage==0){
@@ -331,5 +331,5 @@
 			view.validation=true;
 		}
 	  }
-// --------- /Private Methods--------- //
+  // --------- /Private Methods--------- //
 })(jQuery);

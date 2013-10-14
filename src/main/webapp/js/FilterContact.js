@@ -11,7 +11,7 @@
         showSelectedItem.call(view);
     }
 
-// --------- Events--------- //
+    // --------- Events--------- //
     FilterContact.prototype.events = $.extend({
         "btap; .save":function(){
             addItem.call(this);
@@ -67,13 +67,13 @@
 
         }
     }, app.ThPopup.prototype.events||{});
-// --------- /Events--------- //
+    // --------- /Events--------- //
 
     brite.registerView("FilterContact", {emptyParent: false},function(){
       return new FilterContact();
     });
 
-// --------- Private Methods--------- //
+    // --------- Private Methods--------- //
     function addItem(){
         var $item, view = this, ele;
         var data = {};
@@ -126,5 +126,5 @@
             view.$el.find(".selectedItems").show();
         }
     }
-// --------- /Private Methods--------- //
+    // --------- /Private Methods--------- //
 })(jQuery);

@@ -1,7 +1,7 @@
 (function($){
   
   brite.registerView("Setup",{parent:".admincontainer",emptyParent:true},{
-// --------- View Interface Implement--------- //
+    // --------- View Interface Implement--------- //
     create: function(){
       return render("Setup");
     },
@@ -25,9 +25,9 @@
     	  }
     	});
     },
-// --------- /View Interface Implement--------- //
+    // --------- /View Interface Implement--------- //
     
-// --------- Events--------- //
+    // --------- Events--------- //
     events:{
        "btap;.cancel":function(event){
     		window.location.href="/";
@@ -150,7 +150,7 @@
     	  });
     	}
     }
-// --------- /Events--------- //
+    // --------- /Events--------- //
   });
   
 })(jQuery);

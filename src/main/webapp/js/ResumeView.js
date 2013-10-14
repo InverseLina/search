@@ -11,7 +11,7 @@
     emptyParent : false,
     parent : "body"
   }, {
-// --------- View Interface Implement--------- //
+    // --------- View Interface Implement--------- //
     create : function(data, config) {
       $("#resumeModal").bRemove();
       data = data || {};
@@ -23,22 +23,22 @@
       showView.call(this,data);
 
     },
-// --------- /View Interface Implement--------- //
+    // --------- /View Interface Implement--------- //
 
-// --------- Events--------- //
+    // --------- Events--------- //
     events : {
       "btap; .btn-primary, .close" : function() {
         var view = this;
         view.$el.bRemove();
       }
-// --------- /Events--------- //
+    // --------- /Events--------- //
 
     },
     docEvents : {}
   }); 
   
   
-// --------- Private Methods--------- //
+  // --------- Private Methods--------- //
   function showView(data){
     var view = this;
     var $e = view.$el;
@@ -59,6 +59,6 @@
       });
     }
   }
-// --------- /Private Methods--------- //
+ // --------- /Private Methods--------- //
 
 })(jQuery);

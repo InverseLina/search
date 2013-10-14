@@ -4,7 +4,7 @@
     parent : "#contentview-ctn"
   }, {
 
-// --------- View Interface Implement--------- //
+    // --------- View Interface Implement--------- //
     create : function() {
       return render("ContentView");
     },
@@ -32,9 +32,9 @@
       }
         brite.display("SavedSearches");
     },
-// --------- /View Interface Implement--------- //
+    // --------- /View Interface Implement--------- //
 
-// --------- Events--------- //
+    // --------- Events--------- //
     events : {
       "keypress; .search-input": function(event){
         var view = this;
@@ -186,7 +186,7 @@
     // --------- /Events--------- //
 
 
-// --------- Public Methods--------- //
+    // --------- Public Methods--------- //
     showErrorMessage : function(title, detail) {
       var view = this;
       view.$searchInfo.empty();
@@ -261,9 +261,9 @@
         }
 
     },
-// --------- /Public Methods--------- //
+    // --------- /Public Methods--------- //
 
-// --------- Document Events--------- //
+    // --------- Document Events--------- //
     docEvents: {
       "ADD_FILTER":function(event, extra){
           var view = this;
@@ -302,10 +302,10 @@
             brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
         }
     },
-// --------- /Document Events--------- //
+    // --------- /Document Events--------- //
 
 
-// --------- Parent Events--------- //
+    // --------- Parent Events--------- //
     parentEvents : {
 
       MainView : {
@@ -383,9 +383,9 @@
 
       }
     },
-// --------- /Parent Events--------- //
+    // --------- /Parent Events--------- //
 
-// --------- Public Methods--------- //
+    // --------- Public Methods--------- //
     getSearchValues : function() {
       var view = this;
       var val = this.$searchInput.val();
@@ -399,11 +399,11 @@
       }
       return result;
     }
-// --------- /Public Methods--------- //
+    // --------- /Public Methods--------- //
 
   });
 
-// --------- Private Methods--------- //
+  // --------- Private Methods--------- //
   function buildResult(items) {
     var result = [];
     var item;
@@ -601,7 +601,7 @@
        var view = this;
       view.$searchInfo.html(htmlInfo.format(result.count, result.count > 1 ? "es":"", direct, offset));
   }
-// --------- /Private Methods--------- //
+  // --------- /Private Methods--------- //
 
 
 })(jQuery); 

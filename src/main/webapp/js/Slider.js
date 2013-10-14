@@ -8,7 +8,7 @@
 (function ($) {
     brite.registerView("Slider", {loadTmpl:false, emptyParent: true},
         {
-// --------- View Interface Implement--------- //
+            // --------- View Interface Implement--------- //
             create: function (data, config) {
                 data = data || {};
 
@@ -32,9 +32,9 @@
                 view.barLength = $e.find(".bar").outerWidth();
 
             },
-// --------- /View Interface Implement--------- //
+            // --------- /View Interface Implement--------- //
 
-// --------- Events--------- //
+            // --------- Events--------- //
             events: {
                 "btap; .bar" : function(e) {
                     e.stopPropagation();
@@ -67,9 +67,9 @@
                     setPosition.call(view,position);
                 }
             },
-// --------- /Events--------- //
+            // --------- /Events--------- //
             docEvents: {},
-// --------- Public Methods--------- //
+            // --------- Public Methods--------- //
             /**
              * get value
              */
@@ -89,11 +89,11 @@
                 var view = this;
                 setValue.call(view, (view.opts.value||0) - 1);
             }
-// --------- /Public Methods--------- //
+            // --------- /Public Methods--------- //
 
         });
 
-// --------- Private Methods--------- //
+    // --------- Private Methods--------- //
     /**
      * set position by value
      */
@@ -154,6 +154,6 @@
         }
         setPosition.call(view, position);
     }
-// --------- /Private Methods--------- //
+    // --------- /Private Methods--------- //
 
 })(jQuery);

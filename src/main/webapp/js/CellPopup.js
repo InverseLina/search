@@ -9,7 +9,7 @@
 (function ($) {
     brite.registerView("CellPopup", {emptyParent: false, parent: "body"},
         {
-// --------- View Interface Implement--------- //
+            // --------- View Interface Implement--------- //
             create: function (data, config) {
                 return render("CellPopup");
             },
@@ -58,10 +58,10 @@
                     }
                 });
             },
-// --------- /View Interface Implement--------- //
+            // --------- /View Interface Implement--------- //
 
 
-// --------- Events--------- //
+            // --------- Events--------- //
             events: {
                 "btap; li": function(event){
                     var name, view = this;
@@ -79,6 +79,6 @@
 
                 }
             }
-// --------- /Events--------- //
+            // --------- /Events--------- //
         });
 })(jQuery);

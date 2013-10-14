@@ -8,17 +8,17 @@
 (function ($) {
     brite.registerView("LoginModal", {emptyParent: false, parent: "body"},
         {
-// --------- View Interface Implement--------- //
+            // --------- View Interface Implement--------- //
             create: function (data, config) {
                 return render("LoginModal");
             },
 
             postDisplay: function (data) {
             },
-// --------- /View Interface Implement--------- //
+            // --------- /View Interface Implement--------- //
 
 
-// --------- Events--------- //
+            // --------- Events--------- //
             events: {
                 "btap;.cancel,.close": function(){
                     var view = this;
@@ -49,7 +49,7 @@
                 	}
                 }
             },
-// --------- /Events--------- //
+            // --------- /Events--------- //
             docEvents: {}
         });
 })(jQuery);
