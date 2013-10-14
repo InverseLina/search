@@ -1,9 +1,10 @@
 (function($){
 	var searchDao = app.SearchDaoHandler;
 	brite.registerView("MainView",{parent:"body"},{
-		create: function(data){
+// --------- View Interface Implement--------- //
+	 create: function(data){
 			return render("MainView");
-	 }, 
+	 },
 	 postDisplay: function(data){
 		 var view = this;
 		 view.$el.find(".config").removeClass("hide");
@@ -19,37 +20,9 @@
 			 });
 		 }
 	 },
-/*     getSearchValues: function(){
-         var key, view = this;
-         var result = {};
-         var searchData = result.searchValues = {};
-         var contentSearchValues = view.contentView.getSearchValues();
-//         console.log(contentSearchValues);
-         result.searchColumns = app.preference.columns().join(",");
-         if(contentSearchValues.sort){
-             result.orderBy = contentSearchValues.sort.column;
-             result.orderType =  !!(contentSearchValues.sort.order === "asc");
-         }
-         if(!/^\s*$/.test(contentSearchValues.search)){
-             searchData.q_search = $.trim(contentSearchValues.search)
-         }
+// --------- /View Interface Implement--------- //
 
-         if(view._searchValues){
-             for(key in view._searchValues){
-                 if(key == "q_contacts"){
-                     searchData[key] = view._searchValues[key];
-                 }else{
-                     searchData[key] = {values: view._searchValues[key]}
-                 }
-             }
-         }
-         result.searchValues = JSON.stringify(searchData);
-         result.pageIndex = view.contentView.pageIdx || 1;
-         result.pageSize = view.contentView.pageSize || 15;
-//         console.log(result);
-         return result;
-     },*/
-	 
+// --------- Events--------- //
 	 events: {
 	 	"click; [data-action='DO_SEARCH']": function(e){
 	 		var view = this;
@@ -67,9 +40,9 @@
             var $target = $(event.currentTarget);
             $target.val($.trim($target.val()));
         },
-	 	
+
 	 	"DO_SEARCH": function(event,opts){
-	 		doSearch.call(this,opts);	
+	 		doSearch.call(this,opts);
 	 	},
 	 	"btap;.config":function(event){
 	 		if(app.cookie("login")!="true"){
@@ -79,6 +52,10 @@
 	 		}
 	 	}
 	 },
+// --------- /Events--------- //
+
+
+// --------- Document Events--------- //
      docEvents: {
          "DO_SET_COLUMNS":function(event, extra){
              var view = this;
@@ -88,35 +65,13 @@
              }
          },
          "SEARCH_PARAMS_CHANGE":function(event, extra){
-/*             var view = this;
-             var result = {};
-             view.contentView.$el.find("th").each(function(idx, th){
-                 var type = $(th).closest("th").attr("data-column");
-                 if(type == "name"){
-                     type = "contact";
-                 }
-                 if(type=="company"){
-                	 type = "companie";
-                 }
-                 type = "q_" + type + "s";
-                 var data = [], val;
-                 $(th).find(".selectedItems .item").each(function(index, item){
-                       val = $(item).data("value");
-                     if(val){
-                         data.push(val);
-                     }
-                 });
-//                 console.log(data);
-                 if(data.length > 0 || !$.isEmptyObject(data)){
-                     result[type] = data;
-                 }
-             });
-             view._searchValues = result;
-//             console.log(view._searchValues);*/
+
          }
      }
+// --------- /Document Events--------- //
 	});
 
+// --------- Private Methods--------- //
     function doSearch(opts) {
         var searchValues, view = this;
         opts = opts|| {};
@@ -126,12 +81,8 @@
             view.contentView.loading();
             view.contentView.restoreSearchParam();
             var searchParameter = app.ParamsControl.getParamsForSearch(search);
-//            qParams.pageIndex = pageIdx||qParams.pageIndex;
-//            qParams.pageSize =  pageSize||qParams.pageSize;
-//            var qParams=view.getSearchValues();
             searchParameter.pageIndex = pageIdx||1;
-//            console.log(searchParameter);
-            
+
             searchDao.search(searchParameter).always(function (result) {
 	            result.callback = callback;
 	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
@@ -140,5 +91,6 @@
         callback();
 
     }
+// --------- /Private Methods--------- //
 	
 })(jQuery);

@@ -3,10 +3,13 @@
 	var defaultPathInfo = {paths:["setup"]};
 	
 	brite.registerView("AdminMainView",{parent:".container",emptyParent:true},{
+
+// --------- View Interface Implement--------- //
 		create: function(data){
 			return render("AdminMainView");
 	 }, 
 	 
+
 	 postDisplay: function(data){
 		 var view = this;
 		 $(".home").removeClass("hide");
@@ -14,26 +17,34 @@
 		 view.$el.find(".organization-tab").addClass("hide");
 		 app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
 	    	  switch(result){
-		    	  case 1:	
+		    	  case 1:
 		    	  case 2:
 		    	  case 8:
 		    	  case 9:  view.$el.find(".organization-tab").removeClass("hide");
 		    	  			break;
 	    	  }
 	      });
-		 
+
 		 this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
 	 },
+// --------- /View Interface Implement--------- //
+
+// --------- Windows Event--------- //
 	 winEvents: {
 	    hashchange: function(event){
 	     this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
 	    }
 	 },
+// --------- /Windows Event--------- //
+
+// --------- Events--------- //
 	 events: {
 		"PATH_INFO_CHANGE": function(event,pathInfo){
 	      changeView.call(this,pathInfo);
 	    }
 	 }
+// --------- /Events--------- //
+
 	});
     // --------- Private Methods --------- //
     function changeView(pathInfo){
@@ -50,7 +61,7 @@
     // --------- /Private Methods --------- //  
     
     
-    // --------- Utilities --------- //
+// --------- Utilities--------- //
     function buildPathInfo(){
       var pathInfo = $.extend({},defaultPathInfo);
       var hash = window.location.hash;
@@ -63,7 +74,8 @@
         }
       }
       app.pathInfo = pathInfo;
-      return pathInfo;    
+      return pathInfo;
     }
+// --------- /Utilities--------- //
 	
 })(jQuery);

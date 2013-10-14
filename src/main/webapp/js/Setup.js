@@ -1,30 +1,33 @@
 (function($){
   
   brite.registerView("Setup",{parent:".admincontainer",emptyParent:true},{
+// --------- View Interface Implement--------- //
     create: function(){
       return render("Setup");
     },
     postDisplay:function(data){
       var view = this;
       view.section = app.pathInfo.paths[0] || "setup";
-    
+
       view.$navTabs = $(".nav-tabs");
       view.$tabContent = view.$el.find(".tab-content");
       view.$navTabs.find("li.active").removeClass("active");
       if(view.$navTabs.find('li').size() > 2){
 		view.$navTabs.find('li:last').remove();
-	  } 
-      view.$navTabs.find("a[href='#setup']").closest("li").addClass("active"); 
+	  }
+      view.$navTabs.find("a[href='#setup']").closest("li").addClass("active");
       view.$el.find(".create,.import,.create_pg_trgm").prop("disabled",true).html("Loading...");
       view.$el.trigger("STATUS_CHANGE");
-      
+
       app.getJsonData("/config/get/",{orgId:-1}).done(function(data){
     	  if(view && view.$el){
     	   view.$el.trigger("FILLDATA",{data:data});
     	  }
     	});
     },
+// --------- /View Interface Implement--------- //
     
+// --------- Events--------- //
     events:{
        "btap;.cancel":function(event){
     		window.location.href="/";
@@ -43,7 +46,7 @@
     	  $createBtn.prop("disabled",true).html("Creating...");
     	  app.getJsonData("/createSysSchema",{},{type:"Post"}).done(function(data){
     		  if(data){
-    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
     			  $createBtn.prop("disabled",false).html("Create System schema");
     		  }else{
     			  $createBtn.html("System schema Created");
@@ -64,7 +67,7 @@
     	  $createBtn.prop("disabled",true).html("Creating...");
     	  app.getJsonData("/createPgTrgm",{},{type:"Post"}).done(function(data){
     		  if(data){
-    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
     			  $createBtn.prop("disabled",false).html("Create pg_trgm");
     		  }else{
     			  $createBtn.html("pg_trgm Created");
@@ -82,7 +85,7 @@
     	  $importBtn.prop("disabled",true).html("importing...");
     	  app.getJsonData("/updateZipCode",{},{type:"Post"}).done(function(data){
     		  if(data){
-    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
     			  $importBtn.prop("disabled",false).html("Import Zipcode table");
     		  }else{
     			  $importBtn.html("Zipcode table Imported");
@@ -143,10 +146,11 @@
     	      values["orgId"]=-1;
     	      values.configsJson = JSON.stringify(configs);
     	      app.getJsonData("/config/save", values,"Post").done(function(data){
-    	          window.location.href="/";  
-    	  });  
+    	          window.location.href="/";
+    	  });
     	}
     }
+// --------- /Events--------- //
   });
   
 })(jQuery);

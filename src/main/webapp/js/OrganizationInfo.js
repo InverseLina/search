@@ -1,21 +1,22 @@
 (function($){
 	
   brite.registerView("OrganizationInfo",{parent:".admincontainer",emptyParent:true},{
+// --------- View Interface Implement--------- //
     create: function(){
       return render("OrganizationInfo");
     },
     postDisplay:function(data){
       var view = this;
-      
+
       view.section = app.pathInfo.paths[0] || "organization";
-		
+
       view.$navTabs = $(".nav-tabs");
 	  view.$tabContent = view.$el.find(".tab-content");
 	  view.$navTabs.find("li.active").removeClass("active");
-      
+
       if(app.pathInfo.paths[1] == "add"){
     	  var li = render("OrganizationInfo-li",{type:"OrganizationInfo",url:"#organization/add"});
-    	  view.$navTabs.append(li);	
+    	  view.$navTabs.append(li);
     	  var html = render("OrganizationInfo-content",{data:null});
     	  view.$tabContent.html(html);
     	  view.orgId = -1;
@@ -24,11 +25,13 @@
     	   view.orgId = app.pathInfo.paths[2] * 1;
     	  getDate.call(view,app.pathInfo.paths[2] * 1).done(function(orgName){
     		  var li = render("OrganizationInfo-li",{type:"Organization: "+orgName,url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
-         	  view.$navTabs.append(li);	
-    	  }); 
+         	  view.$navTabs.append(li);
+    	  });
        }
     },
+// --------- /View Interface Implement--------- //
     
+// --------- Events--------- //
     events:{
       "btap;.home":function(event){
     	window.location.href="/";
@@ -52,11 +55,6 @@
           configs["action_add_to_sourcing"] = view.$el.find("[name='action_add_to_sourcing']").prop("checked");
           configs["action_favorite"] = view.$el.find("[name='action_favorite']").prop("checked");
           configs["skill_assessment_rating"] = view.$el.find("[name='skill_assessment_rating']").prop("checked");
-          //values["config_canvasapp_secret"]=view.$el.find("[name='config_canvasapp_secret']").val();
-          //values["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
-          //values["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
-          //values["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
-          //values["needAdmin"]="true";
           values["orgId"] = view.orgId;
           configs["instance_url"] = view.$el.find("[name='instance_url']").val();
           configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();
@@ -101,7 +99,7 @@
 			$alert.addClass("transparent");
 			app.getJsonData("/createExtraTables", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 				if(data){
-					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
 					$createExtraBtn.prop("disabled",false).html("Create Extra Tables");
 				}else{
 					$createExtraBtn.html("Extra Tables Created");
@@ -128,7 +126,7 @@
 			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 				window.clearInterval(view.indexIntervalId);
 				if(data){
-					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
 					$createIndexBtn.prop("disabled",false).html("Create Index Columns");
 				}else{
 					$createIndexBtn.html("Index Columns Created");
@@ -157,7 +155,7 @@
 				$createIndexBtn.html("Pause Index Resume");
 				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					if(data&&data.errorCode){
-						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg); 
+						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
 						$createIndexBtn.prop("disabled",false).html("Resume Index Resume");
 					}else{
 						view.$el.trigger("STATUS_CHANGE");
@@ -183,8 +181,6 @@
 		"RESUMEINDEXSTATUS":function(event,init){
 			var view = this;
 			 app.getJsonData("/getResumeIndexStatus",{orgName:view.currentOrgName}).done(function(data){
-				   //view.$el.find(".index-info,.status").removeClass("hide");
-	 	    	   //view.$el.find(".index-info").html("Perform:"+data.perform+",Remaining:"+data.remaining);
 	 	    	   var percentage = ((data.perform/( data.perform+data.remaining))*100)+"";
 	 	    	   if(init&&data.perform>0&&data.remaining>0){
 	 	    		   view.$el.find(".resume").html("Resume Index Resume");
@@ -192,7 +188,7 @@
 	 	    	   if(percentage.indexOf(".")!=-1){
 	 	    		   percentage = percentage.substring(0,percentage.indexOf("."));
 	 	    	   }
-	 	    	   fillProgressBar.call(view,percentage,data.perform,data.perform+data.remaining); 
+	 	    	   fillProgressBar.call(view,percentage,data.perform,data.perform+data.remaining);
 			 });
 		},
 		 "STATUS_CHANGE":function(event,init){
@@ -247,7 +243,7 @@
 	        		  		}, 3000);
 	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
 							break;
-	        	  case 30:	view.$el.find(".extra,.resume,.index").prop("disabled",true); 
+	        	  case 30:	view.$el.find(".extra,.resume,.index").prop("disabled",true);
 							break;
 	        	  case 31:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 		  	  				view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
@@ -270,8 +266,11 @@
 	          });
 	      }
     }
-  });
+
+// --------- /Events--------- //
+   });
   
+// --------- Private Methods--------- //
   function fillProgressBar(percentage,perform,all){
 	  var view = this;
 	  if(percentage==0){
@@ -308,28 +307,29 @@
     });
     return dfd.promise();
   }
-  
+
   function doValidate(){
 	    var view = this;
 		var $nameMsg = view.$el.find(".alert-error.name");
 		var $schemanameMsg = view.$el.find(".alert-error.schemaname");
-		
+
 		if(view.$el.find("[name='name']").val() == ''){
 			$nameMsg.removeClass("hide");
 		}else{
 			$nameMsg.addClass("hide");
 		}
-		
+
 		if(view.$el.find("[name='schemaname']").val() == ''){
 			$schemanameMsg.removeClass("hide");
 		}else{
 			$schemanameMsg.addClass("hide");
 		}
-		
+
 		if(view.$el.find(".alert-error:not(.hide)").length>0){
 			view.validation=false;
 		}else{
 			view.validation=true;
 		}
 	  }
+// --------- /Private Methods--------- //
 })(jQuery);

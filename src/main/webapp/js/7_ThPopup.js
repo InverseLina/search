@@ -6,6 +6,7 @@ var app = app || {};
     this.type = type;
   };
 
+// --------- View Interface Implement--------- //
   ThPopup.prototype.create = function(data, config) {
     var dfd = $.Deferred();
     var view = this;
@@ -107,14 +108,19 @@ var app = app || {};
             }
 	        $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result["list"],type:type}));
                  activeFirstItem.call(view);
-	    }); 
+	    });
      }
   };
+    // --------- /View Interface Implement--------- //
 
+// --------- Prototype Function--------- //
     ThPopup.prototype.close = function(){
         close.call(this);
     }
+// --------- /Prototype Function--------- //
 
+
+// --------- Popup Events--------- //
     ThPopup.prototype.events = {
         "btap; span.add": function (event) {
             var view = this;
@@ -126,16 +132,7 @@ var app = app || {};
             	view.$el.find(".save").parent().removeClass("hide");
             	$span.addClass("hide");
             }
-//            view.$el.find("div.content").show();
-//            if(view.$el.find(".sliderBarContainer").length > 0){
-//                brite.display("Slider", ".sliderBarContainer");
-//            }
-        },/*
-        "click;.glyphicon-remove":function(event){
-        	var view = this;
-        	var $icon = $(event.target);
-        	$icon.parent().addClass("hide").prev().removeClass("hide");
-        },*/
+        },
         "btap; .autoCompleteContainer.active .clear":function(event){
             var view = this;
             var $input = $(event.currentTarget).closest(".autoCompleteContainer").find("input");
@@ -165,9 +162,7 @@ var app = app || {};
         	var view = this;
             var $input = view.$el.find("input.autoComplete:first");
             var type = $input.attr("data-type");
-/*            if(type=="company"){
-                type = "employer";
-            }*/
+
 
             var listName = (type=="company"?"companies":(type+"s"));
             var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
@@ -193,7 +188,7 @@ var app = app || {};
                      activeFirstItem.call(view);
                  }
              });
-        	
+
         },
         "btap; div.content .autoCompleteList  div[class$='Row'][class!='contactRow']": function (event) {
             var view = this;
@@ -234,7 +229,9 @@ var app = app || {};
             changeAutoComplete.call(view, event);
         }
     };
+// --------- /Popup Events--------- //
 
+// --------- Private Methods--------- //
   function close(){
       var view = this;
       if (view && view.$el) {
@@ -404,6 +401,7 @@ var app = app || {};
             view.$el.find(".separateLine").hide();
         }
     }
+// --------- /Private Methods--------- //
 
 
   

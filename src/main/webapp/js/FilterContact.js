@@ -11,6 +11,7 @@
         showSelectedItem.call(view);
     }
 
+// --------- Events--------- //
     FilterContact.prototype.events = $.extend({
         "btap; .save":function(){
             addItem.call(this);
@@ -66,11 +67,13 @@
 
         }
     }, app.ThPopup.prototype.events||{});
+// --------- /Events--------- //
 
     brite.registerView("FilterContact", {emptyParent: false},function(){
       return new FilterContact();
     });
 
+// --------- Private Methods--------- //
     function addItem(){
         var $item, view = this, ele;
         var data = {};
@@ -123,4 +126,5 @@
             view.$el.find(".selectedItems").show();
         }
     }
+// --------- /Private Methods--------- //
 })(jQuery);

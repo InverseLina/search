@@ -9,6 +9,7 @@
 (function ($) {
     brite.registerView("Pagination", {emptyParent: true},
         {
+// --------- View Interface Implement--------- //
             create: function (data, config){
                 var dfd = $.Deferred();
                 var $el = $(render("Pagination"));
@@ -29,6 +30,10 @@
                   renderPage.call(view, data.pageIdx||1, data.pageSize||10, data.totalCount, data.callback);
                 }*/
             },
+// --------- /View Interface Implement--------- //
+
+
+// --------- Events--------- //
             events: {
               "btap; a[data-page]":function(event){
                   event.stopPropagation();
@@ -67,9 +72,11 @@
                   }
               }
             },
+// --------- /Events--------- //
             docEvents: {}
         });
 
+// --------- Private Methods--------- //
         // process the page info
         function calc(page) {
             page.pageCount = parseInt(page.totalCount/page.pageSize) ;
@@ -104,5 +111,6 @@
             view.$el.find("select").val(page.pageSize);
         }
     }
+// --------- /Private Methods--------- //
 
 })(jQuery);

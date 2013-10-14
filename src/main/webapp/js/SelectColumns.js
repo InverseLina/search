@@ -8,6 +8,7 @@
 (function ($) {
     brite.registerView("SelectColumns", {emptyParent: false,parent:".search-result"},
         {
+// --------- View Interface Implement--------- //
             create: function (data, config) {
                 return render("SelectColumns", {columns:app.preference.displayColumns});
             },
@@ -39,6 +40,9 @@
                 })
 
             },
+// --------- /View Interface Implement--------- //
+
+// --------- Events--------- //
             events: {
                 "click; input[type='checkbox']":function(e){
                     var view = this;
@@ -57,5 +61,6 @@
                 }
 
             }
+// --------- /Events--------- //
         });
 })(jQuery);

@@ -11,6 +11,7 @@
     emptyParent : false,
     parent : "body"
   }, {
+// --------- View Interface Implement--------- //
     create : function(data, config) {
       $("#resumeModal").bRemove();
       data = data || {};
@@ -20,19 +21,24 @@
 
     postDisplay : function(data) {
       showView.call(this,data);
-      
+
     },
+// --------- /View Interface Implement--------- //
+
+// --------- Events--------- //
     events : {
       "btap; .btn-primary, .close" : function() {
         var view = this;
         view.$el.bRemove();
-      },
+      }
+// --------- /Events--------- //
 
     },
     docEvents : {}
   }); 
   
   
+// --------- Private Methods--------- //
   function showView(data){
     var view = this;
     var $e = view.$el;
@@ -49,9 +55,10 @@
           var $content = $(render("ResumeView-content", {resume : "not resume"}));
         }
         $body.append($content);
-          
+
       });
     }
   }
+// --------- /Private Methods--------- //
 
 })(jQuery);

@@ -10,6 +10,7 @@
     var dao = app.SavedSearchesDaoHandler;
     brite.registerView("SavedSearches", {parent:".saveSearchesContainer", emptyParent: true},
         {
+// --------- View Interface Implement--------- //
             create: function (data, config) {
                 var dfd = $.Deferred();
                 var item, data = [];
@@ -40,6 +41,10 @@
                     }
                 });
             },
+// --------- /View Interface Implement--------- //
+
+
+// --------- Events--------- //
             events: {
                 "SEARCH_RESULT_CHANGE":function(){
                     var view = this;
@@ -135,14 +140,20 @@
                     view.$el.find(".search-list").hide();
                 }
             },
+// --------- /Events--------- //
+
+
+// --------- Document Events--------- //
             docEvents: {
                 "SEARCH_QUERY_CHANGE ADD_FILTER REMOVE_FILTER": function(){
                     var view = this;
                     checkAndChangeBtnState.call(view);
                 }
             }
+// --------- /Document Events--------- //
         });
 
+// --------- Private Methods--------- //
     function enableBtn(view, status) {
         var $btn = view.$el.find(".btn");
         if (status) {
@@ -247,5 +258,6 @@
         return checkExist(dfd, 1);
 
     }
+// --------- /Private Methods--------- //
 
 })(jQuery);

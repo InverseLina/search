@@ -3,6 +3,8 @@
   brite.registerView("ContentView", {
     parent : "#contentview-ctn"
   }, {
+
+// --------- View Interface Implement--------- //
     create : function() {
       return render("ContentView");
     },
@@ -30,6 +32,9 @@
       }
         brite.display("SavedSearches");
     },
+// --------- /View Interface Implement--------- //
+
+// --------- Events--------- //
     events : {
       "keypress; .search-input": function(event){
         var view = this;
@@ -178,6 +183,10 @@
       }
 
     },
+    // --------- /Events--------- //
+
+
+// --------- Public Methods--------- //
     showErrorMessage : function(title, detail) {
       var view = this;
       view.$searchInfo.empty();
@@ -252,6 +261,9 @@
         }
 
     },
+// --------- /Public Methods--------- //
+
+// --------- Document Events--------- //
     docEvents: {
       "ADD_FILTER":function(event, extra){
           var view = this;
@@ -290,13 +302,17 @@
             brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
         }
     },
+// --------- /Document Events--------- //
+
+
+// --------- Parent Events--------- //
     parentEvents : {
 
       MainView : {
         "SEARCH_RESULT_CHANGE" : function(event, result) {
           var view = this;
           var $e = view.$el;
-          
+
           $.ajax({
   			url:"/config/get/action_add_to_sourcing",
   			type:"Get",
@@ -341,10 +357,10 @@
                        showSearchInfo.call(view, result, htmlInfo, "left", (pagination.offset().left - view.$searchInfo.offset().left -155 ))
                    });
 
-              
+
               //restore input values
               $e.find(".search-input").val(app.ParamsControl.getQuery());
-              
+
               view.restoreSearchParam();
             });
 
@@ -367,7 +383,9 @@
 
       }
     },
+// --------- /Parent Events--------- //
 
+// --------- Public Methods--------- //
     getSearchValues : function() {
       var view = this;
       var val = this.$searchInput.val();
@@ -381,9 +399,11 @@
       }
       return result;
     }
+// --------- /Public Methods--------- //
 
   });
 
+// --------- Private Methods--------- //
   function buildResult(items) {
     var result = [];
     var item;
@@ -581,6 +601,7 @@
        var view = this;
       view.$searchInfo.html(htmlInfo.format(result.count, result.count > 1 ? "es":"", direct, offset));
   }
+// --------- /Private Methods--------- //
 
 
 })(jQuery); 
