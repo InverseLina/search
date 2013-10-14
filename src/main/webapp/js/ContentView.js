@@ -312,7 +312,6 @@
         "SEARCH_RESULT_CHANGE" : function(event, result) {
           var view = this;
           var $e = view.$el;
-            console.log(org['action_add_to_sourcing']);
             if (org['action_add_to_sourcing'] == "true") {
                 view.$el.find(".btnAddToSourcingProject").removeClass("hide");
             } else {
