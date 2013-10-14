@@ -1,12 +1,5 @@
 package com.jobscience.search.db;
 
-import com.google.common.base.Throwables;
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
-import javax.inject.Singleton;
-import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,38 +10,39 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+
+import com.google.common.base.Throwables;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 @Singleton
 public class DataSourceManager {
     private DataSource defaultDs;
     private DataSource sysDs;
     private Map<String, DataSource> dsMap = new ConcurrentHashMap<String, DataSource>();
     private String url;
-    private String orgUser;
-    private String orgPwd;
-    private String sysUser;
-    private String sysPwd;
-    private String sysSchema;
+    private String user;
+    private String pwd;
+    private String sysSchema = "jss_sys";
     @Inject
     private DBHelper dbHelper;
     private  DataSource publicDataSource;
     @Inject
     public void init(@Named("jss.db_url") String url,
-                     @Named("jss.sys_db.schema") String sysSchema,
-                     @Named("jss.sys_db.user") String sysUser,
-                     @Named("jss.sys_db.pwd") String sysPwd,
-                     @Named("jss.org_db.user") String user,
-                     @Named("jss.org_db.pwd") String pwd) {
-        defaultDs = buildDs(url, sysUser, sysPwd,null);
+                     @Named("jss.db.user") String user,
+                     @Named("jss.db.pwd") String pwd) {
         this.url = url;
-        this.orgUser = user;
-        this.orgPwd = pwd;
-        this.sysPwd = sysPwd;
-        this.sysUser = sysUser;
-        this.sysSchema = sysSchema;
+        this.user = user;
+        this.pwd = pwd;
+        
+        defaultDs = buildDs(url,null);
         if(checkSysSchema()){
-        	sysDs = buildDs(url, sysUser, sysPwd, sysSchema);
+        	sysDs = buildDs(url, sysSchema);
         }
-        publicDataSource = buildDs(url, sysUser, sysPwd,"public");
+        publicDataSource = buildDs(url,"public");
     }
 
     public DataSource getSysDataSource() {
@@ -60,9 +54,9 @@ public class DataSourceManager {
     }
     public DataSource createSysSchemaIfNecessary() {
     	if(!checkSysSchema()){
-    		dbHelper.executeUpdate(defaultDs, "CREATE SCHEMA jss_sys AUTHORIZATION "+sysUser,new Object[0]);
+    		dbHelper.executeUpdate(defaultDs, "CREATE SCHEMA jss_sys AUTHORIZATION "+user,new Object[0]);
     		if(sysDs==null){
-    			sysDs = buildDs(url, sysUser, sysPwd, sysSchema);
+    			sysDs = buildDs(url, sysSchema);
     		}
     	}
         return sysDs;
@@ -74,7 +68,7 @@ public class DataSourceManager {
             List<Map> list = dbHelper.executeQuery(sysDs, "select * from org where name =?", orgName);
             if (list.size() > 0) {
                 String schema = (String) list.get(0).get("schemaname");
-                ds = buildDs(url, orgUser, orgPwd, schema);
+                ds = buildDs(url, schema);
                 dsMap.put(orgName.trim(), ds);
             }
         }
@@ -89,7 +83,7 @@ public class DataSourceManager {
         return defaultDs;
     }
     
-    private DataSource buildDs(String url, String user, String pwd, String schema) {
+    private DataSource buildDs(String url, String schema) {
         ComboPooledDataSource ds = new ComboPooledDataSource();
         ds.setJdbcUrl(url);
         ds.setUser(user);
@@ -118,7 +112,7 @@ public class DataSourceManager {
     	 if(ds!=null){
     		 ds.update(schemaName);
     	 }else{
-    		 ds = (DataSourceWrapper) buildDs(url, orgUser, orgPwd, schemaName);
+    		 ds = (DataSourceWrapper) buildDs(url, schemaName);
     	 }
     	 dsMap.put(orgName.trim(), ds);
          return ds;
