@@ -312,21 +312,12 @@
         "SEARCH_RESULT_CHANGE" : function(event, result) {
           var view = this;
           var $e = view.$el;
-
-          $.ajax({
-  			url:"/config/get/action_add_to_sourcing",
-  			type:"Get",
-  			dataType:'json'
-	  	  }).done(function(data){
-	  		if(data.success){
-	  			if(data.result[0]&&data.result[0].value=="true"){
-	  				view.$el.find(".btnAddToSourcingProject").removeClass("hide");
-	  			}else{
-	  				view.$el.find(".btnAddToSourcingProject").addClass("hide");
-	  			}
-	  		}
-	  	  });
-
+            console.log(org['action_add_to_sourcing']);
+            if (org['action_add_to_sourcing'] == "true") {
+                view.$el.find(".btnAddToSourcingProject").removeClass("hide");
+            } else {
+                view.$el.find(".btnAddToSourcingProject").addClass("hide");
+            }
 
           var html;
           var htmlInfo = " <span class='resultTime'> (c:{0}ms, s:{1}ms)</span>".format(result.countDuration , result.selectDuration);
