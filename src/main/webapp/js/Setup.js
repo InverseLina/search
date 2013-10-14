@@ -93,7 +93,6 @@
       "STATUS_CHANGE":function(event){
     	  var view = this;
     	  app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
-    		  console.log(result);
         	  switch(result){
         	  case 0:	view.$el.find(".create").prop("disabled",false).html("Create System schema");
         	  			view.$el.find(".import").prop("disabled",true).html("Import Zipcode table");

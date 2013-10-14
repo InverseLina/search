@@ -11,6 +11,7 @@ import com.google.inject.Singleton;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.IndexerManager;
 import com.jobscience.search.dao.SchemaType;
+import com.jobscience.search.exception.JSSSqlException;
 
 @Singleton
 public class DBSetupWebHanlder {
@@ -26,7 +27,7 @@ public class DBSetupWebHanlder {
        try{
     	   dbSetupManager.createSysSchema();
        }catch (SQLException e) {
-    	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getLocalizedMessage()));
+    	   return WebResponse.success(new JSSSqlException(e));
        }
        return WebResponse.success();
     }
@@ -36,9 +37,9 @@ public class DBSetupWebHanlder {
         try{
         	dbSetupManager.updateZipCode();
         }catch (SQLException e) {
-     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getLocalizedMessage()));
+     	   return WebResponse.success(new JSSSqlException(e));
         } catch (IOException e) {
-        	 return WebResponse.success(new DBSetupResult(-1,e.getLocalizedMessage()));
+        	 return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
 		}
         return WebResponse.success();
     }
@@ -48,9 +49,9 @@ public class DBSetupWebHanlder {
         try{
         	 return WebResponse.success(dbSetupManager.checkSetupStatus(type,orgName));
         }catch (SQLException e) {
-        	return WebResponse.success(new DBSetupResult(3,e.getNextException().getLocalizedMessage()) );
+        	return WebResponse.success(new JSSSqlException(e) );
 		} catch (IOException e) {
-			return WebResponse.success(new DBSetupResult(-1,e.getLocalizedMessage()) );
+			return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()) );
 		}
     }
   
@@ -59,7 +60,7 @@ public class DBSetupWebHanlder {
         try{
         	dbSetupManager.createExtraTables(orgName);
         }catch (SQLException e) {
-     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getNextException().getLocalizedMessage()));
+     	   return WebResponse.success(new JSSSqlException(e));
         }
         return WebResponse.success();
     }
@@ -71,7 +72,7 @@ public class DBSetupWebHanlder {
         	dbSetupManager.createExtension("cube");
         	dbSetupManager.createExtension("earthdistance");
         }catch (SQLException e) {
-     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getNextException().getLocalizedMessage()));
+     	   return WebResponse.success(new JSSSqlException(e));
         }
         return WebResponse.success();
     }
@@ -80,7 +81,7 @@ public class DBSetupWebHanlder {
         try{
         	dbSetupManager.createIndexColumns(orgName);
         }catch (SQLException e) {
-     	   return WebResponse.success(new DBSetupResult(e.getErrorCode(),e.getNextException().getLocalizedMessage()));
+     	   return WebResponse.success(new JSSSqlException(e));
         }
         return WebResponse.success();
     }
@@ -96,7 +97,7 @@ public class DBSetupWebHanlder {
     	 try{
     		 indexerManager.run(orgName);
     	 }catch (Exception e) {
-       	    return WebResponse.success(new DBSetupResult(-1,e.getLocalizedMessage()));
+       	    return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
          }
         return WebResponse.success(indexerManager.getStatus(orgName));
     }

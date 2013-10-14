@@ -1,11 +1,20 @@
-package com.jobscience.search.web;
-public  class DBSetupResult{
+package com.jobscience.search.exception;
+
+import java.sql.SQLException;
+
+public  class JSSSqlException{
 	private Integer errorCode;
 	private String errorMsg;
-	public DBSetupResult(Integer errorCode,String errorMsg) {
+	public JSSSqlException(Integer errorCode,String errorMsg) {
 		this.errorCode = errorCode;
 		this.errorMsg = errorMsg;
 	}
+	
+	public JSSSqlException(SQLException e) {
+		this.errorCode = e.getErrorCode();
+		this.errorMsg = e.getNextException().getMessage();
+	}
+	
 	public Integer getErrorCode() {
 		return errorCode;
 	}
