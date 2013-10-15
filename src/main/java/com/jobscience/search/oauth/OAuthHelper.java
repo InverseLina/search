@@ -19,21 +19,25 @@ import com.jobscience.search.oauth.api.ForceDotComApi;
 public class OAuthHelper {
     @Inject
     private ConfigManager configManager;
-    
     @Inject
-    private DBHelper          dbHelper;
-    
+    private DBHelper dbHelper;
     @Inject
     private DataSourceManager dsMng;
     @Inject
     private DBSetupManager dbSetupManager;
 
-    String apiKey = null;
-    String apiSecret = null;
-    String callbackUrl = null;
+    private String apiKey = null;
+    private String apiSecret = null;
+    private String callbackUrl = null;
 
+    /**
+     * Get the auth service for salesforce,
+     * First get the app conifg for current org,if not existed,
+     * would use global app config(snow.properties) as default
+     * @return
+     */
     public OAuthService  getService(){
-    	 List<Map> list = new ArrayList();
+    	List<Map> list = new ArrayList();
 	    if(dbSetupManager.checkSysTables()){
 	        String sql = "select * from config  where org_id = -1 ";
 	        List<Map> configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
@@ -42,8 +46,6 @@ public class OAuthHelper {
 	        }
     	}
         list = configManager.checkSaleforceInfo(list);
-
-
         if(list != null && list.size() > 0){
             for (Map<String,String> map : list) {
                 if ("config_apiKey".equals((String)map.get("name"))) {

@@ -19,90 +19,101 @@ import com.jobscience.search.db.DataSourceManager;
 public class ConfigManager {
 
     @Inject
-    private DBHelper          dbHelper;
+    private DBHelper dbHelper;
     @Inject
     private CurrentOrgHolder  orgHolder;
-
     @Inject
     private DataSourceManager dsMng;
     @Inject
     @Named("salesforce.canvasapp.secret")
-    private String            canvasappSecret;
+    private String canvasappSecret;
     @Inject
     @Named("saleforce.apiKey")
-    private String            apiKey;
+    private String apiKey;
     @Inject
     @Named("saleforce.apiSecret")
-    private String            apiSecret;
+    private String apiSecret;
     @Inject
     @Named("saleforce.callBackUrl")
-    private String            callBackUrl;
+    private String callBackUrl;
 
+    /**
+     * Save or Update org config
+     * @param params 
+     * @param orgId if <code>null</code>,use current org id,else use the orgId
+     * @throws SQLException
+     */
     public void saveOrUpdateConfig(Map<String, String> params,Integer orgId) throws SQLException {
         StringBuilder names = new StringBuilder("(");
         StringBuilder sql = new StringBuilder();
-        Integer it = 0;
-           try {
-               it = orgHolder.getId();
-           } catch (Exception e) {
-               e.printStackTrace();
-           }
-           if(orgId!=null){
-        	   it=orgId;
-           }
-           if(it==null){
-        	   it = -1;
-           }
+        Integer id = 0;
+        try {
+           id = orgHolder.getId();
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+        if(orgId!=null){
+        	id=orgId;
+        }
+        if(id==null){
+        	id = -1;
+        }
         for (String key : params.keySet()) {
             names.append("'" + key + "'");
             names.append(",");
-            // sql.append("('"+key+"','"+params.get(key)+"'),");
-            sql.append(format("(%s, '%s', '%s'),", it, key, params.get(key)));
+            sql.append(format("(%s, '%s', '%s'),", id, key, params.get(key)));
         }
         names.append("'-1')");
         sql.deleteCharAt(sql.length() - 1);
-        
-        dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id = %s and  name in %s", it, names));
-        
+        dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id = %s and  name in %s", id, names));
         dbHelper.executeUpdate(dsMng.getSysDataSource(), format("insert into  config(org_id, name,value) values %s ", sql));
-
     }
 
+    /**
+     * Get org configs,will always get the global configs
+     * @param name
+     * @param orgId the special org config need query
+     * @return
+     */
     public List<Map> getConfig(String name,Integer orgId) {
         String sql = "select * from config where 1=1 ";
         if (name != null) {
             sql += " and name='" + name + "'";
         }
         Integer it = -1;
-         try {
-             it = orgHolder.getId();
-         } catch (Exception e) {
-             // TODO: handle exception
-         }
-         if(orgId!=null){
-        	 it = orgId;
-         }
-         sql += " and (org_id = " + it;
+        try {
+            it = orgHolder.getId();
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+        if(orgId!=null){
+          it = orgId;
+        }
+        sql += " and (org_id = " + it;
          
-         if(it!=-1){
-        	 sql += " or org_id = -1" ;
-         }
-         sql+=")";
-         List<Map> configList = new ArrayList();
-         try{
-        	 configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
-         }catch (Exception e) {
+        if(it!=-1){
+          sql += " or org_id = -1" ;
+        }
+        sql+=")";
+        List<Map> configList = new ArrayList();
+        try{
+          configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
+        }catch (Exception e) {
 			
-		 }
-         List list = new ArrayList();
-          if (configList != null && configList.size() > 0) {
-            list = configList;
-          }
-         list = checkSaleforceInfo(list);
-         return list;
-
+		}
+        List list = new ArrayList();
+        if (configList != null && configList.size() > 0) {
+           list = configList;
+        }
+        list = checkSaleforceInfo(list);
+        return list;
     }
-
+    
+    /**
+     * only get current org config
+     * @param name
+     * @return
+     */
     public Map getConfig(String name) {
         String sql = "select * from config where name = ? and org_id = ? ";
         List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), sql, name, orgHolder.getId());
@@ -113,6 +124,12 @@ public class ConfigManager {
         }
     }
 
+    /**
+     * get salesforce auth app configs,
+     * if org app auth configs not existed,use global as default
+     * @param list
+     * @return
+     */
     public List checkSaleforceInfo(List<Map> list) {
         if (list.size() > 0) {
             boolean isCanvasappSecret = false;
