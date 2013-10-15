@@ -69,22 +69,18 @@
 
     // --------- Private Methods--------- //
     function doSearch(opts) {
-        var searchValues, view = this;
-        opts = opts|| {};
+        var view = this;
+        opts = opts || {};
         var search = opts.search;
 
-        var callback = function(pageIdx, pageSize){
-            view.contentView.loading();
-            view.contentView.restoreSearchParam();
-            var searchParameter = app.ParamsControl.getParamsForSearch(search);
-            searchParameter.pageIndex = pageIdx||1;
+        view.contentView.loading();
+        view.contentView.restoreSearchParam();
+        var searchParameter = app.ParamsControl.getParamsForSearch(search);
+        searchParameter.pageIndex = opts.pageIdx || 1;
 
-            searchDao.search(searchParameter).always(function (result) {
-	            result.callback = callback;
-	            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
-            });
-        };
-        callback();
+        searchDao.search(searchParameter).always(function (result) {
+            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
+        });
 
     }
     // --------- /Private Methods--------- //

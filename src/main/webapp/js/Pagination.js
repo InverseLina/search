@@ -10,100 +10,100 @@
     brite.registerView("Pagination", {emptyParent: true},
         {
             // --------- View Interface Implement--------- //
-            create: function (data, config){
+            create: function (data, config) {
                 var dfd = $.Deferred();
                 var $el = $(render("Pagination"));
-                if(data.totalCount > 0){
+                if (data.totalCount > 0) {
                     var view = this;
-                        var page = view.page = {pageIdx: data.pageIdx||1, pageSize: data.pageSize||10, totalCount: data.totalCount, callback: data.callback};
-                        calc(view.page);
-                        var html = render("Pagination-detail", page);
-                        $el.empty().append(html);
-                        $el.find("select").val(page.pageSize);
+                    var page = view.page = {pageIdx: data.pageIdx || 1, pageSize: data.pageSize || 10, totalCount: data.totalCount};
+                    calc(view.page);
+                    var html = render("Pagination-detail", page);
+                    $el.empty().append(html);
+                    $el.find("select").val(page.pageSize);
                 }
                 return dfd.resolve($el).promise();
             },
 
             postDisplay: function (data) {
                 /*var view = this;
-                if(data.totalCount>0){
-                  renderPage.call(view, data.pageIdx||1, data.pageSize||10, data.totalCount, data.callback);
-                }*/
+                 if(data.totalCount>0){
+                 renderPage.call(view, data.pageIdx||1, data.pageSize||10, data.totalCount, data.callback);
+                 }*/
             },
-// --------- /View Interface Implement--------- //
+            // --------- /View Interface Implement--------- //
 
 
-// --------- Events--------- //
+            // --------- Events--------- //
             events: {
-              "btap; a[data-page]":function(event){
-                  event.stopPropagation();
-                  var view = this;
-                  var newpageIdx = $(event.currentTarget).attr("data-page");
-                  view.$el.bComponent("ContentView").pageIdx = newpageIdx;
-                  view.$el.bComponent("ContentView").pageSize = view.page.pageSize;
-                  view.page.callback(newpageIdx, view.page.pageSize);
-              },
-              "btap; a.next":function(event){
-                  event.stopPropagation();
-                  var view = this;
-                  var page = view.page;
-                  view.$el.bComponent("ContentView").pageIdx = page.pageIdx + 1;
-                  view.$el.bComponent("ContentView").pageSize = page.pageSize;
-                  view.page.callback(page.pageIdx + 1, page.pageSize);
-              },
-              "btap; a.prev":function(event){
-                  event.stopPropagation();
-                  var view = this;
-                  var page = view.page;
-                  view.$el.bComponent("ContentView").pageIdx = page.pageIdx - 1;
-                  view.$el.bComponent("ContentView").pageSize = page.pageSize;
-                  view.page.callback(page.pageIdx - 1, page.pageSize);
-              },
-              "change; select":function(event){
-                  event.stopPropagation();
-                  var view = this;
-                  var page = view.page;
-                  var pageSize = $(event.target).val();
-                  if(pageSize >= -1){
-                      page.pageSize = pageSize;
-                      view.$el.bComponent("ContentView").pageIdx = 1;
-                      view.$el.bComponent("ContentView").pageSize =  page.pageSize;
-                      view.page.callback(1, page.pageSize);
-                  }
-              }
-            },
-// --------- /Events--------- //
-            docEvents: {}
+                "btap; a[data-page]": function (event) {
+                    event.stopPropagation();
+                    var view = this;
+                    var newpageIdx = $(event.currentTarget).attr("data-page");
+                    view.$el.bComponent("ContentView").pageIdx = newpageIdx;
+                    view.$el.bComponent("ContentView").pageSize = view.page.pageSize;
+                    view.$el.trigger("DO_SEARCH", {pageIdx: newpageIdx})
+                },
+                "btap; a.next": function (event) {
+                    event.stopPropagation();
+                    var view = this;
+                    var page = view.page;
+                    view.$el.bComponent("ContentView").pageIdx = page.pageIdx + 1;
+                    view.$el.bComponent("ContentView").pageSize = page.pageSize;
+                    view.$el.trigger("DO_SEARCH", {pageIdx: page.pageIdx + 1})
+                },
+                "btap; a.prev": function (event) {
+                    event.stopPropagation();
+                    var view = this;
+                    var page = view.page;
+                    view.$el.bComponent("ContentView").pageIdx = page.pageIdx - 1;
+                    view.$el.bComponent("ContentView").pageSize = page.pageSize;
+                    view.$el.trigger("DO_SEARCH", {pageIdx: page.pageIdx - 1});
+                },
+                "change; select": function (event) {
+                    event.stopPropagation();
+                    var view = this;
+                    var page = view.page;
+                    var pageSize = $(event.target).val();
+                    if (pageSize >= -1) {
+                        page.pageSize = pageSize;
+                        view.$el.bComponent("ContentView").pageIdx = 1;
+                        view.$el.bComponent("ContentView").pageSize = page.pageSize;
+                        view.$el.trigger("DO_SEARCH");
+                    }
+                }
+            }
+            // --------- /Events--------- //
         });
 
-// --------- Private Methods--------- //
-        // process the page info
-        function calc(page) {
-            page.pageCount = parseInt(page.totalCount/page.pageSize) ;
-            if(page.totalCount % page.pageSize != 0 ) {
-                page.pageCount += 1;
-            }
-            if(page.pageIdx > 5){
-                page.start = page.pageIdx -1;
-            }else{
-                page.start = 1;
-            }
-
-            page.end = page.pageIdx + 3;
-            if(page.end > page.pageCount){
-                page.end =page.pageCount;
-            }
-            if(page.end < page.pageCount -2) {
-                page.end_2 = page.pageCount - 2;
-            }
-            if(page.end < page.pageCount -1) {
-                page.end_1 = page.pageCount - 1;
-            }
+    // --------- Private Methods--------- //
+    // process the page info
+    function calc(page) {
+        page.pageCount = parseInt(page.totalCount / page.pageSize);
+        if (page.totalCount % page.pageSize != 0) {
+            page.pageCount += 1;
         }
+        if (page.pageIdx > 5) {
+            page.start = page.pageIdx - 1;
+        } else {
+            page.start = 1;
+        }
+
+        page.end = page.pageIdx + 3;
+        if (page.end > page.pageCount) {
+            page.end = page.pageCount;
+        }
+        if (page.end < page.pageCount - 2) {
+            page.end_2 = page.pageCount - 2;
+        }
+        if (page.end < page.pageCount - 1) {
+            page.end_1 = page.pageCount - 1;
+        }
+    }
+
     //redender and show page info
     function renderPage(pageIdx, pageSize, totalCount, callback) {
         var view = this;
-        if(view.$el){
+        if (view.$el) {
             var page = view.page = {pageIdx: pageIdx, pageSize: pageSize, totalCount: totalCount, callback: callback};
             calc(view.page);
             var html = render("Pagination-detail", page);
@@ -111,6 +111,7 @@
             view.$el.find("select").val(page.pageSize);
         }
     }
-// --------- /Private Methods--------- //
+
+    // --------- /Private Methods--------- //
 
 })(jQuery);
