@@ -15,20 +15,13 @@
                 var $el = $(render("Pagination"));
                 if (data.totalCount > 0) {
                     var view = this;
-                    var page = view.page = {pageIdx: data.pageIdx || 1, pageSize: data.pageSize || 10, totalCount: data.totalCount};
+                    var page = view.page = {pageIdx: data.pageIdx||1, pageSize: data.pageSize||10, totalCount: data.totalCount, callback: data.callback};
                     calc(view.page);
                     var html = render("Pagination-detail", page);
                     $el.empty().append(html);
                     $el.find("select").val(page.pageSize);
                 }
                 return dfd.resolve($el).promise();
-            },
-
-            postDisplay: function (data) {
-                /*var view = this;
-                 if(data.totalCount>0){
-                 renderPage.call(view, data.pageIdx||1, data.pageSize||10, data.totalCount, data.callback);
-                 }*/
             },
             // --------- /View Interface Implement--------- //
 
@@ -39,25 +32,19 @@
                     event.stopPropagation();
                     var view = this;
                     var newpageIdx = $(event.currentTarget).attr("data-page");
-                    view.$el.bComponent("ContentView").pageIdx = newpageIdx;
-                    view.$el.bComponent("ContentView").pageSize = view.page.pageSize;
-                    view.$el.trigger("DO_SEARCH", {pageIdx: newpageIdx})
+                    view.page.callback(newpageIdx, view.page.pageSize);
                 },
                 "btap; a.next": function (event) {
                     event.stopPropagation();
                     var view = this;
                     var page = view.page;
-                    view.$el.bComponent("ContentView").pageIdx = page.pageIdx + 1;
-                    view.$el.bComponent("ContentView").pageSize = page.pageSize;
-                    view.$el.trigger("DO_SEARCH", {pageIdx: page.pageIdx + 1})
+                    view.page.callback(page.pageIdx + 1, view.page.pageSize);
                 },
                 "btap; a.prev": function (event) {
                     event.stopPropagation();
                     var view = this;
                     var page = view.page;
-                    view.$el.bComponent("ContentView").pageIdx = page.pageIdx - 1;
-                    view.$el.bComponent("ContentView").pageSize = page.pageSize;
-                    view.$el.trigger("DO_SEARCH", {pageIdx: page.pageIdx - 1});
+                    view.page.callback(page.pageIdx - 1, view.page.pageSize);
                 },
                 "change; select": function (event) {
                     event.stopPropagation();
@@ -66,10 +53,9 @@
                     var pageSize = $(event.target).val();
                     if (pageSize >= -1) {
                         page.pageSize = pageSize;
-                        view.$el.bComponent("ContentView").pageIdx = 1;
-                        view.$el.bComponent("ContentView").pageSize = page.pageSize;
-                        view.$el.trigger("DO_SEARCH");
+
                     }
+                    view.page.callback(1, view.page.pageSize);
                 }
             }
             // --------- /Events--------- //

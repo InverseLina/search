@@ -341,7 +341,11 @@
                  pageIdx : result.pageIdx,
                  pageSize : result.pageSize,
                  totalCount : result.count,
-                 callback : result.callback
+                 callback : function(pageIdx, pageSize){
+                     view.pageIdx = pageIdx;
+                     view.pageSize = pageSize;
+                     view.$el.trigger("DO_SEARCH",{pageIdx:pageIdx});
+                 }
                }).done(function(){
                        var pagination = view.$el.find(".pagination");
                        showSearchInfo.call(view, result, htmlInfo, "left", (pagination.offset().left - view.$searchInfo.offset().left -155 ))
