@@ -40,10 +40,6 @@
             var $target = $(event.currentTarget);
             $target.val($.trim($target.val()));
         },
-
-	 	"DO_SEARCH": function(event,opts){
-	 		doSearch.call(this,opts);
-	 	},
 	 	"btap;.config":function(event){
 	 		if(app.cookie("login")!="true"){
 	 		brite.display("LoginModal");
@@ -64,8 +60,8 @@
                  view.$el.trigger("DO_SEARCH");
              }
          },
-         "SEARCH_PARAMS_CHANGE":function(event, extra){
-
+         "DO_SEARCH": function(event,opts){
+             doSearch.call(this,opts);
          }
      }
     // --------- /Document Events--------- //
