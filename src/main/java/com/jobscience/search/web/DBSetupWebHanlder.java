@@ -11,6 +11,7 @@ import com.google.inject.Singleton;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.IndexerManager;
 import com.jobscience.search.dao.SchemaType;
+import com.jobscience.search.dao.SetupStatus;
 import com.jobscience.search.exception.JSSSqlException;
 
 @Singleton
@@ -44,6 +45,13 @@ public class DBSetupWebHanlder {
         return WebResponse.success();
     }
     
+    /**
+     * Get the DB setup status
+     * @param type SYSTEM for jss_sys schema,the the ORG for org schema
+     * @param orgName 
+     * @return
+     * @see SetupStatus
+     */
     @WebGet("/checkSetupStatus")
     public WebResponse checkSetupStatus(@WebParam("type")SchemaType type,@WebParam("orgName")String orgName){
         try{
@@ -76,6 +84,7 @@ public class DBSetupWebHanlder {
         }
         return WebResponse.success();
     }
+    
     @WebPost("/createIndexColumns")
     public WebResponse createIndexColumns(@WebParam("orgName")String orgName) {
         try{
@@ -90,7 +99,6 @@ public class DBSetupWebHanlder {
     public WebResponse getIndexColumnsStatus(@WebParam("orgName")String orgName){
        return WebResponse.success(dbSetupManager.getIndexCount(orgName));
     }
-    
     
     @WebPost("/createIndexResume")
     public WebResponse createIndexResume(@WebParam("orgName")String orgName) {

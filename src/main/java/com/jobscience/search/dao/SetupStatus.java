@@ -14,6 +14,7 @@ public enum SetupStatus {
     ORG_EXTRA_NOT_EXIST(30),
     ORG_SCHEMA_NOT_EXIST(31),
     PG_TRGM_NOT_EXIST(32) ;
+    
 	private Integer value;
 	public Integer getValue() {
 		return value;

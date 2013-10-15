@@ -14,6 +14,9 @@ import com.jobscience.search.db.DBHelper;
 @Singleton
 public class IndexerManager {
 
+	/**
+	 * if <code>true</code>,mean the resume index is creating
+	 */
 	 private volatile boolean on = false;
 	 @Inject
 	 private DBHelper dbHelper;

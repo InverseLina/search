@@ -108,6 +108,12 @@ public class DBSetupManager {
         return status;
     }
     
+    /**
+     * create extension for public schema
+     * @param extName
+     * @return
+     * @throws SQLException
+     */
     public boolean createExtension(String extName) throws SQLException{
     	boolean result = false;
     	if(checkExtension(extName)){
@@ -124,6 +130,11 @@ public class DBSetupManager {
 		}
 		return result;
     }
+    /**
+     * create system schema,will excute all the sql files under /jss_sys
+     * @return
+     * @throws SQLException
+     */
     public boolean createSysSchema() throws SQLException{
     	boolean result = true;
     	dsMng.createSysSchemaIfNecessary();
@@ -159,49 +170,10 @@ public class DBSetupManager {
     	return doUpdateZipCode(true)!=0;
     }
     
-   
-    public void importOrgData(){
-    	try{
-			URL url = new URL(orgPath);
-			HttpURLConnection con =  (HttpURLConnection) url.openConnection();
-			ZipInputStream in = new ZipInputStream(con.getInputStream());
-			in.getNextEntry();
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String line = br.readLine();
-			StringBuilder sqlContent = new StringBuilder();
-			List<String> sqlList = new ArrayList<String>();
-			while(line!=null){
-				sqlContent.append(line);
-				line = br.readLine();
-			}
-			 String sqls[] = sqlContent.toString().split(";");
-            for (String sql : sqls) {
-                sqlList.add(sql);
-            }
-            Connection conn = dbHelper.getConnection();
-            try {
-                conn.setAutoCommit(false);
-                Statement st = conn.createStatement();
-                for(String sql : sqlList){
-                    st.addBatch(sql);
-                }
-                st.executeBatch();
-                conn.commit();
-            } catch (SQLException e) {
-                try {
-                    conn.rollback();
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
-                }
-                e.printStackTrace();
-            }
-			in.close();
-    	}catch (IOException e) {
-			e.printStackTrace();
-		}
-    
-    }
-    
+    /**
+     * check the system tables existed or not
+     * @return
+     */
     public  boolean checkSysTables(){
     	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select count(*) as count from information_schema.tables" +
         		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
@@ -213,6 +185,12 @@ public class DBSetupManager {
     	return false;
     }
     
+    /**
+     * create extra table for given ORG,will excute 01_create_extra.sql under /org folder
+     * @param orgName
+     * @return
+     * @throws SQLException
+     */
     public boolean createExtraTables(String orgName) throws SQLException{
     	boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
@@ -246,6 +224,12 @@ public class DBSetupManager {
        return result;
     }
     
+    /**
+     * create index for contact and contact_ex
+     * @param orgName
+     * @return
+     * @throws SQLException
+     */
     public boolean createIndexColumns(String orgName) throws SQLException{
     	boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
@@ -278,7 +262,12 @@ public class DBSetupManager {
         return result;
     }
     
-    
+    /**
+     * Get the count for index count for contact and contact_ex
+     * @param orgName
+     * @return
+     * @see {@link #createIndexColumns(String)}
+     */
     public int getIndexCount(String orgName){
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
     	String schemaname="" ;
@@ -325,6 +314,13 @@ public class DBSetupManager {
         return sqlList;
     }
     
+    /**
+     * check the zipcode data imported completed or not
+     * first it would get from cache,if not found,will get from the sql file on dropbox
+     * @return
+     * @throws SQLException
+     * @throws IOException
+     */
     private boolean checkZipcodeImported() throws SQLException, IOException{
     	Integer zipcodeLoadCount = (Integer)cache.getIfPresent("zipcodeLoadCount");
     	if(zipcodeLoadCount==null){
@@ -339,6 +335,13 @@ public class DBSetupManager {
     	return false;
     }
     
+    /**
+     * update zipcode data from bropbox
+     * @param updateDb if<code>true</code> will insert into table,else just get the recordes count
+     * @return
+     * @throws SQLException
+     * @throws IOException
+     */
     private int doUpdateZipCode(boolean updateDb) throws SQLException, IOException{
     	try{
     		int rowCount = 0;
@@ -383,7 +386,11 @@ public class DBSetupManager {
 			throw e;
 		}
     }
-    
+    /**
+     * check the contact and contact_ex index for org
+     * @param schemaname
+     * @return
+     */
     private boolean checkOrgIndex(String schemaname){
     	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from pg_indexes " +
     			"where indexname='contact_ex_idx_resume_gin' and schemaname='"+schemaname+"'");
@@ -395,6 +402,11 @@ public class DBSetupManager {
     	return false;
     }
     
+    /**
+     * check the extension by extension name
+     * @param extName
+     * @return
+     */
     private boolean checkExtension(String extName){
     	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select count(*) as count from pg_catalog.pg_extension" +
         		" where extname='"+extName+"' ");
@@ -405,6 +417,12 @@ public class DBSetupManager {
     	}
     	return false;
     }
+    
+    /**
+     * check the org extra tables are existed or not(main for 'contact_ex','savedsearches','user')
+     * @param orgName
+     * @return
+     */
     private  boolean checkOrgExtra(String orgName){
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
     	String schemaname="" ;
@@ -421,6 +439,11 @@ public class DBSetupManager {
     	return false;
     }
     
+    /**
+     * check the schema is existed or not for org
+     * @param orgName
+     * @return
+     */
     private  boolean checkSchema(String orgName){
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
     	String schemaname="" ;
@@ -437,6 +460,12 @@ public class DBSetupManager {
     	return false;
     }
     
+    /**
+     * check the org schema has the special table or not
+     * @param orgName
+     * @param table
+     * @return
+     */
     private  boolean checkTable(String orgName,String table){
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
     	String schemaname="" ;
