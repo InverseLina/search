@@ -21,8 +21,16 @@ public class SalesForceService {
     private  static final String SF_URL = "/services/data/v28.0";
     private  static final String SF_QUERY_URL = SF_URL+"/query";
 
+    /**
+     * get User info
+     * @param token
+     * @return
+     * @throws IOException
+     * @throws JSONException
+     */
     public Map<String,String> getloginInfo(ForceDotComApi.ForceDotComToken token) throws IOException, JSONException {
     	Map<String,String> result = new HashMap<String,String>();
+    	//----------------  Get the User display name and the user id -----------------//
         OAuthRequest oauth = new OAuthRequest(Verb.GET,token.getInstanceUrl()+SF_URL);
         oauth.addHeader("Authorization", "Bearer "+token.getToken());
         oauth.addHeader("X-PrettyPrint", "1");
@@ -36,7 +44,9 @@ public class SalesForceService {
         Map info = JsonUtil.toMapAndList(oauth.send().getBody());
         result.put("userName", (String) info.get("display_name"));
         result.put("user_id", (String) info.get("user_id"));
+        //----------------  /Get the User display name and the user id -----------------//
         
+        //-------------------------  Get Org name for login user ----------------------//
         oauth = new OAuthRequest(Verb.GET,token.getInstanceUrl()+SF_QUERY_URL);
         oauth.addHeader("Authorization", "Bearer "+token.getToken());
         oauth.addHeader("X-PrettyPrint", "1");
@@ -47,6 +57,7 @@ public class SalesForceService {
         	JSONObject jo = JSONObject.fromObject(orgs.get(0));
         	 result.put("orgName",(String)jo.get("Name"));
         }
+        //-------------------------  /Get Org name for login user ----------------------//
         return result;
     }
 }
