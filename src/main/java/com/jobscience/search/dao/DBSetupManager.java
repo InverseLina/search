@@ -75,29 +75,29 @@ public class DBSetupManager {
 	    		if(checkSchema(orgName)&&checkTable(orgName, "contact")){
 	    			if(checkOrgExtra(orgName)){
 			        	status = SetupStatus.ORG_CREATE_EXTRA.getValue();
+			        }else{
+			        	status = SetupStatus.ORG_EXTRA_NOT_EXIST.getValue();
 			        }
 	    		}else{
-	    			status = SetupStatus.SCHEMA_NOT_EXIST.getValue();
+	    			status = SetupStatus.ORG_SCHEMA_NOT_EXIST.getValue();
 	    		}
 	    	}
 	    	
 	    	if(status==SetupStatus.ORG_CREATE_EXTRA.getValue()){
-	    		boolean orgIndex = false;
 	    		if(checkExtension("pg_trgm")){
 		        	status = SetupStatus.PG_TRGM.getValue();
 		        	if(checkOrgIndex(schemaname)){
-			        	status = SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue();
-			        	orgIndex = true;
+			        	status = SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue();//4
 			        }
 		        }else{
-		        	status = SetupStatus.ORG_SCHEMA_NOT_EXIST.getValue();
+		        	status = SetupStatus.PG_TRGM_NOT_EXIST.getValue();//32
 		        }
 	    		
-	    		if(indexerManager.isOn()){
-	    	        status=SetupStatus.ORG_CREATE_INDEX_RESUME_RUNNING.getValue()*(orgIndex?SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue():1);
+	    		if(indexerManager.isOn()){//6
+	    	        status=SetupStatus.ORG_CREATE_INDEX_RESUME_RUNNING.getValue()*status;
 	        	}
-		        if(indexerManager.getStatus(orgName).getRemaining()==0){
-		        	status=SetupStatus.ORG_CREATE_INDEX_RESUME.getValue()*(orgIndex?SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue():1);
+		        if(indexerManager.getStatus(orgName).getRemaining()==0){//5
+		        	status=SetupStatus.ORG_CREATE_INDEX_RESUME.getValue()*status;
 		        }
 	    	}
     	}else{

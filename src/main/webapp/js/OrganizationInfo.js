@@ -195,6 +195,7 @@
 	    	  var view = this;
 	    	  var orgName = view.currentOrgName;
 	    	  app.getJsonData("/checkSetupStatus",{type:"ORG",orgName:orgName},{type:"Get"}).done(function(result){
+	    		 alert(result);
 	    		  switch(result){
 	    		  case 1:
 	    		  case 2: 	view.$el.find(".extra").prop("disabled",false);
@@ -239,18 +240,23 @@
   	  						view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
 	        	  			view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
 	        	  			view.intervalId = window.setInterval(function(){
-	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS",init);
+	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS",false);
 	        		  		}, 3000);
 	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
 							break;
-	        	  case 30:	view.$el.find(".extra,.resume,.index").prop("disabled",true);
+	        	  case 30:	view.$el.find(".extra").prop("disabled",false);
 							break;
 	        	  case 31:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
 		  	  				view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
 			  		  		view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
 							break;
+	        	  case 32:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+			  				view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+			  		  		view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
+			  		  		view.$el.trigger("RESUMEINDEXSTATUS",init);
+							break;
 	        	  case 35:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	        	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+	        	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
 			  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
 			  		  		view.$el.trigger("RESUMEINDEXSTATUS",init);
 							break;
@@ -261,6 +267,17 @@
 						    	   $(view.el).trigger("RESUMEINDEXSTATUS",init);
 					  		}, 3000);
 					  		view.$el.trigger("RESUMEINDEXSTATUS");
+	        	  case 160:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+			  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+			  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
+							break;
+	        	  case 192:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+			  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+				  	  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
+	        	  			view.intervalId = window.setInterval(function(){
+	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS",false);
+	        		  		}, 3000);
+	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
 							break;
 	        	  }
 	          });
