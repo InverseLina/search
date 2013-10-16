@@ -18,12 +18,32 @@
   </head>
 
   <body>
-    <div >
-      login success
-    </div>
-  
+  [#if oauthToken??]
+       <div>
+           show login info.
+       </div>
   <script type="text/javascript">
-      window.location.href = contextPath + "/";
+      var tokenInfo = JSON.parse('${oauthToken}');
+      var userInfo = JSON.parse('${loginInfo}');
+
+      var infos = [];
+      $.each(tokenInfo, function(key, value){
+          infos.push({key: key, value: value});
+      })
+      $.each(userInfo, function(key, value){
+          infos.push({key: key, value: value});
+      })
+      console.log(infos);
+      brite.display("OAuthInfo", "body", {infos: infos});
   </script>
+   [#else]
+   <div >
+       login success
+   </div>
+
+   <script type="text/javascript">
+       window.location.href = contextPath + "/";
+   </script>
+   [/#if]
   </body>
 </html>

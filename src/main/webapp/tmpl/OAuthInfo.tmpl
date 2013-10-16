@@ -1,0 +1,22 @@
+<script id="OAuthInfo" type="text/html">
+<div class="OAuthInfo" >
+    <h2>OAuthInfo</h2>
+    <button class="home btn btn-primary">Home</button>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Property Name</th>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each infos}}
+        <tr>
+            <td>{{key}}</td>
+            <td>{{value}}</td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</div>
+</script>
