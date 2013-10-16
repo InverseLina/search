@@ -195,7 +195,6 @@
 	    	  var view = this;
 	    	  var orgName = view.currentOrgName;
 	    	  app.getJsonData("/checkSetupStatus",{type:"ORG",orgName:orgName},{type:"Get"}).done(function(result){
-	    		 alert(result);
 	    		  switch(result){
 	    		  case 1:
 	    		  case 2: 	view.$el.find(".extra").prop("disabled",false);
