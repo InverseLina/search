@@ -20,22 +20,16 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class CurrentOrgHolder {
-
-   
     @Inject
     private CurrentRequestContextHolder crh;
     @Inject
     private DBHelper dbHelper;
     @Inject
     private DataSourceManager dm;
-
     @Inject
     private OrgConfigDao orgConfigDao;
-
     private Cache<String, Map> cache;
-
     private Map<String, Map> orgMap = new HashMap<String, Map>();
-
     @Named("jss.prod")
     @Inject
     private boolean productMode;
@@ -50,6 +44,7 @@ public class CurrentOrgHolder {
     		orgMap.put(getOrgName(), orgs.get(0));
     	}
     }
+    
     public String getSchemaName(){
     	String schemaname =orgMap.get(getOrgName()).get("schemaname").toString();
     	if(schemaname==null){
@@ -71,17 +66,11 @@ public class CurrentOrgHolder {
                 });
     }
 
-    /*
-      public String getSchema() {
-            return (String) getFieldValue("schemaname");
-        }
-       */
     public Integer getId(){
         return (Integer) getFieldValue("id");
     }
 
     protected Object getFieldValue(String fieldName){
-        
         Map map = null;
         if (crh != null) {
             RequestContext rc = crh.getCurrentRequestContext();
@@ -97,9 +86,12 @@ public class CurrentOrgHolder {
                     if (orgName != null) {
                         map = orgMap.get(orgName);
                         if (map == null) {
-                            List<Map> list = dbHelper.executeQuery(dm.getSysDataSource(), "select * from org where name = ?", orgName);
-                            if (list.size() > 0)
+                            List<Map> list = dbHelper.executeQuery(dm.getSysDataSource(), 
+                                                                   "select * from org where name = ?",
+                                                                   orgName);
+                            if (list.size() > 0){
                                 map = list.get(0);
+                            }
                             orgMap.put(orgName, map);
                         }
                     }
@@ -111,14 +103,18 @@ public class CurrentOrgHolder {
         }
 
         OrganizationNotSelectException e = new OrganizationNotSelectException();
-//        log.warn("current org name is null", e);
         throw e;
     }
 
     private Map getOrg(String ctoken) {
         return cache.getIfPresent(ctoken);
     }
-
+    
+    /**
+     * Set the salesforce token and the related org info into cookie
+     * @param ctoken
+     * @param sfid
+     */
     public void setOrg(String ctoken, String sfid) {
         List<Map> list = dbHelper.executeQuery(dm.getSysDataSource(), "select * from org where sfid = ?", sfid);
         if (list.size() > 0) {

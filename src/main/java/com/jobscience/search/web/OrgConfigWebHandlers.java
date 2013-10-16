@@ -24,34 +24,35 @@ public class OrgConfigWebHandlers {
   private DataSourceManager dsmg;
   @Inject
   private CurrentOrgHolder currentOrgHolder;
+  
   @WebPost("/org/save")
-  public WebResponse saveEntity(@WebParam("name")String name,@WebParam("schemaname")String schemaname,@WebParam("sfid")String sfid,@WebParam("id")String id) throws SQLException{
-    Map<String,String> params = new HashMap<String,String>();
-    params.put("name", name);
-    params.put("id", id);
-    params.put("schemaname", schemaname);
-    params.put("sfid", sfid);
-    orgConfigDao.saveOrUpdateEntity(params);
-    dsmg.updateDataSource(name, schemaname);
-    currentOrgHolder.updateSchema();
-    return WebResponse.success();
+  public WebResponse saveEntity(@WebParam("name")String name,@WebParam("schemaname")String schemaname,
+                                @WebParam("sfid")String sfid,@WebParam("id")String id) throws SQLException{
+      Map<String,String> params = new HashMap<String,String>();
+      params.put("name", name);
+      params.put("id", id);
+      params.put("schemaname", schemaname);
+      params.put("sfid", sfid);
+      orgConfigDao.saveOrUpdateOrg(params);
+      dsmg.updateDataSource(name, schemaname);
+      currentOrgHolder.updateSchema();
+      return WebResponse.success();
   }
   
   @WebGet("/org/get/{id}")
   public WebResponse getEntity(@WebParam("id")String id) throws SQLException{
-    return WebResponse.success(orgConfigDao.getEntity(id));
+      return WebResponse.success(orgConfigDao.getOrg(id));
   }
   
   @WebPost("/org/del/{id}")
-    public WebResponse delEntity(@WebParam("id")String id) throws SQLException{
-      orgConfigDao.deleteEntity(id);
-        return WebResponse.success();
-    }
+  public WebResponse delEntity(@WebParam("id")String id) throws SQLException{
+      orgConfigDao.deleteOrg(id);
+      return WebResponse.success();
+  }
   
   @WebGet("/org/list")
-    public WebResponse listEntity(){
-        List list = orgConfigDao.getEntityList(null);
-        return WebResponse.success(list);
-    }
-  
+  public WebResponse listEntity(){
+      List list = orgConfigDao.getOrgsList(null);
+      return WebResponse.success(list);
+  }
 }
