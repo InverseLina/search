@@ -16,21 +16,13 @@ public class ResumeWebHandlers {
 
     @Inject
     private DBHelper dbHelper;
-
     @Inject
     private CurrentOrgHolder orgHolder;
-
-
-    
-    
     
     @WebGet("/getResume")
     public WebResponse search(@WebParam("cid") Long cid) {
-    	
     	String sql = "select \"name\", \"ts2__text_resume__c\" from  contact where id = ?";
-        
     	List<Map> map = dbHelper.executeQuery(orgHolder.getOrgName(), sql, cid);
-        
     	return WebResponse.success(map);
     }
 }

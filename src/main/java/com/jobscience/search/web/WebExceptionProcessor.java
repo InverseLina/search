@@ -15,7 +15,6 @@ public class WebExceptionProcessor {
     @Inject
     private JsonRenderer jsonRenderer;
 
-
     @WebExceptionCatcher
     public void processOauthException(OrganizationNotSelectException e, WebExceptionContext wec, RequestContext rc) {
         rc.getWebModel().put("errorCode", "NO_ORG");

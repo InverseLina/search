@@ -40,6 +40,7 @@ public class UserDao {
    public void updateCToken(String sfid, String CToken) {
        dbHelper.executeUpdate(orgHolder.getOrgName(), updateSql, CToken, sfid);
    }
+   
    public void insertUser(String sfid, String CToken) {
        dbHelper.executeUpdate(orgHolder.getOrgName(), insertSql, sfid, CToken);
    }
@@ -71,10 +72,10 @@ public class UserDao {
         }
         throw new IllegalArgumentException("id " + id + " is invalid");
     }
+    
     public  String getSFIDbySF2(String signedRequest) {
         JSONObject map = (JSONObject) JsonUtil.toMapAndList(signedRequest);
         String orgId = (String) ((Map)((Map)map.get("context")).get("organization")).get("organizationId");
-        //String userId = (String) ((Map)((Map)map.get("context")).get("user")).get("userId");
         return orgId;
     }
 
@@ -84,7 +85,6 @@ public class UserDao {
         }else {
             return RandomStringUtils.random(32,"01234567890abcdedfhijklmnopqrst");
         }
-
     }
 
 }

@@ -19,7 +19,6 @@ public class OrgConfigWebHandlers {
 
   @Inject
   private OrgConfigDao orgConfigDao;
-  
   @Inject
   private DataSourceManager dsmg;
   @Inject

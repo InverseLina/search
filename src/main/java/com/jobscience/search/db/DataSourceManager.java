@@ -37,7 +37,6 @@ public class DataSourceManager {
         this.url = url;
         this.user = user;
         this.pwd = pwd;
-        
         defaultDs = buildDs(url,null);
         if(checkSysSchema()){
         	sysDs = buildDs(url, sysSchema);
@@ -52,9 +51,14 @@ public class DataSourceManager {
     public DataSource getPublicDataSource(){
     	return publicDataSource;
     }
+    
+    /**
+     * if system table not existed,need create it 
+     * @return
+     */
     public DataSource createSysSchemaIfNecessary() {
     	if(!checkSysSchema()){
-    		dbHelper.executeUpdate(defaultDs, "CREATE SCHEMA jss_sys AUTHORIZATION "+user,new Object[0]);
+    		dbHelper.executeUpdate(defaultDs, "CREATE SCHEMA "+sysSchema+" AUTHORIZATION "+user,new Object[0]);
     		if(sysDs==null){
     			sysDs = buildDs(url, sysSchema);
     		}
@@ -89,7 +93,6 @@ public class DataSourceManager {
         ds.setUser(user);
         ds.setPassword(pwd);
         ds.setUnreturnedConnectionTimeout(0);
-        //System.out.println("buildDS: " + url + " " + user + "/" + pwd + " schema: " + schema);
         if(schema == null || "".equals(schema)){
             return ds;
         }
@@ -153,7 +156,7 @@ class DataSourceWrapper implements DataSource {
                 try {
                     pstmt.close();
                 } catch (SQLException e) {
-                    //
+                    e.printStackTrace();
                 }
             }
         }
@@ -194,7 +197,6 @@ class DataSourceWrapper implements DataSource {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return ds.isWrapperFor(iface);
     }
-
 
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return null;

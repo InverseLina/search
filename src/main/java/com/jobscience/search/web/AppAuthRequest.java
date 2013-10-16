@@ -25,11 +25,11 @@ public class AppAuthRequest implements AuthRequest {
     private UserDao userDao;
     @Inject
     CurrentOrgHolder orgHolder;
-
     @Inject
     private ConfigManager configManager;
     @Inject
     private DBSetupManager dbSetupManager;
+    
     @Override
     public AuthToken authRequest(RequestContext rc) {
         OAuthToken token = OAuthToken.fromCookie(rc);
@@ -58,7 +58,7 @@ public class AppAuthRequest implements AuthRequest {
                 try {
                     userDao.insertUser(null,ctoken);
                 } catch (Exception e) {
-                    //e.printStackTrace();
+                    e.printStackTrace();
                 }
                 rc.setCookie("ctoken", ctoken);
             }

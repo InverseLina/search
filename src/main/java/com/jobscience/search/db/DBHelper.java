@@ -14,16 +14,6 @@ import java.util.Map;
 @Singleton
 public class DBHelper {
 
-    //private ComboPooledDataSource dataSource;
-
-    /*    @Inject
-        public void init(@Named("db.url") String url,@Named("db.user") String user, @Named("db.password") String password){
-            dataSource = new ComboPooledDataSource();
-            dataSource.setJdbcUrl(url);
-            dataSource.setUser(user);
-            dataSource.setPassword(password);
-            dataSource.setUnreturnedConnectionTimeout(0);
-        }*/
     @Inject
     private DataSourceManager dsMng;
 
@@ -80,6 +70,7 @@ public class DBHelper {
     public List<Map> executeQuery(String orgName,  String query) {
         return executeQuery(dsMng.getOrgDataSource(orgName), query);
     }
+    
     public List<Map> executeQuery(DataSource ds, String query) {
     	if(ds==null||query==null){
     		return null;
@@ -109,13 +100,12 @@ public class DBHelper {
     public List<Map> executeQuery(String orgName,  String query, Object... vals) {
         return executeQuery(dsMng.getOrgDataSource(orgName), query, vals);
     }
+    
     public List<Map> executeQuery(DataSource ds, String query, Object... vals) {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
-
             con = getConnection(ds);
-
             pstmt = con.prepareStatement(query);
             return preparedStatementExecuteQuery(pstmt, vals);
         } catch (SQLException e) {
@@ -125,18 +115,19 @@ public class DBHelper {
                 try {
                     pstmt.close();
                 } catch (SQLException e) {
-                    //
+                    e.printStackTrace();
                 }
             }
             if (con != null) {
                 try {
                     con.close();
                 } catch (SQLException e) {
-                    //
+                    e.printStackTrace();
                 }
             }
         }
     }
+    
     public int executeUpdate(String orgName, String query, Object... vals) {
         return executeUpdate(dsMng.getOrgDataSource(orgName), query, vals);
     }
@@ -155,14 +146,14 @@ public class DBHelper {
                 try {
                     pstmt.close();
                 } catch (SQLException e) {
-                    //
+                    e.printStackTrace();
                 }
             }
             if (con != null) {
                 try {
                     con.close();
                 } catch (SQLException e) {
-                    //
+                    e.printStackTrace();
                 }
             }
         }
@@ -216,7 +207,6 @@ public class DBHelper {
 
     private List<Map> buildResults(ResultSet rs) {
         List<Map> results = new ArrayList<Map>();
-
         try {
             ResultSetMetaData rsmd = rs.getMetaData();
             int c = rsmd.getColumnCount();
@@ -225,8 +215,6 @@ public class DBHelper {
             for (int i = 0; i < c; i++) {
                 int cidx = i + 1;
                 params[i] = rsmd.getColumnName(cidx);
-                // String paramType = rsmd.getColumnTypeName(cidx);
-                // System.out.println("param: " + params[i] + " " + paramType);
             }
 
             while (rs.next()) {
@@ -248,5 +236,4 @@ public class DBHelper {
 
         return results;
     }
-
 }

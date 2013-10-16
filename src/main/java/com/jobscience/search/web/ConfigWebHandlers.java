@@ -52,7 +52,6 @@ public class ConfigWebHandlers {
     @WebPost("/admin/validate")
     public WebResponse doValidate(@Named("jss.sysadmin.pwd") String configPassword, RequestContext rc,
                             @WebParam("password") String password) throws SQLException {
-
         if (configPassword.equals(password)) {
             rc.setCookie("login", true);
             return WebResponse.success();

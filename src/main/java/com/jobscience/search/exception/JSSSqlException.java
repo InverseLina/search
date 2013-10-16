@@ -5,6 +5,7 @@ import java.sql.SQLException;
 public  class JSSSqlException{
 	private Integer errorCode;
 	private String errorMsg;
+	
 	public JSSSqlException(Integer errorCode,String errorMsg) {
 		this.errorCode = errorCode;
 		this.errorMsg = errorMsg;

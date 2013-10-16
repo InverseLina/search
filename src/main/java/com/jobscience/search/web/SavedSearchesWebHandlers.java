@@ -16,8 +16,6 @@ public class SavedSearchesWebHandlers {
     @Inject
     private SavedSearchesDao savedSearchesDao;
 
-
-
     @WebGet("/listSavedSearches")
     public WebResponse list(@WebParam("offset") Integer offset, @WebParam("limit") Integer limit) {
         if (offset == null) {
@@ -53,7 +51,6 @@ public class SavedSearchesWebHandlers {
     }
     @WebGet("/getOneSavedSearches")
     public WebResponse get(@WebParam("id") Long id) {
-
         Map map = savedSearchesDao.get(id);
         return WebResponse.success(map);
     }
