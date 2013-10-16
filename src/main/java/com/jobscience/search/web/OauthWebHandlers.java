@@ -15,7 +15,6 @@ import com.jobscience.search.oauth.ForceAuthService;
 import com.jobscience.search.oauth.SalesForceService;
 import com.jobscience.search.oauth.api.ForceDotComApi;
 
-import javax.servlet.http.Cookie;
 
 @Singleton
 public class OauthWebHandlers {
