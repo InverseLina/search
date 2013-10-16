@@ -548,6 +548,10 @@
         "max-width" : realWidth,
         "min-width" : realWidth
       });
+        //fix for ie
+        $body.find("td[data-column='" + colName + "'] > span").css({
+            width : Math.floor(realWidth - 4),
+        });
         //hide filter
         if($.inArray(colName, excludes) >= 0){
             $item.find(".addFilter").hide();
