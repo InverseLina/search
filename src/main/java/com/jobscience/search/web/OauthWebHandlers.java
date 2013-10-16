@@ -7,7 +7,6 @@ import com.britesnow.snow.web.AbortWithHttpRedirectException;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebParam;
-import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -45,14 +44,12 @@ public class OauthWebHandlers {
      * web get auth flow
      * @param rc
      */
-    @WebGet("/sf1test")
+    @WebModelHandler(startsWith = "/sf1test")
     public void sf1test(RequestContext rc) {
-        Cookie cookie = new Cookie("doSf1Test", "true");
-        //store cookie for 3 min.
-        cookie.setMaxAge(180);
-        rc.getRes().addCookie(cookie);
-        String url = forceAuthService.getAuthorizationUrl();
-        throw new AbortWithHttpRedirectException(url);
+        rc.getWebModel().put("oauthToken", rc.getCookie("oauthToken"));
+        rc.getWebModel().put("loginInfo", rc.getCookie("loginInfo"));
+        rc.removeCookie("oauthToken");
+        rc.removeCookie("loginInfo");
     }
 
     /**
@@ -74,17 +71,13 @@ public class OauthWebHandlers {
 
 /*        OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
         oAuthToken.updateCookie(rc);*/
-        String doSf1Test = rc.getCookie("doSf1Test");
-        if ("true".equals(doSf1Test)) {
-            rc.removeCookie("doSf1Test");
-            rc.getWebModel().put("oauthToken", token.getRawResponse());
-            rc.getWebModel().put("loginInfo", JsonUtil.toJson(info));
-        }else{
-            try {
-                userDao.checkAndUpdateUser(1, token.getId());
-            } catch (Exception e) {
-                throw new AbortWithHttpRedirectException("/");
-            }
+        try {
+            rc.setCookie("oauthToken", token.getRawResponse());
+            rc.setCookie("loginInfo", JsonUtil.toJson(info));
+            userDao.checkAndUpdateUser(1, token.getId());
+        } catch (Exception e) {
+            throw new AbortWithHttpRedirectException("/");
         }
+
     }
 }

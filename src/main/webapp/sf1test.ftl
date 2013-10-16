@@ -18,12 +18,18 @@
   </head>
 
   <body>
-   <div >
-       login success
-   </div>
+  <script type="text/javascript">
+      var tokenInfo = JSON.parse('${oauthToken}');
+      var userInfo = JSON.parse('${loginInfo}');
 
-   <script type="text/javascript">
-       window.location.href = contextPath + "/sf1test";
-   </script>
+      var infos = [];
+      $.each(tokenInfo, function(key, value){
+          infos.push({key: key, value: value});
+      })
+      $.each(userInfo, function(key, value){
+          infos.push({key: key, value: value});
+      })
+      brite.display("OAuthInfo", "body", {infos: infos});
+  </script>
   </body>
 </html>
