@@ -159,7 +159,13 @@
           var cid = $(event.currentTarget).closest("i").attr("data-id");
           var sfid = $(event.currentTarget).closest("i").attr("data-sfid");
           var cname = $(event.currentTarget).closest("i").attr("data-cname");
-          brite.display("ResumeView","body", {id: cid,sfid: sfid, name:cname});
+          if (org.apex_resume_url && org.apex_resume_url.length && org.apex_resume_url.length > 0){
+              var url = org.apex_resume_url + sfid;
+              window.showModalDialog(url,"dialogWidth=540px;dialogHeight=430px");
+          }else{
+              brite.display("ResumeView","body", {id: cid,sfid: sfid, name:cname});
+          }
+
       },
       "btap; table td[data-column='company'],td[data-column='skill'],td[data-column='education']" : function(event) {
         var view = this;
