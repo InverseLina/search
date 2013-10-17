@@ -63,3 +63,34 @@ CREATE TABLE "user"
   CONSTRAINT pk_user PRIMARY KEY (id)
 );
 
+-- SCRIPTS
+DROP TABLE if EXISTS label;
+
+-- SCRIPTS
+CREATE TABLE label
+(
+  id bigserial NOT NULL,
+  user_id bigint,
+  name character varying(128) NOT NULL,
+  CONSTRAINT pk_label PRIMARY KEY (id),
+  CONSTRAINT contact_id FOREIGN KEY (user_id)
+      REFERENCES "user" (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- SCRIPTS
+DROP TABLE if EXISTS label_contact;
+
+-- SCRIPTS
+CREATE TABLE label_contact
+(
+  label_id bigserial NOT NULL,
+  contact_id bigint NOT NULL,
+  CONSTRAINT primarykey PRIMARY KEY (label_id, contact_id),
+  CONSTRAINT contact_id FOREIGN KEY (contact_id)
+      REFERENCES contact (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT label_id FOREIGN KEY (label_id)
+      REFERENCES label (id) MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+);
