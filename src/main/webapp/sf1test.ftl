@@ -20,7 +20,7 @@
   <body>
   <script type="text/javascript">
       [#--var tokenInfo = JSON.parse('${oauthToken!}')||[];--]
-      var userInfo = JSON.parse('${loginInfo}');
+      var userInfo = JSON.parse('${loginInfo!"{}"}');
 
       var infos = [];
       $.each(userInfo, function(key, value){

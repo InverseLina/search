@@ -15,6 +15,8 @@ import com.jobscience.search.dao.UserDao;
 import com.jobscience.search.oauth.ForceAuthService;
 import com.jobscience.search.oauth.SalesForceService;
 import com.jobscience.search.oauth.api.ForceDotComApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Singleton
@@ -28,6 +30,8 @@ public class OauthWebHandlers {
     @Named("jss.prod")
     @Inject
     private boolean productMode;
+
+    private final Logger log = LoggerFactory.getLogger(OauthWebHandlers.class);
 
     /**
      * web get auth flow
@@ -53,7 +57,7 @@ public class OauthWebHandlers {
                 Map info = salesForceService.getFullLoginInfo(ctoken, instanceUrl);
                 rc.getWebModel().put("loginInfo", JsonUtil.toJson(info));
             } catch (IOException e) {
-                e.printStackTrace();
+                log.warn(e.getMessage(), e);
             }
         }
     }
