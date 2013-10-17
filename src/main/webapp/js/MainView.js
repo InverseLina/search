@@ -54,8 +54,15 @@
     // --------- Document Events--------- //
      docEvents: {
          "DO_SET_COLUMNS":function(event, extra){
-             var view = this;
+             var columns = ["contact","company","skill","education","location"];
+             var colStr, view = this;
              if(extra.columns && extra.columns.length > 0){
+                 colStr = extra.columns.join(",");
+                 $.each(columns, function(idx, column){
+                     if(colStr.indexOf(column)<0){
+                         app.ParamsControl.remove(column=="contact"?"Contact":column);
+                     }
+                 });
                  app.preference.columns(extra.columns);
                  view.$el.trigger("DO_SEARCH");
              }

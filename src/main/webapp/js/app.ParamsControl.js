@@ -73,24 +73,30 @@ var app = app || {};
          */
         remove: function(data){
             var index, obj, store, found = -1;
-            if(!data && !data.type && !data.name){
-                return;
-            }
-            if(!_storeValue[data.type]){
-                _storeValue[data.type] = [];
-            }
-            store = _storeValue[data.type];
-            //delete store[data.name];
-            for (index = 0; index < store.length; index++) {
-                obj = store[index];
-                if(obj.name == data.name){
-                    found = index;
-                    break;
+            if ($.isPlainObject(data)) {
+                if (!data && !data.type && !data.name) {
+                    return;
                 }
-            }
-            if(found != -1){
+                if (!_storeValue[data.type]) {
+                    _storeValue[data.type] = [];
+                }
+                store = _storeValue[data.type];
+                //delete store[data.name];
+                for (index = 0; index < store.length; index++) {
+                    obj = store[index];
+                    if (obj.name == data.name) {
+                        found = index;
+                        break;
+                    }
+                }
+                if (found != -1) {
 //                delete store[index];
-                store.splice(index, 1);
+                    store.splice(index, 1);
+                }
+            }else{
+                if(data){
+                    delete _storeValue[data]
+                }
             }
         },
         getFilterParams: function(){
