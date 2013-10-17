@@ -19,15 +19,12 @@
 
   <body>
   <script type="text/javascript">
-      var tokenInfo = JSON.parse('${oauthToken}');
+      [#--var tokenInfo = JSON.parse('${oauthToken!}')||[];--]
       var userInfo = JSON.parse('${loginInfo}');
 
       var infos = [];
-      $.each(tokenInfo, function(key, value){
-          infos.push({key: key, value: value});
-      })
       $.each(userInfo, function(key, value){
-          infos.push({key: key, value: value});
+          infos.push({key: key, value: $.isPlainObject(value)?JSON.stringify(value):value});
       })
       brite.display("OAuthInfo", "body", {infos: infos});
   </script>

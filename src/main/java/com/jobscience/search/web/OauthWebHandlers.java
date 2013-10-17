@@ -1,5 +1,6 @@
 package com.jobscience.search.web;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.britesnow.snow.util.JsonUtil;
@@ -45,10 +46,16 @@ public class OauthWebHandlers {
      */
     @WebModelHandler(startsWith = "/sf1test")
     public void sf1test(RequestContext rc) {
-        rc.getWebModel().put("oauthToken", rc.getCookie("oauthToken"));
-        rc.getWebModel().put("loginInfo", rc.getCookie("loginInfo"));
-        rc.removeCookie("oauthToken");
-        rc.removeCookie("loginInfo");
+        String ctoken = rc.getCookie("ctoken");
+        String instanceUrl = rc.getCookie("instanceUrl");
+        if (ctoken != null && instanceUrl != null) {
+            try {
+                Map info = salesForceService.getFullLoginInfo(ctoken, instanceUrl);
+                rc.getWebModel().put("loginInfo", JsonUtil.toJson(info));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -63,6 +70,7 @@ public class OauthWebHandlers {
         Map<String,String> info = salesForceService.getloginInfo(token);
         String orgName = info.get("orgName").replaceAll("\"", "");
         rc.setCookie("userName", info.get("userName").replaceAll("\"", ""));
+        rc.setCookie("instanceUrl", token.getInstanceUrl());
         if(productMode){
             rc.setCookie("org", orgName);
         }
@@ -71,8 +79,6 @@ public class OauthWebHandlers {
 /*        OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
         oAuthToken.updateCookie(rc);*/
         try {
-            rc.setCookie("oauthToken", token.getRawResponse());
-            rc.setCookie("loginInfo", JsonUtil.toJson(info));
             userDao.checkAndUpdateUser(1, token.getId(), token.getToken());
         } catch (Exception e) {
             throw new AbortWithHttpRedirectException("/");

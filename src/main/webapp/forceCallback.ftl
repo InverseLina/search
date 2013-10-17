@@ -23,7 +23,7 @@
    </div>
 
    <script type="text/javascript">
-       window.location.href = contextPath + "/sf1test";
+       window.location.href = contextPath + "/";
    </script>
   </body>
 </html>
