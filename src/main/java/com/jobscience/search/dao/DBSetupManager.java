@@ -56,11 +56,11 @@ public class DBSetupManager {
     public Integer checkSetupStatus(SchemaType type,String orgName) throws SQLException, IOException{
     	Integer status =0;
     	if(checkSysTables()){
-    		status=SetupStatus.SYS_CREATE_SCHEMA.getValue();
+    		status=SetupStatus.SYS_SCHEMA_CREATED.getValue();
         }
-    	if(status==SetupStatus.SYS_CREATE_SCHEMA.getValue()){
+    	if(status==SetupStatus.SYS_SCHEMA_CREATED.getValue()){
     		if(checkZipcodeImported()){
-	        	status = SetupStatus.SYS_IMPORT_ZIPCODE_DATA.getValue();
+	        	status = status|SetupStatus.ZIPCODE_DATA_IMPORTED.getValue();
 	        }
     	}
     	if(type.equals(SchemaType.ORG)){
@@ -71,38 +71,33 @@ public class DBSetupManager {
         		schemaname = orgs.get(0).get("schemaname").toString();
         	}
         	
-	    	if(status==SetupStatus.SYS_IMPORT_ZIPCODE_DATA.getValue()||status==SetupStatus.SYS_CREATE_SCHEMA.getValue()){
+	    	if(status>=SetupStatus.SYS_SCHEMA_CREATED.getValue()){
 	    		if(checkSchema(orgName)&&checkTable(orgName, "contact")){
+	    		    status=status|SetupStatus.ORG_SCHEMA_CREATED.getValue();
 	    			if(checkOrgExtra(orgName)){
-			        	status = SetupStatus.ORG_CREATE_EXTRA.getValue();
-			        }else{
-			        	status = SetupStatus.ORG_EXTRA_NOT_EXIST.getValue();
+			        	status = status|SetupStatus.ORG_EXTRA_CREATED.getValue();
 			        }
-	    		}else{
-	    			status = SetupStatus.ORG_SCHEMA_NOT_EXIST.getValue();
 	    		}
 	    	}
 	    	
-	    	if(status==SetupStatus.ORG_CREATE_EXTRA.getValue()){
+	    	if(status>=SetupStatus.ORG_EXTRA_CREATED.getValue()){
 	    		if(checkExtension("pg_trgm")){
-		        	status = SetupStatus.PG_TRGM.getValue();
+		        	status = status|SetupStatus.PG_TRGM_CREATED.getValue();
 		        	if(checkOrgIndex(schemaname)){
-			        	status = SetupStatus.ORG_CREATE_INDEX_COLUMNS.getValue();//4
+			        	status = status|SetupStatus.ORG_INDEX_COLUMNS_CREATED.getValue();
 			        }
-		        }else{
-		        	status = SetupStatus.PG_TRGM_NOT_EXIST.getValue();//32
 		        }
 	    		
-	    		if(indexerManager.isOn()){//6
-	    	        status=SetupStatus.ORG_CREATE_INDEX_RESUME_RUNNING.getValue()*status;
+	    		if(indexerManager.isOn()){
+	    	        status = status|SetupStatus.ORG_RESUME_RUNNING.getValue();
 	        	}
-		        if(indexerManager.getStatus(orgName).getRemaining()==0){//5
-		        	status=SetupStatus.ORG_CREATE_INDEX_RESUME.getValue()*status;
+		        if(indexerManager.getStatus(orgName).getRemaining()==0){
+		            status = status|SetupStatus.ORG_INDEX_RESUME_CREATED.getValue();
 		        }
 	    	}
     	}else{
     		if(checkExtension("pg_trgm")){
-        		status += SetupStatus.PG_TRGM.getValue();
+        		status = status|SetupStatus.PG_TRGM_CREATED.getValue();
         	}
     	}
         return status;
@@ -324,7 +319,7 @@ public class DBSetupManager {
     private boolean checkZipcodeImported() throws SQLException, IOException{
     	Integer zipcodeLoadCount = (Integer)cache.getIfPresent("zipcodeLoadCount");
     	if(zipcodeLoadCount==null){
-    		zipcodeLoadCount = doUpdateZipCode(false);
+    		zipcodeLoadCount = 43191;//doUpdateZipCode(false);
     	}
     	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from zipcode_us");
     	if(list.size()==1){

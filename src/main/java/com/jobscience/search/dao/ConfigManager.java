@@ -84,7 +84,7 @@ public class ConfigManager {
         try {
             it = orgHolder.getId();
         } catch (Exception e) {
-        	e.printStackTrace();
+        	//e.printStackTrace();
         }
         if(orgId!=null){
           it = orgId;

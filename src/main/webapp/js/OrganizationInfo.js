@@ -196,88 +196,90 @@
 	    	  var orgName = view.currentOrgName;
 	    	  app.getJsonData("/checkSetupStatus",{type:"ORG",orgName:orgName},{type:"Get"}).done(function(result){
 	    		  switch(result){
-	    		  case 1:
-	    		  case 2: 	view.$el.find(".extra").prop("disabled",false);
-	    			  		view.$el.find(".index,.resume").prop("disabled",true);
-	    		  			break;
-	        	  case 3:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	        	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
-	        	  			view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
-	        	  			view.$el.trigger("RESUMEINDEXSTATUS",init);
-	        	  			break;
-	        	  case 4:  	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-				        	view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
-				        	view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
-	        	  			view.$el.find(".index-info,.status").removeClass("hide");
-	        	  			view.$el.trigger("RESUMEINDEXSTATUS",init);
-	    					break;
-	        	  case 5:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	        		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
-	        		  		view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
-		    	    		view.$el.find(".index-info,.status").addClass("hide");
-		    	    		view.$el.trigger("RESUMEINDEXSTATUS",init);
-	    					break;
-	        	  case 6:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	        		  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
-	        		  		view.intervalId = window.setInterval(function(){
-	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS",init);
-	        		  		}, 3000);
-	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
-							break;
-	        	  case 7:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-			  	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
-				  			view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
-				  			view.$el.trigger("RESUMEINDEXSTATUS",init);
-				  			break;
-	        	  case 20:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	        	  			view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
-			  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
-			  		  		view.$el.trigger("RESUMEINDEXSTATUS");
-				    		view.$el.find(".index-info,.status").addClass("hide");
-							break;
-	        	  case 24:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-  	  						view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
-	        	  			view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
-	        	  			view.intervalId = window.setInterval(function(){
-	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS",false);
-	        		  		}, 3000);
-	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
-							break;
-	        	  case 30:	view.$el.find(".extra").prop("disabled",false);
-							break;
-	        	  case 31:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-		  	  				view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-			  		  		view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
-							break;
-	        	  case 32:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-			  				view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-			  		  		view.$el.find(".resume").prop("disabled",false);//.html("Create Index Resume");
-			  		  		view.$el.trigger("RESUMEINDEXSTATUS",init);
-							break;
-	        	  case 35:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	        	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
-			  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
-			  		  		view.$el.trigger("RESUMEINDEXSTATUS",init);
-							break;
-	        	  case 42:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-			  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-			  		  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
-					  		view.intervalId = window.setInterval(function(){
-						    	   $(view.el).trigger("RESUMEINDEXSTATUS",init);
-					  		}, 3000);
-					  		view.$el.trigger("RESUMEINDEXSTATUS");
-	        	  case 160:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-			  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-			  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
-							break;
-	        	  case 192:	view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-			  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-				  	  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
-	        	  			view.intervalId = window.setInterval(function(){
-	     			    	   $(view.el).trigger("RESUMEINDEXSTATUS",false);
-	        		  		}, 3000);
-	        		  		view.$el.trigger("RESUMEINDEXSTATUS");
-							break;
+	    		  	case 3: 	// system schema created,org schema not existed not created
+	    			view.$el.find(".extra,.index,.resume").prop("disabled",true);
+		  		  	break;
+		  		  	
+	        	  	case 7:	//org extra not created
+    		  		view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables");
+	  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+		  			view.$el.find(".resume").prop("disabled",true).html("Create Index Resume");
+		  			break;
+		  			
+	        	  	case 15:	//org extra created,pg_trgm not existed,resume not finished
+	  				view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	  				view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+	  				view.$el.find(".resume").prop("disabled",false);//.html("Resume Index Resume");
+	  				view.$el.trigger("RESUMEINDEXSTATUS",true);
+	  				break;
+	  				
+	        	  	case 47:	//system schema created,pg_trgm is not existed,org extra existed,index resume created
+    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+	  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
+			  		view.$el.trigger("RESUMEINDEXSTATUS");
+			  		break;
+			  		
+	        	  	case 79:	//system schema created,pg_trgm is not existed,
+	        		  		//org extra existed,index resume runing
+    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+	  		  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
+		  		  	view.intervalId = window.setInterval(function(){
+				    	   $(view.el).trigger("RESUMEINDEXSTATUS");
+	  		  		}, 3000);
+			  		view.$el.trigger("RESUMEINDEXSTATUS");
+			  		break;
+			  		
+	        	    case 143: //pg_trgm created,index columns not created,resume is not finished
+		  		    view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+		  		    view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
+		  		    view.$el.find(".resume").prop("disabled",false);//.html("Resume Index Resume");
+		  		    view.$el.trigger("RESUMEINDEXSTATUS",true);
+		  		    break;
+		  		   
+	        	    case 159: //resume is not finished
+			  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+					view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
+					view.$el.find(".resume").prop("disabled",false);//.html("Resume Index Resume");
+					view.$el.trigger("RESUMEINDEXSTATUS",true);
+					break;
+					
+	        	    case 175: //org extra created,index column not created,resume is done
+    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+					view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
+					view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
+					view.$el.trigger("RESUMEINDEXSTATUS");
+					break;
+					
+	        	    case 191: //All done
+    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	  	  			view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
+	  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
+	  		  		view.$el.trigger("RESUMEINDEXSTATUS");
+		    		view.$el.find(".index-info,.status").addClass("hide");
+					break;
+					
+	        	    case 207:	//resume is running,and index columns not created
+    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	  	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
+		  	  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
+	  	  			view.intervalId = window.setInterval(function(){
+				    	   $(view.el).trigger("RESUMEINDEXSTATUS",false);
+	  		  		}, 3000);
+	  		  		view.$el.trigger("RESUMEINDEXSTATUS");
+					break;
+							
+	        	    case 223:	//resume is running,and index columns  created
+    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	  	  			view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
+		  	  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
+	  	  			view.intervalId = window.setInterval(function(){
+				    	   $(view.el).trigger("RESUMEINDEXSTATUS",false);
+	  		  		}, 3000);
+	  		  		view.$el.trigger("RESUMEINDEXSTATUS");
+					break;
+					
 	        	  }
 	          });
 	      }
@@ -298,6 +300,7 @@
 	  if(perform==all){
 		  view.$el.find(".db-status-bar .db-percentage").html(all);
 		  view.$el.find(".db-status-bar .db-count-info").empty();
+		  view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
 	  }else{
 		  perform = perform/1000;
 		  all = all/1000;
