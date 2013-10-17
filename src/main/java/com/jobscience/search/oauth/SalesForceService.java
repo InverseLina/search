@@ -64,7 +64,6 @@ public class SalesForceService {
     }
 
     public Map<String,String> getFullLoginInfo(String token, String instanceUrl) throws IOException, JSONException {
-    	Map<String,String> result = new HashMap<String,String>();
     	//----------------  Get the User display name and the user id -----------------//
         OAuthRequest oauth = new OAuthRequest(Verb.GET,instanceUrl+SF_URL);
         oauth.addHeader("Authorization", "Bearer "+token );
