@@ -45,14 +45,18 @@ public class UserDao {
        dbHelper.executeUpdate(orgHolder.getOrgName(), insertSql, sfid, CToken);
    }
 
-   public String checkAndUpdateUser(int type, String content) {
+   public String checkAndUpdateUser(int type, String content, String token) {
        String sfid, ctoken;
        if (type == 1) {
            sfid = getSFIDbySF1(content);
        }else {
            sfid = getSFIDbySF2(content);
        }
-       ctoken = buildCToken(sfid);
+       if(type == 1){
+           ctoken = token;
+       }else{
+           ctoken = buildCToken(sfid);
+       }
        orgHolder.setOrg(ctoken, sfid);
        List<Map> users = getUserMap(sfid);
        if (users.size() > 0) {

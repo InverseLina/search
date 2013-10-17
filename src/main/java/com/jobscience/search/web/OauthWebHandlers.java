@@ -73,7 +73,7 @@ public class OauthWebHandlers {
         try {
             rc.setCookie("oauthToken", token.getRawResponse());
             rc.setCookie("loginInfo", JsonUtil.toJson(info));
-            userDao.checkAndUpdateUser(1, token.getId());
+            userDao.checkAndUpdateUser(1, token.getId(), token.getToken());
         } catch (Exception e) {
             throw new AbortWithHttpRedirectException("/");
         }

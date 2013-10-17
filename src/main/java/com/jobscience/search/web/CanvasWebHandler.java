@@ -28,7 +28,7 @@ public class CanvasWebHandler {
             String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, oAuthHelper.getApiSecret());
             m.put("signedRequestJson", signedRequestJson);
             try {
-                userDao.checkAndUpdateUser(2, signedRequestJson);
+                userDao.checkAndUpdateUser(2, signedRequestJson, null);
             } catch (Exception e) {
                 throw new AbortWithHttpRedirectException("/");
             }
