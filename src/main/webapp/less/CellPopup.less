@@ -1,3 +1,4 @@
+@import "utils";
 // --------- CellPopup--------- //
 .CellPopup {
   position: absolute;
@@ -5,21 +6,24 @@
   border-radius: 5px;
   border: solid 1px #999;
   background: white;
+  .box-shadow(2px 2px 4px rgba(102, 102,102, 0.5));
   .title {
-  padding-left: 20px;
   padding-top: 5px;
   height: 60px;
   background: #d6d6d6;
 
     .columnName {
       font-size: 20px;
-      font-weight: bold;
+      font-weight: normal;
       color: #888;
       letter-spacing: 0.1em;
+      margin-left: 8px;
     }
     .contactName {
       font-size: 12px;
       font-weight: bold;
+      margin-left: 8px;
+      letter-spacing: 0.5em;
     }
   }
 }
