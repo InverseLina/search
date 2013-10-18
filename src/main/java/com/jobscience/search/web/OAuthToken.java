@@ -6,7 +6,7 @@ public class OAuthToken {
     private String token;
     private long expire;
 
-    public static final String TOKEN_ID = "oauthToken_id";
+    public static final String TOKEN_ID = "ctoken";
     public static final String TOKEN_EXPIRE = "oauthToken_expire";
 
     public OAuthToken() {
