@@ -4,6 +4,7 @@
         <tbody>
             {{#each items}}
             <tr data-objId="{{names.id}}" data-contractName="{{names.name}}">
+                <td class="favLabel"><div><i class="glyphicon glyphicon-star"></i></div></td>
                 <!--<td class="checkboxCol"><input type="checkbox" checked="true"/></td>-->
                 {{#each row}}
                     <td data-column="{{name}}" data-value="{{realValue}}"><span>{{rmComma value}}</span></td>
@@ -17,7 +18,7 @@
 <script id="search-items-header" type="text/html">
     <thead>
          <tr>
-             <!--<th class="checkboxCol"></th>-->
+             <th class="favLabel"><div class="headerTh">&nbsp;</div</th>
              {{#each displayColumns}}
                  <th style="width:{{../colWidth}}%" data-column="{{name}}">
                  <!--{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span>-->
@@ -41,7 +42,7 @@
     <table>
         <thead>
              <tr>
-                 <!--<th class="checkboxCol"></th>-->
+                 <th class="favLabel"><div class="headerTh"></div></th>
                  {{#each displayColumns}}
                      <th style="width:{{../colWidth}}%" data-column="{{name}}">
 						<div class="headerTh {{name}}Th">

@@ -30,6 +30,7 @@
           }
     	  view.$el.find(".sf-info").html((app.cookie("org")||" ")+userName.replace(/"/g,""));
       }
+        brite.display("TabView");
         brite.display("SavedSearches");
     },
     // --------- /View Interface Implement--------- //
@@ -306,7 +307,28 @@
             view.$el.find("input").attr("disabled", true);
 
             brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
-        }
+        } ,
+      "CHANGE_TO_FAV_VIEW": function(event, extra){
+          var view = this;
+          view.$el.find(".tableContainer th").addClass("favFilter");
+          view.$el.find(".search-result").addClass("favFilter");
+          view.$el.find(".tableContainer tbody").addClass("favFilter");
+          view.$el.find(".btnPopupColumns").addClass("favFilter");
+          view.$el.find(".search-form").hide();
+          view.$el.find(".saveSearchesContainer ").hide();
+          view.$el.find(".empty-search").hide();
+          view.$el.find(".page").hide();
+      },
+      "RESTORE_SEARCH_VIEW": function(event){
+         var view = this;
+          view.$el.find(".tableContainer th").removeClass("favFilter");
+          view.$el.find(".search-result").removeClass("favFilter");
+          view.$el.find(".tableContainer tbody").removeClass("favFilter");
+          view.$el.find(".btnPopupColumns").removeClass("favFilter");
+          view.$el.find(".search-form").show();
+          view.$el.find(".saveSearchesContainer ").show();
+          view.$el.find(".page").show();
+      }
     },
     // --------- /Document Events--------- //
 
@@ -531,6 +553,8 @@
         }
       } else if ($item.hasClass("checkboxCol")) {
         realWidth = 30;
+      } else if ($item.hasClass("favLabel")) {
+        realWidth = 32;
       } else if (colName=="resume") {
         realWidth = 65;
       } else {
