@@ -40,6 +40,9 @@ public class SearchDao {
     @Inject
     private ConfigManager configManager;
     
+    @Inject
+    private UserDao userDao;
+    
     /**
      * @param searchColumns
      * @param searchValues
@@ -225,6 +228,33 @@ public class SearchDao {
         	   }
         	   hasCondition = true;
            }
+           
+           //Get the label parameters and render them
+           String label = searchValues.get("label");
+           if(label!=null){
+               String userId = userDao.getCurrentUser().get("id").toString();
+               if(advanced){
+                   joinTables.append(" inner join "+schemaname+".label_contact labelcontact" )
+                             .append(" on label_contact.\"contact_id\" = a.\"id\" ")
+                             .append(" inner join "+schemaname+".label label ")
+                             .append(" on label_contact.\"label_id\"=label.\"id\" and label.\"user_id\"=")
+                             .append(userId)
+                             .append(" and label.\"name\" ='")
+                             .append(label)
+                             .append("' ");
+               }else{
+                   querySql.append(" inner join "+schemaname+".label_contact labelcontact" )
+                           .append(" on label_contact.\"contact_id\" = contact.\"id\" ")
+                           .append(" inner join "+schemaname+".label label ")
+                           .append(" on label_contact.\"label_id\"=label.\"id\" and label.\"user_id\"=")
+                           .append(userId)
+                           .append(" and label.\"name\" ='")
+                           .append(label)
+                           .append("' ");
+               }
+               hasCondition = true;
+           }
+           
        	   //Get the contacts parameters and render them
            JSONArray contacts = JSONArray.fromObject(searchValues.get("contacts"));
            if(contacts.size()>0){//First add 1!=1,cause for all contacts,would do with "OR"
