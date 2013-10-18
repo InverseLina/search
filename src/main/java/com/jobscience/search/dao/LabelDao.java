@@ -44,6 +44,12 @@ public class LabelDao {
                 "select * from  label where id=?", labelId);
     }
     
+    public  List<Map>  getLabelByName(String name){
+        return dbHelper.executeQuery(orgHolder.getOrgName(),
+                "select * from  label where name=? limit 1", name);
+    }
+    
+    
     public void assignLabelToContact(Long contactId,Long labelId){
         dbHelper.executeUpdate(orgHolder.getOrgName(),
                 "insert into label_contact(label_id,contact_id) values(?,?)", labelId,contactId);

@@ -50,6 +50,15 @@ public class LabelWebHandler {
         return WebResponse.fail();
     }
     
+    @WebGet("/getLabelByName")
+    public WebResponse getLabel(@WebUser OAuthToken token,@WebParam("name")String name){
+        Map user = userDao.getUserByToken(token.getToken());
+        if(user!=null){
+            return WebResponse.success(labelDao.getLabelByName(name));
+        }
+        return WebResponse.fail();
+    }
+    
     @WebGet("/getLabel")
     public  WebResponse  getLabel(@WebParam("id")Long labelId){
         return WebResponse.success(labelDao.getLabelForById(labelId));
