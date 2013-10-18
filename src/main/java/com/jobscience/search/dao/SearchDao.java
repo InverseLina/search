@@ -40,6 +40,9 @@ public class SearchDao {
     @Inject
     private ConfigManager configManager;
     
+    @Inject
+    private UserDao userDao;
+    
     /**
      * @param searchColumns
      * @param searchValues
@@ -225,6 +228,35 @@ public class SearchDao {
         	   }
         	   hasCondition = true;
            }
+           
+           //Get the label parameters and render them
+           String label = searchValues.get("label");
+           String userId = (String) userDao.getCurrentUser().get("id");
+           if(userId==null){
+               userId = "1";
+           }
+           if(label!=null){
+               if(advanced){
+                   joinTables.append(" left join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
+                   		     .append(" join "+schemaname+".\"label\" on label.\"id\"=label_contact.\"label_id\"")
+                   		     .append(" and \"user_id\"=")
+                   		     .append(userId)
+               		         .append(" and label.\"name\" ='")
+                             .append(label)
+                             .append("' ) labelcontact on labelcontact.\"contact_id\" = a.\"id\" ");
+                           
+               }else{
+                   querySql.append(" left join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
+                           .append(" join "+schemaname+".\"label\" on label.\"id\"=label_contact.\"label_id\"")
+                           .append(" and \"user_id\"=")
+                           .append(userId)
+                           .append(" and label.\"name\" ='")
+                           .append(label)
+                           .append("' ) labelcontact on labelcontact.\"contact_id\" = contact.\"id\" ");
+               }
+               hasCondition = true;
+           }
+           
        	   //Get the contacts parameters and render them
            JSONArray contacts = JSONArray.fromObject(searchValues.get("contacts"));
            if(contacts.size()>0){//First add 1!=1,cause for all contacts,would do with "OR"
@@ -668,7 +700,7 @@ public class SearchDao {
 	    	}
 	    	sb.append("id,name");//make id and name always return
     	}
-    	sb.append(",sfid,phone");
+    	sb.append(",sfid,phone,haslabel");
         return sb.toString();
     }
     
@@ -683,7 +715,7 @@ public class SearchDao {
     	 StringBuilder columnsSql = new StringBuilder();
     	 if(searchColumns==null){
              columnsSql.append("a.sfid,a.phone,  a.\"id\" as id,a.\"name\" as name,lower(a.\"name\") as lname,case   when a.\"title\" is null then ''  else a.\"title\" end title ,to_char(a.\"createddate\",'yyyy-mm-dd') as createddate");
-             groupBy.append(",a.sfid,a.phone, a.\"name\",a.\"title\",a.\"createddate\"");
+             groupBy.append(",a.sfid,a.phone, a.\"name\",a.\"title\",a.\"createddate\",a.\"haslabel\" ");
     	 }else{
     		 String temp = "";
  	        for(String column:searchColumns.split(",")){
@@ -693,11 +725,11 @@ public class SearchDao {
 	 	            columnsSql.append(",");
  	        	}
  	        }
- 	        columnsSql.append("a.id,a.name,a.sfid,a.phone");
+ 	        columnsSql.append("a.id,a.name,a.sfid,a.phone,a.haslabel");
  	        if(groupBy.length()>0){
  	        	groupBy.append(",");
  	        }
- 	        groupBy.append("a.name,a.sfid,a.phone");//always return these columns
+ 	        groupBy.append("a.name,a.sfid,a.phone,a.haslabel");//always return these columns
          }
     	 return columnsSql.toString();
     }
@@ -744,6 +776,7 @@ public class SearchDao {
         querySql.append("contact.\"firstname\",contact.\"title\",contact.\"createddate\", " );
         querySql.append("case  when contact.\"ts2__text_resume__c\" is null  or " );
         querySql.append("char_length(contact.\"ts2__text_resume__c\") = 0 then -1  else contact.id end as resume ");
+        querySql.append(",case when labelcontact.contact_id is null then false else true end haslabel ");
         //---------------------- /add select columns----------------------//
         
         

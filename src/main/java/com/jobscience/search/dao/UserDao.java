@@ -1,15 +1,22 @@
 package com.jobscience.search.dao;
 
-import com.britesnow.snow.util.JsonUtil;
-import com.google.inject.Singleton;
-import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DBHelper;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.RandomStringUtils;
-
-import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.RandomStringUtils;
+
+import com.britesnow.snow.util.JsonUtil;
+import com.britesnow.snow.web.CurrentRequestContextHolder;
+import com.britesnow.snow.web.RequestContext;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+import com.jobscience.search.CurrentOrgHolder;
+import com.jobscience.search.db.DBHelper;
 
 @Singleton
 public class UserDao {
@@ -17,16 +24,34 @@ public class UserDao {
     private DBHelper dbHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
-
+    @Inject
+    private CurrentRequestContextHolder crh;
+    @Named("jss.prod")
+    @Inject
+    private boolean productMode;
 
     public static final String selectSql = "select * from \"user\" where sfid = ?";
     public static final String selectByTokenSql = "select * from \"user\" where ctoken = ?";
     public static final String updateSql = "update \"user\" set ctoken = ? where sfid = ?";
     public static final String insertSql = "insert into \"user\" (sfid, ctoken) values(?,?)";
 
-   public List<Map> getUserMap(String sfid){
+    public Map getCurrentUser(){
+        if(!productMode){
+            Map user = new HashMap();
+            user.put("id", "1");
+            return user;
+        }
+        RequestContext rc = crh.getCurrentRequestContext();
+        if (rc != null) {
+            String ctoken = rc.getCookie("ctoken");
+            return getUserByToken(ctoken);
+        }
+        return null;
+    }
+    
+    public List<Map> getUserMap(String sfid){
          return dbHelper.executeQuery(orgHolder.getOrgName(), selectSql, sfid);
-   }
+    }
 
     public Map getUserByToken(String ctoken) {
         List<Map> users = dbHelper.executeQuery(orgHolder.getOrgName(), selectByTokenSql, ctoken);
