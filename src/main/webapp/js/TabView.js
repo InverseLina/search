@@ -17,8 +17,6 @@
             postDisplay: function (data) {
                 var view = this;
                 dao.list().done(function (labels) {
-                    console.log(labels);
-
                     if ((labels || []).length > 0) {
 
                     labels =  $.grep(labels, function (label, idx) {
@@ -72,12 +70,16 @@
                    }
 
                 },
+                PATH_INFO_CHANGE: function(event, extra){
+
+                },
                 "btap; li i": function(event){
                     var view = this;
                     event.stopPropagation();
                     event.preventDefault();
                     view.$el.find("li i").removeClass("select");
                     $(event.currentTarget).addClass("select");
+                    view.$el.trigger("CHANGE_SELECT_LABEL");
 
                 },
                 "keyup; input": function(event){

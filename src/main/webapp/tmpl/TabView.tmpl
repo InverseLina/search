@@ -3,7 +3,10 @@
     <div>
         <ul>
             <li class="search active"><button>Search</button></li>
-            <li class="favLabel"><i class="glyphicon glyphicon-star select"></i><button class="btn">Favorites</button></li>
+            <li class="favLabel"><i class="glyphicon glyphicon-star select"></i>
+                <button class="btn">Favorites</button>
+                <!--<a class="btn" href="#/list/"-->
+            </li>
             <li class="addFav"><input placeholder="+Add List" /></li>
         </ul>
     </div>
@@ -11,13 +14,20 @@
 </div>
 </script>
 <script id="TabView-new-label" type="text/html">
-     <li class="favLabel" data-label-id={{id}}><i class="glyphicon glyphicon-stop"></i><button class="btn">{{name}}</button></li>
+     <li class="favLabel" data-label-id={{id}}><i class="glyphicon glyphicon-stop"></i>
+         <button class="btn">{{name}}</button>
+         <!--<a class="btn" href="#/list/{{id}}">{{name}}</a>-->
+     </li>
 </div>
 </script>
 
 <script id="TabView-insert-labels" type="text/html">
     {{#each labels}}
-     <li class="favLabel" data-label-id={{id}}><i class="glyphicon glyphicon-stop"></i><button class="btn">{{name}}</button></li>
+     <li class="favLabel" data-label-id={{id}}>
+         <i class="glyphicon glyphicon-stop"></i>
+         <button class="btn">{{name}}</button>
+         <!--<a class="btn" href="#/list/{{id}}">{{name}}</a>-->
+     </li>
     {{/each}}
 </div>
 </script>

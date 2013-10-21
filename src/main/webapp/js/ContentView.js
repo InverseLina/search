@@ -353,7 +353,18 @@
           view.$el.find(".search-form").show();
           view.$el.find(".saveSearchesContainer ").show();
           view.$el.find(".page").show();
-      }
+      },
+        CHANGE_SELECT_LABEL: function(event){
+            var view = this;
+            var label = view.tabView.getSelectLabel();
+            view.$el.find("tbody td.favLabel").attr("title", label.name);
+            var $icons =  view.$el.find("tbody td.favLabel i");
+            if(label.name == "Favorites"){
+                $icons.removeClass("glyphicon-stop").addClass("glyphicon-star");
+            }else{
+                $icons.removeClass("glyphicon-star").addClass("glyphicon-stop");
+            }
+        }
     },
     // --------- /Document Events--------- //
 
@@ -377,7 +388,7 @@
 
           if (result.count > 0) {
 //            $e.find(".actions").show();
-            buildResult(result.result).done(function(data){
+            buildResult.call(view, result.result).done(function(data){
         	   html = render("search-items", {
                  items : data,
                  colWidth : getColWidth.call(view)
@@ -458,6 +469,8 @@
     var colLen = columns.length;
     var view = this;
     var dtd = $.Deferred();
+    var label = view.tabView.getSelectLabel();
+    var isFav = label.name == "Favorites" ? true: false;
 	 $.ajax({
 			url:"/config/get/local_date",
 			type:"Get",
@@ -516,7 +529,9 @@
   	      result.push({
   	        row : item,
             names: {id: items[i].id, name: items[i].name},
-            hasLabel: items[i].haslabel
+            hasLabel: items[i].haslabel,
+            isFav: isFav,
+            labelName: label.name
   	      });
   	    }
   	    dtd.resolve(result);
