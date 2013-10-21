@@ -235,6 +235,9 @@ public class SearchDao {
            if(userId==null){
                userId = "1";
            }
+           if(label==null){
+               label="Favorites";
+           }
            if(label!=null){
                if(advanced){
                    joinTables.append(" left join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
