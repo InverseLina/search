@@ -20,7 +20,7 @@ public class OrgConfigDao {
   private DataSourceManager dm;
 
   public void saveOrUpdateOrg(Map<String,String> params) throws SQLException{
-      Connection con = dbHelper.getConnection(dm.getSysDataSource());
+      Connection con = dbHelper.openConnection(dm.getSysDataSource());
       String sql = "";
       if(params.size() > 0 && !"".equals(params.get("id"))&&params.get("id")!=null){
           sql =  "update org set name = '"+params.get("name")+"',schemaname = '" +
@@ -36,7 +36,7 @@ public class OrgConfigDao {
   }
   
   public void deleteOrg(String id) throws SQLException{
-      Connection con = dbHelper.getConnection(dm.getSysDataSource());
+      Connection con = dbHelper.openConnection(dm.getSysDataSource());
       PreparedStatement statement = con.prepareStatement("delete from org where id  = "+id);
       statement.executeUpdate();
       statement.close();
