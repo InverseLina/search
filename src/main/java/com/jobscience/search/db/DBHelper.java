@@ -165,7 +165,7 @@ public class DBHelper {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
-            con = getConnection(ds);
+            con = openConnection(ds);
             pstmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             preparedStatementExecuteUpdate(pstmt, vals);
             ResultSet rs = pstmt.getGeneratedKeys();
