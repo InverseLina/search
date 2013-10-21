@@ -22,6 +22,10 @@ var app = app || {};
                 searchData.q_search = queryKey;
             }
 
+            var label = (view.contentView.tabView.getSelectLabel()||{}).name ||"Favorites";
+            searchData.q_label = label;
+
+
             for (key in _storeValue) {
                 newKey = key.substring(0, 1).toLocaleLowerCase() + key.substring(1);
                 data = [];

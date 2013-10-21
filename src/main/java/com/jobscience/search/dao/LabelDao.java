@@ -14,9 +14,10 @@ public class LabelDao {
     @Inject
     private CurrentOrgHolder orgHolder;
     
-    public void addLabel(Long userId,String name){
-        dbHelper.executeUpdate(orgHolder.getOrgName(),
-                "insert into label(name,user_id) values(?,?)", userId,name);
+    public Long addLabel(Long userId,String name) {
+        Long id = dbHelper.executeInsertReturnId(orgHolder.getOrgName(),
+                "insert into label(name,user_id) values(?,?)", name, userId);
+        return id;
     }
     
     public void deleteLabel(String name){

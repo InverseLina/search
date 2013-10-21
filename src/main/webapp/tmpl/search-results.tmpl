@@ -4,7 +4,7 @@
         <tbody>
             {{#each items}}
             <tr data-objId="{{names.id}}" data-contractName="{{names.name}}">
-                <td class="favLabel"><div><i class="glyphicon glyphicon-star"></i></div></td>
+                <td class="favLabel  {{#if hasLable}}hasLael{{/if}}"><div><i class="glyphicon glyphicon-star"></i></div></td>
                 <!--<td class="checkboxCol"><input type="checkbox" checked="true"/></td>-->
                 {{#each row}}
                     <td data-column="{{name}}" data-value="{{realValue}}"><span>{{rmComma value}}</span></td>

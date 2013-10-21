@@ -158,6 +158,41 @@ public class DBHelper {
             }
         }
     }
+      public <T extends Number>  T executeInsertReturnId(String orgName, String query, Object... vals) {
+          return executeInsertReturnId(dsMng.getOrgDataSource(orgName), query, vals);
+      }
+      public <T extends Number>  T executeInsertReturnId(DataSource ds, String query, Object... vals) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        try {
+            con = getConnection(ds);
+            pstmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            preparedStatementExecuteUpdate(pstmt, vals);
+            ResultSet rs = pstmt.getGeneratedKeys();
+            Object id= null;
+            if (rs != null&&rs.next()) {
+                id = rs.getObject(1);
+            }
+            return (T)id;
+        } catch (SQLException e) {
+            throw Throwables.propagate(e);
+        } finally {
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 
     // --------- PreparedStatement Executes --------- //

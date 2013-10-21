@@ -1,7 +1,9 @@
 package com.jobscience.search.web;
 
+import java.util.List;
 import java.util.Map;
 
+import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
@@ -20,11 +22,18 @@ public class LabelWebHandler {
     private UserDao userDao;
     
     @WebPost("/addLabel")
-    public WebResponse addLabel(@WebUser OAuthToken token,@WebParam("name")String name){
-        Map user = userDao.getUserByToken(token.getToken());
-        if(user!=null){
-            labelDao.addLabel(Long.parseLong(user.get("id").toString()), name);
-            return WebResponse.success();
+    public WebResponse addLabel(@WebUser OAuthToken token,@WebParam("name")String name, RequestContext rc){
+        String ctoken = rc.getCookie("ctoken");
+        if (ctoken != null) {
+            Map user = userDao.getUserByToken(ctoken);
+            if (user != null) {
+                List list = labelDao.getLabelByName(name);
+                if (list != null && list.size() > 0) {
+                    return WebResponse.success(String.format("label of name %s has exits", name));
+                }
+                Long id = labelDao.addLabel(Long.parseLong(user.get("id").toString()), name);
+                return WebResponse.success(id);
+            }
         }
         return WebResponse.fail();
     }
@@ -42,19 +51,25 @@ public class LabelWebHandler {
     }
     
     @WebGet("/getLabels")
-    public WebResponse getLabels(@WebUser OAuthToken token){
-        Map user = userDao.getUserByToken(token.getToken());
-        if(user!=null){
-            return WebResponse.success(labelDao.getLabelForUser(Long.parseLong(user.get("id").toString())));
+    public WebResponse getLabels(@WebUser OAuthToken token, RequestContext rc) {
+        String ctoken = rc.getCookie("ctoken");
+        if (ctoken != null) {
+            Map user = userDao.getUserByToken(ctoken);
+            if (user != null) {
+                return WebResponse.success(labelDao.getLabelForUser(Long.parseLong(user.get("id").toString())));
+            }
         }
         return WebResponse.fail();
     }
-    
+
     @WebGet("/getLabelByName")
-    public WebResponse getLabel(@WebUser OAuthToken token,@WebParam("name")String name){
-        Map user = userDao.getUserByToken(token.getToken());
-        if(user!=null){
-            return WebResponse.success(labelDao.getLabelByName(name));
+    public WebResponse getLabel(@WebUser OAuthToken token, @WebParam("name") String name, RequestContext rc) {
+        String ctoken = rc.getCookie("ctoken");
+        if (ctoken != null) {
+            Map user = userDao.getUserByToken(ctoken);
+            if (user != null) {
+                return WebResponse.success(labelDao.getLabelByName(name));
+            }
         }
         return WebResponse.fail();
     }

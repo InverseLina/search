@@ -8,7 +8,7 @@
       list-style: none;
       float: left;
       margin-left: 10px;
-      min-width: 120px;
+      min-width: 100px;
 //      height: 30px;
       cursor: pointer;
       position: relative;
@@ -20,7 +20,8 @@
 
         i {
           padding-right: 10px;
-          color: #fed43b;
+//          color: #fed43b;
+          color: #ccc;
           font-size: 18px;
           height: 30px;
           line-height: 30px;
@@ -28,19 +29,26 @@
           position: absolute;
           top: 3px;
           left:5px;
+          &.select {
+            color: #fed43b;
+          }
         }
         input {
           border-width: 0;
           width: 120px;
           margin-top: 4px;
+          &:focus {
+            border: 1px solid #999;
+          }
         }
     }
 
     li.favLabel {
 
       button {
-        min-width: 108px;
-        padding-left: 20px;
+        min-width: 96px;
+        padding-left: 25px;
+        text-align: left;
         &:focus {
           outline: none;
         }
@@ -49,6 +57,15 @@
     li.search button {
       width: 108px;
 
+    }
+    li.active {
+      button {
+        background: #008acd;
+        color: #ffffff;
+        &:hover {
+          color: #ffffff;
+        }
+      }
     }
   }
   button {
@@ -62,12 +79,9 @@
     &:hover {
       color: #008acd;
     }
-    &.active {
-      background: #008acd;
-      color: #ffffff;
-      &:hover {
-        color: #ffffff;
-      }
+    &:focus {
+      outline: none;
     }
+
   }
 }

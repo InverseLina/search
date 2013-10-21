@@ -30,7 +30,10 @@
           }
     	  view.$el.find(".sf-info").html((app.cookie("org")||" ")+userName.replace(/"/g,""));
       }
-        brite.display("TabView");
+        brite.display("TabView").done(function(tabView){
+            view.tabView = tabView;
+        });
+
         brite.display("SavedSearches");
     },
     // --------- /View Interface Implement--------- //
@@ -166,6 +169,28 @@
           }else{
               brite.display("ResumeView","body", {id: cid,sfid: sfid, name:cname});
           }
+
+      },
+      "btap; tbody td.favLabel":function(event){
+         var view = this;
+         var $td = $(event.currentTarget);
+         event.stopPropagation();
+         event.preventDefault();
+
+         var labelId = view.tabView.getSelectLabel().id;
+          var contactId = $td.closest("tr").attr("data-objId");
+         if(labelId){
+
+             if($td.hasClass("hasLabel")){
+                 console.log("remove class")
+                 app.LabelDaoHandler.unAssign(contactId, labelId);
+                 $td.removeClass("hasLabel");
+             }else{
+                 app.LabelDaoHandler.assign(contactId, labelId);
+                 console.log("add class")
+                 $td.addClass("hasLabel");
+             }
+         }
 
       },
       "btap; table td[data-column='company'],td[data-column='skill'],td[data-column='education']" : function(event) {
@@ -490,7 +515,8 @@
   	      }
   	      result.push({
   	        row : item,
-            names: {id: items[i].id, name: items[i].name}
+            names: {id: items[i].id, name: items[i].name},
+            hasLabel: items[i].haslabel
   	      });
   	    }
   	    dtd.resolve(result);
