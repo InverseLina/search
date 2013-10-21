@@ -231,7 +231,7 @@ public class SearchDao {
            
            //Get the label parameters and render them
            String label = searchValues.get("label");
-           String userId = (String) userDao.getCurrentUser().get("id");
+           String userId = userDao.getCurrentUser().get("id").toString();
            if(userId==null){
                userId = "1";
            }

@@ -1,6 +1,5 @@
 package com.jobscience.search.dao;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,11 +35,7 @@ public class UserDao {
     public static final String insertSql = "insert into \"user\" (sfid, ctoken) values(?,?)";
 
     public Map getCurrentUser(){
-        if(!productMode){
-            Map user = new HashMap();
-            user.put("id", "1");
-            return user;
-        }
+       
         RequestContext rc = crh.getCurrentRequestContext();
         if (rc != null) {
             String ctoken = rc.getCookie("ctoken");
