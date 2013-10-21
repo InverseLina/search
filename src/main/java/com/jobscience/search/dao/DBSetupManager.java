@@ -114,15 +114,17 @@ public class DBSetupManager {
     	if(checkExtension(extName)){
     		return true;
     	}
+    	  Connection conn = dsMng.getDefaultConnection();
     	try{
-	        Connection conn = dsMng.getDefaultConnection();
 	        PreparedStatement st = conn.prepareStatement("CREATE extension "+extName+";");
 	        result = st.execute();
 	        st.close();
 	        conn.close();
     	}catch (SQLException e) {
 			throw e;
-		}
+		}finally{
+            conn.close();
+        }
 		return result;
     }
     /**
@@ -140,14 +142,14 @@ public class DBSetupManager {
             List subSqlList = loadSQLFile(file);
             allSqls.addAll(subSqlList);
         }
-        Connection conn = dbHelper.getSysConnection();
+        Connection conn = dbHelper.openSysConnection();
         try {
             conn.setAutoCommit(false);
-            Statement st = conn.createStatement();
             for(String sql : allSqls){
-                st.addBatch(sql);
+                Statement st = conn.createStatement();
+                st.execute(sql);
+                st.close();
             }
-            st.executeBatch();
             conn.commit();
         } catch (SQLException e) {
             try {
@@ -157,6 +159,8 @@ public class DBSetupManager {
                 result = false;
             }
            throw e;
+        }finally{
+            conn.close();
         }
         return result;
     }
@@ -197,7 +201,7 @@ public class DBSetupManager {
 	            allSqls.addAll(subSqlList);
         	}
         }
-        Connection conn = dbHelper.getConnection(orgName);
+        Connection conn = dbHelper.openConnection(orgName);
         try {
             conn.setAutoCommit(false);
             Statement st = conn.createStatement();
@@ -215,6 +219,8 @@ public class DBSetupManager {
                 e1.printStackTrace();
             }
             throw e;
+        }finally{
+            conn.close();
         }
        return result;
     }
@@ -236,7 +242,7 @@ public class DBSetupManager {
 	            allSqls.addAll(subSqlList);
         	}
         }
-        Connection conn = dbHelper.getConnection(orgName);
+        Connection conn = dbHelper.openConnection(orgName);
         try {
             Statement st = conn.createStatement();
             for(String sql : allSqls){
@@ -253,6 +259,8 @@ public class DBSetupManager {
                 e1.printStackTrace();
             }
             throw e;
+        }finally{
+            conn.close();
         }
         return result;
     }
@@ -347,7 +355,7 @@ public class DBSetupManager {
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = br.readLine();
 			String prefix = "INSERT INTO jss_sys.zipcode_us ("+line+") values ";
-			Connection conn = dbHelper.getConnection();
+			Connection conn = dbHelper.openConnection();
 			try{
 				Statement st = conn.createStatement();
 				conn.setAutoCommit(false);
@@ -373,7 +381,9 @@ public class DBSetupManager {
 					e1.printStackTrace();
 				}
 				throw e;
-			}
+			}finally{
+	            conn.close();
+	        }
 			in.close();
 			cache.put("zipcodeLoadCount", rowCount);
 			return rowCount;

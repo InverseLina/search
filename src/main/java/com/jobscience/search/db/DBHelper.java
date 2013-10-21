@@ -17,11 +17,11 @@ public class DBHelper {
     @Inject
     private DataSourceManager dsMng;
 
-    public Connection getConnection(String orgName) {
-        return getConnection(dsMng.getOrgDataSource(orgName));
+    public Connection openConnection(String orgName) {
+        return openConnection(dsMng.getOrgDataSource(orgName));
     }
     
-    public Connection getPublicConnection() {
+    public Connection openPublicConnection() {
         try {
 			return dsMng.getPublicDataSource().getConnection();
 		} catch (SQLException e) {
@@ -30,7 +30,7 @@ public class DBHelper {
         return null;
     }
     
-    public Connection getConnection() {
+    public Connection openConnection() {
         try {
             return dsMng.getDefaultConnection();
         } catch (SQLException e) {
@@ -39,7 +39,7 @@ public class DBHelper {
         return null;
     }
     
-    public Connection getSysConnection() {
+    public Connection openSysConnection() {
         try {
             return dsMng.getSysDataSource().getConnection();
         } catch (SQLException e) {
@@ -48,7 +48,7 @@ public class DBHelper {
         return null;
     }
     
-    public Connection getConnection(DataSource dataSource) {
+    public Connection openConnection(DataSource dataSource) {
         try {
             Connection con = dataSource.getConnection();
             return con;
@@ -78,7 +78,7 @@ public class DBHelper {
         List<Map> results = null;
         Statement stmt = null;
         try {
-            Connection con = getConnection(ds);
+            Connection con = openConnection(ds);
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             results = buildResults(rs);
@@ -105,7 +105,7 @@ public class DBHelper {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
-            con = getConnection(ds);
+            con = openConnection(ds);
             pstmt = con.prepareStatement(query);
             return preparedStatementExecuteQuery(pstmt, vals);
         } catch (SQLException e) {
@@ -136,7 +136,7 @@ public class DBHelper {
         Connection con = null;
         PreparedStatement pstmt = null;
         try {
-            con = getConnection(ds);
+            con = openConnection(ds);
             pstmt = con.prepareStatement(query);
             return preparedStatementExecuteUpdate(pstmt, vals);
         } catch (SQLException e) {

@@ -53,7 +53,7 @@ public class SearchDao {
      */
     public SearchResult search(String searchColumns,Map<String, String> searchValues,
     		Integer pageIdx, Integer pageSize,String orderCon) {
-        Connection con = dbHelper.getPublicConnection();
+        Connection con = dbHelper.openPublicConnection();
         //builder statements
         SearchStatements statementAndValues = 
         		buildSearchStatements(con,searchColumns,searchValues, pageIdx, pageSize,orderCon);
@@ -175,7 +175,7 @@ public class SearchDao {
         if(log.isDebugEnabled()){
             log.debug(querySql.toString());
         }
-        Connection con = dbHelper.getPublicConnection();
+        Connection con = dbHelper.openPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
         prepareStatement.close();
@@ -1021,7 +1021,7 @@ public class SearchDao {
             size = 7;
         }
         offset = offset < 0 ? 0 : offset;
-        Connection con = dbHelper.getConnection(orgHolder.getOrgName());
+        Connection con = dbHelper.openConnection(orgHolder.getOrgName());
         String name = getNameExpr(type);
         String table = getTable(type);
         StringBuilder querySql =new StringBuilder();
