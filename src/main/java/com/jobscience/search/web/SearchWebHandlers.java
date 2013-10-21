@@ -59,6 +59,8 @@ public class SearchWebHandlers {
         		}
         		orderCon = " \""+getOrderColumn(orderBy)+ "\" " +(orderType?"asc":"desc");
         	}
+        }else{
+            orderCon = " \"id\" asc";
         }
         //for contact,use id,name,title,email,CreatedDate instead
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
