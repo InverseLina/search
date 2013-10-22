@@ -60,4 +60,11 @@ public class LabelDao {
         dbHelper.executeUpdate(orgHolder.getOrgName(),
                 "delete from label_contact where label_id=? and contact_id=?", labelId,contactId);
     }
+    
+    public List<Map>  getLabelStatus(String contactIds,Long labelId){
+       return  dbHelper.executeQuery(orgHolder.getOrgName(),
+                "select c.id,case  when l.label_id is null then false else true end from" +
+                " (select id from contact where id in ("+contactIds+"))" +
+                " c left join label_contact l on c.id=l.contact_id and  l.label_id=?", labelId);
+    }
 }

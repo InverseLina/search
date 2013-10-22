@@ -231,6 +231,7 @@ public class SearchDao {
            
            //Get the label parameters and render them
            String label = searchValues.get("label");
+           String labelAssigned = searchValues.get("labelAssigned");
            String userId = userDao.getCurrentUser().get("id").toString();
            if(userId==null){
                userId = "1";
@@ -240,7 +241,10 @@ public class SearchDao {
            }
            if(label!=null){
                if(advanced){
-                   joinTables.append(" left join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
+                   if("false".equals(labelAssigned)){
+                       joinTables.append(" left ");
+                   }
+                   joinTables.append(" join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
                    		     .append(" join "+schemaname+".\"label\" on label.\"id\"=label_contact.\"label_id\"")
                    		     .append(" and \"user_id\"=")
                    		     .append(userId)
@@ -249,7 +253,10 @@ public class SearchDao {
                              .append("' ) labelcontact on labelcontact.\"contact_id\" = a.\"id\" ");
                            
                }else{
-                   querySql.append(" left join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
+                   if("false".equals(labelAssigned)){
+                       querySql.append(" left ");
+                   }
+                   querySql.append(" join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
                            .append(" join "+schemaname+".\"label\" on label.\"id\"=label_contact.\"label_id\"")
                            .append(" and \"user_id\"=")
                            .append(userId)

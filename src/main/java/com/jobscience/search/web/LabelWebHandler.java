@@ -90,4 +90,12 @@ public class LabelWebHandler {
         labelDao.unAssignLabelFromContact(contactId, labelId);
         return WebResponse.success();
     }
+    
+    @WebGet("/getLabelStatus")
+    public WebResponse getLabelStatus(@WebParam("contactIds")String contactIds,@WebParam("labelId")Long labelId){
+        if(contactIds.startsWith("[")&&contactIds.endsWith("]")){
+            contactIds = contactIds.substring(1,contactIds.length()-2);
+        }
+        return WebResponse.success(labelDao.getLabelStatus(contactIds, labelId));
+    }
 }
