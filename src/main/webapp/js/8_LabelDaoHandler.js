@@ -34,6 +34,10 @@ var app = app || {};
         return app.getJsonData("unAssignLabelFromContact",{contactId:contactId, labelId:labelId},"Post" );
     }
 
+    LabelDaoHandler.prototype.getLabelStatus = function(contactIds, labelId){
+        return app.getJsonData("getLabelStatus",{contactIds:contactIds, labelId:labelId} );
+    }
+
 
 	//-------- /Search Dao handler ---------//
 	

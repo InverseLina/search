@@ -63,7 +63,7 @@ public class LabelDao {
     
     public List<Map>  getLabelStatus(String contactIds,Long labelId){
        return  dbHelper.executeQuery(orgHolder.getOrgName(),
-                "select c.id,case  when l.label_id is null then false else true end from" +
+                "select c.id, case  when l.label_id is null then false else true end haslabel from" +
                 " (select id from contact where id in ("+contactIds+"))" +
                 " c left join label_contact l on c.id=l.contact_id and  l.label_id=?", labelId);
     }

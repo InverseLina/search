@@ -120,6 +120,25 @@ app.defaultMenuSize = 5;
     	}
     	return false;
     };
+    function buildPathInfo(){
+        var pathInfo = {};
+        var hash = window.location.hash;
+        if (hash){
+            hash = hash.substring(1);
+            if (hash){
+                var pathAndParam = hash.split("!");
+                pathInfo.paths = pathAndParam[0].split("/");
+                if(pathInfo.paths && pathInfo.paths.length ==3 && pathInfo.paths[1] == "list"){
+                    pathInfo.labelAssigned = true;
+                }
+                // TODO: need to add the params
+            }
+        }
+        app.pathInfo = pathInfo;
+        return pathInfo;
+    }
+
+    app.buildPathInfo = buildPathInfo;
 
 })();
 

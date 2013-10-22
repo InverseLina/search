@@ -187,7 +187,7 @@
                  $td.removeClass("hasLabel");
              }else{
                  app.LabelDaoHandler.assign(contactId, labelId);
-                 console.log("add class")
+//                 console.log("add class")
                  $td.addClass("hasLabel");
              }
          }
@@ -343,6 +343,7 @@
           view.$el.find(".saveSearchesContainer ").hide();
           view.$el.find(".empty-search").hide();
           view.$el.find(".page").hide();
+//          console.log(extra);
       },
       "RESTORE_SEARCH_VIEW": function(event){
          var view = this;
@@ -357,12 +358,28 @@
         CHANGE_SELECT_LABEL: function(event){
             var view = this;
             var label = view.tabView.getSelectLabel();
-            view.$el.find("tbody td.favLabel").attr("title", label.name);
-            var $icons =  view.$el.find("tbody td.favLabel i");
-            if(label.name == "Favorites"){
-                $icons.removeClass("glyphicon-stop").addClass("glyphicon-star");
-            }else{
-                $icons.removeClass("glyphicon-star").addClass("glyphicon-stop");
+            if (label) {
+                view.$el.find("tbody td.favLabel").attr("title", label.name);
+                var $icons = view.$el.find("tbody td.favLabel i");
+                if (label.name == "Favorites") {
+                    $icons.removeClass("glyphicon-stop").addClass("glyphicon-star");
+                } else {
+                    $icons.removeClass("glyphicon-star").addClass("glyphicon-stop");
+                }
+                var cids = [];
+                view.$el.find("tbody tr[data-objId]").each(function (idx, tr) {
+                    cids.push($(tr).attr("data-objId"));
+                });
+                view.$el.find("tbody td.favLabel").removeClass("hasLabel");
+                if(cids.length > 0){
+                    app.LabelDaoHandler.getLabelStatus("[" + cids.join(",") + "]", label.id).done(function(result){
+                        $.each(result, function(idx, obj){
+                           if(obj.haslabel){
+                               view.$el.find("tbody tr[data-objId='" + obj.id + "'] td.favLabel").addClass("hasLabel");
+                           }
+                        });
+                    });
+                }
             }
         }
     },
@@ -374,6 +391,7 @@
 
       MainView : {
         "SEARCH_RESULT_CHANGE" : function(event, result) {
+          var labelAssigned = app.buildPathInfo().labelAssigned;
           var view = this;
           var $e = view.$el;
             if (org['action_add_to_sourcing'] == "true") {
@@ -389,9 +407,11 @@
           if (result.count > 0) {
 //            $e.find(".actions").show();
             buildResult.call(view, result.result).done(function(data){
+
         	   html = render("search-items", {
                  items : data,
-                 colWidth : getColWidth.call(view)
+                 colWidth : getColWidth.call(view),
+                 labelAssigned: labelAssigned
                });
                view.$searchResult.find(".tableContainer").html(html);
 
@@ -412,6 +432,12 @@
                  }
                }).done(function(){
                        var pagination = view.$el.find(".pagination");
+                       if(labelAssigned){
+                           $e.trigger("CHANGE_TO_FAV_VIEW");
+                       }else{
+                           $e.trigger("RESTORE_SEARCH_VIEW");
+                       }
+
                        showSearchInfo.call(view, result, htmlInfo, "left", (pagination.offset().left - view.$searchInfo.offset().left -155 ))
                    });
 
@@ -420,6 +446,7 @@
               $e.find(".search-input").val(app.ParamsControl.getQuery());
 
               view.restoreSearchParam();
+
             });
 
 
@@ -432,6 +459,11 @@
             fixColWidth.call(view);
               showSearchInfo.call(view, result, htmlInfo, "right", 0);
               view.restoreSearchParam();
+              if(labelAssigned){
+                  $e.trigger("CHANGE_TO_FAV_VIEW");
+              }else{
+                  $e.trigger("RESTORE_SEARCH_VIEW");
+              }
 
           }
 
@@ -568,6 +600,7 @@
       }
     //checkbox
     tableWidth = tableWidth - 30;
+    tableWidth = tableWidth - 32;
     if (colLen != 0) {
       colWidth = tableWidth / colLen;
     } else {

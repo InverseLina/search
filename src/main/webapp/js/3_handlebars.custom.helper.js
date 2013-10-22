@@ -72,7 +72,8 @@
     	}
     });
 
-    Handlebars.registerHelper('colHeader', function(template,colWidth, options) {
+    Handlebars.registerHelper('colHeader', function(template,labelAssigned, options) {
+        labelAssigned = labelAssigned || false;
         var columns = app.preference.columns();
         var displays = [];
         $.each(app.preference.displayColumns, function(idx, item){
@@ -80,7 +81,8 @@
                 displays.push(item);
             }
         });
-        var html = Handlebars.templates[template]({displayColumns:displays, colWidth:100/displays.length, colsLen:displays.length});
+        var html = Handlebars.templates[template]({displayColumns:displays, colWidth:100/displays.length,
+            colsLen:displays.length,labelAssigned:labelAssigned});
         return html;
     });
 
