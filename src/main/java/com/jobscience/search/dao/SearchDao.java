@@ -241,7 +241,7 @@ public class SearchDao {
            }
            if(label!=null){
                if(advanced){
-                   if("false".equals(labelAssigned)){
+                   if(!"true".equals(labelAssigned)){
                        joinTables.append(" left ");
                    }
                    joinTables.append(" join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
@@ -253,7 +253,7 @@ public class SearchDao {
                              .append("' ) labelcontact on labelcontact.\"contact_id\" = a.\"id\" ");
                            
                }else{
-                   if("false".equals(labelAssigned)){
+                   if(!"true".equals(labelAssigned)){
                        querySql.append(" left ");
                    }
                    querySql.append(" join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
