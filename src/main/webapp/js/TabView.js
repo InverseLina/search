@@ -50,7 +50,7 @@
                if($i.length > 0 ){
                    return {id: $li.attr("data-label-id"), name: $.trim($li.text())};
                }else {
-                   return null;
+                   return {name:"Favorites"};
                }
             },
             events: {
@@ -149,13 +149,38 @@
                 view.$el.find("li").removeClass("active");
                 $li.addClass("active");
                 if (searchView) {
-                    $li.trigger("RESTORE_SEARCH_VIEW");
+//                    $li.trigger("RESTORE_SEARCH_VIEW");
                     location.href = "#"
+                    doSearch.call(view);
                 } else {
-                    $li.trigger("CHANGE_TO_FAV_VIEW", {id: $li.attr("data-label-id")});
+                    view.$el.find("li i").removeClass("select");
+                    $li.find("i").addClass("select");
+                    var label =  {id: $li.attr("data-label-id"), name: $.trim($li.find("a").text())};
+                    doSearch.call(view, label);
+
                 }
             }
         }
+    }
+
+    function doSearch(label){
+        label = label || {};
+        var view = this;
+
+        view.$el.bView("ContentView").loading();
+        var labelAssigned = !$.isEmptyObject(label);
+        var searchParameter = app.ParamsControl.getParamsForSearch({label:label.name, labelAssigned: labelAssigned});
+        searchParameter.pageIndex =  1;
+
+        app.SearchDaoHandler.search(searchParameter).always(function (result) {
+            result.labelAssigned = labelAssigned;
+            view.$el.trigger("SEARCH_RESULT_CHANGE", result);
+/*            setTimeout(function(){
+                view.$el.trigger("CHANGE_TO_FAV_VIEW",label);
+            }, 500);*/
+
+
+        });
     }
     // --------- /Utilities--------- //
 })(jQuery);

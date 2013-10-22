@@ -82,7 +82,7 @@
 
         view.contentView.loading();
         view.contentView.restoreSearchParam();
-        var searchParameter = app.ParamsControl.getParamsForSearch(search);
+        var searchParameter = app.ParamsControl.getParamsForSearch({search: search});
         searchParameter.pageIndex = opts.pageIdx || 1;
 
         searchDao.search(searchParameter).always(function (result) {

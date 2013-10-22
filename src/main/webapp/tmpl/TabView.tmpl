@@ -4,8 +4,8 @@
         <ul>
             <li class="search active"><button>Search</button></li>
             <li class="favLabel"><i class="glyphicon glyphicon-star select"></i>
-                <button class="btn">Favorites</button>
-                <!--<a class="btn" href="#/list/"-->
+                <!--<button class="btn">Favorites</button>-->
+                <a class="btn" href="#/list/">Favorites</a>
             </li>
             <li class="addFav"><input placeholder="+Add List" /></li>
         </ul>
@@ -15,8 +15,8 @@
 </script>
 <script id="TabView-new-label" type="text/html">
      <li class="favLabel" data-label-id={{id}}><i class="glyphicon glyphicon-stop"></i>
-         <button class="btn">{{name}}</button>
-         <!--<a class="btn" href="#/list/{{id}}">{{name}}</a>-->
+         <!--<button class="btn">{{name}}</button>-->
+         <a class="btn" href="#/list/{{id}}">{{name}}</a>
      </li>
 </div>
 </script>
@@ -25,8 +25,8 @@
     {{#each labels}}
      <li class="favLabel" data-label-id={{id}}>
          <i class="glyphicon glyphicon-stop"></i>
-         <button class="btn">{{name}}</button>
-         <!--<a class="btn" href="#/list/{{id}}">{{name}}</a>-->
+         <!--<button class="btn">{{name}}</button>-->
+         <a class="btn" href="#/list/{{id}}">{{name}}</a>
      </li>
     {{/each}}
 </div>

@@ -6,13 +6,14 @@ var app = app || {};
         return $("body .MainView").bView("MainView");
     }
     app.ParamsControl = {
-        getParamsForSearch: function(search){
+        getParamsForSearch: function(params){
+            params = params ||{};
             var   view = getMainView();
             var obj, key, newKey;
             var data, result = {};
             var searchData = result.searchValues = {};
             var contentSearchValues = view.contentView.getSearchValues();
-            queryKey = $.trim(search||contentSearchValues.search);
+            queryKey = $.trim(params.search||contentSearchValues.search);
             result.searchColumns = app.preference.columns().join(",");
             if(contentSearchValues.sort){
                 result.orderBy = contentSearchValues.sort.column;
@@ -22,8 +23,14 @@ var app = app || {};
                 searchData.q_search = queryKey;
             }
 
-            var label = (view.contentView.tabView.getSelectLabel()||{}).name ||"Favorites";
-            searchData.q_label = label;
+//            var label = params.label ||"Favorites";
+//            searchData.q_label = label;
+            searchData.q_labelAssigned = params.labelAssigned || false;
+            if(searchData.q_labelAssigned){
+                searchData.q_label =  params.label ||"Favorites";
+            }else{
+                searchData.q_label = view.contentView.tabView.getSelectLabel().name;
+            }
 
 
             for (key in _storeValue) {
