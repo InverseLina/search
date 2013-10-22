@@ -86,6 +86,7 @@ public class DBSetupManager {
         tableMap.put("user", orgExtraTableNames.contains("user,"));
         status.put("tables", tableMap);
         
+        status.put("pgtrgm", this.checkExtension("pg_trgm"));
         Map indexMap = new HashMap();
         String indexNames = this.checkOrgIndex(orgName)+",";
         indexMap.put("contact_ex_resume", indexNames.contains("contact_ex_idx_resume_gin,"));
@@ -341,19 +342,15 @@ public class DBSetupManager {
      * @see {@link #createIndexColumns(String)}
      */
     public int getIndexCount(String orgName){
-    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-    	String schemaname="" ;
-    	if(orgs.size()==1){
-    		schemaname = orgs.get(0).get("schemaname").toString();
-    	}
     	StringBuilder sql = new StringBuilder();
-    	sql.append(" select count(*) as count from pg_indexes ")
-    	   .append(" where indexname in ('contact_ex_idx_resume_gin',")
-    	   .append("'contact_title_trgm_gin','contact_name_trgm_gin',")
-    	   .append("'contact_firstname_trgm_gin','contact_lastname_trgm_gin')")
-    	   .append(" and schemaname='").append(schemaname)
-    	   .append("' ");
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), sql.toString());
+    	sql.append( "select count(*) as count from pg_indexes " +
+                "where indexname in ('contact_ex_idx_resume_gin','contact_title_trgm_gin'," +
+                "'contact_name_trgm_gin','contact_firstname_trgm_gin'," +
+                "'contact_lastname_trgm_gin','ts2__skill__c_name'," +
+                "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
+                "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
+                "'ts2__education_history__c_name_c') and schemaname=current_schema ");
+    	List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());
     	}
