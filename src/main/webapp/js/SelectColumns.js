@@ -16,7 +16,9 @@
             postDisplay: function (data) {
                 var view = this;
                 var columns = app.preference.columns();
-
+                if(app.buildPathInfo().labelAssigned){
+                    view.$el.addClass("favFilter");
+                }
                 $.each(columns, function(idx, item){
                      view.$el.find("input[value='" + item + "']").attr("checked", true);
                 });

@@ -391,7 +391,7 @@
 
       MainView : {
         "SEARCH_RESULT_CHANGE" : function(event, result) {
-//            console.log(result);
+          var labelAssigned = app.buildPathInfo().labelAssigned;
           var view = this;
           var $e = view.$el;
             if (org['action_add_to_sourcing'] == "true") {
@@ -411,7 +411,7 @@
         	   html = render("search-items", {
                  items : data,
                  colWidth : getColWidth.call(view),
-                 labelAssigned: result.labelAssigned||false
+                 labelAssigned: labelAssigned
                });
                view.$searchResult.find(".tableContainer").html(html);
 
@@ -432,7 +432,7 @@
                  }
                }).done(function(){
                        var pagination = view.$el.find(".pagination");
-                       if(result.labelAssigned){
+                       if(labelAssigned){
                            $e.trigger("CHANGE_TO_FAV_VIEW");
                        }else{
                            $e.trigger("RESTORE_SEARCH_VIEW");
@@ -459,7 +459,7 @@
             fixColWidth.call(view);
               showSearchInfo.call(view, result, htmlInfo, "right", 0);
               view.restoreSearchParam();
-              if(result.labelAssigned){
+              if(labelAssigned){
                   $e.trigger("CHANGE_TO_FAV_VIEW");
               }else{
                   $e.trigger("RESTORE_SEARCH_VIEW");
@@ -600,6 +600,7 @@
       }
     //checkbox
     tableWidth = tableWidth - 30;
+    tableWidth = tableWidth - 32;
     if (colLen != 0) {
       colWidth = tableWidth / colLen;
     } else {

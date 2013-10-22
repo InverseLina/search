@@ -53,6 +53,15 @@
                    return {name:"Favorites"};
                }
             },
+            getLabelName: function(id){
+               var view = this;
+               var  $li = view.$el.find("li[data-label-id='" + id + "']");
+                if($li.length >0){
+                    return $.trim($li.text());
+                }else{
+                    return "Favorites";
+                }
+            },
             events: {
                 "btap; li.search": function(event){
                     var view = this;
@@ -151,19 +160,17 @@
                 if (searchView) {
 //                    $li.trigger("RESTORE_SEARCH_VIEW");
                     location.href = "#"
-                    doSearch.call(view);
                 } else {
                     view.$el.find("li i").removeClass("select");
                     $li.find("i").addClass("select");
                     var label =  {id: $li.attr("data-label-id"), name: $.trim($li.find("a").text())};
-                    doSearch.call(view, label);
-
                 }
+                view.$el.trigger("DO_SEARCH");
             }
         }
     }
 
-    function doSearch(label){
+/*    function doSearch(label){
         label = label || {};
         var view = this;
 
@@ -175,12 +182,7 @@
         app.SearchDaoHandler.search(searchParameter).always(function (result) {
             result.labelAssigned = labelAssigned;
             view.$el.trigger("SEARCH_RESULT_CHANGE", result);
-/*            setTimeout(function(){
-                view.$el.trigger("CHANGE_TO_FAV_VIEW",label);
-            }, 500);*/
-
-
         });
-    }
+    }*/
     // --------- /Utilities--------- //
 })(jQuery);

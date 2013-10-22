@@ -23,14 +23,21 @@ var app = app || {};
                 searchData.q_search = queryKey;
             }
 
-//            var label = params.label ||"Favorites";
-//            searchData.q_label = label;
-            searchData.q_labelAssigned = params.labelAssigned || false;
+            var pathInfo = app.buildPathInfo();
+            if(pathInfo.paths && pathInfo.paths.length == 3 && pathInfo.paths[1] == "list"){
+                searchData.q_labelAssigned = true;
+                searchData.q_label = view.contentView.tabView.getLabelName(pathInfo.paths[2])
+            }else{
+                searchData.q_labelAssigned = false;
+                searchData.q_label = view.contentView.tabView.getSelectLabel().name;
+            }
+
+/*            searchData.q_labelAssigned = params.labelAssigned || false;
             if(searchData.q_labelAssigned){
                 searchData.q_label =  params.label ||"Favorites";
             }else{
                 searchData.q_label = view.contentView.tabView.getSelectLabel().name;
-            }
+            }*/
 
 
             for (key in _storeValue) {
