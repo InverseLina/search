@@ -710,7 +710,7 @@ public class SearchDao {
 	    	}
 	    	sb.append("id,name");//make id and name always return
     	}
-    	sb.append(",sfid,phone,haslabel");
+    	sb.append(",sfid,haslabel");//,phone
         return sb.toString();
     }
     
@@ -723,9 +723,10 @@ public class SearchDao {
      */
     private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy){
     	 StringBuilder columnsSql = new StringBuilder();
-    	 if(searchColumns==null){
-             columnsSql.append("a.sfid,a.phone,  a.\"id\" as id,a.\"name\" as name,lower(a.\"name\") as lname,case   when a.\"title\" is null then ''  else a.\"title\" end title ,to_char(a.\"createddate\",'yyyy-mm-dd') as createddate");
-             groupBy.append(",a.sfid,a.phone, a.\"name\",a.\"title\",a.\"createddate\",a.\"haslabel\" ");
+    	 if(searchColumns==null){//a.phone,
+             columnsSql.append("a.sfid,  a.\"id\" as id,a.\"name\" as name,lower(a.\"name\") as lname,case   when a.\"title\" is null then ''  else a.\"title\" end title ,to_char(a.\"createddate\",'yyyy-mm-dd') as createddate");
+             //,a.phone
+             groupBy.append(",a.sfid, a.\"name\",a.\"title\",a.\"createddate\",a.\"haslabel\" ");
     	 }else{
     		 String temp = "";
  	        for(String column:searchColumns.split(",")){
@@ -735,11 +736,12 @@ public class SearchDao {
 	 	            columnsSql.append(",");
  	        	}
  	        }
- 	        columnsSql.append("a.id,a.name,a.sfid,a.phone,a.haslabel");
+ 	        columnsSql.append("a.id,a.name,a.sfid,a.haslabel");//a.phone,
  	        if(groupBy.length()>0){
  	        	groupBy.append(",");
  	        }
- 	        groupBy.append("a.name,a.sfid,a.phone,a.haslabel");//always return these columns
+ 	        //a.phone,
+ 	        groupBy.append("a.name,a.sfid,a.haslabel");//always return these columns
          }
     	 return columnsSql.toString();
     }
@@ -782,7 +784,8 @@ public class SearchDao {
         
         //---------------------- add select columns ----------------------//
         querySql.append(" from ( select  distinct contact.\"mailingpostalcode\",contact.id,contact.\"email\",");
-	    querySql.append("contact.\"sfid\",contact.\"name\",contact.\"lastname\",contact.\"phone\"," );
+	    //contact.\"phone\",
+        querySql.append("contact.\"sfid\",contact.\"name\",contact.\"lastname\"," );
         querySql.append("contact.\"firstname\",contact.\"title\",contact.\"createddate\", " );
         querySql.append("case  when contact.\"ts2__text_resume__c\" is null  or " );
         querySql.append("char_length(contact.\"ts2__text_resume__c\") = 0 then -1  else contact.id end as resume ");
@@ -800,7 +803,9 @@ public class SearchDao {
         }
         
         querySql.append( " from  "+schemaname+".contact contact  " );
-        countSql.append( " from ( select  contact.\"mailingpostalcode\",contact.id,contact.\"email\",contact.\"sfid\",contact.\"name\",contact.\"lastname\",contact.\"phone\",contact.\"firstname\",contact.\"title\",contact.\"createddate\" from  "+schemaname+".contact contact   " );
+        //contact.\"phone\",
+        countSql.append( " from ( select  contact.\"mailingpostalcode\",contact.id,contact.\"email\",contact.\"sfid\",contact.\"name\",contact.\"lastname\"," +
+        		"contact.\"firstname\",contact.\"title\",contact.\"createddate\" from  "+schemaname+".contact contact   " );
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
