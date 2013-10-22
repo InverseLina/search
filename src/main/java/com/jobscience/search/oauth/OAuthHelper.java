@@ -38,7 +38,7 @@ public class OAuthHelper {
      */
     public OAuthService  getService(){
     	List<Map> list = new ArrayList();
-	    if(dbSetupManager.checkSysTables()){
+	    if(dbSetupManager.checkSysTables().contains("config")){
 	        String sql = "select * from config  where org_id = -1 ";
 	        List<Map> configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
 	        if (configList != null && configList.size() > 0) {

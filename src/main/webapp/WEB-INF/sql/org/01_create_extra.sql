@@ -1,18 +1,13 @@
 -- SCRIPTS
-drop table if exists contact_ex;
-
--- SCRIPTS
-CREATE TABLE contact_ex
+CREATE TABLE if not exists contact_ex
 (
   id bigint NOT NULL,
   resume_tsv tsvector,
-  CONSTRAINT contact_ex_pKey PRIMARY KEY (id )
+  CONSTRAINT contact_ex_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_contact_ex_contact FOREIGN KEY (id)
+      REFERENCES contact (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE
 );
-
--- SCRIPTS
-ALTER TABLE contact_ex
-  ADD CONSTRAINT fk_contact_ex_contact
-    FOREIGN KEY (id)  REFERENCES  contact(id) ON DELETE cascade;
     
 -- SCRIPTS
 	CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
@@ -26,20 +21,18 @@ ALTER TABLE contact_ex
 	END;
 	$Body$
 	LANGUAGE 'plpgsql';
-
+	
 -- SCRIPTS
-
+	DROP TRIGGER if exists contact_trg_resume_tsv ON contact  CASCADE;
+-- SCRIPTS
 CREATE TRIGGER contact_trg_resume_tsv
   BEFORE INSERT OR UPDATE OF "ts2__text_resume__c"
   ON contact
   FOR EACH ROW
   EXECUTE PROCEDURE update_context_ex_resume();
   
--- SCRIPTS  
-DROP TABLE if EXISTS savedsearches;
-
 -- SCRIPTS
-CREATE TABLE savedsearches
+CREATE TABLE if not exists savedsearches
 (
   id bigserial NOT NULL,
   user_id bigint,
@@ -51,11 +44,9 @@ CREATE TABLE savedsearches
   CONSTRAINT unq_name UNIQUE (name)
 );
 
--- SCRIPTS
-DROP TABLE if EXISTS "user";
 
 -- SCRIPTS
-CREATE TABLE "user"
+CREATE TABLE if not exists "user"
 (
   id bigserial NOT NULL,
   sfid character varying(255) NULL,
@@ -64,10 +55,7 @@ CREATE TABLE "user"
 );
 
 -- SCRIPTS
-DROP TABLE if EXISTS label;
-
--- SCRIPTS
-CREATE TABLE label
+CREATE TABLE if not exists label
 (
   id bigserial NOT NULL,
   user_id bigint,
@@ -79,10 +67,7 @@ CREATE TABLE label
 );
 
 -- SCRIPTS
-DROP TABLE if EXISTS label_contact;
-
--- SCRIPTS
-CREATE TABLE label_contact
+CREATE TABLE if not exists label_contact
 (
   label_id bigserial NOT NULL,
   contact_id bigint NOT NULL,

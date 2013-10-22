@@ -10,7 +10,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.IndexerManager;
-import com.jobscience.search.dao.SchemaType;
 import com.jobscience.search.dao.SetupStatus;
 import com.jobscience.search.exception.JSSSqlException;
 
@@ -28,6 +27,7 @@ public class DBSetupWebHanlder {
        try{
     	   dbSetupManager.createSysSchema();
        }catch (SQLException e) {
+           e.printStackTrace();
     	   return WebResponse.success(new JSSSqlException(e));
        }
        return WebResponse.success();
@@ -51,7 +51,7 @@ public class DBSetupWebHanlder {
      * @param orgName 
      * @return
      * @see SetupStatus
-     */
+     *//*
     @WebGet("/checkSetupStatus")
     public WebResponse checkSetupStatus(@WebParam("type")SchemaType type,@WebParam("orgName")String orgName){
         try{
@@ -61,8 +61,30 @@ public class DBSetupWebHanlder {
 		} catch (IOException e) {
 			return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()) );
 		}
+    }*/
+    
+    @WebGet("/checkSysSchema")
+    public WebResponse checkSysSchema (){
+        try{
+             return WebResponse.success(dbSetupManager.getSysConfig());
+        }catch (SQLException e) {
+            return WebResponse.success(new JSSSqlException(e) );
+        } catch (IOException e) {
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()) );
+        }
     }
-  
+    
+    @WebGet("/checkOrgSchema")
+    public WebResponse checkOrgSchema (@WebParam("org")String orgName){
+        try{
+             return WebResponse.success(dbSetupManager.getOrgConfig(orgName));
+        }catch (SQLException e) {
+            return WebResponse.success(new JSSSqlException(e) );
+        } catch (IOException e) {
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()) );
+        }
+    }
+    
     @WebPost("/createExtraTables")
     public WebResponse createExtraTables(@WebParam("orgName")String orgName) {
         try{

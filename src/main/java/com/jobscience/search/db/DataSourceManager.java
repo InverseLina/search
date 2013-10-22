@@ -99,7 +99,7 @@ public class DataSourceManager {
         return new DataSourceWrapper(ds, schema);
     }
 
-    private  boolean checkSysSchema(){
+    public  boolean checkSysSchema(){
     	List<Map> list = dbHelper.executeQuery(getDefaultDataSource(), "select count(*) as count from information_schema.schemata" +
         		" where schema_name='"+sysSchema+"'");
     	if(list.size()==1){

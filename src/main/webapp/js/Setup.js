@@ -95,46 +95,47 @@
       },
       "STATUS_CHANGE":function(event){
     	  var view = this;
-    	  app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
-        	  switch(result){
-	        	  case 0:	//system schema not created
-	    		  view.$el.find(".create").prop("disabled",false).html("Create System schema");
-	  			  view.$el.find(".import").prop("disabled",true).html("Import Zipcode table");
-	  			  view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm");
-	  			  break;
-  			  
-	        	  case 1:	//system schema created
-	    		  view.$el.find(".create").prop("disabled",true).html("System schema Created");
-	  			  view.$el.find(".import").prop("disabled",false).html("Import Zipcode table");
-	  			  view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm")
-	  			  break;
-	  			  
-        	  	  case 3:	//zipcode imported,pg_trgm not created
-		  		  view.$el.find(".create").prop("disabled",true).html("System schema Created");
-		  		  view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported");
-		  		  view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm")
-				  break;
-		  		  
-        	  	  case 128:	//just pg_trgm created
-    	  		  view.$el.find(".create").prop("disabled",false).html("Create System schema");
-	  			  view.$el.find(".import").prop("disabled",true).html("Import Zipcode table");
-	  			  view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
-				  break;
-				  
-        	  	  case 129:	//pg_trgm and system schema created
-        	  	  view.$el.find(".create").prop("disabled",true).html("System schema Created");
-    	  		  view.$el.find(".import").prop("disabled",false).html("Import Zipcode table");
-		  		  view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
-				  break;
-				  
-        	  	  case 131://all setup for system done
-    	  		  view.$el.find(".create").prop("disabled",true).html("System schema Created");
-    	  		  view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported");
-    	  		  view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
-    	  		  break;
-    	  		  
-        	  	  default: view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html("Fail to load status,Please try to refresh page.")
-        	  }
+    	  app.getJsonData("/checkSysSchema",{},{type:"Get"}).done(function(result){
+    		  if(result.pgtrgm){
+    			  view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
+    		  }else{
+    			  view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm");
+    		  }
+    		  var schemaInfo = "";
+    		  if(!result.schema_create){
+    			  schemaInfo+="schema not created"
+    		  }else{
+	    		  if(!result.tables.config){
+	    			  schemaInfo+="config "
+	    		  }
+	    		  if(!result.tables.org){
+	    			  schemaInfo+="org "
+	    		  }
+	    		  if(!result.tables.zipcode_us){
+	    			  schemaInfo+="zipcode_us "
+	    		  }
+    		  }
+    			
+    		  if(schemaInfo){
+    			  view.$el.find(".create").prop("disabled",false).html("Create System schema");
+    		  }else{
+    			  console.log(schemaInfo);
+    			  view.$el.find(".create").prop("disabled",true).html("System schema Created");
+    		  }
+    		  
+    		  if(result.zipcode_import){
+    			  view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported");
+    		  }else{
+    			  if(result.tables.zipcode_us){
+    				  view.$el.find(".import").prop("disabled",false).html("Import Zipcode table");
+    			  }else{
+    				  view.$el.find(".import").prop("disabled",true).html("Import Zipcode table");
+    			  }
+    		  }
+        	
+    		  if(result.errorMsg){
+    			  view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html("Fail to load status,Please try to refresh page.")
+    		  }
           });
       },
       "FILLDATA":function(event,result){

@@ -194,8 +194,51 @@
 		 "STATUS_CHANGE":function(event,init){
 	    	  var view = this;
 	    	  var orgName = view.currentOrgName;
-	    	  app.getJsonData("/checkSetupStatus",{type:"ORG",orgName:orgName},{type:"Get"}).done(function(result){
-	    		  switch(result){
+	    	  app.getJsonData("/checkOrgSchema",{org:orgName},{type:"Get"}).done(function(result){
+	    		  console.log(result);
+	    		  var tableInfo = "";
+	    		  for(var table in result.tables){
+	    			 if(!result.tables[table]){
+	    				 tableInfo+=table+" ";
+	    			 }
+	    		  }
+	    		  
+	    		  if(tableInfo){
+	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables");
+	    		  }else{
+	    			  view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	    		  }
+	    		  var indexInfo = "";
+	    		  for(var indexName in result.indexes){
+	    			 if(!result.indexes[indexName]){
+	    				 indexInfo+=indexName+" ";
+	    			 }
+	    		  }
+	    		  if(indexInfo){
+	    			  view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
+	    		  }else{
+	    			  view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
+	    		  }
+	    		  
+	    		  if(result.resume=="running"){
+	    			  view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
+	    			  view.intervalId = window.setInterval(function(){
+				    	   $(view.el).trigger("RESUMEINDEXSTATUS");
+	  		  			}, 3000);
+	    			  view.$el.trigger("RESUMEINDEXSTATUS");
+	    		  }else if(result.resume=="done"){
+	    			  view.$el.find(".resume").prop("disabled",true).html("Index Resume created");
+	    			  view.$el.trigger("RESUMEINDEXSTATUS");
+	    		  }else if(result.resume=="part"){
+	    			  view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume");
+	    			  view.$el.trigger("RESUMEINDEXSTATUS");
+	    		  }else{
+	    			  if(tableInfo.indexOf("contact_ex")==-1){
+	    				  view.$el.find(".resume").prop("disabled",false);
+	    			  }
+	    		  }
+	    		  
+	    		 /* switch(result){
 	    		  	case 3: 	// system schema created,org schema not existed not created
 	    			view.$el.find(".extra,.index,.resume").prop("disabled",true);
 		  		  	break;
@@ -280,7 +323,7 @@
 	  		  		view.$el.trigger("RESUMEINDEXSTATUS");
 					break;
 					
-	        	  }
+	        	  }*/
 	          });
 	      }
     }

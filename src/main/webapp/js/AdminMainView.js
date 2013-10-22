@@ -15,15 +15,10 @@
 		 $(".home").removeClass("hide");
 		 $(".config").addClass("hide");
 		 view.$el.find(".organization-tab").addClass("hide");
-		 app.getJsonData("/checkSetupStatus",{type:"SYSTEM"},{type:"Get"}).done(function(result){
-	    	  switch(result){
-		    	  case 1   ://system schema created
-		    	  case 3   ://zipcode imported
-		    	  case 129 ://system schema created and pg_trgm created
-		    	  case 131 ://system schema created and pg_trgm created and zipcode imported
-		    	  view.$el.find(".organization-tab").removeClass("hide");
-	  			  break;
-	    	  }
+		 app.getJsonData("/checkSysSchema",{},{type:"Get"}).done(function(result){
+			 if(result.schema_create){
+				 view.$el.find(".organization-tab").removeClass("hide");
+			 }
 	      });
 
 		 this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());

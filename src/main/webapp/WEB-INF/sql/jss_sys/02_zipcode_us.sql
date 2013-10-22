@@ -1,5 +1,5 @@
 -- SCRIPTS
-CREATE TABLE zipcode_us
+CREATE TABLE if not exists zipcode_us
 (
   zip character(5) NOT NULL,
   city character varying(64),

@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -52,8 +53,74 @@ public class DBSetupManager {
 		public Object load(String key) throws Exception {
 			return key;
 	}});
+ 
+    public Map getSysConfig() throws SQLException, IOException{
+        Map status = new HashMap();
+        status.put("schema_create", dsMng.checkSysSchema());
+        
+        String sysTableNames = this.checkSysTables();
+        Map tableMap = new HashMap();
+        tableMap.put("org", sysTableNames.contains("org"));
+        tableMap.put("config", sysTableNames.contains("config"));
+        tableMap.put("zipcode_us", sysTableNames.contains("zipcode_us"));
+        status.put("tables", tableMap);
+        
+        if(sysTableNames.contains("zipcode_us")){
+            status.put("zipcode_import", this.checkZipcodeImported());
+        }else{
+            status.put("zipcode_import", false);
+        }
+        status.put("pgtrgm", this.checkExtension("pg_trgm"));
+        return status;
+    }
     
-    public Integer checkSetupStatus(SchemaType type,String orgName) throws SQLException, IOException{
+    public Map getOrgConfig(String orgName) throws SQLException, IOException{
+        Map status = new HashMap();
+        status.put("schema_create", this.checkSchema(orgName));
+        String orgExtraTableNames = this.checkOrgExtra(orgName)+",";
+        Map tableMap = new HashMap();
+        tableMap.put("label", orgExtraTableNames.contains("label,"));
+        tableMap.put("label_contact", orgExtraTableNames.contains("label_contact,"));
+        tableMap.put("contact_ex", orgExtraTableNames.contains("contact_ex,"));
+        tableMap.put("savedsearches", orgExtraTableNames.contains("savedsearches,"));
+        tableMap.put("user", orgExtraTableNames.contains("user,"));
+        status.put("tables", tableMap);
+        
+        Map indexMap = new HashMap();
+        String indexNames = this.checkOrgIndex(orgName)+",";
+        indexMap.put("contact_ex_resume", indexNames.contains("contact_ex_idx_resume_gin,"));
+        indexMap.put("contact_title", indexNames.contains("contact_title_trgm_gin,"));
+        indexMap.put("contact_name", indexNames.contains("contact_name_trgm_gin,"));
+        indexMap.put("contact_firstname", indexNames.contains("contact_firstname_trgm_gin,"));
+        indexMap.put("contact_lastname", indexNames.contains("contact_lastname_trgm_gin,"));
+        indexMap.put("ts2__skill__c_name", indexNames.contains("ts2__skill__c_name,"));
+        indexMap.put("ts2__skill__c_contact_c", indexNames.contains("ts2__skill__c_contact_c,"));
+        indexMap.put("ts2__employment_history__c_contact_c", indexNames.contains("ts2__employment_history__c_contact_c,"));
+        indexMap.put("ts2__employment_history__c_name_c", indexNames.contains("ts2__employment_history__c_name_c,"));
+        indexMap.put("ts2__education_history__c_contact_c", indexNames.contains("ts2__education_history__c_contact_c,"));
+        indexMap.put("ts2__education_history__c_name_c", indexNames.contains("ts2__education_history__c_name_c,"));
+        status.put("indexes", indexMap);
+        
+        if(orgExtraTableNames.contains("contact_ex,")){
+            if(indexerManager.isOn()){
+                status.put("resume", "running");
+            }else{
+                if(indexerManager.getStatus(orgName).getRemaining()==0){
+                    status.put("resume", "done");
+                }else{
+                    if(indexerManager.getStatus(orgName).getPerform()>0){
+                        status.put("resume","part");
+                    }else{
+                        status.put("resume", false);
+                    }
+                }
+            }
+        }else{
+            status.put("resume", false);
+        }
+        return status;
+    }
+    /*public Integer checkSetupStatus(SchemaType type,String orgName) throws SQLException, IOException{
     	Integer status =0;
     	if(checkSysTables()){
     		status=SetupStatus.SYS_SCHEMA_CREATED.getValue();
@@ -101,7 +168,7 @@ public class DBSetupManager {
         	}
     	}
         return status;
-    }
+    }*/
     
     /**
      * create extension for public schema
@@ -173,15 +240,17 @@ public class DBSetupManager {
      * check the system tables existed or not
      * @return
      */
-    public  boolean checkSysTables(){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select count(*) as count from information_schema.tables" +
+    public  String checkSysTables(){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select string_agg(table_name,',') as names from information_schema.tables" +
         		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
     	if(list.size()==1){
-    		if("3".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
+    	    String names = (String)list.get(0).get("names");
+    	    if(names==null){
+    	        return "";
+    	    }
+    	    return names;
     	}
-    	return false;
+    	return "";
     }
     
     /**
@@ -396,15 +465,23 @@ public class DBSetupManager {
      * @param schemaname
      * @return
      */
-    private boolean checkOrgIndex(String schemaname){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from pg_indexes " +
-    			"where indexname='contact_ex_idx_resume_gin' and schemaname='"+schemaname+"'");
+    private String checkOrgIndex(String orgName){
+    	List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), 
+    	            "select string_agg(indexname,',') as names from pg_indexes " +
+    	            "where indexname in ('contact_ex_idx_resume_gin','contact_title_trgm_gin'," +
+    	            "'contact_name_trgm_gin','contact_firstname_trgm_gin'," +
+    	            "'contact_lastname_trgm_gin','ts2__skill__c_name'," +
+    	            "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
+    	            "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
+    	            "'ts2__education_history__c_name_c') and schemaname=current_schema ");
     	if(list.size()==1){
-    		if(Integer.parseInt(list.get(0).get("count").toString())>0){
-    			return true;
-    		}
-    	}
-    	return false;
+            String names = (String)list.get(0).get("names");
+            if(names==null){
+                return "";
+            }
+            return names;
+        }
+    	return "";
     }
     
     /**
@@ -428,20 +505,22 @@ public class DBSetupManager {
      * @param orgName
      * @return
      */
-    private  boolean checkOrgExtra(String orgName){
+    private  String checkOrgExtra(String orgName){
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
     	String schemaname="" ;
     	if(orgs.size()==1){
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('contact_ex','savedsearches','user')");
+    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select string_agg(table_name,',') as names from information_schema.tables" +
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','contact_ex','savedsearches','user')");
     	if(list.size()==1){
-    		if("3".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
-    	return false;
+            String names = (String)list.get(0).get("names");
+            if(names==null){
+                return "";
+            }
+            return names;
+        }
+    	return "";
     }
     
     /**
@@ -470,7 +549,7 @@ public class DBSetupManager {
      * @param orgName
      * @param table
      * @return
-     */
+     *//*
     private  boolean checkTable(String orgName,String table){
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
     	String schemaname="" ;
@@ -485,5 +564,13 @@ public class DBSetupManager {
     		}
     	}
     	return false;
+    }
+    */
+    public static void main(String[] args) {
+        String a="-- SCRIPTS create-table:org"+System.getProperty("line.separator")+"CREATE TABLE org";
+        for(String b:a.split("-- SCRIPTS")){
+            if(!b.trim().equals(""))
+                System.out.println(b.substring(0,b.indexOf(System.getProperty("line.separator"))));
+        }
     }
 }    

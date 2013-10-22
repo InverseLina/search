@@ -1,5 +1,5 @@
 -- SCRIPTS
-CREATE TABLE org
+CREATE TABLE if not exists org
 (
   id serial NOT NULL,
   name character varying(255) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE org
   CONSTRAINT unique_name UNIQUE (name)
 );
 -- SCRIPTS
-CREATE TABLE config
+CREATE TABLE if not exists config
 (
   id serial not null,
   org_id int,
