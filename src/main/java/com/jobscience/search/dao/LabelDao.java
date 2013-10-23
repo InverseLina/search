@@ -45,9 +45,9 @@ public class LabelDao {
                 "select * from  label where id=?", labelId);
     }
     
-    public  List<Map>  getLabelByName(String name){
+    public  List<Map>  getLabelByName(String name, Object userId){
         return dbHelper.executeQuery(orgHolder.getOrgName(),
-                "select * from  label where name=? limit 1", name);
+                "select * from  label where name=? and user_id = ? limit 1", name, userId);
     }
     
     

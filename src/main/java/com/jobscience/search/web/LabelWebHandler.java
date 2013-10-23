@@ -27,7 +27,7 @@ public class LabelWebHandler {
         if (ctoken != null) {
             Map user = userDao.getUserByToken(ctoken);
             if (user != null) {
-                List list = labelDao.getLabelByName(name);
+                List list = labelDao.getLabelByName(name, user.get("id"));
                 if (list != null && list.size() > 0) {
                     return WebResponse.success(String.format("label of name %s has exits", name));
                 }
@@ -68,7 +68,7 @@ public class LabelWebHandler {
         if (ctoken != null) {
             Map user = userDao.getUserByToken(ctoken);
             if (user != null) {
-                return WebResponse.success(labelDao.getLabelByName(name));
+                return WebResponse.success(labelDao.getLabelByName(name, user.get("id")));
             }
         }
         return WebResponse.fail();
@@ -93,9 +93,14 @@ public class LabelWebHandler {
     
     @WebGet("/getLabelStatus")
     public WebResponse getLabelStatus(@WebParam("contactIds")String contactIds,@WebParam("labelId")Long labelId){
-        if(contactIds.startsWith("[")&&contactIds.endsWith("]")){
-            contactIds = contactIds.substring(1,contactIds.length()-2);
+        if(contactIds !=null &&contactIds.startsWith("[")&&contactIds.endsWith("]")){
+            if(!contactIds.equals("[]")){
+                contactIds = contactIds.substring(1,contactIds.length()-1);
+                return WebResponse.success(labelDao.getLabelStatus(contactIds, labelId));
+            }
+
         }
         return WebResponse.success(labelDao.getLabelStatus(contactIds, labelId));
+
     }
 }
