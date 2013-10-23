@@ -28,7 +28,12 @@
           }else{
               userName="";
           }
-    	  view.$el.find(".sf-info").html((app.cookie("org")||" ")+userName.replace(/"/g,""));
+          var $sfInfo =view.$el.find(".sf-info");
+          var configOffset = $(".navbar .admin.config").offset();
+          configOffset.top = -53;
+          configOffset.left = configOffset.left - $sfInfo.width() -30;
+    	  $sfInfo.html((app.cookie("org")||" ")+userName.replace(/"/g,""));
+          $sfInfo.css(configOffset)
       }
         brite.display("TabView").done(function(tabView){
             view.tabView = tabView;
