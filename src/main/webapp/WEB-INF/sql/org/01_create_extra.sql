@@ -26,7 +26,7 @@ CREATE TABLE if not exists contact_ex
 	DROP TRIGGER if exists contact_trg_resume_tsv ON contact  CASCADE;
 -- SCRIPTS
 CREATE TRIGGER contact_trg_resume_tsv
-  BEFORE INSERT OR UPDATE OF "ts2__text_resume__c"
+  AFTER INSERT OR UPDATE OF "ts2__text_resume__c"
   ON contact
   FOR EACH ROW
   EXECUTE PROCEDURE update_context_ex_resume();

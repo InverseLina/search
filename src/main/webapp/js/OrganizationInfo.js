@@ -191,6 +191,16 @@
 	 	    	   fillProgressBar.call(view,percentage,data.perform,data.perform+data.remaining);
 			 });
 		},
+		"click;.multiply":function(event){
+			var view = this;
+			 app.getJsonData("/multiplyData",{orgName:view.currentOrgName,times:2},{type:"POST"}).done(function(data){
+				 
+			 });
+		},
+		"click;.drawdown":function(event){
+			var view = this;
+			$(event.target).next().show();
+		},
 		 "STATUS_CHANGE":function(event,init){
 	    	  var view = this;
 	    	  var orgName = view.currentOrgName;
