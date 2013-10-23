@@ -342,7 +342,7 @@
           view.$el.find(".search-form").hide();
           view.$el.find(".saveSearchesContainer ").hide();
           view.$el.find(".empty-search").hide();
-          view.$el.find(".page").hide();
+//          view.$el.find(".page").hide();
 //          console.log(extra);
       },
       "RESTORE_SEARCH_VIEW": function(event){
@@ -353,7 +353,7 @@
           view.$el.find(".btnPopupColumns").removeClass("favFilter");
           view.$el.find(".search-form").show();
           view.$el.find(".saveSearchesContainer ").show();
-          view.$el.find(".page").show();
+//          view.$el.find(".page").show();
       },
         CHANGE_SELECT_LABEL: function(event){
             var view = this;

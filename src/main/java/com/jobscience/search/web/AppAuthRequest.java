@@ -18,6 +18,8 @@ import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.UserDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class AppAuthRequest implements AuthRequest {
@@ -29,6 +31,8 @@ public class AppAuthRequest implements AuthRequest {
     private ConfigManager configManager;
     @Inject
     private DBSetupManager dbSetupManager;
+
+    private static final Logger log = LoggerFactory.getLogger(AppAuthRequest.class);
     
     @Override
     public AuthToken authRequest(RequestContext rc) {
@@ -54,13 +58,13 @@ public class AppAuthRequest implements AuthRequest {
         if (path.equals("/")) {
             String ctoken = rc.getCookie("ctoken");
             if (ctoken == null) {
-                ctoken = userDao.buildCToken(null);
                 try {
-                    userDao.insertUser(null,ctoken);
+                    ctoken = userDao.buildCToken(null);
+                    userDao.insertUser(null, ctoken);
+                    rc.setCookie("ctoken", ctoken);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.warn("add user fail", e);
                 }
-                rc.setCookie("ctoken", ctoken);
             }
         }
         //check org is set or not
