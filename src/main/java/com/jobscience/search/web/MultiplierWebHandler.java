@@ -3,6 +3,7 @@ package com.jobscience.search.web;
 import java.sql.SQLException;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
+import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -19,6 +20,11 @@ public class MultiplierWebHandler {
             @WebParam("times")Integer times) throws SQLException{
         multiplierManager.multiplyData(times, orgName);
         return WebResponse.success();
+    }
+    
+    @WebGet("/getMultiplyStatus")
+    public WebResponse getStatus(){
+        return WebResponse.success(multiplierManager.getStatus());
     }
     
 }

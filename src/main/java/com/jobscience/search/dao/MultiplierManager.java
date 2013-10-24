@@ -24,7 +24,11 @@ public class MultiplierManager {
     @Inject
     private CurrentOrgHolder currentOrgHolder;
     
-    public void multiplyData(int times,String orgName) throws SQLException{
+    private volatile int currentTime;
+    private volatile Long performCounts;
+    private volatile Long contactCounts;
+    
+    public synchronized void multiplyData(Integer times,String orgName) throws SQLException{
        List<String> sqlCommands= dbSetupManager.getSqlCommandForOrg("04_multiply_data.sql");
        for(String sql:sqlCommands){
            if(!sql.trim().equals("")){
@@ -58,24 +62,35 @@ public class MultiplierManager {
                 newConfig.put("origin_count", origin_count);
             }
         }
-       
+        contactCounts = origin_count;
         configManager.saveOrUpdateConfig(newConfig, orgId);
+        currentTime = 0;
         while(times>0){
             Long perform = 0L;
+            performCounts = perform;
+            currentTime++;
             while(origin_count-perform>1000){
                 dbHelper.executeQuery(orgName,"select multiplydata("+perform+",1000,"+current_iteration_number+")");
                 perform+=1000;
+                performCounts = perform;
             }
             if(origin_count-perform>0){
                 dbHelper.executeQuery(orgName,"select multiplydata("+perform+","+(origin_count-perform)+","+current_iteration_number+")");
                 perform = origin_count;
+                performCounts = perform;
             }
             times--;
         }
        
     }
     
-    
+    public Map<String,Object> getStatus(){
+        Map<String,Object> m = new HashMap<String, Object>();
+        m.put("currentTime", currentTime);
+        m.put("performCounts", performCounts);
+        m.put("contactCounts",contactCounts );
+        return m;
+    }
 }
 
 
