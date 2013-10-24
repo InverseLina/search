@@ -79,9 +79,13 @@
 
 <script id="search-query-notfound" type="text/html">
     {{#colBody 'search-items-header-with-body'}}
-        <div class="alert alert-block alert-info fade in">
-            <strong>Nothing found,</strong> please change search criteria and retry
-        </div>
+        {{#if labelAssigned}}
+        {{else}}
+            <div class="alert alert-block alert-info fade in">
+                <strong>Nothing found,</strong> please change search criteria and retry
+            </div>
+        {{/if}}
+
     {{/colBody}}
 </script>
 

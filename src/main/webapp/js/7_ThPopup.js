@@ -184,8 +184,10 @@ var app = app || {};
 
         	 searchDao.getGroupValuesForAdvanced(searchCond).done(function(data){
                  if(view && view.$el){
+                   if(data.queryString == $.trim($input.val())){
                      view.$el.find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data.list,type:type}));
                      activeFirstItem.call(view);
+                   }
                  }
              });
 

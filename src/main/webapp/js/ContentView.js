@@ -105,12 +105,12 @@
         }
         event.stopPropagation();
       },
-      "btap; table th[data-column]" : function(event) {
+      "btap; table th[data-column] .selectedItems" : function(event) {
           event.preventDefault();
           event.stopPropagation();
     	  var view = this;
     	  //$("[data-b-view^='Filter']",view.$el).bRemove();
-    	  var $th = $(event.currentTarget);
+    	  var $th = $(event.currentTarget).closest("th");
     	  var position = {top:$th.get(0).offsetTop+$th.height() + 40,left:$th.get(0).offsetLeft+$th.width()/2-195};
 //          console.log(position);
           if(position.left <  20 ){
@@ -465,7 +465,8 @@
           } else {
             $e.find(".actions").hide();
             view.$searchResult.find(".tableContainer").html(render("search-query-notfound", {
-              colWidth : getColWidth.call(view)
+              colWidth : getColWidth.call(view),
+              labelAssigned: app.buildPathInfo().labelAssigned
             }));
             view.$searchResult.find(".page").empty();
             fixColWidth.call(view);

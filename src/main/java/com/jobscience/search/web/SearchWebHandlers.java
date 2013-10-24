@@ -140,6 +140,7 @@ public class SearchWebHandlers {
         if (queryString == null) {
             queryString = "";
         }
+        result.put("queryString", queryString);
         Map searchMap = new HashMap();
         for(Object key:jo.keySet()){
         	searchMap.put(key.toString().substring(2),jo.get(key).toString());
