@@ -196,14 +196,18 @@
 			 if(!view.time ){
 				 view.time  = 1;
 			 }
+			 if(!view.tableName){
+				 view.tableName = "contact";
+			 }
 			 var $btn = $(event.target);
 			 if($btn.prop("disabled")){
 				 return false;
 			 }
 			 $btn.prop("disabled",true);
-			 app.getJsonData("/multiplyData",{orgName:view.currentOrgName,times:view.time},{type:"POST"}).done(function(data){
+			 app.getJsonData("/multiplyData",{orgName:view.currentOrgName,times:view.time,tableName:view.tableName},{type:"POST"}).done(function(data){
 				 window.clearInterval(view.multiplyIntervalId);
 				 $btn.prop("disabled",false);
+				 view.$el.trigger("MULTIPLY_STATUS_CHANGE");
 			 });
 			 view.multiplyIntervalId = window.setInterval(function(){
 		    	   $(view.el).trigger("MULTIPLY_STATUS_CHANGE");
@@ -226,10 +230,18 @@
 		},
 		"click;[data-time]":function(event){
 			var view = this;
-			var $li = $(event.target);
+			var $li = $(event.currentTarget);
 			$li.closest(".time-list").hide();
 			view.time = $li.attr("data-time");
 			$li.closest(".control-group").find("[name='time']").val($li.attr("data-time"));
+		},
+		"click;[data-table]":function(event){
+			var view = this;
+			var $li = $(event.currentTarget);
+			$li.closest(".table-list").hide();
+			view.tableName = $li.attr("data-table");
+			console.log($li.attr("data-table"));
+			$li.closest(".control-group").find("[name='tableName']").val($li.attr("data-table"));
 		},
 		 "STATUS_CHANGE":function(event,init){
 	    	  var view = this;

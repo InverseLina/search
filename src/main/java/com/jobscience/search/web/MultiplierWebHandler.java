@@ -17,8 +17,8 @@ public class MultiplierWebHandler {
     
     @WebPost("/multiplyData")
     public WebResponse multiplyData(@WebParam("orgName")String orgName,
-            @WebParam("times")Integer times) throws SQLException{
-        multiplierManager.multiplyData(times, orgName);
+            @WebParam("times")Integer times,@WebParam("tableName")String tableName) throws SQLException{
+        multiplierManager.multiplyData(times, orgName,tableName);
         return WebResponse.success();
     }
     
