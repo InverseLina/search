@@ -40,6 +40,14 @@
         });
 
         brite.display("SavedSearches");
+        if(app.startError){
+           setTimeout(function(){
+            view.$searchInfo.empty();
+            view.$el.find("input").attr("disabled", true);
+            brite.display("MessagePanel", ".search-result", {message: app.startError.errorMessage})
+            delete app.startError;
+           }, 100);
+        }
     },
     // --------- /View Interface Implement--------- //
 
@@ -335,7 +343,6 @@
             var view = this;
             view.$searchInfo.empty();
             view.$el.find("input").attr("disabled", true);
-
             brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
         } ,
       "CHANGE_TO_FAV_VIEW": function(event, extra){

@@ -43,9 +43,7 @@
     [@includeFrameContent /]
     [#if errorCode??]
         <script type="text/javascript">
-            setTimeout(function(){
-                $(document).trigger("ERROR_PROCESS", {errorMessage:"${errorMessage}"});
-            }, 200);
+            app.startError = {errorCode: "${errorCode}", errorMessage: "${errorMessage}"}
         </script>
     [/#if]
     </div>
