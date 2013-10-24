@@ -105,12 +105,12 @@
         }
         event.stopPropagation();
       },
-      "btap; table th[data-column]" : function(event) {
+      "btap; table th[data-column] .selectedItems" : function(event) {
           event.preventDefault();
           event.stopPropagation();
     	  var view = this;
     	  //$("[data-b-view^='Filter']",view.$el).bRemove();
-    	  var $th = $(event.currentTarget);
+    	  var $th = $(event.currentTarget).closest("th");
     	  var position = {top:$th.get(0).offsetTop+$th.height() + 40,left:$th.get(0).offsetLeft+$th.width()/2-195};
 //          console.log(position);
           if(position.left <  20 ){
