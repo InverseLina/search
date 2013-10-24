@@ -28,6 +28,10 @@
          	  view.$navTabs.append(li);
     	  });
        }
+      
+      $(document).on("btap." + view.cid, function(event){
+    	 $(".time-list,.table-list",view.$el).hide();
+      });
     },
     // --------- /View Interface Implement--------- //
     
@@ -226,7 +230,15 @@
 		},
 		"click;.drawdown":function(event){
 			var view = this;
-			$(event.target).next().toggle();
+			var $arrow = $(event.currentTarget);
+			if($arrow.next().css("display")!="none"){
+				$arrow.next().hide();
+			}else{
+				$arrow.next().show();
+			}
+			
+			
+			
 		},
 		"click;[data-time]":function(event){
 			var view = this;
