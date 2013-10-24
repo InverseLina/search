@@ -465,7 +465,8 @@
           } else {
             $e.find(".actions").hide();
             view.$searchResult.find(".tableContainer").html(render("search-query-notfound", {
-              colWidth : getColWidth.call(view)
+              colWidth : getColWidth.call(view),
+              labelAssigned: app.buildPathInfo().labelAssigned
             }));
             view.$searchResult.find(".page").empty();
             fixColWidth.call(view);
