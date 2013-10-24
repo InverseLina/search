@@ -191,6 +191,46 @@
 	 	    	   fillProgressBar.call(view,percentage,data.perform,data.perform+data.remaining);
 			 });
 		},
+		"click;.multiply":function(event){
+			 var view = this;
+			 if(!view.time ){
+				 view.time  = 1;
+			 }
+			 var $btn = $(event.target);
+			 if($btn.prop("disabled")){
+				 return false;
+			 }
+			 $btn.prop("disabled",true);
+			 app.getJsonData("/multiplyData",{orgName:view.currentOrgName,times:view.time},{type:"POST"}).done(function(data){
+				 window.clearInterval(view.multiplyIntervalId);
+				 $btn.prop("disabled",false);
+			 });
+			 view.multiplyIntervalId = window.setInterval(function(){
+		    	   $(view.el).trigger("MULTIPLY_STATUS_CHANGE");
+		  		}, 3000);
+			 view.$el.trigger("MULTIPLY_STATUS_CHANGE");
+		},
+		"MULTIPLY_STATUS_CHANGE":function(event){
+			 var view = this;
+			 var $info = view.$el.find(".multiply-info");
+			 $info.show();
+			 app.getJsonData("/getMultiplyStatus",{},{type:"GET"}).done(function(data){
+				 $(".time",$info).html(data.currentTime);
+				 $(".perform",$info).html(data.performCounts);
+				 $(".total",$info).html(data.contactCounts);
+			 });
+		},
+		"click;.drawdown":function(event){
+			var view = this;
+			$(event.target).next().toggle();
+		},
+		"click;[data-time]":function(event){
+			var view = this;
+			var $li = $(event.target);
+			$li.closest(".time-list").hide();
+			view.time = $li.attr("data-time");
+			$li.closest(".control-group").find("[name='time']").val($li.attr("data-time"));
+		},
 		 "STATUS_CHANGE":function(event,init){
 	    	  var view = this;
 	    	  var orgName = view.currentOrgName;

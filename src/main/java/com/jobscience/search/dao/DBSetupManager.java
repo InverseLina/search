@@ -563,11 +563,7 @@ public class DBSetupManager {
     	return false;
     }
     */
-    public static void main(String[] args) {
-        String a="-- SCRIPTS create-table:org"+System.getProperty("line.separator")+"CREATE TABLE org";
-        for(String b:a.split("-- SCRIPTS")){
-            if(!b.trim().equals(""))
-                System.out.println(b.substring(0,b.indexOf(System.getProperty("line.separator"))));
-        }
-    }
+   public List<String> getSqlCommandForOrg(String fileName){
+       return loadSQLFile(new File(getRootSqlFolderPath()+"/org/"+fileName));
+   }
 }    
