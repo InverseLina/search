@@ -16,9 +16,12 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.oauth.ForceAuthService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ConfigWebHandlers {
+    private static final Logger log = LoggerFactory.getLogger(ConfigWebHandlers.class);
 
     @Inject
     private ConfigManager configManager;
@@ -31,8 +34,14 @@ public class ConfigWebHandlers {
                             @WebParam("orgId") Integer orgId) throws SQLException {
         Map paramConfigs = JsonUtil.toMapAndList(configsJson);
         configManager.saveOrUpdateConfig(paramConfigs,orgId);
-        forceAuthService.reloadService();
-        return WebResponse.success();
+        try {
+            forceAuthService.reloadService();
+            return WebResponse.success();
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+            return WebResponse.fail(e.getMessage());
+        }
+
     }
 
     @WebGet("/config/get/{name}")
