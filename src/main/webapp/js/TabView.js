@@ -38,7 +38,10 @@
                             view.$el.find("li.favLabel a").attr("href", "#/list/" +id);
                         });
                     }
-                    view.$el.trigger("PATH_INFO_CHANGE", view.pathInfo)
+                    view.$el.trigger("PATH_INFO_CHANGE", view.pathInfo);
+                    var offset = view.$el.offset();
+                    var bodyWidth = $("body").width();
+                    view.$el.css({"max-width":bodyWidth - 180 - offset.left})
                 })
 
             },
