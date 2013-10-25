@@ -467,10 +467,10 @@ public class DBSetupManager {
     	            "select string_agg(indexname,',') as names from pg_indexes " +
     	            "where indexname in ('contact_ex_idx_resume_gin','contact_title_trgm_gin'," +
     	            "'contact_name_trgm_gin','contact_firstname_trgm_gin'," +
-    	            "'contact_lastname_trgm_gin','ts2__skill__c_name'," +
-    	            "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
-    	            "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-    	            "'ts2__education_history__c_name_c') and schemaname=current_schema ");
+    	            "'contact_lastname_trgm_gin','ts2__skill__c_name_gin'," +
+    	            "'ts2__skill__c_contact_c_gin','ts2__employment_history__c_contact_c_gin'," +
+    	            "'ts2__employment_history__c_name_c_gin','ts2__education_history__c_contact_c_gin'," +
+    	            "'ts2__education_history__c_name_c_gin') and schemaname=current_schema ");
     	if(list.size()==1){
             String names = (String)list.get(0).get("names");
             if(names==null){
