@@ -74,10 +74,10 @@
 	    SELECT 1
 	    FROM   pg_class c
 	    JOIN   pg_namespace n ON n.oid = c.relnamespace
-	    WHERE  c.relname = 'ts2__skill__c_name'
+	    WHERE  c.relname = 'ts2__skill__c_name_gin'
 	    AND    n.nspname =   current_schema
 	    ) THEN
-	   CREATE INDEX ts2__skill__c_name  ON ts2__skill__c  USING gin ("ts2__skill_name__c" public.gin_trgm_ops);
+	   CREATE INDEX ts2__skill__c_name_gin  ON ts2__skill__c  USING gin ("ts2__skill_name__c" public.gin_trgm_ops);
 	END IF;
 	END$$;
 
@@ -88,10 +88,10 @@
 	    SELECT 1
 	    FROM   pg_class c
 	    JOIN   pg_namespace n ON n.oid = c.relnamespace
-	    WHERE  c.relname = 'ts2__skill__c_contact_c'
+	    WHERE  c.relname = 'ts2__skill__c_contact_c_gin'
 	    AND    n.nspname =   current_schema
 	    ) THEN
-	   CREATE INDEX ts2__skill__c_contact_c ON ts2__skill__c  USING gin ("ts2__contact__c" public.gin_trgm_ops);
+	   CREATE INDEX ts2__skill__c_contact_c_gin ON ts2__skill__c  USING gin ("ts2__contact__c" public.gin_trgm_ops);
 	END IF;
 	END$$;
 
@@ -102,10 +102,10 @@
 	    SELECT 1
 	    FROM   pg_class c
 	    JOIN   pg_namespace n ON n.oid = c.relnamespace
-	    WHERE  c.relname = 'ts2__employment_history__c_contact_c'
+	    WHERE  c.relname = 'ts2__employment_history__c_contact_c_gin'
 	    AND    n.nspname =   current_schema
 	    ) THEN
-	   CREATE INDEX ts2__employment_history__c_contact_c  ON ts2__employment_history__c  USING gin ("ts2__contact__c" public.gin_trgm_ops);
+	   CREATE INDEX ts2__employment_history__c_contact_c_gin  ON ts2__employment_history__c  USING gin ("ts2__contact__c" public.gin_trgm_ops);
 	END IF;
 	END$$;
 
@@ -116,10 +116,10 @@
 	    SELECT 1
 	    FROM   pg_class c
 	    JOIN   pg_namespace n ON n.oid = c.relnamespace
-	    WHERE  c.relname = 'ts2__employment_history__c_name_c'
+	    WHERE  c.relname = 'ts2__employment_history__c_name_c_gin'
 	    AND    n.nspname =   current_schema
 	    ) THEN
-	   CREATE INDEX ts2__employment_history__c_name_c  ON ts2__employment_history__c  USING gin ("ts2__name__c" public.gin_trgm_ops);
+	   CREATE INDEX ts2__employment_history__c_name_c_gin  ON ts2__employment_history__c  USING gin ("ts2__name__c" public.gin_trgm_ops);
 	END IF;
 	END$$;
 
@@ -130,10 +130,10 @@
 	    SELECT 1
 	    FROM   pg_class c
 	    JOIN   pg_namespace n ON n.oid = c.relnamespace
-	    WHERE  c.relname = 'ts2__education_history__c_contact_c'
+	    WHERE  c.relname = 'ts2__education_history__c_contact_c_gin'
 	    AND    n.nspname =   current_schema
 	    ) THEN
-	   CREATE INDEX ts2__education_history__c_contact_c  ON ts2__education_history__c  USING gin ("ts2__contact__c" public.gin_trgm_ops);
+	   CREATE INDEX ts2__education_history__c_contact_c_gin  ON ts2__education_history__c  USING gin ("ts2__contact__c" public.gin_trgm_ops);
 	END IF;
 	END$$;
 
@@ -144,9 +144,9 @@
 	    SELECT 1
 	    FROM   pg_class c
 	    JOIN   pg_namespace n ON n.oid = c.relnamespace
-	    WHERE  c.relname = 'ts2__education_history__c_name_c'
+	    WHERE  c.relname = 'ts2__education_history__c_name_c_gin'
 	    AND    n.nspname =   current_schema
 	    ) THEN
-	  CREATE INDEX ts2__education_history__c_name_c  ON ts2__education_history__c  USING gin ("ts2__name__c" public.gin_trgm_ops);
+	  CREATE INDEX ts2__education_history__c_name_c_gin  ON ts2__education_history__c  USING gin ("ts2__name__c" public.gin_trgm_ops);
 	END IF;
 	END$$;
