@@ -155,7 +155,10 @@
     	  configs["config_canvasapp_secret"]=view.$el.find("[name='config_canvasapp_secret']").val();
     	      configs["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
     	      configs["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
-    	      configs["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
+              var callbackUrl = $.trim(view.$el.find("[name='config_callBackUrl']").val());
+              if(validateURL(callbackUrl)){
+    	        configs["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
+              }
     	      values["orgId"]=-1;
     	      values.configsJson = JSON.stringify(configs);
     	      app.getJsonData("/config/save", values,"Post").done(function(data){
@@ -165,5 +168,10 @@
     }
     // --------- /Events--------- //
   });
-  
+
+    function validateURL(textval) {
+        var urlregex = new RegExp(
+            "^(http|https)\://([a-zA-Z0-9\.\-]+(\:[a-zA-Z0-9\.&amp;%\$\-]+)*@)*((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|localhost|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\?\'\\\+&amp;%\$#\=~_\-]+))*$");
+        return urlregex.test(textval);
+    }
 })(jQuery);
