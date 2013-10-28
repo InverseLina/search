@@ -849,7 +849,6 @@ public class SearchDao {
             log.debug(countSql.toString());
         }
         
-        System.out.println(countSql);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
@@ -981,7 +980,9 @@ public class SearchDao {
     		
     		temp = notConditions[0].trim();
 
-			sb.append( " select a_copy.id as id from   "+schemaname+".contact a_copy right join (select ex.id from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)) b on a_copy.id = b.id " + " union "
+			sb.append(" select ex.id from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?) " 
+			    + " union "
+			        //" select a_copy.id as id from   "+schemaname+".contact a_copy right join (select ex.id from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)) b on a_copy.id = b.id " + " union "
                 + " select a_copy1.id as id from   "+schemaname+".contact a_copy1 "
                 + " where a_copy1.\"title\" ilike ? or  a_copy1.\"name\" ilike ? "  );
     		
