@@ -621,7 +621,8 @@ public class SearchDao {
      * @return
      */
     private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy){
-    	if(orginalName.toLowerCase().equals("name")){
+        String schemaname = orgHolder.getSchemaName();
+        if(orginalName.toLowerCase().equals("name")){
     		return "lower(a.\"name\") as \"lname\"";
     	}else if(orginalName.toLowerCase().equals("id")){
     		return "";
@@ -651,17 +652,23 @@ public class SearchDao {
     		groupBy.append("a.\"createddate\"");
     		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
     	}else if(orginalName.toLowerCase().equals("company")){
-    		columnJoinTables.add(getAdvancedJoinTable("company"));
-    		return " case when string_agg(distinct c.\"ts2__name__c\",',') is null " +
-    			   " then '' else string_agg(distinct c.\"ts2__name__c\",',') end  company";
+    		//columnJoinTables.add(getAdvancedJoinTable("company"));
+    		return "(select  string_agg(distinct c.\"ts2__name__c\",',') " +
+    				"from "+schemaname+".ts2__employment_history__c c where  a.\"sfid\" = c.\"ts2__contact__c\" ) as company ";
+    	   // return " case when string_agg(distinct c.\"ts2__name__c\",',') is null " +
+    		//	   " then '' else string_agg(distinct c.\"ts2__name__c\",',') end  company";
     	}else if(orginalName.toLowerCase().equals("skill")){
-    		columnJoinTables.add(getAdvancedJoinTable("skill"));
-    		return "case when string_agg(distinct b.\"ts2__skill_name__c\",',') is null " +
-    			   " then '' else string_agg(distinct b.\"ts2__skill_name__c\",',') end  skill";
+    		//columnJoinTables.add(getAdvancedJoinTable("skill"));
+    		//return "case when string_agg(distinct b.\"ts2__skill_name__c\",',') is null " +
+    		//	   " then '' else string_agg(distinct b.\"ts2__skill_name__c\",',') end  skill";
+    	    return " (select  string_agg(b.\"ts2__skill_name__c\",',') " +
+    	    		"from "+schemaname+".ts2__skill__c b where a.\"sfid\" = b.\"ts2__contact__c\"  ) as skill";
     	}else if(orginalName.toLowerCase().equals("education")){
-    		columnJoinTables.add(getAdvancedJoinTable("education"));
-    		return " case when string_agg(distinct d.\"ts2__name__c\",',') is null " +
-    			   " then '' else string_agg(distinct d.\"ts2__name__c\",',') end  education";
+    		//columnJoinTables.add(getAdvancedJoinTable("education"));
+    		//return " case when string_agg(distinct d.\"ts2__name__c\",',') is null " +
+    		//	   " then '' else string_agg(distinct d.\"ts2__name__c\",',') end  education";
+    	    return " (select  string_agg(d.\"ts2__name__c\",',') " +
+    	    		"from "+schemaname+".ts2__education_history__c d  where a.\"sfid\" = d.\"ts2__contact__c\"   ) as education ";
     	}else if(orginalName.toLowerCase().equals("location")){
     		columnJoinTables.add(getAdvancedJoinTable("location"));
     		 if(groupBy.length()>0){
@@ -842,6 +849,7 @@ public class SearchDao {
             log.debug(countSql.toString());
         }
         
+        System.out.println(countSql);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
