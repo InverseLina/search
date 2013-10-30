@@ -92,7 +92,7 @@ public class SearchDao {
      * @return
      * @throws SQLException
      */
-    public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
+    public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {/*
         //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
@@ -175,12 +175,61 @@ public class SearchDao {
         if(log.isDebugEnabled()){
             log.debug(querySql.toString());
         }
+        Long start = System.currentTimeMillis();
+        Connection con = dbHelper.openPublicConnection();
+        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
+        Long end = System.currentTimeMillis();
+        System.out.println(end-start);
+        prepareStatement.close();
+        con.close();
+        return result;
+    */
+        
+        StringBuilder querySql = new StringBuilder();
+        StringBuilder groupBy = new StringBuilder();
+        String column = null;
+        String baseTableIns = null;
+        querySql.append("select count( ts2__contact__c) as count, ");
+        String baseTable = new String();
+        List values = new ArrayList();
+        String schemaname = orgHolder.getSchemaName();
+        if(type.equals("company")){
+            baseTable = schemaname+".ts2__employment_history__c ";
+            baseTableIns = "c";
+            column = "  c.\"ts2__name__c\" ";
+            groupBy.append(" group by   c.\"ts2__name__c\" ");
+        }else if(type.equals("education")){
+            baseTableIns = "d";
+            baseTable = schemaname+".ts2__education_history__c ";
+            groupBy.append(" group by  d.\"ts2__name__c\" ");
+            column = " d.\"ts2__name__c\" ";
+        }else if(type.equals("skill")){
+            baseTableIns = "b";
+            baseTable = schemaname+".ts2__skill__c ";
+            groupBy.append(" group by  b.\"ts2__skill_name__c\" ");
+            column = "  b.\"ts2__skill_name__c\" ";
+        }else if(type.equals("location")){
+            baseTableIns = "z";
+            baseTable = " jss_sys.zipcode_us ";
+            column = " z.\"city\" ";
+        }    
+        
+        querySql.append(column).append(" as name from ").append(baseTable).append(" ")
+        .append(baseTableIns).append(" where "+column).append(" !='' ");
+        
+        if(queryString!=null&&queryString.trim().length()>0){
+            querySql.append(" And "+column + " ilike '"+ queryString+"%'");
+        }
+        querySql.append(groupBy).append(" order by count desc limit 7");
+
         Connection con = dbHelper.openPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
         prepareStatement.close();
         con.close();
         return result;
+    
     }
     
     /**
@@ -255,6 +304,8 @@ public class SearchDao {
                }else{
                    if(!"true".equals(labelAssigned)){
                        querySql.append(" left ");
+                   }else{
+                       hasCondition = true;
                    }
                    querySql.append(" join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
                            .append(" join "+schemaname+".\"label\" on label.\"id\"=label_contact.\"label_id\"")
@@ -264,7 +315,7 @@ public class SearchDao {
                            .append(label)
                            .append("' ) labelcontact on labelcontact.\"contact_id\" = contact.\"id\" ");
                }
-               hasCondition = true;
+             
            }
            
        	   //Get the contacts parameters and render them
@@ -576,6 +627,7 @@ public class SearchDao {
     	      }
            } 
        }
+	    
 	   //at last,combine all part to complete sql
 	   if(advanced){
 		   if(joinTables.indexOf(" contact ")==-1&&!baseTable.contains("contact")){
