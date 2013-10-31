@@ -89,6 +89,18 @@
     {{/colBody}}
 </script>
 
+<script id="search-query-less-words" type="text/html">
+    {{#colBody 'search-items-header-with-body'}}
+        {{#if labelAssigned}}
+        {{else}}
+            <div class="alert alert-block alert-info fade in">
+                please enter more than 3 character and retry
+            </div>
+        {{/if}}
+
+    {{/colBody}}
+</script>
+
 <script id="search-loading" type="text/html">
     {{#colBody 'search-items-header-with-body'}}
         <span class="loading badge badge-info">Loading...</span>

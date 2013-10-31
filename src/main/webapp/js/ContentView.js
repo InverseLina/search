@@ -58,7 +58,11 @@
         var $this = $(event.currentTarget);
         var keyword = $this.val();
         if (event.which === 13) {
-          view.$el.trigger("DO_SEARCH",{search:keyword});
+        	if(keyword == null || keyword.length < 3){
+        		showSearchErrorMesage.call(view);
+        	}else{
+        		view.$el.trigger("DO_SEARCH",{search:keyword});
+        	}
         }
       },
       "keyup; .big .search-input": function(event){
@@ -716,6 +720,17 @@
        var view = this;
       view.$searchInfo.html(htmlInfo.format(result.count, result.count > 1 ? "es":"", direct, offset));
   }
+  
+  function showSearchErrorMesage(){
+	  var view = this;
+      view.$searchInfo.empty();
+      view.$searchResult.find(".tableContainer").html(render("search-query-less-words", {
+        colWidth : getColWidth.call(view),
+        labelAssigned: app.buildPathInfo().labelAssigned
+      }));
+      view.$searchResult.find(".page").empty();
+      fixColWidth.call(view);
+ }
   // --------- /Private Methods--------- //
 
 
