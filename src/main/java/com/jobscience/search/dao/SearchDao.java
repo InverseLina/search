@@ -229,8 +229,21 @@ public class SearchDao {
         if(queryString!=null&&queryString.trim().length()>0){
             querySql.append(" And "+column + " ilike '"+ queryString+"%'");
         }
+        
+        if(min!=null&&!"0".equals(min)){
+            if(type.equals("company")){
+                 querySql.append("  AND EXTRACT(year from age(c.\"ts2__employment_end_date__c\",c.\"ts2__employment_start_date__c\"))>="+min);
+            }else if(type.equals("education")){
+                 querySql.append("  AND EXTRACT(year from age(now(),d.\"ts2__graduationdate__c\"))>="+min);
+            }else if(type.equals("skill")){
+                 querySql.append("  AND b.\"ts2__rating__c\" >="+min);
+            }else if(type.equals("location")){
+                 querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(c.\"ts2__latitude__c\",c.\"ts2__longitude__c\"))/1000<="+min);
+            }
+        }
         querySql.append(groupBy).append(" order by count desc limit 7");
 
+        System.out.println(querySql);
         Connection con = dbHelper.openPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
