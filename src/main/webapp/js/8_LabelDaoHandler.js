@@ -22,6 +22,9 @@ var app = app || {};
     LabelDaoHandler.prototype.get = function(id){
         return app.getJsonData("getLabel",{id:id} );
     }
+    LabelDaoHandler.prototype.getLabelByName = function(name){
+        return app.getJsonData("getLabelByName",{name:name} );
+    }
 
     LabelDaoHandler.prototype.list = function(){
         return app.getJsonData("getLabels");

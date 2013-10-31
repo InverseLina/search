@@ -34,8 +34,8 @@
                         }
                     } else {
                         dao.save("Favorites").done(function (id) {
-                            view.$el.find("li.favLabel").attr("data-label-id", id);
-                            view.$el.find("li.favLabel a").attr("href", "#/list/" +id);
+                            view.$el.find("li.Favorites").attr("data-label-id", id);
+                            view.$el.find("li.Favorites a").attr("href", "#/list/" +id);
                         });
                     }
                     view.$el.trigger("PATH_INFO_CHANGE", view.pathInfo);
@@ -77,9 +77,11 @@
                 },
                 PATH_INFO_CHANGE: function(event, extra){
                     var view = this;
+                    var path = null;
                     if(extra && extra.paths && extra.paths.length == 3 && extra.paths[1] ==  "list"){
-                        changeView.call(view, extra.paths[2]);
+                         path =  extra.paths[2];
                     }
+                    changeView.call(view,path);
                 },
                 "btap; li i": function(event){
                     var view = this;
@@ -105,6 +107,28 @@
 
                             })
                         }
+                    }
+                },
+                "btap; a.delete":function(event){
+                    var view = this;
+                    event.stopPropagation();
+                    event.preventDefault();
+                    var pathInfo = app.buildPathInfo();
+                    if(pathInfo.labelAssigned){
+                        dao.delete(pathInfo.paths[2]).done(function(){
+                            var $li = view.$el.find("li[data-label-id='" + pathInfo.paths[2] + "']");
+                            if(!$li.hasClass("Favorites")){
+                               $li.remove();
+                            }else{
+                                dao.save("Favorites").done(function (id) {
+                                    $li.attr("data-label-id", id);
+                                    $li.find("a").attr("href", "#/list/" +id);
+                                });
+                            }
+                            view.$el.find("li.Favorites i").addClass("select");
+                            view.$el.trigger("CHANGE_SELECT_LABEL");
+                            changeView.call(view);
+                        });
                     }
                 }
             },
@@ -163,10 +187,13 @@
                 if (searchView) {
 //                    $li.trigger("RESTORE_SEARCH_VIEW");
                     location.href = "#"
+                    view.$el.find("a.delete").hide();
+                    //find default select
                 } else {
                     view.$el.find("li i").removeClass("select");
                     $li.find("i").addClass("select");
                     var label =  {id: $li.attr("data-label-id"), name: $.trim($li.find("a").text())};
+                    view.$el.find("a.delete").show();
                 }
                 view.$el.trigger("DO_SEARCH");
             }
