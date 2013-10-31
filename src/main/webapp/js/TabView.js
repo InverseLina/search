@@ -80,8 +80,9 @@
                     var path = null;
                     if(extra && extra.paths && extra.paths.length == 3 && extra.paths[1] ==  "list"){
                          path =  extra.paths[2];
+                        changeView.call(view,path);
                     }
-                    changeView.call(view,path);
+
                 },
                 "btap; li i": function(event){
                     var view = this;
