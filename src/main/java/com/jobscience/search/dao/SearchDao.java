@@ -243,7 +243,6 @@ public class SearchDao {
         }
         querySql.append(groupBy).append(" order by count desc limit 7");
 
-        System.out.println(querySql);
         Connection con = dbHelper.openPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
