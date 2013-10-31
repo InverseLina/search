@@ -211,7 +211,8 @@
 			 app.getJsonData("/multiplyData",{orgName:view.currentOrgName,times:view.time,tableName:view.tableName},{type:"POST"}).done(function(data){
 				 window.clearInterval(view.multiplyIntervalId);
 				 $btn.prop("disabled",false);
-				 view.$el.trigger("MULTIPLY_STATUS_CHANGE");
+				 view.$el.find(".multiply-info").hide();
+				 //view.$el.trigger("MULTIPLY_STATUS_CHANGE");
 			 });
 			 view.multiplyIntervalId = window.setInterval(function(){
 		    	   $(view.el).trigger("MULTIPLY_STATUS_CHANGE");

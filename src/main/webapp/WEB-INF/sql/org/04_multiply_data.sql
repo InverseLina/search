@@ -11,8 +11,8 @@
            EXECUTE  sql; 
         else
            newcolumns:=(select string_agg(column_name,',') from information_schema.columns
-           where table_schema='public' and table_name=tableName and column_name not in ('id','sfid'));
-           sql:='insert into '||tableName||' (sfid,'||newcolumns|| ')  select ('||iteration_num||'||substring(sfid from 4)) as sfid,'|| newcolumns||' from '||tableName||'   where id in (select id from contact order by id asc offset '||offsetNum||' limit '||limitNum||')'; 
+           where table_schema='public' and table_name=tableName and column_name not in ('id','sfid','ts2__contact__c'));
+           sql:='insert into '||tableName||' (ts2__contact__c,sfid,'||newcolumns|| ')  select ('||iteration_num||'||substring(ts2__contact__c from 4)) as ts2__contact__c,('||iteration_num||'||substring(sfid from 4)) as sfid,'|| newcolumns||' from '||tableName||'   where id in (select id from contact order by id asc offset '||offsetNum||' limit '||limitNum||')'; 
            EXECUTE  sql; 
         end IF;
            

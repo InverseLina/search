@@ -109,7 +109,6 @@ public class MultiplierManager {
             currentTime++;
             while(origin_count-perform>10000){
                 statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'"+tableName+"')");
-                
                 statement.executeQuery();
                 statement.close();
                 perform+=10000;
@@ -124,52 +123,53 @@ public class MultiplierManager {
                 performCounts = perform;
                 
             }
-            perform = 0L;
-            while(companyCount-perform>10000){
-                statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__employment_history__c')");
-                statement.executeQuery();
-                statement.close();
-                perform+=10000;
-            }
-           
-            if(companyCount-perform>0){
-                statement = con.prepareStatement("select multiplydata("+perform+","+(companyCount-perform)+","+current_iteration_number+",'ts2__employment_history__c')");
-                statement.executeQuery();
-                statement.close();
-                perform = origin_count;
+            if("contact".equals(tableName)){
+                perform = 0L;
+                while(companyCount-perform>10000){
+                    statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__employment_history__c')");
+                    statement.executeQuery();
+                    statement.close();
+                    perform+=10000;
+                }
+               
+                if(companyCount-perform>0){
+                    statement = con.prepareStatement("select multiplydata("+perform+","+(companyCount-perform)+","+current_iteration_number+",'ts2__employment_history__c')");
+                    statement.executeQuery();
+                    statement.close();
+                    perform = origin_count;
+                    
+                }
                 
-            }
-            
-            perform = 0L;
-            while(skillCount-perform>10000){
-                statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__skill__c')");
-                statement.executeQuery();
-                statement.close();
-                perform+=10000;
-            }
-           
-            if(origin_count-perform>0){
-                statement = con.prepareStatement("select multiplydata("+perform+","+(skillCount-perform)+","+current_iteration_number+",'ts2__skill__c')");
-                statement.executeQuery();
-                statement.close();
-                perform = skillCount;
+                perform = 0L;
+                while(skillCount-perform>10000){
+                    statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__skill__c')");
+                    statement.executeQuery();
+                    statement.close();
+                    perform+=10000;
+                }
+               
+                if(origin_count-perform>0){
+                    statement = con.prepareStatement("select multiplydata("+perform+","+(skillCount-perform)+","+current_iteration_number+",'ts2__skill__c')");
+                    statement.executeQuery();
+                    statement.close();
+                    perform = skillCount;
+                    
+                }
                 
+                perform = 0L;
+                while(educationCount-perform>10000){
+                    statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__education_history__c')");
+                    statement.executeQuery();
+                    statement.close();
+                    perform+=10000;
+                }
+               
+                if(origin_count-perform>0){
+                    statement = con.prepareStatement("select multiplydata("+perform+","+(educationCount-perform)+","+current_iteration_number+",'ts2__education_history__c')");
+                    statement.executeQuery();
+                    statement.close();
+                }
             }
-            
-            perform = 0L;
-            while(educationCount-perform>10000){
-                statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__education_history__c')");
-                statement.executeQuery();
-                statement.close();
-                perform+=10000;
-            }
-           
-            if(origin_count-perform>0){
-                statement = con.prepareStatement("select multiplydata("+perform+","+(educationCount-perform)+","+current_iteration_number+",'ts2__education_history__c')");
-                statement.executeQuery();
-                statement.close();
-            }
-            
             times--;
             current_iteration_number++;
         }
