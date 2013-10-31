@@ -186,6 +186,8 @@ public class SearchDao {
         return result;
     */
         
+
+
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
         String column = null;
@@ -213,10 +215,16 @@ public class SearchDao {
             baseTableIns = "z";
             baseTable = " jss_sys.zipcode_us ";
             column = " z.\"city\" ";
+            groupBy.append(" group by  z.\"city\" ");
+            querySql = new StringBuilder(" select count(c.id) as count,z.city as name from "+schemaname+".contact c,jss_sys.zipcode_us z where ")
+                       .append(" c.mailingpostalcode = z.zip ");
+                        
         }    
         
-        querySql.append(column).append(" as name from ").append(baseTable).append(" ")
-        .append(baseTableIns).append(" where "+column).append(" !='' ");
+        if(!querySql.toString().contains("zipcode_us")){
+            querySql.append(column).append(" as name from ").append(baseTable).append(" ")
+            .append(baseTableIns).append(" where "+column).append(" !='' ");
+        }
         
         if(queryString!=null&&queryString.trim().length()>0){
             querySql.append(" And "+column + " ilike '"+ queryString+"%'");
