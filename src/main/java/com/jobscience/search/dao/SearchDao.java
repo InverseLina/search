@@ -21,6 +21,8 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.db.DBHelper;
+import com.jobscience.search.log.LoggerType;
+import com.jobscience.search.log.QueryLogger;
 
 @Singleton
 public class SearchDao {
@@ -43,6 +45,8 @@ public class SearchDao {
     @Inject
     private UserDao userDao;
     
+    @Inject
+    private QueryLogger queryLogger;
     /**
      * @param searchColumns
      * @param searchValues
@@ -64,6 +68,9 @@ public class SearchDao {
         int count = dbHelper.preparedStatementExecuteCount(statementAndValues.countStmt, statementAndValues.values);
         long end = System.currentTimeMillis();
 
+        queryLogger.debug(LoggerType.SEARCH_PERF,mid - start);
+        queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,end - mid);
+        
         SearchResult searchResult = new SearchResult(result, count)
         							.setDuration(end - start)
         							.setSelectDuration(mid - start)
@@ -243,13 +250,20 @@ public class SearchDao {
         }
         querySql.append(groupBy).append(" order by count desc limit 7");
 
+        //log for sql and params
+        queryLogger.debug(LoggerType.AUTO_SQL,querySql);
+        queryLogger.debug(LoggerType.PARAMS,queryString);
+        
+        Long start = System.currentTimeMillis();
         Connection con = dbHelper.openPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
         prepareStatement.close();
         con.close();
+        Long end = System.currentTimeMillis();
+        //log for performance
+        queryLogger.debug(LoggerType.AUTO_PERF, end-start);
         return result;
-    
     }
     
     /**
@@ -921,6 +935,9 @@ public class SearchDao {
             log.debug(countSql.toString());
         }
         
+        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
+        queryLogger.debug(LoggerType.SEARCH_COUNT_SQL, countSql);
+        queryLogger.debug(LoggerType.PARAMS, searchValues);
         // build the statement
         ss.queryStmt = dbHelper.prepareStatement(con,querySql.toString());
         ss.countStmt = dbHelper.prepareStatement(con,countSql.toString());
