@@ -96,7 +96,7 @@
         });
         var buffer = options.fn(this);
         var html = Handlebars.templates[template]({displayColumns:displays, block:buffer,
-                colsLen:displays.length, colWidth:100/displays.length});
+                colsLen:displays.length, colWidth:100/displays.length, labelAssigned: app.buildPathInfo().labelAssigned});
         return html;
     });
 
