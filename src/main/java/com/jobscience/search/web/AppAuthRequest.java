@@ -49,13 +49,14 @@ public class AppAuthRequest implements AuthRequest {
     @WebModelHandler(startsWith = "/")
     public void home(@WebModel Map m, @WebUser OAuthToken user, RequestContext rc) {
         String orgName = rc.getParam("org");
-        m.put("sys_schema", dbSetupManager.checkSysTables().contains("config"));
+        boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
+        m.put("sys_schema",isSysSchemaExist );
         if (orgName != null) {
             rc.setCookie("org", orgName);
             m.put("user", user);
         }
         String path = rc.getReq().getRequestURI();
-        if (path.equals("/")) {
+        if (path.equals("/")&&isSysSchemaExist) {
             String ctoken = rc.getCookie("ctoken");
             if (ctoken == null) {
                 try {
