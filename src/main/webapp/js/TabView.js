@@ -93,12 +93,12 @@
                     view.$el.trigger("CHANGE_SELECT_LABEL");
 
                 },
-                "keyup; input": function(event){
+                "keyup; .addText": function(event){
                     var view = this;
                     var $input = $(event.currentTarget);
                     if(event.keyCode == 13){
                         var name = $.trim($input.val());
-                        if(name.length > 0) {
+                        if(name != "" && name.length > 0) {
                             dao.save(name).done(function(id){
                                if( $.isNumeric(id)){
                                     var html = render("TabView-new-label", {id:id, name:name});
@@ -108,9 +108,41 @@
 
                             })
                         }
-                    }
+                    }else if(event.keyCode == 27){
+                    		var view = this;
+                            var html = render("TabView-add-list");
+                            var $input = $(event.currentTarget);
+                            $input.closest("div").html(html);
+                    	}
                 },
-                "btap; a.delete":function(event){
+                "btap; .saveTab":function(event){
+                	var view = this;
+                    var $input = $(event.currentTarget).closest("div").find(".addText");
+                        var name = $.trim($input.val());
+                        if(name != "" && name.length > 0) {
+                            dao.save(name).done(function(id){
+                               if( $.isNumeric(id)){
+                                    var html = render("TabView-new-label", {id:id, name:name});
+                                    $input.closest("li").before(html);
+                                    $input.val("").focus();
+                                }
+
+                            })
+                        }
+                },
+                "btap; .cancelTab": function(event){
+                    var view = this;
+                    var html = render("TabView-add-list");
+                    var $input = $(event.currentTarget);
+                    $input.closest("div").html(html);
+                },
+                "btap; .showSave": function(event){
+                    var view = this;
+                    var html = render("TabView-save-list");
+                    var $input = $(event.currentTarget);
+                    $input.closest("div").html(html).find(".addText").focus();
+                },
+                "btap; .deleteList":function(event){
                     var view = this;
                     event.stopPropagation();
                     event.preventDefault();
@@ -177,7 +209,7 @@
         if($.isNumeric($li)){
             $li = view.$el.find("li[data-label-id='" + $li + "']");
         }
-
+        view.$el.find(".deleteList").hide();
         if ($li.length > 0) {
             if ($li.hasClass("favLabel") || $li.hasClass("search")) {
                 if ($li.hasClass("favLabel")) {
@@ -188,14 +220,17 @@
                 if (searchView) {
 //                    $li.trigger("RESTORE_SEARCH_VIEW");
                     location.href = "#"
-                    view.$el.find("a.delete").hide();
+                    
                     //find default select
                 } else {
                     view.$el.find("li i").removeClass("select");
                     $li.find("i").addClass("select");
                     var label =  {id: $li.attr("data-label-id"), name: $.trim($li.find("a").text())};
-                    view.$el.find("a.delete").show();
+                    if(!$li.hasClass("Favorites")){
+                    	view.$el.find(".deleteList").show();
+                    }
                 }
+                view.$el.find(".addList").html(render("TabView-add-list"));
                 view.$el.trigger("DO_SEARCH");
             }
         }
