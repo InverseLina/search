@@ -31,7 +31,7 @@ public class DataSourceManager {
     private DBHelper dbHelper;
     private  DataSource publicDataSource;
     @Inject
-    public void init(@Named("jss.db_url") String url,
+    public void init(@Named("jss.db.url") String url,
                      @Named("jss.db.user") String user,
                      @Named("jss.db.pwd") String pwd) {
         this.url = url;
