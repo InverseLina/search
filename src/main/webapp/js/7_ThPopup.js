@@ -263,8 +263,10 @@ var app = app || {};
 
   function activeFirstItem(){
       var view = this;
-      view.$el.find(".contentText").removeClass("active");
-      view.$el.find(".contentText:first").addClass("active");
+      if(view && view.$el){
+          view.$el.find(".contentText").removeClass("active");
+          view.$el.find(".contentText:first").addClass("active");
+      }
   }
   function prevItem(){
       var $nextItem, view = this;
