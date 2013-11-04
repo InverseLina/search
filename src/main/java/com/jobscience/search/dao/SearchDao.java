@@ -233,9 +233,6 @@ public class SearchDao {
             .append(baseTableIns).append(" where "+column).append(" !='' ");
         }
         
-        if(queryString!=null&&queryString.trim().length()>0){
-            querySql.append(" And "+column + " ilike '"+ queryString+"%'");
-        }
         
         if(min!=null&&!"0".equals(min)){
             if(type.equals("company")){
@@ -247,7 +244,26 @@ public class SearchDao {
             }else if(type.equals("location")){
                  querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(c.\"ts2__latitude__c\",c.\"ts2__longitude__c\"))/1000<="+min);
             }
+        }else{
+            if(type.equals("location")){
+                querySql = new StringBuilder(" with zipc as ( SELECT")
+                .append(" count(C.id) AS zipcount,")
+                .append(" c.mailingpostalcode      AS zip")
+                .append(" FROM PUBLIC.contact C")
+                .append(" GROUP BY c.\"mailingpostalcode\"")
+                .append(" )")
+                .append(" SELECT")
+                .append(" sum(c.zipcount) AS count,")
+                .append("  z.city      AS NAME")
+                .append(" FROM jss_sys.zipcode_us z ")
+                .append(" inner join zipc c on c.zip = z.zip");
+            }
         }
+        
+        if(queryString!=null&&queryString.trim().length()>0){
+            querySql.append(" And "+column + " ilike '"+ queryString+"%'");
+        }
+        
         querySql.append(groupBy).append(" order by count desc limit 7");
 
         //log for sql and params
