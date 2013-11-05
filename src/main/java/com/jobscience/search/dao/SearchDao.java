@@ -223,8 +223,29 @@ public class SearchDao {
             baseTable = " jss_sys.zipcode_us ";
             column = " z.\"city\" ";
             groupBy.append(" group by  z.\"city\" ");
-            querySql = new StringBuilder(" select count(c.id) as count,z.city as name from "+schemaname+".contact c,jss_sys.zipcode_us z where ")
-                       .append(" c.mailingpostalcode = z.zip ");
+           // querySql = new StringBuilder(" select count(c.id) as count,z.city as name from "+schemaname+".contact c,jss_sys.zipcode_us z where ")
+            //           .append(" c.mailingpostalcode = z.zip ");
+            
+            String condition = "";
+            if(queryString!=null&&queryString.trim().length()>0){
+                condition=" where "+column + " ilike '"+ queryString+"%'";
+            }
+            querySql = new StringBuilder(" with zipc as ( SELECT")
+            .append(" count(C.id) AS zipcount,")
+            .append(" c.mailingpostalcode      AS zip")
+            .append(" FROM (select * from jss_sys.zipcode_us z " ) 
+            .append(condition)
+            .append(" ) z  INNER JOIN PUBLIC.contact C on c.mailingpostalcode = z.zip %s ")
+            .append(" GROUP BY c.\"mailingpostalcode\"")
+            .append(" )")
+            .append(" SELECT")
+            .append(" sum(c.zipcount) AS count,")
+            .append("  z.city      AS NAME")
+            .append(" FROM  (select * from jss_sys.zipcode_us  z " )
+            .append(condition)
+            .append(" ) z")
+            .append(" inner join zipc c on c.zip = z.zip ");
+        
                         
         }    
         
@@ -242,21 +263,11 @@ public class SearchDao {
             }else if(type.equals("skill")){
                  querySql.append("  AND b.\"ts2__rating__c\" >="+min);
             }else if(type.equals("location")){
-                 querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(c.\"ts2__latitude__c\",c.\"ts2__longitude__c\"))/1000<="+min);
+                querySql = new StringBuilder(querySql.toString().replaceAll("%s"," AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(c.\"ts2__latitude__c\",c.\"ts2__longitude__c\"))/1000<="+min));
             }
         }else{
             if(type.equals("location")){
-                querySql = new StringBuilder(" with zipc as ( SELECT")
-                .append(" count(C.id) AS zipcount,")
-                .append(" c.mailingpostalcode      AS zip")
-                .append(" FROM PUBLIC.contact C")
-                .append(" GROUP BY c.\"mailingpostalcode\"")
-                .append(" )")
-                .append(" SELECT")
-                .append(" sum(c.zipcount) AS count,")
-                .append("  z.city      AS NAME")
-                .append(" FROM jss_sys.zipcode_us z ")
-                .append(" inner join zipc c on c.zip = z.zip");
+                querySql = new StringBuilder(querySql.toString().replaceAll("%s", ""));
             }
         }
         
@@ -1285,6 +1296,7 @@ public class SearchDao {
         }
         return instance;
     }
+    
 }
 
 class SearchStatements {

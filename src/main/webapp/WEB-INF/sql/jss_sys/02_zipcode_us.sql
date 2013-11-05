@@ -10,3 +10,20 @@ CREATE TABLE if not exists zipcode_us
   dst integer,
   CONSTRAINT zcta_pkey PRIMARY KEY (zip)
 );
+
+-- SCRIPTS
+  DO $$
+  BEGIN
+  IF NOT EXISTS (
+      SELECT 1
+      FROM   pg_class c
+      JOIN   pg_namespace n ON n.oid = c.relnamespace
+      WHERE  c.relname = 'zipcode_idx_city_gin'
+      AND    n.nspname =   'jss_sys'
+      ) THEN
+    CREATE INDEX zipcode_idx_city_gin
+    ON jss_sys.zipcode_us
+    USING gin
+    (city COLLATE pg_catalog."default" gin_trgm_ops);
+  END IF;
+  END$$;
