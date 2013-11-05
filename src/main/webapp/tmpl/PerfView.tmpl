@@ -1,0 +1,76 @@
+<script id="PerfView" type="text/html">
+    <div class="PerfView">
+    	<div class="search-type">
+    		<button class="btn btn-primary all">Go All</button>
+    	</div>
+    	<label>Search Test :</label>
+		<div class="search-type search-test">
+			<span ><label>KeyWord :</label> <input type="text" name="common" value="java"/></span>
+			<button class="btn btn-primary btn1">Go</button>
+			<div class="results"></div>
+		</div>
+		<div class="search-type search-test">
+			<span ><label>KeyWord :</label> <input type="text" name="common" value="Oracle"></span>
+			<button class="btn btn-primary btn2">Go</button>
+			<div class="results"></div>
+		</div>
+		
+		
+		<label>Search & Filter Test :</label>
+		<div class="search-type search-test">
+			<span ><label>KeyWord :</label> <input type="text" name="common" value="java"> <label>Employer :</label> <input type="text" name="common1" value="Salesforce.com"></span>
+			<button class="btn btn-primary btn3">Go</button>
+			<div class="results"></div>
+		</div>
+		<div class="search-type search-test">
+			<span ><label>KeyWord :</label> <input type="text" name="common" value="Oracle"> <label>Employer :</label> <input type="text" name="common1" value="Salesforce.com"></span>
+			<button class="btn btn-primary btn4">Go</button>
+			<div class="results"></div>
+		</div>
+		
+		
+		<label>Auto Complete:</label>
+		<div class="search-type search-test atuo" >
+			<div style="float:left;">
+			<span ><label>Employer :</label> <input type="text" name="common" value="Oracle" ></span>
+			<button class="btn btn-primary searchAuto btn5" data-type="company">Go</button>
+			<div class="results"></div>
+			</div>
+			<div style="float:right;">
+			<span ><label>Employer :</label> <input type="text" name="common" value="Salesforce"></span>
+			<button class="btn btn-primary searchAuto btn6" data-type="company">Go</button>
+			<div class="results"></div>
+			</div>
+		</div>
+		<div class="search-type search-test atuo" >
+			<div style="float:left;" >
+			<span ><label>Skills :</label> <input type="text" name="common" value="Java"></span>
+			<button class="btn btn-primary searchAuto btn7" data-type="skill">Go</button>
+			<div class="results"></div>
+			</div>
+			<div style="float:right;">
+			<span ><label>Skills :</label> <input type="text" name="common" value="PHP"></span>
+			<button class="btn btn-primary searchAuto btn8" data-type="skill">Go</button>
+			<div class="results"></div>
+			</div>
+		</div>
+		<div class="search-type search-test atuo" >
+			<div style="float:left;">
+			<span ><label>Education :</label> <input type="text" name="common" value="University"></span>
+			<button class="btn btn-primary searchAuto btn9" data-type="education">Go</button>
+			<div class="results"></div>
+			</div>
+			<div style="float:right;">
+			<span ><label>Education :</label> <input type="text" name="common" value="University of Wisconsin"></span>
+			<button class="btn btn-primary searchAuto btn10" data-type="education">Go</button>
+			<div class="results"></div>
+		</div>
+		</div>
+		
+    </div>
+</script>
+
+<script id="PerfView-inner" type="text/html">
+
+
+</script>
