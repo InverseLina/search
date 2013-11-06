@@ -13,45 +13,13 @@
 
     // --------- Events--------- //
 	 events: {
-		 "click; .btn1,.btn2" : function(event) {
+		 "click;button.go": function(event){
 			 var view = this;
-			 var keyword = $(event.currentTarget).closest("div").find("input[name='common']").val();
-			 if(keyword == null || keyword == ''){
-					alert("Please enter the word"); 
-					return false;
-				 }
-			 var $result = $(event.currentTarget).closest("div");
-			 $(event.currentTarget).attr("disabled","true").html("runing");
-			 doPrefSearch.call(view,{search:keyword},$result);
-		  },
-		  "click; .btn3,.btn4" : function(event) {
-				 var view = this;
-				 var keyword = $(event.currentTarget).closest("div").find("input[name='common']").val();
-				 if(keyword == null || keyword == ''){
-					alert("Please enter the word"); 
-					return false;
-				 }
-				 var employer = $(event.currentTarget).closest("div").find("input[name='common1']").val();
-				 if(keyword == null || keyword == ''){
-						alert("Please enter the word"); 
-						return false;
-					 }
-				 var $result = $(event.currentTarget).closest("div");
-				 $(event.currentTarget).attr("disabled","true").html("runing");
-				 doPrefSearch.call(view,{search:keyword,employer:employer},$result);
-		  },
-		  "click; .searchAuto" : function(event) {
-				 var view = this;
-				 var keyword = $(event.currentTarget).closest("div").find("input[name='common']").val();
-				 if(keyword == null || keyword == ''){
-						alert("Please enter the word"); 
-						return false;
-					 }
-				 var type = $(event.currentTarget).attr("data-type");
-				 var $result = $(event.currentTarget).closest("div");
-				 $(event.currentTarget).attr("disabled","true").html("runing");
-				 getPerfGroupValuesForAdvanced.call(view,{keyword:keyword,type:type},$result);
-		  },
+	         var $button = $(event.target);
+	         $button.attr("disabled","true").addClass("running").html("runing");
+	         view.async = true;
+	         doSearch.call(view,$button);
+	    },
 		  "click; .all" : function(event) {
 				 var view = this;
 					 $("input[type=text]").each(function(){
@@ -59,116 +27,70 @@
 							 alert("Please enter all the value!");
 							 return false;
 						 }
-					 });	
-				    view.$el.find(".btn").attr("disabled","true").html("runing");
-				    doGoAll.call(view);
+					 });
+					 view.$el.find(".perf-value").empty();
+					 var $button = view.$el.find(".go");
+					 var $allButton = view.$el.find(".all");
+					 $button.attr("disabled","true").addClass("running").html("Runing");
+					 $allButton.attr("disabled","true").addClass("running").html("Runing");
+					 view.async = false;
+					 $button.each(function(){
+						 doSearch.call(view,$(this));
+					 });
+					 $button.removeAttr("disabled").removeClass("running").html("Go");
+					 $allButton.removeAttr("disabled").removeClass("running").html("Go All");
 		  }
 	 }
     // --------- /Events--------- //
 
 	});
     // --------- Private Methods --------- //
-	function doPrefSearch(opts,$result) {
-		var dfd = $.Deferred();
-        var view = this;
-        opts = opts || {};
-        var search = opts.search;
-        var employer = opts.employer;
-        
-        var searchData = {};
-        if(!/^\s*$/.test(search)){
-            searchData.q_search = $.trim(search);
-        }
-        var data = [];
-        if(employer != null && !/^\s*$/.test(employer)){
-        	var opt = {};
-        	
-        	opt = {name:$.trim(employer)};
-        	data.push(opt);
-            searchData["q_companies"]= data;
-        }
-        var searchParameter = getSearchParameter(view,searchData);
-        searchParameter.pageIndex = opts.pageIdx || 1;
-        perfSearchDao.perfSearch(searchParameter).always(function (result) {
-        	$result.find(".results").html("c:"+result.countDuration + "ms s:" + result.duration + "ms matches:" +result.count);
-        	$result.find("button").removeAttr("disabled").html("Go");
-        	dfd.resolve();
-        });
-        return dfd.promise();
-    }
-    
-	function getPerfGroupValuesForAdvanced(opts,$result) {
-		var dfd = $.Deferred();
+	
+	function doSearch($button){
 		var view = this;
-		 var type = opts.type;
-		 var searchCond = {
-	             "type":type,
-	              queryString: opts.keyword,
-	              orderByCount: true
-	         };
-	 perfSearchDao.getPerfGroupValuesForAdvanced(searchCond).done(function(data){
-		 console.log(data);
-		 $result.find(".results").html("s:" + data.duration+" ms ");
-    	 $result.find("button").removeAttr("disabled").html("Go");
-    	 dfd.resolve();
-	    });
-	 return dfd.promise();
+		var $perfItem = $button.closest(".perf-item");
+	         var data = {};
+	         $perfItem.find("input").each(function(){
+	            var $input = $(this);
+	            
+	            if($input.attr("name") != "q_search"){
+	            	var datas = [];
+	            	var opt = {};
+		        	opt = {name:$.trim($input.val())};
+		        	datas.push(opt);
+		        	data[$input.attr("name")] = datas; 
+	            }else{
+	            	data["q_search"] = $input.val(); 
+	            }
+	           
+	         });
+	         var searchParameter = getSearchParameter(view,data);
+	         var methodName = $perfItem.attr("data-perf-method");
+	         if(methodName == 'autocomplete'){
+	        	 searchParameter.type = $button.attr("data-type");
+	        	 searchParameter.queryString = data["q_search"];
+	        	 searchParameter.orderByCount = true;
+	         }
+	         searchParameter.async = view.async;
+	         var perfPromise = perfSearchDao[methodName](searchParameter);
+	         
+	         perfPromise.done(function(response){
+	        	 if(methodName == 'autocomplete'){
+	        		 if($button.hasClass("left")){
+	        			 $perfItem.find(".left-items").find("[data-perf = 's']").html(response.duration + "ms"); 
+	        		 }else{
+	        			 $perfItem.find(".right-items").find("[data-perf = 's']").html(response.duration + "ms"); 
+	        		 }
+	        	 }else{
+	        		 $button.closest("div").next("div").find("[data-perf = 'c']").html(response.countDuration + "ms");
+		        	 $button.closest("div").next("div").find("[data-perf = 's']").html(response.duration + "ms");
+		        	 $button.closest("div").next("div").find("[data-perf = 'match']").html(response.count);
+	        	 }
+	        	 if(view.async){
+	        		 $button.removeAttr("disabled").removeClass("running").html("Go"); 
+	        	 }
+	         });
 	}
-	
-	
-	function doGoAll() {
-		var view = this;
-		var $result = view.$el.find(".btn1").closest("div");
-		 var keyword = $result.find("input[name='common']").val();
-		 doPrefSearch.call(view,{search:keyword},$result).done(function(){
-			 $result = view.$el.find(".btn2").closest("div");
-			 keyword = $result.find("input[name='common']").val();
-			 doPrefSearch.call(view,{search:keyword},$result).done(function(){
-				 $result = view.$el.find(".btn3").closest("div");
-				 keyword = $result.find("input[name='common']").val();
-				 var employer = $result.find("input[name='common1']").val();
-				 doPrefSearch.call(view,{search:keyword,employer:employer},$result).done(function(){
-					 $result = view.$el.find(".btn4").closest("div");
-					 keyword = $result.find("input[name='common']").val();
-					 employer = $result.find("input[name='common1']").val();
-					 doPrefSearch.call(view,{search:keyword,employer:employer},$result).done(function(){
-						 $result = view.$el.find(".btn5");
-						 keyword = $result.closest("div").find("input[name='common']").val();
-						 var type = $result.attr("data-type");
-						 getPerfGroupValuesForAdvanced.call(view,{keyword:keyword,type:type},$result.closest("div")).done(function(){
-							 $result = view.$el.find(".btn6");
-							 keyword = $result.closest("div").find("input[name='common']").val();
-							 var type = $result.attr("data-type");
-							 getPerfGroupValuesForAdvanced.call(view,{keyword:keyword,type:type},$result.closest("div")).done(function(){
-								 $result = view.$el.find(".btn7");
-								 keyword = $result.closest("div").find("input[name='common']").val();
-								 var type = $result.attr("data-type");
-								 getPerfGroupValuesForAdvanced.call(view,{keyword:keyword,type:type},$result.closest("div")).done(function(){
-									 $result = view.$el.find(".btn8");
-									 keyword = $result.closest("div").find("input[name='common']").val();
-									 var type = $result.attr("data-type");
-									 getPerfGroupValuesForAdvanced.call(view,{keyword:keyword,type:type},$result.closest("div")).done(function(){
-										 $result = view.$el.find(".btn9");
-										 keyword = $result.closest("div").find("input[name='common']").val();
-										 var type = $result.attr("data-type");
-										 getPerfGroupValuesForAdvanced.call(view,{keyword:keyword,type:type},$result.closest("div")).done(function(){
-											 $result = view.$el.find(".btn10");
-											 keyword = $result.closest("div").find("input[name='common']").val();
-											 var type = $result.attr("data-type");
-											 getPerfGroupValuesForAdvanced.call(view,{keyword:keyword,type:type},$result.closest("div")).done(function(){
-												 view.$el.find(".all").removeAttr("disabled").html("Go  All");
-											 });
-										 });
-									 });
-								 });
-							 });
-						 });
-					 });
-				 });
-			 });
-		 });
-	}
-	
 	
 	function getSearchParameter(view,searchData){
         var result = {};
@@ -178,5 +100,6 @@
         result.pageSize =15;
         return result;
 	}
+	
 	// --------- /Private Methods --------- //  
 })(jQuery);
