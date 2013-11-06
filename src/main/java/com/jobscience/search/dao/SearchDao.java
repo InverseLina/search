@@ -405,13 +405,13 @@ public class SearchDao {
 	                    }
 	                   conditions.append(" and a.\"firstname\" ilike ? ");
 	                   if(!value.contains("%")){
-	                       value = "%" + value + "%";
+	                       value =  value + "%";
 	                   }
 	                   values.add(value);
                   }else{
             		  conditions.append("  and contact.\"firstname\" ilike ? ");
             		  if(!value.contains("%")){
-            			  value = "%"+value+"%";	
+            			  value = value+"%";	
               		  }
                       subValues.add(value);
                   }
@@ -435,13 +435,13 @@ public class SearchDao {
 	                    }
 	                   conditions.append(" and a.\"lastname\" ilike ? ");
 	                   if(!value.contains("%")){
-	                       value = "%" + value + "%";
+	                       value =  value + "%";
 	                   }
 	                   values.add(value);
                   }else{
             		  conditions.append("  and contact.\"lastname\" ilike ? ");
             		  if(!value.contains("%")){
-            			  value = "%"+value+"%";	
+            			  value = value+"%";	
               		  }
                       subValues.add(value);
                   }
@@ -465,13 +465,13 @@ public class SearchDao {
                      }
                      conditions.append(" and a.\"email\" ilike ? ");
                      if(!value.contains("%")){
-                       value = "%" + value + "%";
+                       value = value + "%";
                      }
                      values.add(value);
                   }else{
             		  conditions.append("  and contact.\"email\" ilike ? ");
             		  if(!value.contains("%")){
-            			  value = "%"+value+"%";	
+            			  value = value+"%";	
               		  }
                       subValues.add(value);
                   }
@@ -495,13 +495,13 @@ public class SearchDao {
   	                   }
   	                   conditions.append(" and a.\"title\" ilike ? ");
   	                   if(!value.contains("%")){
-  	                       value = "%" + value + "%";
+  	                       value =  value + "%";
   	                   }
   	                   values.add(value);
                  }else{
             		  conditions.append("  and contact.\"title\" ilike ? ");
             		  if(!value.contains("%")){
-            			  value = "%"+value+"%";	
+            			  value = value+"%";	
               		  }
                       subValues.add(value);
                  }
@@ -1110,7 +1110,7 @@ public class SearchDao {
     		
     		values.add(temp);
     		if(!temp.contains("%")){
-    			temp = "%"+temp+"%";	
+    			temp = temp+"%";	
     		}
     		values.add(temp);
     		values.add(temp);
@@ -1125,8 +1125,8 @@ public class SearchDao {
                         + " where a_copy1.\"title\"  ilike ? or  a_copy1.\"name\"  ilike ? ) ) ");
 	    		values.add(temp);
 	    		if(!temp.contains("%")){
-	    			values.add("%"+temp+"%");
-		    		values.add("%"+temp+"%");
+	    			values.add(temp+"%");
+		    		values.add(temp+"%");
 	    		}else{
 	    			values.add(temp);
 		    		values.add(temp);
@@ -1165,7 +1165,7 @@ public class SearchDao {
         if("location".equals(type)){
         	querySql.append("select city as name from jss_sys.zipcode_us  ");
         	if(keyword!=null&&!"".equals(keyword)){
-	        	querySql.append(" where city ilike '%"+keyword+ (keyword.length()>2?"%":"")+"' ");
+	        	querySql.append(" where city ilike '"+keyword+ (keyword.length()>2?"%":"")+"' ");
 	        }
 		    querySql.append(" group by city order by city offset ").append( offset)
 		            .append( " limit ") 
@@ -1185,7 +1185,7 @@ public class SearchDao {
 	        	}
 	        }
 	        if(keyword!=null&&!"".equals(keyword)){
-	        	querySql.append(" AND e."+name+" ilike '%"+keyword+(keyword.length()>2?"%":"")+ "' ");
+	        	querySql.append(" AND e."+name+" ilike '"+keyword+(keyword.length()>2?"%":"")+ "' ");
 	        }
 	        querySql.append(" group by e.\"ts2__contact__c\", e."+name+") a  ").
 					 append(" group by a.name order by a.name offset " ).
