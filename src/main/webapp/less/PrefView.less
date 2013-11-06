@@ -1,24 +1,27 @@
 // --------- PerfView --------- //
 .PerfView{
-	margin-top:50px;
-	margin-left:20px;
-	.search-type{
-		line-height:30px;	
-	}
+	margin-top:5px;
+	margin-left:25px;
 
-	.search-type span{
+	.perf-search{
+     line-height:30px;
+    }
+
+	.perf-search span{
 		margin-right:10px;
 		width:200px;
 	}
 	
-	.search-type input{
+	.perf-search input{
 		height:30px;
-		line-height:30px;	
+		line-height:30px;
+		padding-left:5px;	
 	}
 	
-	.search-type label{
+	.perf-search label{
 		width:135px;
 		margin-left:20px;
+		text-align:right;
 	}
 	
 	.btn{
@@ -29,11 +32,28 @@
 	
 	.atuo{
 		width:1000px;
+		display:inline-block;
+		float:left;
 	}
 	
-	.results{
+	.running{
+		background-color:gray;
+	}
+	
+	.all{
+		margin-left:5px;
+	}
+	
+	.perf-results{
 		margin-left:20px;
 		color:blue;
 	}
+	
+	.perf-results .perf-results-item{
+	       display:inline-block;
+	       float:left;
+	       width:250px;
+     	}
+	
 }
 // --------- /PerfView --------- //

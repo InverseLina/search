@@ -1,72 +1,176 @@
 <script id="PerfView" type="text/html">
     <div class="PerfView">
-    	<div class="search-type">
-    		<button class="btn btn-primary all">Go All</button>
-    	</div>
-    	<label>Search Test :</label>
-		<div class="search-type search-test">
-			<span ><label>KeyWord :</label> <input type="text" name="common" value="java"/></span>
-			<button class="btn btn-primary btn1">Go</button>
-			<div class="results"></div>
-		</div>
-		<div class="search-type search-test">
-			<span ><label>KeyWord :</label> <input type="text" name="common" value="Oracle"></span>
-			<button class="btn btn-primary btn2">Go</button>
-			<div class="results"></div>
-		</div>
-		
-		
-		<label>Search & Filter Test :</label>
-		<div class="search-type search-test">
-			<span ><label>KeyWord :</label> <input type="text" name="common" value="java"> <label>Employer :</label> <input type="text" name="common1" value="Salesforce.com"></span>
-			<button class="btn btn-primary btn3">Go</button>
-			<div class="results"></div>
-		</div>
-		<div class="search-type search-test">
-			<span ><label>KeyWord :</label> <input type="text" name="common" value="Oracle"> <label>Employer :</label> <input type="text" name="common1" value="Salesforce.com"></span>
-			<button class="btn btn-primary btn4">Go</button>
-			<div class="results"></div>
-		</div>
-		
-		
-		<label>Auto Complete:</label>
-		<div class="search-type search-test atuo" >
-			<div style="float:left;">
-			<span ><label>Employer :</label> <input type="text" name="common" value="Oracle" ></span>
-			<button class="btn btn-primary searchAuto btn5" data-type="company">Go</button>
-			<div class="results"></div>
-			</div>
-			<div style="float:right;">
-			<span ><label>Employer :</label> <input type="text" name="common" value="Salesforce"></span>
-			<button class="btn btn-primary searchAuto btn6" data-type="company">Go</button>
-			<div class="results"></div>
-			</div>
-		</div>
-		<div class="search-type search-test atuo" >
-			<div style="float:left;" >
-			<span ><label>Skills :</label> <input type="text" name="common" value="Java"></span>
-			<button class="btn btn-primary searchAuto btn7" data-type="skill">Go</button>
-			<div class="results"></div>
-			</div>
-			<div style="float:right;">
-			<span ><label>Skills :</label> <input type="text" name="common" value="PHP"></span>
-			<button class="btn btn-primary searchAuto btn8" data-type="skill">Go</button>
-			<div class="results"></div>
-			</div>
-		</div>
-		<div class="search-type search-test atuo" >
-			<div style="float:left;">
-			<span ><label>Education :</label> <input type="text" name="common" value="University"></span>
-			<button class="btn btn-primary searchAuto btn9" data-type="education">Go</button>
-			<div class="results"></div>
-			</div>
-			<div style="float:right;">
-			<span ><label>Education :</label> <input type="text" name="common" value="University of Wisconsin"></span>
-			<button class="btn btn-primary searchAuto btn10" data-type="education">Go</button>
-			<div class="results"></div>
-		</div>
-		</div>
-		
+    	<div class="perf-search row">
+         <button class="btn btn-primary all ">Go All</button>
+       </div>
+    
+    	<h3>Search Test :</h3>
+     <div class="perf-item perf-search row " data-perf-method="search">
+       <div class="perf-values ">
+             <span ><label>KeyWord :</label> <input type="text" name="q_search" value="java"/></span>
+             <button class="btn btn-primary go">Go</button>
+          </div> 
+       <div class="perf-results ">
+              <div class="perf-results-item">
+                 <label>c:</label>
+                 <span class="perf-value"  data-perf="c"></span>
+               </div>
+               <div class="perf-results-item">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+               <div class="perf-results-item">
+                 <label>matches:</label>
+                 <span class="perf-value" data-perf="match"></span>
+               </div>
+          </div>
+     </div><!-- /.perf-item -->
+     <div class="perf-item perf-search row " data-perf-method="search">
+       <div class="perf-values ">
+             <span ><label>KeyWord :</label> <input type="text" name="q_search" value="Oracle"/></span>
+             <button class="btn btn-primary go">Go</button>
+          </div> 
+       <div class="perf-results ">
+              <div class="perf-results-item">
+                 <label>c:</label>
+                 <span class="perf-value"  data-perf="c"></span>
+               </div>
+               <div class="perf-results-item">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+               <div class="perf-results-item">
+                 <label>matches:</label>
+                 <span class="perf-value" data-perf="match"></span>
+               </div>
+          </div>
+     </div><!-- /.perf-item -->
+	 
+	 <h3>Search &Filter Test :</h3>
+     <div class="perf-item perf-search row " data-perf-method="search">
+       <div class="perf-values ">
+             <span ><label>KeyWord :</label> <input type="text" name="q_search" value="java"/></span>
+             <span ><label>Employer :</label> <input type="text" name="q_companies" value="Salesforce.com"/></span>
+             <button class="btn btn-primary go">Go</button>
+          </div> 
+       <div class="perf-results ">
+              <div class="perf-results-item">
+                 <label>c:</label>
+                 <span class="perf-value"  data-perf="c"></span>
+               </div>
+               <div class="perf-results-item">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+               <div class="perf-results-item">
+                 <label>matches:</label>
+                 <span class="perf-value" data-perf="match"></span>
+               </div>
+          </div>
+     </div><!-- /.perf-item -->
+     <div class="perf-item perf-search row " data-perf-method="search">
+       <div class="perf-values ">
+             <span ><label>KeyWord :</label> <input type="text" name="q_search" value="Oracle"/></span>
+             <span ><label>Employer :</label> <input type="text" name="q_companies" value="Salesforce.com"/></span>
+             <button class="btn btn-primary go">Go</button>
+          </div> 
+       <div class="perf-results ">
+              <div class="perf-results-item">
+                 <label>c:</label>
+                 <span class="perf-value"  data-perf="c"></span>
+               </div>
+               <div class="perf-results-item">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+               <div class="perf-results-item">
+                 <label>matches:</label>
+                 <span class="perf-value" data-perf="match"></span>
+               </div>
+          </div>
+     </div><!-- /.perf-item -->
+      
+     <h3>Auto Complete:</h3>
+     <div class="perf-item perf-search " data-perf-method="autocomplete">
+     	  <div class="row">
+     	  	<div class="perf-values col-md-5">
+             <span ><label>Employer :</label> <input type="text" name="q_search" value="Oracle"/></span>
+             <button class="btn btn-primary go  left" data-type="company">Go</button>
+          	</div>
+          	<div class="perf-values col-md-5">
+             <span ><label>Employer :</label> <input type="text" name="q_search" value="Salesforce"/></span>
+             <button class="btn btn-primary go  right" data-type="company">Go</button>
+          	</div>  
+     	  </div>	
+       	  <div class="row">
+       	  	<div class="perf-results col-md-5 left-items">
+               <div class="perf-results-item ">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+            </div>
+       	    <div class="perf-results col-md-5 right-items">
+               <div class="perf-results-item ">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+            </div>
+       	  </div>
+     	</div><!-- /.perf-item -->
+	 	
+	 	<div class="perf-item perf-search " data-perf-method="autocomplete">
+     	  <div class="row">
+     	  	<div class="perf-values col-md-5">
+             <span ><label>Skill :</label> <input type="text" name="q_search" value="Java"/></span>
+             <button class="btn btn-primary go  left" data-type="skill">Go</button>
+          	</div>
+          	<div class="perf-values col-md-5">
+             <span ><label>Skill :</label> <input type="text" name="q_search" value="PHP"/></span>
+             <button class="btn btn-primary go  right" data-type="skill">Go</button>
+          	</div>  
+     	  </div>	
+       	  <div class="row">
+       	  	<div class="perf-results col-md-5 left-items">
+               <div class="perf-results-item ">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+            </div>
+       	    <div class="perf-results col-md-5 right-items">
+               <div class="perf-results-item">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+            </div>
+       	  </div>
+     	</div><!-- /.perf-item -->
+     	
+     	<div class="perf-item perf-search " data-perf-method="autocomplete">
+     	  <div class="row">
+     	  	<div class="perf-values col-md-5">
+             <span ><label>Education :</label> <input type="text" name="q_search" value="University"/></span>
+             <button class="btn btn-primary go left" data-type="education">Go</button>
+          	</div>
+          	<div class="perf-values col-md-5">
+             <span ><label>Education :</label> <input type="text" name="q_search" value="University of Wisconsin"/></span>
+             <button class="btn btn-primary go right" data-type="education">Go</button>
+          	</div>  
+     	  </div>	
+       	  <div class="row">
+       	  	<div class="perf-results col-md-5 left-items">
+               <div class="perf-results-item ">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+            </div>
+       	    <div class="perf-results col-md-5 right-items">
+               <div class="perf-results-item">
+                 <label>s:</label>
+                 <span class="perf-value" data-perf="s"></span>
+               </div>
+            </div>
+       	  </div>
+     	</div><!-- /.perf-item -->
     </div>
 </script>
 
