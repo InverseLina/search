@@ -352,7 +352,7 @@ public class SearchDao {
            
            //Get the label parameters and render them
            String label = searchValues.get("label");
-           String labelAssigned = searchValues.get("labelAssigned");
+           //String labelAssigned = searchValues.get("labelAssigned");
            String userId = userDao.getCurrentUser().get("id").toString();
            if(userId==null){
                userId = "1";
@@ -360,7 +360,7 @@ public class SearchDao {
            if(label==null){
                label="Favorites";
            }
-           if(label==null){
+          /* if(label==null){
                if(advanced){
                    if(!"true".equals(labelAssigned)){
                        joinTables.append(" left ");
@@ -388,7 +388,7 @@ public class SearchDao {
                            .append("' ) labelcontact on labelcontact.\"contact_id\" = contact.\"id\" ");
                }
              
-           }
+           }*/
            
        	   //Get the contacts parameters and render them
            JSONArray contacts = JSONArray.fromObject(searchValues.get("contacts"));

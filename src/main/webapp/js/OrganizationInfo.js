@@ -139,6 +139,37 @@
 				}
 			});
 		},
+		"click;.sfid":function(event){
+			var view = this;
+			var $createIndexBtn = $(event.target);
+			if($createIndexBtn.prop("disabled")){
+				return false;
+			}
+			var $alert = $createIndexBtn.closest("tr").find(".alert");
+			if($createIndexBtn.html()=="Copy sfid"||$createIndexBtn.html()=="Resume copy sfid"){
+				$alert.addClass("transparent");
+				$createIndexBtn.html("Pause copy sfid");
+				app.getJsonData("/copySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+					if(data&&data.errorCode){
+						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
+						$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
+					}else{
+						view.$el.trigger("STATUS_CHANGE");
+					}
+					window.clearInterval(view.intervalId);
+				});
+				view.intervalId = window.setInterval(function(){
+			    	   $(view.el).trigger("SFIDSTATUS");
+			      }, 3000);
+			}else if($createIndexBtn.html()=="Pause copy sfid"){
+				window.clearInterval(view.intervalId);
+				$createIndexBtn.prop("disabled",true).html("Pausing");
+				app.getJsonData("/stopCopySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+					$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
+					view.$el.trigger("STATUS_CHANGE");
+				});
+			}
+		},
 		"INDEXCOLUMNSSTATUS":function(){
 			var view = this;
 			app.getJsonData("/getIndexColumnsStatus", {orgName:view.currentOrgName}).done(function(data){
@@ -195,6 +226,19 @@
 	 	    	   fillProgressBar.call(view,percentage,data.perform,data.perform+data.remaining);
 			 });
 		},
+		"SFIDSTATUS":function(event,init){
+			var view = this;
+			 app.getJsonData("/getSfidStatus",{orgName:view.currentOrgName}).done(function(data){
+	 	    	   var percentage = ((data.perform/( data.perform+data.remaining))*100)+"";
+	 	    	   if(init&&data.perform>0&&data.remaining>0){
+	 	    		   view.$el.find(".sfid").html("Resume copy sfid");
+	 	    	   }
+	 	    	   if(percentage.indexOf(".")!=-1){
+	 	    		   percentage = percentage.substring(0,percentage.indexOf("."));
+	 	    	   }
+	 	    	  fillProgressBarForSfid.call(view,percentage,data.perform,data.perform+data.remaining);
+			 });
+		},
 		"click;.multiply":function(event){
 			 var view = this;
 			 if(!view.time ){
@@ -237,9 +281,6 @@
 			}else{
 				$arrow.next().show();
 			}
-			
-			
-			
 		},
 		"click;[data-time]":function(event){
 			var view = this;
@@ -303,6 +344,25 @@
 	    		  }else{
 	    			  if(tableInfo.indexOf("contact_ex")==-1){
 	    				  view.$el.find(".resume").prop("disabled",false);
+	    			  }
+	    		  }
+	    		  
+	    		  
+	    		  if(result.sfid=="running"){
+	    			  view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid");
+	    			  view.intervalId = window.setInterval(function(){
+				    	   $(view.el).trigger("SFIDSTATUS");
+	  		  			}, 3000);
+	    			  view.$el.trigger("SFIDSTATUS");
+	    		  }else if(result.sfid=="done"){
+	    			  view.$el.find(".resume").prop("disabled",true).html("sfid copied");
+	    			  view.$el.trigger("SFIDSTATUS");
+	    		  }else if(result.sfid=="part"){
+	    			  view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid");
+	    			  view.$el.trigger("SFIDSTATUS");
+	    		  }else{
+	    			  if(tableInfo.indexOf("contact_ex")==-1){
+	    				  view.$el.find(".sfid").prop("disabled",false);
 	    			  }
 	    		  }
 	    		  
@@ -419,6 +479,27 @@
 		  view.$el.find(".db-status-bar .db-count-info").html(perform+"k/"+all+"k");
   	  }
   }
+  
+  function fillProgressBarForSfid(percentage,perform,all){
+	  var view = this;
+	  if(percentage==0){
+		  view.$el.find(".sfid-status-bar").hide();
+	  }else{
+		  view.$el.find(".sfid-status-bar").show();
+	  }
+	  view.$el.find(".sfid-status-bar .progress-bar-success").css("width",percentage+"%");
+	  if(perform==all){
+		  view.$el.find(".sfid-status-bar .db-percentage").html(all);
+		  view.$el.find(".sfid-status-bar .db-count-info").empty();
+		  view.$el.find(".sfid").prop("disabled",true).html("sfid copied");
+	  }else{
+		  perform = perform/1000;
+		  all = all/1000;
+		  view.$el.find(".sfid-status-bar .sfid-percentage").html(percentage+"%");
+		  view.$el.find(".sfid-status-bar .sfid-count-info").html(perform+"k/"+all+"k");
+  	  }
+  }
+  
   function getDate(id){
     var view = this;
     var dfd = $.Deferred();

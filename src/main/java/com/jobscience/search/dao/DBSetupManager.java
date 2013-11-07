@@ -47,6 +47,9 @@ public class DBSetupManager {
     private OrgConfigDao orgConfigDao;
     @Inject
     private IndexerManager indexerManager;
+    @Inject
+    private SfidManager sfidManager;
+    
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
 		@Override
@@ -100,6 +103,7 @@ public class DBSetupManager {
         indexMap.put("ts2__employment_history__c_name_c", indexNames.contains("ts2__employment_history__c_name_c,"));
         indexMap.put("ts2__education_history__c_contact_c", indexNames.contains("ts2__education_history__c_contact_c,"));
         indexMap.put("ts2__education_history__c_name_c", indexNames.contains("ts2__education_history__c_name_c,"));
+        indexMap.put("contact_ex_sfid", indexNames.contains("contact_ex_sfid,"));
         status.put("indexes", indexMap);
         
         if(orgExtraTableNames.contains("contact_ex,")){
@@ -118,6 +122,24 @@ public class DBSetupManager {
             }
         }else{
             status.put("resume", false);
+        }
+        
+        if(orgExtraTableNames.contains("contact_ex,")){
+            if(sfidManager.isOn()){
+                status.put("sfid", "running");
+            }else{
+                if(sfidManager.getStatus(orgName).getRemaining()==0){
+                    status.put("sfid", "done");
+                }else{
+                    if(sfidManager.getStatus(orgName).getPerform()>0){
+                        status.put("sfid","part");
+                    }else{
+                        status.put("sfid", false);
+                    }
+                }
+            }
+        }else{
+            status.put("sfid", false);
         }
         return status;
     }
@@ -349,7 +371,7 @@ public class DBSetupManager {
                 "'contact_lastname_trgm_gin','ts2__skill__c_name'," +
                 "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
                 "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-                "'ts2__education_history__c_name_c') and schemaname=current_schema ");
+                "'ts2__education_history__c_name_c','contact_ex_sfid') and schemaname=current_schema ");
     	List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());

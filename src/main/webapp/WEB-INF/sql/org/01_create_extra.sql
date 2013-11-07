@@ -1,13 +1,18 @@
 -- SCRIPTS
-CREATE TABLE if not exists contact_ex
-(
-  id bigint NOT NULL,
-  resume_tsv tsvector,
-  CONSTRAINT contact_ex_pkey PRIMARY KEY (id),
-  CONSTRAINT fk_contact_ex_contact FOREIGN KEY (id)
-      REFERENCES contact (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE CASCADE
-);
+	CREATE TABLE if not exists contact_ex
+	(
+	  id bigint NOT NULL,
+	  resume_tsv tsvector,
+	  skills_tsv tsvector,
+	  sfid character varying(18),
+	  CONSTRAINT contact_ex_pkey PRIMARY KEY (id),
+	  CONSTRAINT fk_contact_ex_contact FOREIGN KEY (id)
+	      REFERENCES contact (id) MATCH SIMPLE
+	      ON UPDATE NO ACTION ON DELETE CASCADE
+	)
+	WITH (
+	  OIDS=FALSE
+	);
     
 -- SCRIPTS
 	CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$

@@ -11,6 +11,7 @@ import com.google.inject.Singleton;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.IndexerManager;
 import com.jobscience.search.dao.SetupStatus;
+import com.jobscience.search.dao.SfidManager;
 import com.jobscience.search.exception.JSSSqlException;
 
 @Singleton
@@ -21,6 +22,9 @@ public class DBSetupWebHanlder {
 
     @Inject
     private IndexerManager indexerManager;
+    
+    @Inject
+    private SfidManager sfidManager;
     
     @WebPost("/createSysSchema")
     public WebResponse createSysSchema(){
@@ -130,6 +134,27 @@ public class DBSetupWebHanlder {
        	    return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
          }
         return WebResponse.success(indexerManager.getStatus(orgName));
+    }
+    
+    @WebPost("/copySfid")
+    public WebResponse copySfid(@WebParam("orgName")String orgName) {
+         try{
+             sfidManager.run(orgName);
+         }catch (Exception e) {
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+         }
+        return WebResponse.success(sfidManager.getStatus(orgName));
+    }
+    
+    @WebGet("/getSfidStatus")
+    public WebResponse getSfidStatus(@WebParam("orgName")String orgName) {
+        return WebResponse.success(sfidManager.getStatus(orgName));
+    }
+    
+    @WebPost("/stopCopySfid")
+    public WebResponse stopCopySfid(@WebParam("orgName")String orgName) {
+        sfidManager.stop();
+        return WebResponse.success(sfidManager.getStatus(orgName));
     }
     
     @WebGet("/getResumeIndexStatus")
