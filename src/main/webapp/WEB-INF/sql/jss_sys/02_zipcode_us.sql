@@ -10,6 +10,16 @@ CREATE TABLE if not exists zipcode_us
   dst integer,
   CONSTRAINT zcta_pkey PRIMARY KEY (zip)
 );
+  -- SCRIPTS
+  DO $$
+  BEGIN
+  IF NOT EXISTS (
+      select 1 from pg_extension e where e."extname" = 'pg_trgm'
+      ) THEN
+    CREATE EXTENSION pg_trgm   SCHEMA public;
+  END IF;
+  END$$;
+
 
 -- SCRIPTS
   DO $$
@@ -24,6 +34,6 @@ CREATE TABLE if not exists zipcode_us
     CREATE INDEX zipcode_idx_city_gin
     ON jss_sys.zipcode_us
     USING gin
-    (city COLLATE pg_catalog."default" gin_trgm_ops);
+    (city COLLATE pg_catalog."default" public.gin_trgm_ops);
   END IF;
   END$$;
