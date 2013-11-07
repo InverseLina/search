@@ -146,7 +146,7 @@
 				return false;
 			}
 			var $alert = $createIndexBtn.closest("tr").find(".alert");
-			if($createIndexBtn.html()=="Copy sfid"||$createIndexBtn.html()=="Resume copy sfid"){
+			if($createIndexBtn.html()=="copy sfid"||$createIndexBtn.html()=="Resume copy sfid"){
 				$alert.addClass("transparent");
 				$createIndexBtn.html("Pause copy sfid");
 				app.getJsonData("/copySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
