@@ -25,10 +25,6 @@ public class PerfWebHandlers {
      * api for main search
      * 
      * @param searchValues
-     * @param pageIndex
-     * @param pageSize
-     * @param orderBy
-     * @param orderType
      * @param searchColumns
      * @return
      */
@@ -91,9 +87,7 @@ public class PerfWebHandlers {
             pageNum = 1;
         }
         List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum);
-        // result.put("list", list);
         long end = System.currentTimeMillis();
-        // result.put("duration", end - start);
 
         Map resultMap = new HashMap();
         resultMap.put("count", list.size());
@@ -102,24 +96,4 @@ public class PerfWebHandlers {
         return wr;
     }
 
-    /**
-     * get the order column name by original column
-     * 
-     * @param originalName
-     * @return
-     */
-    private String getOrderColumn(String originalName) {
-        if ("name".equalsIgnoreCase(originalName) || "title".equalsIgnoreCase(originalName)
-                                || "company".equalsIgnoreCase(originalName)
-                                || "skill".equalsIgnoreCase(originalName)
-                                || "education".equalsIgnoreCase(originalName)
-                                || "email".equalsIgnoreCase(originalName)) {
-            return "l" + originalName;
-        } else if ("createddate".equalsIgnoreCase(originalName)) {
-            return "createddate";
-        } else if ("location".equalsIgnoreCase(originalName)) {
-            return "location";
-        }
-        return originalName;
-    }
 }
