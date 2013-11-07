@@ -44,7 +44,7 @@ public class PerfWebHandlers {
         SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon);
         Map resultMap = new HashMap();
         resultMap.put("count", searchResult.getCount());
-        resultMap.put("duration", searchResult.getDuration());
+        resultMap.put("duration", searchResult.getSelectDuration());
         resultMap.put("countDuration", searchResult.getCountDuration());
         WebResponse wr = WebResponse.success(resultMap);
         return wr;
