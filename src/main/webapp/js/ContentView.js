@@ -730,6 +730,7 @@
       }));
       view.$searchResult.find(".page").empty();
       fixColWidth.call(view);
+      view.restoreSearchParam();
  }
   // --------- /Private Methods--------- //
 
