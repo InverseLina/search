@@ -8,7 +8,7 @@ var app = app || {};
     var displayColumns = [{name:"contact",display:"Contact"},{name:"company",display:"Employer"}
         ,{name:"skill",display:"Skill"},{name:"education",display:"Education"},{name:"location",display:"Location"},
         {name:"resume",display:"Resume"}];
-    var defaultColumns = "contact,company,skill,education,location";
+    var defaultColumns = "contact,company,skill,education";
     var defaultSectionOpen = {
         ContactInfo: 'close',
         Company: 'open',
