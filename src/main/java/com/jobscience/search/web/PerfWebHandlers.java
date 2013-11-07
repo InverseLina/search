@@ -32,7 +32,7 @@ public class PerfWebHandlers {
      * @param searchColumns
      * @return
      */
-    @WebGet("/search")
+    @WebGet("/perf/search")
     public WebResponse search(@WebParam("searchValues") String searchValues,
                             @WebParam("searchColumns") String searchColumns) {
         String orderCon = "";
@@ -67,7 +67,7 @@ public class PerfWebHandlers {
      * @return
      * @throws SQLException
      */
-    @WebGet("/autocomplete")
+    @WebGet("/perf/autocomplete")
     public WebResponse autocomplete(@WebParam("searchValues") String searchValues, @WebParam("type") String type,
                             @WebParam("queryString") String queryString,
                             @WebParam("orderByCount") Boolean orderByCount, @WebParam("min") String min,

@@ -16,16 +16,16 @@
 
       if(app.pathInfo.paths[1] == "add"){
     	  var li = render("OrganizationInfo-li",{type:"OrganizationInfo",url:"#organization/add"});
-    	  view.$navTabs.append(li);
+  		  view.$navTabs.find('li:last').before(li);
     	  var html = render("OrganizationInfo-content",{data:null});
     	  view.$tabContent.html(html);
     	  view.orgId = -1;
     	  view.$el.find(".extra,.resume,.index").prop("disabled",true);
        }else if(app.pathInfo.paths[1] == "edit"){
     	   view.orgId = app.pathInfo.paths[2] * 1;
-    	  getDate.call(view,app.pathInfo.paths[2] * 1).done(function(orgName){
-    		  var li = render("OrganizationInfo-li",{type:"Organization: "+orgName,url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
-         	  view.$navTabs.append(li);
+    	   getDate.call(view,app.pathInfo.paths[2] * 1).done(function(orgName){
+    	   var li = render("OrganizationInfo-li",{type:"Organization: "+orgName,url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
+    	   view.$navTabs.find('li:last').before(li);
     	  });
        }
       

@@ -14,9 +14,9 @@
       view.$navTabs = $(".nav-tabs");
 	  view.$tabContent = view.$el.find(".tab-content");
 	  view.$navTabs.find("li.active").removeClass("active");
-	  if(view.$navTabs.find('li').size() > 2){
-			 view.$navTabs.find('li:last').remove();
-		 }
+	  if(view.$navTabs.find('li').size() > 3){
+			view.$navTabs.find('li:last').prev("li").remove();
+		  }
 
 	  if(app.pathInfo.paths[1] == "add" || app.pathInfo.paths[1] == "edit"){
 		   brite.display("OrganizationInfo");

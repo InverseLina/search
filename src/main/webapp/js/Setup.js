@@ -12,9 +12,9 @@
       view.$navTabs = $(".nav-tabs");
       view.$tabContent = view.$el.find(".tab-content");
       view.$navTabs.find("li.active").removeClass("active");
-      if(view.$navTabs.find('li').size() > 2){
-		view.$navTabs.find('li:last').remove();
-	  }
+      if(view.$navTabs.find('li').size() > 3){
+			view.$navTabs.find('li:last').prev('li').remove();
+		  }
       view.$navTabs.find("a[href='#setup']").closest("li").addClass("active");
       view.$el.find(".create,.import,.create_pg_trgm").prop("disabled",true).html("Loading...");
       view.$el.trigger("STATUS_CHANGE");
