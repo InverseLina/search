@@ -154,7 +154,7 @@
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
 						$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
 					}else{
-						view.$el.trigger("STATUS_CHANGE");
+						view.$el.trigger("SFIDSTATUS");
 					}
 					window.clearInterval(view.intervalId);
 				});
@@ -166,7 +166,7 @@
 				$createIndexBtn.prop("disabled",true).html("Pausing");
 				app.getJsonData("/stopCopySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
-					view.$el.trigger("STATUS_CHANGE");
+					view.$el.trigger("SFIDSTATUS");
 				});
 			}
 		},
@@ -488,8 +488,8 @@
 	  }
 	  view.$el.find(".sfid-status-bar .progress-bar-success").css("width",percentage+"%");
 	  if(perform==all){
-		  view.$el.find(".sfid-status-bar .db-percentage").html(formateNumber(all));
-		  view.$el.find(".sfid-status-bar .db-count-info").empty();
+		  view.$el.find(".sfid-status-bar .sfid-percentage").html(formateNumber(all));
+		  view.$el.find(".sfid-status-bar .sfid-count-info").empty();
 		  view.$el.find(".sfid").prop("disabled",true).html("sfid copied");
 	  }else{
 		  //perform = perform/1000;

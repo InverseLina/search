@@ -150,18 +150,4 @@
 	  CREATE INDEX ts2__education_history__c_name_c  ON ts2__education_history__c  USING btree ("ts2__name__c" COLLATE pg_catalog."default");
 	END IF;
 	END$$;
-
--- SCRIPTS
-  DO $$
-  BEGIN
-  IF NOT EXISTS (
-      SELECT 1
-      FROM   pg_class c
-      JOIN   pg_namespace n ON n.oid = c.relnamespace
-      WHERE  c.relname = 'contact_ex_sfid'
-      AND    n.nspname =   current_schema
-      ) THEN
-    CREATE UNIQUE INDEX contact_ex_sfid  ON contact_ex  USING btree  (sfid COLLATE pg_catalog."default");
-  END IF;
-  END$$;	
 	

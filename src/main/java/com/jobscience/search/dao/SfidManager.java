@@ -3,6 +3,10 @@ package com.jobscience.search.dao;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +26,8 @@ public class SfidManager {
 	 private DBHelper dbHelper;
 	 @Inject
 	 private CurrentRequestContextHolder currentRequestContextHolder;
-	 
+	 @Inject
+     private OrgConfigDao orgConfigDao;
 	 private IndexerStatus indexerStatus ;
 	 public synchronized void run(String orgName) throws Exception{
 		if(on){
@@ -33,7 +38,7 @@ public class SfidManager {
         path.append("/WEB-INF/sql");
 	  	File orgFolder = new File(path + "/org");
 	    File[] sqlFiles = orgFolder.listFiles();
-	    String insertSql="" ;
+	    String insertSql="" ,addColumnSql = "";
 	    try{
 		    for(File file : sqlFiles){
 		    	StringBuilder temp = new StringBuilder();
@@ -44,7 +49,10 @@ public class SfidManager {
 	                    temp.append(str);
 	                }
 	                in.close();
-	                insertSql = temp.toString().split("-- SCRIPTS")[1].trim();
+	                String sqls[]= temp.toString().split("-- SCRIPTS");
+	                addColumnSql = sqls[1];
+	                dbHelper.executeUpdate(orgName,addColumnSql);
+	                insertSql = sqls[2];
 	                if(insertSql.endsWith(";")){
 	                	insertSql=insertSql.substring(0,insertSql.length()-1);
 	                }
@@ -88,6 +96,14 @@ public class SfidManager {
 	 }
 	    
 	 private int getContactExCount(String orgName){
+	    List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+        String schemaname="" ;
+        if(orgs.size()==1){
+            schemaname = orgs.get(0).get("schemaname").toString();
+        }
+	    if(!checkColumn("sfid", "contact_ex", schemaname)){
+	        return 0;
+	    }
     	List<Map> list = dbHelper.executeQuery(orgName, "select count(id) as count from contact_ex where sfid is not null");
     	if(list.size()==1){
     		return Integer.parseInt(list.get(0).get("count").toString());
@@ -98,4 +114,32 @@ public class SfidManager {
 	public boolean isOn() {
 		return on;
 	}
+	
+	private boolean checkColumn(String columnName,String table,String schemaName) {
+        boolean result = false;
+        
+        Connection conn = dbHelper.openConnection();
+        try{
+            PreparedStatement st = conn.prepareStatement(" select 1 from information_schema.columns " +
+                    " where table_name =? and table_schema=?  and column_name=? ");
+            st.setString(1, table);
+            st.setString(2, schemaName);
+            st.setString(3, columnName);
+            ResultSet s = st.executeQuery();
+            if(s.next()){
+                result =  true;
+            }
+            st.close();
+            conn.close();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }finally{
+            try{
+            conn.close();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
 }

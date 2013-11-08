@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -124,75 +125,59 @@ public class DBSetupManager {
             status.put("resume", false);
         }
         
+        List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+        String schemaname="" ;
+        if(orgs.size()==1){
+            schemaname = orgs.get(0).get("schemaname").toString();
+        }
+        
         if(orgExtraTableNames.contains("contact_ex,")){
-            if(sfidManager.isOn()){
-                status.put("sfid", "running");
-            }else{
-                if(sfidManager.getStatus(orgName).getRemaining()==0){
-                    status.put("sfid", "done");
+            if(checkColumn("sfid", "contact_ex", schemaname)){
+                if(sfidManager.isOn()){
+                    status.put("sfid", "running");
                 }else{
-                    if(sfidManager.getStatus(orgName).getPerform()>0){
-                        status.put("sfid","part");
+                    if(sfidManager.getStatus(orgName).getRemaining()==0){
+                        status.put("sfid", "done");
                     }else{
-                        status.put("sfid", false);
+                        if(sfidManager.getStatus(orgName).getPerform()>0){
+                            status.put("sfid","part");
+                        }else{
+                            status.put("sfid", false);
+                        }
                     }
                 }
+            }else{
+                status.put("sfid", false);
             }
         }else{
             status.put("sfid", false);
         }
         return status;
     }
-    /*public Integer checkSetupStatus(SchemaType type,String orgName) throws SQLException, IOException{
-    	Integer status =0;
-    	if(checkSysTables()){
-    		status=SetupStatus.SYS_SCHEMA_CREATED.getValue();
-        }
-    	if(status==SetupStatus.SYS_SCHEMA_CREATED.getValue()){
-    		if(checkZipcodeImported()){
-	        	status = status|SetupStatus.ZIPCODE_DATA_IMPORTED.getValue();
-	        }
-    	}
-    	if(type.equals(SchemaType.ORG)){
-    		
-    		List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-        	String schemaname="" ;
-        	if(orgs.size()==1){
-        		schemaname = orgs.get(0).get("schemaname").toString();
-        	}
-        	
-	    	if(status>=SetupStatus.SYS_SCHEMA_CREATED.getValue()){
-	    		if(checkSchema(orgName)&&checkTable(orgName, "contact")){
-	    		    status=status|SetupStatus.ORG_SCHEMA_CREATED.getValue();
-	    			if(checkOrgExtra(orgName)){
-			        	status = status|SetupStatus.ORG_EXTRA_CREATED.getValue();
-			        }
-	    		}
-	    	}
-	    	
-	    	if(status>=SetupStatus.ORG_EXTRA_CREATED.getValue()){
-	    		if(checkExtension("pg_trgm")){
-		        	status = status|SetupStatus.PG_TRGM_CREATED.getValue();
-		        	if(checkOrgIndex(schemaname)){
-			        	status = status|SetupStatus.ORG_INDEX_COLUMNS_CREATED.getValue();
-			        }
-		        }
-	    		
-	    		if(indexerManager.isOn()){
-	    	        status = status|SetupStatus.ORG_RESUME_RUNNING.getValue();
-	        	}
-		        if(indexerManager.getStatus(orgName).getRemaining()==0){
-		            status = status|SetupStatus.ORG_INDEX_RESUME_CREATED.getValue();
-		        }
-	    	}
-    	}else{
-    		if(checkExtension("pg_trgm")){
-        		status = status|SetupStatus.PG_TRGM_CREATED.getValue();
-        	}
-    	}
-        return status;
-    }*/
     
+    private boolean checkColumn(String columnName,String table,String schemaName) throws SQLException{
+        boolean result = false;
+        
+        Connection conn = dsMng.getDefaultConnection();
+        try{
+            PreparedStatement st = conn.prepareStatement(" select 1 from information_schema.columns " +
+            		" where table_name =? and table_schema=?  and column_name=? ");
+            st.setString(1, table);
+            st.setString(2, schemaName);
+            st.setString(3, columnName);
+            ResultSet s = st.executeQuery();
+            if(s.next()){
+                result =  true;
+            }
+            st.close();
+            conn.close();
+        }catch (SQLException e) {
+            throw e;
+        }finally{
+            conn.close();
+        }
+        return result;
+    }
     /**
      * create extension for public schema
      * @param extName
