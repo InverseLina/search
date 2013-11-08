@@ -146,13 +146,19 @@
 				return false;
 			}
 			var $alert = $createIndexBtn.closest("tr").find(".alert");
-			if($createIndexBtn.html()=="copy sfid"||$createIndexBtn.html()=="Resume copy sfid"){
+			var status = $createIndexBtn.attr("data-status");
+			if(!status){
+				status="copy";
+			}
+			if(status=="copy"||status=="resume"){
 				$alert.addClass("transparent");
 				$createIndexBtn.html("Pause copy sfid");
+				$createIndexBtn.attr("data-status","pause");
 				app.getJsonData("/copySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					if(data&&data.errorCode){
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
 						$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
+						$createIndexBtn.attr("data-status","resume");
 					}else{
 						view.$el.trigger("SFIDSTATUS");
 					}
@@ -161,11 +167,12 @@
 				view.intervalId = window.setInterval(function(){
 			    	   $(view.el).trigger("SFIDSTATUS");
 			      }, 3000);
-			}else if($createIndexBtn.html()=="Pause copy sfid"){
+			}else if(status=="pause"){
 				window.clearInterval(view.intervalId);
 				$createIndexBtn.prop("disabled",true).html("Pausing");
 				app.getJsonData("/stopCopySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
+					$createIndexBtn.attr("data-status","resume");
 					view.$el.trigger("SFIDSTATUS");
 				});
 			}
@@ -178,20 +185,24 @@
 			    view.$el.find(".index-status-bar .db-percentage").html(data+"/11");
 			});
 		},
-		"click;.resume":function(event){
+		"click;.resume":function(event){ 
 			var view = this;
 			var $createIndexBtn = $(event.target);
 			if($createIndexBtn.prop("disabled")){
 				return false;
 			}
+			var status = $createIndexBtn.attr("data-status");
+			if(!status){
+				status="create";
+			}
 			var $alert = $createIndexBtn.closest("tr").find(".alert");
-			if($createIndexBtn.html()=="Create Index Resume"||$createIndexBtn.html()=="Resume Index Resume"){
+			if(status=="create"||status=="resume"){
 				$alert.addClass("transparent");
-				$createIndexBtn.html("Pause Index Resume");
+				$createIndexBtn.html("Pause Index Resume").attr("data-status","pause");
 				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					if(data&&data.errorCode){
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
-						$createIndexBtn.prop("disabled",false).html("Resume Index Resume");
+						$createIndexBtn.prop("disabled",false).html("Resume Index Resume").attr("data-status","resume");
 					}else{
 						view.$el.trigger("STATUS_CHANGE");
 					}
@@ -200,11 +211,11 @@
 				view.intervalId = window.setInterval(function(){
 			    	   $(view.el).trigger("RESUMEINDEXSTATUS");
 			      }, 3000);
-			}else if($createIndexBtn.html()=="Pause Index Resume"){
+			}else if(status=="pause"){
 				window.clearInterval(view.intervalId);
 				$createIndexBtn.prop("disabled",true).html("Pausing");
 				app.getJsonData("/stopCreateIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-					$createIndexBtn.prop("disabled",false).html("Resume Index Resume");
+					$createIndexBtn.prop("disabled",false).html("Resume Index Resume").attr("data-status","resume");
 					view.$el.trigger("STATUS_CHANGE");
 				});
 			}
@@ -330,128 +341,40 @@
 	    			  view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
 	    		  }
 	    		  if(result.resume=="running"){
-	    			  view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
+	    			  view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume").attr("data-status","pause");
 	    			  view.intervalId = window.setInterval(function(){
 				    	   $(view.el).trigger("RESUMEINDEXSTATUS");
 	  		  			}, 3000);
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else if(result.resume=="done"){
-	    			  view.$el.find(".resume").prop("disabled",true).html("Index Resume created");
+	    			  view.$el.find(".resume").prop("disabled",true).html("Index Resume created").attr("data-status","pause");
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else if(result.resume=="part"){
-	    			  view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume");
+	    			  view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume").attr("data-status","resume");
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else{
 	    			  if(tableInfo.indexOf("contact_ex")==-1){
-	    				  view.$el.find(".resume").prop("disabled",false);
+	    				  view.$el.find(".resume").prop("disabled",false).attr("data-status","pause");
 	    			  }
 	    		  }
 	    		  
-	    		  
 	    		  if(result.sfid=="running"){
-	    			  view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid");
+	    			  view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid").attr("data-status","pause");
 	    			  view.intervalId = window.setInterval(function(){
 				    	   $(view.el).trigger("SFIDSTATUS");
 	  		  			}, 3000);
 	    			  view.$el.trigger("SFIDSTATUS");
 	    		  }else if(result.sfid=="done"){
-	    			  view.$el.find(".resume").prop("disabled",true).html("sfid copied");
+	    			  view.$el.find(".resume").prop("disabled",true).html("sfid copied").attr("data-status","copied");
 	    			  view.$el.trigger("SFIDSTATUS");
 	    		  }else if(result.sfid=="part"){
-	    			  view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid");
+	    			  view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume");
 	    			  view.$el.trigger("SFIDSTATUS");
 	    		  }else{
 	    			  if(tableInfo.indexOf("contact_ex")==-1){
-	    				  view.$el.find(".sfid").prop("disabled",false);
+	    				  view.$el.find(".sfid").prop("disabled",false).attr("data-status","copy");
 	    			  }
 	    		  }
-	    		  
-	    		 /* switch(result){
-	    		  	case 3: 	// system schema created,org schema not existed not created
-	    			view.$el.find(".extra,.index,.resume").prop("disabled",true);
-		  		  	break;
-		  		  	
-	        	  	case 7:	//org extra not created
-    		  		view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables");
-	  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-		  			view.$el.find(".resume").prop("disabled",true).html("Create Index Resume");
-		  			break;
-		  			
-	        	  	case 15:	//org extra created,pg_trgm not existed,resume not finished
-	  				view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	  				view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-	  				view.$el.find(".resume").prop("disabled",false);//.html("Resume Index Resume");
-	  				view.$el.trigger("RESUMEINDEXSTATUS",true);
-	  				break;
-	  				
-	        	  	case 47:	//system schema created,pg_trgm is not existed,org extra existed,index resume created
-    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-	  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
-			  		view.$el.trigger("RESUMEINDEXSTATUS");
-			  		break;
-			  		
-	        	  	case 79:	//system schema created,pg_trgm is not existed,
-	        		  		//org extra existed,index resume runing
-    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	  	  			view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
-	  		  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
-		  		  	view.intervalId = window.setInterval(function(){
-				    	   $(view.el).trigger("RESUMEINDEXSTATUS");
-	  		  		}, 3000);
-			  		view.$el.trigger("RESUMEINDEXSTATUS");
-			  		break;
-			  		
-	        	    case 143: //pg_trgm created,index columns not created,resume is not finished
-		  		    view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-		  		    view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
-		  		    view.$el.find(".resume").prop("disabled",false);//.html("Resume Index Resume");
-		  		    view.$el.trigger("RESUMEINDEXSTATUS",true);
-		  		    break;
-		  		   
-	        	    case 159: //resume is not finished
-			  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-					view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
-					view.$el.find(".resume").prop("disabled",false);//.html("Resume Index Resume");
-					view.$el.trigger("RESUMEINDEXSTATUS",true);
-					break;
-					
-	        	    case 175: //org extra created,index column not created,resume is done
-    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-					view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
-					view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
-					view.$el.trigger("RESUMEINDEXSTATUS");
-					break;
-					
-	        	    case 191: //All done
-    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	  	  			view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
-	  		  		view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
-	  		  		view.$el.trigger("RESUMEINDEXSTATUS");
-		    		view.$el.find(".index-info,.status").addClass("hide");
-					break;
-					
-	        	    case 207:	//resume is running,and index columns not created
-    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	  	  			view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
-		  	  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
-	  	  			view.intervalId = window.setInterval(function(){
-				    	   $(view.el).trigger("RESUMEINDEXSTATUS",false);
-	  		  		}, 3000);
-	  		  		view.$el.trigger("RESUMEINDEXSTATUS");
-					break;
-							
-	        	    case 223:	//resume is running,and index columns  created
-    		  		view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
-	  	  			view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
-		  	  		view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume");
-	  	  			view.intervalId = window.setInterval(function(){
-				    	   $(view.el).trigger("RESUMEINDEXSTATUS",false);
-	  		  		}, 3000);
-	  		  		view.$el.trigger("RESUMEINDEXSTATUS");
-					break;
-					
-	        	  }*/
 	          });
 	      }
     }
