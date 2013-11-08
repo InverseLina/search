@@ -48,6 +48,8 @@
       var viewName = pathInfo.paths[0];
         if(viewName == "organization"){
           brite.display("Organization");
+        }else if(viewName == "perf"){
+        	brite.display("PerfView");
         }else{
           brite.display("Setup");
         }
