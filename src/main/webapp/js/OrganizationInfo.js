@@ -123,7 +123,6 @@
 			var $alert = $createIndexBtn.closest("tr").find(".alert");
 			$createIndexBtn.prop("disabled",true).html("Creating...");
 			$alert.addClass("transparent");
-			view.$el.find(".index-status-bar").show();
 			view.indexIntervalId = window.setInterval(function(){
 		    	   $(view.el).trigger("INDEXCOLUMNSSTATUS");
 		      }, 3000);
@@ -135,7 +134,7 @@
 				}else{
 					$createIndexBtn.html("Index Columns Created");
 					$alert.addClass("hide");
-					view.$el.find(".index-status-bar").hide();
+					//view.$el.find(".index-status-bar").hide();
 				}
 			});
 		},
@@ -179,6 +178,7 @@
 		},
 		"INDEXCOLUMNSSTATUS":function(){
 			var view = this;
+			view.$el.find(".index-status-bar").show();
 			app.getJsonData("/getIndexColumnsStatus", {orgName:view.currentOrgName}).done(function(data){
 				percentage = data/11*100;
 			    view.$el.find(".index-status-bar .progress-bar-success").css("width",percentage+"%");
@@ -337,8 +337,10 @@
 		    		  }else{
 		    			  view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
 		    		  }
+		    		  view.$el.trigger("INDEXCOLUMNSSTATUS");
 	    		  }else{
 	    			  view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+	    			  view.$el.trigger("INDEXCOLUMNSSTATUS");
 	    		  }
 	    		  if(result.resume=="running"){
 	    			  view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume").attr("data-status","pause");
