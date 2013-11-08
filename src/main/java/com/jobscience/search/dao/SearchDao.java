@@ -1093,7 +1093,7 @@ public class SearchDao {
 	        		joinSql.append(" order by "+orderCon);
 	        	}
 	        	
-	        	joinSql.append(" offset ").append(offset).append(" limit ").append(pageSize);
+	        	joinSql.append(" offset 0 ").append(" limit ").append(pageSize);
 	        }
 	       
 	        joinSql.append(") a ");
