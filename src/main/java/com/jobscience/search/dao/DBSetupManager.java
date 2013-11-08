@@ -104,7 +104,6 @@ public class DBSetupManager {
         indexMap.put("ts2__employment_history__c_name_c", indexNames.contains("ts2__employment_history__c_name_c,"));
         indexMap.put("ts2__education_history__c_contact_c", indexNames.contains("ts2__education_history__c_contact_c,"));
         indexMap.put("ts2__education_history__c_name_c", indexNames.contains("ts2__education_history__c_name_c,"));
-        indexMap.put("contact_ex_sfid", indexNames.contains("contact_ex_sfid,"));
         status.put("indexes", indexMap);
         
         if(orgExtraTableNames.contains("contact_ex,")){
@@ -356,7 +355,7 @@ public class DBSetupManager {
                 "'contact_lastname_trgm_gin','ts2__skill__c_name'," +
                 "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
                 "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-                "'ts2__education_history__c_name_c','contact_ex_sfid') and schemaname=current_schema ");
+                "'ts2__education_history__c_name_c') and schemaname=current_schema ");
     	List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());
