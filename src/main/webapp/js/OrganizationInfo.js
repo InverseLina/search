@@ -176,6 +176,27 @@
 				});
 			}
 		},
+		"click;.ex_grouped_skills":function(event){
+			var view = this;
+			$(event.target).html("Creating...").prop("disabled",true);
+			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_skills'},{type:'Post'}).done(function(data){
+				$(event.target).html("ex_grouped_skills Created").prop("disabled",true);
+			});
+		},
+		"click;.ex_grouped_educations":function(event){
+			var view = this;
+			$(event.target).html("Creating...").prop("disabled",true);
+			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_educations'},{type:'Post'}).done(function(data){
+				$(event.target).html("ex_grouped_educations Created").prop("disabled",true);
+			});
+		},
+		"click;.ex_grouped_employers":function(event){
+			var view = this;
+			$(event.target).html("Creating...").prop("disabled",true);
+			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_employers'},{type:'Post'}).done(function(data){
+				$(event.target).html("ex_grouped_employers Created").prop("disabled",true);
+			});
+		},
 		"INDEXCOLUMNSSTATUS":function(){
 			var view = this;
 			view.$el.find(".index-status-bar").show();
@@ -319,7 +340,21 @@
 	    				 tableInfo+=table+" ";
 	    			 }
 	    		  }
-	    		  
+	    		  if(result.ex_grouped_skills){
+	    			  view.$el.find(".ex_grouped_skills").prop("disabled",true);
+	    		  }else{
+	    			  view.$el.find(".ex_grouped_skills").prop("disabled",false);
+	    		  }
+	    		  if(result.ex_grouped_educations){
+	    			  view.$el.find(".ex_grouped_educations").prop("disabled",true);
+	    		  }else{
+	    			  view.$el.find(".ex_grouped_educations").prop("disabled",false);
+	    		  }
+	    		  if(result.ex_grouped_employers){
+	    			  view.$el.find(".ex_grouped_employers").prop("disabled",true);
+	    		  }else{
+	    			  view.$el.find(".ex_grouped_employers").prop("disabled",false);
+	    		  }
 	    		  if(tableInfo){
 	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables");
 	    		  }else{

@@ -89,7 +89,10 @@ public class DBSetupManager {
         tableMap.put("savedsearches", orgExtraTableNames.contains("savedsearches,"));
         tableMap.put("user", orgExtraTableNames.contains("user,"));
         status.put("tables", tableMap);
-        
+        status.put("ex_grouped_skills",  orgExtraTableNames.contains("ex_grouped_skills,"));
+        status.put("ex_grouped_educations",  orgExtraTableNames.contains("ex_grouped_educations,"));
+        status.put("ex_grouped_employers",  orgExtraTableNames.contains("ex_grouped_employers,"));
+
         status.put("pgtrgm", this.checkExtension("pg_trgm"));
         Map indexMap = new HashMap();
         String indexNames = this.checkOrgIndex(orgName)+",";
@@ -515,7 +518,7 @@ public class DBSetupManager {
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
     	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select string_agg(table_name,',') as names from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','contact_ex','savedsearches','user')");
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','contact_ex','savedsearches','user','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')");
     	if(list.size()==1){
             String names = (String)list.get(0).get("names");
             if(names==null){
@@ -571,5 +574,48 @@ public class DBSetupManager {
     */
    public List<String> getSqlCommandForOrg(String fileName){
        return loadSQLFile(new File(getRootSqlFolderPath()+"/org/"+fileName));
+   }
+   
+   public boolean createExtraGroup(String orgName,String tableName) throws SQLException{
+       boolean result = true;
+       File orgFolder = new File(getRootSqlFolderPath() + "/org");
+       File[] sqlFiles = orgFolder.listFiles();
+       List<String> allSqls = new ArrayList();
+       String filePrexName = "";
+       if(tableName.contains("skills")){
+           filePrexName = "06_";
+       }else if(tableName.contains("educations")){
+           filePrexName = "07_";
+       }else {
+           filePrexName = "08_";
+       }
+       for(File file : sqlFiles){
+           if(file.getName().startsWith(filePrexName)){
+               List<String> subSqlList = loadSQLFile(file);
+               allSqls.addAll(subSqlList);
+           }
+       }
+       Connection conn = dbHelper.openConnection(orgName);
+       try {
+           conn.setAutoCommit(false);
+           Statement st = conn.createStatement();
+           for(String sql : allSqls){
+               st.addBatch(sql.replaceAll("#", ";"));
+           }
+           st.executeBatch();
+           conn.commit();
+       } catch (SQLException e) {
+           e.printStackTrace();
+           result = false;
+           try {
+               conn.rollback();
+           } catch (SQLException e1) {
+               e1.printStackTrace();
+           }
+           throw e;
+       }finally{
+           conn.close();
+       }
+      return result;
    }
 }    

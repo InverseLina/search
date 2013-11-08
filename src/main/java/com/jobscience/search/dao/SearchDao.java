@@ -281,6 +281,15 @@ public class SearchDao {
         queryLogger.debug(LoggerType.AUTO_SQL,querySql);
         queryLogger.debug(LoggerType.PARAMS,queryString);
         
+        if(type.equals("company")){
+            baseTable = schemaname+".ex_grouped_employers ";
+        }else if(type.equals("education")){
+            baseTable = schemaname+".ex_grouped_educations ";
+        }else if(type.equals("skill")){
+            baseTable = schemaname+".ex_grouped_skills ";
+        }
+        
+        querySql = new StringBuilder(" select count,name from "+baseTable+" order by count desc limit 7");
         Long start = System.currentTimeMillis();
         Connection con = dbHelper.openPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());

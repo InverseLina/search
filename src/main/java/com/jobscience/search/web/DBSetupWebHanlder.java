@@ -10,7 +10,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.IndexerManager;
-import com.jobscience.search.dao.SetupStatus;
 import com.jobscience.search.dao.SfidManager;
 import com.jobscience.search.exception.JSSSqlException;
 
@@ -49,23 +48,14 @@ public class DBSetupWebHanlder {
         return WebResponse.success();
     }
     
-    /**
-     * Get the DB setup status
-     * @param type SYSTEM for jss_sys schema,the the ORG for org schema
-     * @param orgName 
-     * @return
-     * @see SetupStatus
-     *//*
-    @WebGet("/checkSetupStatus")
-    public WebResponse checkSetupStatus(@WebParam("type")SchemaType type,@WebParam("orgName")String orgName){
-        try{
-        	 return WebResponse.success(dbSetupManager.checkSetupStatus(type,orgName));
-        }catch (SQLException e) {
-        	return WebResponse.success(new JSSSqlException(e) );
-		} catch (IOException e) {
-			return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()) );
-		}
-    }*/
+    @WebPost("/createExtraGrouped")
+    public WebResponse createExtraGrouped(@WebParam("orgName")String orgName,@WebParam("tableName")String tableName){
+       try{
+            return WebResponse.success(dbSetupManager.createExtraGroup(orgName,tableName));
+       }catch (SQLException e) {
+           return WebResponse.success(new JSSSqlException(e) );
+       }
+    }
     
     @WebGet("/checkSysSchema")
     public WebResponse checkSysSchema (){
