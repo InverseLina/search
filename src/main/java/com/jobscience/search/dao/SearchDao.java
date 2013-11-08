@@ -99,7 +99,7 @@ public class SearchDao {
      * @return
      * @throws SQLException
      */
-    public List<Map> getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {/*
+    public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {/*
         //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
@@ -290,7 +290,10 @@ public class SearchDao {
         Long end = System.currentTimeMillis();
         //log for performance
         queryLogger.debug(LoggerType.AUTO_PERF, end-start);
-        return result;
+        SearchResult searchResult = new SearchResult(result, result.size());
+        searchResult.setDuration(end - start);
+        searchResult.setSelectDuration(searchResult.getDuration());
+        return searchResult;
     }
     
     /**

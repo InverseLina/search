@@ -2,7 +2,6 @@ package com.jobscience.search.web;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -53,7 +52,6 @@ public class PerfWebHandlers {
     /**
      * Get auto complete data order by count
      * 
-     * @param autocomplete
      * @param type
      * @param queryString
      * @param orderByCount
@@ -86,12 +84,12 @@ public class PerfWebHandlers {
         if (pageNum == null || pageNum < 1) {
             pageNum = 1;
         }
-        List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum);
+        SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum);
         long end = System.currentTimeMillis();
 
         Map resultMap = new HashMap();
-        resultMap.put("count", list.size());
-        resultMap.put("duration", end - start);
+        resultMap.put("count", sResult.getCount());
+        resultMap.put("duration", sResult.getDuration());
         WebResponse wr = WebResponse.success(resultMap);
         return wr;
     }
