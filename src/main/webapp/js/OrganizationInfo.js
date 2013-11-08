@@ -229,7 +229,7 @@
 		"SFIDSTATUS":function(event,init){
 			var view = this;
 			 app.getJsonData("/getSfidStatus",{orgName:view.currentOrgName}).done(function(data){
-	 	    	   var percentage = ((data.perform/( data.perform+data.remaining))*100)+"";
+				 var percentage = ((data.perform/( data.perform+data.remaining))*100)+"";
 	 	    	   if(init&&data.perform>0&&data.remaining>0){
 	 	    		   view.$el.find(".sfid").html("Resume copy sfid");
 	 	    	   }
@@ -468,15 +468,14 @@
 		  view.$el.find(".db-status-bar").show();
 	  }
 	  view.$el.find(".db-status-bar .progress-bar-success").css("width",percentage+"%");
+	  
 	  if(perform==all){
-		  view.$el.find(".db-status-bar .db-percentage").html(all);
+		  view.$el.find(".db-status-bar .db-percentage").html(formateNumber(all));
 		  view.$el.find(".db-status-bar .db-count-info").empty();
 		  view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
 	  }else{
-		  perform = perform/1000;
-		  all = all/1000;
 		  view.$el.find(".db-status-bar .db-percentage").html(percentage+"%");
-		  view.$el.find(".db-status-bar .db-count-info").html(perform+"k/"+all+"k");
+		  view.$el.find(".db-status-bar .db-count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
   	  }
   }
   
@@ -489,17 +488,28 @@
 	  }
 	  view.$el.find(".sfid-status-bar .progress-bar-success").css("width",percentage+"%");
 	  if(perform==all){
-		  view.$el.find(".sfid-status-bar .db-percentage").html(all);
+		  view.$el.find(".sfid-status-bar .db-percentage").html(formateNumber(all));
 		  view.$el.find(".sfid-status-bar .db-count-info").empty();
 		  view.$el.find(".sfid").prop("disabled",true).html("sfid copied");
 	  }else{
-		  perform = perform/1000;
-		  all = all/1000;
+		  //perform = perform/1000;
+		  //all = all/1000;
 		  view.$el.find(".sfid-status-bar .sfid-percentage").html(percentage+"%");
-		  view.$el.find(".sfid-status-bar .sfid-count-info").html(perform+"k/"+all+"k");
+		  view.$el.find(".sfid-status-bar .sfid-count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
   	  }
   }
   
+  function formateNumber(val){
+	 val=val+"";
+  	 var newVal = "";
+  	 for(var i=0;i<val.length;i++){
+  		 if(i%3==0&&i!=0){
+  			newVal+=","
+  		 }
+  		newVal += val.substring(i,i+1);
+  	 }
+  	 return newVal;
+  }
   function getDate(id){
     var view = this;
     var dfd = $.Deferred();
