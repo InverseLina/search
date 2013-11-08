@@ -788,11 +788,8 @@ public class SearchDao {
 	       if(hasSearchValue){
 	           querySql=new StringBuilder(" join (").append(querySql);
 	       }
-	      
-	               
 	   }
 	   
-	   System.out.println(prefixSql);
 	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString()};
     }
     
