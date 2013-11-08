@@ -289,7 +289,11 @@ public class SearchDao {
             baseTable = schemaname+".ex_grouped_skills ";
         }
         
-        querySql = new StringBuilder(" select count,name from "+baseTable+" order by count desc limit 7");
+        querySql = new StringBuilder(" select count,name from "+baseTable+" ");
+        if(queryString!=null&&queryString.trim().length()>0){
+            querySql.append(" where name ilike '"+ queryString+"%'");
+        }
+        querySql.append(" order by count desc limit 7 ");
         Long start = System.currentTimeMillis();
         Connection con = dbHelper.openPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
