@@ -32,7 +32,7 @@ public class PerfWebHandlers {
                             @WebParam("searchColumns") String searchColumns) {
         String orderCon = "";
         JSONObject jo = JSONObject.fromObject(searchValues);
-        Map searchMap = new HashMap();
+        Map<String, String> searchMap = new HashMap<String, String>();
         // resolve the search parameters,cause all parameters begin with "q_"
         for (Object key : jo.keySet()) {
             searchMap.put(key.toString().substring(2), jo.get(key).toString());
@@ -41,7 +41,7 @@ public class PerfWebHandlers {
         // for contact,use id,name,title,email,CreatedDate instead
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
         SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon);
-        Map resultMap = new HashMap();
+        Map<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", searchResult.getCount());
         resultMap.put("duration", searchResult.getSelectDuration());
         resultMap.put("countDuration", searchResult.getCountDuration());
@@ -67,14 +67,13 @@ public class PerfWebHandlers {
                             @WebParam("orderByCount") Boolean orderByCount, @WebParam("min") String min,
                             @WebParam("pageSize") Integer pageSize, @WebParam("pageNum") Integer pageNum)
                             throws SQLException {
-        Map result = new HashMap();
-        long start = System.currentTimeMillis();
+        Map<String, String> result = new HashMap<String, String>();
         JSONObject jo = JSONObject.fromObject(searchValues);
         if (queryString == null) {
             queryString = "";
         }
         result.put("queryString", queryString);
-        Map searchMap = new HashMap();
+        Map<String, String> searchMap = new HashMap<String, String>();
         for (Object key : jo.keySet()) {
             searchMap.put(key.toString().substring(2), jo.get(key).toString());
         }
@@ -85,9 +84,8 @@ public class PerfWebHandlers {
             pageNum = 1;
         }
         SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum);
-        long end = System.currentTimeMillis();
 
-        Map resultMap = new HashMap();
+        HashMap<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", sResult.getCount());
         resultMap.put("duration", sResult.getDuration());
         WebResponse wr = WebResponse.success(resultMap);
