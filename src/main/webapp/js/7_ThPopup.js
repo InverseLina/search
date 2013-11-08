@@ -107,7 +107,8 @@ var app = app || {};
                type = "employer";
             }
 	        $input.closest(".Filter"+type.substring(0, 1).toUpperCase()+type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:result["list"],type:type}));
-                 activeFirstItem.call(view);
+            activeFirstItem.call(view);
+            view.$el.find(".popover .duration").text("" + (result.duration||0) + "ms");
 	    });
      }
   };
@@ -187,6 +188,7 @@ var app = app || {};
                    if(data.queryString == $.trim($input.val())){
                      view.$el.find(".autoCompleteList").html(render("filterPanel-autoComplete-list",{results:data.list,type:type}));
                      activeFirstItem.call(view);
+                       view.$el.find(".popover .duration").text("" + (data.duration||0) + "ms");
                    }
                  }
              });

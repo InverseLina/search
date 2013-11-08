@@ -154,8 +154,10 @@ public class SearchWebHandlers {
         if(pageSize==null||pageSize<1){
         	pageSize=7;
         }
-        List<Map> list = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount,min,pageSize,pageNum);
-        result.put("list", list);
+        SearchResult  sResult = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount,min,pageSize,pageNum);
+        result.put("list", sResult.getResult());
+        result.put("selectDuration", sResult.getSelectDuration());
+        result.put("duration", sResult.getDuration());
         WebResponse wr = WebResponse.success(result);
         return wr;
     }
