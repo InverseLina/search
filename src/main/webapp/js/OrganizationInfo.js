@@ -200,7 +200,7 @@
 		"click;.ex_grouped_locations":function(event){
 			var view = this;
 			$(event.target).html("Creating...").prop("disabled",true);
-			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_locationss'},{type:'Post'}).done(function(data){
+			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_locations'},{type:'Post'}).done(function(data){
 				$(event.target).html("ex_grouped_locations Created").prop("disabled",true);
 			});
 		},

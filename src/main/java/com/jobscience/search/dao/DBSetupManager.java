@@ -587,8 +587,10 @@ public class DBSetupManager {
            filePrexName = "06_";
        }else if(tableName.contains("educations")){
            filePrexName = "07_";
-       }else {
+       }else if(tableName.contains("employers")){
            filePrexName = "08_";
+       }else {
+           filePrexName = "09_";
        }
        for(File file : sqlFiles){
            if(file.getName().startsWith(filePrexName)){
