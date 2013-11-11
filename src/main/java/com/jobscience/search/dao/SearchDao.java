@@ -797,7 +797,7 @@ public class SearchDao {
 	   }
 	   //if there has no condition,just append 1!=1
 	   if(!hasCondition&&!advanced){
-		   querySql.append(" and 1!=1 ");
+	       conditions.append(" and 1!=1 ");
 	   }
 	   
 	   if(!advanced){
