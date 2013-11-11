@@ -333,7 +333,7 @@ public class SearchDao {
     	StringBuilder prefixSql = new StringBuilder("");
     	String contactQueryCondition="",contactExQueryCondition="";
     	boolean hasSearchValue = false;//to check if the search box has value or not
-    	
+    	 StringBuilder labelSql = new StringBuilder();
     	if(baseTable==null){
     		baseTable = "";
     	}
@@ -368,7 +368,7 @@ public class SearchDao {
            
            //Get the label parameters and render them
            String label = searchValues.get("label");
-           //String labelAssigned = searchValues.get("labelAssigned");
+           String labelAssigned = searchValues.get("labelAssigned");
            String userId = userDao.getCurrentUser().get("id").toString();
            if(userId==null){
                userId = "1";
@@ -376,7 +376,7 @@ public class SearchDao {
            if(label==null){
                label="Favorites";
            }
-          /* if(label==null){
+           if(label!=null){
                if(advanced){
                    if(!"true".equals(labelAssigned)){
                        joinTables.append(" left ");
@@ -391,20 +391,20 @@ public class SearchDao {
                            
                }else{
                    if(!"true".equals(labelAssigned)){
-                       querySql.append(" left ");
+                       labelSql.append(" left ");
                    }else{
                        hasCondition = true;
                    }
-                   querySql.append(" join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
+                   labelSql.append(" join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
                            .append(" join "+schemaname+".\"label\" on label.\"id\"=label_contact.\"label_id\"")
                            .append(" and \"user_id\"=")
                            .append(userId)
                            .append(" and label.\"name\" ='")
                            .append(label)
-                           .append("' ) labelcontact on labelcontact.\"contact_id\" = contact.\"id\" ");
+                           .append("' ) labelcontact on labelcontact.\"contact_id\" = %s.\"id\" ");
                }
              
-           }*/
+           }
            
        	   //Get the contacts parameters and render them
            JSONArray contacts = JSONArray.fromObject(searchValues.get("contacts"));
@@ -806,7 +806,7 @@ public class SearchDao {
 	       }
 	   }
 	   
-	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString()};
+	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),labelSql.toString()};
     }
     
     /**
@@ -913,7 +913,7 @@ public class SearchDao {
 	    	}
 	    	sb.append("id,name");//make id and name always return
     	}
-    	sb.append(",sfid");//,haslabel,phone
+    	sb.append(",sfid,haslabel");//,phone
         return sb.toString();
     }
     
@@ -929,7 +929,7 @@ public class SearchDao {
     	 if(searchColumns==null){//a.phone,
              columnsSql.append("a.sfid,  a.\"id\" as id,a.\"name\" as name,lower(a.\"name\") as lname,case   when a.\"title\" is null then ''  else a.\"title\" end title ,to_char(a.\"createddate\",'yyyy-mm-dd') as createddate");
              //,a.phone
-             groupBy.append(",a.sfid, a.\"name\",a.\"title\",a.\"createddate\" ");//,a.\"haslabel\"
+             groupBy.append(",a.sfid, a.\"name\",a.\"title\",a.\"createddate\",a.\"haslabel\" ");//
     	 }else{
     		 String temp = "";
  	        for(String column:searchColumns.split(",")){
@@ -939,12 +939,12 @@ public class SearchDao {
 	 	            columnsSql.append(",");
  	        	}
  	        }
- 	        columnsSql.append("a.id,a.name,a.sfid");//,a.haslabel,a.phone,
+ 	        columnsSql.append("a.id,a.name,a.sfid,a.haslabel");//,a.phone,
  	        if(groupBy.length()>0){
  	        	groupBy.append(",");
  	        }
  	        //a.phone,
- 	        groupBy.append("a.name,a.sfid");//always return these columns ,a.haslabel
+ 	        groupBy.append("a.name,a.sfid,a.haslabel");//always return these columns ,
          }
     	 return columnsSql.toString();
     }
@@ -994,7 +994,7 @@ public class SearchDao {
         querySql.append("contact.\"firstname\",contact.\"title\",contact.\"createddate\", " );
         querySql.append("case  when contact.\"ts2__text_resume__c\" is null  or " );
         querySql.append("char_length(contact.\"ts2__text_resume__c\") = 0 then -1  else contact.id end as resume ");
-        //querySql.append(",case when labelcontact.contact_id is null then false else true end haslabel ");
+        querySql.append(",case when labelcontact.contact_id is null then false else true end haslabel ");
         //---------------------- /add select columns----------------------//
         
         
@@ -1084,8 +1084,11 @@ public class SearchDao {
 	        countSql = new StringBuilder(joinSql.toString());
 	       
 	        if(!Strings.isNullOrEmpty(searchValues.get("search"))){
-    	        joinSql.append(" offset "+offset+" limit "+pageSize+") subcontact on contact.id=subcontact.id ");
-    	        countSql.append(" ) subcontact on contact.id=subcontact.id ");
+    	        joinSql.append(" offset "+offset+" limit "+pageSize+") subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
+    	        countSql.append(" ) subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
+	        }else{
+	            joinSql.append(String.format(sqls[3],"contact"));
+                countSql.append(String.format(sqls[3],"contact"));
 	        }
 	        joinSql.append(" where 1=1 ").append(condition);
 	        countSql.append(" where 1=1 ").append(condition);
