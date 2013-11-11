@@ -92,6 +92,7 @@ public class DBSetupManager {
         status.put("ex_grouped_skills",  orgExtraTableNames.contains("ex_grouped_skills,"));
         status.put("ex_grouped_educations",  orgExtraTableNames.contains("ex_grouped_educations,"));
         status.put("ex_grouped_employers",  orgExtraTableNames.contains("ex_grouped_employers,"));
+        status.put("ex_grouped_locations",  orgExtraTableNames.contains("ex_grouped_locations,"));
 
         status.put("pgtrgm", this.checkExtension("pg_trgm"));
         Map indexMap = new HashMap();
@@ -518,7 +519,7 @@ public class DBSetupManager {
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
     	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select string_agg(table_name,',') as names from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','contact_ex','savedsearches','user','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')");
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','contact_ex','savedsearches','user','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers','ex_grouped_locations')");
     	if(list.size()==1){
             String names = (String)list.get(0).get("names");
             if(names==null){
@@ -586,8 +587,10 @@ public class DBSetupManager {
            filePrexName = "06_";
        }else if(tableName.contains("educations")){
            filePrexName = "07_";
-       }else {
+       }else if(tableName.contains("employers")){
            filePrexName = "08_";
+       }else {
+           filePrexName = "09_";
        }
        for(File file : sqlFiles){
            if(file.getName().startsWith(filePrexName)){

@@ -1,34 +1,19 @@
 -- SCRIPTS
-  CREATE TABLE if not exists ex_grouped_employers
-(
-  id serial NOT NULL,
-  count bigint,
-  name character varying(150),
-  CONSTRAINT ex_grouped_employers_pkey PRIMARY KEY (id)
-)
+ DROP TABLE IF EXISTS  ex_grouped_employers CASCADE;
 
 -- SCRIPTS
-DO $$
-  BEGIN
-  IF NOT EXISTS (
-      SELECT 1
-      FROM   pg_class c
-      JOIN   pg_namespace n ON n.oid = c.relnamespace
-      WHERE  c.relname = 'ex_grouped_employers_idx_name'
-      AND    n.nspname =   current_schema
-      ) THEN
-     
-  CREATE INDEX ex_grouped_employers_idx_name
-    ON ex_grouped_employers
-    USING btree
-    (name COLLATE pg_catalog."default");
-  END IF;
-  END$$;  
+ create table  ex_grouped_employers as
+ SELECT count(c.ts2__contact__c) AS count, c.ts2__name__c AS name,
+    date_part('year', age(c.ts2__employment_end_date__c, c.ts2__employment_start_date__c)) AS age
+   FROM ts2__employment_history__c c
+  WHERE c.ts2__name__c <> ''
+  GROUP BY c.ts2__name__c, date_part('year', age(c.ts2__employment_end_date__c, c.ts2__employment_start_date__c));
 
 -- SCRIPTS
+	CREATE INDEX ex_grouped_employers_idx_name
+	  ON ex_grouped_employers
+	  USING btree
+	  (name COLLATE pg_catalog."default");
 
-  insert into ex_grouped_employers (count,name) 
-  select count( ts2__contact__c) as count,   c."ts2__name__c"  as name from 
-  ts2__employment_history__c  c where   c."ts2__name__c"  !=''  group by   c."ts2__name__c"
 
 
