@@ -1082,9 +1082,15 @@ public class SearchDao {
 	        joinSql = new StringBuilder(sqls[0]);
 	        prefixSql = sqls[1];
 	        countSql = new StringBuilder(joinSql.toString());
-	       
+	        boolean hasContactsCondition = false;
+	        if(searchValues.get("contacts")!=null){
+	            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
+	        }
 	        if(!Strings.isNullOrEmpty(searchValues.get("search"))){
-    	        joinSql.append(" offset "+offset+" limit "+pageSize+") subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
+	            if(!hasContactsCondition){
+	                joinSql.append(" offset "+offset+" limit "+pageSize);
+	            }
+    	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
     	        countSql.append(" ) subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
 	        }else{
 	            joinSql.append(String.format(sqls[3],"contact"));
@@ -1099,8 +1105,12 @@ public class SearchDao {
 	        	if(orderCon!=null&&!"".equals(orderCon)){
 	        		joinSql.append(" order by "+orderCon);
 	        	}
-	        	
-	        	joinSql.append(" offset 0 ").append(" limit ").append(pageSize);
+	        	if(!hasContactsCondition){
+                    joinSql.append(" offset "+offset);
+                }else{
+                    joinSql.append(" offset 0 ");
+                }
+	        	joinSql.append(" limit ").append(pageSize);
 	        }
 	       
 	        joinSql.append(") a ");
