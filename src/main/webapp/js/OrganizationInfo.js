@@ -197,6 +197,13 @@
 				$(event.target).html("ex_grouped_employers Created").prop("disabled",true);
 			});
 		},
+		"click;.ex_grouped_locations":function(event){
+			var view = this;
+			$(event.target).html("Creating...").prop("disabled",true);
+			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_locationss'},{type:'Post'}).done(function(data){
+				$(event.target).html("ex_grouped_locations Created").prop("disabled",true);
+			});
+		},
 		"INDEXCOLUMNSSTATUS":function(){
 			var view = this;
 			view.$el.find(".index-status-bar").show();
@@ -354,6 +361,11 @@
 	    			  view.$el.find(".ex_grouped_employers").prop("disabled",true);
 	    		  }else{
 	    			  view.$el.find(".ex_grouped_employers").prop("disabled",false);
+	    		  }
+	    		  if(result.ex_grouped_locations){
+	    			  view.$el.find(".ex_grouped_locations").prop("disabled",true);
+	    		  }else{
+	    			  view.$el.find(".ex_grouped_locations").prop("disabled",false);
 	    		  }
 	    		  if(tableInfo){
 	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables");

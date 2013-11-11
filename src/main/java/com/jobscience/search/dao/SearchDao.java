@@ -280,20 +280,41 @@ public class SearchDao {
         //log for sql and params
         queryLogger.debug(LoggerType.AUTO_SQL,querySql);
         queryLogger.debug(LoggerType.PARAMS,queryString);
-        
-        if(type.equals("company")){
-            baseTable = schemaname+".ex_grouped_employers ";
-        }else if(type.equals("education")){
-            baseTable = schemaname+".ex_grouped_educations ";
-        }else if(type.equals("skill")){
-            baseTable = schemaname+".ex_grouped_skills ";
+
+
+        if (type.equals("company")) {
+            baseTable = schemaname + ".ex_grouped_employers ";
+        } else if (type.equals("education")) {
+            baseTable = schemaname + ".ex_grouped_educations ";
+        } else if (type.equals("skill")) {
+            baseTable = schemaname + ".ex_grouped_skills ";
+        } else if(type.equals("location")){
+            baseTable = schemaname + ".ex_grouped_locations ";
         }
-        
-        querySql = new StringBuilder(" select count,name from "+baseTable+" ");
-        if(queryString!=null&&queryString.trim().length()>0){
-            querySql.append(" where name ilike '"+ queryString+"%'");
+
+        querySql = new StringBuilder(" select sum(count) count,name from " + baseTable + " ");
+        querySql.append(" where 1 = 1 ");
+        if (queryString != null && queryString.trim().length() > 0) {
+            querySql.append(" and name ilike '" + queryString + "%'");
         }
+
+        if (min != null && !"0".equals(min)) {
+            if (type.equals("company")) {
+                querySql.append("  and age >=" + min);
+            } else if (type.equals("education")) {
+                querySql.append("  AND EXTRACT(year from age(now(), '1970-01-01'))>=" + min + " + age ");
+            } else if (type.equals("skill")) {
+                querySql.append("  AND rating >=" + min);
+            } else if(type.equals("location")){
+                querySql.append("  AND distance >=" + min);
+            }
+        }
+
+
+        querySql.append(" group by  name");
         querySql.append(" order by count desc limit 7 ");
+
+
         Long start = System.currentTimeMillis();
         Connection con = dbHelper.openPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
