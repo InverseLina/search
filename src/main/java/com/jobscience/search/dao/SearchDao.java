@@ -1083,11 +1083,12 @@ public class SearchDao {
 	        prefixSql = sqls[1];
 	        countSql = new StringBuilder(joinSql.toString());
 	        boolean hasContactsCondition = false;
+	        String labelAssigned = searchValues.get("labelAssigned");
 	        if(searchValues.get("contacts")!=null){
 	            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
 	        }
 	        if(!Strings.isNullOrEmpty(searchValues.get("search"))){
-	            if(!hasContactsCondition){
+	            if(!hasContactsCondition&&!"true".equals(labelAssigned)){
 	                joinSql.append(" offset "+offset+" limit "+pageSize);
 	            }
     	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
@@ -1105,7 +1106,7 @@ public class SearchDao {
 	        	if(orderCon!=null&&!"".equals(orderCon)){
 	        		joinSql.append(" order by "+orderCon);
 	        	}
-	        	if(!hasContactsCondition){
+	        	if(hasContactsCondition||"true".equals(labelAssigned)){
                     joinSql.append(" offset "+offset);
                 }else{
                     joinSql.append(" offset 0 ");
