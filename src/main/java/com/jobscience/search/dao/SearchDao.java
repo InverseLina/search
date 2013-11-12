@@ -377,12 +377,14 @@ public class SearchDao {
                    baseTableIns = "a";
                    searchConditions.append(getSearchValueJoinTable(search, values,"a"));
         	   }else{
-        	       String[] sqls = getSearchValueJoinTable(search, values);
+        	      /* String[] sqls = getSearchValueJoinTable(search, values);
         	       contactExQuery.append(sqls[0]);
         	       contactQuery.append(sqls[1]);
         	       contactExQueryCondition = sqls[2];
         		   contactQueryCondition = sqls[3];
-        		   hasSearchValue = true;
+        		  */
+        	       hasSearchValue = true;
+        	       contactQuery.append(getSearchValueJoinTable(search, values,"contact"));
         	   }
         	   hasCondition = true;
            }
@@ -592,12 +594,7 @@ public class SearchDao {
             			   prefixSql.append(" ) ");		   
             		   }
             		   prefixSql.append(") ) ");
-            		   if(hasSearchValue){
-    	                   contactQuery.append(" inner join  ed1 on con.\"sfid\" = ed1.\"ts2__contact__c\" ");
-    	                   contactExQuery.append(" inner join  ed1 on con.\"sfid\" = ed1.\"ts2__contact__c\" ");
-            		   }else{
-            		       contactQuery.append(" inner join  ed1 on contact.\"sfid\" = ed1.\"ts2__contact__c\" ");
-            		   }
+        		       contactQuery.append(" inner join  ed1 on con.\"sfid\" = ed1.\"ts2__contact__c\" ");
             	   }
                    hasCondition = true;
         	   }
@@ -632,12 +629,7 @@ public class SearchDao {
 	            			   prefixSql.append(" ) ");		   
 	            		   }
 	            		   prefixSql.append(" ) ) ");
-	            		   if(hasSearchValue){
-    	            		   contactQuery.append(" join em1 on con.\"sfid\" = em1.\"ts2__contact__c\"");
-    	            		   contactExQuery.append(" join em1 on con.\"sfid\" = em1.\"ts2__contact__c\"");
-	            		   }else{
-	            		       contactQuery.append(" join em1 on contact.\"sfid\" = em1.\"ts2__contact__c\"");
-	            		   }
+            		       contactQuery.append(" join em1 on con.\"sfid\" = em1.\"ts2__contact__c\"");
 	            	   }
             		   hasCondition = true;
         	   }
@@ -694,12 +686,7 @@ public class SearchDao {
 	            			   prefixSql.append(" ) ");		   
 	            		   }
             			   prefixSql.append(" ))  ");
-            			   if(hasSearchValue){
-                			   contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
-                               contactExQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
-            			   }else{
-            			       contactQuery.append(" join sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\"");
-            			   }
+        			       contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
 	            		    
             		   }else{// just join with the ts2__skill__c
             		       if(prefixSql.length()==0){
@@ -721,12 +708,7 @@ public class SearchDao {
 	            			   prefixSql.append(" ) ");		   
 	            		   }
 	            		   prefixSql.append(" )) ");
-	            		   if(hasSearchValue){
-                               contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
-                               contactExQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
-                           }else{
-                               contactQuery.append(" join sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\"");
-                           }
+                           contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
             		   }
             	   }
             	   hasCondition = true;
@@ -1175,9 +1157,10 @@ public class SearchDao {
      */
     private String getSearchValueJoinTable(String searchValue, List values,String alias){
 	    StringBuilder joinSql = new StringBuilder();
-	    joinSql.append(" right join (");
+	    joinSql.append(" select * from (");
 	    joinSql.append(booleanSearchHandler(searchValue, null, values));
-	    joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
+	    //joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
+	    joinSql.append(")  con ");
 	    return joinSql.toString();
     }
     
@@ -1210,24 +1193,24 @@ public class SearchDao {
 
     	//if no search value,just return sql with 1!=1
     	if(searchValue.equals("")){
-    		return  " select id from contact where 1!=1 ";
+    		return  " select id,sfid from contact where 1!=1 ";
     	}
     	String temp = "";
     	if(type==null||"OR".equals(type)){//if params split with space or "OR",we do in OR logic
 	    	String[] orConditions = searchValue.trim().split("\\s+OR\\s+");
 	    	for(int i=0;i<orConditions.length;i++){
 	    		String orCondition = orConditions[i];
-	    		sb.append("select a_extr"+i+".id from (");
+	    		sb.append("select a_extr"+i+".id,a_extr"+i+".sfid from (");
 	    		sb.append(booleanSearchHandler(orCondition, "AND",values));
 	    		sb.append(" a_extr"+i+" union ");
 	    	}
-	    	sb.append( "(select 1 as id from  "+schemaname+".contact where 1!=1)" );
+	    	sb.append( "(select 1 as id,1::character as sfid  from  "+schemaname+".contact where 1!=1)" );
     	}else if("AND".equals(type)){//if params split with AND,we do in AND logic
     		String[] andConditions = searchValue.trim().split("\\s+AND\\s+");
 	    	for(int i=0;i<andConditions.length;i++){
 	    		String andCondition = andConditions[i];
     			if(i==0){
-    				sb.append(" select n_ext0.id as id from ");
+    				sb.append(" select n_ext0.id as id,n_ext0.sfid as sfid from ");
     			}
 	    		sb.append(booleanSearchHandler(andCondition, "NOT",values)+(i));
 	    		if(i>0){
@@ -1235,21 +1218,21 @@ public class SearchDao {
 	    		}
 	    		sb.append(" join ");
 	    	}
-	    	sb.append( " (select 1 from   "+schemaname+".contact limit 1) last on 1=1) " );
+	    	sb.append( " (select 1 as id,1::character as sfid  from   "+schemaname+".contact limit 1) last on 1=1) " );
     	}else if("NOT".equals(type)){//if params split with NOT,we do in NOT logic
     		String[] notConditions = searchValue.trim().split("\\s+NOT\\s+");
     		if(notConditions.length==1){
     			sb.append("(");
     		}else{
-    			sb.append(" (select n_ext.id from (");
+    			sb.append(" (select n_ext.id,n_ext.sfid from (");
     		}
     		
     		temp = notConditions[0].trim();
 
-			sb.append(" select ex.id from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?) " 
+			sb.append(" select ex.id,ex.sfid from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?) " 
 			    + " union "
 			        //" select a_copy.id as id from   "+schemaname+".contact a_copy right join (select ex.id from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)) b on a_copy.id = b.id " + " union "
-                + " select a_copy1.id as id from   "+schemaname+".contact a_copy1 "
+                + " select a_copy1.id as id,a_copy1.sfid as sfid from   "+schemaname+".contact a_copy1 "
                 + " where a_copy1.\"title\" ilike ? or  a_copy1.\"name\" ilike ? "  );
     		
 			if(notConditions.length==1){
@@ -1270,8 +1253,8 @@ public class SearchDao {
 	    		temp = notConditions[i].trim();
 	    		sb.append(" except ");
                         
-	    		sb.append("  (select ex.id from  "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)" + " union "
-                        + " (select a_copy1.id as id from  "+schemaname+".contact a_copy1 "
+	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)" + " union "
+                        + " (select a_copy1.id as id,a_copy1.sfid as sfid from  "+schemaname+".contact a_copy1 "
                         + " where a_copy1.\"title\"  ilike ? or  a_copy1.\"name\"  ilike ? ) ) ");
 	    		values.add(temp);
 	    		if(!temp.contains("%")){
