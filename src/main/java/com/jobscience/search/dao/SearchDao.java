@@ -988,7 +988,7 @@ public class SearchDao {
     }
     
     
-    private String[] getSearchValueJoinTable(String searchValue, List values){
+  /*  private String[] getSearchValueJoinTable(String searchValue, List values){
         searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
         values.add(searchValue);
         values.add(searchValue+"%");
@@ -1000,7 +1000,7 @@ public class SearchDao {
                 "select con.sfid,con.id  from contact con ",
                 " where con.resume_tsv @@ plainto_tsquery(?) ",
                 " where  con.\"title\" ilike ? or  con.\"name\" ilike ?  "};
-    }
+    }*/
     
     /**
      * boolean search handler for big search box
@@ -1052,11 +1052,11 @@ public class SearchDao {
     		
     		temp = notConditions[0].trim();
 
-			sb.append(" select ex.id,ex.sfid from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?) " 
-			    + " union "
+			sb.append(" select ex.id,ex.sfid from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)  OR ex.contact_tsv @@ plainto_tsquery(?) " 
+			   /* + " union "
 			        //" select a_copy.id as id from   "+schemaname+".contact a_copy right join (select ex.id from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)) b on a_copy.id = b.id " + " union "
                 + " select a_copy1.id as id,a_copy1.sfid as sfid from   "+schemaname+".contact a_copy1 "
-                + " where a_copy1.\"title\" ilike ? or  a_copy1.\"name\" ilike ? "  );
+                + " where a_copy1.\"title\" ilike ? or  a_copy1.\"name\" ilike ? " */ );
     		
 			if(notConditions.length==1){
     			sb.append(") n_ext");
@@ -1065,28 +1065,30 @@ public class SearchDao {
     		}
     		
     		values.add(temp);
-    		if(!temp.contains("%")){
+    		values.add(temp);
+    		/*if(!temp.contains("%")){
     			temp = temp+"%";	
     		}
     		values.add(temp);
-    		values.add(temp);
+    		values.add(temp);*/
     		boolean hasNot = false;
 	    	for(int i=1;i<notConditions.length;i++){
 	    		hasNot = true;
 	    		temp = notConditions[i].trim();
 	    		sb.append(" except ");
                         
-	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)" + " union "
-                        + " (select a_copy1.id as id,a_copy1.sfid as sfid from  "+schemaname+".contact a_copy1 "
-                        + " where a_copy1.\"title\"  ilike ? or  a_copy1.\"name\"  ilike ? ) ) ");
+	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?) OR ex.contact_tsv @@ plainto_tsquery(?) " + " ) "
+                     /*   + " (select a_copy1.id as id,a_copy1.sfid as sfid from  "+schemaname+".contact a_copy1 "
+                        + " where a_copy1.\"title\"  ilike ? or  a_copy1.\"name\"  ilike ? ) ) "*/);
 	    		values.add(temp);
-	    		if(!temp.contains("%")){
+	    		values.add(temp);
+	    		/*if(!temp.contains("%")){
 	    			values.add(temp+"%");
 		    		values.add(temp+"%");
 	    		}else{
 	    			values.add(temp);
 		    		values.add(temp);
-	    		}
+	    		}*/
 	    	}
 	    	if(hasNot){
 	    		sb.append(")n_ext");

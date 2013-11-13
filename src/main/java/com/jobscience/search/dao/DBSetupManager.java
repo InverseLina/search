@@ -50,6 +50,8 @@ public class DBSetupManager {
     private IndexerManager indexerManager;
     @Inject
     private SfidManager sfidManager;
+    @Inject
+    private ContactTsvManager contactTsvManager;
     
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
@@ -155,6 +157,29 @@ public class DBSetupManager {
         }else{
             status.put("sfid", false);
         }
+        
+        if(orgExtraTableNames.contains("contact_ex,")){
+            if(checkColumn("contact_tsv", "contact_ex", schemaname)){
+                if(contactTsvManager.isOn()){
+                    status.put("contact_tsv", "running");
+                }else{
+                    if(contactTsvManager.getStatus(orgName).getRemaining()==0){
+                        status.put("contact_tsv", "done");
+                    }else{
+                        if(contactTsvManager.getStatus(orgName).getPerform()>0){
+                            status.put("contact_tsv","part");
+                        }else{
+                            status.put("contact_tsv", false);
+                        }
+                    }
+                }
+            }else{
+                status.put("contact_tsv", false);
+            }
+        }else{
+            status.put("contact_tsv", false);
+        }
+        
         return status;
     }
     

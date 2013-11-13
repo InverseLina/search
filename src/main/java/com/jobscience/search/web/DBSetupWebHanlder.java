@@ -8,6 +8,7 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.dao.ContactTsvManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.IndexerManager;
 import com.jobscience.search.dao.SfidManager;
@@ -25,6 +26,8 @@ public class DBSetupWebHanlder {
     @Inject
     private SfidManager sfidManager;
     
+    @Inject
+    private ContactTsvManager contactTsvManager;
     @WebPost("/createSysSchema")
     public WebResponse createSysSchema(){
        try{
@@ -157,4 +160,26 @@ public class DBSetupWebHanlder {
     	indexerManager.stop();
         return WebResponse.success(indexerManager.getStatus(orgName));
     }
+    
+    @WebPost("/createContactTsv")
+    public WebResponse createContactTsv(@WebParam("orgName")String orgName) {
+         try{
+             contactTsvManager.run(orgName);
+         }catch (Exception e) {
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+         }
+        return WebResponse.success(contactTsvManager.getStatus(orgName));
+    }
+    
+    @WebGet("/getContactTsvStatus")
+    public WebResponse getContactTsvStatus(@WebParam("orgName")String orgName) {
+        return WebResponse.success(contactTsvManager.getStatus(orgName));
+    }
+    
+    @WebPost("/stopCreateContactTsv")
+    public WebResponse stopCreateContactTsv(@WebParam("orgName")String orgName) {
+        contactTsvManager.stop();
+        return WebResponse.success(contactTsvManager.getStatus(orgName));
+    }
+    
 }

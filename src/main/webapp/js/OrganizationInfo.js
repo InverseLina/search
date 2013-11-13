@@ -161,18 +161,56 @@
 					}else{
 						view.$el.trigger("SFIDSTATUS");
 					}
-					window.clearInterval(view.intervalId);
+					window.clearInterval(view.sfidIntervalId);
 				});
-				view.intervalId = window.setInterval(function(){
+				view.sfidIntervalId = window.setInterval(function(){
 			    	   $(view.el).trigger("SFIDSTATUS");
 			      }, 3000);
 			}else if(status=="pause"){
-				window.clearInterval(view.intervalId);
+				window.clearInterval(view.sfidIntervalId);
 				$createIndexBtn.prop("disabled",true).html("Pausing");
 				app.getJsonData("/stopCopySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					$createIndexBtn.prop("disabled",false).html("Resume copy sfid").removeClass("btn-success");
 					$createIndexBtn.attr("data-status","resume");
 					view.$el.trigger("SFIDSTATUS");
+				});
+			}
+		},
+		"click;.contact-tsv":function(event){
+			var view = this;
+			var $createIndexBtn = $(event.target);
+			if($createIndexBtn.prop("disabled")){
+				return false;
+			}
+			var $alert = $createIndexBtn.closest("tr").find(".alert");
+			var status = $createIndexBtn.attr("data-status");
+			if(!status){
+				status="copy";
+			}
+			if(status=="copy"||status=="resume"){
+				$alert.addClass("transparent");
+				$createIndexBtn.html("Pause Create contact_tsv");
+				$createIndexBtn.attr("data-status","pause");
+				app.getJsonData("/createContactTsv", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+					if(data&&data.errorCode){
+						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
+						$createIndexBtn.prop("disabled",false).html("Resume Create contact_tsv").removeClass("btn-success");
+						$createIndexBtn.attr("data-status","resume");
+					}else{
+						view.$el.trigger("CONTACT_TSVSTATUS");
+					}
+					window.clearInterval(view.contactIntervalId);
+				});
+				view.contactIntervalId = window.setInterval(function(){
+			    	   $(view.el).trigger("CONTACT_TSVSTATUS");
+			      }, 3000);
+			}else if(status=="pause"){
+				window.clearInterval(view.contactIntervalId);
+				$createIndexBtn.prop("disabled",true).html("Pausing");
+				app.getJsonData("/stopCreateContactTsv", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+					$createIndexBtn.prop("disabled",false).html("Resume Create contact_tsv").removeClass("btn-success");
+					$createIndexBtn.attr("data-status","resume");
+					view.$el.trigger("CONTACT_TSVSTATUS");
 				});
 			}
 		},
@@ -276,6 +314,19 @@
 	 	    		   percentage = percentage.substring(0,percentage.indexOf("."));
 	 	    	   }
 	 	    	  fillProgressBarForSfid.call(view,percentage,data.perform,data.perform+data.remaining);
+			 });
+		},
+		"CONTACT_TSVSTATUS":function(event,init){
+			var view = this;
+			 app.getJsonData("/getContactTsvStatus",{orgName:view.currentOrgName}).done(function(data){
+				 var percentage = ((data.perform/( data.perform+data.remaining))*100)+"";
+	 	    	   if(init&&data.perform>0&&data.remaining>0){
+	 	    		   view.$el.find(".sfid").html("Resume Create contact_tsv").removeClass("btn-success");
+	 	    	   }
+	 	    	   if(percentage.indexOf(".")!=-1){
+	 	    		   percentage = percentage.substring(0,percentage.indexOf("."));
+	 	    	   }
+	 	    	  fillProgressBarForContactTsv.call(view,percentage,data.perform,data.perform+data.remaining);
 			 });
 		},
 		"click;.multiply":function(event){
@@ -406,15 +457,14 @@
 	    				  view.$el.find(".resume").prop("disabled",false).attr("data-status","pause").removeClass("btn-success");
 	    			  }
 	    		  }
-	    		  
 	    		  if(result.sfid=="running"){
 	    			  view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid").attr("data-status","pause").removeClass("btn-success");
-	    			  view.intervalId = window.setInterval(function(){
+	    			  view.sfidIntervalId = window.setInterval(function(){
 				    	   $(view.el).trigger("SFIDSTATUS");
 	  		  			}, 3000);
 	    			  view.$el.trigger("SFIDSTATUS");
 	    		  }else if(result.sfid=="done"){
-	    			  view.$el.find(".resume").prop("disabled",true).html("sfid copied").attr("data-status","copied").addClass("btn-success");
+	    			  view.$el.find(".sfid").prop("disabled",true).html("sfid copied").attr("data-status","copied").addClass("btn-success");
 	    			  view.$el.trigger("SFIDSTATUS");
 	    		  }else if(result.sfid=="part"){
 	    			  view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume").removeClass("btn-success");
@@ -422,6 +472,24 @@
 	    		  }else{
 	    			  if(tableInfo.indexOf("contact_ex")==-1){
 	    				  view.$el.find(".sfid").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
+	    			  }
+	    		  }
+	    		  
+	    		  if(result.contact_tsv=="running"){
+	    			  view.$el.find(".contact-tsv").prop("disabled",false).html("Pause Create contact_tsv").attr("data-status","pause").removeClass("btn-success");
+	    			  view.contactIntervalId = window.setInterval(function(){
+				    	   $(view.el).trigger("CONTACT_TSVSTATUS");
+	  		  			}, 3000);
+	    			  view.$el.trigger("CONTACT_TSVSTATUS");
+	    		  }else if(result.contact_tsv=="done"){
+	    			  view.$el.find(".contact-tsv").prop("disabled",true).html("sfid copied").attr("data-status","copied").addClass("btn-success");
+	    			  view.$el.trigger("CONTACT_TSVSTATUS");
+	    		  }else if(result.contact_tsv=="part"){
+	    			  view.$el.find(".contact-tsv").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume").removeClass("btn-success");
+	    			  view.$el.trigger("CONTACT_TSVSTATUS");
+	    		  }else{
+	    			  if(tableInfo.indexOf("contact_ex")==-1){
+	    				  view.$el.find(".contact-tsv").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
 	    			  }
 	    		  }
 	          });
@@ -468,6 +536,26 @@
 		  //all = all/1000;
 		  view.$el.find(".sfid-status-bar .sfid-percentage").html(percentage+"%");
 		  view.$el.find(".sfid-status-bar .sfid-count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
+  	  }
+  }
+  
+  function fillProgressBarForContactTsv(percentage,perform,all){
+	  var view = this;
+	  if(percentage==0){
+		  view.$el.find(".contact-tsv-status-bar").hide();
+	  }else{
+		  view.$el.find(".contact-tsv-status-bar").show();
+	  }
+	  view.$el.find(".contact-tsv-status-bar .progress-bar-success").css("width",percentage+"%");
+	  if(perform==all){
+		  view.$el.find(".contact-tsv-status-bar .contact-tsv-percentage").html(formateNumber(all));
+		  view.$el.find(".contact-tsv-status-bar .contact-tsv-count-info").empty();
+		  view.$el.find(".contact-tsv").prop("disabled",true).html("contact-tsv Created").addClass("btn-success");
+	  }else{
+		  //perform = perform/1000;
+		  //all = all/1000;
+		  view.$el.find(".contact-tsv-status-bar .contact-tsv-percentage").html(percentage+"%");
+		  view.$el.find(".contact-tsv-status-bar .contact-tsv-count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
   	  }
   }
   
