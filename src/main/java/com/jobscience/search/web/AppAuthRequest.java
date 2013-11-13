@@ -6,7 +6,6 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +57,7 @@ public class AppAuthRequest implements AuthRequest {
             m.put("user", user);
         }
         String path = rc.getReq().getRequestURI();
-        if (StringUtils.isNotBlank(rc.getReq().getContextPath()) && path.equals(rc.getReq().getContextPath())
+        if (path.equals("/")||path.equals(rc.getReq().getContextPath())
                                 && isSysSchemaExist) {
             String ctoken = rc.getCookie("ctoken");
             if (ctoken == null) {
@@ -80,6 +79,7 @@ public class AppAuthRequest implements AuthRequest {
             }
             m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
         } catch (Exception e) {
+            e.printStackTrace();
             rc.getWebModel().put("errorCode", "NO_ORG");
             rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
             rc.getWebModel().put("success", "false");
