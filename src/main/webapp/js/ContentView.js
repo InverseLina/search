@@ -521,7 +521,7 @@
     var label = view.tabView.getSelectLabel();
     var isFav = label.name == "Favorites" ? true: false;
 	 $.ajax({
-			url:"/config/get/local_date",
+			url: contextPath +"/config/get/local_date",
 			type:"Get",
 			dataType:'json'
   	  }).done(function(config){

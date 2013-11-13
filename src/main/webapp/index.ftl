@@ -1,7 +1,7 @@
 <script type="text/javascript">
   $(function(){
     if("${sys_schema?string('true','false')}"=="false"){
-    	window.location.href="/admin";
+    	window.location.href=contextPath+"/admin";
     }else{
     	 brite.display("MainView");
     }

@@ -6,7 +6,7 @@ var app = app || {};
 	   app.PerfDaoHandler.search = function(data){
 	      var dfd = $.Deferred();
 	      $.ajax({
-				url:"/perf/search",
+				url:contextPath+"/perf/search",
 				type:"Get",
 				dataType:'json',
 				data : data
@@ -23,7 +23,7 @@ var app = app || {};
 	   app.PerfDaoHandler.autocomplete = function(data){
 		      var dfd = $.Deferred(); 
 		      $.ajax({
-					url:"/perf/autocomplete",
+					url:contextPath+"/perf/autocomplete",
 					type:"Get",
 					dataType:'json',
 					data : data

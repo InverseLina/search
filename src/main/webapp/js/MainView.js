@@ -3,7 +3,7 @@
 	brite.registerView("MainView",{parent:"body"},{
     // --------- View Interface Implement--------- //
 	 create: function(data){
-			return render("MainView");
+		return render("MainView",{contextPath:contextPath});
 	 },
 	 postDisplay: function(data){
 		 var view = this;
@@ -49,7 +49,7 @@
 	 		if(app.cookie("login")!="true"){
 	 		brite.display("LoginModal");
 	 		}else{
-        		window.location.href="/admin";
+        		window.location.href=contextPath+"/admin";
 	 		}
 	 	}
 	 },

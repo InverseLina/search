@@ -12,7 +12,7 @@
         var search = $searchInput.val();
         console.log("will search: " + search);
         $.ajax({
-          url: "search",
+          url: contextPath + "search",
           type: "GET",
           data: {
             q_search: search

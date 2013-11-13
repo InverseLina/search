@@ -6,6 +6,10 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.auth.AuthRequest;
 import com.britesnow.snow.web.auth.AuthToken;
@@ -18,22 +22,20 @@ import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.UserDao;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 public class AppAuthRequest implements AuthRequest {
     @Inject
-    private UserDao userDao;
+    private UserDao             userDao;
     @Inject
-    CurrentOrgHolder orgHolder;
+    CurrentOrgHolder            orgHolder;
     @Inject
-    private ConfigManager configManager;
+    private ConfigManager       configManager;
     @Inject
-    private DBSetupManager dbSetupManager;
+    private DBSetupManager      dbSetupManager;
 
     private static final Logger log = LoggerFactory.getLogger(AppAuthRequest.class);
-    
+
     @Override
     public AuthToken authRequest(RequestContext rc) {
         OAuthToken token = OAuthToken.fromCookie(rc);
@@ -41,7 +43,7 @@ public class AppAuthRequest implements AuthRequest {
             AuthToken<OAuthToken> at = new AuthToken<OAuthToken>();
             at.setUser(token);
             return at;
-        }else{
+        } else {
             return null;
         }
     }
@@ -50,13 +52,14 @@ public class AppAuthRequest implements AuthRequest {
     public void home(@WebModel Map m, @WebUser OAuthToken user, RequestContext rc) {
         String orgName = rc.getParam("org");
         boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
-        m.put("sys_schema",isSysSchemaExist );
+        m.put("sys_schema", isSysSchemaExist);
         if (orgName != null) {
             rc.setCookie("org", orgName);
             m.put("user", user);
         }
         String path = rc.getReq().getRequestURI();
-        if (path.equals("/")&&isSysSchemaExist) {
+        if (StringUtils.isNotBlank(rc.getReq().getContextPath()) && path.equals(rc.getReq().getContextPath())
+                                && isSysSchemaExist) {
             String ctoken = rc.getCookie("ctoken");
             if (ctoken == null) {
                 try {
@@ -68,11 +71,11 @@ public class AppAuthRequest implements AuthRequest {
                 }
             }
         }
-        //check org is set or not
+        // check org is set or not
         try {
-            List<Map> configs = configManager.getConfig(null,orgHolder.getId());
+            List<Map> configs = configManager.getConfig(null, orgHolder.getId());
             Map configMap = new HashMap();
-            for(Map c : configs){
+            for (Map c : configs) {
                 configMap.put(c.get("name"), c.get("value"));
             }
             m.put("orgConfigs", JSONObject.fromObject(configMap).toString());

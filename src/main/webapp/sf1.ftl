@@ -31,7 +31,7 @@
           }
       });
   [#else]
-      window.location.href = "sf1";
+      window.location.href = contextPath+"sf1";
   [/#if]
 
     

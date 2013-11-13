@@ -77,12 +77,14 @@ app.defaultMenuSize = 5;
         if($.isPlainObject(options)){
             options = $.extend({}, defaultOption, options||{});
         }else{
-            options = $.extend({}, defaultOption, {type:options||"Get"})
+            options = $.extend({}, defaultOption, {type:options||"Get"});
         }
-
+		if(url != null && url.indexOf("/")  == -1 ){
+        	url = "/" + url;
+        }
         jQuery.ajax({
             type : options.type || "Get",
-            url : url,
+            url : contextPath+url,
             async : options.async,
             data : params,
             dataType : options.dataType
