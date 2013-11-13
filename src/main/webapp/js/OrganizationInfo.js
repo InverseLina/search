@@ -158,16 +158,15 @@
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
 						$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
 						$createIndexBtn.attr("data-status","resume");
-					}else{
-						view.$el.trigger("SFIDSTATUS");
 					}
-					window.clearInterval(view.intervalId);
+					view.$el.trigger("SFIDSTATUS");
+					window.clearInterval(view.sfIdintervalId);
 				});
-				view.intervalId = window.setInterval(function(){
+				view.sfIdintervalId = window.setInterval(function(){
 			    	   $(view.el).trigger("SFIDSTATUS");
 			      }, 3000);
 			}else if(status=="pause"){
-				window.clearInterval(view.intervalId);
+				window.clearInterval(view.sfIdintervalId);
 				$createIndexBtn.prop("disabled",true).html("Pausing");
 				app.getJsonData("/stopCopySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
@@ -401,6 +400,9 @@
 	    		  }else if(result.resume=="part"){
 	    			  view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume").attr("data-status","resume");
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
+	    		  }else if(result.resume==false){
+	    			  view.$el.find(".resume").prop("disabled",false).html("create Index Resume").attr("data-status","create");
+	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else{
 	    			  if(tableInfo.indexOf("contact_ex")==-1){
 	    				  view.$el.find(".resume").prop("disabled",false).attr("data-status","pause");
@@ -409,7 +411,7 @@
 	    		  
 	    		  if(result.sfid=="running"){
 	    			  view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid").attr("data-status","pause");
-	    			  view.intervalId = window.setInterval(function(){
+	    			  view.sfIdintervalId = window.setInterval(function(){
 				    	   $(view.el).trigger("SFIDSTATUS");
 	  		  			}, 3000);
 	    			  view.$el.trigger("SFIDSTATUS");
