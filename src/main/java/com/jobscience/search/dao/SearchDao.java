@@ -594,7 +594,11 @@ public class SearchDao {
             			   prefixSql.append(" ) ");		   
             		   }
             		   prefixSql.append(") ) ");
-        		       contactQuery.append(" inner join  ed1 on con.\"sfid\" = ed1.\"ts2__contact__c\" ");
+            		   if(hasSearchValue){
+            		       contactQuery.append(" inner join  ed1 on con.\"sfid\" = ed1.\"ts2__contact__c\" ");
+            		   }else{
+            		       contactQuery.append(" inner join  ed1 on contact.\"sfid\" = ed1.\"ts2__contact__c\" ");
+            		   }
             	   }
                    hasCondition = true;
         	   }
@@ -629,7 +633,11 @@ public class SearchDao {
 	            			   prefixSql.append(" ) ");		   
 	            		   }
 	            		   prefixSql.append(" ) ) ");
-            		       contactQuery.append(" join em1 on con.\"sfid\" = em1.\"ts2__contact__c\"");
+            		       if(hasSearchValue){
+            		           contactQuery.append(" join em1 on con.\"sfid\" = em1.\"ts2__contact__c\"");
+                           }else{
+                               contactQuery.append(" join em1 on contact.\"sfid\" = em1.\"ts2__contact__c\"");
+                           }
 	            	   }
             		   hasCondition = true;
         	   }
@@ -686,8 +694,11 @@ public class SearchDao {
 	            			   prefixSql.append(" ) ");		   
 	            		   }
             			   prefixSql.append(" ))  ");
-        			       contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
-	            		    
+        			       if(hasSearchValue){
+        			           contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
+                           }else{
+                               contactQuery.append(" join sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\"");
+                           }
             		   }else{// just join with the ts2__skill__c
             		       if(prefixSql.length()==0){
                                prefixSql.append(" with ");
@@ -708,7 +719,11 @@ public class SearchDao {
 	            			   prefixSql.append(" ) ");		   
 	            		   }
 	            		   prefixSql.append(" )) ");
-                           contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
+	            		   if(hasSearchValue){
+                               contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
+                           }else{
+                               contactQuery.append(" join sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\"");
+                           }
             		   }
             	   }
             	   hasCondition = true;
