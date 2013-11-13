@@ -106,9 +106,9 @@
 					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
 					$createExtraBtn.prop("disabled",false).html("Create Extra Tables");
 				}else{
-					$createExtraBtn.html("Extra Tables Created");
-					view.$el.find(".resume").prop("disabled",false).html("Create Index Resume");
-					view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
+					 $createExtraBtn.html("Extra Tables Created").addClass("btn-success");
+					 view.$el.find(".resume").prop("disabled",false).html("Create Index Resume").removeClass("btn-success");
+					 view.$el.find(".index").prop("disabled",false).html("Create Index Columns").removeClass("btn-success");
 					view.$el.find(".index-info,.status").removeClass("hide");
 					$alert.addClass("hide");
 				}
@@ -130,9 +130,9 @@
 				window.clearInterval(view.indexIntervalId);
 				if(data){
 					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
-					$createIndexBtn.prop("disabled",false).html("Create Index Columns");
+					$createIndexBtn.prop("disabled",false).html("Create Index Columns").removeClass("btn-success");
 				}else{
-					$createIndexBtn.html("Index Columns Created");
+					$createIndexBtn.html("Index Columns Created").addClass("btn-success");
 					$alert.addClass("hide");
 					//view.$el.find(".index-status-bar").hide();
 				}
@@ -156,20 +156,21 @@
 				app.getJsonData("/copySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					if(data&&data.errorCode){
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
-						$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
+						$createIndexBtn.prop("disabled",false).html("Resume copy sfid").removeClass("btn-success");
 						$createIndexBtn.attr("data-status","resume");
+					}else{
+						view.$el.trigger("SFIDSTATUS");
 					}
-					view.$el.trigger("SFIDSTATUS");
-					window.clearInterval(view.sfIdintervalId);
+					window.clearInterval(view.intervalId);
 				});
-				view.sfIdintervalId = window.setInterval(function(){
+				view.intervalId = window.setInterval(function(){
 			    	   $(view.el).trigger("SFIDSTATUS");
 			      }, 3000);
 			}else if(status=="pause"){
-				window.clearInterval(view.sfIdintervalId);
+				window.clearInterval(view.intervalId);
 				$createIndexBtn.prop("disabled",true).html("Pausing");
 				app.getJsonData("/stopCopySfid", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-					$createIndexBtn.prop("disabled",false).html("Resume copy sfid");
+					$createIndexBtn.prop("disabled",false).html("Resume copy sfid").removeClass("btn-success");
 					$createIndexBtn.attr("data-status","resume");
 					view.$el.trigger("SFIDSTATUS");
 				});
@@ -179,28 +180,28 @@
 			var view = this;
 			$(event.target).html("Creating...").prop("disabled",true);
 			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_skills'},{type:'Post'}).done(function(data){
-				$(event.target).html("ex_grouped_skills Created").prop("disabled",true);
+				$(event.target).html("ex_grouped_skills Created").prop("disabled",true).addClass("btn-success");
 			});
 		},
 		"click;.ex_grouped_educations":function(event){
 			var view = this;
 			$(event.target).html("Creating...").prop("disabled",true);
 			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_educations'},{type:'Post'}).done(function(data){
-				$(event.target).html("ex_grouped_educations Created").prop("disabled",true);
+				$(event.target).html("ex_grouped_educations Created").prop("disabled",true).addClass("btn-success");
 			});
 		},
 		"click;.ex_grouped_employers":function(event){
 			var view = this;
 			$(event.target).html("Creating...").prop("disabled",true);
 			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_employers'},{type:'Post'}).done(function(data){
-				$(event.target).html("ex_grouped_employers Created").prop("disabled",true);
+				$(event.target).html("ex_grouped_employers Created").prop("disabled",true).addClass("btn-success");
 			});
 		},
 		"click;.ex_grouped_locations":function(event){
 			var view = this;
 			$(event.target).html("Creating...").prop("disabled",true);
 			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_locations'},{type:'Post'}).done(function(data){
-				$(event.target).html("ex_grouped_locations Created").prop("disabled",true);
+				$(event.target).html("ex_grouped_locations Created").prop("disabled",true).addClass("btn-success");
 			});
 		},
 		"INDEXCOLUMNSSTATUS":function(){
@@ -229,7 +230,7 @@
 				app.getJsonData("/createIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					if(data&&data.errorCode){
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
-						$createIndexBtn.prop("disabled",false).html("Resume Index Resume").attr("data-status","resume");
+						$createIndexBtn.prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
 					}else{
 						view.$el.trigger("STATUS_CHANGE");
 					}
@@ -242,7 +243,7 @@
 				window.clearInterval(view.intervalId);
 				$createIndexBtn.prop("disabled",true).html("Pausing");
 				app.getJsonData("/stopCreateIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
-					$createIndexBtn.prop("disabled",false).html("Resume Index Resume").attr("data-status","resume");
+					$createIndexBtn.prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
 					view.$el.trigger("STATUS_CHANGE");
 				});
 			}
@@ -256,7 +257,7 @@
 			 app.getJsonData("/getResumeIndexStatus",{orgName:view.currentOrgName}).done(function(data){
 	 	    	   var percentage = ((data.perform/( data.perform+data.remaining))*100)+"";
 	 	    	   if(init&&data.perform>0&&data.remaining>0){
-	 	    		   view.$el.find(".resume").html("Resume Index Resume");
+	 	    		   view.$el.find(".resume").html("Resume Index Resume").removeClass("btn-success");
 	 	    	   }
 	 	    	   if(percentage.indexOf(".")!=-1){
 	 	    		   percentage = percentage.substring(0,percentage.indexOf("."));
@@ -269,7 +270,7 @@
 			 app.getJsonData("/getSfidStatus",{orgName:view.currentOrgName}).done(function(data){
 				 var percentage = ((data.perform/( data.perform+data.remaining))*100)+"";
 	 	    	   if(init&&data.perform>0&&data.remaining>0){
-	 	    		   view.$el.find(".sfid").html("Resume copy sfid");
+	 	    		   view.$el.find(".sfid").html("Resume copy sfid").removeClass("btn-success");
 	 	    	   }
 	 	    	   if(percentage.indexOf(".")!=-1){
 	 	    		   percentage = percentage.substring(0,percentage.indexOf("."));
@@ -347,29 +348,29 @@
 	    			 }
 	    		  }
 	    		  if(result.ex_grouped_skills){
-	    			  view.$el.find(".ex_grouped_skills").prop("disabled",true);
+	    			  view.$el.find(".ex_grouped_skills").prop("disabled",true).html("Ex_grouped_skills Created").addClass("btn-success");
 	    		  }else{
-	    			  view.$el.find(".ex_grouped_skills").prop("disabled",false);
+	    			  view.$el.find(".ex_grouped_skills").prop("disabled",false).html("Create ex_grouped_skills").removeClass("btn-success");
 	    		  }
 	    		  if(result.ex_grouped_educations){
-	    			  view.$el.find(".ex_grouped_educations").prop("disabled",true);
+	    			  view.$el.find(".ex_grouped_educations").prop("disabled",true).html("Ex_grouped_educations Created").addClass("btn-success");
 	    		  }else{
-	    			  view.$el.find(".ex_grouped_educations").prop("disabled",false);
+	    			  view.$el.find(".ex_grouped_educations").prop("disabled",false).html("Create ex_grouped_educations").removeClass("btn-success");
 	    		  }
 	    		  if(result.ex_grouped_employers){
-	    			  view.$el.find(".ex_grouped_employers").prop("disabled",true);
+	    			  view.$el.find(".ex_grouped_employers").prop("disabled",true).html("Ex_grouped_employers Created").addClass("btn-success");
 	    		  }else{
-	    			  view.$el.find(".ex_grouped_employers").prop("disabled",false);
+	    			  view.$el.find(".ex_grouped_employers").prop("disabled",false).html("Create ex_grouped_employers").removeClass("btn-success");
 	    		  }
 	    		  if(result.ex_grouped_locations){
-	    			  view.$el.find(".ex_grouped_locations").prop("disabled",true);
+	    			  view.$el.find(".ex_grouped_locations").prop("disabled",true).html("Ex_grouped_locations Created").addClass("btn-success");
 	    		  }else{
-	    			  view.$el.find(".ex_grouped_locations").prop("disabled",false);
+	    			  view.$el.find(".ex_grouped_locations").prop("disabled",false).html("Create ex_grouped_locations").removeClass("btn-success");
 	    		  }
 	    		  if(tableInfo){
-	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables");
+	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
 	    		  }else{
-	    			  view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created");
+	    			  view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
 	    		  }
 	    		  if(result.pgtrgm){
 		    		  var indexInfo = "";
@@ -379,51 +380,48 @@
 		    			 }
 		    		  }
 		    		  if(indexInfo){
-		    			  view.$el.find(".index").prop("disabled",false).html("Create Index Columns");
+		    			  view.$el.find(".index").prop("disabled",false).html("Create Index Columns").removeClass("btn-success");
 		    		  }else{
-		    			  view.$el.find(".index").prop("disabled",true).html("Index Columns Created");
+		    			  view.$el.find(".index").prop("disabled",true).html("Index Columns Created").addClass("btn-success");
 		    		  }
 		    		  view.$el.trigger("INDEXCOLUMNSSTATUS");
 	    		  }else{
-	    			  view.$el.find(".index").prop("disabled",true).html("Create Index Columns");
+	    			  view.$el.find(".index").prop("disabled",true).html("Create Index Columns").removeClass("btn-success");
 	    			  view.$el.trigger("INDEXCOLUMNSSTATUS");
 	    		  }
 	    		  if(result.resume=="running"){
-	    			  view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume").attr("data-status","pause");
+	    			  view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume").attr("data-status","pause").addClass("btn-success");
 	    			  view.intervalId = window.setInterval(function(){
 				    	   $(view.el).trigger("RESUMEINDEXSTATUS");
 	  		  			}, 3000);
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else if(result.resume=="done"){
-	    			  view.$el.find(".resume").prop("disabled",true).html("Index Resume created").attr("data-status","pause");
+	    			  view.$el.find(".resume").prop("disabled",true).html("Index Resume created").attr("data-status","pause").addClass("btn-success");
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else if(result.resume=="part"){
-	    			  view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume").attr("data-status","resume");
-	    			  view.$el.trigger("RESUMEINDEXSTATUS");
-	    		  }else if(result.resume==false){
-	    			  view.$el.find(".resume").prop("disabled",false).html("create Index Resume").attr("data-status","create");
+	    			  view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else{
 	    			  if(tableInfo.indexOf("contact_ex")==-1){
-	    				  view.$el.find(".resume").prop("disabled",false).attr("data-status","pause");
+	    				  view.$el.find(".resume").prop("disabled",false).attr("data-status","pause").removeClass("btn-success");
 	    			  }
 	    		  }
 	    		  
 	    		  if(result.sfid=="running"){
-	    			  view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid").attr("data-status","pause");
-	    			  view.sfIdintervalId = window.setInterval(function(){
+	    			  view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid").attr("data-status","pause").removeClass("btn-success");
+	    			  view.intervalId = window.setInterval(function(){
 				    	   $(view.el).trigger("SFIDSTATUS");
 	  		  			}, 3000);
 	    			  view.$el.trigger("SFIDSTATUS");
 	    		  }else if(result.sfid=="done"){
-	    			  view.$el.find(".resume").prop("disabled",true).html("sfid copied").attr("data-status","copied");
+	    			  view.$el.find(".resume").prop("disabled",true).html("sfid copied").attr("data-status","copied").addClass("btn-success");
 	    			  view.$el.trigger("SFIDSTATUS");
 	    		  }else if(result.sfid=="part"){
-	    			  view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume");
+	    			  view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume").removeClass("btn-success");
 	    			  view.$el.trigger("SFIDSTATUS");
 	    		  }else{
 	    			  if(tableInfo.indexOf("contact_ex")==-1){
-	    				  view.$el.find(".sfid").prop("disabled",false).attr("data-status","copy");
+	    				  view.$el.find(".sfid").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
 	    			  }
 	    		  }
 	          });
@@ -446,7 +444,7 @@
 	  if(perform==all){
 		  view.$el.find(".db-status-bar .db-percentage").html(formateNumber(all));
 		  view.$el.find(".db-status-bar .db-count-info").empty();
-		  view.$el.find(".resume").prop("disabled",true).html("Index Resume Created");
+		  view.$el.find(".resume").prop("disabled",true).html("Index Resume Created").addClass("btn-success");
 	  }else{
 		  view.$el.find(".db-status-bar .db-percentage").html(percentage+"%");
 		  view.$el.find(".db-status-bar .db-count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
@@ -464,7 +462,7 @@
 	  if(perform==all){
 		  view.$el.find(".sfid-status-bar .sfid-percentage").html(formateNumber(all));
 		  view.$el.find(".sfid-status-bar .sfid-count-info").empty();
-		  view.$el.find(".sfid").prop("disabled",true).html("sfid copied");
+		  view.$el.find(".sfid").prop("disabled",true).html("sfid copied").addClass("btn-success");
 	  }else{
 		  //perform = perform/1000;
 		  //all = all/1000;

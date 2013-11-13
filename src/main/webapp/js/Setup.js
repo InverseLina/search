@@ -47,10 +47,10 @@
     	  app.getJsonData("/createSysSchema",{},{type:"Post"}).done(function(data){
     		  if(data){
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
-    			  $createBtn.prop("disabled",false).html("Create System schema");
+    			  $createBtn.prop("disabled",false).html("Create System schema").removeClass("btn-success");
     		  }else{
-    			  $createBtn.html("System schema Created");
-    			  view.$el.find(".import").prop("disabled",false);
+    			  $createBtn.html("System schema Created").addClass("btn-success");
+    			  view.$el.find(".import").prop("disabled",false).removeClass("btn-success");
     			  $alert.html("&nbsp;").addClass("transparent");
         		  $(".organization-tab").removeClass("hide");
     		  }
@@ -68,9 +68,9 @@
     	  app.getJsonData("/createPgTrgm",{},{type:"Post"}).done(function(data){
     		  if(data){
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
-    			  $createBtn.prop("disabled",false).html("Create pg_trgm");
+    			  $createBtn.prop("disabled",false).html("Create pg_trgm").removeClass("btn-success");
     		  }else{
-    			  $createBtn.html("pg_trgm Created");
+    			  $createBtn.html("pg_trgm Created").addClass("btn-success");
     			  $alert.html("&nbsp;").addClass("transparent");
     		  }
     	  });
@@ -86,9 +86,9 @@
     	  app.getJsonData("/updateZipCode",{},{type:"Post"}).done(function(data){
     		  if(data){
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
-    			  $importBtn.prop("disabled",false).html("Import Zipcode table");
+    			  $importBtn.prop("disabled",false).html("Import Zipcode table").removeClass("btn-success");
     		  }else{
-    			  $importBtn.html("Zipcode table Imported");
+    			  $importBtn.html("Zipcode table Imported").addClass("btn-success");
     			  $alert.html("&nbsp;").addClass("transparent");
     		  }
     	  });
@@ -97,9 +97,9 @@
     	  var view = this;
     	  app.getJsonData("/checkSysSchema",{},{type:"Get"}).done(function(result){
     		  if(result.pgtrgm){
-    			  view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created");
+    			  view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created").addClass("btn-success");
     		  }else{
-    			  view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm");
+    			  view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm").removeClass("btn-success");
     		  }
     		  var schemaInfo = "";
     		  if(!result.schema_create){
@@ -117,19 +117,19 @@
     		  }
     			
     		  if(schemaInfo){
-    			  view.$el.find(".create").prop("disabled",false).html("Create System schema");
+    			  view.$el.find(".create").prop("disabled",false).html("Create System schema").removeClass("btn-success");
     		  }else{
     			  console.log(schemaInfo);
-    			  view.$el.find(".create").prop("disabled",true).html("System schema Created");
+    			  view.$el.find(".create").prop("disabled",true).html("System schema Created").addClass("btn-success");
     		  }
     		  
     		  if(result.zipcode_import){
-    			  view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported");
+    			  view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported").addClass("btn-success");
     		  }else{
     			  if(result.tables.zipcode_us){
-    				  view.$el.find(".import").prop("disabled",false).html("Import Zipcode table");
+    				  view.$el.find(".import").prop("disabled",false).html("Import Zipcode table").removeClass("btn-success");
     			  }else{
-    				  view.$el.find(".import").prop("disabled",true).html("Import Zipcode table");
+    				  view.$el.find(".import").prop("disabled",true).html("Import Zipcode table").removeClass("btn-success");
     			  }
     		  }
         	
