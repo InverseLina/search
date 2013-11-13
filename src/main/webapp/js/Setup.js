@@ -30,10 +30,10 @@
     // --------- Events--------- //
     events:{
        "btap;.cancel":function(event){
-    		window.location.href="/";
+    		window.location.href=contextPath + "/";
        },
       "btap;.home":function(event){
-        window.location.href="/";
+        window.location.href=contextPath + "/";
         },
       "click;.create":function(event){
     	  var view = this;
@@ -103,16 +103,16 @@
     		  }
     		  var schemaInfo = "";
     		  if(!result.schema_create){
-    			  schemaInfo+="schema not created"
+    			  schemaInfo+="schema not created";
     		  }else{
 	    		  if(!result.tables.config){
-	    			  schemaInfo+="config "
+	    			  schemaInfo+="config ";
 	    		  }
 	    		  if(!result.tables.org){
-	    			  schemaInfo+="org "
+	    			  schemaInfo+="org ";
 	    		  }
 	    		  if(!result.tables.zipcode_us){
-	    			  schemaInfo+="zipcode_us "
+	    			  schemaInfo+="zipcode_us ";
 	    		  }
     		  }
     			
@@ -162,7 +162,7 @@
     	      values["orgId"]=-1;
     	      values.configsJson = JSON.stringify(configs);
     	      app.getJsonData("/config/save", values,"Post").done(function(data){
-    	          window.location.href="/";
+    	          window.location.href=contextPath + "/";
     	  });
     	}
     }

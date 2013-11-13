@@ -38,10 +38,10 @@
     // --------- Events--------- //
     events:{
       "btap;.home":function(event){
-    	window.location.href="/";
+    	window.location.href=contextPath + "/";
       },
       "btap;.cancel":function(event){
-        window.location.href="/admin#organization";
+        window.location.href=contextPath + "/admin#organization";
       },
       "change;:checkbox,select":function(event){
 			var view = this;
@@ -72,7 +72,7 @@
             values["sfid"] = view.$el.find("[name='sfid']").val();
 
             app.getJsonData("/org/save", values, "Post").done(function(data) {
-              window.location.href = "/admin#organization";
+              window.location.href = contextPath + "/admin#organization";
             });
           });
         }

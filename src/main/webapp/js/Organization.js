@@ -30,14 +30,14 @@
    // --------- Events--------- //
     events:{
       "btap;.home":function(event){
-    	  window.location.href="/";
+    	  window.location.href=contextPath + "/";
         },
 
       "btap;.add":function(event){
         var view = this;
         var html = render("Organization-content",{data:null});
         view.$tabContent.html(html);
-        window.location.href="admin#organization/add";
+        window.location.href=contextPath + "/admin#organization/add";
       },
       "click; .del": function(event){
         var view = this;
