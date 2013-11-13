@@ -99,230 +99,38 @@ public class SearchDao {
      * @return
      * @throws SQLException
      */
-    public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {/*
-        //the select query  that will query data
-        StringBuilder querySql = new StringBuilder();
-        StringBuilder groupBy = new StringBuilder();
-        String column = null;
-        String baseTableIns = null;
-        querySql.append("select result.name, count(*) as count from ( select ");
-        String baseTable = new String();
-        List values = new ArrayList();
-        String schemaname = orgHolder.getSchemaName();
-        
+    public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
+        return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum);
+    }
+    public SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
+
+        String baseTable = "";
         if(type.equals("company")){
-            baseTable = schemaname+".ts2__employment_history__c ";
-            baseTableIns = "c";
-            column = " c.\"ts2__contact__c\" as id, c.\"ts2__name__c\" as name";
-            groupBy.append(" group by c.\"ts2__contact__c\", c.\"ts2__name__c\" ");
+            baseTable =  "ex_grouped_employers ";
         }else if(type.equals("education")){
-            baseTableIns = "d";
-            baseTable = schemaname+".ts2__education_history__c ";
-            groupBy.append(" group by d.\"ts2__contact__c\", d.\"ts2__name__c\" ");
-            column = " d.\"ts2__contact__c\" as id, d.\"ts2__name__c\" as name";
+            baseTable =  "ex_grouped_educations ";
         }else if(type.equals("skill")){
-            baseTableIns = "b";
-            baseTable = schemaname+".ts2__skill__c ";
-            groupBy.append(" group by b.\"ts2__contact__c\", b.\"ts2__skill_name__c\" ");
-            column = " b.\"ts2__contact__c\" as id, b.\"ts2__skill_name__c\" as name";
+            baseTable =  "ex_grouped_skills ";
         }else if(type.equals("location")){
-            baseTableIns = "z";
-            baseTable = " jss_sys.zipcode_us ";
-            column = " z.\"city\" as name ";
-        }
-        
-        querySql.append(column);
-        querySql.append(" from ");
-            
-        String appendJoinTable = "";
-        
-        //this flag is used to check if need join with ts2__assessment__c
-        boolean skill_assessment_rating = false;
-        
-        //------- get the skill_assessment_rating config for current org ----------//
-        if(min!=null&&!"0".equals(min)&&type.equals("skill")){
-           Map m = configManager.getConfig("skill_assessment_rating");
-       	   if(m==null||!("true".equals((String)m.get("value")))){
-       		   skill_assessment_rating = false;
-       	   }else{
-       		   skill_assessment_rating = true;
-       	   }
-       	   appendJoinTable=(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
-        }
-        //-------- /get the skill_assessment_rating config for current org ---------//
-        
-        querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable));
-        
-        //if has min year or min raidus or min rating,need do filter for this
-        if(min!=null&&!"0".equals(min)){
-	        if(type.equals("company")){
-	        	 querySql.append("  AND EXTRACT(year from age(c.\"ts2__employment_end_date__c\",c.\"ts2__employment_start_date__c\"))>="+min);
-	        }else if(type.equals("education")){
-	        	 querySql.append("  AND EXTRACT(year from age(now(),d.\"ts2__graduationdate__c\"))>="+min);
-	        }else if(type.equals("skill")){
-	        	   if(skill_assessment_rating){
-		        	   querySql.append("  AND ass.\"ts2__rating__c\" >="+min);
-		           }else{
-		        	   querySql.append("  AND b.\"ts2__rating__c\" >="+min);
-		           }
-	        }else if(type.equals("location")){
-	        	 querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))/1000<="+min);
-	        }
-        }
-        //add group by statement
-        if(!"".equals(groupBy.toString())){
-            querySql.append(groupBy);
+            baseTable =  "ex_grouped_locations ";
         }
 
-        if(orderByCount){//order by count
-            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
-        }else{//order by name
-            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
-        }
-        if(log.isDebugEnabled()){
-            log.debug(querySql.toString());
-        }
-        Long start = System.currentTimeMillis();
-        Connection con = dbHelper.openPublicConnection();
-        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
-        Long end = System.currentTimeMillis();
-        System.out.println(end-start);
-        prepareStatement.close();
-        con.close();
-        return result;
-    */
-        
-
-
-        StringBuilder querySql = new StringBuilder();
-        StringBuilder groupBy = new StringBuilder();
-        String column = null;
-        String baseTableIns = null;
-        querySql.append("select count( ts2__contact__c) as count, ");
-        String baseTable = new String();
-        List values = new ArrayList();
-        String schemaname = orgHolder.getSchemaName();
-        if(type.equals("company")){
-            baseTable = schemaname+".ts2__employment_history__c ";
-            baseTableIns = "c";
-            column = "  c.\"ts2__name__c\" ";
-            groupBy.append(" group by   c.\"ts2__name__c\" ");
-        }else if(type.equals("education")){
-            baseTableIns = "d";
-            baseTable = schemaname+".ts2__education_history__c ";
-            groupBy.append(" group by  d.\"ts2__name__c\" ");
-            column = " d.\"ts2__name__c\" ";
-        }else if(type.equals("skill")){
-            baseTableIns = "b";
-            baseTable = schemaname+".ts2__skill__c ";
-            groupBy.append(" group by  b.\"ts2__skill_name__c\" ");
-            column = "  b.\"ts2__skill_name__c\" ";
-        }else if(type.equals("location")){
-            baseTableIns = "z";
-            baseTable = " jss_sys.zipcode_us ";
-            column = " z.\"city\" ";
-            groupBy.append(" group by  z.\"city\" ");
-           // querySql = new StringBuilder(" select count(c.id) as count,z.city as name from "+schemaname+".contact c,jss_sys.zipcode_us z where ")
-            //           .append(" c.mailingpostalcode = z.zip ");
-            
-            String condition = "";
-            if(queryString!=null&&queryString.trim().length()>0){
-                condition=" where "+column + " ilike '"+ queryString+"%'";
-            }
-            querySql = new StringBuilder(" with zipc as ( SELECT")
-            .append(" count(C.id) AS zipcount,")
-            .append(" c.mailingpostalcode      AS zip")
-            .append(" FROM (select * from jss_sys.zipcode_us z " ) 
-            .append(condition)
-            .append(" ) z  INNER JOIN PUBLIC.contact C on c.mailingpostalcode = z.zip %s ")
-            .append(" GROUP BY c.\"mailingpostalcode\"")
-            .append(" )")
-            .append(" SELECT")
-            .append(" sum(c.zipcount) AS count,")
-            .append("  z.city      AS NAME")
-            .append(" FROM  (select * from jss_sys.zipcode_us  z " )
-            .append(condition)
-            .append(" ) z")
-            .append(" inner join zipc c on c.zip = z.zip ");
-        
-                        
-        }    
-        
-        if(!querySql.toString().contains("zipcode_us")){
-            querySql.append(column).append(" as name from ").append(baseTable).append(" ")
-            .append(baseTableIns).append(" where "+column).append(" !='' ");
-        }
-        
-        
-        if(min!=null&&!"0".equals(min)){
-            if(type.equals("company")){
-                 querySql.append("  AND EXTRACT(year from age(c.\"ts2__employment_end_date__c\",c.\"ts2__employment_start_date__c\"))>="+min);
-            }else if(type.equals("education")){
-                 querySql.append("  AND EXTRACT(year from age(now(),d.\"ts2__graduationdate__c\"))>="+min);
-            }else if(type.equals("skill")){
-                 querySql.append("  AND b.\"ts2__rating__c\" >="+min);
-            }else if(type.equals("location")){
-                querySql = new StringBuilder(querySql.toString().replaceAll("%s"," AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(c.\"ts2__latitude__c\",c.\"ts2__longitude__c\"))/1000<="+min));
-            }
-        }else{
-            if(type.equals("location")){
-                querySql = new StringBuilder(querySql.toString().replaceAll("%s", ""));
-            }
-        }
-        
+        StringBuilder querySql = new StringBuilder(" select count,name from " + baseTable + " ");
         if(queryString!=null&&queryString.trim().length()>0){
-            querySql.append(" And "+column + " ilike '"+ queryString+"%'");
+            querySql.append(" where name ilike '"+ queryString+"%'");
         }
-        
-        querySql.append(groupBy).append(" order by count desc limit 7");
-
-        //log for sql and params
-        queryLogger.debug(LoggerType.AUTO_SQL,querySql);
-        queryLogger.debug(LoggerType.PARAMS,queryString);
-
-
-        if (type.equals("company")) {
-            baseTable = schemaname + ".ex_grouped_employers ";
-        } else if (type.equals("education")) {
-            baseTable = schemaname + ".ex_grouped_educations ";
-        } else if (type.equals("skill")) {
-            baseTable = schemaname + ".ex_grouped_skills ";
-        } else if(type.equals("location")){
-            baseTable = schemaname + ".ex_grouped_locations ";
-        }
-
-        querySql = new StringBuilder(" select sum(count) count,name from " + baseTable + " ");
-        querySql.append(" where 1 = 1 ");
-        if (queryString != null && queryString.trim().length() > 0) {
-            querySql.append(" and name ilike '" + queryString + "%'");
-        }
-
-        if (min != null && !"0".equals(min)) {
-            if (type.equals("company")) {
-                querySql.append("  and age >=" + min);
-            } else if (type.equals("education")) {
-                querySql.append("  AND EXTRACT(year from age(now(), '1970-01-01'))>=" + min + " + age ");
-            } else if (type.equals("skill")) {
-                querySql.append("  AND rating >=" + min);
-            } else if(type.equals("location")){
-                querySql.append("  AND distance >=" + min);
-            }
-        }
-
-
-        querySql.append(" group by  name");
         querySql.append(" order by count desc limit 7 ");
-
-
         Long start = System.currentTimeMillis();
         Connection con = dbHelper.openPublicConnection();
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement, values.toArray());
+        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
         prepareStatement.close();
         con.close();
         Long end = System.currentTimeMillis();
         //log for performance
+
+
+        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
         queryLogger.debug(LoggerType.AUTO_PERF, end-start);
         SearchResult searchResult = new SearchResult(result, result.size());
         searchResult.setDuration(end - start);
