@@ -64,13 +64,12 @@ public class AppAuthRequest implements AuthRequest {
                     userDao.insertUser(null, ctoken);
                     rc.setCookie("ctoken", ctoken);
                 } catch (Exception e) {
-                    log.warn("add user fail", e);
+                    log.warn("add user fail");
                 }
             }
         }
         //check org is set or not
         try {
-            orgHolder.getOrgName();
             List<Map> configs = configManager.getConfig(null,orgHolder.getId());
             Map configMap = new HashMap();
             for(Map c : configs){
