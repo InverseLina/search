@@ -10,5 +10,5 @@
     END$$;  
 -- SCRIPTS
   update contact_ex  set contact_tsv = to_tsvector('english',con."name"||' '||con."title") 
-  from (select c.name,c.title,c.id from contact_ex ex join contact c on ex.id=c.id and ex.contact_tsv is null limit 10000) con
+  from (select c.name,c.title,c.id from contact_ex ex join contact c on ex.id=c.id and ex.contact_tsv is null limit 1000) con
   where contact_ex.id=con.id
