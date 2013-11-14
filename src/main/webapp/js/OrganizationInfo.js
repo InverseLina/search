@@ -558,15 +558,16 @@
 		  view.$el.find(".contact-tsv-status-bar .contact-tsv-count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
   	  }
   }
-  
   function formateNumber(val){
 	 val=val+"";
   	 var newVal = "";
-  	 for(var i=0;i<val.length;i++){
-  		 if(i%3==0&&i!=0){
-  			newVal+=","
+  	 var po = 0;
+  	 for(var i=val.length-1;i>=0;i--){
+  		 if(po%3==0&&po!=0){
+  			newVal=","+newVal;
   		 }
-  		newVal += val.substring(i,i+1);
+  		newVal =val.substring(i,i+1)+newVal;
+  		 po++;
   	 }
   	 return newVal;
   }
