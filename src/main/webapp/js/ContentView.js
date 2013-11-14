@@ -44,7 +44,12 @@
            setTimeout(function(){
             view.$searchInfo.empty();
             view.$el.find("input").attr("disabled", true);
-            brite.display("MessagePanel", ".search-result", {message: app.startError.errorMessage})
+            if(app.startError.errorCode == "NO_PASSCODE"){
+                brite.display("PassCodeModal");
+            }else{
+                brite.display("MessagePanel", ".search-result", {message: app.startError.errorMessage})
+            }
+
             delete app.startError;
            }, 100);
         }
@@ -347,7 +352,11 @@
             var view = this;
             view.$searchInfo.empty();
             view.$el.find("input").attr("disabled", true);
-            brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
+            if(extra.errorCode == "NO_PASSCODE"){
+                brite.display("PassCodeModal");
+            }else {
+                brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
+            }
         } ,
       "CHANGE_TO_FAV_VIEW": function(event, extra){
           var view = this;

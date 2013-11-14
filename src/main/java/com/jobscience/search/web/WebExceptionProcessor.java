@@ -9,6 +9,7 @@ import com.britesnow.snow.web.renderer.JsonRenderer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.OrganizationNotSelectException;
+import com.jobscience.search.PassCodeException;
 
 @Singleton
 public class WebExceptionProcessor {
@@ -19,6 +20,15 @@ public class WebExceptionProcessor {
     public void processOauthException(OrganizationNotSelectException e, WebExceptionContext wec, RequestContext rc) {
         rc.getWebModel().put("errorCode", "NO_ORG");
         rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
+        rc.getWebModel().put("success", "false");
+        if (rc.getWebRequestType() == WebRequestType.WEB_REST) {
+            jsonRenderer.render(rc.getWebModel(), rc.getWriter());
+        }
+    }
+    @WebExceptionCatcher
+    public void processOauthException(PassCodeException e, WebExceptionContext wec, RequestContext rc) {
+        rc.getWebModel().put("errorCode", "NO_PASSCODE");
+        rc.getWebModel().put("errorMessage", "No passcode exists");
         rc.getWebModel().put("success", "false");
         if (rc.getWebRequestType() == WebRequestType.WEB_REST) {
             jsonRenderer.render(rc.getWebModel(), rc.getWriter());

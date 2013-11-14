@@ -94,7 +94,12 @@ app.defaultMenuSize = 5;
                     dfd.resolve(data.result);
                 }else{
 //                    $(document).trigger("ON_ERROR", data);
-                    $(document).trigger("ERROR_PROCESS", data);
+                    if(options.fail && $.isFunction(options.fail)){
+                        options.fail(data);
+                    }else{
+                        $(document).trigger("ERROR_PROCESS", data);
+                    }
+
                 }
 
             }).fail(function(jxhr, arg2) {

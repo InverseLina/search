@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.britesnow.snow.web.param.annotation.WebParam;
+import com.britesnow.snow.web.rest.annotation.WebPost;
+import com.google.inject.name.Named;
 import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
@@ -33,6 +36,9 @@ public class AppAuthRequest implements AuthRequest {
     private ConfigManager       configManager;
     @Inject
     private DBSetupManager      dbSetupManager;
+    @Inject(optional = true)
+    @Named("snow.passcode")
+    private String passCode = "";
 
     private static final Logger log = LoggerFactory.getLogger(AppAuthRequest.class);
 
@@ -48,6 +54,15 @@ public class AppAuthRequest implements AuthRequest {
         }
     }
 
+    @WebPost("/validatePasscode")
+    public WebResponse validatePasscode(@WebParam("passcode") String code ,RequestContext rc) {
+        if (this.passCode != null && this.passCode.length() > 0 && passCode.equals(code)) {
+            rc.setCookie("passCode", passCode);
+            return WebResponse.success();
+        }
+        return WebResponse.fail();
+    }
+
     @WebModelHandler(startsWith = "/")
     public void home(@WebModel Map m, @WebUser OAuthToken user, RequestContext rc) {
         String orgName = rc.getParam("org");
@@ -57,6 +72,17 @@ public class AppAuthRequest implements AuthRequest {
             rc.setCookie("org", orgName);
             m.put("user", user);
         }
+
+        if (passCode != null && passCode.length() > 0 ) {
+            String pcode = rc.getCookie("passCode");
+            if (pcode == null || !pcode.equals(passCode)) {
+                rc.getWebModel().put("errorCode", "NO_PASSCODE");
+                rc.getWebModel().put("errorMessage", "No passcode exists");
+                rc.getWebModel().put("success", "false");
+                return;
+            }
+        }
+
         String path = rc.getReq().getRequestURI();
         if ((Strings.isNullOrEmpty(rc.getReq().getContextPath()) || path.equals(rc.getReq().getContextPath() + "/")) && isSysSchemaExist) {
             String ctoken = rc.getCookie("ctoken");

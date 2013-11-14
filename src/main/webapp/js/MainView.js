@@ -46,6 +46,8 @@
             $target.val($.trim($target.val()));
         },
 	 	"btap;.config":function(event){
+            event.preventDefault();
+            event.stopPropagation();
 	 		if(app.cookie("login")!="true"){
 	 		brite.display("LoginModal");
 	 		}else{
