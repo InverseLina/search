@@ -63,6 +63,7 @@ public class ConfigWebHandlers {
                             @WebParam("password") String password) throws SQLException {
         if (configPassword.equals(password)) {
             rc.setCookie("login", true);
+            rc.setCookie("passCode", true);
             return WebResponse.success();
         } else {
             rc.setCookie("login", false);

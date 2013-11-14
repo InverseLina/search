@@ -34,9 +34,9 @@ public class SSAuthHook {
         if (passCode != null && passCode.length() > 0 ) {
             if (rc.getWebRequestType() == WebRequestType.WEB_REST) {
                 String uri = rc.getReq().getRequestURI();
-                if(!uri.equals("/validatePasscode") && !uri.equals("/") ){
+                if(!uri.equals("/validatePasscode") && !uri.equals("/") && !uri.startsWith("/admin") && !uri.startsWith("/admin")){
                     String pcode = rc.getCookie("passCode");
-                    if (pcode == null || !pcode.equals(passCode)) {
+                    if (pcode == null || !pcode.equals("true")) {
                         throw new PassCodeException();
                     }
                 }

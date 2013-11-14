@@ -57,7 +57,7 @@ public class AppAuthRequest implements AuthRequest {
     @WebPost("/validatePasscode")
     public WebResponse validatePasscode(@WebParam("passcode") String code ,RequestContext rc) {
         if (this.passCode != null && this.passCode.length() > 0 && passCode.equals(code)) {
-            rc.setCookie("passCode", passCode);
+            rc.setCookie("passCode", true);
             return WebResponse.success();
         }
         return WebResponse.fail();
@@ -75,7 +75,7 @@ public class AppAuthRequest implements AuthRequest {
 
         if (passCode != null && passCode.length() > 0 ) {
             String pcode = rc.getCookie("passCode");
-            if (pcode == null || !pcode.equals(passCode)) {
+            if (pcode == null || !pcode.equals("true")) {
                 rc.getWebModel().put("errorCode", "NO_PASSCODE");
                 rc.getWebModel().put("errorMessage", "No passcode exists");
                 rc.getWebModel().put("success", "false");
