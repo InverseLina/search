@@ -15,6 +15,7 @@ import com.britesnow.snow.web.auth.AuthToken;
 import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebModel;
 import com.britesnow.snow.web.param.annotation.WebUser;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.CurrentOrgHolder;
@@ -57,8 +58,7 @@ public class AppAuthRequest implements AuthRequest {
             m.put("user", user);
         }
         String path = rc.getReq().getRequestURI();
-        if (path.equals("/")||path.equals(rc.getReq().getContextPath())
-                                && isSysSchemaExist) {
+        if ((Strings.isNullOrEmpty(rc.getReq().getContextPath()) || path.equals(rc.getReq().getContextPath() + "/")) && isSysSchemaExist) {
             String ctoken = rc.getCookie("ctoken");
             if (ctoken == null) {
                 try {
