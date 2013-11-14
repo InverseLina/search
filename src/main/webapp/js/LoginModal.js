@@ -27,14 +27,14 @@
                 "validate":function(event){
                 	var view = this;
                 	$.ajax({
-                		url:"/admin/validate",
+                		url:contextPath + "/admin/validate",
                 		type:"Post",
                 		data:{
                 			password:view.$el.find(":password").val()
                 		}
                 	}).done(function(data){
                 		if(data.success){
-                			window.location.href="/admin";
+                			window.location.href=contextPath + "/admin";
                 		}else{
                 			view.$el.find(".alert").show();
                 		}
