@@ -16,7 +16,7 @@ import com.jobscience.search.exception.JsonAuthException;
 
 @Singleton
 public class SSAuthHook {
-    @Inject
+    @Inject(optional = true)
     @Named("snow.passcode")
     private String passCode = "";
 
