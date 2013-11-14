@@ -482,10 +482,10 @@
 	  		  			}, 3000);
 	    			  view.$el.trigger("CONTACT_TSVSTATUS");
 	    		  }else if(result.contact_tsv=="done"){
-	    			  view.$el.find(".contact-tsv").prop("disabled",true).html("sfid copied").attr("data-status","copied").addClass("btn-success");
+	    			  view.$el.find(".contact-tsv").prop("disabled",true).html("contact_tsv Created").attr("data-status","copied").addClass("btn-success");
 	    			  view.$el.trigger("CONTACT_TSVSTATUS");
 	    		  }else if(result.contact_tsv=="part"){
-	    			  view.$el.find(".contact-tsv").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume").removeClass("btn-success");
+	    			  view.$el.find(".contact-tsv").prop("disabled",false).html("Resume Create contact_tsv").attr("data-status","resume").removeClass("btn-success");
 	    			  view.$el.trigger("CONTACT_TSVSTATUS");
 	    		  }else{
 	    			  if(tableInfo.indexOf("contact_ex")==-1){
