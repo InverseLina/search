@@ -162,7 +162,8 @@ public class SearchDao {
     	StringBuilder prefixSql = new StringBuilder("");
     	String contactQueryCondition="",contactExQueryCondition="";
     	boolean hasSearchValue = false;//to check if the search box has value or not
-    	 StringBuilder labelSql = new StringBuilder();
+    	StringBuilder labelSql = new StringBuilder();
+    	StringBuilder locationSql = new StringBuilder();
     	if(baseTable==null){
     		baseTable = "";
     	}
@@ -563,23 +564,23 @@ public class SearchDao {
                         }
                         conditions.append(" ) ");
             	   }else{
-            		   querySql.append(" join jss_sys.zipcode_us z on ");
-            		   querySql.append(" contact.\"mailingpostalcode\" =z.\"zip\"");
+            	       locationSql.append(" join jss_sys.zipcode_us z on ");
+            	       locationSql.append("contact.\"mailingpostalcode\" =z.\"zip\"");
             		   JSONObject ol;
-                       conditions.append(" AND (1!=1  ");
+            		   locationSql.append(" AND (1!=1  ");
                        for (Object location : locationValues) {
                            ol = (JSONObject) location;
                            String name = (String) ol.get("name");
-                           conditions.append(" OR ( z.\"city\"='").append(name).append("'");
-                            if(ol.containsKey("minRadius")){
+                           locationSql.append(" OR ( z.\"city\"='").append(name).append("'");
+                           if(ol.containsKey("minRadius")){
             				   double minRadius = ol.getDouble("minRadius");
-            				   conditions.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\")," )
+            				   locationSql.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\")," )
             				   			 .append(" ll_to_earth(contact.\"ts2__latitude__c\",contact.\"ts2__longitude__c\"))<=")
             				   			 .append(minRadius*1000);
                             }
-                            conditions.append(")");
+                           locationSql.append(")");
                        }
-                       conditions.append(" ) ");
+                       locationSql.append(" ) ");
                        hasCondition = true;
             	   }
     	      }
@@ -632,7 +633,7 @@ public class SearchDao {
 	       }
 	   }
 	   
-	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),labelSql.toString()};
+	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),labelSql.toString(),locationSql.toString()};
     }
     
     /**
@@ -905,16 +906,17 @@ public class SearchDao {
         if(searchValues!=null){
             String[] sqls = renderSearchCondition(searchValues,"search",null,null,values,null);
             String condition = sqls[2];
+	        boolean hasContactsCondition = false;
+	        String locationSql = sqls[4];
 	        joinSql = new StringBuilder(sqls[0]);
 	        prefixSql = sqls[1];
 	        countSql = new StringBuilder(joinSql.toString());
-	        boolean hasContactsCondition = false;
 	        String labelAssigned = searchValues.get("labelAssigned");
 	        if(searchValues.get("contacts")!=null){
 	            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
 	        }
 	        if(!Strings.isNullOrEmpty(searchValues.get("search"))){
-	            if(!hasContactsCondition&&!"true".equals(labelAssigned)){
+	            if(!hasContactsCondition&&!"true".equals(labelAssigned)&&locationSql.length()==0){
 	                joinSql.append(" offset "+offset+" limit "+pageSize);
 	            }
     	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
@@ -923,6 +925,9 @@ public class SearchDao {
 	            joinSql.append(String.format(sqls[3],"contact"));
                 countSql.append(String.format(sqls[3],"contact"));
 	        }
+	        joinSql.append(locationSql);
+	        countSql.append(locationSql);
+	        
 	        joinSql.append(" where 1=1 ").append(condition);
 	        countSql.append(" where 1=1 ").append(condition);
 	        if(!Pattern.matches("^.*(Company|Skill|Education|location)+.*$", orderCon)){
@@ -932,7 +937,7 @@ public class SearchDao {
 	        	if(orderCon!=null&&!"".equals(orderCon)){
 	        		joinSql.append(" order by "+orderCon);
 	        	}
-	        	if(hasContactsCondition||"true".equals(labelAssigned)){
+	        	if(hasContactsCondition||"true".equals(labelAssigned)||locationSql.length()>0){
                     joinSql.append(" offset "+offset);
                 }else{
                     joinSql.append(" offset 0 ");
