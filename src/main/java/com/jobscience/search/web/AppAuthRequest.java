@@ -79,7 +79,6 @@ public class AppAuthRequest implements AuthRequest {
             }
             m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
         } catch (Exception e) {
-            e.printStackTrace();
             rc.getWebModel().put("errorCode", "NO_ORG");
             rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
             rc.getWebModel().put("success", "false");
