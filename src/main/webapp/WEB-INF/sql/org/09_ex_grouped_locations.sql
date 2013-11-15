@@ -11,24 +11,6 @@ CREATE TABLE if not exists ex_grouped_locations
 );
 
 -- SCRIPTS
-DO $$
-  BEGIN
-  IF NOT EXISTS (
-      SELECT 1
-      FROM   pg_class c
-      JOIN   pg_namespace n ON n.oid = c.relnamespace
-      WHERE  c.relname = 'ex_grouped_locations_idx_name'
-      AND    n.nspname =   current_schema
-      ) THEN
-
-  CREATE INDEX ex_grouped_locations_idx_name
-    ON ex_grouped_locations
-    USING btree
-    (name COLLATE pg_catalog."default");
-  END IF;
-  END$$;
-
--- SCRIPTS
 
 insert into ex_grouped_locations (count,name)
   select count(c.id), z.city from contact c inner join jss_sys.zipcode_us z on c.mailingpostalcode = z.zip

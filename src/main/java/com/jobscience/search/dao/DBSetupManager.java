@@ -19,6 +19,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipInputStream;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -99,17 +102,28 @@ public class DBSetupManager {
         status.put("pgtrgm", this.checkExtension("pg_trgm"));
         Map indexMap = new HashMap();
         String indexNames = this.checkOrgIndex(orgName)+",";
-        indexMap.put("contact_ex_resume", indexNames.contains("contact_ex_idx_resume_gin,"));
-        indexMap.put("contact_title", indexNames.contains("contact_title_trgm_gin,"));
-        indexMap.put("contact_name", indexNames.contains("contact_name_trgm_gin,"));
-        indexMap.put("contact_firstname", indexNames.contains("contact_firstname_trgm_gin,"));
-        indexMap.put("contact_lastname", indexNames.contains("contact_lastname_trgm_gin,"));
+        indexMap.put("contact_ex_contact_tsv_gin", indexNames.contains("contact_ex_contact_tsv_gin,"));
+        indexMap.put("contact_title", indexNames.contains("contact_title_gin,"));
+        indexMap.put("contact_name", indexNames.contains("contact_name_gin,"));
+        indexMap.put("contact_firstname", indexNames.contains("contact_firstname_gin,"));
+        indexMap.put("contact_lastname", indexNames.contains("contact_lastname_gin,"));
         indexMap.put("ts2__skill__c_name", indexNames.contains("ts2__skill__c_name,"));
         indexMap.put("ts2__skill__c_contact_c", indexNames.contains("ts2__skill__c_contact_c,"));
         indexMap.put("ts2__employment_history__c_contact_c", indexNames.contains("ts2__employment_history__c_contact_c,"));
         indexMap.put("ts2__employment_history__c_name_c", indexNames.contains("ts2__employment_history__c_name_c,"));
         indexMap.put("ts2__education_history__c_contact_c", indexNames.contains("ts2__education_history__c_contact_c,"));
         indexMap.put("ts2__education_history__c_name_c", indexNames.contains("ts2__education_history__c_name_c,"));
+        
+        indexMap.put("contact_ex_resume_tsv_gin", indexNames.contains("contact_ex_resume_tsv_gin,"));
+        indexMap.put("ts2__skill__c_idx_sfid", indexNames.contains("ts2__skill__c_idx_sfid,"));
+        indexMap.put("ts2__employment_history__c_idx_sfid", indexNames.contains("ts2__employment_history__c_idx_sfid"));
+        indexMap.put("ts2__education_history__c_idx_sfid", indexNames.contains("ts2__education_history__c_idx_sfid,"));
+        indexMap.put("ex_grouped_locations_name", indexNames.contains("ex_grouped_locations_name,"));
+        indexMap.put("ex_grouped_skills_name", indexNames.contains("ex_grouped_skills_name,"));
+        indexMap.put("ex_grouped_educations_name", indexNames.contains("ex_grouped_educations_name,"));
+        indexMap.put("ex_grouped_employers_name", indexNames.contains("ex_grouped_employers_name,"));
+        indexMap.put("contact_idx_sfid", indexNames.contains("contact_idx_sfid,"));
+        indexMap.put("contact_ex_sfid", indexNames.contains("contact_ex_sfid,"));
         status.put("indexes", indexMap);
         
         if(orgExtraTableNames.contains("contact_ex,")){
@@ -336,26 +350,47 @@ public class DBSetupManager {
      * @return
      * @throws SQLException
      */
-    public boolean createIndexColumns(String orgName) throws SQLException{
-    	boolean result = true;
-        File orgFolder = new File(getRootSqlFolderPath() + "/org");
-        File[] sqlFiles = orgFolder.listFiles();
-        List<String> allSqls = new ArrayList();
-        for(File file : sqlFiles){
-        	if(file.getName().startsWith("02_")){//only load the 01_create_extra.sql
+    public boolean createIndexColumns(String orgName,boolean contactEx) throws SQLException{
+       boolean result = true;
+       File orgFolder = new File(getRootSqlFolderPath() + "/org");
+       File[] sqlFiles = orgFolder.listFiles();
+       String indexes = new String();
+       for(File file : sqlFiles){
+        	if(file.getName().equals("indexes.json")){//only load the indexes.json
 	            List<String> subSqlList = loadSQLFile(file);
-	            allSqls.addAll(subSqlList);
+	            indexes = subSqlList.get(0);
         	}
-        }
-        Connection conn = dbHelper.openConnection(orgName);
-        try {
-            Statement st = conn.createStatement();
-            for(String sql : allSqls){
-        		st.addBatch(sql);
-        		st.executeBatch();
-            }
-            st.executeBatch();
-        } catch (SQLException e) {
+       }
+       JSONObject indexesObj = JSONObject.fromObject(indexes);
+       Map<String,JSONArray> m = new HashMap<String,JSONArray>();
+       for(Object tableName:indexesObj.keySet()){
+          m.put(tableName.toString(), JSONArray.fromObject(indexesObj.get(tableName)));
+       }
+       Connection conn = dbHelper.openConnection(orgName);
+       Statement st = conn.createStatement();
+       try {
+           if(contactEx&&m.get("contact_ex")!=null){
+               JSONArray ja = m.get("contact_ex");
+               for(int i=0;i<ja.size();i++){
+                   JSONObject jo =  JSONObject.fromObject(ja.get(i));
+                   st.addBatch(generateIndexSql("contact_ex",jo));
+                   st.executeBatch();
+               }
+           }else{
+               for(String key:m.keySet()){
+                   if(!key.equals("contact_ex")){
+                       JSONArray ja = m.get(key);
+                       for(int i=0;i<ja.size();i++){
+                           JSONObject jo =  JSONObject.fromObject(ja.get(i));
+                           st.addBatch(generateIndexSql(key,jo));
+                           st.executeBatch();
+                       }
+                   }
+               }
+               
+           }
+           result = true;
+       }catch (SQLException e) {
         	result = false;
         	e.printStackTrace();
             try {
@@ -370,26 +405,122 @@ public class DBSetupManager {
         return result;
     }
     
+    private String generateIndexSql(String tabelName,JSONObject jo){
+        StringBuilder sb = new StringBuilder();
+        sb.append(" DO $$  ")
+            .append(	"  BEGIN" )
+            .append("    IF NOT EXISTS (" )
+            .append("        SELECT 1" )
+            .append("        FROM   pg_class c" )
+            .append("        JOIN   pg_namespace n ON n.oid = c.relnamespace" )
+            .append("        WHERE  c.relname = '" )
+            .append(jo.get("name"))
+            .append("'        AND    n.nspname =   current_schema" )
+            .append("        ) THEN" )
+            .append("       CREATE INDEX " )
+            .append(jo.get("name"))
+            .append("  ON ")
+            .append(tabelName)
+            .append(" USING " )
+            .append(jo.get("type"))
+            .append(" ( ")
+            .append(jo.get("column"))
+            .append(" ")
+            .append(jo.get("operator"))
+            .append(");    END IF;")
+            .append("    END$$;");
+        
+        return sb.toString();
+    }
     /**
      * Get the count for index count for contact and contact_ex
      * @param orgName
      * @return
      * @see {@link #createIndexColumns(String)}
      */
-    public int getIndexCount(String orgName){
+    public Integer getIndexStatus(String orgName,boolean contactEx){
     	StringBuilder sql = new StringBuilder();
     	sql.append( "select count(*) as count from pg_indexes " +
-                "where indexname in ('contact_ex_idx_resume_gin','contact_title_trgm_gin'," +
-                "'contact_name_trgm_gin','contact_firstname_trgm_gin'," +
-                "'contact_lastname_trgm_gin','ts2__skill__c_name'," +
+                "where indexname in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
+                "'contact_name_gin','contact_firstname_gin'," +
+                "'ts2__skill__c_idx_sfid','ts2__employment_history__c_idx_sfid',"+
+                "'ts2__education_history__c_idx_sfid','contact_idx_sfid',"+
+                "'contact_lastname_gin','ts2__skill__c_name'," +
+                "'ex_grouped_locations_name',"+
                 "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
                 "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-                "'ts2__education_history__c_name_c') and schemaname=current_schema ");
+                "'ts2__education_history__c_name_c','contact_ex_sfid'," +
+                "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
+                "'ex_grouped_employers_name') and schemaname=current_schema ")
+                .append(contactEx?" and tablename='contact_ex' ":" and tablename<>'contact_ex' ");
     	List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());
     	}
     	return 0;
+    }
+    
+    public String getWrongIndex(String orgName){
+        StringBuilder sql = new StringBuilder();
+        sql.append( "select string_agg(tablename||'.'||indexname,', ') as indexes from pg_indexes " +
+                "where indexname not in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
+                "'contact_name_gin','contact_firstname_gin'," +
+                "'ts2__skill__c_idx_sfid','ts2__employment_history__c_idx_sfid',"+
+                "'ts2__education_history__c_idx_sfid','contact_idx_sfid',"+
+                "'contact_lastname_gin','ts2__skill__c_name'," +
+                "'ex_grouped_locations_name',"+
+                "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
+                "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
+                "'ts2__education_history__c_name_c','contact_ex_sfid'," +
+                "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
+                "'ex_grouped_employers_name') and tablename in(" +
+                "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
+                "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
+                " and indexname not ilike '%pkey%' and schemaname=current_schema ");
+        List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), sql.toString());
+        if(list.size()==1){
+                return list.get(0).get("indexes")==null?"":list.get(0).get("indexes").toString();
+        }
+        return "";
+    }
+    
+    public String removeWrongIndex(String orgName) throws SQLException{
+        StringBuilder sql = new StringBuilder();
+        sql.append( "select indexname from pg_indexes " +
+                "where indexname not in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
+                "'contact_name_gin','contact_firstname_gin'," +
+                "'ts2__skill__c_idx_sfid','ts2__employment_history__c_idx_sfid',"+
+                "'ts2__education_history__c_idx_sfid','contact_idx_sfid',"+
+                "'contact_lastname_gin','ts2__skill__c_name'," +
+                "'ex_grouped_locations_name',"+
+                "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
+                "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
+                "'ts2__education_history__c_name_c','contact_ex_sfid'," +
+                "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
+                "'ex_grouped_employers_name') and tablename in(" +
+                "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
+                "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
+                " and indexname not ilike '%pkey%' and schemaname=current_schema ");
+        List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), sql.toString());
+        Connection conn = dbHelper.openConnection(orgName);
+        Statement st = conn.createStatement();
+        try{
+            for(Map m:list){
+                st.addBatch(" drop index "+m.get("indexname")+" ;");
+                st.executeBatch();
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                conn.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            throw e;
+        }finally{
+            conn.close();
+        }
+        return "";
     }
     
     private String getRootSqlFolderPath(){
@@ -500,12 +631,17 @@ public class DBSetupManager {
     private String checkOrgIndex(String orgName){
     	List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), 
     	            "select string_agg(indexname,',') as names from pg_indexes " +
-    	            "where indexname in ('contact_ex_idx_resume_gin','contact_title_trgm_gin'," +
-    	            "'contact_name_trgm_gin','contact_firstname_trgm_gin'," +
-    	            "'contact_lastname_trgm_gin','ts2__skill__c_name'," +
-    	            "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
-    	            "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-    	            "'ts2__education_history__c_name_c') and schemaname=current_schema ");
+    	            "where indexname in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
+                    "'contact_name_gin','contact_firstname_gin'," +
+                    "'ts2__skill__c_idx_sfid','ts2__employment_history__c_idx_sfid',"+
+                    "'ts2__education_history__c_idx_sfid','contact_idx_sfid',"+
+                    "'contact_lastname_gin','ts2__skill__c_name'," +
+                    "'ex_grouped_locations_name',"+
+                    "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
+                    "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
+                    "'ts2__education_history__c_name_c','contact_ex_sfid'," +
+                    "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
+                    "'ex_grouped_employers_name') and schemaname=current_schema ");
     	if(list.size()==1){
             String names = (String)list.get(0).get("names");
             if(names==null){

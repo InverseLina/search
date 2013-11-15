@@ -5,7 +5,6 @@
         select 1 from information_schema.columns where table_name ='contact_ex' and table_schema=current_schema  and column_name='sfid'
         ) THEN
        alter table contact_ex add column sfid character varying(18);
-       CREATE UNIQUE INDEX contact_ex_sfid  ON contact_ex  USING btree  (sfid COLLATE pg_catalog."default");
     END IF;
     END$$;  
 -- SCRIPTS

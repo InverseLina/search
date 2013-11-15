@@ -105,9 +105,12 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/createIndexColumns")
-    public WebResponse createIndexColumns(@WebParam("orgName")String orgName) {
+    public WebResponse createIndexColumns(@WebParam("orgName")String orgName,@WebParam("contactEx")Boolean contactEx) {
         try{
-        	dbSetupManager.createIndexColumns(orgName);
+            if(contactEx==null){
+                contactEx = false;
+            }
+        	dbSetupManager.createIndexColumns(orgName,contactEx);
         }catch (SQLException e) {
      	   return WebResponse.success(new JSSSqlException(e));
         }
@@ -115,8 +118,11 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/getIndexColumnsStatus")
-    public WebResponse getIndexColumnsStatus(@WebParam("orgName")String orgName){
-       return WebResponse.success(dbSetupManager.getIndexCount(orgName));
+    public WebResponse getIndexColumnsStatus(@WebParam("orgName")String orgName,@WebParam("contactEx")Boolean contactEx){
+        if(contactEx==null){
+            contactEx = false;
+        }
+        return WebResponse.success(dbSetupManager.getIndexStatus(orgName,contactEx));
     }
     
     @WebPost("/createIndexResume")
@@ -180,6 +186,20 @@ public class DBSetupWebHanlder {
     public WebResponse stopCreateContactTsv(@WebParam("orgName")String orgName) {
         contactTsvManager.stop();
         return WebResponse.success(contactTsvManager.getStatus(orgName));
+    }
+    
+    @WebGet("/getWrongIndexes")
+    public WebResponse getWrongIndexes(@WebParam("orgName")String orgName){
+        return WebResponse.success(dbSetupManager.getWrongIndex(orgName));
+    }
+    
+    @WebPost("/removeWrongIndexes")
+    public WebResponse removeWrongIndex(@WebParam("orgName")String orgName){
+        try {
+            return WebResponse.success(dbSetupManager.removeWrongIndex(orgName));
+        } catch (SQLException e) {
+            return WebResponse.success(new JSSSqlException(e));
+        }
     }
     
 }

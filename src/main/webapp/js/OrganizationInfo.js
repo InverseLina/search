@@ -26,6 +26,7 @@
     	   getDate.call(view,app.pathInfo.paths[2] * 1).done(function(orgName){
     	   var li = render("OrganizationInfo-li",{type:"Organization: "+orgName,url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
     	   view.$navTabs.find('li:last').before(li);
+    	   view.$el.trigger("WRONGINDEXES");
     	  });
        }
       
@@ -126,7 +127,7 @@
 			view.indexIntervalId = window.setInterval(function(){
 		    	   $(view.el).trigger("INDEXCOLUMNSSTATUS");
 		      }, 3000);
-			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
+			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName,contactEx:false},{type:"Post"}).done(function(data){
 				window.clearInterval(view.indexIntervalId);
 				if(data){
 					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
@@ -136,6 +137,31 @@
 					$alert.addClass("hide");
 					//view.$el.find(".index-status-bar").hide();
 				}
+				 $(view.el).trigger("INDEXCOLUMNSSTATUS");
+			});
+		},
+		"click;.contact-index":function(event){
+			var view = this;
+			var $createIndexBtn = $(event.target);
+			if($createIndexBtn.prop("disabled")){
+				return false;
+			}
+			var $alert = $createIndexBtn.closest("tr").find(".alert");
+			$createIndexBtn.prop("disabled",true).html("Creating...");
+			$alert.addClass("transparent");
+			view.contactIndexIntervalId = window.setInterval(function(){
+		    	   $(view.el).trigger("CONTACTINDEXCOLUMNSSTATUS");
+		      }, 3000);
+			app.getJsonData("/createIndexColumns", {orgName:view.currentOrgName,contactEx:true},{type:"Post"}).done(function(data){
+				window.clearInterval(view.contactIndexIntervalId);
+				if(data){
+					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
+					$createIndexBtn.prop("disabled",false).html("Create Contact_ex Indexes").removeClass("btn-success");
+				}else{
+					$createIndexBtn.html("Contact_ex Indexes Created").addClass("btn-success");
+					$alert.addClass("hide");
+				}
+				$(view.el).trigger("CONTACTINDEXCOLUMNSSTATUS");
 			});
 		},
 		"click;.sfid":function(event){
@@ -175,6 +201,26 @@
 					view.$el.trigger("SFIDSTATUS");
 				});
 			}
+		},
+		"WRONGINDEXES":function(){
+			var view = this;
+			app.getJsonData("/getWrongIndexes",{orgName:view.currentOrgName}).done(function(data){
+				if(data.length>0){
+					view.$el.find(".remove-wrong-index").prop("disabled",false);
+					view.$el.find(".remove-wrong-index").closest("tr").find(".alert").removeClass("transparent").html(data);
+				}else{
+					view.$el.find(".remove-wrong-index").prop("disabled",true);
+				}
+			});
+		},
+		"click;.remove-wrong-index":function(event){
+			var view = this;
+			var $btn = $(event.target);
+			$btn.html("Removing...").prop("disabled",true);
+			app.getJsonData("/removeWrongIndexes",{orgName:view.currentOrgName},{type:'Post'}).done(function(data){
+				view.$el.find(".remove-wrong-index").closest("tr").find(".alert").addClass("transparent").html("");
+				$btn.html("Remove Wrong Indexes").prop("disabled",true);
+			});
 		},
 		"click;.contact-tsv":function(event){
 			var view = this;
@@ -246,9 +292,28 @@
 			var view = this;
 			view.$el.find(".index-status-bar").show();
 			app.getJsonData("/getIndexColumnsStatus", {orgName:view.currentOrgName}).done(function(data){
-				percentage = data/11*100;
+				percentage = data/18*100;
+				if(data<18){
+					view.$el.find(".index").prop("disabled",false);
+				}else{
+					view.$el.find(".index").prop("disabled",true).addClass("btn-success").html("Other Indexes Created");
+				}
 			    view.$el.find(".index-status-bar .progress-bar-success").css("width",percentage+"%");
-			    view.$el.find(".index-status-bar .db-percentage").html(data+"/11");
+			    view.$el.find(".index-status-bar .db-percentage").html(data+"/18");
+			});
+		},
+		"CONTACTINDEXCOLUMNSSTATUS":function(){
+			var view = this;
+			view.$el.find(".contact-index-status-bar").show();
+			app.getJsonData("/getIndexColumnsStatus", {orgName:view.currentOrgName,contactEx:true}).done(function(data){
+				if(data<3){
+					view.$el.find(".contact-index").prop("disabled",false);
+				}else{
+					view.$el.find(".contact-index").prop("disabled",true).addClass("btn-success").html("Contact_ex Indexes Created");
+				}
+				percentage = data/3*100;
+			    view.$el.find(".contact-index-status-bar .progress-bar-success").css("width",percentage+"%");
+			    view.$el.find(".contact-index-status-bar .contact-index-percentage").html(data+"/3");
 			});
 		},
 		"click;.resume":function(event){ 
@@ -436,9 +501,11 @@
 		    			  view.$el.find(".index").prop("disabled",true).html("Index Columns Created").addClass("btn-success");
 		    		  }
 		    		  view.$el.trigger("INDEXCOLUMNSSTATUS");
+		    		  view.$el.trigger("CONTACTINDEXCOLUMNSSTATUS");
 	    		  }else{
 	    			  view.$el.find(".index").prop("disabled",true).html("Create Index Columns").removeClass("btn-success");
 	    			  view.$el.trigger("INDEXCOLUMNSSTATUS");
+	    			  view.$el.trigger("CONTACTINDEXCOLUMNSSTATUS");
 	    		  }
 	    		  if(result.resume=="running"){
 	    			  view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume").attr("data-status","pause").addClass("btn-success");
