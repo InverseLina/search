@@ -37,7 +37,7 @@ public class AppAuthRequest implements AuthRequest {
     @Inject
     private DBSetupManager      dbSetupManager;
     @Inject(optional = true)
-    @Named("snow.passcode")
+    @Named("jss.passcode")
     private String passCode = "";
 
     private static final Logger log = LoggerFactory.getLogger(AppAuthRequest.class);
