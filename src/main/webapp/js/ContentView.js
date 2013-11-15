@@ -45,7 +45,9 @@
             view.$searchInfo.empty();
             view.$el.find("input").attr("disabled", true);
             if(app.startError.errorCode == "NO_PASSCODE"){
-                brite.display("PassCodeModal");
+                if($("body").bFindComponents("PassCodeModal").length ==0){
+                    brite.display("PassCodeModal");
+                }
             }else{
                 brite.display("MessagePanel", ".search-result", {message: app.startError.errorMessage})
             }
@@ -353,7 +355,10 @@
             view.$searchInfo.empty();
             view.$el.find("input").attr("disabled", true);
             if(extra.errorCode == "NO_PASSCODE"){
-                brite.display("PassCodeModal");
+                if($("body").bFindComponents("PassCodeModal").length ==0){
+                    brite.display("PassCodeModal");
+                }
+
             }else {
                 brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
             }

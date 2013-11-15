@@ -10,10 +10,14 @@
         {
             // --------- View Interface Implement--------- //
             create: function (data, config) {
+                $(".container").hide();
+                $(".admin").hide();
                 return render("PassCodeModal");
             },
 
             postDisplay: function (data) {
+                var view = this;
+                view.$el.find("input[name='passcode']").focus();
             },
             // --------- /View Interface Implement--------- //
 
@@ -21,8 +25,8 @@
             // --------- Events--------- //
             events: {
                 "btap;.cancel,.close": function(){
-                    var view = this;
-                    view.$el.bRemove();
+                    //var view = this;
+                    //view.$el.bRemove();
                 },
                 "validate":function(event){
                 	var view = this;
