@@ -233,7 +233,7 @@ public class DBSetupManager {
     	}
     	  Connection conn = dsMng.getDefaultConnection();
     	try{
-	        PreparedStatement st = conn.prepareStatement("CREATE extension "+extName+";");
+	        PreparedStatement st = conn.prepareStatement("CREATE extension "+extName+"  with schema pg_catalog;");
 	        result = st.execute();
 	        st.close();
 	        conn.close();

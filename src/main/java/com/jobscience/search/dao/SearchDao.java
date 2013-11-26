@@ -121,7 +121,7 @@ public class SearchDao {
         }
         querySql.append(" order by count desc limit 7 ");
         Long start = System.currentTimeMillis();
-        Connection con = dbHelper.openPublicConnection();
+        Connection con = dbHelper.openConnection(orgHolder.getOrgName());
         PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
         List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
         prepareStatement.close();
