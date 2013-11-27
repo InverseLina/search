@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.db.DBHelper;
 
 @Singleton
@@ -23,9 +22,7 @@ public class MultiplierManager {
     private DBHelper dbHelper;
     @Inject
     private DBSetupManager dbSetupManager;
-    @Inject
-    private CurrentOrgHolder currentOrgHolder;
-    
+
     private volatile int currentTime;
     private volatile Long performCounts;
     private volatile Long contactCounts;
