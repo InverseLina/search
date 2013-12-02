@@ -237,6 +237,18 @@
       <id>Sonatype Snapshot</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
+     <!-- for josql -->  
+    <repository>
+      <id>BriteSnow Releases</id>
+      <url>http://nexus.britesnow.com/nexus/content/repositories/releases/</url>
+    </repository>
+
+    <!-- for josql -->  
+    <repository>
+      <id>BriteSnow Snapshots</id>
+      <url>http://nexus.britesnow.com/nexus/content/repositories/snapshots/</url>
+    </repository>       
+       
   </repositories>  
   
 </project>
