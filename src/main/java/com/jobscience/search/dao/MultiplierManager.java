@@ -1,7 +1,5 @@
 package com.jobscience.search.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -91,30 +89,22 @@ public class MultiplierManager {
             }
         }
         
-        
-        
-        
         contactCounts = origin_count;
         configManager.saveOrUpdateConfig(newConfig, orgId);
         currentTime = 0;
-        PreparedStatement statement;
-        Connection con = dbHelper.openConnection(orgName);
+        
         while(times>0){
             Long perform = 0L;
             performCounts = perform;
             currentTime++;
             while(origin_count-perform>10000){
-                statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'"+tableName+"')");
-                statement.executeQuery();
-                statement.close();
+                dbHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'"+tableName+"')");
                 perform+=10000;
                 performCounts = perform;
             }
            
             if(origin_count-perform>0){
-                statement = con.prepareStatement("select multiplydata("+perform+","+(origin_count-perform)+","+current_iteration_number+",'"+tableName+"')");
-                statement.executeQuery();
-                statement.close();
+                dbHelper.executeQuery(orgName,"select multiplydata("+perform+","+(origin_count-perform)+","+current_iteration_number+",'"+tableName+"')");
                 perform = origin_count;
                 performCounts = perform;
                 
@@ -122,55 +112,42 @@ public class MultiplierManager {
             if("contact".equals(tableName)){
                 perform = 0L;
                 while(companyCount-perform>10000){
-                    statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__employment_history__c')");
-                    statement.executeQuery();
-                    statement.close();
+                    dbHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__employment_history__c')");
                     perform+=10000;
                 }
                
                 if(companyCount-perform>0){
-                    statement = con.prepareStatement("select multiplydata("+perform+","+(companyCount-perform)+","+current_iteration_number+",'ts2__employment_history__c')");
-                    statement.executeQuery();
-                    statement.close();
+                    dbHelper.executeQuery(orgName,"select multiplydata("+perform+","+(companyCount-perform)+","+current_iteration_number+",'ts2__employment_history__c')");
                     perform = origin_count;
                     
                 }
                 
                 perform = 0L;
                 while(skillCount-perform>10000){
-                    statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__skill__c')");
-                    statement.executeQuery();
-                    statement.close();
+                    dbHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__skill__c')");
                     perform+=10000;
                 }
                
                 if(origin_count-perform>0){
-                    statement = con.prepareStatement("select multiplydata("+perform+","+(skillCount-perform)+","+current_iteration_number+",'ts2__skill__c')");
-                    statement.executeQuery();
-                    statement.close();
+                    dbHelper.executeQuery(orgName,"select multiplydata("+perform+","+(skillCount-perform)+","+current_iteration_number+",'ts2__skill__c')");
                     perform = skillCount;
                     
                 }
                 
                 perform = 0L;
                 while(educationCount-perform>10000){
-                    statement = con.prepareStatement("select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__education_history__c')");
-                    statement.executeQuery();
-                    statement.close();
+                    dbHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__education_history__c')");
                     perform+=10000;
                 }
                
                 if(origin_count-perform>0){
-                    statement = con.prepareStatement("select multiplydata("+perform+","+(educationCount-perform)+","+current_iteration_number+",'ts2__education_history__c')");
-                    statement.executeQuery();
-                    statement.close();
+                    dbHelper.executeQuery(orgName,"select multiplydata("+perform+","+(educationCount-perform)+","+current_iteration_number+",'ts2__education_history__c')");
                 }
             }
             times--;
             current_iteration_number++;
         }
        
-        con.close();
     }
     
     public Map<String,Object> getStatus(){
