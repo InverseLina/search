@@ -7,11 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +17,8 @@ import java.util.zip.ZipInputStream;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import org.josql.Runner;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.common.cache.Cache;
@@ -199,23 +197,9 @@ public class DBSetupManager {
     private boolean checkColumn(String columnName,String table,String schemaName) throws SQLException{
         boolean result = false;
         
-        Connection conn = dsMng.getDefaultConnection();
-        try{
-            PreparedStatement st = conn.prepareStatement(" select 1 from information_schema.columns " +
-            		" where table_name =? and table_schema=?  and column_name=? ");
-            st.setString(1, table);
-            st.setString(2, schemaName);
-            st.setString(3, columnName);
-            ResultSet s = st.executeQuery();
-            if(s.next()){
-                result =  true;
-            }
-            st.close();
-            conn.close();
-        }catch (SQLException e) {
-            throw e;
-        }finally{
-            conn.close();
+        List list = dbHelper.executeQuery(dbHelper.openDefaultRunner(), " select 1 from information_schema.columns " + " where table_name =? and table_schema=?  and column_name=? ", table, schemaName, columnName);
+        if (list.size() > 0) {
+            result = true;
         }
         return result;
     }
@@ -230,17 +214,8 @@ public class DBSetupManager {
     	if(checkExtension(extName)){
     		return true;
     	}
-    	  Connection conn = dsMng.getDefaultConnection();
-    	try{
-	        PreparedStatement st = conn.prepareStatement("CREATE extension "+extName+"  with schema pg_catalog;");
-	        result = st.execute();
-	        st.close();
-	        conn.close();
-    	}catch (SQLException e) {
-			throw e;
-		}finally{
-            conn.close();
-        }
+    	
+    	dbHelper.executeUpdate(dbHelper.openDefaultRunner(), "CREATE extension "+extName+"  with schema pg_catalog;");
 		return result;
     }
     /**
@@ -248,7 +223,7 @@ public class DBSetupManager {
      * @return
      * @throws SQLException
      */
-    public boolean createSysSchema() throws SQLException{
+    public boolean createSysSchema() throws Exception{
     	boolean result = true;
     	dsMng.createSysSchemaIfNecessary();
         File sysFolder = new File(getRootSqlFolderPath() + "/jss_sys");
@@ -258,30 +233,28 @@ public class DBSetupManager {
             List subSqlList = loadSQLFile(file);
             allSqls.addAll(subSqlList);
         }
-        Connection conn = dbHelper.openSysConnection();
+        Runner runner = dbHelper.openNewSysRunner();
         try {
-            conn.setAutoCommit(false);
+            runner.startTransaction();
             for(String sql : allSqls){
-                Statement st = conn.createStatement();
-                st.execute(sql);
-                st.close();
+               runner.executeUpdate(sql);
             }
-            conn.commit();
-        } catch (SQLException e) {
+            runner.commit();
+        } catch (Exception e) {
             try {
-                conn.rollback();
-            } catch (SQLException e1) {
+                runner.roolback();
+            } catch (Exception e1) {
                 e1.printStackTrace();
                 result = false;
             }
            throw e;
         }finally{
-            conn.close();
+            runner.close();
         }
         return result;
     }
     
-    public boolean updateZipCode() throws SQLException, IOException{
+    public boolean updateZipCode() throws Exception{
     	return doUpdateZipCode(true)!=0;
     }
     
@@ -290,7 +263,7 @@ public class DBSetupManager {
      * @return
      */
     public  String checkSysTables(){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select string_agg(table_name,',') as names from information_schema.tables" +
+    	List<Map> list = dbHelper.executeQuery(dbHelper.openDefaultRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
         		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
     	if(list.size()==1){
     	    String names = (String)list.get(0).get("names");
@@ -308,7 +281,7 @@ public class DBSetupManager {
      * @return
      * @throws SQLException
      */
-    public boolean createExtraTables(String orgName) throws SQLException{
+    public boolean createExtraTables(String orgName) throws Exception{
     	boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
         File[] sqlFiles = orgFolder.listFiles();
@@ -319,26 +292,24 @@ public class DBSetupManager {
 	            allSqls.addAll(subSqlList);
         	}
         }
-        Connection conn = dbHelper.openConnection(orgName);
+        Runner runner = dbHelper.openNewOrgRunner(orgName);
         try {
-            conn.setAutoCommit(false);
-            Statement st = conn.createStatement();
+            runner.startTransaction();
             for(String sql : allSqls){
-        		st.addBatch(sql.replaceAll("#", ";"));
+        		runner.executeUpdate(sql.replaceAll("#", ";"));
             }
-            st.executeBatch();
-            conn.commit();
-        } catch (SQLException e) {
+            runner.commit();
+        } catch (Exception e) {
         	e.printStackTrace();
         	result = false;
             try {
-                conn.rollback();
-            } catch (SQLException e1) {
+                runner.roolback();
+            } catch (Exception e1) {
                 e1.printStackTrace();
             }
             throw e;
         }finally{
-            conn.close();
+            runner.close();
         }
        return result;
     }
@@ -349,7 +320,7 @@ public class DBSetupManager {
      * @return
      * @throws SQLException
      */
-    public boolean createIndexColumns(String orgName,boolean contactEx) throws SQLException{
+    public boolean createIndexColumns(String orgName,boolean contactEx) throws Exception{
        boolean result = true;
        File orgFolder = new File(getRootSqlFolderPath() + "/org");
        File[] sqlFiles = orgFolder.listFiles();
@@ -365,15 +336,14 @@ public class DBSetupManager {
        for(Object tableName:indexesObj.keySet()){
           m.put(tableName.toString(), JSONArray.fromObject(indexesObj.get(tableName)));
        }
-       Connection conn = dbHelper.openConnection(orgName);
-       Statement st = conn.createStatement();
+       
+       Runner runner = dbHelper.openNewOrgRunner(orgName);
        try {
            if(contactEx&&m.get("contact_ex")!=null){
                JSONArray ja = m.get("contact_ex");
                for(int i=0;i<ja.size();i++){
                    JSONObject jo =  JSONObject.fromObject(ja.get(i));
-                   st.addBatch(generateIndexSql("contact_ex",jo));
-                   st.executeBatch();
+                   runner.executeUpdate(generateIndexSql("contact_ex",jo));
                }
            }else{
                for(String key:m.keySet()){
@@ -381,25 +351,24 @@ public class DBSetupManager {
                        JSONArray ja = m.get(key);
                        for(int i=0;i<ja.size();i++){
                            JSONObject jo =  JSONObject.fromObject(ja.get(i));
-                           st.addBatch(generateIndexSql(key,jo));
-                           st.executeBatch();
+                           runner.executeUpdate(generateIndexSql(key,jo));
                        }
                    }
                }
                
            }
            result = true;
-       }catch (SQLException e) {
+       }catch (Exception e) {
         	result = false;
         	e.printStackTrace();
             try {
-                conn.rollback();
-            } catch (SQLException e1) {
+                runner.roolback();
+            } catch (Exception e1) {
                 e1.printStackTrace();
             }
             throw e;
         }finally{
-            conn.close();
+            runner.close();
         }
         return result;
     }
@@ -452,7 +421,7 @@ public class DBSetupManager {
                 "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
                 "'ex_grouped_employers_name') and schemaname=current_schema ")
                 .append(contactEx?" and tablename='contact_ex' ":" and tablename<>'contact_ex' ");
-    	List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), sql.toString());
+    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewOrgRunner(orgName), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());
     	}
@@ -476,14 +445,14 @@ public class DBSetupManager {
                 "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
                 "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
                 " and indexname not ilike '%pkey%' and schemaname=current_schema ");
-        List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), sql.toString());
+        List<Map> list = dbHelper.executeQuery(dbHelper.openNewOrgRunner(orgName), sql.toString());
         if(list.size()==1){
                 return list.get(0).get("indexes")==null?"":list.get(0).get("indexes").toString();
         }
         return "";
     }
     
-    public String removeWrongIndex(String orgName) throws SQLException{
+    public String removeWrongIndex(String orgName) throws Exception{
         StringBuilder sql = new StringBuilder();
         sql.append( "select indexname from pg_indexes " +
                 "where indexname not in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
@@ -500,24 +469,23 @@ public class DBSetupManager {
                 "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
                 "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
                 " and indexname not ilike '%pkey%' and schemaname=current_schema ");
-        List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), sql.toString());
-        Connection conn = dbHelper.openConnection(orgName);
-        Statement st = conn.createStatement();
+        List<Map> list = dbHelper.executeQuery(dbHelper.openNewOrgRunner(orgName), sql.toString());
+        
+        Runner runner = dbHelper.openNewOrgRunner(orgName);
         try{
             for(Map m:list){
-                st.addBatch(" drop index "+m.get("indexname")+" ;");
-                st.executeBatch();
+                runner.executeUpdate(" drop index "+m.get("indexname")+" ;");
             }
-        }catch (SQLException e) {
+        }catch (Exception e) {
             e.printStackTrace();
             try {
-                conn.rollback();
-            } catch (SQLException e1) {
+                runner.roolback();
+            } catch (Exception e1) {
                 e1.printStackTrace();
             }
             throw e;
         }finally{
-            conn.close();
+            runner.close();
         }
         return "";
     }
@@ -560,7 +528,7 @@ public class DBSetupManager {
     	if(zipcodeLoadCount==null){
     		zipcodeLoadCount = 43191;//doUpdateZipCode(false);
     	}
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from zipcode_us");
+    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewSysRunner(), "select count(*) as count from zipcode_us");
     	if(list.size()==1){
     		if(list.get(0).get("count").toString().equals(zipcodeLoadCount+"")){
     			return true;
@@ -576,7 +544,7 @@ public class DBSetupManager {
      * @throws SQLException
      * @throws IOException
      */
-    private int doUpdateZipCode(boolean updateDb) throws SQLException, IOException{
+    private int doUpdateZipCode(boolean updateDb) throws Exception{
     	try{
     		int rowCount = 0;
 			URL url = new URL(zipcodePath);
@@ -586,34 +554,32 @@ public class DBSetupManager {
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = br.readLine();
 			String prefix = "INSERT INTO jss_sys.zipcode_us ("+line+") values ";
-			Connection conn = dbHelper.openConnection();
+			Runner runner = dbHelper.openDefaultRunner();
 			try{
-				Statement st = conn.createStatement();
-				conn.setAutoCommit(false);
+			    runner.startTransaction();
 				line = br.readLine();
 				while(line!=null){
 					if(!line.trim().equals("")){
 						if(updateDb){
-							st.addBatch(prefix+"("+line.replaceAll("\'", "\'\'").replaceAll("\"", "\'")+");");
+						    runner.executeUpdate(prefix+"("+line.replaceAll("\'", "\'\'").replaceAll("\"", "\'")+");");
 						}
 						rowCount++;
 					}
 					line = br.readLine();
 				}
 				if(updateDb){
-					st.executeBatch();
-			        conn.commit();
+				    runner.commit();
 				}
-			}catch (SQLException e) {
+			}catch (Exception e) {
 				e.printStackTrace();
 				try {
-					conn.rollback();
-				} catch (SQLException e1) {
+				    runner.roolback();
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 				throw e;
 			}finally{
-	            conn.close();
+			    runner.close();
 	        }
 			in.close();
 			cache.put("zipcodeLoadCount", rowCount);
@@ -628,7 +594,7 @@ public class DBSetupManager {
      * @return
      */
     private String checkOrgIndex(String orgName){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getOrgDataSource(orgName), 
+    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewOrgRunner(orgName), 
     	            "select string_agg(indexname,',') as names from pg_indexes " +
     	            "where indexname in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
                     "'contact_name_gin','contact_firstname_gin'," +
@@ -657,7 +623,7 @@ public class DBSetupManager {
      * @return
      */
     private boolean checkExtension(String extName){
-    	List<Map> list = dbHelper.executeQuery(dsMng.getDefaultDataSource(), "select count(*) as count from pg_catalog.pg_extension" +
+    	List<Map> list = dbHelper.executeQuery(dbHelper.openDefaultRunner(), "select count(*) as count from pg_catalog.pg_extension" +
         		" where extname='"+extName+"' ");
     	if(list.size()==1){
     		if("1".equals(list.get(0).get("count").toString())){
@@ -678,7 +644,7 @@ public class DBSetupManager {
     	if(orgs.size()==1){
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select string_agg(table_name,',') as names from information_schema.tables" +
+    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewSysRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
         		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','contact_ex','savedsearches','user','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers','ex_grouped_locations')");
     	if(list.size()==1){
             String names = (String)list.get(0).get("names");
@@ -701,7 +667,7 @@ public class DBSetupManager {
     	if(orgs.size()==1){
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), "select count(*) as count from information_schema.schemata" +
+    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewSysRunner(), "select count(*) as count from information_schema.schemata" +
         		" where schema_name='"+schemaname+"'");
     	if(list.size()==1){
     		if("1".equals(list.get(0).get("count").toString())){
@@ -737,7 +703,7 @@ public class DBSetupManager {
        return loadSQLFile(new File(getRootSqlFolderPath()+"/org/"+fileName));
    }
    
-   public boolean createExtraGroup(String orgName,String tableName) throws SQLException{
+   public boolean createExtraGroup(String orgName,String tableName) throws Exception{
        boolean result = true;
        File orgFolder = new File(getRootSqlFolderPath() + "/org");
        File[] sqlFiles = orgFolder.listFiles();
@@ -758,26 +724,24 @@ public class DBSetupManager {
                allSqls.addAll(subSqlList);
            }
        }
-       Connection conn = dbHelper.openConnection(orgName);
+       Runner runner = dbHelper.openNewOrgRunner(orgName);
        try {
-           conn.setAutoCommit(false);
-           Statement st = conn.createStatement();
+           runner.startTransaction();
            for(String sql : allSqls){
-               st.addBatch(sql.replaceAll("#", ";"));
+               runner.executeUpdate(sql.replaceAll("#", ";"));
            }
-           st.executeBatch();
-           conn.commit();
-       } catch (SQLException e) {
+           runner.commit();
+       } catch (Exception e) {
            e.printStackTrace();
            result = false;
            try {
-               conn.rollback();
-           } catch (SQLException e1) {
+               runner.roolback();
+           } catch (Exception e1) {
                e1.printStackTrace();
            }
            throw e;
        }finally{
-           conn.close();
+           runner.close();
        }
       return result;
    }

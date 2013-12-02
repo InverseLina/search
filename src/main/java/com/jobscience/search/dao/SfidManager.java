@@ -3,10 +3,6 @@ package com.jobscience.search.dao;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -117,27 +113,10 @@ public class SfidManager {
 	private boolean checkColumn(String columnName,String table,String schemaName) {
         boolean result = false;
         
-        Connection conn = dbHelper.openConnection();
-        try{
-            PreparedStatement st = conn.prepareStatement(" select 1 from information_schema.columns " +
-                    " where table_name =? and table_schema=?  and column_name=? ");
-            st.setString(1, table);
-            st.setString(2, schemaName);
-            st.setString(3, columnName);
-            ResultSet s = st.executeQuery();
-            if(s.next()){
-                result =  true;
-            }
-            st.close();
-            conn.close();
-        }catch (SQLException e) {
-            e.printStackTrace();
-        }finally{
-            try{
-            conn.close();
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
+        List list = dbHelper.executeQuery(dbHelper.openDefaultRunner(), " select 1 from information_schema.columns " +
+                                " where table_name =? and table_schema=?  and column_name=? ", table, schemaName, columnName);
+        if(list.size() > 0){
+            result = true;
         }
         return result;
     }

@@ -32,9 +32,9 @@ public class DBSetupWebHanlder {
     public WebResponse createSysSchema(){
        try{
     	   dbSetupManager.createSysSchema();
-       }catch (SQLException e) {
+       }catch (Exception e) {
            e.printStackTrace();
-    	   return WebResponse.success(new JSSSqlException(e));
+    	   return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
        }
        return WebResponse.success();
     }
@@ -45,9 +45,9 @@ public class DBSetupWebHanlder {
         	dbSetupManager.updateZipCode();
         }catch (SQLException e) {
      	   return WebResponse.success(new JSSSqlException(e));
-        } catch (IOException e) {
-        	 return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
-		}
+		} catch (Exception e) {
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
         return WebResponse.success();
     }
     
@@ -57,6 +57,8 @@ public class DBSetupWebHanlder {
             return WebResponse.success(dbSetupManager.createExtraGroup(orgName,tableName));
        }catch (SQLException e) {
            return WebResponse.success(new JSSSqlException(e) );
+       } catch (Exception e) {
+           return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
        }
     }
     
@@ -88,6 +90,8 @@ public class DBSetupWebHanlder {
         	dbSetupManager.createExtraTables(orgName);
         }catch (SQLException e) {
      	   return WebResponse.success(new JSSSqlException(e));
+        }catch (Exception e) {
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
         }
         return WebResponse.success();
     }
@@ -113,6 +117,8 @@ public class DBSetupWebHanlder {
         	dbSetupManager.createIndexColumns(orgName,contactEx);
         }catch (SQLException e) {
      	   return WebResponse.success(new JSSSqlException(e));
+        }catch (Exception e) {
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
         }
         return WebResponse.success();
     }
@@ -199,6 +205,8 @@ public class DBSetupWebHanlder {
             return WebResponse.success(dbSetupManager.removeWrongIndex(orgName));
         } catch (SQLException e) {
             return WebResponse.success(new JSSSqlException(e));
+        }catch (Exception e) {
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
         }
     }
     

@@ -22,7 +22,7 @@ public class IndexerManager {
 	 @Inject
 	 private CurrentRequestContextHolder currentRequestContextHolder;
 	 
-	 private IndexerStatus indexerStatus ;
+	 private IndexerStatus indexerStatus;
 	 public synchronized void run(String orgName) throws Exception{
 		if(on){
 			return ;
