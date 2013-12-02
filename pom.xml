@@ -172,6 +172,11 @@
     </dependency>
     <!-- /Snow -->
     
+    <dependency>
+      <groupId>org.josql</groupId>
+      <artifactId>josql</artifactId>
+      <version>0.1-SNAPSHOT</version>
+    </dependency>    
     
     <dependency>
       <groupId>org.slf4j</groupId>
