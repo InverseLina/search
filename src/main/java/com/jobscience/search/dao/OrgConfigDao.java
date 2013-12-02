@@ -6,15 +6,14 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.db.DataSourceManager;
+
 
 @Singleton
 public class OrgConfigDao {
 
   @Inject
   private DaoHelper daoHelper;
-  @Inject
-  private DataSourceManager dm;
+
 
   public void saveOrUpdateOrg(Map<String,String> params) throws SQLException{
       String sql = "";

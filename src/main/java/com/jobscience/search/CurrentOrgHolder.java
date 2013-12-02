@@ -11,7 +11,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.OrgConfigDao;
-import com.jobscience.search.db.DataSourceManager;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,8 +24,7 @@ public class CurrentOrgHolder {
     private CurrentRequestContextHolder crh;
     @Inject
     private DaoHelper daoHelper;
-    @Inject
-    private DataSourceManager dm;
+
     @Inject
     private OrgConfigDao orgConfigDao;
     private Cache<String, Map> cache;

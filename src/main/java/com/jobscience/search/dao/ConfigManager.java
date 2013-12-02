@@ -12,7 +12,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DataSourceManager;
+
 
 @Singleton
 public class ConfigManager {
@@ -21,8 +21,7 @@ public class ConfigManager {
     private DaoHelper daoHelper;
     @Inject
     private CurrentOrgHolder  orgHolder;
-    @Inject
-    private DataSourceManager dsMng;
+
     @Inject
     @Named("salesforce.canvasapp.secret")
     private String canvasappSecret;
