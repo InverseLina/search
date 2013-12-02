@@ -13,7 +13,6 @@ import java.util.Map;
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.db.DBHelper;
 
 @Singleton
 public class ContactTsvManager {
@@ -23,7 +22,7 @@ public class ContactTsvManager {
 	 */
 	 private volatile boolean on = false;
 	 @Inject
-	 private DBHelper dbHelper;
+	 private DaoHelper dbHelper;
 	 @Inject
 	 private CurrentRequestContextHolder currentRequestContextHolder;
 	 @Inject

@@ -9,7 +9,6 @@ import java.util.Map;
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.db.DBHelper;
 
 @Singleton
 public class IndexerManager {
@@ -19,7 +18,7 @@ public class IndexerManager {
 	 */
 	 private volatile boolean on = false;
 	 @Inject
-	 private DBHelper dbHelper;
+	 private DaoHelper dbHelper;
 	 @Inject
 	 private CurrentRequestContextHolder currentRequestContextHolder;
 	 

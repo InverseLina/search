@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.db.DBHelper;
 
 @Singleton
 public class MultiplierManager {
@@ -19,7 +18,7 @@ public class MultiplierManager {
     @Inject
     private OrgConfigDao orgConfigDao;
     @Inject
-    private DBHelper dbHelper;
+    private DaoHelper dbHelper;
     @Inject
     private DBSetupManager dbSetupManager;
 

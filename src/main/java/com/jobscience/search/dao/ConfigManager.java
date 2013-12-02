@@ -12,14 +12,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DBHelper;
 import com.jobscience.search.db.DataSourceManager;
 
 @Singleton
 public class ConfigManager {
 
     @Inject
-    private DBHelper dbHelper;
+    private DaoHelper dbHelper;
     @Inject
     private CurrentOrgHolder  orgHolder;
     @Inject

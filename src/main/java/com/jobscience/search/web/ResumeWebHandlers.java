@@ -3,10 +3,11 @@ package com.jobscience.search.web;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DBHelper;
+import com.jobscience.search.dao.DaoHelper;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public class ResumeWebHandlers {
 
 
     @Inject
-    private DBHelper dbHelper;
+    private DaoHelper dbHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
     

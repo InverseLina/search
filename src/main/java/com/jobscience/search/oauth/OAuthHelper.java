@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
-import com.jobscience.search.db.DBHelper;
+import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.db.DataSourceManager;
 import com.jobscience.search.oauth.api.ForceDotComApi;
 
@@ -20,7 +20,7 @@ public class OAuthHelper {
     @Inject
     private ConfigManager configManager;
     @Inject
-    private DBHelper dbHelper;
+    private DaoHelper dbHelper;
     @Inject
     private DataSourceManager dsMng;
     @Inject

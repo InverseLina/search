@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DBHelper;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
 
@@ -34,7 +33,7 @@ public class SearchDao {
     private Logger log = LoggerFactory.getLogger(SearchDao.class);
     
     @Inject
-    private DBHelper      dbHelper;
+    private DaoHelper      dbHelper;
 
     @Inject
     private CurrentOrgHolder orgHolder;

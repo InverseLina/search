@@ -13,9 +13,12 @@ import java.util.logging.Logger;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 
+import org.josql.DBHelperBuilder;
+
 import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.jobscience.search.dao.DaoHelper;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Singleton
@@ -28,7 +31,7 @@ public class DataSourceManager {
     private String pwd;
     private String sysSchema = "jss_sys";
     @Inject
-    private DBHelper dbHelper;
+    private DaoHelper dbHelper;
     private  DataSource publicDataSource;
     @Inject
     public void init(@Named("jss.db.url") String url,
@@ -42,6 +45,8 @@ public class DataSourceManager {
         	sysDs = buildDs(url, sysSchema);
         }
         publicDataSource = buildDs(url,"public");
+        
+        new DBHelperBuilder().newDBHelper(defaultDs);
     }
 
     public DataSource getSysDataSource() {

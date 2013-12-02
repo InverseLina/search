@@ -15,12 +15,11 @@ import com.britesnow.snow.web.RequestContext;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DBHelper;
 
 @Singleton
 public class UserDao {
     @Inject
-    private DBHelper dbHelper;
+    private DaoHelper dbHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
     @Inject

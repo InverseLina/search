@@ -1,22 +1,75 @@
-package com.jobscience.search.db;
+package com.jobscience.search.dao;
 
-import com.google.common.base.Throwables;
-import com.google.inject.Inject;
-
-import javax.inject.Singleton;
-import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+
+import org.josql.DBHelperBuilder;
+import org.josql.Runner;
+
+import com.google.common.base.Throwables;
+import com.google.inject.Inject;
+import com.jobscience.search.db.DataSourceManager;
+
 @Singleton
-public class DBHelper {
+public class DaoHelper {
 
     @Inject
     private DataSourceManager dsMng;
 
+    public Runner openDefaultRunner(){
+        return new DBHelperBuilder().newDBHelper(dsMng.getDefaultDataSource()).newRunner();
+    }
+    
+    public Runner openNewSysRunner(){
+        return new DBHelperBuilder().newDBHelper(dsMng.getSysDataSource()).newRunner();
+    }
+    
+    public Runner openNewOrgRunner(String orgName){
+        return new DBHelperBuilder().newDBHelper(dsMng.getOrgDataSource(orgName)).newRunner();
+    }
+    
+    // ---------  excuteQuery --------- //
+    public List<Map> executeQuery(String orgName,String query) {
+        return executeQuery(openNewOrgRunner(orgName), query);
+    }
+    
+    public List<Map> executeQuery(String orgName,  String query, Object... vals) {
+        return executeQuery(openNewOrgRunner(orgName), query, vals);
+    }
+    
+    public List<Map> executeQuery(Runner runner,String sql,Object... vals){
+        try{
+            return runner.executeQuery(sql, vals);
+        }finally{
+            runner.close();
+        }
+    }
+    // --------- /excuteQuery --------- //
+    
+    
+    public int executeUpdate(Runner runner, String sql, Object... vals) {
+        try{
+            return runner.executeUpdate(sql, vals);
+        }finally{
+            runner.close();
+        }
+    }
+    
+    
+    
+    
+    // --------- Old methods --------- //
     public Connection openConnection(String orgName) {
         return openConnection(dsMng.getOrgDataSource(orgName));
     }
@@ -67,9 +120,7 @@ public class DBHelper {
         }
     }
 
-    public List<Map> executeQuery(String orgName,  String query) {
-        return executeQuery(dsMng.getOrgDataSource(orgName), query);
-    }
+   
     
     public List<Map> executeQuery(DataSource ds, String query) {
     	if(ds==null||query==null){
@@ -97,10 +148,7 @@ public class DBHelper {
         return results;
     }
 
-    public List<Map> executeQuery(String orgName,  String query, Object... vals) {
-        return executeQuery(dsMng.getOrgDataSource(orgName), query, vals);
-    }
-    
+
     public List<Map> executeQuery(DataSource ds, String query, Object... vals) {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -271,4 +319,6 @@ public class DBHelper {
 
         return results;
     }
+    
+    // --------- /Old methods --------- //
 }

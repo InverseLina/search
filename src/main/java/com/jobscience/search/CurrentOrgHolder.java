@@ -9,8 +9,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.OrgConfigDao;
-import com.jobscience.search.db.DBHelper;
 import com.jobscience.search.db.DataSourceManager;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class CurrentOrgHolder {
     @Inject
     private CurrentRequestContextHolder crh;
     @Inject
-    private DBHelper dbHelper;
+    private DaoHelper dbHelper;
     @Inject
     private DataSourceManager dm;
     @Inject

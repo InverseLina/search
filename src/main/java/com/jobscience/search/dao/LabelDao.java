@@ -5,12 +5,11 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DBHelper;
 
 public class LabelDao {
     
     @Inject
-    private DBHelper dbHelper;
+    private DaoHelper dbHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
     

@@ -3,9 +3,9 @@ package com.jobscience.search.dao;
 
 import com.google.inject.Singleton;
 import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.db.DBHelper;
 
 import javax.inject.Inject;
+
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class SavedSearchesDao {
     public static final String updateSql = "UPDATE savedsearches SET   update_date=?, search=?  WHERE name = ?";
 
     @Inject
-    private DBHelper dbHelper;
+    private DaoHelper dbHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
 

@@ -8,14 +8,13 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.db.DBHelper;
 import com.jobscience.search.db.DataSourceManager;
 
 @Singleton
 public class OrgConfigDao {
 
   @Inject
-  private DBHelper dbHelper;
+  private DaoHelper dbHelper;
   @Inject
   private DataSourceManager dm;
 
