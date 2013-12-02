@@ -19,7 +19,7 @@ import com.jobscience.search.CurrentOrgHolder;
 @Singleton
 public class UserDao {
     @Inject
-    private DaoHelper dbHelper;
+    private DaoHelper daoHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
     @Inject
@@ -44,11 +44,11 @@ public class UserDao {
     }
     
     public List<Map> getUserMap(String sfid){
-         return dbHelper.executeQuery(orgHolder.getOrgName(), selectSql, sfid);
+         return daoHelper.executeQuery(orgHolder.getOrgName(), selectSql, sfid);
     }
 
     public Map getUserByToken(String ctoken) {
-        List<Map> users = dbHelper.executeQuery(orgHolder.getOrgName(), selectByTokenSql, ctoken);
+        List<Map> users = daoHelper.executeQuery(orgHolder.getOrgName(), selectByTokenSql, ctoken);
         if (users.size() > 0) {
             return users.get(0);
         }else{
@@ -57,11 +57,11 @@ public class UserDao {
     }
 
    public void updateCToken(String sfid, String CToken) {
-       dbHelper.executeUpdate(orgHolder.getOrgName(), updateSql, CToken, sfid);
+       daoHelper.executeUpdate(orgHolder.getOrgName(), updateSql, CToken, sfid);
    }
    
    public void insertUser(String sfid, String CToken) {
-       dbHelper.executeUpdate(orgHolder.getOrgName(), insertSql, sfid, CToken);
+       daoHelper.executeUpdate(orgHolder.getOrgName(), insertSql, sfid, CToken);
    }
 
    public String checkAndUpdateUser(int type, String content, String token) {
