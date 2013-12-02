@@ -18,7 +18,7 @@ import com.jobscience.search.db.DataSourceManager;
 public class ConfigManager {
 
     @Inject
-    private DaoHelper dbHelper;
+    private DaoHelper daoHelper;
     @Inject
     private CurrentOrgHolder  orgHolder;
     @Inject
@@ -64,8 +64,8 @@ public class ConfigManager {
         }
         names.append("'-1')");
         sql.deleteCharAt(sql.length() - 1);
-        dbHelper.executeUpdate(dsMng.getSysDataSource(), format("delete from config where org_id = %s and  name in %s", id, names));
-        dbHelper.executeUpdate(dsMng.getSysDataSource(), format("insert into  config(org_id, name,value) values %s ", sql));
+        daoHelper.executeUpdate(daoHelper.openNewSysRunner(), format("delete from config where org_id = %s and  name in %s", id, names));
+        daoHelper.executeUpdate(daoHelper.openNewSysRunner(), format("insert into  config(org_id, name,value) values %s ", sql));
     }
 
     /**
@@ -96,7 +96,7 @@ public class ConfigManager {
         sql+=")";
         List<Map> configList = new ArrayList();
         try{
-          configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
+          configList = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql);
         }catch (Exception e) {
 			
 		}
@@ -115,7 +115,7 @@ public class ConfigManager {
      */
     public Map getConfig(String name) {
         String sql = "select * from config where name = ? and org_id = ? ";
-        List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(), sql, name, orgHolder.getId());
+        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql, name, orgHolder.getId());
         if (list.size() == 1) {
             return list.get(0);
         }else{

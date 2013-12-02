@@ -23,7 +23,7 @@ public class CurrentOrgHolder {
     @Inject
     private CurrentRequestContextHolder crh;
     @Inject
-    private DaoHelper dbHelper;
+    private DaoHelper daoHelper;
     @Inject
     private DataSourceManager dm;
     @Inject
@@ -86,9 +86,9 @@ public class CurrentOrgHolder {
                     if (orgName != null) {
                         map = orgMap.get(orgName);
                         if (map == null) {
-                            List<Map> list = dbHelper.executeQuery(dm.getSysDataSource(), 
-                                                                   "select * from org where name = ?",
-                                                                   orgName);
+                            List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+                                    "select * from org where name = ?",
+                                    orgName);
                             if (list.size() > 0){
                                 map = list.get(0);
                             }
@@ -116,7 +116,7 @@ public class CurrentOrgHolder {
      * @param sfid
      */
     public void setOrg(String ctoken, String sfid) {
-        List<Map> list = dbHelper.executeQuery(dm.getSysDataSource(), "select * from org where sfid = ?", sfid);
+        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select * from org where sfid = ?", sfid);
         if (list.size() > 0) {
             cache.put(ctoken, list.get(0));
         }

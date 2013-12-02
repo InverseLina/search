@@ -1,7 +1,5 @@
 package com.jobscience.search.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +12,11 @@ import com.jobscience.search.db.DataSourceManager;
 public class OrgConfigDao {
 
   @Inject
-  private DaoHelper dbHelper;
+  private DaoHelper daoHelper;
   @Inject
   private DataSourceManager dm;
 
   public void saveOrUpdateOrg(Map<String,String> params) throws SQLException{
-      Connection con = dbHelper.openConnection(dm.getSysDataSource());
       String sql = "";
       if(params.size() > 0 && !"".equals(params.get("id"))&&params.get("id")!=null){
           sql =  "update org set name = '"+params.get("name")+"',schemaname = '" +
@@ -28,32 +25,25 @@ public class OrgConfigDao {
           sql = " insert into org(name,schemaname,sfid) values ('"+
                   params.get("name")+"','"+params.get("schemaname")+"','"+params.get("sfid")+"')";
       }
-      PreparedStatement statement = con.prepareStatement(sql);
-      statement.executeUpdate();
-      statement.close();
-      con.close();
+      daoHelper.executeUpdate(daoHelper.openNewSysRunner(), sql);
   }
   
   public void deleteOrg(String id) throws SQLException{
-      Connection con = dbHelper.openConnection(dm.getSysDataSource());
-      PreparedStatement statement = con.prepareStatement("delete from org where id  = "+id);
-      statement.executeUpdate();
-      statement.close();
-      con.close();
+      daoHelper.executeUpdate(daoHelper.openNewSysRunner(), "delete from org where id  = "+id);
   }
   
   public Object getOrg(String id){
       String sql = "select * from org where id="+id;
-      return dbHelper.executeQuery(dm.getSysDataSource(), sql);
+      return daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql);
   }
   
   public List<Map> getOrgByName(String name){
       String sql = "select * from org where name='"+name+"'";
-      return dbHelper.executeQuery(dm.getSysDataSource(), sql);
+      return daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql);
   }
   
   public List getOrgsList(String keyWords){
       String sql = "select * from org";
-      return dbHelper.executeQuery(dm.getSysDataSource(), sql);
+      return daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql);
   }
 }

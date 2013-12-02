@@ -1,10 +1,7 @@
 package com.jobscience.search.db;
 
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
+import java.sql.*;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +28,7 @@ public class DataSourceManager {
     private String pwd;
     private String sysSchema = "jss_sys";
     @Inject
-    private DaoHelper dbHelper;
+    private DaoHelper daoHelper;
     private  DataSource publicDataSource;
     @Inject
     public void init(@Named("jss.db.url") String url,
@@ -63,7 +60,7 @@ public class DataSourceManager {
      */
     public DataSource createSysSchemaIfNecessary() {
     	if(!checkSysSchema()){
-    		dbHelper.executeUpdate(defaultDs, "CREATE SCHEMA "+sysSchema+" AUTHORIZATION "+user,new Object[0]);
+    		daoHelper.executeUpdate(daoHelper.openDefaultRunner(), "CREATE SCHEMA "+sysSchema+" AUTHORIZATION "+user,new Object[0]);
     		if(sysDs==null){
     			sysDs = buildDs(url, sysSchema);
     		}
@@ -74,7 +71,7 @@ public class DataSourceManager {
     public DataSource getOrgDataSource(String orgName) {
         DataSource ds = dsMap.get(orgName);
         if (ds == null) {
-            List<Map> list = dbHelper.executeQuery(sysDs, "select * from org where name =?", orgName);
+            List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select * from org where name =?", orgName);
             if (list.size() > 0) {
                 String schema = (String) list.get(0).get("schemaname");
                 ds = buildDs(url, schema);
@@ -105,13 +102,38 @@ public class DataSourceManager {
     }
 
     public  boolean checkSysSchema(){
-    	List<Map> list = dbHelper.executeQuery(getDefaultDataSource(), "select count(*) as count from information_schema.schemata" +
-        		" where schema_name='"+sysSchema+"'");
-    	if(list.size()==1){
-    		if("1".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
+        String sql = "select count(*) as count from information_schema.schemata where schema_name='"+sysSchema+"'";
+        Connection conn = null;
+        PreparedStatement ppst = null;
+        try {
+            conn = defaultDs.getConnection();
+            ppst = conn.prepareStatement(sql);
+            ResultSet rs = ppst.executeQuery();
+            if (rs.next()) {
+               if(rs.getInt("count")==1){
+                   return true;
+               }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (ppst != null) {
+                try {
+                    ppst.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    //
+                }
+
+            }
+        }
+
     	return false;
     }
     
@@ -143,10 +165,10 @@ class DataSourceWrapper implements DataSource {
     @Override
     public Connection getConnection() throws SQLException {
         Connection con = ds.getConnection();
-        return intConnection(con);
+        return initConnection(con);
     }
 
-    private Connection intConnection(Connection con) {
+    private Connection initConnection(Connection con) {
         PreparedStatement pstmt = null;
         try {
         	if(schema!=null){
@@ -170,7 +192,7 @@ class DataSourceWrapper implements DataSource {
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         Connection con = ds.getConnection(username, password);
-        return intConnection(con);
+        return initConnection(con);
     }
 
     @Override
