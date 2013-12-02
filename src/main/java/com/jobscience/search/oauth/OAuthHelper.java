@@ -12,7 +12,6 @@ import com.google.inject.Singleton;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.DaoHelper;
-import com.jobscience.search.db.DataSourceManager;
 import com.jobscience.search.oauth.api.ForceDotComApi;
 
 @Singleton
@@ -20,9 +19,7 @@ public class OAuthHelper {
     @Inject
     private ConfigManager configManager;
     @Inject
-    private DaoHelper dbHelper;
-    @Inject
-    private DataSourceManager dsMng;
+    private DaoHelper daoHelper;
     @Inject
     private DBSetupManager dbSetupManager;
 
@@ -40,7 +37,7 @@ public class OAuthHelper {
     	List<Map> list = new ArrayList();
 	    if(dbSetupManager.checkSysTables().contains("config")){
 	        String sql = "select * from config  where org_id = -1 ";
-	        List<Map> configList = dbHelper.executeQuery(dsMng.getSysDataSource(), sql);
+	        List<Map> configList = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql);
 	        if (configList != null && configList.size() > 0) {
 	            list = configList;
 	        }
