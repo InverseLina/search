@@ -18,7 +18,7 @@ public class IndexerManager {
 	 */
 	 private volatile boolean on = false;
 	 @Inject
-	 private DaoHelper dbHelper;
+	 private DaoHelper daoHelper;
 	 @Inject
 	 private CurrentRequestContextHolder currentRequestContextHolder;
 	 
@@ -59,7 +59,7 @@ public class IndexerManager {
 	    	indexerStatus = new IndexerStatus(all-perform, perform);
 	    }
 	    while(indexerStatus.getRemaining()>0&&on){
-	    	dbHelper.executeUpdate(orgName,insertSql+" limit ?", 1000);
+	    	daoHelper.executeUpdate(orgName,insertSql+" limit ?", 1000);
 	    	int perform = getContactExCount(orgName);
 	    	indexerStatus = new IndexerStatus(indexerStatus.getPerform()+indexerStatus.getRemaining()-perform, perform);
 	    }
@@ -79,7 +79,7 @@ public class IndexerManager {
 		return indexerStatus;
 	 }
 	 private int getContactsCount(String orgName){
-    	List<Map> list = dbHelper.executeQuery(orgName, "select count(*) as count from contact");
+    	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact");
     	if(list.size()==1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}
@@ -87,7 +87,7 @@ public class IndexerManager {
 	 }
 	    
 	 private int getContactExCount(String orgName){
-    	List<Map> list = dbHelper.executeQuery(orgName, "select count(*) as count from contact_ex");
+    	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact_ex");
     	if(list.size()==1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}

@@ -33,7 +33,7 @@ import com.jobscience.search.db.DataSourceManager;
 public class DBSetupManager {
 
     @Inject
-    private DaoHelper dbHelper;
+    private DaoHelper daoHelper;
     @Inject
     private CurrentRequestContextHolder currentRequestContextHolder;
     @Named("zipcode.path")
@@ -197,7 +197,7 @@ public class DBSetupManager {
     private boolean checkColumn(String columnName,String table,String schemaName) throws SQLException{
         boolean result = false;
         
-        List list = dbHelper.executeQuery(dbHelper.openDefaultRunner(), " select 1 from information_schema.columns " + " where table_name =? and table_schema=?  and column_name=? ", table, schemaName, columnName);
+        List list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), " select 1 from information_schema.columns " + " where table_name =? and table_schema=?  and column_name=? ", table, schemaName, columnName);
         if (list.size() > 0) {
             result = true;
         }
@@ -215,7 +215,7 @@ public class DBSetupManager {
     		return true;
     	}
     	
-    	dbHelper.executeUpdate(dbHelper.openDefaultRunner(), "CREATE extension "+extName+"  with schema pg_catalog;");
+    	daoHelper.executeUpdate(daoHelper.openDefaultRunner(), "CREATE extension "+extName+"  with schema pg_catalog;");
 		return result;
     }
     /**
@@ -233,7 +233,7 @@ public class DBSetupManager {
             List subSqlList = loadSQLFile(file);
             allSqls.addAll(subSqlList);
         }
-        Runner runner = dbHelper.openNewSysRunner();
+        Runner runner = daoHelper.openNewSysRunner();
         try {
             runner.startTransaction();
             for(String sql : allSqls){
@@ -263,7 +263,7 @@ public class DBSetupManager {
      * @return
      */
     public  String checkSysTables(){
-    	List<Map> list = dbHelper.executeQuery(dbHelper.openDefaultRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
+    	List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
         		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
     	if(list.size()==1){
     	    String names = (String)list.get(0).get("names");
@@ -292,7 +292,7 @@ public class DBSetupManager {
 	            allSqls.addAll(subSqlList);
         	}
         }
-        Runner runner = dbHelper.openNewOrgRunner(orgName);
+        Runner runner = daoHelper.openNewOrgRunner(orgName);
         try {
             runner.startTransaction();
             for(String sql : allSqls){
@@ -337,7 +337,7 @@ public class DBSetupManager {
           m.put(tableName.toString(), JSONArray.fromObject(indexesObj.get(tableName)));
        }
        
-       Runner runner = dbHelper.openNewOrgRunner(orgName);
+       Runner runner = daoHelper.openNewOrgRunner(orgName);
        try {
            if(contactEx&&m.get("contact_ex")!=null){
                JSONArray ja = m.get("contact_ex");
@@ -421,7 +421,7 @@ public class DBSetupManager {
                 "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
                 "'ex_grouped_employers_name') and schemaname=current_schema ")
                 .append(contactEx?" and tablename='contact_ex' ":" and tablename<>'contact_ex' ");
-    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewOrgRunner(orgName), sql.toString());
+    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());
     	}
@@ -445,7 +445,7 @@ public class DBSetupManager {
                 "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
                 "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
                 " and indexname not ilike '%pkey%' and schemaname=current_schema ");
-        List<Map> list = dbHelper.executeQuery(dbHelper.openNewOrgRunner(orgName), sql.toString());
+        List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
         if(list.size()==1){
                 return list.get(0).get("indexes")==null?"":list.get(0).get("indexes").toString();
         }
@@ -469,9 +469,9 @@ public class DBSetupManager {
                 "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
                 "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
                 " and indexname not ilike '%pkey%' and schemaname=current_schema ");
-        List<Map> list = dbHelper.executeQuery(dbHelper.openNewOrgRunner(orgName), sql.toString());
+        List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
         
-        Runner runner = dbHelper.openNewOrgRunner(orgName);
+        Runner runner = daoHelper.openNewOrgRunner(orgName);
         try{
             for(Map m:list){
                 runner.executeUpdate(" drop index "+m.get("indexname")+" ;");
@@ -528,7 +528,7 @@ public class DBSetupManager {
     	if(zipcodeLoadCount==null){
     		zipcodeLoadCount = 43191;//doUpdateZipCode(false);
     	}
-    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewSysRunner(), "select count(*) as count from zipcode_us");
+    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select count(*) as count from zipcode_us");
     	if(list.size()==1){
     		if(list.get(0).get("count").toString().equals(zipcodeLoadCount+"")){
     			return true;
@@ -554,7 +554,7 @@ public class DBSetupManager {
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = br.readLine();
 			String prefix = "INSERT INTO jss_sys.zipcode_us ("+line+") values ";
-			Runner runner = dbHelper.openDefaultRunner();
+			Runner runner = daoHelper.openDefaultRunner();
 			try{
 			    runner.startTransaction();
 				line = br.readLine();
@@ -594,7 +594,7 @@ public class DBSetupManager {
      * @return
      */
     private String checkOrgIndex(String orgName){
-    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewOrgRunner(orgName), 
+    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), 
     	            "select string_agg(indexname,',') as names from pg_indexes " +
     	            "where indexname in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
                     "'contact_name_gin','contact_firstname_gin'," +
@@ -623,7 +623,7 @@ public class DBSetupManager {
      * @return
      */
     private boolean checkExtension(String extName){
-    	List<Map> list = dbHelper.executeQuery(dbHelper.openDefaultRunner(), "select count(*) as count from pg_catalog.pg_extension" +
+    	List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select count(*) as count from pg_catalog.pg_extension" +
         		" where extname='"+extName+"' ");
     	if(list.size()==1){
     		if("1".equals(list.get(0).get("count").toString())){
@@ -644,7 +644,7 @@ public class DBSetupManager {
     	if(orgs.size()==1){
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
-    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewSysRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
+    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
         		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','contact_ex','savedsearches','user','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers','ex_grouped_locations')");
     	if(list.size()==1){
             String names = (String)list.get(0).get("names");
@@ -667,7 +667,7 @@ public class DBSetupManager {
     	if(orgs.size()==1){
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
-    	List<Map> list = dbHelper.executeQuery(dbHelper.openNewSysRunner(), "select count(*) as count from information_schema.schemata" +
+    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select count(*) as count from information_schema.schemata" +
         		" where schema_name='"+schemaname+"'");
     	if(list.size()==1){
     		if("1".equals(list.get(0).get("count").toString())){
@@ -689,7 +689,7 @@ public class DBSetupManager {
     	if(orgs.size()==1){
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
-    	List<Map> list = dbHelper.executeQuery(dsMng.getSysDataSource(),  "select count(*) as count from information_schema.tables" +
+    	List<Map> list = daoHelper.executeQuery(dsMng.getSysDataSource(),  "select count(*) as count from information_schema.tables" +
         		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name ='"+table+"'");
     	if(list.size()==1){
     		if("1".equals(list.get(0).get("count").toString())){
@@ -724,7 +724,7 @@ public class DBSetupManager {
                allSqls.addAll(subSqlList);
            }
        }
-       Runner runner = dbHelper.openNewOrgRunner(orgName);
+       Runner runner = daoHelper.openNewOrgRunner(orgName);
        try {
            runner.startTransaction();
            for(String sql : allSqls){
