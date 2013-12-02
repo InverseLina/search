@@ -39,7 +39,7 @@ public class DaoHelper {
         return new DBHelperBuilder().newDBHelper(dsMng.getOrgDataSource(orgName)).newRunner();
     }
     
-    // ---------  excuteQuery --------- //
+    // ---------  query method --------- //
     public List<Map> executeQuery(String orgName,String query) {
         return executeQuery(openNewOrgRunner(orgName), query);
     }
@@ -55,8 +55,12 @@ public class DaoHelper {
             runner.close();
         }
     }
-    // --------- /excuteQuery --------- //
+    // --------- /query method --------- //
     
+    // --------- update method -------- //
+    public int executeUpdate(String orgName, String query, Object... vals) {
+        return executeUpdate(openNewOrgRunner(orgName), query, vals);
+    }
     
     public int executeUpdate(Runner runner, String sql, Object... vals) {
         try{
@@ -65,9 +69,21 @@ public class DaoHelper {
             runner.close();
         }
     }
+    // --------- /update method -------- //
     
+    // --------- insert method -------- //
+    public Object insert(String orgName, String sql, Object... vals){
+       return insert(openNewOrgRunner(orgName), sql, vals);
+    }
     
-    
+    public Object insert(Runner runner, String sql, Object... vals){
+        try{
+            return runner.executeInsert(sql, vals);
+        }finally{
+            runner.close();
+        }
+    }
+    // --------- /insert method -------- //
     
     // --------- Old methods --------- //
     public Connection openConnection(String orgName) {
@@ -176,9 +192,7 @@ public class DaoHelper {
         }
     }
     
-    public int executeUpdate(String orgName, String query, Object... vals) {
-        return executeUpdate(dsMng.getOrgDataSource(orgName), query, vals);
-    }
+   
 
     public int executeUpdate(DataSource ds, String query, Object... vals) {
         Connection con = null;
