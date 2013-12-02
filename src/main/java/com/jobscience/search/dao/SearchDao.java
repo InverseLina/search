@@ -1,7 +1,5 @@
 package com.jobscience.search.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +12,11 @@ import javax.inject.Singleton;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.josql.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
@@ -33,7 +31,7 @@ public class SearchDao {
     private Logger log = LoggerFactory.getLogger(SearchDao.class);
     
     @Inject
-    private DaoHelper      dbHelper;
+    private DaoHelper      daoHelper;
 
     @Inject
     private CurrentOrgHolder orgHolder;
@@ -56,15 +54,16 @@ public class SearchDao {
      */
     public SearchResult search(String searchColumns,Map<String, String> searchValues,
     		Integer pageIdx, Integer pageSize,String orderCon) {
-        Connection con = dbHelper.openPublicConnection();
+        Runner runner = daoHelper.openDefaultRunner();
+        
         //builder statements
         SearchStatements statementAndValues = 
-        		buildSearchStatements(con,searchColumns,searchValues, pageIdx, pageSize,orderCon);
+        		buildSearchStatements(searchColumns,searchValues, pageIdx, pageSize,orderCon);
         //excute query and caculate times
         long start = System.currentTimeMillis();
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(statementAndValues.queryStmt, statementAndValues.values);
+        List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
         long mid = System.currentTimeMillis();
-        int count = dbHelper.preparedStatementExecuteCount(statementAndValues.countStmt, statementAndValues.values);
+        int count =  runner.executeCount(statementAndValues.countSql, statementAndValues.values);
         long end = System.currentTimeMillis();
 
         queryLogger.debug(LoggerType.SEARCH_PERF,mid - start);
@@ -74,13 +73,7 @@ public class SearchDao {
         							.setDuration(end - start)
         							.setSelectDuration(mid - start)
         							.setCountDuration(end - mid);
-        try {
-            statementAndValues.countStmt.close();
-            statementAndValues.queryStmt.close();
-            con.close();
-        } catch (SQLException e) {
-            throw Throwables.propagate(e);
-        }
+        runner.close();
         searchResult.setPageIdx(pageIdx);
         searchResult.setPageSize(pageSize);
         return searchResult;
@@ -120,11 +113,10 @@ public class SearchDao {
         }
         querySql.append(" order by count desc limit 7 ");
         Long start = System.currentTimeMillis();
-        Connection con = dbHelper.openConnection(orgHolder.getOrgName());
-        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
-        prepareStatement.close();
-        con.close();
+        Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
+         
+        List<Map> result =runner.executeQuery(querySql.toString());
+        runner.close();
         Long end = System.currentTimeMillis();
         //log for performance
 
@@ -779,7 +771,7 @@ public class SearchDao {
      * @param searchValues
      * @return SearchStatements
      */
-    private SearchStatements buildSearchStatements(Connection con,String searchColumns, Map<String, String> searchValues,
+    private SearchStatements buildSearchStatements(String searchColumns, Map<String, String> searchValues,
                                                    Integer pageIdx, Integer pageSize,String orderCon) {
         SearchStatements ss = new SearchStatements();
 
@@ -880,9 +872,9 @@ public class SearchDao {
         queryLogger.debug(LoggerType.SEARCH_COUNT_SQL, countSql);
         queryLogger.debug(LoggerType.PARAMS, searchValues);
         // build the statement
-        ss.queryStmt = dbHelper.prepareStatement(con,cteSql+" "+querySql.toString());
-        ss.countStmt = dbHelper.prepareStatement(con,cteSql+" "+countSql.toString());
-        ss.cteStmt =   dbHelper.prepareStatement(con,cteSql);
+        ss.querySql = cteSql+" "+querySql.toString();
+        ss.countSql =cteSql+" "+countSql.toString();
+        ss.cteSql =   cteSql;
         ss.values = values.toArray();
         return ss;
     }
@@ -1120,7 +1112,7 @@ public class SearchDao {
             size = 7;
         }
         offset = offset < 0 ? 0 : offset;
-        Connection con = dbHelper.openConnection(orgHolder.getOrgName());
+        Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
         String name = getNameExpr(type);
         String table = getTable(type);
         StringBuilder querySql =new StringBuilder();
@@ -1155,10 +1147,8 @@ public class SearchDao {
 	                 append(" limit ").
 	                 append(size);
         }
-        PreparedStatement prepareStatement =   dbHelper.prepareStatement(con,querySql.toString());
-        List<Map> result = dbHelper.preparedStatementExecuteQuery(prepareStatement);
-        prepareStatement.close();
-        con.close();
+        List<Map> result =runner.executeQuery(querySql.toString());
+        runner.close();
         return result;
     }
     
@@ -1262,10 +1252,10 @@ public class SearchDao {
 }
 
 class SearchStatements {
-
-    PreparedStatement cteStmt;
-    PreparedStatement queryStmt;
-    PreparedStatement countStmt;
+    
+    String cteSql;
+    String querySql;
+    String countSql;
     Object[]          values;
 
 }
