@@ -23,33 +23,33 @@ public class SavedSearchesDao {
     public static final String updateSql = "UPDATE savedsearches SET   update_date=?, search=?  WHERE name = ?";
 
     @Inject
-    private DaoHelper dbHelper;
+    private DaoHelper daoHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
 
     public List<Map> list(int offset, int limit) {
-        return dbHelper.executeQuery(orgHolder.getOrgName(), getSql, offset, limit);
+        return daoHelper.executeQuery(orgHolder.getOrgName(), getSql, offset, limit);
     }
 
     public void save(String name, String content){
-        List<Map> list = dbHelper.executeQuery(orgHolder.getOrgName(), getByNameSql, name);
+        List<Map> list = daoHelper.executeQuery(orgHolder.getOrgName(), getByNameSql, name);
         if(list.size()==0){
-            dbHelper.executeUpdate(orgHolder.getOrgName(), insertSql, new Timestamp(System.currentTimeMillis()), name, content);
+            daoHelper.executeUpdate(orgHolder.getOrgName(), insertSql, new Timestamp(System.currentTimeMillis()), name, content);
         }else{
-            dbHelper.executeUpdate(orgHolder.getOrgName(),updateSql, new Timestamp(System.currentTimeMillis()), content, name);
+            daoHelper.executeUpdate(orgHolder.getOrgName(), updateSql, new Timestamp(System.currentTimeMillis()), content, name);
         }
     }
 
     public void delete(Long id){
-        dbHelper.executeUpdate(orgHolder.getOrgName(),deleteSql, id);
+        daoHelper.executeUpdate(orgHolder.getOrgName(), deleteSql, id);
     }
 
     public int count(String name) {
-        return dbHelper.executeQuery(orgHolder.getOrgName(), getByNameSql, name).size();
+        return daoHelper.executeQuery(orgHolder.getOrgName(), getByNameSql, name).size();
     }
 
     public Map get(Long id) {
-       List<Map> list = dbHelper.executeQuery(orgHolder.getOrgName(), getByIDSql, id);
+       List<Map> list = daoHelper.executeQuery(orgHolder.getOrgName(), getByIDSql, id);
         if (list.size() > 0) {
             return list.get(0);
         }else{
