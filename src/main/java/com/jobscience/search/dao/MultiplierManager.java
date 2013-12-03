@@ -97,7 +97,9 @@ public class MultiplierManager {
             Long perform = 0L;
             performCounts = perform;
             currentTime++;
+            
             while(origin_count-perform>10000){
+                System.out.println("select multiplydata("+perform+",10000,"+current_iteration_number+",'"+tableName+"')");
                 daoHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'"+tableName+"')");
                 perform+=10000;
                 performCounts = perform;
