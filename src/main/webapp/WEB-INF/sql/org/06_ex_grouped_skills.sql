@@ -5,7 +5,7 @@
   count bigint,
   name character varying(150),
   CONSTRAINT ex_grouped_skills_pkey PRIMARY KEY (id)
-)
+);
 
 -- SCRIPTS
 
