@@ -39,7 +39,6 @@ public class OauthWebHandlers {
      */
     @WebModelHandler(startsWith="/sf1")
     public void authorize(RequestContext rc) {
-        rc.removeCookie("doSf1Test");
         String url = forceAuthService.getAuthorizationUrl();
         throw new AbortWithHttpRedirectException(url);
     }

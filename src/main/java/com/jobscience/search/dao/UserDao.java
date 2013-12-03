@@ -104,7 +104,7 @@ public class UserDao {
 
     public  String buildCToken(String sfid) {
         if (sfid != null) {
-            return RandomStringUtils.random(32, sfid);
+            return "SF" + RandomStringUtils.random(32, sfid);
         }else {
             return RandomStringUtils.random(32,"01234567890abcdedfhijklmnopqrst");
         }
