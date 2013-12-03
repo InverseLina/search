@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.britesnow.snow.web.AbortWithHttpRedirectException;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.name.Named;
@@ -91,6 +92,8 @@ public class AppAuthRequest implements AuthRequest {
                     ctoken = userDao.buildCToken(null);
                     userDao.insertUser(null, ctoken);
                     rc.setCookie("ctoken", ctoken);
+                }catch (AbortWithHttpRedirectException ar){
+                    throw ar;
                 } catch (Exception e) {
                     log.warn("add user fail");
                 }

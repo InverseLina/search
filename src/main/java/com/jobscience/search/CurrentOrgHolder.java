@@ -2,6 +2,7 @@ package com.jobscience.search;
 
 import javax.inject.Inject;
 
+import com.britesnow.snow.web.AbortWithHttpRedirectException;
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.britesnow.snow.web.RequestContext;
 import com.google.common.cache.Cache;
@@ -92,6 +93,11 @@ public class CurrentOrgHolder {
                                 map = list.get(0);
                             }
                             orgMap.put(orgName, map);
+                        }
+                        if(map.get("sfid") != null&&((String)map.get("sfid")).length()>0){
+                              //forece sf1 test
+                            rc.removeCookie("org");
+                            throw new AbortWithHttpRedirectException("/sf1");
                         }
                     }
                 }
