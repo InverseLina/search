@@ -63,6 +63,7 @@
           values["orgId"] = view.orgId;
           configs["instance_url"] = view.$el.find("[name='instance_url']").val();
           configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();
+          configs["canvasapp_secret"] = view.$el.find("[name='canvasapp_secret']").val();
 
           values.configsJson = JSON.stringify(configs);
           app.getJsonData("/config/save", values, "Post").done(function(data) {

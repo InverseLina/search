@@ -9,15 +9,15 @@ import com.britesnow.snow.web.param.annotation.WebModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.canvas.SignedRequest;
+import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.UserDao;
-import com.jobscience.search.oauth.OAuthHelper;
 
 @Singleton
 public class CanvasWebHandler {
     @Inject
     private UserDao userDao;
     @Inject
-    private OAuthHelper oAuthHelper;
+    private ConfigManager configManager;
     
     @WebModelHandler(startsWith = "/sf2")
     public void canvasApp(@WebModel Map m, RequestContext rc) {
@@ -25,7 +25,8 @@ public class CanvasWebHandler {
         String signedRequest = rc.getParam("signed_request");
 
         if (signedRequest != null) {
-            String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, oAuthHelper.getApiSecret());
+            Map<String, String> map = configManager.getConfig("canvasapp_secret");
+            String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, map.get("value"));
             m.put("signedRequestJson", signedRequestJson);
             try {
                 userDao.checkAndUpdateUser(2, signedRequestJson, null);

@@ -152,7 +152,6 @@
     	  var view = this;
     	  var values = {};
     	  var configs = {};
-    	  configs["config_canvasapp_secret"]=view.$el.find("[name='config_canvasapp_secret']").val();
     	      configs["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
     	      configs["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
               var callbackUrl = $.trim(view.$el.find("[name='config_callBackUrl']").val());

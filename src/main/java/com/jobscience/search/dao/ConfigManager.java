@@ -23,9 +23,6 @@ public class ConfigManager {
     private CurrentOrgHolder  orgHolder;
 
     @Inject
-    @Named("salesforce.canvasapp.secret")
-    private String canvasappSecret;
-    @Inject
     @Named("saleforce.apiKey")
     private String apiKey;
     @Inject
@@ -130,14 +127,11 @@ public class ConfigManager {
      */
     public List checkSaleforceInfo(List<Map> list) {
         if (list.size() > 0) {
-            boolean isCanvasappSecret = false;
             boolean isApiKey = false;
             boolean isApiSecret = false;
             boolean isCallBackUrl = false;
             for (Map<String,String> map : list) {
-                if ("config_canvasapp_secret".equals(map.get("name")) && !"".equals(map.get("value"))) {
-                    isCanvasappSecret = true;
-                } else if ("config_apiKey".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
+                if ("config_apiKey".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isApiKey = true;
                 } else if ("config_apiSecret".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isApiSecret = true;
@@ -146,11 +140,6 @@ public class ConfigManager {
                 }
             }
             Map map1 = new HashMap();
-            if (!isCanvasappSecret) {
-                map1.put("name", "config_canvasapp_secret");
-                map1.put("value", canvasappSecret);
-                list.add(map1);
-            }
             if (!isApiKey) {
                 map1 = new HashMap();
                 map1.put("name", "config_apiKey");
@@ -171,10 +160,6 @@ public class ConfigManager {
             }
         } else {
             Map map = new HashMap();
-            map.put("name", "config_canvasapp_secret");
-            map.put("value", canvasappSecret);
-            list.add(map);
-            map = new HashMap();
             map.put("name", "config_apiKey");
             map.put("value", apiKey);
             list.add(map);
