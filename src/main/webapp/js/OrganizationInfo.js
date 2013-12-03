@@ -60,6 +60,7 @@
           configs["action_add_to_sourcing"] = view.$el.find("[name='action_add_to_sourcing']").prop("checked");
           configs["action_favorite"] = view.$el.find("[name='action_favorite']").prop("checked");
           configs["skill_assessment_rating"] = view.$el.find("[name='skill_assessment_rating']").prop("checked");
+          configs["advanced_auto_complete"] = view.$el.find("[name='advanced_auto_complete']").prop("checked");
           values["orgId"] = view.orgId;
           configs["instance_url"] = view.$el.find("[name='instance_url']").val();
           configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();

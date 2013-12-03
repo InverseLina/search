@@ -92,8 +92,113 @@ public class SearchDao {
      * @throws SQLException
      */
     public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
-        return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum);
+        Map m = configManager.getConfig("advanced_auto_complete");
+        Boolean advancedAutoComplete  = false;
+        if(m!=null){
+            advancedAutoComplete= "true".equals(m.get("value"));
+        }
+        if(!advancedAutoComplete){
+            return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum);
+        }
+        return advancedAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum);
     }
+    
+    public SearchResult advancedAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
+        StringBuilder querySql = new StringBuilder();
+        StringBuilder groupBy = new StringBuilder();
+        String column = null;
+        String baseTableIns = null;
+        querySql.append("select result.name, count(*) as count from ( select ");
+        String baseTable = new String();
+        List values = new ArrayList();
+        String schemaname = orgHolder.getSchemaName();
+        
+        if(type.equals("company")){
+            baseTable = schemaname+".ts2__employment_history__c ";
+            baseTableIns = "c";
+            column = " c.\"ts2__contact__c\" as id, c.\"ts2__name__c\" as name";
+            groupBy.append(" group by c.\"ts2__contact__c\", c.\"ts2__name__c\" ");
+        }else if(type.equals("education")){
+            baseTableIns = "d";
+            baseTable = schemaname+".ts2__education_history__c ";
+            groupBy.append(" group by d.\"ts2__contact__c\", d.\"ts2__name__c\" ");
+            column = " d.\"ts2__contact__c\" as id, d.\"ts2__name__c\" as name";
+        }else if(type.equals("skill")){
+            baseTableIns = "b";
+            baseTable = schemaname+".ts2__skill__c ";
+            groupBy.append(" group by b.\"ts2__contact__c\", b.\"ts2__skill_name__c\" ");
+            column = " b.\"ts2__contact__c\" as id, b.\"ts2__skill_name__c\" as name";
+        }else if(type.equals("location")){
+            baseTableIns = "z";
+            baseTable = " jss_sys.zipcode_us ";
+            column = " z.\"city\" as name ";
+        }
+        
+        querySql.append(column);
+        querySql.append(" from ");
+            
+        String appendJoinTable = "";
+        
+        //this flag is used to check if need join with ts2__assessment__c
+        boolean skill_assessment_rating = false;
+        
+        //------- get the skill_assessment_rating config for current org ----------//
+        if(min!=null&&!"0".equals(min)&&type.equals("skill")){
+           Map m = configManager.getConfig("skill_assessment_rating");
+                  if(m==null||!("true".equals((String)m.get("value")))){
+                          skill_assessment_rating = false;
+                  }else{
+                          skill_assessment_rating = true;
+                  }
+                  appendJoinTable=(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
+        }
+        //-------- /get the skill_assessment_rating config for current org ---------//
+        
+        querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable)[0]);
+        
+        //if has min year or min raidus or min rating,need do filter for this
+        if(min!=null&&!"0".equals(min)){
+                if(type.equals("company")){
+                         querySql.append("  AND EXTRACT(year from age(c.\"ts2__employment_end_date__c\",c.\"ts2__employment_start_date__c\"))>="+min);
+                }else if(type.equals("education")){
+                         querySql.append("  AND EXTRACT(year from age(now(),d.\"ts2__graduationdate__c\"))>="+min);
+                }else if(type.equals("skill")){
+                           if(skill_assessment_rating){
+                                   querySql.append("  AND ass.\"ts2__rating__c\" >="+min);
+                           }else{
+                                   querySql.append("  AND b.\"ts2__rating__c\" >="+min);
+                           }
+                }else if(type.equals("location")){
+                         querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))/1000<="+min);
+                }
+        }
+        //add group by statement
+        if(!"".equals(groupBy.toString())){
+            querySql.append(groupBy);
+        }
+
+        if(orderByCount){//order by count
+            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
+        }else{//order by name
+            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
+        }
+        if(log.isDebugEnabled()){
+            log.debug(querySql.toString());
+        }
+        Long start = System.currentTimeMillis();
+        Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
+        List<Map> result =runner.executeQuery(querySql.toString(),values.toArray());
+        runner.close();
+        Long end = System.currentTimeMillis();
+
+        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
+        queryLogger.debug(LoggerType.AUTO_PERF, end-start);
+        SearchResult searchResult = new SearchResult(result, result.size());
+        searchResult.setDuration(end - start);
+        searchResult.setSelectDuration(searchResult.getDuration());
+        return searchResult;
+    }
+    
     public SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
 
         String baseTable = "";
@@ -975,12 +1080,18 @@ public class SearchDao {
      * @return
      */
     private String getSearchValueJoinTable(String searchValue, List values,String alias){
-	    StringBuilder joinSql = new StringBuilder();
-	    joinSql.append(" select * from (");
-	    joinSql.append(booleanSearchHandler(searchValue, null, values));
-	    //joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
-	    joinSql.append(")  con ");
-	    return joinSql.toString();
+        StringBuilder joinSql = new StringBuilder();
+        if("a".equals(alias)){
+            joinSql.append(" right join (");
+            joinSql.append(booleanSearchHandler(searchValue, null, values));
+            joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
+            return joinSql.toString();
+        }else{
+            joinSql.append(" select * from (");
+    	    joinSql.append(booleanSearchHandler(searchValue, null, values));
+    	    joinSql.append(")  con ");
+    	    return joinSql.toString();
+	    }
     }
     
     
