@@ -462,7 +462,7 @@
 	    		  var tableInfo = "";
 	    		  for(var table in result.tables){
 	    			 if(!result.tables[table]){
-	    				 tableInfo+=table+" ";
+	    				 tableInfo+=", "+table;
 	    			 }
 	    		  }
 	    		  if(result.ex_grouped_skills){
@@ -487,6 +487,7 @@
 	    		  }
 	    		  if(tableInfo){
 	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
+	    			  view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Table(s): "+tableInfo.substring(1)).removeClass("transparent");
 	    		  }else{
 	    			  view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
 	    		  }
