@@ -15,11 +15,15 @@ public class SearchLogDao {
     private DaoHelper daoHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
+    @Inject
+    private DBSetupManager dbSetupManager;
     private String INSERT_SQL = "INSERT INTO searchlog(user_id,date,search,perfcount,perffetch) values(?,?,?,?,?)";
     
     public void addSearchLog(String search,Long perfCount,Long perfFetch,Long userId){
-        Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
-        daoHelper.executeUpdate(runner, INSERT_SQL,userId,new Date(),search,perfCount,perfFetch);
+        if(dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("searchlog,")){
+            Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
+            daoHelper.executeUpdate(runner, INSERT_SQL,userId,new Date(),search,perfCount,perfFetch);   
+        }
     }
     
 }

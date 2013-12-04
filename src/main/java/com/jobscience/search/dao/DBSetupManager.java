@@ -639,7 +639,7 @@ public class DBSetupManager {
      * @param orgName
      * @return
      */
-    private  String checkOrgExtra(String orgName){
+    public  String checkOrgExtra(String orgName){
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
     	String schemaname="" ;
     	if(orgs.size()==1){
