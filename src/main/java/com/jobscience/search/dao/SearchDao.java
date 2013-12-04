@@ -44,6 +44,9 @@ public class SearchDao {
     
     @Inject
     private QueryLogger queryLogger;
+    
+    @Inject
+    private SearchLogDao searchLogDao;
     /**
      * @param searchColumns
      * @param searchValues
@@ -53,7 +56,7 @@ public class SearchDao {
      * @return
      */
     public SearchResult search(String searchColumns,Map<String, String> searchValues,
-    		Integer pageIdx, Integer pageSize,String orderCon) {
+    		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token) {
         Runner runner = daoHelper.openDefaultRunner();
         
         //builder statements
@@ -68,6 +71,14 @@ public class SearchDao {
 
         queryLogger.debug(LoggerType.SEARCH_PERF,mid - start);
         queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,end - mid);
+        
+        Long userId = -1L;
+        Map user =  userDao.getUserByToken(token);
+        if(user!=null){
+            userId=Long.parseLong(user.get("id").toString());
+        }
+       
+        searchLogDao.addSearchLog(searchValuesString, end - mid, mid - start, userId);
         
         SearchResult searchResult = new SearchResult(result, count)
         							.setDuration(end - start)

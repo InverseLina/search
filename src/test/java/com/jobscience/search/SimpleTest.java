@@ -29,7 +29,7 @@ public class SimpleTest extends SnowTestSupport {
        values.put("skills", "[{name:'skill1',minYears:2},{name:'skill2',minYears:0}]");
        values.put("companies", "[{name:'employer1',minYears:2},{name:'employer2',minYears:0}]");
        values.put("locations", "[{name:'New York',minRadius:3000000}]");
-       SearchResult result = searchDao.search("id,name,title,location",values, 1, 30,"");
+       SearchResult result = searchDao.search("id,name,title,location",values, 1, 30,"","","");
        System.out.println("new search result : "+result.getCount());
     }
     

@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 import net.sf.json.JSONObject;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
+import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
@@ -29,7 +30,7 @@ public class PerfWebHandlers {
      */
     @WebGet("/perf/search")
     public WebResponse search(@WebParam("searchValues") String searchValues,
-                            @WebParam("searchColumns") String searchColumns) {
+                            @WebParam("searchColumns") String searchColumns,@WebUser String token) {
         String orderCon = "";
         JSONObject jo = JSONObject.fromObject(searchValues);
         Map<String, String> searchMap = new HashMap<String, String>();
@@ -40,7 +41,7 @@ public class PerfWebHandlers {
 
         // for contact,use id,name,title,email,CreatedDate instead
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-        SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon);
+        SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon,searchValues,token);
         Map<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", searchResult.getCount());
         resultMap.put("duration", searchResult.getSelectDuration());

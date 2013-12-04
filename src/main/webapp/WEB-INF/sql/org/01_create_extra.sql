@@ -84,3 +84,15 @@ CREATE TABLE if not exists label_contact
       REFERENCES label (id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+-- SCRIPTS
+CREATE TABLE if not exists searchlog
+(
+  id bigserial NOT NULL,
+  user_id bigint NOT NULL,
+  date timestamp with time zone,
+  search character varying(512),
+  perfcount bigint NOT NULL DEFAULT 0,
+  perffetch bigint NOT NULL DEFAULT 0,
+  CONSTRAINT searchlog_pkey PRIMARY KEY (id)
+);
