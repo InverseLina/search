@@ -791,13 +791,13 @@ public class SearchDao {
     		//columnJoinTables.add(getAdvancedJoinTable("skill"));
     		//return "case when string_agg(distinct b.\"ts2__skill_name__c\",',') is null " +
     		//	   " then '' else string_agg(distinct b.\"ts2__skill_name__c\",',') end  skill";
-    	    return " (select  string_agg(b.\"ts2__skill_name__c\",',') " +
+    	    return " (select  string_agg(distinct b.\"ts2__skill_name__c\",',') " +
     	    		"from "+schemaname+".ts2__skill__c b where a.\"sfid\" = b.\"ts2__contact__c\"  ) as skill";
     	}else if(orginalName.toLowerCase().equals("education")){
     		//columnJoinTables.add(getAdvancedJoinTable("education"));
     		//return " case when string_agg(distinct d.\"ts2__name__c\",',') is null " +
     		//	   " then '' else string_agg(distinct d.\"ts2__name__c\",',') end  education";
-    	    return " (select  string_agg(d.\"ts2__name__c\",',') " +
+    	    return " (select  string_agg(distinct d.\"ts2__name__c\",',') " +
     	    		"from "+schemaname+".ts2__education_history__c d  where a.\"sfid\" = d.\"ts2__contact__c\"   ) as education ";
     	}else if(orginalName.toLowerCase().equals("location")){
     		columnJoinTables.add(getAdvancedJoinTable("location"));
@@ -1098,7 +1098,7 @@ public class SearchDao {
             joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
             return joinSql.toString();
         }else{
-            joinSql.append(" select * from (");
+            joinSql.append(" select  distinct id,sfid  from (");
     	    joinSql.append(booleanSearchHandler(searchValue, null, values));
     	    joinSql.append(")  con ");
     	    return joinSql.toString();
