@@ -27,9 +27,10 @@ public class DataSourceManager {
     private String user;
     private String pwd;
     private String sysSchema = "jss_sys";
+    
     @Inject
     private DaoHelper daoHelper;
-    private  DataSource publicDataSource;
+    
     @Inject
     public void init(@Named("jss.db.url") String url,
                      @Named("jss.db.user") String user,
@@ -41,8 +42,6 @@ public class DataSourceManager {
         if(checkSysSchema()){
         	sysDs = buildDs(url, sysSchema);
         }
-        publicDataSource = buildDs(url,"public");
-        
         new DBHelperBuilder().newDBHelper(defaultDs);
     }
 
@@ -50,9 +49,6 @@ public class DataSourceManager {
         return sysDs;
     }
     
-    public DataSource getPublicDataSource(){
-    	return publicDataSource;
-    }
     
     /**
      * if system table not existed,need create it 
