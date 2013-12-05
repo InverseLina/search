@@ -62,8 +62,8 @@ public class DaoHelper {
         defaultDBHelper = new DBHelperBuilder().newDBHelper(defaultDs);
         if (checkSysSchema()) {
             sysDs = buildDs(url, sysSchema);
+            sysDBHelper = new DBHelperBuilder().newDBHelper(getSysDataSource());
         }
-        sysDBHelper = new DBHelperBuilder().newDBHelper(getSysDataSource());
     }
     // --------- /DaoHelper Initialization --------- //
 
@@ -195,6 +195,7 @@ public class DaoHelper {
         }
         if(sysDs==null){
             sysDs = buildDs(url, sysSchema);
+            sysDBHelper = new DBHelperBuilder().newDBHelper(getSysDataSource());
         }
         return sysDs;
     }
