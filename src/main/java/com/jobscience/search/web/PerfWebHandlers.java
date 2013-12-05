@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.jobscience.search.CurrentOrgHolder;
 import net.sf.json.JSONObject;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
@@ -21,6 +22,9 @@ public class PerfWebHandlers {
     @Inject
     private SearchDao searchDao;
 
+    @Inject
+    private CurrentOrgHolder orgHolder;
+
     /**
      * api for main search
      * 
@@ -31,6 +35,7 @@ public class PerfWebHandlers {
     @WebGet("/perf/search")
     public WebResponse search(@WebParam("searchValues") String searchValues,
                             @WebParam("searchColumns") String searchColumns,@WebUser String token) {
+        orgHolder.getOrgName();
         String orderCon = "";
         JSONObject jo = JSONObject.fromObject(searchValues);
         Map<String, String> searchMap = new HashMap<String, String>();
@@ -68,6 +73,7 @@ public class PerfWebHandlers {
                             @WebParam("orderByCount") Boolean orderByCount, @WebParam("min") String min,
                             @WebParam("pageSize") Integer pageSize, @WebParam("pageNum") Integer pageNum)
                             throws SQLException {
+        orgHolder.getOrgName();
         Map<String, String> result = new HashMap<String, String>();
         JSONObject jo = JSONObject.fromObject(searchValues);
         if (queryString == null) {
@@ -91,6 +97,16 @@ public class PerfWebHandlers {
         resultMap.put("duration", sResult.getDuration());
         WebResponse wr = WebResponse.success(resultMap);
         return wr;
+    }
+
+    @WebGet("/perf/checkStatus")
+    public WebResponse checkStatus() throws SQLException {
+        try {
+            orgHolder.getOrgName();
+            return WebResponse.success(true);
+        } catch (Exception e) {
+            return WebResponse.success(false);
+        }
     }
 
 }

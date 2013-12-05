@@ -76,6 +76,8 @@ app.defaultMenuSize = 5;
         params = params || {};
         if($.isPlainObject(options)){
             options = $.extend({}, defaultOption, options||{});
+        }else if($.isFunction(options)){
+            options = $.extend({}, defaultOption, {fail:options});
         }else{
             options = $.extend({}, defaultOption, {type:options||"Get"});
         }
@@ -95,9 +97,14 @@ app.defaultMenuSize = 5;
                 }else{
 //                    $(document).trigger("ON_ERROR", data);
                     if(options.fail && $.isFunction(options.fail)){
-                        options.fail(data);
+                        dfd.fail(options.fail);
+                        dfd.reject(data);
                     }else{
-                        $(document).trigger("ERROR_PROCESS", data);
+                        dfd.fail(function(data){
+                            $(document).trigger("ERROR_PROCESS", data);
+                        });
+                        dfd.reject(data);
+
                     }
 
                 }

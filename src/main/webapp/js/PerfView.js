@@ -20,6 +20,11 @@
                 view.$navTabs.find('li:last').prev("li").remove();
             }
             view.$navTabs.find("a[href='#perf']").closest("li").addClass("active");
+            perfSearchDao.checkStatus().done(function(result){
+                if(!result){
+                   view.$el.find('button').attr("disabled", true);
+                }
+            });
         },
         // --------- /View Interface Implement--------- //
 
@@ -104,7 +109,7 @@
         }
         $s.empty();
         $match.empty();
-        perfPromise.done(function(response) {
+        perfPromise.then(function(response) {
             if (methodName == 'autocomplete') {
                 $s.html(response.duration + " ms");
                 $match.html(response.count);
@@ -127,6 +132,10 @@
                 }
             }
             dfd.resolve($buttons);
+        }, function(response){
+            $button.attr("disabled", true).removeClass("running").html("GO");
+            view.$el.find(".all").removeAttr("disabled");
+            dfd.reject($buttons);
         });
         return dfd.promise();
     }
@@ -134,15 +143,18 @@
     function doSearchAll($buttons, index) {
         var view = this;
         var $btn = $($buttons[index]);
-        doSearch.call(view, $btn, $buttons).done(function(data) {
+        var $allButton = view.$el.find(".all");
+        doSearch.call(view, $btn, $buttons).then(function(data) {
             index++;
             $btn.removeAttr("disabled").removeClass("running").html("GO");
             if (data.length > index) {
                 doSearchAll.call(view, data, index);
             } else {
-                var $allButton = view.$el.find(".all");
                 $allButton.removeAttr("disabled").removeClass("running").html("GO ALL");
             };
+        }, function(){
+            $buttons.attr("disabled", true).removeClass("running").html("GO");
+            $allButton.attr("disabled", true).removeClass("running").html("GO ALL");
         });
     }
 
