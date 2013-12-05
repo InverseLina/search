@@ -6,6 +6,9 @@ import java.io.FileReader;
 import java.util.List;
 import java.util.Map;
 
+import org.josql.PQuery;
+import org.josql.Runner;
+
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -62,8 +65,11 @@ public class SfidManager {
 	    	int perform = getContactExCount(orgName);
 	    	indexerStatus = new IndexerStatus(all-perform, perform);
 	    }
+	    
+	    Runner runner = daoHelper.openNewOrgRunner(orgName);
+        PQuery pq = runner.newPQuery(insertSql);
 	    while(indexerStatus.getRemaining()>0&&on){
-	    	daoHelper.executeUpdate(orgName,insertSql);
+	        pq.executeUpdate(new Object[0]);
 	    	int perform = getContactExCount(orgName);
 	    	indexerStatus = new IndexerStatus(indexerStatus.getPerform()+indexerStatus.getRemaining()-perform, perform);
 	    }

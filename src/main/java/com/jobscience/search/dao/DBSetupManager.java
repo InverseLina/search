@@ -18,6 +18,7 @@ import java.util.zip.ZipInputStream;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.josql.PQuery;
 import org.josql.Runner;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
@@ -552,15 +553,37 @@ public class DBSetupManager {
 			in.getNextEntry();
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String line = br.readLine();
-			String prefix = "INSERT INTO jss_sys.zipcode_us ("+line+") values ";
+			//To match csv dataType, if columns change should change this
+			Class[] dataTypes = new Class[]{String.class,String.class,String.class,Double.class,Double.class, Integer.class, Integer.class};
+			StringBuilder valueStr = new StringBuilder();
+			for(int i = 0; i < dataTypes.length; i++){
+			    if(i != 0){
+			        valueStr.append(",");
+			    }
+			    valueStr.append("?");
+			}
+			String sql = "INSERT INTO jss_sys.zipcode_us ("+line+") values ("+valueStr.toString()+");";
 			Runner runner = daoHelper.openDefaultRunner();
 			try{
 			    runner.startTransaction();
 				line = br.readLine();
+				PQuery pq = runner.newPQuery(sql);
 				while(line!=null){
 					if(!line.trim().equals("")){
 						if(updateDb){
-						    runner.executeUpdate(prefix+"("+line.replaceAll("\'", "\'\'").replaceAll("\"", "\'")+");");
+						    String lineValue = line.replaceAll("\'", "").replaceAll("\"", "");
+						    String[] valueStrs = lineValue.split(",");
+						    Object[] values = new Object[dataTypes.length];
+						    for(int i = 0; i < values.length; i++){
+						        if(dataTypes[i] == Double.class){
+						            values[i] = new Double(valueStrs[i]);
+						        }else if(dataTypes[i] == Integer.class){
+						            values[i] = new Integer(valueStrs[i]);
+						        }else{
+						            values[i] = valueStrs[i];
+						        }
+						    }
+						    pq.executeUpdate(values);
 						}
 						rowCount++;
 					}
