@@ -27,7 +27,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.jobscience.search.db.DataSourceManager;
 
 @Singleton
 public class DBSetupManager {
@@ -42,8 +41,7 @@ public class DBSetupManager {
     @Named("org.path")
     @Inject
     private String orgPath;
-    @Inject
-    private DataSourceManager dsMng;
+
     @Inject
     private OrgConfigDao orgConfigDao;
     @Inject
@@ -62,7 +60,7 @@ public class DBSetupManager {
  
     public Map getSysConfig() throws SQLException, IOException{
         Map status = new HashMap();
-        status.put("schema_create", dsMng.checkSysSchema());
+        status.put("schema_create", daoHelper.checkSysSchema());
         
         String sysTableNames = this.checkSysTables();
         Map tableMap = new HashMap();
@@ -226,7 +224,7 @@ public class DBSetupManager {
      */
     public boolean createSysSchema() throws Exception{
     	boolean result = true;
-    	dsMng.createSysSchemaIfNecessary();
+    	daoHelper.createSysSchemaIfNecessary();
         File sysFolder = new File(getRootSqlFolderPath() + "/jss_sys");
         File[] sqlFiles = sysFolder.listFiles();
         List<String> allSqls = new ArrayList();

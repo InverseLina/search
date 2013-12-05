@@ -11,8 +11,8 @@ import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.CurrentOrgHolder;
+import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.OrgConfigDao;
-import com.jobscience.search.db.DataSourceManager;
 
 @Singleton
 public class OrgConfigWebHandlers {
@@ -20,7 +20,7 @@ public class OrgConfigWebHandlers {
   @Inject
   private OrgConfigDao orgConfigDao;
   @Inject
-  private DataSourceManager dsmg;
+  private DaoHelper daoHelper;
   @Inject
   private CurrentOrgHolder currentOrgHolder;
   
@@ -33,7 +33,7 @@ public class OrgConfigWebHandlers {
       params.put("schemaname", schemaname);
       params.put("sfid", sfid);
       orgConfigDao.saveOrUpdateOrg(params);
-      dsmg.updateDataSource(name, schemaname);
+      daoHelper.updateDataSource(name);
       currentOrgHolder.updateSchema();
       return WebResponse.success();
   }
