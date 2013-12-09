@@ -959,7 +959,7 @@ public class SearchDao {
         querySql.append( " from  "+schemaname+".")
                 .append(sc.getContact().getTable())
                 .append(" contact  " );
-        countSql.append( " from (")
+        countSql.append( " from ( select ")
                 .append(sc.toContactFieldsString("contact"))
                 .append(" from  "+schemaname+".")
                 .append(sc.getContact().getTable())
