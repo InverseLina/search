@@ -12,6 +12,8 @@ public class SearchConfiguration {
 
     private List<Filter> filters;
     
+    private Contact contact;
+    
     @XmlElement
     public KeyWord getKeyword() {
         return keyword;
@@ -19,6 +21,15 @@ public class SearchConfiguration {
 
     public void setKeyword(KeyWord keyword) {
         this.keyword = keyword;
+    }
+
+    @XmlElement
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 
     @XmlElement(name="filter")
@@ -39,5 +50,31 @@ public class SearchConfiguration {
             }
         }
         return null;
+    }
+    
+    public ContactField getContactField(ContactFieldType type){
+        if(type!=null){
+            for(ContactField field:contact.getContactFields()){
+                if(type.equals(field.getType())){
+                    return field;
+                }
+            }
+        }
+        return null;
+    }
+    
+    public String toContactFieldsString(String alias){
+        StringBuffer sb = new StringBuffer();
+        for(ContactField field:contact.getContactFields()){
+            if(!ContactFieldType.RESUME.equals(field.getType())){
+                sb.append(", ").append(alias).append(".\"")
+                  .append(field.getColumn()).append("\" as ")
+                  .append(field.getType()).append(" ");
+            }
+        }
+        if(sb.length()>0){
+            return sb.substring(1);
+        }
+        return sb.toString();
     }
 }

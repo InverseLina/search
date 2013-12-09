@@ -19,7 +19,7 @@ public class Field {
         this.table = table;
     }
 
-    @XmlAttribute
+    @XmlAttribute(required=true)
     public String getColumn() {
         return column;
     }

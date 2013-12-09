@@ -3,17 +3,29 @@
      <field table="contact_ex" column="contact_tsv" />
      <field table="contact_ex" column="resume_tsv" />
   </keyword>
-  <filter name="skills" filtertype="SKILLS">
+  <filter name="skills" filtertype="skills">
      <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" silder="ts2__rating__c">
         <joinsilder table="ts2__assessment__c" column="ts2__rating__c" joincolumn=""/>
      </field>
   </filter>
 
-  <filter name="educations">
+  <filter name="educations" filtertype="educations">
      <field table="ts2__education_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
   
-  <filter name="companies">
+  <filter name="companies" filtertype="companies">
      <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
+  
+   <contact table="contact">
+     <field name="id" column="id"/>
+     <field name="email" column="email"/>
+     <field name="name" column="name"/>
+     <field name="sfid" column="sfid"/>
+     <field name="title" column="title"/>
+     <field name="createddate" column="createddate"/>
+     <field name="resume" column="ts2__text_resume__c"/>
+     <field name="mailingpostalcode" column="mailingpostalcode"/>
+  </contact>
+  
 </searchconfig>

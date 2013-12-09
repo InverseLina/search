@@ -20,6 +20,9 @@ import com.google.common.base.Strings;
 import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
+import com.jobscience.search.searchconfig.ContactFieldType;
+import com.jobscience.search.searchconfig.SearchConfiguration;
+import com.jobscience.search.searchconfig.SearchConfigurationManager;
 
 @Singleton
 public class SearchDao {
@@ -47,6 +50,9 @@ public class SearchDao {
     
     @Inject
     private SearchLogDao searchLogDao;
+    
+    @Inject
+    private SearchConfigurationManager searchConfigurationManager;
     /**
      * @param searchColumns
      * @param searchValues
@@ -860,10 +866,11 @@ public class SearchDao {
      */
     private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy){
     	 StringBuilder columnsSql = new StringBuilder();
+    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
     	 if(searchColumns==null){//a.phone,
-             columnsSql.append("a.sfid,  a.\"id\" as id,a.\"name\" as name,lower(a.\"name\") as lname,case   when a.\"title\" is null then ''  else a.\"title\" end title ,to_char(a.\"createddate\",'yyyy-mm-dd') as createddate");
+             columnsSql.append(sc.toContactFieldsString("a"));
              //,a.phone
-             groupBy.append(",a.sfid, a.\"name\",a.\"title\",a.\"createddate\",a.\"haslabel\" ");//
+             groupBy.append(","+sc.toContactFieldsString("a")+",a.\"haslabel\" ");//
     	 }else{
     		 String temp = "";
  	        for(String column:searchColumns.split(",")){
@@ -890,7 +897,7 @@ public class SearchDao {
     private SearchStatements buildSearchStatements(String searchColumns, Map<String, String> searchValues,
                                                    Integer pageIdx, Integer pageSize,String orderCon) {
         SearchStatements ss = new SearchStatements();
-
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
         if(pageIdx < 1){
             pageIdx = 1;
         }
@@ -920,31 +927,43 @@ public class SearchDao {
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
         
-        
         //---------------------- add select columns ----------------------//
-        querySql.append(" from ( select  distinct contact.\"mailingpostalcode\",contact.id,contact.\"email\",");
-	    //contact.\"phone\",
-        querySql.append("contact.\"sfid\",contact.\"name\",contact.\"lastname\"," );
-        querySql.append("contact.\"firstname\",contact.\"title\",contact.\"createddate\", " );
-        querySql.append("case  when contact.\"ts2__text_resume__c\" is null  or " );
-        querySql.append("char_length(contact.\"ts2__text_resume__c\") = 0 then -1  else contact.id end as resume ");
-        querySql.append(",case when labelcontact.contact_id is null then false else true end haslabel ");
+        querySql.append(" from ( select  distinct ")
+	            .append(sc.toContactFieldsString("contact"))
+	            .append(",case  when ")
+                .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
+                .append(" is null  or " )
+                .append("char_length(")
+                .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
+                .append(") = 0 then -1  else contact.id end as resume ")
+                .append(",case when labelcontact.contact_id is null then false else true end haslabel ");
         //---------------------- /add select columns----------------------//
         
         
         if(orderCon.contains("title")){
-        	querySql.append(",case   when contact.\"title\" is null then '' " +
-        			        " else lower(contact.\"title\") END \"ltitle\" ");
+        	querySql.append(",case   when ")
+        	        .append(sc.getContactField(ContactFieldType.TITLE).toString("contact"))
+        	        .append(" is null then ''  else lower(")
+        	        .append(sc.getContactField(ContactFieldType.TITLE).toString("contact"))
+        	        .append(") END \"ltitle\" ");
         }else if(orderCon.contains("name")){
-        	querySql.append(",lower(contact.\"name\") as \"lname\" ");
+        	querySql.append(",lower(")
+        	        .append(sc.getContactField(ContactFieldType.NAME).toString("contact")) 
+        	        .append(") as \"lname\" ");
         }else if(orderCon.contains("email")){
-        	querySql.append(",lower(contact.\"email\") as \"lemail\" ");
+        	querySql.append(",lower(")
+                    .append(sc.getContactField(ContactFieldType.EMAIL).toString("contact")) 
+                    .append(") as \"lemail\" ");
         }
         
-        querySql.append( " from  "+schemaname+".contact contact  " );
-        //contact.\"phone\",
-        countSql.append( " from ( select  contact.\"mailingpostalcode\",contact.id,contact.\"email\",contact.\"sfid\",contact.\"name\",contact.\"lastname\"," +
-        		"contact.\"firstname\",contact.\"title\",contact.\"createddate\" from  "+schemaname+".contact contact   " );
+        querySql.append( " from  "+schemaname+".")
+                .append(sc.getContact().getTable())
+                .append(" contact  " );
+        countSql.append( " from (")
+                .append(sc.toContactFieldsString("contact"))
+                .append(" from  "+schemaname+".")
+                .append(sc.getContact().getTable())
+                .append(" contact   " );
        
         
         if(searchValues!=null){

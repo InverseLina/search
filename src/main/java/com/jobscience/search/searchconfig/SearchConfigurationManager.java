@@ -7,8 +7,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
-import com.britesnow.snow.web.hook.AppPhase;
-import com.britesnow.snow.web.hook.annotation.WebApplicationHook;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -20,8 +18,7 @@ public class SearchConfigurationManager {
     
     private SearchConfiguration searchConfiguration;
     
-    @WebApplicationHook(phase=AppPhase.INIT)
-    public void init() throws JAXBException{
+    private void load() throws JAXBException{
         StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
         path.append("/WEB-INF/config/sys/searchconfig.val");
 
@@ -31,6 +28,14 @@ public class SearchConfigurationManager {
     }
     
     public SearchConfiguration getSearchConfiguration(){
+        if(searchConfiguration==null){
+            try {
+                load();
+            } catch (JAXBException e) {
+                e.printStackTrace();
+            }
+        }
         return searchConfiguration;
     }
+    
 }
