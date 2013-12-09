@@ -1,0 +1,19 @@
+<searchconfig>
+  <keyword>
+     <field table="contact_ex" column="contact_tsv" />
+     <field table="contact_ex" column="resume_tsv" />
+  </keyword>
+  <filter name="skills" filtertype="SKILLS">
+     <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" silder="ts2__rating__c">
+        <joinsilder table="ts2__assessment__c" column="ts2__rating__c" joincolumn=""/>
+     </field>
+  </filter>
+
+  <filter name="educations">
+     <field table="ts2__education_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
+  </filter>   
+  
+  <filter name="companies">
+     <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
+  </filter>   
+</searchconfig>
