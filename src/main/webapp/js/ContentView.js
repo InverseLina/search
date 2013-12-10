@@ -504,6 +504,17 @@
 
       }
     },
+    winEvents : {
+        resize: function (event) {
+            var view = this;
+            var $pagination = view.$el.find(".pagination");
+            if ($pagination.length > 0) {
+                var $resultCount = view.$el.find(".resultCount");
+                $resultCount.css("left", ($pagination.offset().left - view.$searchInfo.offset().left - 155 ))
+            }
+
+        }
+    },
     // --------- /Parent Events--------- //
 
     // --------- Public Methods--------- //
