@@ -10,6 +10,17 @@ public class Contact {
     private List<ContactField> contactFields;
     
     private String table;
+   
+    @XmlAttribute
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    private String title;
     
     @XmlAttribute(name="table")
     public String getTable() {

@@ -1,6 +1,11 @@
 package com.jobscience.search.searchconfig;
 
+import static com.britesnow.snow.util.MapUtil.mapIt;
+
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -16,7 +21,10 @@ public class SearchConfigurationManager {
     @Inject
     private CurrentRequestContextHolder currentRequestContextHolder;
     
-    private SearchConfiguration searchConfiguration;
+   // @Inject
+    //private CurrentOrgHolder orgHolder;
+    
+    private volatile SearchConfiguration searchConfiguration;
     
     private void load() throws JAXBException{
         StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
@@ -38,4 +46,34 @@ public class SearchConfigurationManager {
         return searchConfiguration;
     }
     
+    public List<Map> getFilters(String orgName){
+        List<Map> filters = new ArrayList<Map>();
+        SearchConfiguration sc = getSearchConfiguration();
+        for(Filter f:sc.getFilters()){
+                Map m = mapIt(      "name",   f.getName(),
+                                   "title",   f.getTitle(),
+                                  "native",   (f.getFilterType()!=null),
+                                    "show",   (f.getFilterType()!=null));
+                if(f.getFilterType()==null){
+                    m.put("paramName",   f.getFilterField().getColumn());
+                    m.put("type", "custom");
+                }else{
+                    m.put("type",   f.getFilterType().value());
+                }
+                filters.add(m);
+        }
+        
+        filters.add(mapIt(          "name",   "contact",
+                                   "title",   sc.getContact().getTitle(),
+                                  "native",   true,
+                                    "show",   true,
+                                    "type",   "contact"));
+        
+        filters.add(mapIt(          "name",   "resume",
+                                   "title",   "Resume",
+                                  "native",   true,
+                                    "show",   false,
+                                    "type",   "resume"));
+        return filters;
+    }
 }

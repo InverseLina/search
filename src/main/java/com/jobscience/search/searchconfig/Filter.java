@@ -11,6 +11,17 @@ public class Filter {
 
     private FilterField filterField;
     
+    private String title;
+    
+    @XmlAttribute
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @XmlElement(name="field")
     public FilterField getFilterField() {
         return filterField;

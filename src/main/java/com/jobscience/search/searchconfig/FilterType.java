@@ -1,16 +1,16 @@
 package com.jobscience.search.searchconfig;
 
 public enum FilterType {
-    contacts(1),
-    skills(2),
-    companies(3),
-    educations(4),
-    locations(5),
-    CONTACTS(1),
-    SKILLS(2),
-    COMPANIES(3),
-    EDUCATIONS(4),
-    LOCATIONS(5);
+    contact(1),
+    skill(2),
+    company(3),
+    education(4),
+    location(5),
+    CONTACT(1),
+    SKILL(2),
+    COMPANY(3),
+    EDUCATION(4),
+    LOCATION(5);
     
     private int val;
     
@@ -24,5 +24,9 @@ public enum FilterType {
     
     public boolean equals(FilterType filterType){
         return this.val==filterType.getVal();
+    }
+    
+    public String value(){
+        return this.toString().toLowerCase();
     }
 }
