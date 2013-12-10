@@ -55,9 +55,11 @@ public class LabelWebHandler {
         String ctoken = rc.getCookie("ctoken");
         if (ctoken != null) {
             Map user = userDao.getUserByToken(ctoken);
-            if (user != null) {
-                return WebResponse.success(labelDao.getLabelForUser(Long.parseLong(user.get("id").toString())));
+            if (user == null) {
+                userDao.insertUser(null, ctoken);
+                user = userDao.getUserByToken(ctoken);
             }
+            return WebResponse.success(labelDao.getLabelForUser(Long.parseLong(user.get("id").toString())));
         }
         return WebResponse.fail();
     }
