@@ -44,12 +44,12 @@ var app = app || {};
     var filters = {
         contact:{
             headerRenderer: genericHeaderRender,
-            filterRenderer: function(headerInfo,pos, data, fn){
-                brite.display("FilterContact",".ContentView",{position:pos,type:"contact",
-                    data:data,th: headerInfo }).done(function(result){
-                        fn(result);
-                    });
-            },
+            filterRenderer: function(headerInfo, popup) {
+				// render the inside of the filter popup
+				// should probably call something like
+				return brite.display("ContactFilterView", popup.$content, headerInfo);
+				// for example
+			},
             cellRenderer: function(cellInfo){
                 // remember, in the cell, we should not have $elements or brite.display, because, we just
                 // generate a string to be fast, so, this should only render string as part of the handlebar
@@ -143,4 +143,4 @@ var app = app || {};
         return render;
     }
 
-})(jQuery)
+})(jQuery);

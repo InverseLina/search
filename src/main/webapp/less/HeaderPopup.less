@@ -1,0 +1,197 @@
+@import "utils";
+// --------- HeaderPopup --------- //
+	.popover{
+		display:block;
+		width:390px;
+		max-width:500px;
+        box-sizing: border-box;
+        .box-shadow(none);
+		.popover-content{
+			padding:8px 0 28px;
+		}
+		.center{
+			text-align: center;
+		}
+		.selectedItems{
+//			border-bottom:1px solid #ffffff;
+			padding-left:16px;
+			padding-right:16px;
+			.item{
+				padding: 4px 25px 4px 10px;
+				border-radius: 8px;
+                margin: 0px 8px 8px 2px;
+				display: inline-block;
+				position:relative;
+				font-size: 12px;
+				color:#fff;
+                min-width: 60px;
+			}
+          .separateLine{
+            display: block;
+            margin: 0 0 8px;
+            padding: 0;
+            width: 386px;
+            margin-left: -16px;
+            border-bottom: 1px solid #ccc;
+          }
+		}
+
+		.content{
+			   span{
+		    	 display: inline-block;
+                 width: 50px;
+                 font-weight: bold;
+			   }
+			   span.count{
+		      	display:none;
+		      	vertical-align: top;
+		       }
+			   span.itemName{
+			  	 display:inline-block;
+           		 max-width: 280px;
+				 overflow: hidden;
+				 white-space: nowrap;
+				 text-overflow: ellipsis;
+				 width: auto;
+                 text-align: center;
+          	   }
+			   input[type="text"]{
+				 width:280px;
+			   }
+			   .save{
+			   	 float: right;
+				 margin-right: 16px;
+				 padding: 2px;
+				 margin-bottom: 3px;
+				 margin-top: 5px;
+                 color: #ccc;
+                 font-size: 15px;
+			   }
+
+			  .cancel{
+			   	 float: right;
+				 margin-right: 16px;
+				 padding: 2px 24px;
+				 margin-bottom: 10px;
+				 margin-top: 5px;
+			   }
+               .sliderRow {
+                 position: relative;
+                 height: 30px;
+//                 margin-top: 10px;
+                 .sliderBarContainer {
+                   width: 270px;
+                   height: 10px;
+                   float: left
+                 }
+
+                 span {
+                   display:block;
+                   width:70px;
+                   font-size: 10px;
+                   float: left;
+                   padding-top: 5px;
+                   color: #7D9999;
+                   margin-left: 15px;
+                 }
+               }
+				.progressContainer{
+					position:relative;
+					margin-left: 80px;
+					margin-top: -20px;
+				}
+				.contentText{
+					display:inline-block;
+					text-align:center;
+					width:100%;
+					cursor:pointer;
+					padding:2px;
+                  height: 30px;
+                  line-height: 30px;
+
+				}
+		}
+
+
+		.switch-icon{
+			width:20px;
+			height:27px;
+			border: 1px solid #ccc;
+			background: linear-gradient(180deg, #ffffff 0%,#dcdcdc 100%);
+			top: -4px;
+			left: 20%;
+			padding: 2px 5px;
+			position:absolute;
+			cursor:pointer;
+		}
+
+	    .clear{
+	      position: absolute;
+	      font-size: 16px;
+		  width: 16px;
+		  height: 16px;
+		  text-align: center;
+		  line-height: 16px;
+	      vertical-align: middle;
+	      border-radius:16px;
+	      cursor: pointer;
+	      background:#333;
+	      color:#ffffff;
+	      font-family: monospace;
+	      padding-top: 2px;
+	      padding-left: 0px;
+	      right:2px;
+	      margin-top: 3px;
+          top: 2px;
+          i {
+            font-family: 'Glyphicons Halflings';
+            font-style: normal;
+            font-size: 12px;
+            font-weight: lighter;
+            height: 12px;
+            line-height: 12px;
+            margin-top: 0px;
+            display: block;
+            color: #e13c5e;
+            &:after {
+              content: "\e014";
+            }
+          }
+	    }
+	    .glyphicon-remove{
+	    	cursor:pointer;
+	    }
+
+	}
+
+  .popover .arrow {
+    border-width: 18px;
+  }
+  .popover .arrow:after {
+    border-width: 17px;
+    content: "";
+  }
+
+  .popover {
+    &.bottom .arrow {
+      left: 50%;
+      margin-left: -18px;
+      top: -18px;
+      &:after {
+        top: 1px;
+        margin-left: -17px;
+        border-bottom-color: #ffffff;
+        border-top-width: 0;
+        content: " ";
+      }
+    }
+
+    .duration {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      color: #aaa;
+      font-style: italic;
+    }
+  }
+// --------- /Popup --------- //

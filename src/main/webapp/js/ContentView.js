@@ -150,14 +150,27 @@
                    view.filterDlg =  filterDlg
               });
            }*/
-          if(view.filterDlg){
-              console.log("close dlg")
-              view.filterDlg.close();
-          }
+          
           var render = app.getFilterRender(type);
-          render.filterRenderer($th, position,data, function(filterDlg){
-              view.filterDlg =  filterDlg;
-          });
+          
+          //FIXME: wang add, for now, just for contact column
+			if (type == "contact") {
+				view.$el.trigger("POPUP_CLOSE");
+				brite.display("HeaderPopup", ".ContentView", {
+					$target : $th
+				}).done(function(popup) {
+					app.filter.contact.filterRenderer(null, popup);
+				});
+			} else {
+				if (view.filterDlg) {
+					view.filterDlg.close();
+				}
+				render.filterRenderer($th, position, data, function(filterDlg) {
+					view.filterDlg = filterDlg;
+				});
+			}
+
+          
       },
       "change; .tableContainer td input[type='checkbox']" : function(event) {
         var view = this;
@@ -482,6 +495,12 @@
 
               //restore input values
               $e.find(".search-input").val(app.ParamsControl.getQuery());
+              
+              
+              //FIXME: just now use custom render way for contact
+	            var $td = $("body").find("th[data-column='contact']");
+	            console.log($("body").find("th[data-column='contact']").html());
+	            app.filter.contact.headerRenderer({$td:$td,name:"contact",label:"Contddact"});
 
               view.restoreSearchParam();
 

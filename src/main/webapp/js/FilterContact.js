@@ -104,8 +104,7 @@
         var $eles = view.$el.find(".selectedItems .item[data-name='" + displayName + "']");
         var len = $eles.length;
         if (len == 0) {
-            view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add",
-                {name: displayName }));
+            view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add",{name: displayName }));
             $eles = view.$el.find(".selectedItems .item[data-name='" + displayName + "']");
             view.$el.trigger("ADD_FILTER", {type:view.type, name: displayName, value: data})
         }
@@ -122,6 +121,7 @@
     function showSelectedItem(){
         var view = this;
         var data = app.ParamsControl.get("Contact");
+        console.log(data);
         if(data && data.length > 0){
             view.$el.find(".selectedItems").show();
         }
