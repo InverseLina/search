@@ -29,17 +29,7 @@
              <th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
              {{#each displayColumns}}
                  <th style="width:{{../colWidth}}%" data-column="{{name}}" {{#if ../labelAssigned}} class="favFilter"{{/if}}>
-                 <!--{{display}}<span class="desc">&darr;</span><span class="asc">&uarr;</span>-->
-	                 <div class="headerTh {{name}}Th">
-	                  <span class="desc glyphicon glyphicon-arrow-down"></span><span class="asc glyphicon glyphicon-arrow-up"></span>
-		               <span class="columnName">{{display}}</span>
-                         <div class="selectedItems">
-                             <!--<span class="item" data-name="aaa bbb">aaa bbb</span>
-                             <span class="item" data-name="aaa bbb">aaa bbb</span>
-                             <span class="item" data-name="aaa bbb">aaa bbb</span>-->
-                             <span class="addFilter" styee="display:none">+&nbsp;add filter</span>
-                         </div>
-		             </div>
+	                 {{{renderHeader this}}}
                  </th>
              {{/each}}
          </tr>
@@ -52,21 +42,11 @@
              <tr>
                  <!--<th class="favLabel"><div class="headerTh"></div></th>-->
     <th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
-{{#each displayColumns}}
+    {{#each displayColumns}}
     <th style="width:{{../colWidth}}%" data-column="{{name}}" {{#if ../labelAssigned}} class="favFilter"{{/if}}>
-
-						<div class="headerTh {{name}}Th">
-		                  <span class="columnName">{{display}}</span>
-                            <div class="selectedItems">
-                                <!--<span class="item" data-name="aaa bbb">aaa bbb</span>
-                                <span class="item" data-name="aaa bbb">aaa bbb</span>
-                                <span class="item" data-name="aaa bbb">aaa bbb</span>-->
-                                <span class="addFilter" styee="display:none">+&nbsp;add filter</span>
-                            </div>
-		                  <span class="desc">&darr;</span><span class="asc">&uarr;</span>
-		                </div>
+                            {{{renderHeader this}}}
 					 </th>
-                 {{/each}}
+     {{/each}}
              </tr>
         </thead>
         <tbody>
@@ -131,4 +111,24 @@
 
 <script id="search-items-header-add-item" type="text/html">
     <span class="item" data-name="{{name}}">{{display}}</span>
+</script>
+
+
+<script id="search-query-generic-render-header" type="text/html">
+    <div class="headerTh {{name}}Th">
+        <span class="columnName">{{title}}</span>
+        <div class="selectedItems">
+            <span class="addFilter" styee="display:none">+&nbsp;add filter</span>
+        </div>
+        <span class="desc">&darr;</span><span class="asc">&uarr;</span>
+    </div>
+</script>
+<script id="search-query-generic-render-cell" type="text/html">
+    <div class="headerTh {{name}}Th">
+        <span class="columnName">{{title}}</span>
+        <div class="selectedItems">
+            <span class="addFilter" styee="display:none">+&nbsp;add filter</span>
+        </div>
+        <span class="desc">&darr;</span><span class="asc">&uarr;</span>
+    </div>
 </script>

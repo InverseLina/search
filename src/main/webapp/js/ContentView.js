@@ -141,7 +141,7 @@
           if(type=="contact") {
               data = app.ParamsControl.getFilterParams()["Contact"]||[];
           }
-          var viewName = "Filter"+type.substring(0, 1).toUpperCase()+type.substring(1);
+/*          var viewName = "Filter"+type.substring(0, 1).toUpperCase()+type.substring(1);
     	  if(type=="skill"||type=="contact"||type=="education"||type=="employer"||type=="location"){
               if(view.filterDlg){
                   view.filterDlg.close();
@@ -149,7 +149,15 @@
               brite.display(viewName,".ContentView",{position:position,type:type, data:data,th: $th }).done(function(filterDlg){
                    view.filterDlg =  filterDlg
               });
-           }
+           }*/
+          if(view.filterDlg){
+              console.log("close dlg")
+              view.filterDlg.close();
+          }
+          var render = app.getFilterRender(type);
+          render.filterRenderer($th, position,data, function(filterDlg){
+              view.filterDlg =  filterDlg;
+          });
       },
       "change; .tableContainer td input[type='checkbox']" : function(event) {
         var view = this;

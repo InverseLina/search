@@ -5,16 +5,19 @@ var app = app || {};
         return val?val:defaultVal;
     }
 
-    var displayColumns = [{name:"contact",display:"Contact"},{name:"company",display:"Employer"}
+/*    var displayColumns = [{name:"contact",display:"Contact"},{name:"company",display:"Employer"}
         ,{name:"skill",display:"Skill"},{name:"education",display:"Education"},{name:"location",display:"Location"},
-        {name:"resume",display:"Resume"}];
-    var defaultColumns = "contact,company,skill,education";
-    var defaultSectionOpen = {
-        ContactInfo: 'close',
-        Company: 'open',
-        Education: 'close',
-        Skill: 'close'
-    };
+        {name:"resume",display:"Resume"}];*/
+//    var defaultColumns = "contact,company,skill,education";
+    var defaultColumns = function(){
+        var filters = app.getSearchUiConfig();
+        var displays = $.grep(filters, function(item, idx){
+            return item.show;
+        })
+        return $.map(displays, function(item){
+            return item.type;
+        }).join(",")
+    }
 
     app.preference={
         store:function(key,value){
@@ -26,7 +29,7 @@ var app = app || {};
         columns:function(){
             var columns;
             if(arguments.length == 0){
-                columns = getCookie("columns", defaultColumns);
+                columns = getCookie("columns", defaultColumns());
                 return columns.split(",");
             }else{
                 if(arguments[0] && $.type(arguments[0]) == "array" ){
@@ -40,8 +43,9 @@ var app = app || {};
             }
 
         },
-        defaultSectionOpen: defaultSectionOpen,
-        displayColumns: displayColumns
+        displayColumns: function(){
+            return app.getSearchUiConfig();
+        }
     }
 
     app.cookie = function(name, value, options) {

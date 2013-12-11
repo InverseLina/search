@@ -10,7 +10,7 @@
         {
             // --------- View Interface Implement--------- //
             create: function (data, config) {
-                return render("SelectColumns", {columns:app.preference.displayColumns});
+                return render("SelectColumns", {columns:app.preference.displayColumns()});
             },
 
             postDisplay: function (data) {

@@ -76,7 +76,7 @@
         labelAssigned = labelAssigned || false;
         var columns = app.preference.columns();
         var displays = [];
-        $.each(app.preference.displayColumns, function(idx, item){
+        $.each(app.preference.displayColumns(), function(idx, item){
             if(IsContain(columns, item.name)){
                 displays.push(item);
             }
@@ -89,7 +89,7 @@
     Handlebars.registerHelper('colBody', function(template, options) {
         var columns = app.preference.columns();
         var displays = [];
-        $.each(app.preference.displayColumns, function(idx, item){
+        $.each(app.preference.displayColumns(), function(idx, item){
             if(IsContain(columns, item.name)){
                 displays.push(item);
             }
@@ -97,6 +97,12 @@
         var buffer = options.fn(this);
         var html = Handlebars.templates[template]({displayColumns:displays, block:buffer,
                 colsLen:displays.length, colWidth:100/displays.length, labelAssigned: app.buildPathInfo().labelAssigned});
+        return html;
+    });
+
+    Handlebars.registerHelper('renderHeader', function(filterInfo, options) {
+        var render = app.getFilterRender(filterInfo.name);
+        var html  = render.headerRenderer(filterInfo);
         return html;
     });
 
