@@ -55,14 +55,25 @@ public class SearchConfiguration {
     public ContactField getContactField(ContactFieldType type){
         if(type!=null){
             for(ContactField field:contact.getContactFields()){
-                if(type.equals(field.getType())){
+                if(type.name().equalsIgnoreCase(field.getType())){
                     return field;
                 }
             }
         }
-        return null;
+        return ContactField.getInstance(type.name());
     }
     
+    public ContactField getContactField(String type){
+        if(type!=null){
+            for(ContactField field:contact.getContactFields()){
+                if(type.equalsIgnoreCase(field.getType())){
+                    return field;
+                }
+            }
+        }
+        return ContactField.getInstance(type);
+    }
+
     public String toContactFieldsString(String alias){
         StringBuffer sb = new StringBuffer();
         for(ContactField field:contact.getContactFields()){

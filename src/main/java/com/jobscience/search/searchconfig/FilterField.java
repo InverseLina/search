@@ -23,6 +23,24 @@ public class FilterField extends Field {
         this.joinTo = joinTo;
     }
     
+    public String toJoinToString(String alias){
+        StringBuffer sb = new StringBuffer();
+        sb.append(" ").append(alias).append(".\"")
+          .append(getJoinTo()).append("\" ");
+        return sb.toString();
+    }
     
+    public String toJoinFromString(String alias){
+        StringBuffer sb = new StringBuffer();
+        sb.append(" ").append(alias).append(".\"")
+          .append(getJoinFrom()).append("\" ");
+        return sb.toString();
+    }
     
+    public String toString(String alias){
+        StringBuffer sb = new StringBuffer();
+        sb.append(" ").append(alias).append(".\"")
+          .append(getColumn()).append("\" ");
+        return sb.toString();
+    }
 }

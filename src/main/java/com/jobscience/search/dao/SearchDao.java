@@ -20,7 +20,10 @@ import com.google.common.base.Strings;
 import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
+import com.jobscience.search.searchconfig.ContactField;
 import com.jobscience.search.searchconfig.ContactFieldType;
+import com.jobscience.search.searchconfig.FilterField;
+import com.jobscience.search.searchconfig.FilterType;
 import com.jobscience.search.searchconfig.SearchConfiguration;
 import com.jobscience.search.searchconfig.SearchConfigurationManager;
 
@@ -262,7 +265,8 @@ public class SearchDao {
      * @return
      */
     private String[] renderSearchCondition(Map<String, String> searchValues,String type,String baseTable,String baseTableIns,List values,  String appendJoinTable ){
-    	StringBuilder joinTables = new StringBuilder();
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        StringBuilder joinTables = new StringBuilder();
         StringBuilder searchConditions = new StringBuilder();
         StringBuilder querySql = new StringBuilder();
     	StringBuilder conditions = new StringBuilder();
@@ -381,7 +385,7 @@ public class SearchDao {
 	                   }
 	                   values.add(value);
                   }else{
-            		  conditions.append("  and contact.\"firstname\" ilike ? ");
+            		  conditions.append("  and "+sc.getContactField("firstname").toString("contact") +" ilike ? ");
             		  if(!value.contains("%")){
             			  value = value+"%";	
               		  }
@@ -411,7 +415,7 @@ public class SearchDao {
 	                   }
 	                   values.add(value);
                   }else{
-            		  conditions.append("  and contact.\"lastname\" ilike ? ");
+            		  conditions.append("  and "+sc.getContactField("lastname").toString("contact")+" ilike ? ");
             		  if(!value.contains("%")){
             			  value = value+"%";	
               		  }
@@ -441,7 +445,7 @@ public class SearchDao {
                      }
                      values.add(value);
                   }else{
-            		  conditions.append("  and contact.\"email\" ilike ? ");
+            		  conditions.append("  and "+sc.getContactField("email").toString("contact")+" ilike ? ");
             		  if(!value.contains("%")){
             			  value = value+"%";	
               		  }
@@ -471,7 +475,7 @@ public class SearchDao {
   	                   }
   	                   values.add(value);
                  }else{
-            		  conditions.append("  and contact.\"title\" ilike ? ");
+            		  conditions.append("  and "+sc.getContactField("title").toString("contact")+" ilike ? ");
             		  if(!value.contains("%")){
             			  value = value+"%";	
               		  }
@@ -502,10 +506,12 @@ public class SearchDao {
                        }else{
                            prefixSql.append(",");
                        }
-            	       prefixSql.append( " ed1 as (select ed.\"ts2__contact__c\" from  "+schemaname+".ts2__education_history__c ed where (1!=1 " );
+            	       FilterField f = sc.getFilter(FilterType.EDUCATION).getFilterField();
+            	       prefixSql.append( " ed1 as (select "+f.toJoinToString("ed")+" as \"ts2__contact__c\" ")
+            	                .append(" from  "+schemaname+"."+f.getTable()+" ed where (1!=1 " );
             		   for(int i=0,j=educationValues.size();i<j;i++){
             			   JSONObject educationValue = JSONObject.fromObject(educationValues.get(i));
-            			   prefixSql.append(" OR ( ed.\"ts2__name__c\" = ")
+            			   prefixSql.append(" OR ( "+f.toString("ed")+" = ")
             			   		   .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
             			   if(educationValue.containsKey("minYears")){
             				   Integer minYears = educationValue.getInt("minYears");
@@ -517,9 +523,9 @@ public class SearchDao {
             		   }
             		   prefixSql.append(") ) ");
             		   if(hasSearchValue){
-            		       contactQuery.append(" inner join  ed1 on con.\"sfid\" = ed1.\"ts2__contact__c\" ");
+            		       contactQuery.append(" inner join  ed1 on "+f.toJoinFromString("con")+" = ed1.\"ts2__contact__c\" ");
             		   }else{
-            		       contactQuery.append(" inner join  ed1 on contact.\"sfid\" = ed1.\"ts2__contact__c\" ");
+            		       contactQuery.append(" inner join  ed1 on "+f.toJoinFromString("contact")+" = ed1.\"ts2__contact__c\" ");
             		   }
             	   }
                    hasCondition = true;
@@ -541,10 +547,12 @@ public class SearchDao {
                            }else{
                                prefixSql.append(",");
                            }
-	            	       prefixSql.append( " em1 as (select em.\"ts2__contact__c\" as ts2__contact__c,em.\"ts2__job_title__c\" as ts2__job_title__c from   "+schemaname+".ts2__employment_history__c em where (1!=1  " );
+	            	       FilterField f = sc.getFilter(FilterType.COMPANY).getFilterField();
+	            	       prefixSql.append( " em1 as (select "+f.toJoinToString("em")+" as ts2__contact__c "
+	            	                               + " from   "+schemaname+"."+f.getTable()+" em where (1!=1  " );
 	            		   for(int i=0,j=companyValues.size();i<j;i++){
 	            			   JSONObject educationValue = JSONObject.fromObject(companyValues.get(i));
-	            			   prefixSql.append(" OR ( em.\"ts2__name__c\" = ")
+	            			   prefixSql.append(" OR ( "+f.toString("em")+" = ")
 	            			   		   .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
 	            			   if(educationValue.containsKey("minYears")){
 	            				   Integer minYears = educationValue.getInt("minYears");
@@ -556,9 +564,9 @@ public class SearchDao {
 	            		   }
 	            		   prefixSql.append(" ) ) ");
             		       if(hasSearchValue){
-            		           contactQuery.append(" join em1 on con.\"sfid\" = em1.\"ts2__contact__c\"");
+            		           contactQuery.append(" join em1 on "+f.toJoinFromString("con")+" = em1.\"ts2__contact__c\"");
                            }else{
-                               contactQuery.append(" join em1 on contact.\"sfid\" = em1.\"ts2__contact__c\"");
+                               contactQuery.append(" join em1 on "+f.toJoinFromString("contact")+" = em1.\"ts2__contact__c\"");
                            }
 	            	   }
             		   hasCondition = true;
@@ -590,13 +598,14 @@ public class SearchDao {
             		   }
             		   conditions.append(getConditionForThirdNames(skillValues, "skill",skill_assessment_rating));
             	   }else{
+            	       FilterField f = sc.getFilter(FilterType.COMPANY).getFilterField();
             		   if(skill_assessment_rating){//join with the ts2__assessment__c
             		       if(prefixSql.length()==0){
             		           prefixSql.append(" with ");
             		       }else{
             		           prefixSql.append(",");
             		       }
-            		       prefixSql.append( "  sk1 as (select sk.\"ts2__contact__c\" as ts2__contact__c from   "+schemaname+".ts2__skill__c sk " );
+            		       prefixSql.append( "  sk1 as (select "+f.toJoinToString("sk")+" as ts2__contact__c from   "+schemaname+"."+f.getTable()+" sk " );
             			   		   
 	            		   if(value.contains("minYears")){
 	            		       prefixSql.append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=sk.\"sfid\" ");
@@ -605,7 +614,7 @@ public class SearchDao {
 	            		   prefixSql.append("  where (1!=1  ");
             			   for(int i=0,j=skillValues.size();i<j;i++){
 	            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
-	            			   prefixSql.append(" OR ( sk.\"ts2__skill_name__c\" = ")
+	            			   prefixSql.append(" OR ( "+f.toString("sk")+" = ")
 	            			   		   .append("'"+skillValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
 	            			   if(skillValue.containsKey("minYears")){
 	            				   Integer minYears = skillValue.getInt("minYears");
@@ -617,9 +626,9 @@ public class SearchDao {
 	            		   }
             			   prefixSql.append(" ))  ");
         			       if(hasSearchValue){
-        			           contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
+        			           contactQuery.append(" join sk1 on "+f.toJoinFromString("con")+" = sk1.\"ts2__contact__c\"");
                            }else{
-                               contactQuery.append(" join sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\"");
+                               contactQuery.append(" join sk1 on "+f.toJoinFromString("contact")+" = sk1.\"ts2__contact__c\"");
                            }
             		   }else{// just join with the ts2__skill__c
             		       if(prefixSql.length()==0){
@@ -627,10 +636,10 @@ public class SearchDao {
                            }else{
                                prefixSql.append(",");
                            }
-            		       prefixSql.append( " sk1 as (select sk.\"ts2__contact__c\" as ts2__contact__c  from   "+schemaname+".ts2__skill__c sk where (1!=1  " );
+            		       prefixSql.append( " sk1 as (select "+ f.toJoinToString("sk") +" as ts2__contact__c  from   "+schemaname+"."+f.getTable()+" sk where (1!=1  " );
 	            		   for(int i=0,j=skillValues.size();i<j;i++){
 	            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
-	            			   prefixSql.append(" OR ( sk.\"ts2__skill_name__c\" = ")
+	            			   prefixSql.append(" OR ( "+f.toString("sk")+" = ")
 	            			   		   .append("'"+skillValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
 	            			   if(skillValue.containsKey("minYears")){
 	            				   Integer minYears = skillValue.getInt("minYears");
@@ -642,9 +651,9 @@ public class SearchDao {
 	            		   }
 	            		   prefixSql.append(" )) ");
 	            		   if(hasSearchValue){
-                               contactQuery.append(" join sk1 on con.\"sfid\" = sk1.\"ts2__contact__c\"");
+                               contactQuery.append(" join sk1 on "+f.toJoinFromString("con")+" = sk1.\"ts2__contact__c\"");
                            }else{
-                               contactQuery.append(" join sk1 on contact.\"sfid\" = sk1.\"ts2__contact__c\"");
+                               contactQuery.append(" join sk1 on "+f.toJoinFromString("contact")+" = sk1.\"ts2__contact__c\"");
                            }
             		   }
             	   }
@@ -654,13 +663,14 @@ public class SearchDao {
            
            //add the 'radius' filter
            if (searchValues.get("locations") != null && !"".equals(searchValues.get("locations"))) {
+               ContactField f = sc.getContactField(ContactFieldType.MAILINGPOSTALCODE);
         	   String value = searchValues.get("locations");
         	   JSONArray locationValues = JSONArray.fromObject(value);
          	   if(locationValues!=null){
 	         	    if(advanced){
                         if(baseTable.indexOf("zipcode_us") == -1 && joinTables.indexOf("zipcode_us") == -1){
                     	    joinTables.append("  join jss_sys.zipcode_us z on ");
-                            joinTables.append("a.\"mailingpostalcode\" =z.\"zip\"");
+                            joinTables.append(f.toString("a")+" =z.\"zip\"");
                         }
                         JSONObject ol;
                         conditions.append(" AND (1!=1  ");
@@ -671,14 +681,15 @@ public class SearchDao {
                             conditions.append(" OR ( z.\"city\"='").append(name).append("'");
                              if(ol.containsKey("minRadius")){
             				   double minRadius = ol.getDouble("minRadius");
-            				   conditions.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\"),ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))<=").append(minRadius*1000);
+            				   conditions.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\"),ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("a")
+            				       +","+sc.getContactField("ts2__longitude__c").toString("a")+"))<=").append(minRadius*1000);
                              }
                              conditions.append(")");
                         }
                         conditions.append(" ) ");
             	   }else{
             	       locationSql.append(" join jss_sys.zipcode_us z on ");
-            	       locationSql.append("contact.\"mailingpostalcode\" =z.\"zip\"");
+            	       locationSql.append(f.toString("contact")+" =z.\"zip\"");
             		   JSONObject ol;
             		   locationSql.append(" AND (1!=1  ");
                        for (Object location : locationValues) {
@@ -688,7 +699,8 @@ public class SearchDao {
                            if(ol.containsKey("minRadius")){
             				   double minRadius = ol.getDouble("minRadius");
             				   locationSql.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\")," )
-            				   			 .append(" ll_to_earth(contact.\"ts2__latitude__c\",contact.\"ts2__longitude__c\"))<=")
+            				   			 .append(" ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("a")
+            				   			     +","+sc.getContactField("ts2__longitude__c").toString("a")+"))<=")
             				   			 .append(minRadius*1000);
                             }
                            locationSql.append(")");
@@ -962,7 +974,11 @@ public class SearchDao {
         
         String value = searchValues.get("locations");
         JSONArray locationValues = JSONArray.fromObject(value);
-        if(Strings.isNullOrEmpty(searchValues.get("search"))||(value!=null&&locationValues!=null)){
+        boolean hasContactsCondition = false;
+        if(searchValues.get("contacts")!=null){
+            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
+        }
+        if(hasContactsCondition||Strings.isNullOrEmpty(searchValues.get("search"))||(value!=null&&locationValues!=null)){
             countSql.append( " from ( select ")
                     .append(sc.toContactFieldsString("contact"))
                     .append(" from  "+schemaname+".")
@@ -1051,7 +1067,7 @@ public class SearchDao {
 	                joinSql.append(" offset "+offset+" limit "+pageSize);
 	            }
     	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
-    	       if(locationSql.length()==0){
+    	       if(locationSql.length()==0&&!hasContactsCondition){
     	           countSql.replace(0, 6," from ");
     	           countSql.append(" ) a  ");
     	       }else{
@@ -1082,7 +1098,7 @@ public class SearchDao {
 	        }
 	       
 	        joinSql.append(") a ");
-	        if(locationSql.length()>0||Strings.isNullOrEmpty(searchValues.get("search"))){
+	        if(hasContactsCondition||locationSql.length()>0||Strings.isNullOrEmpty(searchValues.get("search"))){
 	            countSql.append(") a ");
 	        }
         }
@@ -1160,12 +1176,13 @@ public class SearchDao {
      */
     public  String booleanSearchHandler(String searchValue,String type, List values){
     	String schemaname = orgHolder.getSchemaName();
+    	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
     	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
 
     	//if no search value,just return sql with 1!=1
     	if(searchValue.equals("")){
-    		return  " select id,sfid from contact where 1!=1 ";
+    		return  " select id,sfid from "+schemaname+"."+sc.getContact().getTable()+" where 1!=1 ";
     	}
     	String temp = "";
     	if(type==null||"OR".equals(type)){//if params split with space or "OR",we do in OR logic

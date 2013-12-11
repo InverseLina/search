@@ -17,10 +17,7 @@
      <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
   
-   <filter name="age" title="Age">
-     <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
-  </filter>
-  
+
   <contact table="contact" title="Contact">
      <field name="id" column="id"/>
      <field name="email" column="email"/>
