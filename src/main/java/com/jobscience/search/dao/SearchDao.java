@@ -959,11 +959,16 @@ public class SearchDao {
         querySql.append( " from  "+schemaname+".")
                 .append(sc.getContact().getTable())
                 .append(" contact  " );
-        countSql.append( " from ( select ")
-                .append(sc.toContactFieldsString("contact"))
-                .append(" from  "+schemaname+".")
-                .append(sc.getContact().getTable())
-                .append(" contact   " );
+        
+        String value = searchValues.get("locations");
+        JSONArray locationValues = JSONArray.fromObject(value);
+        if(Strings.isNullOrEmpty(searchValues.get("search"))||(value!=null&&locationValues!=null)){
+            countSql.append( " from ( select ")
+                    .append(sc.toContactFieldsString("contact"))
+                    .append(" from  "+schemaname+".")
+                    .append(sc.getContact().getTable())
+                    .append(" contact   " );
+        }
        
         
         if(searchValues!=null){
@@ -1046,7 +1051,12 @@ public class SearchDao {
 	                joinSql.append(" offset "+offset+" limit "+pageSize);
 	            }
     	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
-    	        countSql.append(" ) subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
+    	       if(locationSql.length()==0){
+    	           countSql.replace(0, 6," from ");
+    	           countSql.append(" ) a  ");
+    	       }else{
+    	           countSql.append(" ) subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
+    	       }
 	        }else{
 	            joinSql.append(String.format(sqls[3],"contact"));
                 countSql.append(String.format(sqls[3],"contact"));
@@ -1072,7 +1082,9 @@ public class SearchDao {
 	        }
 	       
 	        joinSql.append(") a ");
-	        countSql.append(") a ");
+	        if(locationSql.length()>0||Strings.isNullOrEmpty(searchValues.get("search"))){
+	            countSql.append(") a ");
+	        }
         }
         return new String[]{joinSql.toString(),countSql.toString(),prefixSql};
     }
@@ -1158,16 +1170,23 @@ public class SearchDao {
     	String temp = "";
     	if(type==null||"OR".equals(type)){//if params split with space or "OR",we do in OR logic
 	    	String[] orConditions = searchValue.trim().split("\\s+OR\\s+");
+	    	boolean hasSearch = false;
 	    	for(int i=0;i<orConditions.length;i++){
 	    		String orCondition = orConditions[i];
 	    		sb.append("select a_extr"+i+".id,a_extr"+i+".sfid from (");
 	    		sb.append(booleanSearchHandler(orCondition, "AND",values));
 	    		sb.append(" a_extr"+i+" union ");
+	    		hasSearch = true;
 	    	}
-	    	sb.append( "(select 1 as id,1::character as sfid  from  "+schemaname+".contact where 1!=1)" );
+	    	if(hasSearch){
+	    	    sb.delete(sb.length()-6, sb.length());
+	    	}
+	    	//sb.append( "(select 1 as id,1::character as sfid  from  "+schemaname+".contact where 1!=1)" );
     	}else if("AND".equals(type)){//if params split with AND,we do in AND logic
     		String[] andConditions = searchValue.trim().split("\\s+AND\\s+");
+    		boolean hasSearch = false;
 	    	for(int i=0;i<andConditions.length;i++){
+	    	    hasSearch = true;
 	    		String andCondition = andConditions[i];
     			if(i==0){
     				sb.append(" select n_ext0.id as id,n_ext0.sfid as sfid from ");
@@ -1178,7 +1197,10 @@ public class SearchDao {
 	    		}
 	    		sb.append(" join ");
 	    	}
-	    	sb.append( " (select 1 as id,1::character as sfid  from   "+schemaname+".contact limit 1) last on 1=1) " );
+	    	if(hasSearch){
+                sb.delete(sb.length()-5, sb.length()).append(" ) ");
+            }
+	    	//sb.append( " (select 1 as id,1::character as sfid  from   "+schemaname+".contact limit 1) last on 1=1) " );
     	}else if("NOT".equals(type)){//if params split with NOT,we do in NOT logic
     		String[] notConditions = searchValue.trim().split("\\s+NOT\\s+");
     		if(notConditions.length==1){
