@@ -77,7 +77,7 @@ public class SearchConfiguration {
     public String toContactFieldsString(String alias){
         StringBuffer sb = new StringBuffer();
         for(ContactField field:contact.getContactFields()){
-            if(!ContactFieldType.RESUME.equals(field.getType())){
+            if(!ContactFieldType.RESUME.name().equalsIgnoreCase(field.getType())){
                 sb.append(", ").append(alias).append(".\"")
                   .append(field.getColumn()).append("\" as ")
                   .append(field.getType()).append(" ");

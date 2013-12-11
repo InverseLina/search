@@ -16,7 +16,6 @@
   <filter name="companies" title="Companies" filtertype="company">
      <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
-  
 
   <contact table="contact" title="Contact">
      <field name="id" column="id"/>

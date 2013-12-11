@@ -49,6 +49,13 @@ public class SearchConfigurationManager {
     public List<Map> getFilters(String orgName){
         List<Map> filters = new ArrayList<Map>();
         SearchConfiguration sc = getSearchConfiguration();
+         filters.add(mapIt(          "name",   "contact",
+                                    "title",   sc.getContact().getTitle(),
+                                   "native",   true,
+                                     "show",   true,
+                                     "type",   "contact"));
+
+
         for(Filter f:sc.getFilters()){
                 Map m = mapIt(      "name",   f.getName(),
                                    "title",   f.getTitle(),
@@ -63,17 +70,17 @@ public class SearchConfigurationManager {
                 filters.add(m);
         }
         
-        filters.add(mapIt(          "name",   "contact",
-                                   "title",   sc.getContact().getTitle(),
-                                  "native",   true,
-                                    "show",   true,
-                                    "type",   "contact"));
+        filters.add(mapIt(           "name",   "location",
+                                    "title",   "Location",
+                                   "native",   true,
+                                     "show",   false,
+                                     "type",   "location"));
         
-        filters.add(mapIt(          "name",   "resume",
-                                   "title",   "Resume",
-                                  "native",   true,
-                                    "show",   false,
-                                    "type",   "resume"));
+         filters.add(mapIt(          "name",   "resume",
+                                    "title",   "Resume",
+                                   "native",   true,
+                                     "show",   false,
+                                     "type",   "resume"));
         return filters;
     }
 }
