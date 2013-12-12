@@ -27,5 +27,12 @@ public class Field {
     public void setColumn(String column) {
         this.column = column;
     }
+    
+    public String toString(String alias){
+        StringBuffer sb = new StringBuffer();
+        sb.append(" ").append(alias).append(".\"")
+          .append(getColumn()).append("\" ");
+        return sb.toString();
+    }
 
 }

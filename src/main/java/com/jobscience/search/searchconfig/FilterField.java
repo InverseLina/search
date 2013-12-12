@@ -2,6 +2,8 @@ package com.jobscience.search.searchconfig;
 
 import javax.xml.bind.annotation.XmlAttribute;
 
+import com.google.common.base.Strings;
+
 public class FilterField extends Field {
 
     private String joinFrom;
@@ -39,8 +41,11 @@ public class FilterField extends Field {
     
     public String toString(String alias){
         StringBuffer sb = new StringBuffer();
-        sb.append(" ").append(alias).append(".\"")
-          .append(getColumn()).append("\" ");
+        if(alias!=null&&!Strings.isNullOrEmpty(alias)){
+            sb.append(" ").append(alias).append(".");
+        }
+        sb.append("\"").append(getColumn()).append("\"");
         return sb.toString();
     }
+    
 }

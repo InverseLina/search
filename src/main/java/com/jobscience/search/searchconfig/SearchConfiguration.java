@@ -52,6 +52,17 @@ public class SearchConfiguration {
         return null;
     }
     
+    public Filter getFilterByName(String name){
+        if(name!=null){
+            for(Filter filter:filters){
+                if(name.equals(filter.getName())){
+                    return filter;
+                }
+            }
+        }
+        return null;
+    }
+    
     public ContactField getContactField(ContactFieldType type){
         if(type!=null){
             for(ContactField field:contact.getContactFields()){

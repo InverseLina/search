@@ -15,12 +15,7 @@ public class ContactField extends Field {
         this.type = type;
     }
 
-    public String toString(String alias){
-        StringBuffer sb = new StringBuffer();
-        sb.append(" ").append(alias).append(".\"")
-          .append(getColumn()).append("\" ");
-        return sb.toString();
-    }
+ 
   
     public static ContactField getInstance(String name){
         ContactField cf = new ContactField();

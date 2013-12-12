@@ -22,6 +22,7 @@ import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
 import com.jobscience.search.searchconfig.ContactField;
 import com.jobscience.search.searchconfig.ContactFieldType;
+import com.jobscience.search.searchconfig.Filter;
 import com.jobscience.search.searchconfig.FilterField;
 import com.jobscience.search.searchconfig.FilterType;
 import com.jobscience.search.searchconfig.SearchConfiguration;
@@ -768,8 +769,12 @@ public class SearchDao {
      * @param groupBy
      * @return
      */
-    private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy){
+    private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy,StringBuffer searchedColumns){
         String schemaname = orgHolder.getSchemaName();
+        if(searchedColumns.toString().contains(orginalName.toLowerCase()+",")){
+            return "";
+        }
+        searchedColumns.append(orginalName.toLowerCase()).append(",");
         if(orginalName.toLowerCase().equals("name")){
     		return "lower(a.\"name\") as \"lname\"";
     	}else if(orginalName.toLowerCase().equals("id")){
@@ -825,7 +830,11 @@ public class SearchDao {
              groupBy.append("z.\"city\"");
     		return "  z.\"city\" as location ";
     	}
-    	return orginalName;
+        
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        Filter f = sc.getFilterByName(orginalName);
+        return f.getFilterField().toString("a")+" as \""+f.getName()+"\"";
+    	//return orginalName;
     }
     
     /**
@@ -834,11 +843,16 @@ public class SearchDao {
      * @return
      */
     private String getSearchColumnsForOuter(String searchColumns){
-    	StringBuilder sb = new StringBuilder();
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        StringBuilder sb = new StringBuilder();
     	if(searchColumns==null){
     		sb.append("id,name,lower(name) as \"lname\",email,lower(\"email\") as \"lemail\"lower(title) as \"ltitle\",title ,createddate");
     	}else{
 	    	for(String column:searchColumns.split(",")){
+	    	    if(sb.indexOf("as \""+column.toLowerCase()+"\"")!=-1||sb.indexOf(column.toLowerCase()+",")!=-1
+	    	       ||sb.indexOf("as \"l"+column.toLowerCase()+"\"")!=-1){
+	    	        continue;
+	    	    }
 		    	if(column.toLowerCase().equals("name")){
 		    		sb.append("lower(name) as \"lname\",");
 		    	}else if(column.toLowerCase().equals("title")){
@@ -861,6 +875,14 @@ public class SearchDao {
 		    		sb.append("name,lower(name) as \"lname\",");
 		    		sb.append("title,lower(title) as \"ltitle\",");
 		    		sb.append( " email ,lower(email) as \"lemail\",");
+		    	}else{
+		    	    Filter filter = sc.getFilterByName(column);
+		    	    if(filter!=null){
+		    	    System.out.println("========"+filter.getName());
+    		    	    if(sb.indexOf("as "+column)==-1&&sb.indexOf(column+",")==-1){
+    		    	        sb.append("\""+filter.getName()+"\"").append(" as \"").append(filter.getName()).append("\",");
+    		    	    }
+		    	    }
 		    	}
 	    	}
 	    	sb.append("id,name");//make id and name always return
@@ -885,8 +907,9 @@ public class SearchDao {
              groupBy.append(","+sc.toContactFieldsString("a")+",a.\"haslabel\" ");//
     	 }else{
     		 String temp = "";
+    		 StringBuffer sb = new StringBuffer("id,name,sfid,haslabel,");
  	        for(String column:searchColumns.split(",")){
- 	        	temp = getQueryColumnName(column,columnJoinTables,groupBy);
+ 	        	temp = getQueryColumnName(column,columnJoinTables,groupBy,sb);
  	        	if(!temp.trim().equals("")){
 	 	            columnsSql.append(temp);
 	 	            columnsSql.append(",");
@@ -939,10 +962,18 @@ public class SearchDao {
         countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
         
+        
         //---------------------- add select columns ----------------------//
+        String contactString = sc.toContactFieldsString("contact");
         querySql.append(" from ( select  distinct ")
-	            .append(sc.toContactFieldsString("contact"))
-	            .append(",case  when ")
+	            .append(contactString);
+        for(Filter f:sc.getFilters()){
+            if(f.getFilterType()==null&&contactString.indexOf(f.getFilterField().toString("contact"))==-1){
+                querySql.append(",").append(f.getFilterField().toString("contact"));
+                groupBy.append(",").append(f.getFilterField().toString("a"));
+            }
+        }
+        querySql.append(",case  when ")
                 .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
                 .append(" is null  or " )
                 .append("char_length(")
