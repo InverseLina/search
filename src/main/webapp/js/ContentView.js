@@ -18,9 +18,6 @@
       view.tableOrderType = null;
 
       view.empty();
-      $(window).resize(function() {
-        fixColWidth.call(view);
-      });
       if(app.cookie("userName")){
           var userName = app.cookie("userName");
           if(userName) {
@@ -534,6 +531,9 @@
     winEvents : {
         resize: function (event) {
             var view = this;
+            
+            fixColWidth.call(view);
+            
             var $pagination = view.$el.find(".pagination");
             if ($pagination.length > 0) {
                 var $resultCount = view.$el.find(".resultCount");
