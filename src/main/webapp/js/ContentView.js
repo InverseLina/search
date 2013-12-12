@@ -275,6 +275,10 @@
       brite.display("MessagePanel",".search-result", {message: "No Organization selected"})
 
     },
+    showSearchError : function() {
+		var view = this;
+		showSearchErrorMesage.call(view);
+    },
     empty : function() {
       var view = this;
       view.$searchInfo.empty();
