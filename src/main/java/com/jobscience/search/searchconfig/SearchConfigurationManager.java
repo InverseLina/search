@@ -70,12 +70,6 @@ public class SearchConfigurationManager {
                 filters.add(m);
         }
         
-        filters.add(mapIt(           "name",   "location",
-                                    "title",   "Location",
-                                   "native",   true,
-                                     "show",   false,
-                                     "type",   "location"));
-        
          filters.add(mapIt(          "name",   "resume",
                                     "title",   "Resume",
                                    "native",   true,

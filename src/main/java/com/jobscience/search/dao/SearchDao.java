@@ -221,21 +221,38 @@ public class SearchDao {
     }
     
     public SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
-
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        Filter filter = sc.getFilterByName(type);
+        if(filter==null){
+             return null;
+        }
+        FilterType f = filter.getFilterType();
         String baseTable = "";
-        if(type.equals("company")){
+        if(f==null&&!type.equals("location")){
+            baseTable=sc.getContact().getTable();
+        }else if(f.equals(FilterType.COMPANY)){
             baseTable =  "ex_grouped_employers ";
-        }else if(type.equals("education")){
+        }else if(f.equals(FilterType.EDUCATION)){
             baseTable =  "ex_grouped_educations ";
-        }else if(type.equals("skill")){
+        }else if(f.equals(FilterType.SKILL)){
             baseTable =  "ex_grouped_skills ";
-        }else if(type.equals("location")){
+        }else if(f.equals(FilterType.LOCATION)){
             baseTable =  "ex_grouped_locations ";
         }
-
-        StringBuilder querySql = new StringBuilder(" select count,name from " + baseTable + " ");
-        if(queryString!=null&&queryString.trim().length()>0){
-            querySql.append(" where name ilike '"+ queryString+"%'");
+        
+        StringBuilder querySql;
+        if(f==null){
+            FilterField ff = sc.getFilterByName(type).getFilterField();
+            querySql = new StringBuilder(" select count(id) as \"count\","+ff.toString("")+" as name from " + baseTable + " ")
+                                    .append(" where "+ff.getColumn()+" ilike '")
+                                    .append(queryString)
+                                    .append("' group by "+ff.getColumn());
+            
+        }else{
+             querySql = new StringBuilder(" select count,name from " + baseTable + " ");
+            if(queryString!=null&&queryString.trim().length()>0){
+                querySql.append(" where name ilike '"+ queryString+"%'");
+            }
         }
         querySql.append(" order by count desc limit 7 ");
         Long start = System.currentTimeMillis();

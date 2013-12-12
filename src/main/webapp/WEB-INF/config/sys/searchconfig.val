@@ -3,20 +3,24 @@
      <field table="contact_ex" column="contact_tsv" />
      <field table="contact_ex" column="resume_tsv" />
   </keyword>
-  <filter name="skills" title="Skills" filtertype="skill">
+  <filter name="skill" title="Skills" filtertype="skill">
      <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" silder="ts2__rating__c">
         <joinsilder table="ts2__assessment__c" column="ts2__rating__c" joincolumn=""/>
      </field>
   </filter>
 
-  <filter name="educations" title="Educations" filtertype="education">
+  <filter name="education" title="Educations" filtertype="education">
      <field table="ts2__education_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
   
-  <filter name="companies" title="Companies" filtertype="company">
+  <filter name="company" title="Companies" filtertype="company">
      <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
 
+  <filter name="location" title="Locations" filtertype="location">
+     <field table="ex_grouped_locations" column="name" />
+  </filter> 
+  
   <contact table="contact" title="Contact">
      <field name="id" column="id"/>
      <field name="email" column="email"/>
