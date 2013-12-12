@@ -17,7 +17,7 @@
       view.tableOrderColumn = null;
       view.tableOrderType = null;
 
-      view.empty();
+      view.showContentMessage("empty");
       if(app.cookie("userName")){
           var userName = app.cookie("userName");
           if(userName) {
@@ -63,7 +63,7 @@
         var keyword = $this.val();
         if (event.which === 13) {
         	if(keyword == null || keyword.length < 3){
-        		showSearchErrorMesage.call(view);
+        		view.showContentMessage("lessword");
         	}else{
         		view.$el.trigger("DO_SEARCH",{search:keyword});
         	}
@@ -261,39 +261,33 @@
 
 
     // --------- Public Methods--------- //
-    showErrorMessage : function(title, detail) {
-      var view = this;
-      view.$searchInfo.empty();
-      var html = render("search-query-error", {
-        title : title,
-        detail : detail,
-        colWidth : getColWidth.call(view)
-      });
-      view.$searchResult.find(".tableContainer").html(html);
-      view.$searchResult.find(".page").empty();
-      fixColWidth.call(view);
-      brite.display("MessagePanel",".search-result", {message: "No Organization selected"})
-
-    },
-    showSearchError : function() {
-		var view = this;
-		showSearchErrorMesage.call(view);
-    },
-    empty : function() {
-      var view = this;
-      view.$searchInfo.empty();
-      view.$searchResult.find(".tableContainer").html(render("search-empty", {
-        colWidth : getColWidth.call(view)
-      }));
-      view.$searchResult.find(".page").empty();
-      fixColWidth.call(view);
-    },
-    loading : function() {
-      var view = this;
-      view.$searchInfo.empty();
-      view.$searchResult.find(".page").empty();
-      view.$searchResult.find(".tableContainer").html(render("search-loading"));
-      fixColWidth.call(view);
+    showContentMessage : function(cmd,extra){
+    	var view = this;
+    	view.$searchInfo.empty();
+    	var $tabContainer = view.$searchResult.find(".tableContainer");
+    	if(cmd == "empty"){
+		    $tabContainer.html(render("search-empty", {
+		      colWidth : getColWidth.call(view)
+		    }));
+    	}else if(cmd == "loading"){
+	      	$tabContainer.html(render("search-loading"));
+    	}else if(cmd == "lessword"){
+	        $tabContainer.html(render("search-query-less-words", {
+	          colWidth : getColWidth.call(view),
+	          labelAssigned: app.buildPathInfo().labelAssigned
+	        }));
+		    view.restoreSearchParam();
+    	}else if(cmd == "error"){
+	        var html = render("search-query-error", {
+		        title : extra.title,
+		        detail : extra.detail,
+		        colWidth : getColWidth.call(view)
+		      });
+		      $tabContainer.html(html);
+		      brite.display("MessagePanel",".search-result", {message: "No Organization selected"});
+    	}
+	    view.$searchResult.find(".page").empty();
+	    fixColWidth.call(view);
     },
       restoreSearchParam: function (filters){
         var key, dataName, data, displayName, $html, $th, view = this;
@@ -369,7 +363,9 @@
       "ON_ERROR":function(event, extra) {
           var view = this;
           if(extra){
-            view.showErrorMessage(extra.errorCode||"", extra.errorMessage||"");
+          	var title = extra.errorCode||"";
+          	var detail = extra.errorMessage || "";
+            view.showContentMessage("error",{title:title, detail:detail});
           }
       },
       "ERROR_PROCESS": function (event, extra) {
@@ -777,17 +773,6 @@
       view.$searchInfo.html(htmlInfo.format(result.count, result.count > 1 ? "es":"", direct, offset));
   }
   
-  function showSearchErrorMesage(){
-	  var view = this;
-      view.$searchInfo.empty();
-      view.$searchResult.find(".tableContainer").html(render("search-query-less-words", {
-        colWidth : getColWidth.call(view),
-        labelAssigned: app.buildPathInfo().labelAssigned
-      }));
-      view.$searchResult.find(".page").empty();
-      fixColWidth.call(view);
-      view.restoreSearchParam();
- }
   // --------- /Private Methods--------- //
 
 

@@ -35,7 +35,7 @@
 	 		}
 	 		
 	 		if(search == null || search.length < 3){
-	 			view.contentView.showSearchError();
+	 			view.contentView.showContentMessage("lessword");
 	 		}else{
 	 			view.$el.trigger("DO_SEARCH",{search:search});
 	 		}
@@ -87,7 +87,7 @@
         opts = opts || {};
         var search = opts.search;
 
-        view.contentView.loading();
+        view.contentView.showContentMessage("loading");
         view.contentView.restoreSearchParam();
         var searchParameter = app.ParamsControl.getParamsForSearch({search: search});
         searchParameter.pageIndex = opts.pageIdx || 1;
