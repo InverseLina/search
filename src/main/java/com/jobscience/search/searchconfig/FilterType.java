@@ -23,6 +23,9 @@ public enum FilterType {
     }
     
     public boolean equals(FilterType filterType){
+        if(filterType==null){
+            return false;
+        }
         return this.val==filterType.getVal();
     }
     
