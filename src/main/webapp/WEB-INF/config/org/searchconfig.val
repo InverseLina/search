@@ -16,10 +16,6 @@
   <filter name="company" title="Companies" filtertype="company">
      <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
-
-  <filter name="location" title="Locations" filtertype="location" show="false">
-     <field table="ex_grouped_locations" column="name" />
-  </filter> 
   
   <contact table="contact" title="Contact">
      <field name="id" column="id"/>

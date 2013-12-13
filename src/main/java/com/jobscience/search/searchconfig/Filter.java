@@ -13,6 +13,35 @@ public class Filter {
     
     private String title;
     
+    private boolean delete;
+    
+    private String show;
+    
+    @XmlAttribute
+    public boolean isDelete() {
+        return delete;
+    }
+
+    public void setDelete(boolean delete) {
+        this.delete = delete;
+    }
+
+    @XmlAttribute(name="show")
+    public String getShow() {
+        return show;
+    }
+
+    public void setShow(String show) {
+        this.show = show;
+    }
+    
+    public boolean isNeedShow() {
+        if(show==null){
+            return true;
+        }
+        return "true".equals(show);
+    }
+   
     @XmlAttribute
     public String getTitle() {
         return title;
