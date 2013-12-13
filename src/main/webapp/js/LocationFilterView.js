@@ -9,7 +9,7 @@
     var component = {
         create: function (data, config) {
             this.type = "location";
-            var html = render("FilterLocation", {});
+            var html = render("LocationFilterView", {});
             return html;
         },
         afterPostDisplay: function () {

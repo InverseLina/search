@@ -9,7 +9,7 @@
     var component = {
         create: function (data, config) {
             this.type = "skill";
-            var html = render("FilterSkill", {});
+            var html = render("SkillFilterView", {});
             return html;
         },
 

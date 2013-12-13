@@ -9,7 +9,7 @@
     var component = {
         create: function (data, config) {
             this.type = "company";
-            var html = render("FilterEmployer", {});
+            var html = render("CompanyFilterView", {});
             return html;
         },
 

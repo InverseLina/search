@@ -70,7 +70,7 @@ var app = app || {};
                             if (type == "company") {
                                 type = "employer";
                             }
-                            $input.closest(".Filter" + type.substring(0, 1).toUpperCase() + type.substring(1)).find(".autoCompleteList").html(render("filterPanel-autoComplete-list", {results: result["list"], type: type}));
+                            $input.closest(".rootFilterContainer").find(".autoCompleteList").html(render("filterPanel-autoComplete-list", {results: result["list"], type: type}));
                             activeFirstItem.call(view);
                             view.$el.bView("HeaderPopup").$el.find(".duration").text("" + (result.duration || 0) + "ms");
                         });
