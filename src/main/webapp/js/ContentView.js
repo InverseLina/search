@@ -117,56 +117,12 @@
           event.preventDefault();
           event.stopPropagation();
     	  var view = this;
-    	  //$("[data-b-view^='Filter']",view.$el).bRemove();
     	  var $th = $(event.currentTarget).closest("th");
-    	  var position = {top:$th.get(0).offsetTop+$th.height() + 40,left:$th.get(0).offsetLeft+$th.width()/2-195};
-//          console.log(position);
-          if(position.left <  20 ){
-              position.left = 20;
-          }
-          var popupOffset =  $(".btnPopupColumns", view.$el).offset();
-          if(position.left +  400 > popupOffset.left){
-              position.left =  popupOffset.left - 400;
-          }
-    	  var type = $th.attr("data-column");
 
-          var data = app.ParamsControl.getFilterParams()[type]||[];
-
-          if(type=="company") {
-              type= "employer";
-          }
-          if(type=="contact") {
-              data = app.ParamsControl.getFilterParams()["Contact"]||[];
-          }
-/*          var viewName = "Filter"+type.substring(0, 1).toUpperCase()+type.substring(1);
-    	  if(type=="skill"||type=="contact"||type=="education"||type=="employer"||type=="location"){
-              if(view.filterDlg){
-                  view.filterDlg.close();
-              }
-              brite.display(viewName,".ContentView",{position:position,type:type, data:data,th: $th }).done(function(filterDlg){
-                   view.filterDlg =  filterDlg
-              });
-           }*/
-          
-          var render = app.getFilterRender(type);
-          
-          //FIXME: wang add, for now, just for contact column
-			if (type == "contact") {
-				view.$el.trigger("POPUP_CLOSE");
-				brite.display("HeaderPopup", ".ContentView", {
-					$target : $th
-				}).done(function(popup) {
-					app.filter.contact.filterRenderer(null, popup);
-				});
-			} else {
-				if (view.filterDlg) {
-					view.filterDlg.close();
-				}
-				render.filterRenderer($th, position, data, function(filterDlg) {
-					view.filterDlg = filterDlg;
-				});
-			}
-
+          view.$el.trigger("POPUP_CLOSE");
+          brite.display("HeaderPopup", ".ContentView", {
+              $target : $th
+          });
           
       },
       "change; .tableContainer td input[type='checkbox']" : function(event) {
@@ -492,12 +448,6 @@
 
               //restore input values
               $e.find(".search-input").val(app.ParamsControl.getQuery());
-              
-              
-              //FIXME: just now use custom render way for contact
-	            var $td = $("body").find("th[data-column='contact']");
-	            console.log($("body").find("th[data-column='contact']").html());
-	            app.filter.contact.headerRenderer({$td:$td,name:"contact",label:"Contddact"});
 
               view.restoreSearchParam();
 

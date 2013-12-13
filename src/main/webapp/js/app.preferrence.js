@@ -44,7 +44,7 @@ var app = app || {};
 
         },
         displayColumns: function(){
-            return app.getSearchUiConfig();
+            return app.getSearchUiConfig(true);
         }
     }
 

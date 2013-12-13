@@ -14,8 +14,7 @@
                 </div></td>
                 <!--<td class="checkboxCol"><input type="checkbox" checked="true"/></td>-->
                 {{#each row}}
-                    <td data-column="{{name}}" data-value="{{realValue}}"
-                        ><span>{{rmComma value}}</span></td>
+                    {{{renderCell this}}}
                 {{/each}}
             </tr>
             {{/each}}
@@ -124,11 +123,6 @@
     </div>
 </script>
 <script id="search-query-generic-render-cell" type="text/html">
-    <div class="headerTh {{name}}Th">
-        <span class="columnName">{{title}}</span>
-        <div class="selectedItems">
-            <span class="addFilter" styee="display:none">+&nbsp;add filter</span>
-        </div>
-        <span class="desc">&darr;</span><span class="asc">&uarr;</span>
-    </div>
+    <td data-column="{{name}}" data-value="{{realValue}}"
+            ><span>{{rmComma value}}</span></td>
 </script>

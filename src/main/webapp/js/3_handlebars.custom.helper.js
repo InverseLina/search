@@ -101,8 +101,13 @@
     });
 
     Handlebars.registerHelper('renderHeader', function(filterInfo, options) {
-        var render = app.getFilterRender(filterInfo.name);
-        var html  = render.headerRenderer(filterInfo);
+        var render = app.getHeaderRender(filterInfo.name);
+        var html  = render(filterInfo);
+        return html;
+    });
+    Handlebars.registerHelper('renderCell', function(filterInfo, options) {
+        var render = app.getCellRender(filterInfo.name);
+        var html  = render(filterInfo);
         return html;
     });
 

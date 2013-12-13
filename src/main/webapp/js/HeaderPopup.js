@@ -20,11 +20,12 @@
 			var $e = view.$el;
 			view.$content = $e.find(".popover-content");
 			view.$el.css("opacity",0);
+            console.log(data);
 			if (data.$target) {
 				var $target = data.$target;
 				var targetCenter = $target.offset().left + $target.outerWidth() / 2;
 				var left = targetCenter - $e.width() / 2;
-				var top = $target.offset().top + $target.height() + 20;
+				var top = $target.offset().top + $target.height() + 10;
 				
 				if(left <= 10){
 					var arrowPos = $e.find(".arrow").offset();
@@ -46,6 +47,19 @@
 					left : left,
 					top : top
 				});
+                //call render method
+                var type = $target.attr("data-column");
+                /*
+                var data = app.ParamsControl.getFilterParams()[type]||[];
+
+                if(type=="company") {
+                    type= "employer";
+                }
+                if(type=="contact") {
+                    data = app.ParamsControl.getFilterParams()["Contact"]||[];
+                }*/
+                var render = app.getFilterRender(type);
+                render(view.$content, $target);
 				
 			}
 			view.$el.css("opacity",1);
