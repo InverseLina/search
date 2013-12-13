@@ -4,12 +4,8 @@ var app = app || {};
     var cache;
 
 
-    function genericHeaderRenderer(filterInfo) {
-        return render("search-query-generic-render-header", filterInfo);
-    }
-
-    function genericCellRenderer(filterInfo) {
-        return render("search-query-generic-render-header", filterInfo);
+    function genericHeaderFilterRenderer(filterInfo) {
+        return render("search-query-generic-filter-render-header", filterInfo);
     }
 
     var getConfig = function () {
@@ -47,6 +43,7 @@ var app = app || {};
 
     var filters = {
         contact: {
+            headerRenderer: genericHeaderFilterRenderer,
             filterRenderer: function ($content, headerInfo) {
                 var data = app.ParamsControl.getFilterParams()['contract'] || [];
                 return brite.display("ContactFilterView", $content, {data: data, th: headerInfo });
@@ -54,18 +51,21 @@ var app = app || {};
             }
         },
         company: {
+            headerRenderer: genericHeaderFilterRenderer,
             filterRenderer: function ($content, headerInfo) {
                 var data = app.ParamsControl.getFilterParams()['company'] || [];
                 brite.display("CompanyFilterView", $content, {data: data, th: headerInfo });
             },
         },
         skill: {
+            headerRenderer: genericHeaderFilterRenderer,
             filterRenderer: function ($content, headerInfo) {
                 var data = app.ParamsControl.getFilterParams()['skill'] || [];
                 brite.display("SkillFilterView", $content, {data: data, th: headerInfo });
             },
         },
         education: {
+            headerRenderer: genericHeaderFilterRenderer,
             filterRenderer: function ($content, headerInfo) {
                 var data = app.ParamsControl.getFilterParams()['education'] || [];
                 brite.display("EducationFilterView", $content, {data: data, th: headerInfo });
@@ -73,23 +73,25 @@ var app = app || {};
 
         },
         location: {
+            headerRenderer: genericHeaderFilterRenderer,
+            headerRenderer: genericHeaderFilterRenderer,
             filterRenderer: function ($content, headerInfo) {
                 var data = app.ParamsControl.getFilterParams()['location'] || [];
                 brite.display("LocationFilterView", $content, {data: data, th: headerInfo });
             }
-        },
+        }
 
     }
-
+    //for generic not default filter render
     var genericRender = {
         headerRenderer: function (filterInfo) {
             return render("search-query-generic-render-header", filterInfo);
         },
-        fitlerRenderer: function (headerInfo, popup) {
+/*        filterRenderer: function (headerInfo, popup) {
             // render the inside of the filter popup
             // should probably call something like
             brite.display("ContactFilterView", popup.$content, headerInfo); // for example
-        },
+        },*/
         cellRenderer: function (cellInfo) {
             return render("search-query-generic-render-cell", cellInfo);
         }

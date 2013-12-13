@@ -23,12 +23,6 @@ var app = app || {};
             },
             postDisplay: function (data) {
                 var item, html, displayName, view = this;
-                /*            if (data.th) {
-                 var thCenter = data.th.offset().left + data.th.outerWidth() / 2;
-                 var left = thCenter - view.$el.find(".popover").offset().left;
-                 view.$el.find(".bottom .arrow").css({left: left});
-                 }*/
-                console.log("post display");
                 data = (data || {}).data || [];
                 $.each(data, function (idx, val) {
                     item = {name: val.name};
@@ -68,7 +62,6 @@ var app = app || {};
                     var listName = (type == "company" ? "companies" : (type + "s"));
                     var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
                     delete params["q_" + listName];
-//    	 console.log(params);
                     searchDao.getGroupValuesForAdvanced({
                         "searchValues": JSON.stringify(params),
                         "type": type,
@@ -326,8 +319,7 @@ var app = app || {};
             } else {
                 $input.closest("span.autoCompleteContainer").removeClass("active");
             }
-//      event.preventDefault();
-//      console.log(event.keyCode)
+
             switch (event.keyCode) {
                 case borderKey.ENTER:
                 case borderKey.TAB:

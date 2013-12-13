@@ -20,7 +20,6 @@
 			var $e = view.$el;
 			view.$content = $e.find(".popover-content");
 			view.$el.css("opacity",0);
-            console.log(data);
 			if (data.$target) {
 				var $target = data.$target;
 				var targetCenter = $target.offset().left + $target.outerWidth() / 2;
