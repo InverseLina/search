@@ -377,6 +377,7 @@ public class SearchDao {
            JSONArray contacts = JSONArray.fromObject(searchValues.get("contacts"));
            if(contacts.size()>0){//First add 1!=1,cause for all contacts,would do with "OR"
         	   conditions.append(" AND (1!=1 ");
+        	   
            }
            for(int i=0,j=contacts.size();i<j;i++){
         	   JSONObject contact = JSONObject.fromObject(contacts.get(i));
@@ -776,6 +777,23 @@ public class SearchDao {
 	       }
 	   }
 	   
+	   
+
+	   for(String name:searchValues.keySet()){
+	       if(isNativeSearchParam(name)){
+	           continue;
+	       }
+	       JSONArray extraValues = JSONArray.fromObject(searchValues.get(name));
+	       if(extraValues.size()>0){
+	           conditions.append(" AND (1!=1 ");
+	           for(int i=0,j=values.size();i<j;i++){
+	               JSONObject value = JSONObject.fromObject(extraValues.get(i));
+	               conditions.append(" OR ").append(name).append("= '").append(value.get("name")).append("'");
+	           }
+	           conditions.append(" ) ");
+	       }
+	   }
+	   
 	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),labelSql.toString(),locationSql.toString()};
     }
     
@@ -895,7 +913,6 @@ public class SearchDao {
 		    	}else{
 		    	    Filter filter = sc.getFilterByName(column);
 		    	    if(filter!=null){
-		    	    System.out.println("========"+filter.getName());
     		    	    if(sb.indexOf("as "+column)==-1&&sb.indexOf(column+",")==-1){
     		    	        sb.append("\""+filter.getName()+"\"").append(" as \"").append(filter.getName()).append("\",");
     		    	    }
@@ -1475,6 +1492,25 @@ public class SearchDao {
             instance = "z";
         }
         return instance;
+    }
+    
+    private boolean isNativeSearchParam(String name){
+        List<String> searchParams = new ArrayList<String>();
+        searchParams.add("search");
+        searchParams.add("label");
+        searchParams.add("labelAssigned");
+        searchParams.add("contacts");
+        searchParams.add("skills");
+        searchParams.add("companies");
+        searchParams.add("educations");
+        searchParams.add("locations");
+        
+        for(String s:searchParams){
+            if(s.equals(name)){
+                return true;
+            }
+        }
+        return false;
     }
     
 }
