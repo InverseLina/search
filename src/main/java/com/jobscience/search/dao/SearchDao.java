@@ -243,16 +243,17 @@ public class SearchDao {
         StringBuilder querySql;
         if(f==null){
             FilterField ff = sc.getFilterByName(type).getFilterField();
-            querySql = new StringBuilder(" select count(id) as \"count\","+ff.toString("")+" as name from " + baseTable + " ");
+            querySql = new StringBuilder(" select count(id) as \"count\","+ff.toString("")+" as name from " + baseTable + " where 1=1 ");
             if(queryString!=null&&queryString.trim().length()>0){
-                querySql.append(" where "+ff.getColumn()+" ilike '"+ queryString+"%'");
+                querySql.append(" AND  "+ff.getColumn()+" ilike '"+ queryString+"%'");
             }
-            querySql.append(" group by "+ff.getColumn());
+            querySql.append(" AND "+ff.getColumn()+"!='' ")
+            .append(" AND "+ff.getColumn()).append(" is not null   group by "+ff.getColumn());
             
         }else{
-             querySql = new StringBuilder(" select count,name from " + baseTable + " ");
+             querySql = new StringBuilder(" select count,name from " + baseTable + " where 1=1 ");
             if(queryString!=null&&queryString.trim().length()>0){
-                querySql.append(" where name ilike '"+ queryString+"%'");
+                querySql.append(" AND name ilike '"+ queryString+"%'");
             }
         }
         querySql.append(" order by count desc limit 7 ");
@@ -264,7 +265,6 @@ public class SearchDao {
         runner.close();
         Long end = System.currentTimeMillis();
         //log for performance
-
 
         queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
         queryLogger.debug(LoggerType.AUTO_PERF, end-start);
@@ -768,17 +768,8 @@ public class SearchDao {
 	               .append(contactQueryCondition);
 		   values.addAll(subValues);
 	   }
-	   //if there has no condition,just append 1!=1
-	   if(!hasCondition&&!advanced){
-	       conditions.append(" and 1!=1 ");
-	   }
-	   
-	   if(!advanced){
-	       if(hasSearchValue){
-	           querySql=new StringBuilder(" join (").append(querySql);
-	       }
-	   }
-	   
+	 
+	 
 	   
 
 	   for(String name:searchValues.keySet()){
@@ -788,14 +779,27 @@ public class SearchDao {
 	       JSONArray extraValues = JSONArray.fromObject(searchValues.get(name));
 	       if(extraValues.size()>0){
 	           conditions.append(" AND (1!=1 ");
-	           for(int i=0,j=values.size();i<j;i++){
+	           for(int i=0,j=extraValues.size();i<j;i++){
 	               JSONObject value = JSONObject.fromObject(extraValues.get(i));
-	               conditions.append(" OR ").append(name).append("= '").append(value.get("name")).append("'");
+	               conditions.append(" OR ").append(name.substring(0, name.length()-1)).append("= '").append(value.get("name")).append("'");
 	           }
 	           conditions.append(" ) ");
+	           hasCondition = true;
 	       }
 	   }
 	   
+	   //if there has no condition,just append 1!=1
+       if(!hasCondition&&!advanced){
+           conditions.append(" and 1!=1 ");
+       }
+       
+       
+       if(!advanced){
+           if(hasSearchValue){
+               querySql=new StringBuilder(" join (").append(querySql);
+           }
+       }
+       
 	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),labelSql.toString(),locationSql.toString()};
     }
     
