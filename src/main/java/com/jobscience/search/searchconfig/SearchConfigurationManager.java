@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -106,31 +105,35 @@ public class SearchConfigurationManager {
         org.w3c.dom.Element e =  result.createElement("searchconfig");
         NodeList sysNodes = sys.getElementsByTagName("filter");
         NodeList orgNodes = org.getElementsByTagName("filter");
-        Map<String,Node> nodeMap = new TreeMap<String, Node>();
+        Map<String,Node> sysNodeMap = new HashMap<String, Node>();
+        List<Node> sysNodesList = new ArrayList<Node>();
+        List<Node> nodesList = new ArrayList<Node>();
         for(int current = 0,length=sysNodes.getLength();current<length;current++){
             Node n = sysNodes.item(current);
-            nodeMap.put(n.getAttributes().getNamedItem("name").getNodeValue(), n);
+            sysNodeMap.put(n.getAttributes().getNamedItem("name").getNodeValue(), n);
+            sysNodesList.add(n);
         }
         for(int current = 0,length=orgNodes.getLength();current<length;current++){
             Node n = orgNodes.item(current);
             NamedNodeMap nameMap = n.getAttributes();
             String name = n.getAttributes().getNamedItem("name").getNodeValue();
-            if(nodeMap.containsKey(name)){
+            if(sysNodeMap.containsKey(name)){
                 boolean delete = false;
                 if(nameMap.getNamedItem("delete")!=null&&"true".equals(nameMap.getNamedItem("delete").getNodeValue())){
                     delete = true;
                 }
-                if(delete){
-                    nodeMap.remove(name);
-                }else{
-                    nodeMap.put(name, n);
+                sysNodesList.remove(sysNodeMap.get(name));
+                sysNodeMap.remove(name);
+                if(!delete){
+                    nodesList.add(n);
                 }
             }else{
-                nodeMap.put(name, n);
+                nodesList.add(n);
             }
         }
         
-        for(Node n:nodeMap.values()){
+        nodesList.addAll(sysNodesList);
+        for(Node n:nodesList){
             e.appendChild(result.importNode(n, true));
         }
         
@@ -175,4 +178,5 @@ public class SearchConfigurationManager {
        
         return e;
     }
+    
 }
