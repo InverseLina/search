@@ -10,14 +10,10 @@ var app = app || {};
                 var view = this;
                 if (type == "company" || type == "education" || type == "skill" || type == "location") {
                     var $e = $(render(view.name, {}));
-                    var $html = $(render("filterPanel", data));
-                    $html.find(".popover-content").html($e);
-                    dfd.resolve($html);
+                    dfd.resolve($e);
                 } else {
                     var $e = $(render(view.name));
-                    var $html = $(render("filterPanel", data));
-                    $html.find(".popover-content").html($e);
-                    dfd.resolve($html);
+                    dfd.resolve($e);
                 }
                 return dfd.promise();
             },
