@@ -122,9 +122,40 @@ public class SearchConfigurationManager {
                 if(nameMap.getNamedItem("delete")!=null&&"true".equals(nameMap.getNamedItem("delete").getNodeValue())){
                     delete = true;
                 }
-                sysNodesList.remove(sysNodeMap.get(name));
+                Node sysNode = sysNodeMap.get(name);
+                NamedNodeMap sysNodeNameMap =  sysNode.getAttributes();
+                sysNodesList.remove(sysNode);
                 sysNodeMap.remove(name);
+                
                 if(!delete){
+                    if(nameMap.getNamedItem("title")==null&&sysNodeNameMap.getNamedItem("title")!=null){
+                        ((Element)n).setAttribute("title", sysNodeNameMap.getNamedItem("title").getNodeValue());
+                    }
+                    if(nameMap.getNamedItem("filtertype")==null&&sysNodeNameMap.getNamedItem("filtertype")!=null){
+                        ((Element)n).setAttribute("filtertype", sysNodeNameMap.getNamedItem("filtertype").getNodeValue());
+                    }
+                    if(nameMap.getNamedItem("show")==null&&sysNodeNameMap.getNamedItem("show")!=null){
+                        ((Element)n).setAttribute("show", sysNodeNameMap.getNamedItem("show").getNodeValue());
+                    }
+                    if(n.getChildNodes().getLength()==0){
+                       
+                    }
+                    NodeList filterNodes = n.getChildNodes();
+                    boolean hasField = false; 
+                    for(int c = 0,l=filterNodes.getLength();c<l;c++){
+                        if(filterNodes.item(c).getNodeType()==1){
+                            hasField = true;
+                        }
+                    }
+                    
+                    if(!hasField){
+                        NodeList sysFilterNodes = sysNode.getChildNodes();
+                        for(int c = 0,l=sysFilterNodes.getLength();c<l;c++){
+                            if(sysFilterNodes.item(c).getNodeType()==1){
+                                n.appendChild(org.importNode(sysFilterNodes.item(c),true));
+                            }
+                        }
+                    }
                     nodesList.add(n);
                 }
             }else{
