@@ -15,7 +15,7 @@ var app = app || {};
             app.getJsonData("searchuiconfig", {org: org}, {async: false}).done(function (result) {
                 filters = result;
             });
-            return $.map(filters, function (item) {
+            return $.map(filters||{}, function (item) {
                 item.serverName = item.name;
                 item.name = item.type;
                 item.display = item.title;
@@ -25,7 +25,7 @@ var app = app || {};
                 return item;
             });
         } else {
-            return null;
+            return {};
         }
     };
 
