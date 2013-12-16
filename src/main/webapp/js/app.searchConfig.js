@@ -15,15 +15,18 @@ var app = app || {};
             app.getJsonData("searchuiconfig", {org: org}, {async: false}).done(function (result) {
                 filters = result;
             });
-            return $.map(filters||{}, function (item) {
-                item.serverName = item.name;
-                item.name = item.type;
+            var temp = [];
+            $.each(filters||{}, function (idx, item) {
+//                item.serverName = item.name;
+//                item.name = item.type;
                 item.display = item.title;
-                if (item.type == 'custom') {
-                    item.name = item.serverName;
-                }
-                return item;
+//                if (item.type == 'custom') {
+//                    item.name = item.serverName;
+//                }
+                temp.push(item);
+                temp[item.name] = item;
             });
+            return temp;
         } else {
             return {};
         }
@@ -39,6 +42,9 @@ var app = app || {};
             cache = getConfig();
             return cache;
         }
+    }
+    app.getSearchFilter = function(name){
+        return cache[name];
     }
 
     var filters = {
@@ -87,11 +93,15 @@ var app = app || {};
         headerRenderer: function (filterInfo) {
             return render("search-query-generic-render-header", filterInfo);
         },
-/*        filterRenderer: function (headerInfo, popup) {
-            // render the inside of the filter popup
-            // should probably call something like
-            brite.display("ContactFilterView", popup.$content, headerInfo); // for example
-        },*/
+        filterRenderer: function ($content, headerInfo) {
+
+            var type = headerInfo.attr("data-column");
+            var data = app.ParamsControl.getFilterParams()[type] || [];
+            console.log(app.getSearchUiConfig())
+            var filterInfo = app.getSearchFilter(type);
+            console.log(filterInfo)
+            brite.display("GenericFilterView", $content,  {data: data, th: headerInfo, filterInfo: filterInfo }); // for example
+        },
         cellRenderer: function (cellInfo) {
             return render("search-query-generic-render-cell", cellInfo);
         }

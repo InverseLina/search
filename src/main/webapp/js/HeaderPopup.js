@@ -45,19 +45,11 @@
 					left : left,
 					top : top
 				});
-                //call render method
+                //call filterRender method
                 var type = $target.attr("data-column");
-                /*
-                var data = app.ParamsControl.getFilterParams()[type]||[];
-
-                if(type=="company") {
-                    type= "employer";
-                }
-                if(type=="contact") {
-                    data = app.ParamsControl.getFilterParams()["Contact"]||[];
-                }*/
-                var render = app.getFilterRender(type);
-                render(view.$content, $target);
+                console.log(type)
+                var filterRender = app.getFilterRender(type);
+                filterRender(view.$content, $target);
 				
 			}
 			view.$el.css("opacity",1);
