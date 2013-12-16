@@ -243,10 +243,11 @@ public class SearchDao {
         StringBuilder querySql;
         if(f==null){
             FilterField ff = sc.getFilterByName(type).getFilterField();
-            querySql = new StringBuilder(" select count(id) as \"count\","+ff.toString("")+" as name from " + baseTable + " ")
-                                    .append(" where "+ff.getColumn()+" ilike '")
-                                    .append(queryString)
-                                    .append("' group by "+ff.getColumn());
+            querySql = new StringBuilder(" select count(id) as \"count\","+ff.toString("")+" as name from " + baseTable + " ");
+            if(queryString!=null&&queryString.trim().length()>0){
+                querySql.append(" where "+ff.getColumn()+" ilike '"+ queryString+"%'");
+            }
+            querySql.append(" group by "+ff.getColumn());
             
         }else{
              querySql = new StringBuilder(" select count,name from " + baseTable + " ");
@@ -255,6 +256,7 @@ public class SearchDao {
             }
         }
         querySql.append(" order by count desc limit 7 ");
+        
         Long start = System.currentTimeMillis();
         Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
          
