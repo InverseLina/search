@@ -247,7 +247,7 @@ public class SearchDao {
             if(queryString!=null&&queryString.trim().length()>0){
                 querySql.append(" AND  "+ff.getColumn()+" ilike '"+ queryString+"%'");
             }
-            querySql.append(" AND "+ff.getColumn()+"!='' ")
+            querySql.append(" AND ("+ff.getColumn()+"||'')!='' ")
             .append(" AND "+ff.getColumn()).append(" is not null   group by "+ff.getColumn());
             
         }else{
