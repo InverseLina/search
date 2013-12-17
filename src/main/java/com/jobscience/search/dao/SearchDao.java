@@ -248,7 +248,8 @@ public class SearchDao {
                 querySql.append(" AND  "+ff.getColumn()+" ilike '"+ queryString+"%'");
             }
             querySql.append(" AND ("+ff.getColumn()+"||'')!='' ")
-            .append(" AND "+ff.getColumn()).append(" is not null   group by "+ff.getColumn());
+                    .append(" AND ("+ff.getColumn()+"||'')!='null' ")
+                    .append(" AND "+ff.getColumn()).append(" is not null   group by "+ff.getColumn());
             
         }else{
              querySql = new StringBuilder(" select count,name from " + baseTable + " where 1=1 ");
