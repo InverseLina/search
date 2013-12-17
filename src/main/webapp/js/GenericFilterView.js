@@ -11,7 +11,6 @@
         create: function (data, config) {
             this.type = data.filterInfo.name;
             var html = render("GenericFilterView", data);
-            console.log(data);
             return html;
         },
 
@@ -52,8 +51,6 @@
             $input.focus();
             view.lastQueryString = $input.val();
             var type = $input.attr("data-type");
-            console.log(type)
-            console.log(view.type)
             var listName = (type == "company" ? "companies" : (type + "s"));
             var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
             delete params["q_" + listName];
@@ -62,7 +59,6 @@
                 "type": type,
                 "orderByCount": true
             }).always(function (result) {
-                    console.log(result)
                     $input.closest(".rootFilterContainer").find(".autoCompleteList").html(render("filterPanel-autoComplete-list", {results: result["list"], type: type}));
                     activeFirstItem.call(view);
                     view.$el.bView("HeaderPopup").$el.find(".duration").text("" + (result.duration || 0) + "ms");

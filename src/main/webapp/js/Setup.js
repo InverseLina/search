@@ -119,7 +119,6 @@
     		  if(schemaInfo){
     			  view.$el.find(".create").prop("disabled",false).html("Create System schema").removeClass("btn-success");
     		  }else{
-    			  console.log(schemaInfo);
     			  view.$el.find(".create").prop("disabled",true).html("System schema Created").addClass("btn-success");
     		  }
     		  

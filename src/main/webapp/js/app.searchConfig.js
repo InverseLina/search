@@ -97,9 +97,7 @@ var app = app || {};
 
             var type = headerInfo.attr("data-column");
             var data = app.ParamsControl.getFilterParams()[type] || [];
-            console.log(app.getSearchUiConfig())
             var filterInfo = app.getSearchFilter(type);
-            console.log(filterInfo)
             brite.display("GenericFilterView", $content,  {data: data, th: headerInfo, filterInfo: filterInfo }); // for example
         },
         cellRenderer: function (cellInfo) {

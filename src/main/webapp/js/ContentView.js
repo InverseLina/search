@@ -180,7 +180,6 @@
          if(labelId){
 
              if($td.hasClass("hasLabel")){
-                 console.log("remove class")
                  app.LabelDaoHandler.unAssign(contactId, labelId);
                  $td.removeClass("hasLabel");
              }else{

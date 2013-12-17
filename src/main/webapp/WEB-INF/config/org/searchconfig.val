@@ -27,9 +27,4 @@
      <field name="resume" column="ts2__text_resume__c"/>
      <field name="mailingpostalcode" column="mailingpostalcode"/>
   </contact>
-
-    <filter name="fax" title="Fax">
-        <field table="contact" column="fax" />
-    </filter>
-  
 </searchconfig>

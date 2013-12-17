@@ -451,14 +451,12 @@
 			var $li = $(event.currentTarget);
 			$li.closest(".table-list").hide();
 			view.tableName = $li.attr("data-table");
-			console.log($li.attr("data-table"));
 			$li.closest(".control-group").find("[name='tableName']").val($li.attr("data-table"));
 		},
 		 "STATUS_CHANGE":function(event,init){
 	    	  var view = this;
 	    	  var orgName = view.currentOrgName;
 	    	  app.getJsonData("/checkOrgSchema",{org:orgName},{type:"Get"}).done(function(result){
-	    		  console.log(result);
 	    		  var tableInfo = "";
 	    		  for(var table in result.tables){
 	    			 if(!result.tables[table]){
