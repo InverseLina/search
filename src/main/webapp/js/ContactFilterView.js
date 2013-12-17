@@ -10,13 +10,14 @@
 		emptyParent : true
 	}, {
 		create : function(data, config) {
+            this.type = "contact"
 			return render("ContactFilterView", data);
 		},
 
 		postDisplay : function(data) {
 			var view = this;
 	        view.$el.find("input:first").focus();
-	        var items = app.ParamsControl.get("Contact");
+	        var items = app.ParamsControl.get("contact");
 	        items = items || [];
 	        $.each(items, function(idx, val){
 	            item =  {name:val.name};
@@ -46,7 +47,7 @@
 	        	var $span = $(event.target);
 	//        	var value = $("[data-column='contact']").find("[data-name='"+$span.attr("data-name")+"']").data("value");
 	            var dataName = $span.attr("data-name");
-	            var contact =  app.ParamsControl.get("Contact", dataName);
+	            var contact =  app.ParamsControl.get("contact", dataName);
 	
 	            var value = contact.value.value;
 	            view.$el.find(":input[name='FirstName']").val(value.firstName||"");
@@ -62,7 +63,7 @@
 	            var $input = $(event.currentTarget).closest("div").find("input");
 	            $input.val("").focus().change();
 	        },
-	        "keydown change; input[type='text']": function(event){
+	        "keyup focus change; input[type='text']": function(event){
 	            $input = $(event.currentTarget);
 	            var val, $input, view = this;
 	            if(event.keyCode == 13){
@@ -83,7 +84,25 @@
 	                }
 	            }
 	
-	        }
+	        },
+            "btap; .selectedItems span.clear": function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                var view = this;
+                var dataName = $(event.currentTarget).closest("span[data-name]").attr("data-name");
+                setTimeout(function () {
+                    view.$el.find(".selectedItems span[data-name='" + dataName + "']").remove();
+                    if (view.$el.find(".selectedItems span[data-name]").length == 0) {
+                        showSPline.call(view, false);
+                        if (view.type == "contact") {
+                            view.$el.find(".selectedItems").hide();
+                        }
+                    }
+                    view.$el.trigger("REMOVE_FILTER", {name: dataName, type: view.type});
+                }, 200);
+                view.$el.find("input:first").focus();
+
+            }
 		},
 		docEvents : {
 			
@@ -92,6 +111,15 @@
 	
 	
 	// --------- Private Methods--------- //
+    function showSPline(status) {
+        var view = this;
+        if (status) {
+            view.$el.find(".separateLine").show();
+        } else {
+            view.$el.find(".separateLine").hide();
+        }
+    }
+
     function addItem(){
         var $item, view = this, ele;
         var data = {};
@@ -125,7 +153,7 @@
             view.$el.find(".selectedItems span.add").before(render("ContactFilterView-selectedItem-add",
                 {name: displayName }));
             $eles = view.$el.find(".selectedItems .item[data-name='" + displayName + "']");
-            view.$el.trigger("ADD_FILTER", {type:"Contact", name: displayName, value: data})
+            view.$el.trigger("ADD_FILTER", {type:"contact", name: displayName, value: data})
         }
 
         ele = $($eles[0]);
@@ -139,7 +167,7 @@
 
     function showSelectedItem(){
         var view = this;
-        var data = app.ParamsControl.get("Contact");
+        var data = app.ParamsControl.get("contact");
         if(data && data.length > 0){
             view.$el.find(".selectedItems").show();
         }

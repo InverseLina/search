@@ -47,7 +47,6 @@
 				});
                 //call filterRender method
                 var type = $target.attr("data-column");
-                console.log(type)
                 var filterRender = app.getFilterRender(type);
                 filterRender(view.$content, $target);
 				
