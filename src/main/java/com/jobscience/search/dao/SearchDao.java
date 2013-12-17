@@ -1049,7 +1049,7 @@ public class SearchDao {
         if(searchValues.get("contacts")!=null){
             hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
         }
-        if(hasContactsCondition||Strings.isNullOrEmpty(searchValues.get("search"))||(value!=null&&locationValues!=null)){
+        if(hasExtraSearchColumn(searchValues)||hasContactsCondition||Strings.isNullOrEmpty(searchValues.get("search"))||(value!=null&&locationValues!=null)){
             countSql.append( " from ( select ")
                     .append(sc.toContactFieldsString("contact"))
                     .append(" from  "+schemaname+".")
@@ -1134,11 +1134,11 @@ public class SearchDao {
 	            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
 	        }
 	        if(!Strings.isNullOrEmpty(searchValues.get("search"))){
-	            if(!hasContactsCondition&&!"true".equals(labelAssigned)&&locationSql.length()==0){
+	            if(!hasContactsCondition&&!"true".equals(labelAssigned)&&locationSql.length()==0&&!hasExtraSearchColumn(searchValues)){
 	                joinSql.append(" offset "+offset+" limit "+pageSize);
 	            }
     	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
-    	       if(locationSql.length()==0&&!hasContactsCondition){
+    	       if(locationSql.length()==0&&!hasContactsCondition&&!hasExtraSearchColumn(searchValues)){
     	           countSql.replace(0, 6," from ");
     	           countSql.append(" ) a  ");
     	       }else{
@@ -1169,7 +1169,7 @@ public class SearchDao {
 	        }
 	       
 	        joinSql.append(") a ");
-	        if(hasContactsCondition||locationSql.length()>0||Strings.isNullOrEmpty(searchValues.get("search"))){
+	        if(hasExtraSearchColumn(searchValues)||hasContactsCondition||locationSql.length()>0||Strings.isNullOrEmpty(searchValues.get("search"))){
 	            countSql.append(") a ");
 	        }
         }
@@ -1500,6 +1500,14 @@ public class SearchDao {
         return instance;
     }
     
+    private boolean hasExtraSearchColumn( Map<String, String> searchValues){
+        for(String key:searchValues.keySet()){
+            if(!isNativeSearchParam(key)){
+                return true;
+            }
+        }
+        return false;
+    }
     private boolean isNativeSearchParam(String name){
         List<String> searchParams = new ArrayList<String>();
         searchParams.add("search");
