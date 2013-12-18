@@ -1,0 +1,78 @@
+<script id="TriggerTestView" type="text/html">
+    <div class="TriggerTestView">
+        <form class="form-horizontal" role="form" method="post">
+            <div class="form-group">
+                <label class="col-lg-2 control-label">Select Org:</label>
+
+                <div class="col-lg-5">
+                    <select class="form-control" name="org">
+                        {{#each orgs}}
+                        <option value="{{name}}">{{name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+            </div>
+            <h4>Contact Info</h4>
+
+            <div class="form-group">
+                <label class="col-lg-2 control-label">First Name:</label>
+
+                <div class="col-lg-5">
+                    <input type="text" class="form-control" name="test.firstname" placeholder="First Name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">Last Name:</label>
+
+                <div class="col-lg-5">
+                    <input type="text" class="form-control" name="test.lastname" placeholder="Last Name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">Title:</label>
+
+                <div class="col-lg-5">
+                    <input type="text" class="form-control" name="test.title" placeholder="title">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">Email:</label>
+
+                <div class="col-lg-5">
+                    <input type="text" class="form-control" name="test.email" placeholder="Email">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">Skills:</label>
+                <div class="col-lg-5">
+                    <input type="text" class="form-control" name="skills" placeholder="Skills">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">Education:</label>
+                <div class="col-lg-5">
+                    <input type="text" class="form-control" name="educations" placeholder="Education">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">Company</label>
+                <div class="col-lg-5">
+                    <input type="text" class="form-control" name="companies" placeholder="Company">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-2 control-label">Resume</label>
+                <div class="col-lg-5">
+                    <textarea class="form-control" rows="3" name="test.ts2__text_resume__c"></textarea>
+                </div>
+            </div>
+
+
+    <div class="form-group">
+        <div class="col-lg-offset-2 col-lg-5">
+            <button type="submit" class="btn btn-default">Save</button>
+        </div>
+    </div>
+    </form>
+    </div>
+</script>

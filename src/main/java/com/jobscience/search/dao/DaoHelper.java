@@ -141,6 +141,13 @@ public class DaoHelper {
             runner.close();
         }
     }
+    public Object insert(Runner runner, String tableName, Map objMap){
+        try{
+            return runner.insert(tableName, objMap);
+        }finally{
+            runner.close();
+        }
+    }
     // --------- /insert method -------- //
 
     // --------- DataSource method -------- //

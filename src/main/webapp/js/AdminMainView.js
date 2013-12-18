@@ -48,16 +48,21 @@
        view.$el.find(".nav-tabs li.OrganizationInfo").remove()
       pathInfo = pathInfo || defaultPathInfo;
       var viewName = pathInfo.paths[0];
+        console.log(viewName)
         if(viewName == "organization"){
           brite.display("Organization");
         }else if(viewName == "perf"){
         	brite.display("PerfView");
-        }else if(viewName == "#trigger-test"){
+        }else if(viewName == "trigger-test"){
         	brite.display("TriggerTestView");
         }else{
           brite.display("Setup");
         }
         // change the nav selection
+        if(pathInfo.length == 1) {
+            view.$el.find(".nav-tabs li.active").removeClass("active");
+            view.$el.find(".nav-tabs li." + viewName).addClass("active");
+        }
     }
     
     // --------- /Private Methods --------- //  
