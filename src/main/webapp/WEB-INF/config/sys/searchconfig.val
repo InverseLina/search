@@ -1,11 +1,11 @@
 <searchconfig>
   <keyword>
-     <field table="contact_ex" column="contact_tsv" />
-     <field table="contact_ex" column="resume_tsv" />
+     <field table="contact_ex" name="contactInfoTsv" column="contact_tsv" />
+     <field table="contact_ex" name="contactResumeTsv" column="resume_tsv" />
   </keyword>
   <filter name="skill" title="Skills" filtertype="skill">
-     <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" silder="ts2__rating__c">
-        <joinsilder table="ts2__assessment__c" column="ts2__rating__c" joincolumn=""/>
+     <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" slider="ts2__rating__c">
+        <joinslider table="ts2__assessment__c" column="ts2__rating__c" joincolumn=""/>
      </field>
   </filter>
 

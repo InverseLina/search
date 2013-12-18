@@ -118,16 +118,16 @@ public class SearchConfigurationManager {
             NamedNodeMap nameMap = n.getAttributes();
             String name = n.getAttributes().getNamedItem("name").getNodeValue();
             if(sysNodeMap.containsKey(name)){
-                boolean delete = false;
-                if(nameMap.getNamedItem("delete")!=null&&"true".equals(nameMap.getNamedItem("delete").getNodeValue())){
-                    delete = true;
+                boolean remove = false;
+                if(nameMap.getNamedItem("remove")!=null&&"true".equals(nameMap.getNamedItem("remove").getNodeValue())){
+                    remove = true;
                 }
                 Node sysNode = sysNodeMap.get(name);
                 NamedNodeMap sysNodeNameMap =  sysNode.getAttributes();
                 sysNodesList.remove(sysNode);
                 sysNodeMap.remove(name);
                 
-                if(!delete){
+                if(!remove){
                     if(nameMap.getNamedItem("title")==null&&sysNodeNameMap.getNamedItem("title")!=null){
                         ((Element)n).setAttribute("title", sysNodeNameMap.getNamedItem("title").getNodeValue());
                     }
