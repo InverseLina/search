@@ -229,7 +229,7 @@ public class SearchDao {
         FilterType f = filter.getFilterType();
         String baseTable = "";
         if(f==null&&!type.equals("location")){
-            baseTable=sc.getContact().getTable();
+            baseTable=filter.getFilterField().getTable();
         }else if(f.equals(FilterType.COMPANY)){
             baseTable =  "ex_grouped_employers ";
         }else if(f.equals(FilterType.EDUCATION)){
@@ -243,7 +243,7 @@ public class SearchDao {
         StringBuilder querySql;
         if(f==null){
             FilterField ff = sc.getFilterByName(type).getFilterField();
-            querySql = new StringBuilder(" select count(id) as \"count\","+ff.toString("")+" as name from " + baseTable + " where 1=1 ");
+            querySql = new StringBuilder(" select count(*) as \"count\","+ff.toString("")+" as name from \"" + baseTable + "\" where 1=1 ");
             if(queryString!=null&&queryString.trim().length()>0){
                 querySql.append(" AND  "+ff.getColumn()+" ilike '"+ queryString+"%'");
             }
