@@ -733,7 +733,7 @@ public class SearchDao {
     	      }
            } 
        }
-	    
+	   String contactTable = sc.getContact().getTable();
 	   //at last,combine all part to complete sql
 	   if(advanced){
 		   if(joinTables.indexOf(" contact ")==-1&&!baseTable.contains("contact")){
@@ -760,6 +760,38 @@ public class SearchDao {
            querySql.append("  where 1=1 ");
            querySql.append(conditions);
 	   }else{
+	       
+	       for(String name:searchValues.keySet()){
+	           if(isNativeSearchParam(name)){
+	               continue;
+	           }
+	           String filterName = name.substring(0, name.length()-1);//remove the s at last, example filters-->filter
+	           Filter filter = sc.getFilterByName(filterName);
+	           FilterField ff = filter.getFilterField();
+	           if(!contactTable.equals(ff.getTable())){
+	               JSONArray extraValues = JSONArray.fromObject(searchValues.get(name));
+	               if(hasSearchValue){
+                       contactQuery.append(" join "+schemaname+".\""+ff.getTable()+"\" on "+ff.toJoinToString("con")+" = "+ff.toJoinFromString("\""+ff.getTable()+"\""));
+                   }else{
+                       contactQuery.append(" join "+schemaname+".\""+ff.getTable()+"\" on "+ff.toJoinToString("contact")+" = "+ff.toJoinFromString("\""+ff.getTable()+"\""));
+                   }
+	               if(extraValues.size()>0){
+	                   contactQuery.append(" AND (1!=1 ");
+	               }
+                   for(int i=0,j=extraValues.size();i<j;i++){
+                       JSONObject v = JSONObject.fromObject(extraValues.get(i));
+                       contactQuery.append(" OR \"").append(ff.getTable()).append("\".")
+                                   .append(ff.getColumn()).append("= '").append(v.get("name")).append("' ");
+                      // values.add(v.get("name"));
+                   }
+                   if(extraValues.size()>0){
+                       contactQuery.append(" ) ");
+                   }
+                   hasCondition = true;
+	           }
+	          
+	       }
+	       
 	       if(contactExQuery.length()>0){
 	           querySql.append(contactExQuery)
                .append(contactExQueryCondition)
@@ -777,15 +809,21 @@ public class SearchDao {
 	       if(isNativeSearchParam(name)){
 	           continue;
 	       }
-	       JSONArray extraValues = JSONArray.fromObject(searchValues.get(name));
-	       if(extraValues.size()>0){
-	           conditions.append(" AND (1!=1 ");
-	           for(int i=0,j=extraValues.size();i<j;i++){
-	               JSONObject value = JSONObject.fromObject(extraValues.get(i));
-	               conditions.append(" OR ").append(name.substring(0, name.length()-1)).append("= '").append(value.get("name")).append("'");
-	           }
-	           conditions.append(" ) ");
-	           hasCondition = true;
+	       String filterName = name.substring(0, name.length()-1);
+	       Filter filter = sc.getFilterByName(filterName);
+           FilterField ff = filter.getFilterField();
+	       if(contactTable.equals(ff.getTable())){
+    	       JSONArray extraValues = JSONArray.fromObject(searchValues.get(name));
+    	       if(extraValues.size()>0){
+    	           conditions.append(" AND (1!=1 ");
+    	           for(int i=0,j=extraValues.size();i<j;i++){
+    	               JSONObject value = JSONObject.fromObject(extraValues.get(i));
+    	               conditions.append(" OR ").append(filterName).append("= ? ");
+    	               values.add(value.get("name"));
+    	           }
+    	           conditions.append(" ) ");
+    	           hasCondition = true;
+    	       }
 	       }
 	   }
 	   
@@ -847,21 +885,12 @@ public class SearchDao {
     		groupBy.append("a.\"createddate\"");
     		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
     	}else if(orginalName.toLowerCase().equals("company")){
-    		//columnJoinTables.add(getAdvancedJoinTable("company"));
     		return "(select  string_agg(distinct c.\"ts2__name__c\",',') " +
     				"from "+schemaname+".ts2__employment_history__c c where  a.\"sfid\" = c.\"ts2__contact__c\" ) as company ";
-    	   // return " case when string_agg(distinct c.\"ts2__name__c\",',') is null " +
-    		//	   " then '' else string_agg(distinct c.\"ts2__name__c\",',') end  company";
     	}else if(orginalName.toLowerCase().equals("skill")){
-    		//columnJoinTables.add(getAdvancedJoinTable("skill"));
-    		//return "case when string_agg(distinct b.\"ts2__skill_name__c\",',') is null " +
-    		//	   " then '' else string_agg(distinct b.\"ts2__skill_name__c\",',') end  skill";
     	    return " (select  string_agg(distinct b.\"ts2__skill_name__c\",',') " +
     	    		"from "+schemaname+".ts2__skill__c b where a.\"sfid\" = b.\"ts2__contact__c\"  ) as skill";
     	}else if(orginalName.toLowerCase().equals("education")){
-    		//columnJoinTables.add(getAdvancedJoinTable("education"));
-    		//return " case when string_agg(distinct d.\"ts2__name__c\",',') is null " +
-    		//	   " then '' else string_agg(distinct d.\"ts2__name__c\",',') end  education";
     	    return " (select  string_agg(distinct d.\"ts2__name__c\",',') " +
     	    		"from "+schemaname+".ts2__education_history__c d  where a.\"sfid\" = d.\"ts2__contact__c\"   ) as education ";
     	}else if(orginalName.toLowerCase().equals("location")){
@@ -875,7 +904,15 @@ public class SearchDao {
         
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
         Filter f = sc.getFilterByName(orginalName);
-        return f.getFilterField().toString("a")+" as \""+f.getName()+"\"";
+        String tableName = f.getFilterField().getTable();
+        String contactTableName = sc.getContact().getTable();
+        if(tableName.equals(contactTableName)){
+            return f.getFilterField().toString("a")+" as \""+f.getName()+"\"";
+        }else{
+            FilterField ff = f.getFilterField();
+            return " (select  string_agg(distinct d.\""+ff.getColumn()+"\",',') " +
+                                    "from "+schemaname+"."+ff.getTable()+" d  where a.\""+ff.getJoinTo()+"\" = d.\""+ff.getJoinFrom()+"\"   ) as "+f.getName();
+        }
     	//return orginalName;
     }
     
@@ -1006,12 +1043,15 @@ public class SearchDao {
         
         //---------------------- add select columns ----------------------//
         String contactString = sc.toContactFieldsString("contact");
+        String contactTable = sc.getContact().getTable();
         querySql.append(" from ( select  distinct ")
 	            .append(contactString);
         for(Filter f:sc.getFilters()){
             if(f.getFilterType()==null&&contactString.indexOf(f.getFilterField().toString("contact"))==-1){
-                querySql.append(",").append(f.getFilterField().toString("contact"));
-                groupBy.append(",").append(f.getFilterField().toString("a"));
+                if(contactTable.equals(f.getFilterField().getTable())){
+                    querySql.append(",").append(f.getFilterField().toString("contact"));
+                    groupBy.append(",").append(f.getFilterField().toString("a"));
+                }
             }
         }
         querySql.append(",case  when ")
@@ -1217,7 +1257,7 @@ public class SearchDao {
             joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
             return joinSql.toString();
         }else{
-            joinSql.append(" select  distinct id,sfid  from (");
+            joinSql.append(" select  distinct con.id,con.sfid  from (");
     	    joinSql.append(booleanSearchHandler(searchValue, null, values));
     	    joinSql.append(")  con ");
     	    return joinSql.toString();
