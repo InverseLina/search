@@ -16,9 +16,7 @@
             view.$navTabs = $(".nav-tabs");
             view.$tabContent = view.$el.find(".tab-content");
             view.$navTabs.find("li.active").removeClass("active");
-            if (view.$navTabs.find('li').size() > 3) {
-                view.$navTabs.find('li:last').prev("li").remove();
-            }
+
             view.$navTabs.find("a[href='#perf']").closest("li").addClass("active");
             perfSearchDao.checkStatus().done(function(result){
                 if(!result){

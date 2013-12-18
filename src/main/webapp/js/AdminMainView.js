@@ -7,7 +7,7 @@
     // --------- View Interface Implement--------- //
 	create: function(data){
 			return render("AdminMainView");
-	 }, 
+	 },
 	 
 
 	 postDisplay: function(data){
@@ -44,12 +44,16 @@
 	});
     // --------- Private Methods --------- //
     function changeView(pathInfo){
+      var view = this;
+       view.$el.find(".nav-tabs li.OrganizationInfo").remove()
       pathInfo = pathInfo || defaultPathInfo;
       var viewName = pathInfo.paths[0];
         if(viewName == "organization"){
           brite.display("Organization");
         }else if(viewName == "perf"){
         	brite.display("PerfView");
+        }else if(viewName == "#trigger-test"){
+        	brite.display("TriggerTestView");
         }else{
           brite.display("Setup");
         }
