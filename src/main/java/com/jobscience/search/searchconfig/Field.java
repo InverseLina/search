@@ -9,6 +9,17 @@ public class Field {
     
    
     private String column;
+    
+    private String name;
+
+    @XmlAttribute
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @XmlAttribute
     public String getTable() {
@@ -33,6 +44,13 @@ public class Field {
         sb.append(" ").append(alias).append(".\"")
           .append(getColumn()).append("\" ");
         return sb.toString();
+    }
+    
+    public static Field getInstance(String name){
+        Field f = new Field();
+        f.setColumn(name);
+        f.setName(name);
+        return f;
     }
 
 }

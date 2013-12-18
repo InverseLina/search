@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class Contact {
 
-    private List<ContactField> contactFields;
+    private List<Field> contactFields;
     
     private String table;
    
@@ -32,11 +32,11 @@ public class Contact {
     }
 
     @XmlElement(name="field")
-    public List<ContactField> getContactFields() {
+    public List<Field> getContactFields() {
         return contactFields;
     }
 
-    public void setContactFields(List<ContactField> contactFields) {
+    public void setContactFields(List<Field> contactFields) {
         this.contactFields = contactFields;
     }
     

@@ -63,35 +63,35 @@ public class SearchConfiguration {
         return null;
     }
     
-    public ContactField getContactField(ContactFieldType type){
+    public Field getContactField(ContactFieldType type){
         if(type!=null){
-            for(ContactField field:contact.getContactFields()){
-                if(type.name().equalsIgnoreCase(field.getType())){
+            for(Field field:contact.getContactFields()){
+                if(type.name().equalsIgnoreCase(field.getName())){
                     return field;
                 }
             }
         }
-        return ContactField.getInstance(type.name());
+        return Field.getInstance(type.name());
     }
     
-    public ContactField getContactField(String type){
+    public Field getContactField(String type){
         if(type!=null){
-            for(ContactField field:contact.getContactFields()){
-                if(type.equalsIgnoreCase(field.getType())){
+            for(Field field:contact.getContactFields()){
+                if(type.equalsIgnoreCase(field.getName())){
                     return field;
                 }
             }
         }
-        return ContactField.getInstance(type);
+        return Field.getInstance(type);
     }
 
     public String toContactFieldsString(String alias){
         StringBuffer sb = new StringBuffer();
-        for(ContactField field:contact.getContactFields()){
-            if(!ContactFieldType.RESUME.name().equalsIgnoreCase(field.getType())){
+        for(Field field:contact.getContactFields()){
+            if(!ContactFieldType.RESUME.name().equalsIgnoreCase(field.getName())){
                 sb.append(", ").append(alias).append(".\"")
                   .append(field.getColumn()).append("\" as ")
-                  .append(field.getType()).append(" ");
+                  .append(field.getName()).append(" ");
             }
         }
         if(sb.length()>0){

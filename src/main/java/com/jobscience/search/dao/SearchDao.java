@@ -20,8 +20,8 @@ import com.google.common.base.Strings;
 import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
-import com.jobscience.search.searchconfig.ContactField;
 import com.jobscience.search.searchconfig.ContactFieldType;
+import com.jobscience.search.searchconfig.Field;
 import com.jobscience.search.searchconfig.Filter;
 import com.jobscience.search.searchconfig.FilterField;
 import com.jobscience.search.searchconfig.FilterType;
@@ -685,7 +685,7 @@ public class SearchDao {
            
            //add the 'radius' filter
            if (searchValues.get("locations") != null && !"".equals(searchValues.get("locations"))) {
-               ContactField f = sc.getContactField(ContactFieldType.MAILINGPOSTALCODE);
+               Field f = sc.getContactField(ContactFieldType.MAILINGPOSTALCODE);
         	   String value = searchValues.get("locations");
         	   JSONArray locationValues = JSONArray.fromObject(value);
          	   if(locationValues!=null){
@@ -1270,7 +1270,6 @@ public class SearchDao {
 	    	if(hasSearch){
 	    	    sb.delete(sb.length()-6, sb.length());
 	    	}
-	    	//sb.append( "(select 1 as id,1::character as sfid  from  "+schemaname+".contact where 1!=1)" );
     	}else if("AND".equals(type)){//if params split with AND,we do in AND logic
     		String[] andConditions = searchValue.trim().split("\\s+AND\\s+");
     		boolean hasSearch = false;
@@ -1289,7 +1288,6 @@ public class SearchDao {
 	    	if(hasSearch){
                 sb.delete(sb.length()-5, sb.length()).append(" ) ");
             }
-	    	//sb.append( " (select 1 as id,1::character as sfid  from   "+schemaname+".contact limit 1) last on 1=1) " );
     	}else if("NOT".equals(type)){//if params split with NOT,we do in NOT logic
     		String[] notConditions = searchValue.trim().split("\\s+NOT\\s+");
     		if(notConditions.length==1){
@@ -1300,11 +1298,8 @@ public class SearchDao {
     		
     		temp = notConditions[0].trim();
 
-			sb.append(" select ex.id,ex.sfid from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)  OR ex.contact_tsv @@ plainto_tsquery(?) " 
-			   /* + " union "
-			        //" select a_copy.id as id from   "+schemaname+".contact a_copy right join (select ex.id from   "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?)) b on a_copy.id = b.id " + " union "
-                + " select a_copy1.id as id,a_copy1.sfid as sfid from   "+schemaname+".contact a_copy1 "
-                + " where a_copy1.\"title\" ilike ? or  a_copy1.\"name\" ilike ? " */ );
+			sb.append(" select ex.id,ex.sfid from   "+schemaname
+			    +".contact_ex ex where "+renderKeywordSearch(values,temp)  );
     		
 			if(notConditions.length==1){
     			sb.append(") n_ext");
@@ -1312,31 +1307,17 @@ public class SearchDao {
     			sb.append(") n_ext");
     		}
     		
-    		values.add(temp);
-    		values.add(temp);
-    		/*if(!temp.contains("%")){
-    			temp = temp+"%";	
-    		}
-    		values.add(temp);
-    		values.add(temp);*/
+    		//values.add(temp);
+    		//values.add(temp);
     		boolean hasNot = false;
 	    	for(int i=1;i<notConditions.length;i++){
 	    		hasNot = true;
 	    		temp = notConditions[i].trim();
 	    		sb.append(" except ");
                         
-	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where ex.resume_tsv @@ plainto_tsquery(?) OR ex.contact_tsv @@ plainto_tsquery(?) " + " ) "
-                     /*   + " (select a_copy1.id as id,a_copy1.sfid as sfid from  "+schemaname+".contact a_copy1 "
-                        + " where a_copy1.\"title\"  ilike ? or  a_copy1.\"name\"  ilike ? ) ) "*/);
-	    		values.add(temp);
-	    		values.add(temp);
-	    		/*if(!temp.contains("%")){
-	    			values.add(temp+"%");
-		    		values.add(temp+"%");
-	    		}else{
-	    			values.add(temp);
-		    		values.add(temp);
-	    		}*/
+	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where "+renderKeywordSearch(values,temp) + " ) ");
+	    		//values.add(temp);
+	    		//values.add(temp);
 	    	}
 	    	if(hasNot){
 	    		sb.append(")n_ext");
@@ -1346,6 +1327,16 @@ public class SearchDao {
     	return sb.toString();
     }
     
+    private String renderKeywordSearch(List values,String param){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        StringBuilder sb = new StringBuilder();
+        for(Field f:sc.getKeyword().getFields()){
+            sb.append("OR ").append(f.toString("ex")).append("@@ plainto_tsquery(?)");
+            values.add(param);
+        }
+        
+        return sb.delete(0, 2).toString();
+    }
     /**
      * Get auto complete data just for name not for count
      * Now use {@link #getGroupValuesForAdvanced(Map, String, String, Boolean, String, Integer, Integer)}

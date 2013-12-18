@@ -14,8 +14,13 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -90,7 +95,7 @@ public class SearchConfigurationManager {
         return filters;
     }
     
-    private  Node getMergedNode() throws SAXException, IOException, ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException, JAXBException {
+    private  Node getMergedNode() throws Exception {
         StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
         DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document sys = db.parse(path+"/WEB-INF/config/sys/searchconfig.val");
@@ -102,7 +107,9 @@ public class SearchConfigurationManager {
         }
         
         Document result = db.newDocument();
-        org.w3c.dom.Element e =  result.createElement("searchconfig");
+        Element e =  result.createElement("searchconfig");
+
+        //handle filter
         NodeList sysNodes = sys.getElementsByTagName("filter");
         NodeList orgNodes = org.getElementsByTagName("filter");
         Map<String,Node> sysNodeMap = new HashMap<String, Node>();
@@ -137,9 +144,7 @@ public class SearchConfigurationManager {
                     if(nameMap.getNamedItem("show")==null&&sysNodeNameMap.getNamedItem("show")!=null){
                         ((Element)n).setAttribute("show", sysNodeNameMap.getNamedItem("show").getNodeValue());
                     }
-                    if(n.getChildNodes().getLength()==0){
-                       
-                    }
+
                     NodeList filterNodes = n.getChildNodes();
                     boolean hasField = false; 
                     for(int c = 0,l=filterNodes.getLength();c<l;c++){
@@ -168,6 +173,60 @@ public class SearchConfigurationManager {
             e.appendChild(result.importNode(n, true));
         }
         
+        //handle keyword
+        NodeList sysKeywords = sys.getElementsByTagName("keyword");
+        NodeList orgKeywords  = org.getElementsByTagName("keyword");
+        Map<String,Node> keywordMap = new HashMap<String,Node>();
+        
+        for(int current = 0,length=sysKeywords.getLength();current<length;current++){
+            Node n = sysKeywords.item(current);
+            NodeList keywordFields = n.getChildNodes();
+            for(int c = 0,l=keywordFields.getLength();c<l;c++){
+                Node keywordField = keywordFields.item(c);
+                if(keywordField.getNodeType()==1){
+                    NamedNodeMap field =  keywordField.getAttributes();
+                    keywordMap.put(field.getNamedItem("name").getNodeValue(), keywordField);
+                }
+            }
+        }
+        
+        for(int current = 0,length=orgKeywords.getLength();current<length;current++){
+            Node n = orgKeywords.item(current);
+            NodeList keywordFields = n.getChildNodes();
+            for(int c = 0,l=keywordFields.getLength();c<l;c++){
+                Node keywordField = keywordFields.item(c);
+                if(keywordField.getNodeType()==1){
+                    NamedNodeMap nameMap =  keywordField.getAttributes();
+                    String name = nameMap.getNamedItem("name").getNodeValue();
+                    boolean remove = false;
+                    if(nameMap.getNamedItem("remove")!=null&&"true".equals(nameMap.getNamedItem("remove").getNodeValue())){
+                        remove = true;
+                    }
+                    if(remove){
+                        keywordMap.remove(name);
+                        continue;
+                    }
+                    if(keywordMap.containsKey(name)){
+                        NamedNodeMap sysNodeNameMap = keywordMap.get(name).getAttributes();
+                        if(nameMap.getNamedItem("column")==null&&sysNodeNameMap.getNamedItem("column")!=null){
+                            ((Element)keywordField).setAttribute("column", sysNodeNameMap.getNamedItem("column").getNodeValue());
+                        }
+                        if(nameMap.getNamedItem("table")==null&&sysNodeNameMap.getNamedItem("table")!=null){
+                            ((Element)keywordField).setAttribute("table", sysNodeNameMap.getNamedItem("table").getNodeValue());
+                        }
+                    }
+                    keywordMap.put(name, keywordField);
+                }
+            }
+        }
+        
+        Element keyword =  result.createElement("keyword");
+        for(Node n:keywordMap.values()){
+            keyword.appendChild(result.importNode(n, true));
+        }
+        e.appendChild(keyword);
+        
+        //handle contact
         NodeList sysContacts = sys.getElementsByTagName("contact");
         NodeList orgContacts = org.getElementsByTagName("contact");
         Map<String,Node> contactMap = new HashMap<String,Node>();
@@ -206,7 +265,7 @@ public class SearchConfigurationManager {
             contact.appendChild(result.importNode(n, true));
         }
         e.appendChild(contact);
-       
+        
         return e;
     }
     
