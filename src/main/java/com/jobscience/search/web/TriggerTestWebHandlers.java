@@ -1,19 +1,18 @@
 package com.jobscience.search.web;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.apache.commons.lang.RandomStringUtils;
+
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.jobscience.search.dao.DaoHelper;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.security.SecureRandom;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Singleton
 public class TriggerTestWebHandlers {
