@@ -54,16 +54,16 @@ public class LabelDao {
     
     public void assignLabelToContact(Long contactId,Long labelId){
         daoHelper.executeUpdate(orgHolder.getOrgName(),
-                "insert into ts2__s_userlistlink__c(ts2__r_user_list__c,ts2__r_contact__c) " +
-                 "(select sfid from contact where id = ?)," +
+                "insert into ts2__s_userlistlink__c (ts2__r_contact__c, ts2__r_user_list__c ) " +
+                 "select (select sfid from contact where id = ?)," +
                  " (select sfid from ts2__s_userlist__c where id =?)",contactId, labelId);
     }
     
     public void unAssignLabelFromContact(Long contactId,Long labelId){
         daoHelper.executeUpdate(orgHolder.getOrgName(),
                 "delete from ts2__s_userlistlink__c where " +
-                 "ts2__r_user_list__c in (select sfid form ts2__s_userlist__c where id = ? )" +
-                 "and ts2__r_contact__c in (select sfid from contact where id=?", labelId, contactId);
+                 "ts2__r_user_list__c in (select sfid from ts2__s_userlist__c where id = ? )" +
+                 "and ts2__r_contact__c in (select sfid from contact where id=?)", labelId, contactId);
     }
     
     public List<Map>  getLabelStatus(String contactIds,Long labelId){
