@@ -31,7 +31,7 @@ public class LabelWebHandler {
                 if (list != null && list.size() > 0) {
                     return WebResponse.success(String.format("label of name %s has exits", name));
                 }
-                Long id = labelDao.addLabel(Long.parseLong(user.get("id").toString()), name);
+                Long id = labelDao.addLabel((String)user.get("sfid"), name);
                 return WebResponse.success(id);
             }
         }

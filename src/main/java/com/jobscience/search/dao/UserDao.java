@@ -1,7 +1,9 @@
 package com.jobscience.search.dao;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -15,6 +17,9 @@ import com.britesnow.snow.web.RequestContext;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.CurrentOrgHolder;
+
+import static com.jobscience.search.Utils.demoSfid;
+import static com.jobscience.search.Utils.shortUUID;
 
 @Singleton
 public class UserDao {
@@ -61,6 +66,10 @@ public class UserDao {
    }
    
    public void insertUser(String sfid, String CToken) {
+       //for now label, sfid should not null
+       if (sfid == null) {
+           sfid = demoSfid();
+       }
        daoHelper.executeUpdate(orgHolder.getOrgName(), insertSql, sfid, CToken);
    }
 
