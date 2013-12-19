@@ -261,13 +261,13 @@ public class SearchDao {
         
         Long start = System.currentTimeMillis();
         Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
-         
+        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
         List<Map> result =runner.executeQuery(querySql.toString());
         runner.close();
         Long end = System.currentTimeMillis();
         //log for performance
 
-        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
+        
         queryLogger.debug(LoggerType.AUTO_PERF, end-start);
         SearchResult searchResult = new SearchResult(result, result.size());
         searchResult.setDuration(end - start);
@@ -911,7 +911,7 @@ public class SearchDao {
         }else{
             FilterField ff = f.getFilterField();
             return " (select  string_agg(distinct d.\""+ff.getColumn()+"\",',') " +
-                                    "from "+schemaname+"."+ff.getTable()+" d  where a.\""+ff.getJoinTo()+"\" = d.\""+ff.getJoinFrom()+"\"   ) as "+f.getName();
+                                    "from "+schemaname+"."+ff.getTable()+" d  where a.\""+ff.getJoinTo()+"\" = d.\""+ff.getJoinFrom()+"\"   ) as \""+f.getName()+"\"";
         }
     	//return orginalName;
     }

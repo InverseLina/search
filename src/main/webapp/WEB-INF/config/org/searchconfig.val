@@ -1,31 +1,5 @@
 <searchconfig>
-  <keyword>
-     <field table="contact_ex" name="contactInfoTsv" column="contact_tsv" />
-     <field table="contact_ex" name="contactResumeTsv" column="resume_tsv" />
-  </keyword>
-
-  <filter name="skill" title="Skills" filtertype="skill">
-     <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" slider="ts2__rating__c">
-        <joinslider table="ts2__assessment__c" column="ts2__rating__c" joincolumn=""/>
-     </field>
-  </filter>
-
-  <filter name="education" title="Educations" filtertype="education">
-     <field table="ts2__education_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
-  </filter>   
-  
-  <filter name="company" title="Companies" filtertype="company">
-     <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
-  </filter>   
-  
-  <contact table="contact" title="Contact">
-     <field name="id" column="id"/>
-     <field name="email" column="email"/>
-     <field name="name" column="name"/>
-     <field name="sfid" column="sfid"/>
-     <field name="title" column="title"/>
-     <field name="createddate" column="createddate"/>
-     <field name="resume" column="ts2__text_resume__c"/>
-     <field name="mailingpostalcode" column="mailingpostalcode"/>
-  </contact>
+ <filter name="ts2Status" title="Status" show="false">
+   <field table="ts2__application__c" column="ts2__status__c" joinfrom="ts2__candidate_contact__c" jointo="sfid"/>
+ </filter>
 </searchconfig>
