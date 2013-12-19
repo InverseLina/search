@@ -1,9 +1,9 @@
 package com.jobscience.search.dao;
 
-import java.nio.ByteBuffer;
+import static com.jobscience.search.Utils.demoSfid;
+
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -17,9 +17,6 @@ import com.britesnow.snow.web.RequestContext;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.CurrentOrgHolder;
-
-import static com.jobscience.search.Utils.demoSfid;
-import static com.jobscience.search.Utils.shortUUID;
 
 @Singleton
 public class UserDao {

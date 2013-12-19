@@ -1,13 +1,12 @@
 package com.jobscience.search.dao;
 
+import static com.jobscience.search.Utils.demoSfid;
+
 import java.util.List;
 import java.util.Map;
 
 import com.google.inject.Inject;
 import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.Utils;
-
-import static com.jobscience.search.Utils.demoSfid;
 
 public class LabelDao {
     

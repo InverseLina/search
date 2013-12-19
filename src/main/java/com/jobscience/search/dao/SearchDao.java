@@ -339,9 +339,9 @@ public class SearchDao {
            //Get the label parameters and render them
            String label = searchValues.get("label");
            String labelAssigned = searchValues.get("labelAssigned");
-           String userId = userDao.getCurrentUser().get("id").toString();
-           if(userId==null){
-               userId = "1";
+           String sfid = (String) userDao.getCurrentUser().get("sfid");
+           if(sfid==null){
+               sfid = "1";
            }
            if(label==null){
                label="Favorites";
@@ -351,13 +351,13 @@ public class SearchDao {
                    if(!"true".equals(labelAssigned)){
                        joinTables.append(" left ");
                    }
-                   joinTables.append(" join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
-                   		     .append(" join "+schemaname+".\"label\" on label.\"id\"=label_contact.\"label_id\"")
-                   		     .append(" and \"user_id\"=")
-                   		     .append(userId)
-               		         .append(" and label.\"name\" ='")
+                   joinTables.append(" join (select label.\"id\",label_contact.\"ts2__r_contact__c\" from "+schemaname+".ts2__s_userlistlink__c label_contact ")
+                   		     .append(" join "+schemaname+".\"ts2__s_userlist__c\" label on label.\"sfid\"=label_contact.\"ts2__r_user_list__c\"")
+                   		     .append(" and \"ownerid\"='")
+                   		     .append(sfid)
+               		         .append("' and label.\"name\" ='")
                              .append(label)
-                             .append("' ) labelcontact on labelcontact.\"contact_id\" = a.\"id\" ");
+                             .append("' ) labelcontact on labelcontact.\"contact_id\" = a.\"sfid\" ");
                            
                }else{
                    if(!"true".equals(labelAssigned)){
@@ -365,13 +365,14 @@ public class SearchDao {
                    }else{
                        hasCondition = true;
                    }
-                   labelSql.append(" join (select \"label_id\",\"contact_id\" from "+schemaname+".label_contact ")
-                           .append(" join "+schemaname+".\"label\" on label.\"id\"=label_contact.\"label_id\"")
-                           .append(" and \"user_id\"=")
-                           .append(userId)
-                           .append(" and label.\"name\" ='")
-                           .append(label)
-                           .append("' ) labelcontact on labelcontact.\"contact_id\" = %s.\"id\" ");
+                   labelSql.append(" join (select label.\"id\" as \"id\",label_contact.\"ts2__r_contact__c\" as \"contact_id\" from "+schemaname+".ts2__s_userlistlink__c label_contact ")
+                             .append(" join "+schemaname+".\"ts2__s_userlist__c\" label on label.\"sfid\"=label_contact.\"ts2__r_user_list__c\"")
+                             .append(" and \"ownerid\"='")
+                             .append(sfid)
+                             .append("' and label.\"name\" ='")
+                             .append(label)
+                             .append("' ) labelcontact on labelcontact.\"contact_id\" = %s.\"sfid\" ");
+                   
                }
              
            }
