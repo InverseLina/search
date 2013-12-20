@@ -1,5 +1,0 @@
-<searchconfig>
- <filter name="ts2Status" title="Status" show="false">
-   <field table="ts2__application__c" column="ts2__status__c" joinfrom="ts2__candidate_contact__c" jointo="sfid"/>
- </filter>
-</searchconfig>

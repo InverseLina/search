@@ -221,7 +221,7 @@ public class SearchDao {
     }
     
     public SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
         Filter filter = sc.getFilterByName(type);
         if(filter==null){
              return null;
@@ -286,7 +286,7 @@ public class SearchDao {
      * @return
      */
     private String[] renderSearchCondition(Map<String, String> searchValues,String type,String baseTable,String baseTableIns,List values,  String appendJoinTable ){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
         StringBuilder joinTables = new StringBuilder();
         StringBuilder searchConditions = new StringBuilder();
         StringBuilder querySql = new StringBuilder();
@@ -903,7 +903,7 @@ public class SearchDao {
     		return "  z.\"city\" as location ";
     	}
         
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
         Filter f = sc.getFilterByName(orginalName);
         String tableName = f.getFilterField().getTable();
         String contactTableName = sc.getContact().getTable();
@@ -923,7 +923,7 @@ public class SearchDao {
      * @return
      */
     private String getSearchColumnsForOuter(String searchColumns){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
         StringBuilder sb = new StringBuilder();
     	if(searchColumns==null){
     		sb.append("id,name,lower(name) as \"lname\",email,lower(\"email\") as \"lemail\"lower(title) as \"ltitle\",title ,createddate");
@@ -979,7 +979,7 @@ public class SearchDao {
      */
     private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy){
     	 StringBuilder columnsSql = new StringBuilder();
-    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
     	 if(searchColumns==null){//a.phone,
              columnsSql.append(sc.toContactFieldsString("a"));
              //,a.phone
@@ -1011,7 +1011,7 @@ public class SearchDao {
     private SearchStatements buildSearchStatements(String searchColumns, Map<String, String> searchValues,
                                                    Integer pageIdx, Integer pageSize,String orderCon) {
         SearchStatements ss = new SearchStatements();
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
         if(pageIdx < 1){
             pageIdx = 1;
         }
@@ -1289,7 +1289,7 @@ public class SearchDao {
      */
     public  String booleanSearchHandler(String searchValue,String type, List values){
     	String schemaname = orgHolder.getSchemaName();
-    	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+    	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
     	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
 
@@ -1369,7 +1369,7 @@ public class SearchDao {
     }
     
     private String renderKeywordSearch(List values,String param){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration();
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
         StringBuilder sb = new StringBuilder();
         for(Field f:sc.getKeyword().getFields()){
             sb.append("OR ").append(f.toString("ex")).append("@@ plainto_tsquery(?)");

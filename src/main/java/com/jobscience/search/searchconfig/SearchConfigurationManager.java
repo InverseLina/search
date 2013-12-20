@@ -2,6 +2,8 @@ package com.jobscience.search.searchconfig;
 
 import static com.britesnow.snow.util.MapUtil.mapIt;
 
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +13,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,28 +26,34 @@ import org.w3c.dom.NodeList;
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.dao.DaoHelper;
+import com.jobscience.search.dao.OrgConfigDao;
 
 @Singleton
 public class SearchConfigurationManager {
 
     @Inject
     private CurrentRequestContextHolder currentRequestContextHolder;
-    
+    @Inject
+    private DaoHelper daoHelper;
+    @Inject
+    private OrgConfigDao orgConfigDao;
    // @Inject
     //private CurrentOrgHolder orgHolder;
     
     private volatile SearchConfiguration searchConfiguration;
     
-    private void load() throws Exception{
+    private void load(String orgName) throws Exception{
         JAXBContext jc = JAXBContext.newInstance(SearchConfiguration.class);
         Unmarshaller ums =  jc.createUnmarshaller();
-        searchConfiguration = (SearchConfiguration) ums.unmarshal(getMergedNode());
+        searchConfiguration = (SearchConfiguration) ums.unmarshal(getMergedNode(orgName));
+        System.out.println(getMergedNodeContent(orgName));
     }
     
-    public SearchConfiguration getSearchConfiguration(){
+    public SearchConfiguration getSearchConfiguration(String orgName){
         if(searchConfiguration==null){
             try {
-                load();
+                load(orgName);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -52,7 +63,7 @@ public class SearchConfigurationManager {
     
     public List<Map> getFilters(String orgName){
         List<Map> filters = new ArrayList<Map>();
-        SearchConfiguration sc = getSearchConfiguration();
+        SearchConfiguration sc = getSearchConfiguration(orgName);
          filters.add(mapIt(          "name",   "contact",
                                     "title",   sc.getContact().getTitle(),
                                    "native",   true,
@@ -84,16 +95,43 @@ public class SearchConfigurationManager {
         return filters;
     }
     
-    private  Node getMergedNode() throws Exception {
+    public String getMergedNodeContent(String orgName) throws Exception {
+        Node node= getMergedNode(orgName);
+        StringWriter writer = new StringWriter();
+        TransformerFactory.newInstance().newTransformer().transform(new DOMSource(node), new StreamResult(writer));
+        return writer.toString();
+    }
+    
+    private  Node getMergedNode(String orgName) throws Exception {
         StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
         DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document sys = db.parse(path+"/WEB-INF/config/sys/searchconfig.val");
-        Document org ;
-        try{
-           org = db.parse(path+"/WEB-INF/config/org/searchconfig.val");
-        }catch(Exception e){
-           org = db.newDocument();
+        //get the sys config
+        List<Map> sysConfig = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+            "select val_text from config where name = ? and org_id is null", "searchconfig");
+        Document sys = null;
+        if (sysConfig.size() == 0) {
+            sys = db.parse(path+"/WEB-INF/config/sys/searchconfig.val");
+        }else{
+            ByteArrayInputStream in = new ByteArrayInputStream(sysConfig.get(0).get("val_text").toString().getBytes());
+            sys = db.parse(in);
         }
+        
+        //get the org config
+        int orgId = -1;
+        List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+        if(orgs.size()>0){
+            orgId = Integer.parseInt( orgs.get(0).get("id").toString());
+        }
+        Document org ;
+        List<Map> orgConfig = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+            "select val_text from config where name = ? and org_id =?", "searchconfig",orgId);
+        if(orgConfig.size()>0){
+            ByteArrayInputStream in = new ByteArrayInputStream(orgConfig.get(0).get("val_text").toString().getBytes());
+            org = db.parse(in);
+        }else{
+            org = db.newDocument();
+        }
+        
         
         Document result = db.newDocument();
         Element e =  result.createElement("searchconfig");
