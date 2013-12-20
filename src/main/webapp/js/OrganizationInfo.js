@@ -294,28 +294,28 @@
 			var view = this;
 			view.$el.find(".index-status-bar").show();
 			app.getJsonData("/getIndexColumnsStatus", {orgName:view.currentOrgName}).done(function(data){
-				percentage = data/18*100;
-				if(data<18){
+				percentage = data.created/data.all*100;
+				if(data.created<data.all){
 					view.$el.find(".index").prop("disabled",false);
 				}else{
 					view.$el.find(".index").prop("disabled",true).addClass("btn-success").html("Other Indexes Created");
 				}
 			    view.$el.find(".index-status-bar .progress-bar-success").css("width",percentage+"%");
-			    view.$el.find(".index-status-bar .db-percentage").html(data+"/18");
+			    view.$el.find(".index-status-bar .db-percentage").html(data.created+"/"+data.all);
 			});
 		},
 		"CONTACTINDEXCOLUMNSSTATUS":function(){
 			var view = this;
 			view.$el.find(".contact-index-status-bar").show();
 			app.getJsonData("/getIndexColumnsStatus", {orgName:view.currentOrgName,contactEx:true}).done(function(data){
-				if(data<3){
+				if(data.created<3){
 					view.$el.find(".contact-index").prop("disabled",false);
 				}else{
 					view.$el.find(".contact-index").prop("disabled",true).addClass("btn-success").html("Contact_ex Indexes Created");
 				}
-				percentage = data/3*100;
+				percentage = data.created/3*100;
 			    view.$el.find(".contact-index-status-bar .progress-bar-success").css("width",percentage+"%");
-			    view.$el.find(".contact-index-status-bar .contact-index-percentage").html(data+"/3");
+			    view.$el.find(".contact-index-status-bar .contact-index-percentage").html(data.created+"/3");
 			});
 		},
 		"click;.resume":function(event){ 

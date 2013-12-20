@@ -1,5 +1,7 @@
 package com.jobscience.search.web;
 
+import static com.britesnow.snow.util.MapUtil.mapIt;
+
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -128,7 +130,7 @@ public class DBSetupWebHanlder {
         if(contactEx==null){
             contactEx = false;
         }
-        return WebResponse.success(dbSetupManager.getIndexStatus(orgName,contactEx));
+        return WebResponse.success(mapIt("created",dbSetupManager.getIndexStatus(orgName,contactEx),"all",dbSetupManager.getTotalIndexCount()));
     }
     
     @WebPost("/createIndexResume")

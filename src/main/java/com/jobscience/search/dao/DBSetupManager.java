@@ -28,6 +28,10 @@ import com.google.common.cache.CacheLoader;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.jobscience.search.searchconfig.Filter;
+import com.jobscience.search.searchconfig.FilterField;
+import com.jobscience.search.searchconfig.SearchConfiguration;
+import com.jobscience.search.searchconfig.SearchConfigurationManager;
 
 @Singleton
 public class DBSetupManager {
@@ -51,7 +55,8 @@ public class DBSetupManager {
     private SfidManager sfidManager;
     @Inject
     private ContactTsvManager contactTsvManager;
-    
+    @Inject
+    private SearchConfigurationManager scm;
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
 		@Override
@@ -84,8 +89,8 @@ public class DBSetupManager {
         status.put("schema_create", this.checkSchema(orgName));
         String orgExtraTableNames = this.checkOrgExtra(orgName)+",";
         Map tableMap = new HashMap();
-        tableMap.put("label", orgExtraTableNames.contains("label,"));
-        tableMap.put("label_contact", orgExtraTableNames.contains("label_contact,"));
+       // tableMap.put("label", orgExtraTableNames.contains("label,"));
+       // tableMap.put("label_contact", orgExtraTableNames.contains("label_contact,"));
         tableMap.put("contact_ex", orgExtraTableNames.contains("contact_ex,"));
         tableMap.put("savedsearches", orgExtraTableNames.contains("savedsearches,"));
         tableMap.put("user", orgExtraTableNames.contains("user,"));
@@ -355,7 +360,19 @@ public class DBSetupManager {
                        }
                    }
                }
-               
+               SearchConfiguration sc = scm.getSearchConfiguration();
+               for(Filter f:sc.getFilters()){
+                   if(f.getFilterType()==null){
+                       FilterField ff = f.getFilterField();
+                       JSONObject jo = new JSONObject();
+                       jo.accumulate("name",f.getFilterField().getTable()+"_"+f.getFilterField().getColumn()+"_index");
+                       jo.accumulate("column", ff.getColumn());
+                       jo.accumulate("operator", "");
+                       jo.accumulate("unique", "");
+                       jo.accumulate("type", "btree");
+                       runner.executeUpdate(generateIndexSql(ff.getTable(),jo));
+                   }
+               }
            }
            result = true;
        }catch (Exception e) {
@@ -408,6 +425,7 @@ public class DBSetupManager {
      */
     public Integer getIndexStatus(String orgName,boolean contactEx){
     	StringBuilder sql = new StringBuilder();
+        
     	sql.append( "select count(*) as count from pg_indexes " +
                 "where indexname in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
                 "'contact_name_gin','contact_firstname_gin'," +
@@ -417,9 +435,10 @@ public class DBSetupManager {
                 "'ex_grouped_locations_name',"+
                 "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
                 "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-                "'ts2__education_history__c_name_c','contact_ex_sfid'," +
-                "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
-                "'ex_grouped_employers_name') and schemaname=current_schema ")
+                "'ts2__education_history__c_name_c','contact_ex_sfid','ex_grouped_employers_name'," +
+                "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'" +
+                getOrgCustomeFilterIndex()+
+                ") and schemaname=current_schema ")
                 .append(contactEx?" and tablename='contact_ex' ":" and tablename<>'contact_ex' ");
     	List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
     	if(list.size()==1){
@@ -428,6 +447,27 @@ public class DBSetupManager {
     	return 0;
     }
     
+    private String getOrgCustomeFilterIndex(){
+        SearchConfiguration sc = scm.getSearchConfiguration();
+        StringBuilder sb = new StringBuilder();
+        for(Filter f:sc.getFilters()){
+            if(f.getFilterType()==null){
+                sb.append(",'"+f.getFilterField().getTable()+"_"+f.getFilterField().getColumn()+"_index'");
+            }
+        }
+        return sb.toString();
+    }
+    
+    public int getTotalIndexCount(){
+        int i=18;
+        SearchConfiguration sc = scm.getSearchConfiguration();
+        for(Filter f:sc.getFilters()){
+            if(f.getFilterType()==null){
+               i++;
+            }
+        }
+        return i;
+    }
     public String getWrongIndex(String orgName){
         StringBuilder sql = new StringBuilder();
         sql.append( "select string_agg(tablename||'.'||indexname,', ') as indexes from pg_indexes " +
