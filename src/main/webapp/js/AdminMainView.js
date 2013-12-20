@@ -55,6 +55,8 @@
         	brite.display("PerfView");
         }else if(viewName == "trigger-test"){
         	brite.display("TriggerTestView");
+        }else if(viewName == "search-config"){
+            brite.display("AdminSearchConfig");
         }else{
           brite.display("Setup");
         }
