@@ -18,9 +18,9 @@
 	CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
 	BEGIN
 	IF( TG_OP='INSERT' ) THEN
-	    insert into contact_ex(id,resume_tsv,contact_tsv) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ),to_tsvector('english',new."name"||' '||new."title"));
+	    insert into contact_ex(id,resume_tsv,contact_tsv,sfid) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ),to_tsvector('english',new."firstname"||' '||new."lastname"||' '||new."title"),new.sfid||' ');
 	ELSIF (TG_OP = 'UPDATE') THEN
-	    UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" ),contact_tsv= to_tsvector('english',new."name"||' '||new."title")  where id = new.id;
+	    UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" ),contact_tsv= to_tsvector('english',new."firstname"||' '||new."lastname"||' '||new."title")  where id = new.id;
 	END IF;
 	RETURN NEW;
 	END;
@@ -31,7 +31,7 @@
 	DROP TRIGGER if exists contact_trg_resume_tsv ON contact  CASCADE;
 -- SCRIPTS
 CREATE TRIGGER contact_trg_resume_tsv
-  AFTER INSERT OR UPDATE OF "ts2__text_resume__c"
+  AFTER INSERT OR UPDATE OF "ts2__text_resume__c","firstname","lastname","sfid"
   ON contact
   FOR EACH ROW
   EXECUTE PROCEDURE update_context_ex_resume();
