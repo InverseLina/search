@@ -38,24 +38,19 @@ public class SearchConfigurationManager {
     private DaoHelper daoHelper;
     @Inject
     private OrgConfigDao orgConfigDao;
-   // @Inject
-    //private CurrentOrgHolder orgHolder;
     
-    private volatile SearchConfiguration searchConfiguration;
+    private volatile Document sysDocument;
     
-    private void load(String orgName) throws Exception{
-        JAXBContext jc = JAXBContext.newInstance(SearchConfiguration.class);
-        Unmarshaller ums =  jc.createUnmarshaller();
-        searchConfiguration = (SearchConfiguration) ums.unmarshal(getMergedNode(orgName));
-    }
     
     public SearchConfiguration getSearchConfiguration(String orgName){
-            try {
-                load(orgName);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        return searchConfiguration;
+        try{
+            JAXBContext jc = JAXBContext.newInstance(SearchConfiguration.class);
+            Unmarshaller ums =  jc.createUnmarshaller();
+            return (SearchConfiguration) ums.unmarshal(getMergedNode(orgName));
+        }catch(Exception e){
+            //
+        }
+        return new SearchConfiguration();
     }
     
     public List<Map> getFilters(String orgName){
@@ -114,15 +109,23 @@ public class SearchConfigurationManager {
         }
     }
     
+    private Document getSysDocument() throws Exception{
+        if(sysDocument==null){
+            DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
+            sysDocument =  db.parse(path+"/WEB-INF/config/sys/searchconfig.val");
+        }
+        return sysDocument;
+    }
     private  Node getMergedNode(String orgName) throws Exception {
-        StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
+       
         DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         //get the sys config
         List<Map> sysConfig = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
             "select val_text from config where name = ? and org_id is null", "searchconfig");
         Document sys = null;
         if (sysConfig.size() == 0) {
-            sys = db.parse(path+"/WEB-INF/config/sys/searchconfig.val");
+            sys = getSysDocument();
         }else{
             ByteArrayInputStream in = new ByteArrayInputStream(sysConfig.get(0).get("val_text").toString().getBytes());
             sys = db.parse(in);
