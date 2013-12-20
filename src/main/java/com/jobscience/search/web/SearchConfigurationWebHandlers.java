@@ -60,5 +60,27 @@ public class SearchConfigurationWebHandlers {
                 "insert into config (name, val_text) values(?,?)", COL_NAME, content);
         return WebResponse.success();
     }
+    @WebGet("/getOrgSearchConfig")
+    public WebResponse getOrgSearchConfig(RequestContext rc, @WebParam("orgId") String orgId) throws IOException {
+        //todo need call merge interface
+        return WebResponse.success();
+
+    }
+
+    @WebGet("/resetOrgSearchConfig")
+    public WebResponse resetOrgSearchConfig(RequestContext rc, @WebParam("orgId") String orgId) throws IOException {
+        daoHelper.executeUpdate(daoHelper.openNewSysRunner(),
+                "delete  from config where name = ? and org_id = ?", COL_NAME, orgId);
+        //todo need call merge interface
+        return WebResponse.success();
+    }
+
+    @WebPost("/saveOrgSearchConfig")
+    public WebResponse saveOrgSearchConfig(@WebParam("orgId") String orgId, @WebParam("content") String content, RequestContext rc) throws IOException {
+        daoHelper.insert(daoHelper.openNewSysRunner(),
+                "insert into config (org_id, name, val_text) values(?, ?, ?)", orgId,  content);
+        //todo need call merge interface
+        return WebResponse.success();
+    }
     
 }
