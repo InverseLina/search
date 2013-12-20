@@ -11,12 +11,12 @@ CREATE TABLE if not exists org
 -- SCRIPTS
 CREATE TABLE if not exists config
 (
-  id serial not null,
-  org_id int,
+  id serial NOT NULL,
+  org_id integer,
   name character varying(255) NOT NULL,
   value character varying(512),
+  val_text text,
   CONSTRAINT config_pkey PRIMARY KEY (id)
-)
-
+);
 
 
