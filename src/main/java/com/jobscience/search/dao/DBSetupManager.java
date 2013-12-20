@@ -84,8 +84,8 @@ public class DBSetupManager {
         status.put("schema_create", this.checkSchema(orgName));
         String orgExtraTableNames = this.checkOrgExtra(orgName)+",";
         Map tableMap = new HashMap();
-        tableMap.put("label", orgExtraTableNames.contains("label,"));
-        tableMap.put("label_contact", orgExtraTableNames.contains("label_contact,"));
+       // tableMap.put("label", orgExtraTableNames.contains("label,"));
+       // tableMap.put("label_contact", orgExtraTableNames.contains("label_contact,"));
         tableMap.put("contact_ex", orgExtraTableNames.contains("contact_ex,"));
         tableMap.put("savedsearches", orgExtraTableNames.contains("savedsearches,"));
         tableMap.put("user", orgExtraTableNames.contains("user,"));
