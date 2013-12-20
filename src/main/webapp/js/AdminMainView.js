@@ -61,8 +61,10 @@
           brite.display("Setup");
         }
         // change the nav selection
-        if(pathInfo.length == 1) {
+        console.log(pathInfo)
+        if(pathInfo.paths.length == 1) {
             view.$el.find(".nav-tabs li.active").removeClass("active");
+            console.log(view.$el.find(".nav-tabs li." + viewName))
             view.$el.find(".nav-tabs li." + viewName).addClass("active");
         }
     }

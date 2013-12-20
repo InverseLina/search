@@ -21,14 +21,25 @@
     	  view.$tabContent.html(html);
     	  view.orgId = -1;
     	  view.$el.find(".extra,.resume,.index").prop("disabled",true);
+          app.getJsonData("getOrgSearchConfig").done(function(result){
+              view.$el.find("textarea[name='searchConfig']").val(result);
+
+          });
+          view.$el.find("button.saveSearchConfig, button.resetSearchConfig").attr("disable", "true");
        }else if(app.pathInfo.paths[1] == "edit"){
     	   view.orgId = app.pathInfo.paths[2] * 1;
-    	   getDate.call(view,app.pathInfo.paths[2] * 1).done(function(orgName){
-    	   var li = render("OrganizationInfo-li",{type:"Organization: "+orgName,url:"#"+app.pathInfo.paths[0]+"/"+app.pathInfo.paths[1]+"/"+app.pathInfo.paths[2]});
-    	   view.$navTabs.find('li:last').before(li);
-    	   view.$el.trigger("WRONGINDEXES");
-    	  });
+          getDate.call(view, app.pathInfo.paths[2] * 1).done(function (orgName) {
+              view.orgName = orgName;
+              var li = render("OrganizationInfo-li", {type: "Organization: " + orgName, url: "#" + app.pathInfo.paths[0] + "/" + app.pathInfo.paths[1] + "/" + app.pathInfo.paths[2]});
+              view.$navTabs.find('li:last').before(li);
+              view.$el.trigger("WRONGINDEXES");
+              app.getJsonData("getOrgSearchConfig", {orgName: view.orgName}).done(function (result) {
+                  view.$el.find("textarea[name='searchConfig']").val(result);
+              });
+          });
        }
+
+
       
       $(document).on("btap." + view.cid, function(event){
     	 $(".time-list,.table-list",view.$el).hide();
@@ -561,7 +572,21 @@
 	    			  }
 	    		  }
 	          });
-	      }
+	      },
+        "btap; button.saveSearchConfig":function(event){
+            event.stopPropagation();
+            event.preventDefault();
+            var view = this;
+            var content = view.$el.find("textarea[name='searchConfig']").val();
+            app.getJsonData("saveOrgSearchConfig", {orgName:view.orgName, content:content}, "Post");
+            return false;
+        },
+        "btap; button.resetSearchConfig":function(){
+            var view = this;
+            app.getJsonData("resetOrgSearchConfig", {orgName:view.orgName}).done(function(result){
+                view.$el.find("textarea[name='searchConfig']").val(result);
+            });
+        }
     }
 
     // --------- /Events--------- //
