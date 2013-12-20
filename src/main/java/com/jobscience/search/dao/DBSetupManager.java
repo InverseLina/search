@@ -360,7 +360,7 @@ public class DBSetupManager {
                        }
                    }
                }
-               SearchConfiguration sc = scm.getSearchConfiguration();
+               SearchConfiguration sc = scm.getSearchConfiguration(orgName);
                for(Filter f:sc.getFilters()){
                    if(f.getFilterType()==null){
                        FilterField ff = f.getFilterField();
@@ -437,7 +437,7 @@ public class DBSetupManager {
                 "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
                 "'ts2__education_history__c_name_c','contact_ex_sfid','ex_grouped_employers_name'," +
                 "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'" +
-                getOrgCustomeFilterIndex()+
+                getOrgCustomeFilterIndex(orgName)+
                 ") and schemaname=current_schema ")
                 .append(contactEx?" and tablename='contact_ex' ":" and tablename<>'contact_ex' ");
     	List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
@@ -447,8 +447,8 @@ public class DBSetupManager {
     	return 0;
     }
     
-    private String getOrgCustomeFilterIndex(){
-        SearchConfiguration sc = scm.getSearchConfiguration();
+    private String getOrgCustomeFilterIndex(String orgName){
+        SearchConfiguration sc = scm.getSearchConfiguration(orgName);
         StringBuilder sb = new StringBuilder();
         for(Filter f:sc.getFilters()){
             if(f.getFilterType()==null){
@@ -458,9 +458,9 @@ public class DBSetupManager {
         return sb.toString();
     }
     
-    public int getTotalIndexCount(){
+    public int getTotalIndexCount(String orgName){
         int i=18;
-        SearchConfiguration sc = scm.getSearchConfiguration();
+        SearchConfiguration sc = scm.getSearchConfiguration(orgName);
         for(Filter f:sc.getFilters()){
             if(f.getFilterType()==null){
                i++;

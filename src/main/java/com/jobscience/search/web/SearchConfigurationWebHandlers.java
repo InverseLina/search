@@ -1,5 +1,12 @@
 package com.jobscience.search.web;
 
+import static com.britesnow.snow.util.MapUtil.mapIt;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
@@ -10,11 +17,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.searchconfig.SearchConfigurationManager;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
 
 @Singleton
 public class SearchConfigurationWebHandlers {
@@ -71,7 +73,7 @@ public class SearchConfigurationWebHandlers {
 
     @WebGet("/getOrgSearchConfig")
     public WebResponse getOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
-        return WebResponse.success(searchConfigurationManager.getMergedNodeContent(orgName));
+        return WebResponse.success(searchConfigurationManager.getOrgConfig(orgName));
 
     }
 
@@ -79,12 +81,15 @@ public class SearchConfigurationWebHandlers {
     public WebResponse resetOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
         daoHelper.executeUpdate(daoHelper.openNewSysRunner(),
                 "delete  from config where name = ? and org_id in (select id from org where name = ?)", COL_NAME, orgName);
-        return WebResponse.success(searchConfigurationManager.getMergedNodeContent(orgName));
+        return WebResponse.success(searchConfigurationManager.getOrgConfig(orgName));
     }
 
     @WebPost("/saveOrgSearchConfig")
     public WebResponse saveOrgSearchConfig(@WebParam("orgName") String orgName,
                                            @WebParam("content") String content, RequestContext rc) throws Exception {
+        if(!searchConfigurationManager.isValid(content)){
+            return WebResponse.success(mapIt("valid",false));
+        }
         List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
                 "select 1 from config where org_id in (select id from org where name = ?) and name = ?", orgName, COL_NAME);
         if(list.size() == 0){
@@ -97,7 +102,7 @@ public class SearchConfigurationWebHandlers {
                             "(select id from org where name = ?)", content, COL_NAME, orgName);
         }
 
-        return WebResponse.success(searchConfigurationManager.getMergedNodeContent(orgName));
+        return WebResponse.success(mapIt("valid",true,"config",searchConfigurationManager.getOrgConfig(orgName)));
     }
     
 }

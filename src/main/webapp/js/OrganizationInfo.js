@@ -578,7 +578,11 @@
             event.preventDefault();
             var view = this;
             var content = view.$el.find("textarea[name='searchConfig']").val();
-            app.getJsonData("saveOrgSearchConfig", {orgName:view.orgName, content:content}, "Post");
+            app.getJsonData("saveOrgSearchConfig", {orgName:view.orgName, content:content}, "Post").done(function(data){
+            	if(!data.valid){
+            		alert("The search config xml has something incorrect.");
+            	}
+            });
             return false;
         },
         "btap; button.resetSearchConfig":function(){

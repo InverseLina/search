@@ -47,17 +47,14 @@ public class SearchConfigurationManager {
         JAXBContext jc = JAXBContext.newInstance(SearchConfiguration.class);
         Unmarshaller ums =  jc.createUnmarshaller();
         searchConfiguration = (SearchConfiguration) ums.unmarshal(getMergedNode(orgName));
-        System.out.println(getMergedNodeContent(orgName));
     }
     
     public SearchConfiguration getSearchConfiguration(String orgName){
-        if(searchConfiguration==null){
             try {
                 load(orgName);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
         return searchConfiguration;
     }
     
@@ -100,6 +97,21 @@ public class SearchConfigurationManager {
         StringWriter writer = new StringWriter();
         TransformerFactory.newInstance().newTransformer().transform(new DOMSource(node), new StreamResult(writer));
         return writer.toString();
+    }
+    
+    public String getOrgConfig(String orgName){
+        int orgId = -1;
+        List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+        if(orgs.size()>0){
+            orgId = Integer.parseInt( orgs.get(0).get("id").toString());
+        }
+        List<Map> orgConfig = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+            "select val_text from config where name = ? and org_id =?", "searchconfig",orgId);
+        if(orgConfig.size()>0){
+           return orgConfig.get(0).get("val_text").toString();
+        }else{
+            return "<searchconfig></searchconfig>";
+        }
     }
     
     private  Node getMergedNode(String orgName) throws Exception {
@@ -296,4 +308,17 @@ public class SearchConfigurationManager {
         return e;
     }
     
+    public boolean isValid(String content){
+        boolean valid = false;
+        if(content!=null){
+            try{
+            DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            db.parse(new ByteArrayInputStream(content.getBytes()));
+            valid = true;
+            }catch(Exception e){
+                valid = false;
+            }
+        }
+        return valid;
+    }
 }

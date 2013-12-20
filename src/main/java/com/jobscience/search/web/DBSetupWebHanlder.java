@@ -130,7 +130,7 @@ public class DBSetupWebHanlder {
         if(contactEx==null){
             contactEx = false;
         }
-        return WebResponse.success(mapIt("created",dbSetupManager.getIndexStatus(orgName,contactEx),"all",dbSetupManager.getTotalIndexCount()));
+        return WebResponse.success(mapIt("created",dbSetupManager.getIndexStatus(orgName,contactEx),"all",dbSetupManager.getTotalIndexCount(orgName)));
     }
     
     @WebPost("/createIndexResume")
