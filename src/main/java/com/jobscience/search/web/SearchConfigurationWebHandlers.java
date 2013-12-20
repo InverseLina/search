@@ -21,7 +21,7 @@ public class SearchConfigurationWebHandlers {
     public static final String CONFIG_PATH = "/WEB-INF/config/sys/searchconfig.val";
     public static final String COL_NAME = "searchconfig";
 
-    @javax.inject.Inject
+    @Inject
     private DaoHelper daoHelper;
 
     @Inject
@@ -56,31 +56,48 @@ public class SearchConfigurationWebHandlers {
 
     @WebPost("/saveSearchConfig")
     public WebResponse saveSearchConfig(@WebParam("content") String content, RequestContext rc) throws IOException {
-        daoHelper.insert(daoHelper.openNewSysRunner(),
-                "insert into config (name, val_text) values(?,?)", COL_NAME, content);
+       List list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+               "select 1 from config where name = ? and org_id is null ", COL_NAME);
+        if(list.size() == 0){
+            daoHelper.insert(daoHelper.openNewSysRunner(),
+                    "insert into config (name, val_text) values(?,?)", COL_NAME, content);
+        }else {
+            daoHelper.executeUpdate(daoHelper.openNewSysRunner(),
+                    "update config set val_text = ?  where name = ? and org_id is null", content, COL_NAME);
+        }
+
         return WebResponse.success();
     }
+
     @WebGet("/getOrgSearchConfig")
-    public WebResponse getOrgSearchConfig(RequestContext rc, @WebParam("orgId") String orgId) throws IOException {
-        //todo need call merge interface
-        return WebResponse.success();
+    public WebResponse getOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
+        return WebResponse.success(searchConfigurationManager.getMergedNodeContent(orgName));
 
     }
 
     @WebGet("/resetOrgSearchConfig")
-    public WebResponse resetOrgSearchConfig(RequestContext rc, @WebParam("orgId") String orgId) throws IOException {
+    public WebResponse resetOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
         daoHelper.executeUpdate(daoHelper.openNewSysRunner(),
-                "delete  from config where name = ? and org_id = ?", COL_NAME, orgId);
-        //todo need call merge interface
-        return WebResponse.success();
+                "delete  from config where name = ? and org_id in (select id from org where name = ?)", COL_NAME, orgName);
+        return WebResponse.success(searchConfigurationManager.getMergedNodeContent(orgName));
     }
 
     @WebPost("/saveOrgSearchConfig")
-    public WebResponse saveOrgSearchConfig(@WebParam("orgId") String orgId, @WebParam("content") String content, RequestContext rc) throws IOException {
-        daoHelper.insert(daoHelper.openNewSysRunner(),
-                "insert into config (org_id, name, val_text) values(?, ?, ?)", orgId,  content);
-        //todo need call merge interface
-        return WebResponse.success();
+    public WebResponse saveOrgSearchConfig(@WebParam("orgName") String orgName,
+                                           @WebParam("content") String content, RequestContext rc) throws Exception {
+        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+                "select 1 from config where org_id in (select id from org where name = ?) and name = ?", orgName, COL_NAME);
+        if(list.size() == 0){
+            daoHelper.insert(daoHelper.openNewSysRunner(),
+                    "insert into config (org_id, name, val_text) values((select id from org where name = ?), ?, ?)",
+                    orgName, COL_NAME, content);
+        }else{
+            daoHelper.executeUpdate(daoHelper.openNewSysRunner(),
+                    "update config set val_text = ? where  name = ? and org_id in " +
+                            "(select id from org where name = ?)", content, COL_NAME, orgName);
+        }
+
+        return WebResponse.success(searchConfigurationManager.getMergedNodeContent(orgName));
     }
     
 }
