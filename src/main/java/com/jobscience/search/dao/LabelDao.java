@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.jobscience.search.CurrentOrgHolder;
 
+@Singleton
 public class LabelDao {
     
     @Inject
