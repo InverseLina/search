@@ -324,12 +324,6 @@ public class SearchDao {
                    baseTableIns = "a";
                    searchConditions.append(getSearchValueJoinTable(search, values,"a"));
         	   }else{
-        	      /* String[] sqls = getSearchValueJoinTable(search, values);
-        	       contactExQuery.append(sqls[0]);
-        	       contactQuery.append(sqls[1]);
-        	       contactExQueryCondition = sqls[2];
-        		   contactQueryCondition = sqls[3];
-        		  */
         	       hasSearchValue = true;
         	       contactQuery.append(getSearchValueJoinTable(search, values,"contact"));
         	   }
@@ -1264,21 +1258,6 @@ public class SearchDao {
     	    return joinSql.toString();
 	    }
     }
-    
-    
-  /*  private String[] getSearchValueJoinTable(String searchValue, List values){
-        searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
-        values.add(searchValue);
-        values.add(searchValue+"%");
-        values.add(searchValue+"%");
-        // joinSql.append(" right join (");
-        //joinSql.append(booleanSearchHandler(searchValue, null, values));
-        //joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
-        return new String[]{"select con.sfid,con.id from   public.contact_ex con  ",
-                "select con.sfid,con.id  from contact con ",
-                " where con.resume_tsv @@ plainto_tsquery(?) ",
-                " where  con.\"title\" ilike ? or  con.\"name\" ilike ?  "};
-    }*/
     
     /**
      * boolean search handler for big search box
