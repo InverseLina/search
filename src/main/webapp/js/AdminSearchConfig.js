@@ -31,7 +31,7 @@
                     event.stopPropagation();
                     var content = view.$el.find("form textarea").val();
                     app.getJsonData("saveSearchConfig",{content:content} ,"Post").done(function(result){
-                        console.log(result);
+                        //console.log(result);
                     })
                 }
             },
