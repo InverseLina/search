@@ -28,21 +28,10 @@ var app = app || {};
 	 * do search get group values
 	 * @Param qPrams, Object, which contains keyword, name and so on
 	 */ 
-	SearchDaoHandler.prototype.getGroupValuesForAdvanced = function(qParams,limitData){
+	SearchDaoHandler.prototype.getAutoCompleteData = function(qParams,limitData){
 		var data = $.extend({},qParams,limitData);
 
-        return app.getJsonData("getGroupValuesForAdvanced", data).pipe(function(val) {
-			return val;
-		});
-	}
-	
-	/**
-   * get menu data
-   * @Param opts, Object, which contains type, offset,limit
-   */ 
-	SearchDaoHandler.prototype.getAutoCompleteData = function(opts){
-		opts = opts||{};
-        return app.getJsonData("getAutoCompleteData", opts).pipe(function(val) {
+        return app.getJsonData("getAutoCompleteData", data).pipe(function(val) {
 			return val;
 		});
 	}

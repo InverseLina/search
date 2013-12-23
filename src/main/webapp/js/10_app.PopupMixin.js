@@ -58,7 +58,7 @@ var app = app || {};
                     var listName = (type == "company" ? "companies" : (type + "s"));
                     var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
                     delete params["q_" + listName];
-                    searchDao.getGroupValuesForAdvanced({
+                    searchDao.getAutoCompleteData({
                         "searchValues": JSON.stringify(params),
                         "type": type,
                         "orderByCount": true
@@ -147,7 +147,7 @@ var app = app || {};
                     }
 
 
-                    searchDao.getGroupValuesForAdvanced(searchCond).done(function (data) {
+                    searchDao.getAutoCompleteData(searchCond).done(function (data) {
                         if (view && view.$el) {
                             if (data.queryString == $.trim($input.val())) {
                                 view.$el.find(".autoCompleteList").html(render("filterPanel-autoComplete-list", {results: data.list, type: type}));
