@@ -31,7 +31,9 @@
                     event.stopPropagation();
                     var content = view.$el.find("form textarea").val();
                     app.getJsonData("saveSearchConfig",{content:content} ,"Post").done(function(result){
-                        //console.log(result);
+                    	if(!result.valid){
+                     		alert("The search config xml has something incorrect.");
+                     	}
                     })
                 }
             },

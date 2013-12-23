@@ -56,8 +56,11 @@ public class SearchConfigurationWebHandlers {
 
     @WebPost("/saveSearchConfig")
     public WebResponse saveSearchConfig(@WebParam("content") String content, RequestContext rc) throws IOException {
+        if(!searchConfigurationManager.isValid(content)){
+            return WebResponse.success(mapIt("valid",false));
+        }
         searchConfigurationDao.saveSearchConfig(content);
-        return WebResponse.success();
+        return WebResponse.success(mapIt("valid", true));
     }
 
     @WebGet("/getOrgSearchConfig")
