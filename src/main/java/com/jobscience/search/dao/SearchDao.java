@@ -323,11 +323,15 @@ public class SearchDao {
         		   baseTable =  schemaname+".contact " ;
                    baseTableIns = "a";
                    searchConditions.append(getSearchValueJoinTable(search, values,"a"));
+                   hasCondition = true;
         	   }else{
-        	       hasSearchValue = true;
-        	       contactQuery.append(getSearchValueJoinTable(search, values,"contact"));
+        	       if(search.length()>=3){
+            	       hasSearchValue = true;
+            	       contactQuery.append(getSearchValueJoinTable(search, values,"contact"));
+            	       hasCondition = true;
+        	       }
         	   }
-        	   hasCondition = true;
+        	 
            }
            
            //Get the label parameters and render them
