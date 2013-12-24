@@ -86,10 +86,18 @@
         var view = this;
         opts = opts || {};
         var search = opts.search;
+        var searchParameter = app.ParamsControl.getParamsForSearch({search: search});
+        var searchKey = app.ParamsControl.getQuery();
+
+        if($.trim(searchKey).length < 3){
+            view.contentView.showContentMessage("lessword");
+            return;
+        }
 
         view.contentView.showContentMessage("loading");
         view.contentView.restoreSearchParam();
-        var searchParameter = app.ParamsControl.getParamsForSearch({search: search});
+
+
         searchParameter.pageIndex = opts.pageIdx || 1;
 
         searchDao.search(searchParameter).always(function (result) {
