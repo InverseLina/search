@@ -615,7 +615,7 @@ public class SearchDao {
             		   }
             		   conditions.append(getConditionForThirdNames(skillValues, "skill",skill_assessment_rating));
             	   }else{
-            	       FilterField f = sc.getFilter(FilterType.COMPANY).getFilterField();
+            	       FilterField f = sc.getFilter(FilterType.SKILL).getFilterField();
             		   if(skill_assessment_rating){//join with the ts2__assessment__c
             		       if(prefixSql.length()==0){
             		           prefixSql.append(" with ");
