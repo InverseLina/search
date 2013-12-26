@@ -6,6 +6,6 @@
 	    FROM  org    
 	    WHERE  name = 'JobScience'
 	    ) THEN
-	  insert into org (name, schemaname, sfid) values ('JobScience','org_js1', null);
+	  insert into org (name, schemaname, sfid) values ('JobScience','org_sf1', null);
 	END IF;
 	END$$;
