@@ -481,7 +481,9 @@ public class DBSetupManager {
                 "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
                 "'ts2__education_history__c_name_c','contact_ex_sfid'," +
                 "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
-                "'ex_grouped_employers_name') and tablename in(" +
+                "'ex_grouped_employers_name'"+
+                getOrgCustomeFilterIndex(orgName)+
+                ") and tablename in(" +
                 "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
                 "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
                 " and indexname not ilike '%pkey%' and schemaname=current_schema ");
@@ -505,7 +507,9 @@ public class DBSetupManager {
                 "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
                 "'ts2__education_history__c_name_c','contact_ex_sfid'," +
                 "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
-                "'ex_grouped_employers_name') and tablename in(" +
+                "'ex_grouped_employers_name'"+
+                getOrgCustomeFilterIndex(orgName)+
+                ") and tablename in(" +
                 "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
                 "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
                 " and indexname not ilike '%pkey%' and schemaname=current_schema ");
