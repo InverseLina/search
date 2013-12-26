@@ -320,7 +320,6 @@ public class DBSetupManager {
         try {
             runner.startTransaction();
             for(String sql : allSqls){
-                System.out.println(sql);
         		runner.executeUpdate(sql);
             }
             runner.commit();
