@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipInputStream;
 
@@ -46,7 +48,6 @@ public class DBSetupManager {
     @Named("org.path")
     @Inject
     private String orgPath;
-
     @Inject
     private OrgConfigDao orgConfigDao;
     @Inject
@@ -57,6 +58,9 @@ public class DBSetupManager {
     private ContactTsvManager contactTsvManager;
     @Inject
     private SearchConfigurationManager scm;
+    
+    private volatile ConcurrentMap<String,JSONArray> indexesMap;
+    
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
 		@Override
@@ -64,7 +68,12 @@ public class DBSetupManager {
 			return key;
 	}});
  
-    public Map getSysConfig() throws SQLException, IOException{
+    /**
+     * get the sys schema status
+     * @return
+     * @throws Exception 
+     */
+    public Map getSysConfig() throws Exception{
         Map status = new HashMap();
         status.put("schema_create", daoHelper.checkSysSchema());
         
@@ -84,6 +93,13 @@ public class DBSetupManager {
         return status;
     }
     
+    /**
+     * get the org schema status for the given orgName
+     * @param orgName
+     * @return
+     * @throws SQLException
+     * @throws IOException
+     */
     public Map getOrgConfig(String orgName) throws SQLException, IOException{
         Map status = new HashMap();
         status.put("schema_create", this.checkSchema(orgName));
@@ -104,28 +120,23 @@ public class DBSetupManager {
         status.put("pgtrgm", this.checkExtension("pg_trgm"));
         Map indexMap = new HashMap();
         String indexNames = this.checkOrgIndex(orgName)+",";
-        indexMap.put("contact_ex_contact_tsv_gin", indexNames.contains("contact_ex_contact_tsv_gin,"));
-        indexMap.put("contact_title", indexNames.contains("contact_title_gin,"));
-        indexMap.put("contact_name", indexNames.contains("contact_name_gin,"));
-        indexMap.put("contact_firstname", indexNames.contains("contact_firstname_gin,"));
-        indexMap.put("contact_lastname", indexNames.contains("contact_lastname_gin,"));
-        indexMap.put("ts2__skill__c_name", indexNames.contains("ts2__skill__c_name,"));
-        indexMap.put("ts2__skill__c_contact_c", indexNames.contains("ts2__skill__c_contact_c,"));
-        indexMap.put("ts2__employment_history__c_contact_c", indexNames.contains("ts2__employment_history__c_contact_c,"));
-        indexMap.put("ts2__employment_history__c_name_c", indexNames.contains("ts2__employment_history__c_name_c,"));
-        indexMap.put("ts2__education_history__c_contact_c", indexNames.contains("ts2__education_history__c_contact_c,"));
-        indexMap.put("ts2__education_history__c_name_c", indexNames.contains("ts2__education_history__c_name_c,"));
         
-        indexMap.put("contact_ex_resume_tsv_gin", indexNames.contains("contact_ex_resume_tsv_gin,"));
-        indexMap.put("ts2__skill__c_idx_sfid", indexNames.contains("ts2__skill__c_idx_sfid,"));
-        indexMap.put("ts2__employment_history__c_idx_sfid", indexNames.contains("ts2__employment_history__c_idx_sfid"));
-        indexMap.put("ts2__education_history__c_idx_sfid", indexNames.contains("ts2__education_history__c_idx_sfid,"));
-        indexMap.put("ex_grouped_locations_name", indexNames.contains("ex_grouped_locations_name,"));
-        indexMap.put("ex_grouped_skills_name", indexNames.contains("ex_grouped_skills_name,"));
-        indexMap.put("ex_grouped_educations_name", indexNames.contains("ex_grouped_educations_name,"));
-        indexMap.put("ex_grouped_employers_name", indexNames.contains("ex_grouped_employers_name,"));
-        indexMap.put("contact_idx_sfid", indexNames.contains("contact_idx_sfid,"));
-        indexMap.put("contact_ex_sfid", indexNames.contains("contact_ex_sfid,"));
+        Map<String,JSONArray> indexesInfo =  getIndexMapFromJsonFile();
+        for(String key:indexesInfo.keySet()){
+            JSONArray ja = indexesInfo.get(key);
+            for(int i=0;i<ja.size();i++){
+                JSONObject jo =  JSONObject.fromObject(ja.get(i));
+                indexMap.put(jo.getString("name"), indexNames.contains(jo.getString("name")+","));
+            }
+        }
+     
+        SearchConfiguration sc = scm.getSearchConfiguration(orgName);
+        for(Filter f:sc.getFilters()){
+            if(f.getFilterType()==null){
+                String indexName = f.getFilterField().getTable()+"_"+f.getFilterField().getColumn()+"_index";
+                indexMap.put(indexName, indexNames.contains(indexName+","));
+            }
+        }
         status.put("indexes", indexMap);
         
         if(orgExtraTableNames.contains("contact_ex,")){
@@ -199,6 +210,14 @@ public class DBSetupManager {
         return status;
     }
     
+    /**
+     * check a table own a column or not
+     * @param columnName
+     * @param table
+     * @param schemaName
+     * @return
+     * @throws SQLException
+     */
     private boolean checkColumn(String columnName,String table,String schemaName) throws SQLException{
         boolean result = false;
         
@@ -327,21 +346,7 @@ public class DBSetupManager {
      */
     public boolean createIndexColumns(String orgName,boolean contactEx) throws Exception{
        boolean result = true;
-       File orgFolder = new File(getRootSqlFolderPath() + "/org");
-       File[] sqlFiles = orgFolder.listFiles();
-       String indexes = new String();
-       for(File file : sqlFiles){
-        	if(file.getName().equals("indexes.json")){//only load the indexes.json
-	            List<String> subSqlList = loadSQLFile(file);
-	            indexes = subSqlList.get(0);
-        	}
-       }
-       JSONObject indexesObj = JSONObject.fromObject(indexes);
-       Map<String,JSONArray> m = new HashMap<String,JSONArray>();
-       for(Object tableName:indexesObj.keySet()){
-          m.put(tableName.toString(), JSONArray.fromObject(indexesObj.get(tableName)));
-       }
-       
+       Map<String,JSONArray> m = getIndexMapFromJsonFile();
        Runner runner = daoHelper.openNewOrgRunner(orgName);
        try {
            if(contactEx&&m.get("contact_ex")!=null){
@@ -390,6 +395,12 @@ public class DBSetupManager {
         return result;
     }
     
+    /**
+     * generate the index sql from the indexes.json
+     * @param tabelName
+     * @param jo
+     * @return
+     */
     private String generateIndexSql(String tabelName,JSONObject jo){
         StringBuilder sb = new StringBuilder();
         sb.append(" DO $$  ")
@@ -426,20 +437,12 @@ public class DBSetupManager {
     public Integer getIndexStatus(String orgName,boolean contactEx){
     	StringBuilder sql = new StringBuilder();
         
-    	sql.append( "select count(*) as count from pg_indexes " +
-                "where indexname in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
-                "'contact_name_gin','contact_firstname_gin'," +
-                "'ts2__skill__c_idx_sfid','ts2__employment_history__c_idx_sfid',"+
-                "'ts2__education_history__c_idx_sfid','contact_idx_sfid',"+
-                "'contact_lastname_gin','ts2__skill__c_name'," +
-                "'ex_grouped_locations_name',"+
-                "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
-                "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-                "'ts2__education_history__c_name_c','contact_ex_sfid','ex_grouped_employers_name'," +
-                "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'" +
-                getOrgCustomeFilterIndex(orgName)+
-                ") and schemaname=current_schema ")
-                .append(contactEx?" and tablename='contact_ex' ":" and tablename<>'contact_ex' ");
+    	sql.append( "select count(*) as count from pg_indexes " )
+           .append("where indexname in (")
+           .append(getIndexesNamesAndTables()[0])
+           .append(getOrgCustomFilterIndex(orgName))
+           .append(") and schemaname=current_schema ")
+           .append(contactEx?" and tablename='contact_ex' ":" and tablename<>'contact_ex' ");
     	List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());
@@ -447,7 +450,12 @@ public class DBSetupManager {
     	return 0;
     }
     
-    private String getOrgCustomeFilterIndex(String orgName){
+    /**
+     * get the indexes for custom filter which defined in org search config
+     * @param orgName
+     * @return
+     */
+    private String getOrgCustomFilterIndex(String orgName){
         SearchConfiguration sc = scm.getSearchConfiguration(orgName);
         StringBuilder sb = new StringBuilder();
         for(Filter f:sc.getFilters()){
@@ -458,35 +466,37 @@ public class DBSetupManager {
         return sb.toString();
     }
     
-    public int getTotalIndexCount(String orgName){
-        int i=18;
+    public int getTotalIndexCount(String orgName,boolean containsContactEx){
+        int count=0;
+        Map<String,JSONArray> m = getIndexMapFromJsonFile();
+        for(String key:m.keySet()){
+            if(!containsContactEx&&key.equals("contact_ex")){
+                continue;
+            }
+            JSONArray ja = m.get(key);
+            for(int i=0;i<ja.size();i++){
+                count++;
+            }
+        }
         SearchConfiguration sc = scm.getSearchConfiguration(orgName);
         for(Filter f:sc.getFilters()){
             if(f.getFilterType()==null){
-               i++;
+               count++;
             }
         }
-        return i;
+        return count;
     }
+    
     public String getWrongIndex(String orgName){
         StringBuilder sql = new StringBuilder();
-        sql.append( "select string_agg(tablename||'.'||indexname,', ') as indexes from pg_indexes " +
-                "where indexname not in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
-                "'contact_name_gin','contact_firstname_gin'," +
-                "'ts2__skill__c_idx_sfid','ts2__employment_history__c_idx_sfid',"+
-                "'ts2__education_history__c_idx_sfid','contact_idx_sfid',"+
-                "'contact_lastname_gin','ts2__skill__c_name'," +
-                "'ex_grouped_locations_name',"+
-                "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
-                "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-                "'ts2__education_history__c_name_c','contact_ex_sfid'," +
-                "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
-                "'ex_grouped_employers_name'"+
-                getOrgCustomeFilterIndex(orgName)+
-                ") and tablename in(" +
-                "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
-                "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
-                " and indexname not ilike '%pkey%' and schemaname=current_schema ");
+        sql.append( "select string_agg(tablename||'.'||indexname,', ') as indexes from pg_indexes ")
+           .append("where indexname not in (")
+           .append(getIndexesNamesAndTables()[0])
+           .append(getOrgCustomFilterIndex(orgName))
+           .append(") and tablename in(" )
+           .append(getIndexesNamesAndTables()[1])
+           .append(")")
+           .append(" and indexname not ilike '%pkey%' and schemaname=current_schema ");
         List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
         if(list.size()==1){
                 return list.get(0).get("indexes")==null?"":list.get(0).get("indexes").toString();
@@ -496,23 +506,14 @@ public class DBSetupManager {
     
     public String removeWrongIndex(String orgName) throws Exception{
         StringBuilder sql = new StringBuilder();
-        sql.append( "select indexname from pg_indexes " +
-                "where indexname not in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
-                "'contact_name_gin','contact_firstname_gin'," +
-                "'ts2__skill__c_idx_sfid','ts2__employment_history__c_idx_sfid',"+
-                "'ts2__education_history__c_idx_sfid','contact_idx_sfid',"+
-                "'contact_lastname_gin','ts2__skill__c_name'," +
-                "'ex_grouped_locations_name',"+
-                "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
-                "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-                "'ts2__education_history__c_name_c','contact_ex_sfid'," +
-                "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
-                "'ex_grouped_employers_name'"+
-                getOrgCustomeFilterIndex(orgName)+
-                ") and tablename in(" +
-                "'contact_ex','contact','ts2__skill__c','ts2__employment_history__c'," +
-                "'ts2__education_history__c','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers')" +
-                " and indexname not ilike '%pkey%' and schemaname=current_schema ");
+        sql.append( "select indexname from pg_indexes " )
+           .append("where indexname not in (")
+           .append(getIndexesNamesAndTables()[0])
+           .append(getOrgCustomFilterIndex(orgName))
+           .append(") and tablename in(" )
+           .append(getIndexesNamesAndTables()[1])
+           .append(")" )
+           .append(" and indexname not ilike '%pkey%' and schemaname=current_schema ");
         List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
         
         Runner runner = daoHelper.openNewOrgRunner(orgName);
@@ -561,145 +562,6 @@ public class DBSetupManager {
     }
     
     /**
-     * check the zipcode data imported completed or not
-     * first it would get from cache,if not found,will get from the sql file on dropbox
-     * @return
-     * @throws SQLException
-     * @throws IOException
-     */
-    private boolean checkZipcodeImported() throws SQLException, IOException{
-    	Integer zipcodeLoadCount = (Integer)cache.getIfPresent("zipcodeLoadCount");
-    	if(zipcodeLoadCount==null){
-    		zipcodeLoadCount = 43191;//doUpdateZipCode(false);
-    	}
-    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select count(*) as count from zipcode_us");
-    	if(list.size()==1){
-    		if(list.get(0).get("count").toString().equals(zipcodeLoadCount+"")){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
-    /**
-     * update zipcode data from bropbox
-     * @param updateDb if<code>true</code> will insert into table,else just get the recordes count
-     * @return
-     * @throws SQLException
-     * @throws IOException
-     */
-    private int doUpdateZipCode(boolean updateDb) throws Exception{
-    	try{
-    		int rowCount = 0;
-			URL url = new URL(zipcodePath);
-			HttpURLConnection con =  (HttpURLConnection) url.openConnection();
-			ZipInputStream in = new ZipInputStream(con.getInputStream());
-			in.getNextEntry();
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String line = br.readLine();
-			//To match csv dataType, if columns change should change this
-			Class[] dataTypes = new Class[]{String.class,String.class,String.class,Double.class,Double.class, Integer.class, Integer.class};
-			StringBuilder valueStr = new StringBuilder();
-			for(int i = 0; i < dataTypes.length; i++){
-			    if(i != 0){
-			        valueStr.append(",");
-			    }
-			    valueStr.append("?");
-			}
-			String sql = "INSERT INTO jss_sys.zipcode_us ("+line+") values ("+valueStr.toString()+");";
-			Runner runner = daoHelper.openDefaultRunner();
-			try{
-			    runner.startTransaction();
-				line = br.readLine();
-				PQuery pq = runner.newPQuery(sql);
-				while(line!=null){
-					if(!line.trim().equals("")){
-						if(updateDb){
-						    String lineValue = line.replaceAll("\'", "").replaceAll("\"", "");
-						    String[] valueStrs = lineValue.split(",");
-						    Object[] values = new Object[dataTypes.length];
-						    for(int i = 0; i < values.length; i++){
-						        if(dataTypes[i] == Double.class){
-						            values[i] = new Double(valueStrs[i]);
-						        }else if(dataTypes[i] == Integer.class){
-						            values[i] = new Integer(valueStrs[i]);
-						        }else{
-						            values[i] = valueStrs[i];
-						        }
-						    }
-						    pq.executeUpdate(values);
-						}
-						rowCount++;
-					}
-					line = br.readLine();
-				}
-				if(updateDb){
-				    runner.commit();
-				}
-			}catch (Exception e) {
-				e.printStackTrace();
-				try {
-				    runner.roolback();
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-				throw e;
-			}finally{
-			    runner.close();
-	        }
-			in.close();
-			cache.put("zipcodeLoadCount", rowCount);
-			return rowCount;
-    	}catch (IOException e) {
-			throw e;
-		}
-    }
-    /**
-     * check the contact and contact_ex index for org
-     * @param schemaname
-     * @return
-     */
-    private String checkOrgIndex(String orgName){
-    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), 
-    	            "select string_agg(indexname,',') as names from pg_indexes " +
-    	            "where indexname in ('contact_ex_resume_tsv_gin','contact_title_gin'," +
-                    "'contact_name_gin','contact_firstname_gin'," +
-                    "'ts2__skill__c_idx_sfid','ts2__employment_history__c_idx_sfid',"+
-                    "'ts2__education_history__c_idx_sfid','contact_idx_sfid',"+
-                    "'contact_lastname_gin','ts2__skill__c_name'," +
-                    "'ex_grouped_locations_name',"+
-                    "'ts2__skill__c_contact_c','ts2__employment_history__c_contact_c'," +
-                    "'ts2__employment_history__c_name_c','ts2__education_history__c_contact_c'," +
-                    "'ts2__education_history__c_name_c','contact_ex_sfid'," +
-                    "'contact_ex_contact_tsv_gin','ex_grouped_skills_name','ex_grouped_educations_name'," +
-                    "'ex_grouped_employers_name') and schemaname=current_schema ");
-    	if(list.size()==1){
-            String names = (String)list.get(0).get("names");
-            if(names==null){
-                return "";
-            }
-            return names;
-        }
-    	return "";
-    }
-    
-    /**
-     * check the extension by extension name
-     * @param extName
-     * @return
-     */
-    private boolean checkExtension(String extName){
-    	List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select count(*) as count from pg_catalog.pg_extension" +
-        		" where extname='"+extName+"' ");
-    	if(list.size()==1){
-    		if("1".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
-    /**
      * check the org extra tables are existed or not(main for 'contact_ex','savedsearches','user')
      * @param orgName
      * @return
@@ -722,49 +584,6 @@ public class DBSetupManager {
     	return "";
     }
     
-    /**
-     * check the schema is existed or not for org
-     * @param orgName
-     * @return
-     */
-    private  boolean checkSchema(String orgName){
-    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-    	String schemaname="" ;
-    	if(orgs.size()==1){
-    		schemaname = orgs.get(0).get("schemaname").toString();
-    	}
-    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select count(*) as count from information_schema.schemata" +
-        		" where schema_name='"+schemaname+"'");
-    	if(list.size()==1){
-    		if("1".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
-    /**
-     * check the org schema has the special table or not
-     * @param orgName
-     * @param table
-     * @return
-     *//*
-    private  boolean checkTable(String orgName,String table){
-    	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-    	String schemaname="" ;
-    	if(orgs.size()==1){
-    		schemaname = orgs.get(0).get("schemaname").toString();
-    	}
-    	List<Map> list = daoHelper.executeQuery(dsMng.getSysDataSource(),  "select count(*) as count from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name ='"+table+"'");
-    	if(list.size()==1){
-    		if("1".equals(list.get(0).get("count").toString())){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    */
    public List<String> getSqlCommandForOrg(String fileName){
        return loadSQLFile(new File(getRootSqlFolderPath()+"/org/"+fileName));
    }
@@ -810,5 +629,194 @@ public class DBSetupManager {
            runner.close();
        }
       return result;
+   }
+   
+   private Map<String,JSONArray> getIndexMapFromJsonFile(){
+       if(indexesMap!=null){
+           return indexesMap;
+       }
+       File orgFolder = new File(getRootSqlFolderPath() + "/org");
+       File[] sqlFiles = orgFolder.listFiles();
+       String indexes = new String();
+       for(File file : sqlFiles){
+            if(file.getName().equals("indexes.json")){//only load the indexes.json
+                List<String> subSqlList = loadSQLFile(file);
+                indexes = subSqlList.get(0);
+            }
+       }
+       JSONObject indexesObj = JSONObject.fromObject(indexes);
+       ConcurrentMap<String,JSONArray> m = new ConcurrentHashMap<String,JSONArray>();
+       for(Object tableName:indexesObj.keySet()){
+          m.put(tableName.toString(), JSONArray.fromObject(indexesObj.get(tableName)));
+       }
+       indexesMap = m;
+       return indexesMap;
+   }
+   
+   private  String[] getIndexesNamesAndTables(){
+       StringBuilder names = new StringBuilder(),tables = new StringBuilder();
+       Map<String,JSONArray> indexesInfo =  getIndexMapFromJsonFile();
+       for(String key:indexesInfo.keySet()){
+           JSONArray ja = indexesInfo.get(key);
+           for(int i=0;i<ja.size();i++){
+               JSONObject jo =  JSONObject.fromObject(ja.get(i));
+               names.append(",'").append(jo.get("name")).append("'");
+               tables.append(",'").append(key).append("'");
+           }
+       }
+       if(names.length()>0){
+           names.delete(0, 1);
+           tables.delete(0, 1);
+       }
+       return new String[]{names.toString(),tables.toString()};
+   }
+   
+   /**
+    * check the schema is existed or not for org
+    * @param orgName
+    * @return
+    */
+   private  boolean checkSchema(String orgName){
+       List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+       String schemaname="" ;
+       if(orgs.size()==1){
+           schemaname = orgs.get(0).get("schemaname").toString();
+       }
+       List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select count(*) as count from information_schema.schemata" +
+               " where schema_name='"+schemaname+"'");
+       if(list.size()==1){
+           if("1".equals(list.get(0).get("count").toString())){
+               return true;
+           }
+       }
+       return false;
+   }
+   
+   /**
+    * check the zipcode data imported completed or not
+    * first it would get from cache,if not found,will get from the sql file on dropbox
+    * @return
+    * @throws Exception 
+    */
+   private boolean checkZipcodeImported() throws Exception{
+       Integer zipcodeLoadCount = (Integer)cache.getIfPresent("zipcodeLoadCount");
+       if(zipcodeLoadCount==null){
+           zipcodeLoadCount = doUpdateZipCode(false);
+       }
+       List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select count(*) as count from zipcode_us");
+       if(list.size()==1){
+           if(list.get(0).get("count").toString().equals(zipcodeLoadCount+"")){
+               return true;
+           }
+       }
+       return false;
+   }
+   
+   /**
+    * update zipcode data from bropbox
+    * @param updateDb if<code>true</code> will insert into table,else just get the recordes count
+    * @return
+    * @throws SQLException
+    * @throws IOException
+    */
+   private int doUpdateZipCode(boolean updateDb) throws Exception{
+       try{
+           int rowCount = 0;
+           URL url = new URL(zipcodePath);
+           HttpURLConnection con =  (HttpURLConnection) url.openConnection();
+           ZipInputStream in = new ZipInputStream(con.getInputStream());
+           in.getNextEntry();
+           BufferedReader br = new BufferedReader(new InputStreamReader(in));
+           String line = br.readLine();
+           //To match csv dataType, if columns change should change this
+           Class[] dataTypes = new Class[]{String.class,String.class,String.class,Double.class,Double.class, Integer.class, Integer.class};
+           StringBuilder valueStr = new StringBuilder();
+           for(int i = 0; i < dataTypes.length; i++){
+               if(i != 0){
+                   valueStr.append(",");
+               }
+               valueStr.append("?");
+           }
+           String sql = "INSERT INTO jss_sys.zipcode_us ("+line+") values ("+valueStr.toString()+");";
+           Runner runner = daoHelper.openDefaultRunner();
+           try{
+               runner.startTransaction();
+               line = br.readLine();
+               PQuery pq = runner.newPQuery(sql);
+               while(line!=null){
+                   if(!line.trim().equals("")){
+                       if(updateDb){
+                           String lineValue = line.replaceAll("\'", "").replaceAll("\"", "");
+                           String[] valueStrs = lineValue.split(",");
+                           Object[] values = new Object[dataTypes.length];
+                           for(int i = 0; i < values.length; i++){
+                               if(dataTypes[i] == Double.class){
+                                   values[i] = new Double(valueStrs[i]);
+                               }else if(dataTypes[i] == Integer.class){
+                                   values[i] = new Integer(valueStrs[i]);
+                               }else{
+                                   values[i] = valueStrs[i];
+                               }
+                           }
+                           pq.executeUpdate(values);
+                       }
+                       rowCount++;
+                   }
+                   line = br.readLine();
+               }
+               if(updateDb){
+                   runner.commit();
+               }
+           }catch (Exception e) {
+               e.printStackTrace();
+               try {
+                   runner.roolback();
+               } catch (Exception e1) {
+                   e1.printStackTrace();
+               }
+               throw e;
+           }finally{
+               runner.close();
+           }
+           in.close();
+           cache.put("zipcodeLoadCount", rowCount);
+           return rowCount;
+       }catch (IOException e) {
+           throw e;
+       }
+   }
+   /**
+    * check the contact and contact_ex index for org
+    * @param schemaname
+    * @return
+    */
+   private String checkOrgIndex(String orgName){
+       List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), 
+                   "select string_agg(indexname,',') as names from pg_indexes " +
+                   "where indexname in ("+getIndexesNamesAndTables()[0]+") and schemaname=current_schema ");
+       if(list.size()==1){
+           String names = (String)list.get(0).get("names");
+           if(names==null){
+               return "";
+           }
+           return names;
+       }
+       return "";
+   }
+   
+   /**
+    * check the extension by extension name
+    * @param extName
+    * @return
+    */
+   private boolean checkExtension(String extName){
+       List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select count(*) as count from pg_catalog.pg_extension" +
+               " where extname='"+extName+"' ");
+       if(list.size()==1){
+           if("1".equals(list.get(0).get("count").toString())){
+               return true;
+           }
+       }
+       return false;
    }
 }    

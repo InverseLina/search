@@ -70,7 +70,7 @@ public class DBSetupWebHanlder {
              return WebResponse.success(dbSetupManager.getSysConfig());
         }catch (SQLException e) {
             return WebResponse.success(new JSSSqlException(e) );
-        } catch (IOException e) {
+        } catch (Exception e) {
             return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()) );
         }
     }
@@ -130,7 +130,7 @@ public class DBSetupWebHanlder {
         if(contactEx==null){
             contactEx = false;
         }
-        return WebResponse.success(mapIt("created",dbSetupManager.getIndexStatus(orgName,contactEx),"all",dbSetupManager.getTotalIndexCount(orgName)));
+        return WebResponse.success(mapIt("created",dbSetupManager.getIndexStatus(orgName,contactEx),"all",dbSetupManager.getTotalIndexCount(orgName,false)));
     }
     
     @WebPost("/createIndexResume")
