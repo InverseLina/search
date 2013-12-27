@@ -73,13 +73,6 @@
                 "column":"ts2__contact__c",
                 "operator":"",
                 "unique":""
-               },
-                {
-                "name":"ts2__skill__c_idx_sfid",
-                "type":"btree",
-                "column":"sfid",
-                "operator":"",
-                "unique":""
                }
               ],
  "ts2__employment_history__c":[
@@ -96,13 +89,6 @@
                 "column":"ts2__name__c",
                 "operator":"",
                 "unique":""
-               },
-               {
-                "name":"ts2__employment_history__c_idx_sfid",
-                "type":"btree",
-                "column":"sfid",
-                "operator":"",
-                "unique":""
                }
               ],
  "ts2__education_history__c":[
@@ -117,13 +103,6 @@
                 "name":"ts2__education_history__c_name_c",
                 "type":"btree",
                 "column":"ts2__name__c",
-                "operator":"",
-                "unique":""
-               },
-               {
-                "name":"ts2__education_history__c_idx_sfid",
-                "type":"btree",
-                "column":"sfid",
                 "operator":"",
                 "unique":""
                }
