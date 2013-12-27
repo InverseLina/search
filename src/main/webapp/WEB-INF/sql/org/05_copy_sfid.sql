@@ -9,5 +9,5 @@
     END$$;
 -- SCRIPTS
 	update contact_ex  set sfid = con.sfid
-	from (select c.sfid,c.id from contact_ex ex join contact c on ex.id=c.id and ex.sfid is null ) con
+	from (select c.sfid,c.id from contact_ex ex join contact c on ex.id=c.id and ex.sfid is null limit 1000) con
 	where contact_ex.id=con.id

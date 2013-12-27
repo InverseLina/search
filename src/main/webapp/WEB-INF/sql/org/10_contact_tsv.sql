@@ -12,5 +12,5 @@
   update contact_ex  set contact_tsv = to_tsvector('english',con."name"||' '||con."title") 
   from (select case when c.name is null then '' else c.name end as name ,
   case when c.title is null then '' else c.title end as title,c.id
-  from contact_ex ex join contact c on ex.id=c.id and ex.contact_tsv is null ) con
+  from contact_ex ex join contact c on ex.id=c.id and ex.contact_tsv is null limit 1000) con
   where contact_ex.id=con.id
