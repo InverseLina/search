@@ -16,8 +16,8 @@ import javax.sql.DataSource;
 import com.google.common.base.Throwables;
 import com.google.inject.name.Named;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import org.josql.DBHelper;
-import org.josql.DBHelperBuilder;
+import org.josql.DB;
+import org.josql.DBBuilder;
 import org.josql.Runner;
 
 import com.britesnow.snow.web.hook.AppPhase;
@@ -28,9 +28,9 @@ import com.google.inject.Inject;
 public class DaoHelper {
     
 
-    private DBHelper defaultDBHelper;
-    private DBHelper sysDBHelper;
-    private Map<String,DBHelper> orgDBHelperByName = new ConcurrentHashMap<String, DBHelper>();
+    private DB defaultDBHelper;
+    private DB sysDBHelper;
+    private Map<String,DB> orgDBHelperByName = new ConcurrentHashMap<String, DB>();
 
 
     private DataSource defaultDs;
@@ -59,10 +59,10 @@ public class DaoHelper {
     // --------- DaoHelper Initialization --------- //
     @WebApplicationHook(phase = AppPhase.INIT)
     public void initDBHelpers(){
-        defaultDBHelper = new DBHelperBuilder().newDBHelper(defaultDs);
+        defaultDBHelper = new DBBuilder().newDBHelper(defaultDs);
         if (checkSysSchema()) {
             sysDs = buildDs(url, sysSchema);
-            sysDBHelper = new DBHelperBuilder().newDBHelper(getSysDataSource());
+            sysDBHelper = new DBBuilder().newDBHelper(getSysDataSource());
         }
     }
     // --------- /DaoHelper Initialization --------- //
@@ -80,8 +80,8 @@ public class DaoHelper {
         return getOrgDBHelper(orgName).newRunner();
     }
     
-    public DBHelper getOrgDBHelper(String orgName){
-        DBHelper orgDBHelper = orgDBHelperByName.get(orgName);
+    public DB getOrgDBHelper(String orgName){
+        DB orgDBHelper = orgDBHelperByName.get(orgName);
         
         // if null, we create it.
         if(orgDBHelper == null){
@@ -89,7 +89,7 @@ public class DaoHelper {
                 // since we are in a synchronize queue now we double check again
                 orgDBHelper = orgDBHelperByName.get(orgName);
                 if (orgDBHelper == null){
-                    orgDBHelper = new DBHelperBuilder().newDBHelper(getOrgDataSource(orgName));
+                    orgDBHelper = new DBBuilder().newDBHelper(getOrgDataSource(orgName));
                     orgDBHelperByName.put(orgName, orgDBHelper);
                 }
             }
@@ -136,7 +136,7 @@ public class DaoHelper {
     
     public Object insert(Runner runner, String sql, Object... vals){
         try{
-            return runner.executeInsert(sql, vals);
+            return runner.executeWithReturn(sql, vals);
         }finally{
             runner.close();
         }
@@ -202,7 +202,7 @@ public class DaoHelper {
         }
         if(sysDs==null){
             sysDs = buildDs(url, sysSchema);
-            sysDBHelper = new DBHelperBuilder().newDBHelper(getSysDataSource());
+            sysDBHelper = new DBBuilder().newDBHelper(getSysDataSource());
         }
         return sysDs;
     }

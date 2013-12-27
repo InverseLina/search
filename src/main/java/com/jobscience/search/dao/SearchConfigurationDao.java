@@ -30,7 +30,7 @@ public class SearchConfigurationDao {
                 "select 1 from config where name = ? and org_id is null ", COL_NAME);
         if (list.size() == 0) {
             daoHelper.insert(daoHelper.openNewSysRunner(),
-                    "insert into config (name, val_text) values(?,?)", COL_NAME, content);
+                    "insert into config (name, val_text) values(?,?) returning id", COL_NAME, content);
         } else {
             daoHelper.executeUpdate(daoHelper.openNewSysRunner(),
                     "update config set val_text = ?  where name = ? and org_id is null", content, COL_NAME);
@@ -47,7 +47,7 @@ public class SearchConfigurationDao {
                 "select 1 from config where org_id in (select id from org where name = ?) and name = ?", orgName, COL_NAME);
         if(list.size() == 0){
             daoHelper.insert(daoHelper.openNewSysRunner(),
-                    "insert into config (org_id, name, val_text) values((select id from org where name = ?), ?, ?)",
+                    "insert into config (org_id, name, val_text) values((select id from org where name = ?), ?, ?) returning id",
                     orgName, COL_NAME, content);
         }else{
             daoHelper.executeUpdate(daoHelper.openNewSysRunner(),

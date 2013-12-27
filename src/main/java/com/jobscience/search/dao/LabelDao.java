@@ -17,10 +17,10 @@ public class LabelDao {
     @Inject
     private CurrentOrgHolder orgHolder;
     
-    public Long addLabel(String sfid, String name) {
-        Long id = (Long) daoHelper.insert(orgHolder.getOrgName(),
-                "insert into ts2__s_userlist__c(name,ownerid, sfid) values(?,?, ?)", name, sfid, demoSfid());
-        return id;
+    public Object addLabel(String sfid, String name) {
+        Map result = (Map) daoHelper.insert(orgHolder.getOrgName(),
+                "insert into ts2__s_userlist__c(name,ownerid, sfid) values(?,?, ?) returning id", name, sfid, demoSfid());
+        return  result.get("id");
     }
     
     public void deleteLabel(String name){
