@@ -12,7 +12,7 @@ import javax.inject.Singleton;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.josql.Runner;
+import org.jasql.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

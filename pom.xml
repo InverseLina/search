@@ -173,8 +173,8 @@
     <!-- /Snow -->
     
     <dependency>
-      <groupId>org.josql</groupId>
-      <artifactId>josql</artifactId>
+      <groupId>org.jasql</groupId>
+      <artifactId>jasql</artifactId>
       <version>0.2-SNAPSHOT</version>
     </dependency>    
     

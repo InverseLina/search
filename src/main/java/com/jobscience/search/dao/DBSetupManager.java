@@ -20,8 +20,8 @@ import java.util.zip.ZipInputStream;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.josql.PQuery;
-import org.josql.Runner;
+import org.jasql.PQuery;
+import org.jasql.Runner;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.common.cache.Cache;

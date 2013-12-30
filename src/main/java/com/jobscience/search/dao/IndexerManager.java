@@ -6,8 +6,8 @@ import java.io.FileReader;
 import java.util.List;
 import java.util.Map;
 
-import org.josql.PQuery;
-import org.josql.Runner;
+import org.jasql.PQuery;
+import org.jasql.Runner;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.inject.Inject;

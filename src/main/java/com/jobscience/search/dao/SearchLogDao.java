@@ -2,7 +2,7 @@ package com.jobscience.search.dao;
 
 import java.util.Date;
 
-import org.josql.Runner;
+import org.jasql.Runner;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

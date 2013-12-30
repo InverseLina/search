@@ -16,9 +16,9 @@ import javax.sql.DataSource;
 import com.google.common.base.Throwables;
 import com.google.inject.name.Named;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import org.josql.DB;
-import org.josql.DBBuilder;
-import org.josql.Runner;
+import org.jasql.DB;
+import org.jasql.DBBuilder;
+import org.jasql.Runner;
 
 import com.britesnow.snow.web.hook.AppPhase;
 import com.britesnow.snow.web.hook.annotation.WebApplicationHook;
