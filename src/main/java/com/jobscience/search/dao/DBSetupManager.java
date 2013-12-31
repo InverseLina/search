@@ -76,7 +76,6 @@ public class DBSetupManager {
     public Map getSysConfig() throws Exception{
         Map status = new HashMap();
         status.put("schema_create", daoHelper.checkSysSchema());
-        
         String sysTableNames = this.checkSysTables();
         Map tableMap = new HashMap();
         tableMap.put("org", sysTableNames.contains("org"));
@@ -90,6 +89,7 @@ public class DBSetupManager {
             status.put("zipcode_import", false);
         }
         status.put("pgtrgm", this.checkExtension("pg_trgm"));
+        
         return status;
     }
     
@@ -100,7 +100,7 @@ public class DBSetupManager {
      * @throws SQLException
      * @throws IOException
      */
-    public Map getOrgConfig(String orgName) throws SQLException, IOException{
+    public Map getOrgConfig(String orgName,boolean quick) throws SQLException, IOException{
         Map status = new HashMap();
         status.put("schema_create", this.checkSchema(orgName));
         String orgExtraTableNames = this.checkOrgExtra(orgName)+",";
@@ -143,10 +143,10 @@ public class DBSetupManager {
             if(indexerManager.isOn()){
                 status.put("resume", "running");
             }else{
-                if(indexerManager.getStatus(orgName).getRemaining()==0){
+                if(indexerManager.getStatus(orgName,quick).getRemaining()==0){
                     status.put("resume", "done");
                 }else{
-                    if(indexerManager.getStatus(orgName).getPerform()>0){
+                    if(indexerManager.getStatus(orgName,quick).getPerform()>0){
                         status.put("resume","part");
                     }else{
                         status.put("resume", false);
@@ -168,10 +168,10 @@ public class DBSetupManager {
                 if(sfidManager.isOn()){
                     status.put("sfid", "running");
                 }else{
-                    if(sfidManager.getStatus(orgName).getRemaining()==0){
+                    if(sfidManager.getStatus(orgName,quick).getRemaining()==0){
                         status.put("sfid", "done");
                     }else{
-                        if(sfidManager.getStatus(orgName).getPerform()>0){
+                        if(sfidManager.getStatus(orgName,quick).getPerform()>0){
                             status.put("sfid","part");
                         }else{
                             status.put("sfid", false);
@@ -190,10 +190,10 @@ public class DBSetupManager {
                 if(contactTsvManager.isOn()){
                     status.put("contact_tsv", "running");
                 }else{
-                    if(contactTsvManager.getStatus(orgName).getRemaining()==0){
+                    if(contactTsvManager.getStatus(orgName,quick).getRemaining()==0){
                         status.put("contact_tsv", "done");
                     }else{
-                        if(contactTsvManager.getStatus(orgName).getPerform()>0){
+                        if(contactTsvManager.getStatus(orgName,quick).getPerform()>0){
                             status.put("contact_tsv","part");
                         }else{
                             status.put("contact_tsv", false);
@@ -629,6 +629,33 @@ public class DBSetupManager {
            runner.close();
        }
       return result;
+   }
+   
+   /**
+    * drop all the indexes created by jss
+    * @param orgName
+    */
+   public int dropIndexes(String orgName){
+       Map<String,JSONArray> indexesInfo =  getIndexMapFromJsonFile();
+       int indexesCount = 0;
+       for(String key:indexesInfo.keySet()){
+           JSONArray ja = indexesInfo.get(key);
+           for(int i=0;i<ja.size();i++){
+               JSONObject jo =  JSONObject.fromObject(ja.get(i));
+               daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop index if exists "+jo.getString("name"));
+               indexesCount++;
+           }
+       }
+    
+       SearchConfiguration sc = scm.getSearchConfiguration(orgName);
+       for(Filter f:sc.getFilters()){
+           if(f.getFilterType()==null){
+               String indexName = f.getFilterField().getTable()+"_"+f.getFilterField().getColumn()+"_index";
+               daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop index if exists "+indexName);
+               indexesCount++;
+           }
+       }
+       return  indexesCount;
    }
    
    private Map<String,JSONArray> getIndexMapFromJsonFile(){

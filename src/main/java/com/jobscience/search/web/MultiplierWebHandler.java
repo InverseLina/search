@@ -18,13 +18,18 @@ public class MultiplierWebHandler {
     @WebPost("/multiplyData")
     public WebResponse multiplyData(@WebParam("orgName")String orgName,
             @WebParam("times")Integer times,@WebParam("tableName")String tableName) throws SQLException{
-        multiplierManager.multiplyData(times, orgName,tableName);
-        return WebResponse.success();
+        return WebResponse.success(multiplierManager.multiplyData(times, orgName,tableName));
     }
     
     @WebGet("/getMultiplyStatus")
     public WebResponse getStatus(){
         return WebResponse.success(multiplierManager.getStatus());
+    }
+    
+    @WebPost("/stopMultiply")
+    public WebResponse stopMultiply(){
+        multiplierManager.stop();
+        return WebResponse.success();
     }
     
 }

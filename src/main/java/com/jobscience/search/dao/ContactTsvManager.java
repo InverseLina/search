@@ -81,13 +81,27 @@ public class ContactTsvManager {
 	 public void stop(){
 		 this.on = false;
 	 }
-	 
-	 public IndexerStatus getStatus(String orgName){
-		int all = getContactsCount(orgName);
-    	int perform = getContactExCount(orgName);
-    	indexerStatus = new IndexerStatus(all-perform, perform);
-		return indexerStatus;
-	 }
+
+    public IndexerStatus getStatus(String orgName, boolean quick) {
+        if (quick) {
+            return getQuickStatus(orgName);
+        }
+        int all = getContactsCount(orgName);
+        int perform = getContactExCount(orgName);
+        indexerStatus = new IndexerStatus(all - perform, perform);
+        return indexerStatus;
+    }
+
+    public IndexerStatus getQuickStatus(String orgName) {
+        int all = 0;
+        List<Map> list = daoHelper.executeQuery(orgName, "select max(id) as count from contact");
+        if (list.size() == 1) {
+            all = Integer.parseInt(list.get(0).get("count").toString());
+        }
+        indexerStatus = new IndexerStatus(0, all);
+        return indexerStatus;
+    }
+
 	 private int getContactsCount(String orgName){
     	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact");
     	if(list.size()==1){

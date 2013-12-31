@@ -76,9 +76,12 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/checkOrgSchema")
-    public WebResponse checkOrgSchema (@WebParam("org")String orgName){
+    public WebResponse checkOrgSchema (@WebParam("org")String orgName,@WebParam("quick")Boolean quick){
+        if(quick==null){
+            quick = false;
+        }
         try{
-             return WebResponse.success(dbSetupManager.getOrgConfig(orgName));
+             return WebResponse.success(dbSetupManager.getOrgConfig(orgName,quick));
         }catch (SQLException e) {
             return WebResponse.success(new JSSSqlException(e) );
         } catch (IOException e) {
@@ -140,7 +143,7 @@ public class DBSetupWebHanlder {
     	 }catch (Exception e) {
        	    return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
          }
-        return WebResponse.success(indexerManager.getStatus(orgName));
+        return WebResponse.success(indexerManager.getStatus(orgName,false));
     }
     
     @WebPost("/copySfid")
@@ -150,29 +153,29 @@ public class DBSetupWebHanlder {
          }catch (Exception e) {
             return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
          }
-        return WebResponse.success(sfidManager.getStatus(orgName));
+        return WebResponse.success(sfidManager.getStatus(orgName,false));
     }
     
     @WebGet("/getSfidStatus")
     public WebResponse getSfidStatus(@WebParam("orgName")String orgName) {
-        return WebResponse.success(sfidManager.getStatus(orgName));
+        return WebResponse.success(sfidManager.getStatus(orgName,false));
     }
     
     @WebPost("/stopCopySfid")
     public WebResponse stopCopySfid(@WebParam("orgName")String orgName) {
         sfidManager.stop();
-        return WebResponse.success(sfidManager.getStatus(orgName));
+        return WebResponse.success(sfidManager.getStatus(orgName,false));
     }
     
     @WebGet("/getResumeIndexStatus")
     public WebResponse getStatus(@WebParam("orgName")String orgName) {
-        return WebResponse.success(indexerManager.getStatus(orgName));
+        return WebResponse.success(indexerManager.getStatus(orgName,false));
     }
     
     @WebPost("/stopCreateIndexResume")
     public WebResponse createIndesxResume(@WebParam("orgName")String orgName) {
     	indexerManager.stop();
-        return WebResponse.success(indexerManager.getStatus(orgName));
+        return WebResponse.success(indexerManager.getStatus(orgName,false));
     }
     
     @WebPost("/createContactTsv")
@@ -182,18 +185,18 @@ public class DBSetupWebHanlder {
          }catch (Exception e) {
             return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
          }
-        return WebResponse.success(contactTsvManager.getStatus(orgName));
+        return WebResponse.success(contactTsvManager.getStatus(orgName,false));
     }
     
     @WebGet("/getContactTsvStatus")
     public WebResponse getContactTsvStatus(@WebParam("orgName")String orgName) {
-        return WebResponse.success(contactTsvManager.getStatus(orgName));
+        return WebResponse.success(contactTsvManager.getStatus(orgName,false));
     }
     
     @WebPost("/stopCreateContactTsv")
     public WebResponse stopCreateContactTsv(@WebParam("orgName")String orgName) {
         contactTsvManager.stop();
-        return WebResponse.success(contactTsvManager.getStatus(orgName));
+        return WebResponse.success(contactTsvManager.getStatus(orgName,false));
     }
     
     @WebGet("/getWrongIndexes")
@@ -210,6 +213,11 @@ public class DBSetupWebHanlder {
         }catch (Exception e) {
             return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
         }
+    }
+    
+    @WebPost("/removeAllIndexes")
+    public WebResponse removeAllIndexes(@WebParam("orgName")String orgName){
+        return WebResponse.success(dbSetupManager.dropIndexes(orgName));
     }
     
 }

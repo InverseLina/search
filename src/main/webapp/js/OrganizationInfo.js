@@ -419,22 +419,33 @@
 			 if($btn.prop("disabled")){
 				 return false;
 			 }
-			 $btn.prop("disabled",true);
-			 app.getJsonData("/multiplyData",{orgName:view.currentOrgName,times:view.time,tableName:view.tableName},{type:"POST"}).done(function(data){
-				 window.clearInterval(view.multiplyIntervalId);
-				 $btn.prop("disabled",false);
-				 view.$el.find(".multiply-info").hide();
-				 //view.$el.trigger("MULTIPLY_STATUS_CHANGE");
-			 });
-			 view.multiplyIntervalId = window.setInterval(function(){
-		    	   $(view.el).trigger("MULTIPLY_STATUS_CHANGE");
-		  		}, 3000);
-			 view.$el.trigger("MULTIPLY_STATUS_CHANGE");
+			 $btn.toggleClass("pause");
+			 if($btn.hasClass("pause")){
+				 $btn.html("Pause Multiply");
+				 app.getJsonData("/multiplyData",{orgName:view.currentOrgName,times:view.time,tableName:view.tableName},{type:"POST"}).done(function(data){
+					 window.clearInterval(view.multiplyIntervalId);
+					 $btn.prop("disabled",false).html("Multiply Data");
+					 view.$el.find(".multiply-info").hide();
+					 view.$el.find(".db-info").html("Current Database Size: "+data.currentDbSize+"MB , Cost: "+data.cost+"s").show();
+					 //view.$el.trigger("MULTIPLY_STATUS_CHANGE");
+					 $btn.html("Multiply Data");
+				 });
+				 view.multiplyIntervalId = window.setInterval(function(){
+			    	   $(view.el).trigger("MULTIPLY_STATUS_CHANGE");
+			  		}, 5000);
+				 view.$el.trigger("MULTIPLY_STATUS_CHANGE");
+			 }else{
+				 app.getJsonData("/stopMultiply",{},{type:"POST"}).done(function(data){
+					 $btn.html("Multiply Data");
+				 });
+			 }
+			
 		},
 		"MULTIPLY_STATUS_CHANGE":function(event){
 			 var view = this;
 			 var $info = view.$el.find(".multiply-info");
 			 $info.show();
+			 view.$el.find(".db-info").hide();
 			 app.getJsonData("/getMultiplyStatus",{},{type:"GET"}).done(function(data){
 				 $(".time",$info).html(data.currentTime);
 				 $(".perform",$info).html(data.performCounts);
@@ -467,7 +478,7 @@
 		 "STATUS_CHANGE":function(event,init){
 	    	  var view = this;
 	    	  var orgName = view.currentOrgName;
-	    	  app.getJsonData("/checkOrgSchema",{org:orgName},{type:"Get"}).done(function(result){
+	    	  app.getJsonData("/checkOrgSchema",{org:orgName,quick:init},{type:"Get"}).done(function(result){
 	    		  var tableInfo = "";
 	    		  for(var table in result.tables){
 	    			 if(!result.tables[table]){
@@ -590,6 +601,21 @@
             app.getJsonData("resetOrgSearchConfig", {orgName:view.orgName}).done(function(result){
                 view.$el.find("textarea[name='searchConfig']").val(result);
             });
+        },
+        "click;.disable-indexes":function(event){
+        	var view = this;
+        	var disableBtn = $(event.currentTarget);
+        	disableBtn.prop("disabled",true).html("Disabling...");
+			app.getJsonData("removeAllIndexes", {orgName:view.orgName},{type:'Post'}).done(function(result){
+				disableBtn.html("Indexes Disabled");
+				view.$el.trigger("STATUS_CHANGE");
+			});
+        },
+        "click;.enable-indexes":function(event){
+        	var view = this;
+        	var $disableBtn = $(event.currentTarget);
+        	view.$el.trigger("STATUS_CHANGE");
+        	$(".alert",$disableBtn.closest("div")).show();
         }
     }
 
