@@ -429,6 +429,7 @@
 					 view.$el.find(".db-info").html("Current Database Size: "+data.currentDbSize+"MB , Cost: "+data.cost+"s").show();
 					 //view.$el.trigger("MULTIPLY_STATUS_CHANGE");
 					 $btn.html("Multiply Data");
+					 $btn.removeClass("pause");
 				 });
 				 view.multiplyIntervalId = window.setInterval(function(){
 			    	   $(view.el).trigger("MULTIPLY_STATUS_CHANGE");
