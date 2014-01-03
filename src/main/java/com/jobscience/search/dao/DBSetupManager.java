@@ -658,6 +658,13 @@ public class DBSetupManager {
        return  indexesCount;
    }
    
+   public int  dropExTables(String orgName){
+       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop table if exists ex_grouped_locations");
+       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop table if exists ex_grouped_employers");
+       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop table if exists ex_grouped_educations");
+       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop table if exists ex_grouped_skills");
+       return 4;
+   }
    private Map<String,JSONArray> getIndexMapFromJsonFile(){
        if(indexesMap!=null){
            return indexesMap;

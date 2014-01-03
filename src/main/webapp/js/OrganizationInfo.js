@@ -617,7 +617,15 @@
         	var $disableBtn = $(event.currentTarget);
         	view.$el.trigger("STATUS_CHANGE");
         	$(".alert",$disableBtn.closest("div")).show();
-        }
+        },
+	    "click;.drop-ex":function(event){
+	    	var view = this;
+	    	var $disableBtn = $(event.currentTarget);
+	    	app.getJsonData("/dropExTables", {orgName:view.orgName},{type:'Post'}).done(function(result){
+	    		view.$el.trigger("STATUS_CHANGE");
+	    		$(".alert",$disableBtn.closest("div")).show();
+			});
+	    }
     }
 
     // --------- /Events--------- //
