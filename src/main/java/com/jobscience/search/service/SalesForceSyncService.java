@@ -4,13 +4,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import com.google.inject.Inject;
@@ -20,22 +21,12 @@ import com.jobscience.search.service.sfsync.BulkManager;
 import com.jobscience.search.service.sfsync.MetadataManager;
 import com.jobscience.search.service.sfsync.NameResolver;
 import com.sforce.async.AsyncApiException;
-import com.sforce.async.BatchInfo;
-import com.sforce.async.BatchStateEnum;
 import com.sforce.async.BulkConnection;
-import com.sforce.async.ConcurrencyMode;
-import com.sforce.async.ContentType;
-import com.sforce.async.JobInfo;
-import com.sforce.async.OperationEnum;
-import com.sforce.async.QueryResultList;
 import com.sforce.soap.metadata.MetadataConnection;
-import com.sforce.soap.metadata.PackageTypeMembers;
 import com.sforce.ws.ConnectionException;
 
 @Singleton
 public class SalesForceSyncService {
-    
-    private  static final String VERSION = "29.0";
     
     @Inject
     private SyncDao syncDao;
@@ -49,53 +40,103 @@ public class SalesForceSyncService {
     //FIXME
     String packageNamespacePrefix = "";
 
-    public void syncData(String token, String instanceUrl)throws AsyncApiException, ConnectionException, IOException{
+    public List<Map> syncData(String token, String instanceUrl)throws AsyncApiException, ConnectionException, IOException{
         MetadataConnection metadataConnection = metadataManager.getMetadataConnection(token, instanceUrl);
-        List objects = getCustomObjectNames(metadataConnection);
-        
-        for(int i = 0; i < objects.size(); i++){
-            System.out.println(objects.get(i));
-        }
-        
-        List tables = syncDao.getTablesByOrg(null);
-        
-        List notExistObjects = new ArrayList();
-        for(int i = 0; i < tables.size(); i++){
-            boolean isExist = false;
-            for(int j = 0; j < objects.size(); j++){
-                if(tables.get(i).equals(objects.get(j))){
-                    isExist = true;
-                    break;
-                }
-            }
-            if(!isExist){
-                    notExistObjects.add(tables.get(i));
-            }
-        }
-        this.pushObjects(metadataConnection, notExistObjects);
-        
         BulkConnection bulkConnection = bulkManager.getBulkConnection(token, instanceUrl);
-        this.uploadData(bulkConnection, tables);
+//        List objects = getCustomObjectNames(metadataConnection);
+//        
+//        for(int i = 0; i < objects.size(); i++){
+//            System.out.println(objects.get(i));
+//        }
+//        
+//        List tables = syncDao.getTablesByOrg(null);
+//        
+        List notExistTables = new ArrayList();
+//        for(int i = 0; i < tables.size(); i++){
+//            boolean isExist = false;
+//            for(int j = 0; j < objects.size(); j++){
+//                if(tables.get(i).equals(objects.get(j))){
+//                    isExist = true;
+//                    break;
+//                }
+//            }
+//            if(!isExist){
+//                    notExistObjects.add(tables.get(i));
+//            }
+//        }
+//        this.pushTables(metadataConnection, notExistObjects);
         
+        // ----------- hardcode ----------//
+        String tableName = "ts2__education_history__c";
+        Map table = new HashMap();
+        table.put("name", tableName);
+        notExistTables.add(table);
+        this.pushTables(metadataConnection, notExistTables);
+        // ----------- /hardcode ----------//
+        
+        List<Map> result = null;
+        for(int i = 0; i < notExistTables.size(); i++){
+            Map tableDef = (Map) notExistTables.get(i);
+            String tablename = (String) tableDef.get("name");
+            this.uploadData(bulkConnection, tablename);
+            System.out.println("=========upload success");
+            result = this.downloadData(bulkConnection,tablename);
+            System.out.println(result);
+        }
+        
+        return result;
     }
     
-    public void uploadData(BulkConnection bulkConnection,List objects) throws AsyncApiException, IOException, ConnectionException{
-        for (int i = 0; i < objects.size(); i++) {
-            Map m = (Map) objects.get(i);
-            String tablename = (String) m.get("name");
+    public void uploadData(BulkConnection bulkConnection,String tablename) throws AsyncApiException, IOException, ConnectionException{
             String object = nameResolver.escapeName(tablename);
             List headers = syncDao.getFields(tablename);
             List data = syncDao.getData(tablename, 2000, 3000);
-            String content = getCSVData(headers, data);
+            String content = toCSVData(headers, data);
             bulkManager.uploadData(packageNamespacePrefix+object + "__c", content, bulkConnection);
+    }
+    
+    public List<Map> downloadData(BulkConnection bulkConnection, String tablename) {
+        String object = nameResolver.escapeName(tablename);
+        List columns = syncDao.getFields(tablename);
+        List fields = new ArrayList();
+        for(int j = 0; j < columns.size(); j++){
+            Map columnInfo = (Map) columns.get(j);
+            fields.add(nameResolver.escapeName((String) columnInfo.get("name")) + "__c");
         }
+        String originData = bulkManager.downloadData(object + "__c", fields, bulkConnection);
+        List<Map> result = new ArrayList();
+        String[] lines = originData.split("\n");
+        String[] headerColumns = lines[0].split(",");
+        List fieldNames = new ArrayList();
+        for(String headerColumn : headerColumns){
+            String column = headerColumn.replaceAll("\"", "").trim();
+            column = nameResolver.unencapeName(column);
+            fieldNames.add(column);
+        }
+        
+        for(int i = 1; i < lines.length; i++){
+            String[] records = lines[i].split("\",\"");
+            Map map = new HashMap();
+            System.out.println(lines[i]);
+            for(int j = 0; j < records.length; j++){
+                Map columnDef = (Map) columns.get(j);
+//                for(int k = 0; k < columns.size(); k++){
+//                    String fieldName = (String) ((Map)columns.get(k)).get("name");
+//                    if(fieldName.equals(fieldNames.get(j))){
+//                        columnDef = (Map) columns.get(k);
+//                        break;
+//                    }
+//                }
+                map.put(fieldNames.get(j), getValueByType(columnDef,records[j].replaceAll("\"", "")));
+            }
+            result.add(map);
+        }
+        return result;
     }
     
     
-    
-    
-    private void pushObjects(MetadataConnection metadataConnection,List objects){
-        if(objects.size() == 0){
+    private void pushTables(MetadataConnection metadataConnection,List tables){
+        if(tables.size() == 0){
             return;
         }
         try {
@@ -109,8 +150,8 @@ public class SalesForceSyncService {
             
             StringBuilder objs = new StringBuilder();
             String objInfo = null;
-            for(int i = 0; i < objects.size(); i++){
-                Map tableDef = (Map) objects.get(i);
+            for(int i = 0; i < tables.size(); i++){
+                Map tableDef = (Map) tables.get(i);
                 String name = nameResolver.escapeName((String) tableDef.get("name"));
                 if(i != 0){
                     objs.append(",");
@@ -162,40 +203,40 @@ public class SalesForceSyncService {
     }
     
 
-    private List<String> getCustomObjectNames(MetadataConnection metadataConnection) {
-        com.sforce.soap.metadata.Package p = new com.sforce.soap.metadata.Package();
-        p.setVersion(VERSION);
-        
-        PackageTypeMembers ptm = new PackageTypeMembers();
-        ptm.setName("CustomObject");
-        ptm.setMembers(new String[]{"*"});
-        
-        
-        p.setTypes(new PackageTypeMembers[]{ptm});
-        byte[] data = metadataManager.retriveMetadataObjects(metadataConnection, p);
-        
-        List<String> names = new ArrayList();
-        try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(data);
-            ZipInputStream zip = new ZipInputStream(bis);
-            ZipEntry entry = null;
-            while ((entry = zip.getNextEntry()) != null) {
-                if(entry.getName().indexOf("unpackaged/objects/") == 0){
-                    String name = entry.getName();
-                    name = name.substring(name.lastIndexOf("/") + 1, name.lastIndexOf(".") );
-                    names.add(name);
-                    zip.closeEntry();
-                }
-            }
-            zip.close();
-            bis.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return names;
-    }
+//    private List<String> getCustomObjectNames(MetadataConnection metadataConnection) {
+//        com.sforce.soap.metadata.Package p = new com.sforce.soap.metadata.Package();
+//        p.setVersion(VERSION);
+//        
+//        PackageTypeMembers ptm = new PackageTypeMembers();
+//        ptm.setName("CustomObject");
+//        ptm.setMembers(new String[]{"*"});
+//        
+//        
+//        p.setTypes(new PackageTypeMembers[]{ptm});
+//        byte[] data = metadataManager.retriveMetadataObjects(metadataConnection, p);
+//        
+//        List<String> names = new ArrayList();
+//        try {
+//            ByteArrayInputStream bis = new ByteArrayInputStream(data);
+//            ZipInputStream zip = new ZipInputStream(bis);
+//            ZipEntry entry = null;
+//            while ((entry = zip.getNextEntry()) != null) {
+//                if(entry.getName().indexOf("unpackaged/objects/") == 0){
+//                    String name = entry.getName();
+//                    name = name.substring(name.lastIndexOf("/") + 1, name.lastIndexOf(".") );
+//                    names.add(name);
+//                    zip.closeEntry();
+//                }
+//            }
+//            zip.close();
+//            bis.close();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        return names;
+//    }
     
-    private String getCSVData(List<Map> headers, List<Map> data) throws AsyncApiException, IOException{
+    private String toCSVData(List<Map> headers, List<Map> data) throws AsyncApiException, IOException{
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for(Map header : headers){
@@ -279,6 +320,46 @@ public class SalesForceSyncService {
         sb.append("<trackTrending>false</trackTrending>");
         sb.append("</fields>\n");
         return sb.toString();
+    }
+    
+    private Object getValueByType(Map columnDef, String v){
+        String dataType = (String) columnDef.get("type");
+        if(dataType.equals("date") || dataType.equals("timestamp with time zone") || dataType.equals("timestamp without time zone")){
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+            try {
+                Date d = df.parse(v);
+                return d;
+            } catch (ParseException e) {
+            }
+        }else if(dataType.equals("bigint")){
+            try{
+                Long l = Long.parseLong(v);
+                return l;
+            } catch (Exception e) {
+            }
+        }else if(dataType.equals("integer")){
+            try{
+                Integer i = Integer.parseInt(v);
+                return i;
+            } catch (Exception e) {
+            }
+        }else if(dataType.equals("double precision")){
+            try{
+                Double i = Double.parseDouble(v);
+                return i;
+            } catch (Exception e) {
+            }
+        }else if(dataType.equals("character varying") || dataType.equals("text") || dataType.equals("tsvector")){
+            return v;
+        }else if(dataType.equals("boolean")){
+            try{
+                Boolean i = Boolean.parseBoolean(v);
+                return i;
+            } catch (Exception e) {
+            }
+        }
+        
+        return null;
     }
     
     private void zipFile(ZipOutputStream out, String path, String value){

@@ -22,7 +22,7 @@ public class NameResolver {
             result = result.substring(1, result.length());
         }
         
-        result = "jss_"+result.replaceAll("00", "__");
+        result = result.replaceAll("00", "__");
         return result;
     }
     

@@ -2,10 +2,12 @@ package com.jobscience.search.service.sfsync;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,10 +22,12 @@ import com.sforce.async.BatchInfo;
 import com.sforce.async.BatchStateEnum;
 import com.sforce.async.BulkConnection;
 import com.sforce.async.CSVReader;
+import com.sforce.async.ConcurrencyMode;
 import com.sforce.async.ContentType;
 import com.sforce.async.JobInfo;
 import com.sforce.async.JobStateEnum;
 import com.sforce.async.OperationEnum;
+import com.sforce.async.QueryResultList;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
@@ -48,9 +52,9 @@ public class BulkManager {
         return connection;
     }
     
-    public void uploadData(String jobName,String content,BulkConnection bulkConnection) throws ConnectionException, AsyncApiException, IOException {
+    public void uploadData(String objectType,String content,BulkConnection bulkConnection) throws ConnectionException, AsyncApiException, IOException {
         JobInfo job = new JobInfo();
-        job.setObject(jobName);
+        job.setObject(objectType);
         job.setOperation(OperationEnum.insert);
         job.setContentType(ContentType.CSV);
         job = bulkConnection.createJob(job);
@@ -59,9 +63,73 @@ public class BulkManager {
         JobInfo closejob = new JobInfo();
         closejob.setId(job.getId());
         closejob.setState(JobStateEnum.Closed);
-        bulkConnection.updateJob(job);
+        bulkConnection.updateJob(closejob);
         awaitCompletion(bulkConnection, job, batchInfoList);
         checkResults(bulkConnection, job, batchInfoList);
+    }
+    
+    public String downloadData(String objectType, List<String> fields, BulkConnection bulkConnection) {
+        try {
+            JobInfo job = new JobInfo();
+            job.setObject(objectType);
+            job.setOperation(OperationEnum.query);
+            job.setConcurrencyMode(ConcurrencyMode.Parallel);
+            job.setContentType(ContentType.CSV);
+            job = bulkConnection.createJob(job);
+            job = bulkConnection.getJobStatus(job.getId());
+            StringBuilder fieldsStr = new StringBuilder();
+            for(int i = 0; i < fields.size(); i++){
+                if(i != 0){
+                    fieldsStr.append(",");
+                }
+                fieldsStr.append(fields.get(i));
+            }
+            String query = "SELECT "+fieldsStr+" FROM " + objectType;
+            BatchInfo info = null;
+            ByteArrayInputStream bout = new ByteArrayInputStream(query.getBytes());
+            info = bulkConnection.createBatchFromStream(job, bout);
+            String[] queryResults = null;
+            for (int i = 0; i < 10000; i++) {
+                Thread.sleep(i == 0 ? 20 * 1000 : 20 * 1000); // 20 sec
+                info = bulkConnection.getBatchInfo(job.getId(), info.getId());
+                if (info.getState() == BatchStateEnum.Completed) {
+                    QueryResultList list = bulkConnection.getQueryResultList(job.getId(), info.getId());
+                    queryResults = list.getResult();
+                    break;
+                } else if (info.getState() == BatchStateEnum.Failed) {
+                    System.out.println("-­-­-­-­-­-­-­-­-­-­-­-­-­-­ failed -­-­-­-­-­-­-­-­-­-­" + info);
+                    break;
+                } else {
+                    System.out.println("-­-­-­-­-­-­-­-­-­-­-­-­-­-­ waiting -­-­-­-­-­-­-­-­-­-­" + info);
+                }
+            }
+            StringBuilder resultContent = new StringBuilder();
+            if (queryResults != null) {
+                for (String resultId : queryResults) {
+                     InputStream is = bulkConnection.getQueryResultStream(job.getId(), info.getId(), resultId);
+                     ByteArrayOutputStream swapStream = new ByteArrayOutputStream();  
+                     byte[] buff = new byte[100];  
+                     int rc = 0;  
+                     while ((rc = is.read(buff, 0, 100)) > 0) {  
+                         swapStream.write(buff, 0, rc);
+                     }  
+                     byte[] in2b = swapStream.toByteArray();  
+                     resultContent.append(new String(in2b));
+                     is.close();
+                     swapStream.close();
+                }
+            }
+            
+            return resultContent.toString();
+        } catch (AsyncApiException aae) {
+            aae.printStackTrace();
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
     
     /**
