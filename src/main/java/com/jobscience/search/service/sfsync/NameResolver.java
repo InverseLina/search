@@ -18,7 +18,7 @@ public class NameResolver {
         result = result.substring(3, result.length() - 3);
         
         //FIXME for now hardcode, cause two table _trigger_last_id, _trigger_log
-        if(result.indexOf("_trigger") == -1){
+        if(result.indexOf("_trigger") == -1&&result.indexOf("_c5") == -1){
             result = result.substring(1, result.length());
         }
         

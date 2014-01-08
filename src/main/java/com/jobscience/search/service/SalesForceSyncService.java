@@ -134,6 +134,9 @@ public class SalesForceSyncService {
         return result;
     }
     
+    public void syncFromSF(String token, String instanceUrl) throws AsyncApiException, ConnectionException, IOException{
+        syncDao.syncFromSF("ts2__education_history__c", syncData(token, instanceUrl));
+    }
     
     private void pushTables(MetadataConnection metadataConnection,List tables){
         if(tables.size() == 0){
