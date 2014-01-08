@@ -48,6 +48,7 @@
        view.$el.find(".nav-tabs li.OrganizationInfo").remove()
       pathInfo = pathInfo || defaultPathInfo;
       var viewName = pathInfo.paths[0];
+        console.log(viewName)
         if(viewName == "organization"){
           brite.display("Organization");
         }else if(viewName == "perf"){
@@ -56,6 +57,8 @@
         	brite.display("TriggerTestView");
         }else if(viewName == "search-config"){
             brite.display("AdminSearchConfig");
+        }else if(viewName == "sync-sf"){
+            brite.display("SyncView");
         }else{
           brite.display("Setup");
         }
