@@ -17,3 +17,9 @@ templates.js
 !src/main/webapp/bootstrap/css/*
 !src/main/webapp/canvassdk/css/*
 !src/main/webapp/hack/*.css
+
+# intellij and sublime stuff
+*.iml
+.idea/
+*.sublime-project
+*.sublime-workspace
