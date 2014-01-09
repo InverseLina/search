@@ -62,11 +62,7 @@
         var $this = $(event.currentTarget);
         var keyword = $this.val();
         if (event.which === 13) {
-        	if(keyword == null || keyword.length < 3){
-        		view.showContentMessage("lessword");
-        	}else{
         		view.$el.trigger("DO_SEARCH",{search:keyword});
-        	}
         }
       },
       "keyup; .big .search-input": function(event){
@@ -324,9 +320,12 @@
           }
       },
       "ERROR_PROCESS": function (event, extra) {
+
             var view = this;
             view.$searchInfo.empty();
             view.$el.find("input").attr("disabled", true);
+            view.$el.find(".TabView").hide();
+            view.$el.find(".search-form").hide();
             if(extra.errorCode == "NO_PASSCODE"){
                 if($("body").bFindComponents("PassCodeModal").length ==0){
                     brite.display("PassCodeModal");
@@ -536,11 +535,27 @@
   	        if (columns[j] == "skill") {
   	          item.push({
   	            name : columns[j],
-  	            value : translate(items[i][columns[j]]),
+  	            value : translate(reSortData(items[i][columns[j]],"skill")),
                 realValue: items[i][columns[j]],
   	            notLast : colLen - j > 1
   	          });
-  	        } else if (columns[j] == "resume") {
+  	          
+  	        }else if (columns[j] == "education") {
+	          item.push({
+	  	            name : columns[j],
+	  	            value : reSortData(items[i][columns[j]],"education"),
+	                realValue: items[i][columns[j]],
+	  	            notLast : colLen - j > 1
+  	          });
+		   }else if (columns[j] == "company") {
+			  item.push({
+				  name : columns[j],
+				  value : reSortData(items[i][columns[j]],"company"),
+					  realValue: items[i][columns[j]],
+					  notLast : colLen - j > 1
+			  });
+			  
+		   }else if (columns[j] == "resume") {
               var value = "", resume = items[i][columns[j]];
 
                if(items[i][columns[j]] != -1){
@@ -692,7 +707,12 @@
     var len = items.length;
     for (var i = 0; i < len; i++) {
       if (items[i].length > 1) {
-        result.push(items[i].substr(0, 1).toUpperCase() + items[i].substr(1).toLowerCase());
+    	  if(items[i].substr(0, 8)=="<strong>"){
+    		  result.push("<strong>"+items[i].substr(8, 1).toUpperCase() + items[i].substr(9).toLowerCase());
+    	  }else{
+    		  result.push(items[i].substr(0, 1).toUpperCase() + items[i].substr(1).toLowerCase());
+    	  }
+        
       } else {
         result.push(items[i]);
       }
@@ -718,10 +738,27 @@
   }
 
   function showSearchInfo(result, htmlInfo, direct,  offset){
-       var view = this;
+      var view = this;
       view.$searchInfo.html(htmlInfo.format(result.count, result.count > 1 ? "es":"", direct, offset));
   }
   
+  /**
+   * resort data for the filter selected value,make the matched values first show with bold
+   */
+  function reSortData(value,type){
+	  var filters = app.ParamsControl.getFilterParams()||{};
+	  var filter = filters[type]||[];
+	  value= (value||"")+",";
+	  var matched = "";
+	  $.each(filter,function(index,e){
+		if(value.indexOf(e.name+",")!=-1){
+			value.replace(e.name+",", "");
+			matched+="<strong>"+e.name+"</strong>,"
+		}
+	  });
+	  value=matched+value;
+	  return value;
+  }
   // --------- /Private Methods--------- //
 
 

@@ -34,11 +34,9 @@
 	 		  search = $input.val();
 	 		}
 	 		
-	 		if(search == null || search.length < 3){
-	 			view.contentView.showContentMessage("lessword");
-	 		}else{
-	 			view.$el.trigger("DO_SEARCH",{search:search});
-	 		}
+
+ 			view.$el.trigger("DO_SEARCH",{search:search});
+
 	 	},
 	 	//should trim the search value when focus out
         'focusout; input[type="text"]':function(event){
@@ -88,8 +86,9 @@
         var search = opts.search;
         var searchParameter = app.ParamsControl.getParamsForSearch({search: search});
         var searchKey = app.ParamsControl.getQuery();
+        var filters = app.ParamsControl.getFilterParams();
 
-        if($.trim(searchKey).length < 3){
+        if($.trim(searchKey).length < 3 && $.isEmptyObject(filters)){
             view.contentView.showContentMessage("lessword");
             return;
         }
