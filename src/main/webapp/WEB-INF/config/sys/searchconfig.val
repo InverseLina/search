@@ -9,7 +9,7 @@
      </field>
   </filter>
 
-  <filter name="education" title="Educations" filtertype="education">
+  <filter name="education" title="Education" filtertype="education">
      <field table="ts2__education_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
   
