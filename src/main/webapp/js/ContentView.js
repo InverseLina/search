@@ -62,11 +62,7 @@
         var $this = $(event.currentTarget);
         var keyword = $this.val();
         if (event.which === 13) {
-        	if(keyword == null || keyword.length < 3){
-        		view.showContentMessage("lessword");
-        	}else{
         		view.$el.trigger("DO_SEARCH",{search:keyword});
-        	}
         }
       },
       "keyup; .big .search-input": function(event){
