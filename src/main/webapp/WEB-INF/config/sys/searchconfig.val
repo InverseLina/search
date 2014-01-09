@@ -13,7 +13,7 @@
      <field table="ts2__education_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
   
-  <filter name="company" title="Company" filtertype="company">
+  <filter name="company" title="Employer" filtertype="company">
      <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
 
