@@ -324,9 +324,12 @@
           }
       },
       "ERROR_PROCESS": function (event, extra) {
+
             var view = this;
             view.$searchInfo.empty();
             view.$el.find("input").attr("disabled", true);
+            view.$el.find(".TabView").hide();
+            view.$el.find(".search-form").hide();
             if(extra.errorCode == "NO_PASSCODE"){
                 if($("body").bFindComponents("PassCodeModal").length ==0){
                     brite.display("PassCodeModal");

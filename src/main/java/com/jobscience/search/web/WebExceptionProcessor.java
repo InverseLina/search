@@ -30,6 +30,9 @@ public class WebExceptionProcessor {
         rc.getWebModel().put("errorCode", "NO_PASSCODE");
         rc.getWebModel().put("errorMessage", "No passcode exists");
         rc.getWebModel().put("success", "false");
+        rc.getRes().setHeader("Cache-Control","no-cache");
+        rc.getRes().setHeader("Pragma","no-cache");
+        rc.getRes().setDateHeader ("Expires", -1);
         if (rc.getWebRequestType() == WebRequestType.WEB_REST) {
             jsonRenderer.render(rc.getWebModel(), rc.getWriter());
         }
