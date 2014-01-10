@@ -6,7 +6,7 @@
  *
  */
 (function ($) {
-    brite.registerView("AdminSearchConfig",{parent:".admincontainer", emptyParent: true} ,
+    brite.registerView("AdminSearchConfig",{parent:".search-config", emptyParent: true} ,
         {
             create: function (data, config) {
                 return render("AdminSearchConfig");

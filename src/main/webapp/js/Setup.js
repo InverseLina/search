@@ -21,6 +21,8 @@
     	   view.$el.trigger("FILLDATA",{data:data});
     	  }
     	});
+      
+      brite.display("AdminSearchConfig");
     },
     // --------- /View Interface Implement--------- //
     
