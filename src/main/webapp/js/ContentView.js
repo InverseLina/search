@@ -214,12 +214,20 @@
           }else{
               $tr.addClass("applySelect");
           }
-          console.log(view.$el.find("tr.applySelect"))
           if(view.$el.find("tr.applySelect").length > 0){
               view.$el.find(".applyBtn").removeClass("disabled");
           }else{
               view.$el.find(".applyBtn").addClass("disabled");
           }
+      },
+      "btap; .applyBtn": function(event){
+          var view = this;
+          var list = [];
+          view.$el.find("tr.applySelect").each(function(idx, tr){
+              var $tr = $(tr);
+              list.push({id: $tr.attr("data-entity-id"), sfid: $tr.attr("data-sfid")});
+          });
+          view.$el.trigger("APPLY_PRESS", {selectedContactList: list})
       }
 
     },
@@ -398,6 +406,9 @@
                     });
                 }
             }
+        },
+        "APPLY_PRESS":function(event, extra){
+            console.log(extra);
         }
     },
     // --------- /Document Events--------- //

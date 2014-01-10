@@ -3,7 +3,7 @@
         {{{colHeader "search-items-header" labelAssigned }}}
         <tbody class="{{#if  labelAssigned}}favFilter{{/if}}">
             {{#each items}}
-            <tr data-entity="Contact" data-entity-id="${names.id}" data-objId="{{names.id}}" data-contractName="{{names.name}}" data-sfid="{{names.sfid}}">
+            <tr data-entity="Contact" data-entity-id="{{names.id}}" data-objId="{{names.id}}" data-contractName="{{names.name}}" data-sfid="{{names.sfid}}">
                 <td class="applyContact">
                     <div><input type="checkbox" name="applyId" value="{{names.id}}"/></div>
                 </td>
