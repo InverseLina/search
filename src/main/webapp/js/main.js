@@ -71,6 +71,10 @@ app.defaultMenuSize = 5;
      * A method about use ajax to get json data
      */
     var defaultOption = {dataType:"json", async: true,type:"Get"};
+    var defaultError = {errorCode: "NO_ORG",
+        errorMessage: "No organization selected, please, authenticate via SalesForce.com"
+    }
+
     app.getJsonData = function(url, params, options) {
         var dfd =  $.Deferred();
         params = params || {};
@@ -96,11 +100,12 @@ app.defaultMenuSize = 5;
                     dfd.resolve(data.result);
                 }else{
 //                    $(document).trigger("ON_ERROR", data);
+                    data = $.extend({}, defaultError, data||{})
                     if(options.fail && $.isFunction(options.fail)){
                         dfd.fail(options.fail);
                         dfd.reject(data);
                     }else{
-                        dfd.fail(function(data){
+                        dfd.fail(function (data) {
                             $(document).trigger("ERROR_PROCESS", data);
                         });
                         dfd.reject(data);

@@ -36,8 +36,8 @@
                     }
 
                     app.getJsonData(contextPath + "/validatePasscode",
-                        {passcode: passcode}, {fail: fail ,type: "Post"}).done(function(){
-                            window.location.href= contextPath + "/";
+                        {passcode: passcode}, {fail: fail ,type: "Post"}).done(function(res){
+                           window.location.href= contextPath + "/";
                     })
                 },
                 "btap;.login":function(event){

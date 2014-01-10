@@ -59,9 +59,9 @@ public class AppAuthRequest implements AuthRequest {
     public WebResponse validatePasscode(@WebParam("passcode") String code ,RequestContext rc) {
         if (this.passCode != null && this.passCode.length() > 0 && passCode.equals(code)) {
             rc.setCookie("passCode", true);
-            return WebResponse.success();
+            return WebResponse.success(true);
         }
-        return WebResponse.fail();
+        return WebResponse.fail("passcode error");
     }
 
     @WebModelHandler(startsWith = "/")
@@ -80,6 +80,9 @@ public class AppAuthRequest implements AuthRequest {
                 rc.getWebModel().put("errorCode", "NO_PASSCODE");
                 rc.getWebModel().put("errorMessage", "No passcode exists");
                 rc.getWebModel().put("success", "false");
+                rc.getWebModel().put("errorCode", "NO_ORG");
+                rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
+                rc.getWebModel().put("success", "false");
                 return;
             }
         }
@@ -95,6 +98,7 @@ public class AppAuthRequest implements AuthRequest {
                 }catch (AbortWithHttpRedirectException ar){
                     throw ar;
                 } catch (Exception e) {
+                    rc.removeCookie("ctoken");
                     log.warn("add user fail");
                 }
             }
@@ -108,9 +112,7 @@ public class AppAuthRequest implements AuthRequest {
             }
             m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
         } catch (Exception e) {
-            rc.getWebModel().put("errorCode", "NO_ORG");
-            rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
-            rc.getWebModel().put("success", "false");
+
             rc.removeCookie("ctoken");
         }
     }

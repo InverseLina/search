@@ -188,6 +188,20 @@
           <artifactId>scribe</artifactId>
           <version>1.3.0</version>
       </dependency>
+      
+    <!--salesforce api -->
+    <dependency>
+      <groupId>com.force.api</groupId>
+      <artifactId>force-metadata-api</artifactId>
+      <version>29.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.force.api</groupId>
+      <artifactId>force-wsc</artifactId>
+      <version>29.0.0</version>
+    </dependency>
+    <!--/salesforce api -->
+      
     <!-- Database Dependencies -->
     <!--
     <dependency>
