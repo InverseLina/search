@@ -42,14 +42,14 @@
             var $target = $(event.currentTarget);
             $target.val($.trim($target.val()));
         },
-	 	"btap;.config":function(event){
-            event.preventDefault();
-            event.stopPropagation();
+	 	"click;.config":function(event){
 	 		if(app.cookie("login")!="true"){
-	 		brite.display("LoginModal");
+	 			brite.display("LoginModal");
 	 		}else{
         		window.location.href=contextPath+"/admin";
 	 		}
+	 	     event.preventDefault();
+	         event.stopPropagation();
 	 	},
 	 	"btap;.clear-all":function(event){
 	 		var view = this;

@@ -55,7 +55,7 @@
 
 		},
 		docEvents:{
-			"btap":function(event){
+			"click":function(event){
 				var view = this;
 				var width = view.$el.width();
 				var height = view.$el.height();

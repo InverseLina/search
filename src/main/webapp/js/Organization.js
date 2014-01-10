@@ -26,11 +26,11 @@
     
    // --------- Events--------- //
     events:{
-      "btap;.home":function(event){
+      "click;.home":function(event){
     	  window.location.href=contextPath + "/";
         },
 
-      "btap;.add":function(event){
+      "click;.add":function(event){
         var view = this;
         var html = render("Organization-content",{data:null});
         view.$tabContent.html(html);

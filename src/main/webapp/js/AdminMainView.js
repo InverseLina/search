@@ -14,6 +14,7 @@
 		 var view = this;
 		 $(".home").removeClass("hide");
 		 $(".config").addClass("hide");
+		 $(".clear-all").addClass("hide");
 		 view.$el.find(".organization-tab").addClass("hide");
 		 app.getJsonData("/checkSysSchema",{},{type:"Get"}).done(function(result){
 			 if(result.schema_create){
@@ -48,7 +49,6 @@
        view.$el.find(".nav-tabs li.OrganizationInfo").remove()
       pathInfo = pathInfo || defaultPathInfo;
       var viewName = pathInfo.paths[0];
-        console.log(viewName)
         if(viewName == "organization"){
           brite.display("Organization");
         }else if(viewName == "perf"){

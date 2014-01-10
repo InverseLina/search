@@ -20,7 +20,7 @@
 
             // --------- Events--------- //
             events: {
-                "btap;.cancel,.close": function(){
+                "click;.cancel,.close": function(){
                     var view = this;
                     view.$el.bRemove();
                 },
@@ -40,7 +40,7 @@
                 		}
                 	});
                 },
-                "btap;.login":function(event){
+                "click;.login":function(event){
                 	this.$el.trigger("validate");
                 },
                 "keyup;:input":function(event){

@@ -87,7 +87,7 @@ var app = app || {};
                 return data;
             },
             events: {
-                "btap; span.add": function (event) {
+                "click; span.add": function (event) {
                     var view = this;
                     var $span = $(event.target);
                     var autoComplete = $span.attr("data-auto-complete");
@@ -98,7 +98,7 @@ var app = app || {};
                         $span.addClass("hide");
                     }
                 },
-                "btap; .autoCompleteContainer.active .clear": function (event) {
+                "click; .autoCompleteContainer.active .clear": function (event) {
                     var view = this;
                     var $input = $(event.currentTarget).closest(".autoCompleteContainer").find("input");
                     $input.val("").focus().change();
@@ -158,7 +158,7 @@ var app = app || {};
                     });
 
                 },
-                "btap; div.content .autoCompleteList  div[class$='Row'][class!='contactRow']": function (event) {
+                "click; div.content .autoCompleteList  div[class$='Row'][class!='contactRow']": function (event) {
                     var view = this;
                     var data = $.trim($(event.currentTarget).find(".contentText").attr("data-name"));
                     addItem.call(view, data);
@@ -170,7 +170,7 @@ var app = app || {};
                     view.$el.find("div.content div[class$='Row'][class!='contactRow'] span").removeClass("active");
                     $(event.currentTarget).find("span").addClass("active");
                 },
-                "btap; .selectedItems span.clear": function (event) {
+                "click; .selectedItems span.clear": function (event) {
                     event.preventDefault();
                     event.stopPropagation();
                     var view = this;

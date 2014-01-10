@@ -14,7 +14,7 @@ var app = app || {};
         return app.getJsonData("saveSavedSearches",{name:name, content: content},"Post" );
 	}
 
-    SavedSearchesDaoHandler.prototype["delete"] = function(id){
+    SavedSearchesDaoHandler.prototype["del"] = function(id){
         return app.getJsonData("deleteSavedSearches",{id:id},"Post");
 	}
 

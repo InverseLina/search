@@ -109,7 +109,7 @@
         }
         event.stopPropagation();
       },
-      "btap; table th[data-column] .selectedItems" : function(event) {
+      "click; table th[data-column] .selectedItems" : function(event) {
           event.preventDefault();
           event.stopPropagation();
     	  var view = this;
@@ -132,7 +132,7 @@
           view.$el.find("label.selectAll.checkbox input").prop("checked", true);
         }
       },
-      "btap; div.btnPopupColumns" : function(event) {
+      "click; div.btnPopupColumns" : function(event) {
         brite.display("SelectColumns");
       },
       "change; label.selectAll.checkbox" : function(event) {
@@ -149,11 +149,11 @@
           view.$el.find(".tableContainer input[type='checkbox']").prop("checked", true);
         }
       },
-      "btap; .btnAddToSourcingProject" : function(event) {
+      "click; .btnAddToSourcingProject" : function(event) {
         event.stopPropagation();
         alert("Not implement yet. (waiting for API)");
       },
-      "btap; .resume-ico" : function(event) {
+      "click; .resume-ico" : function(event) {
           var cid = $(event.currentTarget).closest("i").attr("data-id");
           var sfid = $(event.currentTarget).closest("i").attr("data-sfid");
           var cname = $(event.currentTarget).closest("i").attr("data-cname");
@@ -165,7 +165,7 @@
           }
 
       },
-      "btap; tbody td.favLabel":function(event){
+      "click; tbody td.favLabel":function(event){
          var view = this;
          var $td = $(event.currentTarget);
          event.stopPropagation();
@@ -186,7 +186,7 @@
          }
 
       },
-      "btap; table td[data-column='company'],td[data-column='skill'],td[data-column='education']" : function(event) {
+      "click; table td[data-column='company'],td[data-column='skill'],td[data-column='education']" : function(event) {
         var view = this;
         var $this = $(event.currentTarget);
         var name = $this.attr("data-column");
@@ -206,7 +206,7 @@
             brite.display("CellPopup", null, data);
         }
       },
-      "btap; .applyContact input": function(event) {
+      "click; .applyContact input": function(event) {
           var view = this;
           var $tr = $(event.currentTarget).closest("tr");
           if($tr.hasClass("applySelect")){
@@ -220,7 +220,7 @@
               view.$el.find(".applyBtn").addClass("disabled");
           }
       },
-      "btap; .applyBtn": function(event){
+      "click; .applyBtn": function(event){
           var view = this;
           var list = [];
           view.$el.find("tr.applySelect").each(function(idx, tr){

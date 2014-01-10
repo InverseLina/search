@@ -54,7 +54,7 @@
                    var view = this;
                     checkAndChangeBtnState.call(view);
                 },
-                "btap; .btn":function(event){
+                "click; .btn":function(event){
                     event.stopPropagation();
                     var query, view = this;
                     var $btn = $(event.currentTarget);
@@ -77,7 +77,7 @@
                     }
                     dao.save(searchName, JSON.stringify(content));
                 },
-                "btap; .drawdown": function(event){
+                "click; .drawdown": function(event){
                     var view = this;
                     event.stopPropagation();
                     event.preventDefault();
@@ -86,7 +86,7 @@
                         view.$el.find(".search-list").empty().html(html).show();
                     });
                 },
-                "btap; .createNew":function(event){
+                "click; .createNew":function(event){
                     event.stopPropagation();
                     event.preventDefault();
                     var view = this;
@@ -98,20 +98,20 @@
                     })
 
                 },
-                "btap; li .remove i": function(event){
+                "click; li .remove i": function(event){
                     var view = this;
                     event.stopPropagation();
                     event.preventDefault();
                     var $li = $(event.currentTarget).closest("li");
                     var id = $li.attr("data-objId");
                     if(id) {
-                        dao.delete(id).done(function(){
+                        dao.del(id).done(function(){
                            $li.remove();
                             view.$el.trigger("SEARCH_QUERY_CHANGE");
                         });
                     }
                 },
-                "btap; li[data-objId]":function(event){
+                "click; li[data-objId]":function(event){
                     var view = this;
                     var $li = $(event.currentTarget);
                     var id = $li.attr("data-objId");

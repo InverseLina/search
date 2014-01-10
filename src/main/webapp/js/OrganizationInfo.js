@@ -52,7 +52,7 @@
       "btap;.home":function(event){
     	window.location.href=contextPath + "/";
       },
-      "btap;.cancel":function(event){
+      "click;.cancel":function(event){
         window.location.href=contextPath + "/admin#organization";
       },
       "change;:checkbox,select":function(event){
@@ -60,7 +60,7 @@
 			var $saveBtn = view.$el.find(".save");
 			$saveBtn.removeClass("disabled");
 		},
-		"btap;.save":function(event){
+		"click;.save":function(event){
 			var view = this;
 			var values = {};
         doValidate.call(view);
@@ -585,7 +585,7 @@
 	    		  }
 	          });
 	      },
-        "btap; button.saveSearchConfig":function(event){
+        "click; button.saveSearchConfig":function(event){
             event.stopPropagation();
             event.preventDefault();
             var view = this;
@@ -597,7 +597,7 @@
             });
             return false;
         },
-        "btap; button.resetSearchConfig":function(){
+        "click; button.resetSearchConfig":function(){
             var view = this;
             app.getJsonData("resetOrgSearchConfig", {orgName:view.orgName}).done(function(result){
                 view.$el.find("textarea[name='searchConfig']").val(result);

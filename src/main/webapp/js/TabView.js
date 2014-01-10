@@ -66,7 +66,7 @@
                 }
             },
             events: {
-                "btap; li.search": function(event){
+                "click; li.search": function(event){
                     var view = this;
                     event.stopPropagation();
                     event.preventDefault();
@@ -84,7 +84,7 @@
                     }
 
                 },
-                "btap; li i": function(event){
+                "click; li i": function(event){
                     var view = this;
                     event.stopPropagation();
                     event.preventDefault();
@@ -113,9 +113,10 @@
                             var html = render("TabView-add-list");
                             var $input = $(event.currentTarget);
                             $input.closest("div").html(html);
-                    	}
+                	}
+                    event.preventDefault() ;
                 },
-                "btap; .saveTab":function(event){
+                "click; .saveTab":function(event){
                 	var view = this;
                     var $input = $(event.currentTarget).closest("div").find(".addText");
                         var name = $.trim($input.val());
@@ -130,25 +131,25 @@
                             })
                         }
                 },
-                "btap; .cancelTab": function(event){
+                "click; .cancelTab": function(event){
                     var view = this;
                     var html = render("TabView-add-list");
                     var $input = $(event.currentTarget);
                     $input.closest("div").html(html);
                 },
-                "btap; .showSave": function(event){
+                "click; .showSave": function(event){
                     var view = this;
                     var html = render("TabView-save-list");
                     var $input = $(event.currentTarget);
                     $input.closest("div").html(html).find(".addText").focus();
                 },
-                "btap; .deleteList":function(event){
+                "click; .deleteList":function(event){
                     var view = this;
                     event.stopPropagation();
                     event.preventDefault();
                     var pathInfo = app.buildPathInfo();
                     if(pathInfo.labelAssigned){
-                        dao.delete(pathInfo.paths[2]).done(function(){
+                        dao.del(pathInfo.paths[2]).done(function(){
                             var $li = view.$el.find("li[data-label-id='" + pathInfo.paths[2] + "']");
                             if(!$li.hasClass("Favorites")){
                                $li.remove();

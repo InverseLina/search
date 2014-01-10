@@ -10,7 +10,7 @@ var app = app || {};
     }
 
 
-    LabelDaoHandler.prototype.delete = function(id){
+    LabelDaoHandler.prototype["del"] = function(id){
         return app.getJsonData("deleteLabel",{id:id},"Post");
     }
 
