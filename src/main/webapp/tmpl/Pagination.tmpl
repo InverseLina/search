@@ -9,41 +9,46 @@
         <ul  class="pagination">
           {{#equal 1 pageIdx}}
               <li class="disabled"><a>&laquo;</a></li>
+          	  <li class="active"><a data-page="1">1</a></li>
           {{else}}
               <li ><a class="prev" href="#">&laquo;</a></li>
+		      <li><a data-page="1">1</a></li>
           {{/equal}}
-          {{#gt pageIdx 5}}
-              <li><a data-page="1">1</a></li>
-              <li><a data-page="2">2</a></li>
-              <li><a data-page="3">3</a></li>
+          
+          {{#if startEllipsis}}
               <li class="disabled"><a>&hellip;</a></li>
-          {{/gt}}
+          {{/if}}
 
           {{#fromTo start end pageIdx}}
             {{#equal pageIdx num}}
                 <li class="active"><a href="#">{{num}}</a></li>
             {{else}}
-                <li><a data-page={{num}}>{{num}}</a></li>
+                <li class=""><a data-page={{num}}>{{num}}</a></li>
             {{/equal}}
           {{/fromTo}}
 
-          {{#if end_2}}
+          {{#if endEllipsis}}
               <li class="disabled"><a>&hellip;</a></li>
           {{/if}}
-
+          
           {{#if end_1}}
-              <li><a data-page="{{end_1}})">{{end_1}}</a></li>
+              <li class=""><a data-page={{end_1}}>{{end_1}}</a></li>
           {{/if}}
 
-          {{#lt end pageCount}}
-              <li><a data-page="{{pageCount}}">{{pageCount}}</a></li>
-          {{/lt}}
+		  {{#gt pageCount 7}}
+	          {{#equal pageIdx pageCount}}
+	          	  <li  class="active"><a data-page="{{pageCount}}">{{pageCount}}</a></li>
+	          {{else}}
+		      	  <li><a data-page="{{pageCount}}">{{pageCount}}</a></li>
+	          {{/equal}}
+          {{/gt}}
+          
+          {{#equal pageIdx pageCount}}
+	          <li class="nextPage disabled"><a>&raquo;</a></li>
+	      {{else}}
+	          <li class="nextPage"><a class="next">&raquo;</a></li>
+	      {{/equal}}
 
-          {{#gte pageIdx pageCount}}
-              <li class="nextPage disabled"><a>&raquo;</a></li>
-          {{else}}
-              <li class="nextPage"><a class="next">&raquo;</a></li>
-          {{/gte}}
           <li>
               <select>
                  <option value="15">15</option>

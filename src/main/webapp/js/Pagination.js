@@ -68,22 +68,33 @@
         if (page.totalCount % page.pageSize != 0) {
             page.pageCount += 1;
         }
-        if (page.pageIdx > 5) {
-            page.start = page.pageIdx - 1;
-        } else {
-            page.start = 1;
+        
+        if(page.pageCount > 7){
+	        page.start = page.pageIdx - 1;
+	        page.end = page.pageIdx + 1;
+	        if(page.end <= 5){
+	        	page.start = 2;
+	        	page.end = 5;
+	        }else{
+	        	page.startEllipsis = true;
+	        }
+	        
+	        if(page.start >= page.pageCount - 4){
+	        	page.start = page.pageCount - 4;
+	        	page.end = page.pageCount - 1;
+	        }else{
+	        	page.endEllipsis = true;
+	        }
+	        
+	        if(page.pageIdx <= 3){
+	        	page.end_1 = page.pageCount - 1;
+	        	page.end = page.end - 1;
+	        }
+        }else{
+        	page.start = 2;
+	        page.end = page.pageCount;
         }
 
-        page.end = page.pageIdx + 3;
-        if (page.end > page.pageCount) {
-            page.end = page.pageCount;
-        }
-        if (page.end < page.pageCount - 2) {
-            page.end_2 = page.pageCount - 2;
-        }
-        if (page.end < page.pageCount - 1) {
-            page.end_1 = page.pageCount - 1;
-        }
     }
 
     //redender and show page info
