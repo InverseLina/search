@@ -169,7 +169,7 @@
     }
 
     function getSearchQuery(view){
-        var contentView = view.$el.bView(("ContentView"));
+        var contentView = $(".ContentView").bView();;
         return $.trim(contentView.$el.find(".search-form .search-input").val());
     }
 
@@ -186,8 +186,9 @@
     }
 
     function checkAndChangeBtnState(justSearch){
-         justSearch = justSearch||false;
-         var view = this;
+        justSearch = justSearch||false;
+        var view = this;
+        view.$el = $(this.el);
         var $btn = view.$el.find(".btn");
         var $input = view.$el.find("input");
 

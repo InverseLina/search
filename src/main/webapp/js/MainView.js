@@ -34,7 +34,6 @@
 	 		  search = $input.val();
 	 		}
 	 		
-
  			view.$el.trigger("DO_SEARCH",{search:search});
 
 	 	},
@@ -51,6 +50,32 @@
 	 		}else{
         		window.location.href=contextPath+"/admin";
 	 		}
+	 	},
+	 	"btap;.clear-all":function(event){
+	 		var view = this;
+	 		var $el = view.contentView.$el;
+	 		app.ParamsControl.clear();
+	 		view.$el.find(".contentview-ctn").bEmpty();
+	 		brite.display("ContentView",this.$el.find(".contentview-ctn")).done(function(contentView){
+			 	 view.contentView = contentView;
+			 	 $(event.currentTarget).prop("disabled",true);
+			});
+	 	},
+	 	"CHECK_CLEAR_BTN":function(){
+	 		 var view = this;
+	 		 var filters = app.ParamsControl.getFilterParams();
+	         var hasFilter = false;
+	         for (var key in filters) {
+	             if(filters[key].length > 0) {
+	                 hasFilter = true;
+	                 break;
+	             }
+	         }
+	         if($.trim(view.contentView.$el.find(".search-form .search-input").val())||hasFilter){
+	        	view.$el.find(".clear-all").prop("disabled",false);
+	         }else{
+	        	 view.$el.find(".clear-all").prop("disabled",true);
+	         }
 	 	}
 	 },
     // --------- /Events--------- //
@@ -74,6 +99,9 @@
          },
          "DO_SEARCH": function(event,opts){
              doSearch.call(this,opts);
+         },
+         "SEARCH_QUERY_CHANGE":function(event){
+        	 this.$el.trigger("CHECK_CLEAR_BTN");
          }
      }
     // --------- /Document Events--------- //
@@ -87,7 +115,6 @@
         var searchParameter = app.ParamsControl.getParamsForSearch({search: search});
         var searchKey = app.ParamsControl.getQuery();
         var filters = app.ParamsControl.getFilterParams();
-
         if($.trim(searchKey).length < 3 && $.isEmptyObject(filters)){
             view.contentView.showContentMessage("lessword");
             return;
@@ -100,6 +127,7 @@
         searchParameter.pageIndex = opts.pageIdx || 1;
 
         searchDao.search(searchParameter).always(function (result) {
+        	view.$el.trigger("CHECK_CLEAR_BTN");
             view.$el.trigger("SEARCH_RESULT_CHANGE", result);
         });
 

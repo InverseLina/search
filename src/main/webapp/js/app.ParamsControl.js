@@ -139,6 +139,9 @@ var app = app || {};
         },
         getQuery: function(){
             return queryKey;
+        },
+        clear:function(){
+        	_storeValue = {};
         }
     }
 
