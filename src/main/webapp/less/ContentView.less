@@ -12,11 +12,18 @@
     bottom: 0;
     width: 280px;
   }
-
+  button.applyBtn {
+    position: absolute;
+    left: -2px;
+    width: 60px;
+    height: 26px;
+    padding: 0;
+    margin: 0;
+  }
   .input-wrapper {
     display: block;
     position: absolute;
-    left: 5px;
+    left: 65px;
     right: 60px;
     height: 26px;
     margin: 0;
@@ -216,8 +223,16 @@
 			font-size: 18px;
 
             &.favLabel {
+              padding-left: 3px;
               .headerTh {
                 background: #fffbac;
+                padding-left: 0;
+              }
+            }
+            &.applyContact {
+              padding-left: 0;
+              .headerTh {
+                background: #ebebeb;
                 padding-left: 0;
               }
             }
@@ -338,9 +353,6 @@
             .headerTh {height: 32px}
           }
 
-          th.favLabel {
-            padding-left:0;
-          }
         }
 
         tbody {
@@ -356,7 +368,7 @@
             padding-top: 8px;
             min-height: 60px;
           }
-          tr.select, tr:hover {
+          tr.select, tr.applySelect, tr:hover {
             background: #D5FEFF !important;
           }
 
@@ -401,6 +413,9 @@
             input[type="checkbox"]{
               margin-left: -5px;
             }
+          }
+          td.applyContact { width: 32px;
+            input {line-height: 60px; height: 60px; margin-top: -1px; margin-left: 5px;}
           }
           td.favLabel {
             width: 32px;

@@ -205,6 +205,21 @@
           }
             brite.display("CellPopup", null, data);
         }
+      },
+      "btap; .applyContact input": function(event) {
+          var view = this;
+          var $tr = $(event.currentTarget).closest("tr");
+          if($tr.hasClass("applySelect")){
+              $tr.removeClass("applySelect");
+          }else{
+              $tr.addClass("applySelect");
+          }
+          console.log(view.$el.find("tr.applySelect"))
+          if(view.$el.find("tr.applySelect").length > 0){
+              view.$el.find(".applyBtn").removeClass("disabled");
+          }else{
+              view.$el.find(".applyBtn").addClass("disabled");
+          }
       }
 
     },
@@ -593,7 +608,7 @@
   	      }
   	      result.push({
   	        row : item,
-            names: {id: items[i].id, name: items[i].name},
+            names: {id: items[i].id, name: items[i].name, sfid: items[i].sfid},
             hasLabel: items[i].haslabel,
             isFav: isFav,
             labelName: label.name
@@ -660,6 +675,8 @@
         }
       } else if ($item.hasClass("checkboxCol")) {
         realWidth = 30;
+      } else if ($item.hasClass("applyContact")) {
+        realWidth = 32;
       } else if ($item.hasClass("favLabel")) {
         realWidth = 32;
       } else if (colName=="resume") {
