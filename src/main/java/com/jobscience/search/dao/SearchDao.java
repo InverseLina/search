@@ -326,8 +326,8 @@ public class SearchDao {
                    hasCondition = true;
         	   }else{
         	       if(search.length()>=3){
-            	       hasSearchValue = true;
-            	       contactQuery.append(getSearchValueJoinTable(search, values,"contact"));
+        	           contactQuery.append(getSearchValueJoinTable(search, values,"contact"));
+        	           hasSearchValue = true;
             	       hasCondition = true;
         	       }
         	   }
@@ -1028,6 +1028,7 @@ public class SearchDao {
         StringBuilder conditions = new StringBuilder();
         // the part of query that build group by sql
         StringBuilder groupBy= new StringBuilder("a.\"id\"");
+        String search = searchValues.get("search");
         // the params will be put in sql
         List values = new ArrayList();
         String cteSql = "";
@@ -1089,7 +1090,7 @@ public class SearchDao {
         if(searchValues.get("contacts")!=null){
             hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
         }
-        if(hasExtraSearchColumn(searchValues)||hasContactsCondition||Strings.isNullOrEmpty(searchValues.get("search"))||(value!=null&&locationValues!=null)){
+        if(hasExtraSearchColumn(searchValues)||hasContactsCondition||(Strings.isNullOrEmpty(search)||search.length()<3)||(value!=null&&locationValues!=null)){
             countSql.append( " from ( select ")
                     .append(sc.toContactFieldsString("contact"))
                     .append(" from  "+schemaname+".")
@@ -1101,7 +1102,6 @@ public class SearchDao {
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
-            String search = searchValues.get("search");
             String[] sqls = getCondtion(search, searchValues,values,orderCon,offset,pageSize);
             querySql.append(sqls[0]);
             countSql.append(sqls[1]);
@@ -1173,7 +1173,7 @@ public class SearchDao {
 	        if(searchValues.get("contacts")!=null){
 	            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
 	        }
-	        if(!Strings.isNullOrEmpty(searchValues.get("search"))){
+	        if(!Strings.isNullOrEmpty(searchValue)&&searchValue.length()>=3){
 	            if(!hasContactsCondition&&!"true".equals(labelAssigned)&&locationSql.length()==0&&!hasExtraSearchColumn(searchValues)){
 	                joinSql.append(" offset "+offset+" limit "+pageSize);
 	            }
@@ -1209,7 +1209,7 @@ public class SearchDao {
 	        }
 	       
 	        joinSql.append(") a ");
-	        if(hasExtraSearchColumn(searchValues)||hasContactsCondition||locationSql.length()>0||Strings.isNullOrEmpty(searchValues.get("search"))){
+	        if(hasExtraSearchColumn(searchValues)||hasContactsCondition||locationSql.length()>0||Strings.isNullOrEmpty(searchValue)||searchValue.length()<3){
 	            countSql.append(") a ");
 	        }
         }

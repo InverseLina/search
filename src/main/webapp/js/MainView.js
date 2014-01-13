@@ -115,7 +115,7 @@
         var searchParameter = app.ParamsControl.getParamsForSearch({search: search});
         var searchKey = app.ParamsControl.getQuery();
         var filters = app.ParamsControl.getFilterParams();
-        if($.trim(searchKey).length < 3 && $.isEmptyObject(filters)){
+        if($.trim(searchKey).length>0&&$.trim(searchKey).length < 3 ){
             view.contentView.showContentMessage("lessword");
             return;
         }
