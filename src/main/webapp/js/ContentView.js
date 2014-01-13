@@ -77,7 +77,7 @@
             view.$el.trigger("SEARCH_QUERY_CHANGE");
         }
       },
-      "btap; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
+      "click; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
         var view = this;
         var $th = $(event.currentTarget).closest("th");
         var $desc = $(".desc", $th);
