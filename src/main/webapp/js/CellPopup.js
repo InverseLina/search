@@ -47,7 +47,7 @@
                 }
                 var pos =  {left:data.pos.x - 104,  top:data.pos.y};
                 view.$el.css(pos);
-                $(document).on("btap."+view.cid, function(event){
+                $(document).on("click."+view.cid, function(event){
                     var width = view.$el.outerWidth();
                     var height = view.$el.outerHeight();
                     var pos = view.$el.offset();
@@ -63,7 +63,7 @@
 
             // --------- Events--------- //
             events: {
-                "btap; li": function(event){
+                "click; li": function(event){
                     var name, view = this;
                     var $li = $(event.currentTarget).closest("li");
                     name = $li.text();
