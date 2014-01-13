@@ -28,19 +28,19 @@
 
             // --------- Events--------- //
             events: {
-                "btap; a[data-page]": function (event) {
+                "click; a[data-page]": function (event) {
                     event.stopPropagation();
                     var view = this;
                     var newpageIdx = $(event.currentTarget).attr("data-page");
                     view.page.callback(newpageIdx, view.page.pageSize);
                 },
-                "btap; a.next": function (event) {
+                "click; a.next": function (event) {
                     event.stopPropagation();
                     var view = this;
                     var page = view.page;
                     view.page.callback(page.pageIdx + 1, view.page.pageSize);
                 },
-                "btap; a.prev": function (event) {
+                "click; a.prev": function (event) {
                     event.stopPropagation();
                     var view = this;
                     var page = view.page;
