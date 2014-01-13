@@ -28,7 +28,7 @@
 <script id="search-items-header" type="text/html">
     <thead>
          <tr>
-             <th class="applyContact "><div class="headerTh">&nbsp;</div></th>
+             <th class="applyContact  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
              <th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
              {{#each displayColumns}}
                  <th style="width:{{../colWidth}}%" data-column="{{name}}" {{#if ../labelAssigned}} class="favFilter"{{/if}}>
@@ -44,7 +44,7 @@
         <thead>
              <tr>
                  <!--<th class="favLabel"><div class="headerTh"></div></th>-->
-    <th class="applyContact "><div class="headerTh">&nbsp;</div></th>
+    <th class="applyContact  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
     <th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
     {{#each displayColumns}}
     <th style="width:{{../colWidth}}%" data-column="{{name}}" {{#if ../labelAssigned}} class="favFilter"{{/if}}>

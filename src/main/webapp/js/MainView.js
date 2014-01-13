@@ -117,6 +117,10 @@
         var filters = app.ParamsControl.getFilterParams();
         if($.trim(searchKey).length < 3 && $.isEmptyObject(filters)){
             view.contentView.showContentMessage("lessword");
+            var labelAssigned = app.buildPathInfo().labelAssigned;
+            if(labelAssigned){
+                view.$el.trigger("CHANGE_TO_FAV_VIEW");
+            }
             return;
         }
 

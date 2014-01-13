@@ -419,6 +419,7 @@
 
       MainView : {
         "SEARCH_RESULT_CHANGE" : function(event, result) {
+            console.log("search ange")
           var labelAssigned = app.buildPathInfo().labelAssigned;
           var view = this;
           var $e = view.$el;
