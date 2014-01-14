@@ -71,3 +71,128 @@ CREATE TABLE if not exists searchlog
   perffetch bigint NOT NULL DEFAULT 0,
   CONSTRAINT searchlog_pkey PRIMARY KEY (id)
 );
+
+-- SCRIPTS
+CREATE OR REPLACE FUNCTION update_ex_group_skills() RETURNS trigger AS $BODY$ 
+  DECLARE  c integer; 
+    BEGIN 
+      IF OLD.ts2__skill_name__c<>NEW.ts2__skill_name__c THEN
+        IF(TG_OP = 'UPDATE') THEN
+          
+            c:=(select "count" from ex_grouped_skills where name = OLD.ts2__skill_name__c);
+              
+            IF (c=1) THEN 
+                DELETE FROM  ex_grouped_skills where name = OLD.ts2__skill_name__c;
+            ELSE 
+                UPDATE ex_grouped_skills set count=(c-1) where name = OLD.ts2__skill_name__c;
+            END IF;
+                
+        END IF;
+
+        SELECT ex_grouped_skills.count into c from ex_grouped_skills where name = NEW.ts2__skill_name__c limit 1;
+        IF FOUND THEN
+           UPDATE ex_grouped_skills set count=(c+1) where name = NEW.ts2__skill_name__c;
+        ELSE
+           INSERT into ex_grouped_skills(count,name) values(1,NEW.ts2__skill_name__c);
+        END IF; 
+
+      END IF;
+
+        RETURN NEW;
+      END;  
+   $BODY$
+    LANGUAGE plpgsql;
+    
+-- SCRIPTS
+  DROP trigger if exists skill_trigger on ts2__skill__c;
+  
+-- SCRIPTS
+  CREATE  TRIGGER skill_trigger
+    AFTER INSERT OR UPDATE OF ts2__skill_name__c
+    ON ts2__skill__c
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_ex_group_skills();
+
+-- SCRIPTS
+CREATE OR REPLACE FUNCTION update_ex_group_educations() RETURNS trigger AS $BODY$ 
+  DECLARE  c integer; 
+    BEGIN 
+      IF OLD.ts2__name__c<>NEW.ts2__name__c THEN
+        IF(TG_OP = 'UPDATE') THEN
+          
+            c:=(select "count" from ex_grouped_educations where name = OLD.ts2__name__c);
+              
+            IF (c=1) THEN 
+                DELETE FROM  ex_grouped_educations where name = OLD.ts2__name__c;
+            ELSE 
+                UPDATE ex_grouped_educations set count=(c-1) where name = OLD.ts2__name__c;
+            END IF;
+                
+        END IF;
+
+        SELECT ex_grouped_educations.count into c from ex_grouped_educations where name = NEW.ts2__name__c limit 1;
+        IF FOUND THEN
+           UPDATE ex_grouped_educations set count=(c+1) where name = NEW.ts2__name__c;
+        ELSE
+           INSERT into ex_grouped_educations(count,name) values(1,NEW.ts2__name__c);
+        END IF; 
+
+      END IF;
+
+        RETURN NEW;
+      END;  
+   $BODY$
+    LANGUAGE plpgsql;
+    
+-- SCRIPTS
+  DROP trigger if exists education_trigger on ts2__education_history__c;
+  
+-- SCRIPTS
+  CREATE  TRIGGER education_trigger
+    AFTER INSERT OR UPDATE OF ts2__name__c
+    ON ts2__education_history__c
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_ex_group_educations();
+
+-- SCRIPTS
+CREATE OR REPLACE FUNCTION update_ex_group_employers() RETURNS trigger AS $BODY$  
+  DECLARE  c integer; 
+    BEGIN 
+      IF OLD.ts2__name__c<>NEW.ts2__name__c THEN
+        IF(TG_OP = 'UPDATE') THEN
+          
+            c:=(select "count" from ex_grouped_employers where name = OLD.ts2__name__c);
+              
+            IF (c=1) THEN 
+                DELETE FROM  ex_grouped_employers where name = OLD.ts2__name__c;
+            ELSE 
+                UPDATE ex_grouped_employers set count=(c-1) where name = OLD.ts2__name__c;
+            END IF;
+                
+        END IF;
+
+        SELECT ex_grouped_employers.count into c from ex_grouped_employers where name = NEW.ts2__name__c limit 1;
+        IF FOUND THEN
+           UPDATE ex_grouped_employers set count=(c+1) where name = NEW.ts2__name__c;
+        ELSE
+           INSERT into ex_grouped_employers(count,name) values(1,NEW.ts2__name__c);
+        END IF; 
+
+      END IF;
+
+        RETURN NEW;
+      END;  
+   $BODY$
+    LANGUAGE plpgsql;
+    
+-- SCRIPTS
+  DROP trigger if exists employer_trigger on ts2__employment_history__c;
+  
+-- SCRIPTS
+  CREATE  TRIGGER employer_trigger
+    AFTER INSERT OR UPDATE OF ts2__name__c
+    ON ts2__employment_history__c
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_ex_group_employers();
+
+
