@@ -42,11 +42,13 @@ public class SearchWebHandlers {
             pageSize = 30;
         }
         String orderCon = "";
+        searchValues = searchValues.replaceFirst("#", "").replaceAll("\\\\\"", "#");
         JSONObject jo = JSONObject.fromObject(searchValues);
         Map searchMap = new HashMap();
+        
         // resolve the search parameters,cause all parameters begin with "q_"
         for(Object key:jo.keySet()){
-        	searchMap.put(key.toString().substring(2),jo.get(key).toString());
+        	searchMap.put(key.toString().substring(2),jo.get(key).toString().replaceAll("#", "\\\""));
         }
         
         if(orderBy!=null){
@@ -132,5 +134,12 @@ public class SearchWebHandlers {
 			return "location";
 		}
 		return originalName;
+    }
+    
+    public static void main(String[] args) {
+        String a = "{asdsd:\"\"asdasdsadsad\"\"}".replaceAll("\\\"\\\"", "\"#");
+        System.out.println(a);
+        JSONObject jo = JSONObject.fromObject(a);
+        System.out.println(jo);
     }
 }

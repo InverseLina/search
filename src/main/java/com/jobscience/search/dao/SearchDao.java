@@ -1275,7 +1275,19 @@ public class SearchDao {
     	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
     	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
-
+    	if(!searchValue.contains("NOT ")&&
+    	   !searchValue.contains("AND ")&&
+    	   !searchValue.contains("NOT ")){
+        	if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
+        	    searchValue = searchValue.replaceAll("\\s+", " OR ");
+        	}else{
+                searchValue = searchValue.replaceAll("\\\"", "").replaceAll("\\s+", " AND ");
+        	}
+    	}else{
+    	    if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
+                searchValue = searchValue.replaceAll("\\\"", "");
+            }
+    	}
     	//if no search value,just return sql with 1!=1
     	if(searchValue.equals("")){
     		return  " select id,sfid from "+schemaname+"."+sc.getContact().getTable()+" where 1!=1 ";
