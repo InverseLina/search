@@ -27,7 +27,7 @@
 
     // --------- Events--------- //
     events : {
-      "btap; .btn-primary, .close" : function() {
+      "click; .btn-primary, .close" : function() {
         var view = this;
         view.$el.bRemove();
       }

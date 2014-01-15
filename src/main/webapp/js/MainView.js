@@ -51,7 +51,7 @@
 	 	     event.preventDefault();
 	         event.stopPropagation();
 	 	},
-	 	"btap;.clear-all":function(event){
+	 	"click;.clear-all":function(event){
 	 		var view = this;
 	 		var $el = view.contentView.$el;
 	 		app.ParamsControl.clear();
