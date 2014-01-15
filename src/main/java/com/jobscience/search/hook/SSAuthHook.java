@@ -14,6 +14,8 @@ import com.jobscience.search.PassCodeException;
 import com.jobscience.search.web.OAuthToken;
 import com.jobscience.search.exception.JsonAuthException;
 
+import java.util.Map;
+
 @Singleton
 public class SSAuthHook {
     @Inject(optional = true)
@@ -21,7 +23,7 @@ public class SSAuthHook {
     private String passCode = "";
 
     @WebRequestHook(phase = ReqPhase.AUTH, on = On.AFTER)
-    public void checkAuth(@WebUser OAuthToken user, RequestContext rc) {
+    public void checkAuth(@WebUser Map user, RequestContext rc) {
         String resource =  rc.getReq().getRequestURI();
         if (resource.endsWith(".json") || resource.endsWith(".do") && !resource.endsWith("/login.do")) {
             if (user == null) {

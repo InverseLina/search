@@ -22,7 +22,7 @@ public class LabelWebHandler {
     private UserDao userDao;
     
     @WebPost("/addLabel")
-    public WebResponse addLabel(@WebUser OAuthToken token,@WebParam("name")String name, RequestContext rc){
+    public WebResponse addLabel(@WebUser Map token,@WebParam("name")String name, RequestContext rc){
         String ctoken = rc.getCookie("ctoken");
         if (ctoken != null) {
             Map user = userDao.getUserByToken(ctoken);
@@ -51,7 +51,7 @@ public class LabelWebHandler {
     }
     
     @WebGet("/getLabels")
-    public WebResponse getLabels(@WebUser OAuthToken token, RequestContext rc) {
+    public WebResponse getLabels(@WebUser  Map token, RequestContext rc) {
         String ctoken = rc.getCookie("ctoken");
         if (ctoken != null) {
             Map user = userDao.getUserByToken(ctoken);
@@ -65,7 +65,7 @@ public class LabelWebHandler {
     }
 
     @WebGet("/getLabelByName")
-    public WebResponse getLabel(@WebUser OAuthToken token, @WebParam("name") String name, RequestContext rc) {
+    public WebResponse getLabel(@WebUser Map token, @WebParam("name") String name, RequestContext rc) {
         String ctoken = rc.getCookie("ctoken");
         if (ctoken != null) {
             Map user = userDao.getUserByToken(ctoken);
