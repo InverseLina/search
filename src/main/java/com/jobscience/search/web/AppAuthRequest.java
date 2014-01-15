@@ -64,6 +64,12 @@ public class AppAuthRequest implements AuthRequest {
         String ctoken = rc.getCookie("ctoken");
         if(ctoken != null) {
             Map user = userCache.getIfPresent(ctoken);
+            if (user == null) {
+                user = userDao.getUserByToken(ctoken);
+                if (user != null) {
+                    userCache.put(ctoken, user);
+                }
+            }
             AuthToken<Map> at = new AuthToken<Map>();
             at.setUser(user);
             return at;

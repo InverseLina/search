@@ -43,9 +43,7 @@ var app = app || {};
             return cache;
         }
     }
-    app.getSearchFilter = function(name){
-        return cache[name];
-    }
+
 
     var filters = {
         contact: {

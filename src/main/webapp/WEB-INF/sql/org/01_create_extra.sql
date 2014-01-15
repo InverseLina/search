@@ -196,3 +196,16 @@ CREATE OR REPLACE FUNCTION update_ex_group_employers() RETURNS trigger AS $BODY$
     EXECUTE PROCEDURE update_ex_group_employers();
 
 
+
+-- SCRIPTS
+CREATE TABLE if not exists pref
+(
+  id bigserial NOT NULL,
+  user_id bigint NOT NULL,
+  name character varying(32),
+  val character varying(128),
+  val_text text,
+  CONSTRAINT pref_pkey PRIMARY KEY (id)
+);
+
+

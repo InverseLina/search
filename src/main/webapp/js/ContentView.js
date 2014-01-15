@@ -228,7 +228,77 @@
               list.push({id: $tr.attr("data-entity-id"), sfid: $tr.attr("data-sfid")});
           });
           view.$el.trigger("APPLY_PRESS", {selectedContactList: list})
-      }
+      },
+        //add drag event
+
+        "bdragstart; th[data-column]": function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            var $th = $(event.currentTarget).closest("th");
+            var view = this;
+            var $table = $("<table id='dragTable'><thead><tr></tr></thead></table>");
+            $table.css({"display": "block","position":"absolute", "width":$th.outerWidth(), height: $th.outerHeight()});
+
+            $table.find("tr").append($th.clone());
+            var pos = $th.position();
+
+            $table.css({"display": "block","position":"absolute", left: pos.left, top: pos.top,
+                "cursor": "pointer", "width":$th.outerWidth(), height: $th.outerHeight()});
+
+            view.$el.find(".tableContainer").append($table);
+//            view.drag = $target;
+//            console.log($target);
+
+        },
+        "bdragmove; th[data-column]":function(e){
+            var view = this;
+            e.stopPropagation();
+            e.preventDefault();
+           var $dragTable = view.$el.find("#dragTable");
+            var ppos = view.$el.find(".tableContainer").offset();
+            var pos = {left: e.clientX - ppos.left - $dragTable.outerWidth()/2, top: 0}
+//            var pos = {left: e.clientX - ppos.left - $dragTable.outerWidth()/2, top: e.clientY - ppos.top - $dragTable.outerHeight()/2}
+            $dragTable.css(pos);
+            //todo
+//            var $trs = view.$el.find(".scrollTable th[data-column]");
+
+
+//            console.log(e)
+            /*
+            console.log(view.drag)*/
+        },
+        "bdragend; th[data-column]":function(e){
+           e.stopPropagation();
+            e.preventDefault();
+            var match = -1, dis = 9999, tpos, $th, view = this;
+
+            var position =   {x: e.clientX, y: e.clientY};
+            var dataColumn = view.$el.find("#dragTable th").attr("data-column");
+
+            var $ths = view.$el.find(".scrollTable th[data-column]" + ":not(th[data-column='" + dataColumn + "'])");
+            var columns = [];
+            $ths.each(function(idx, th){
+                $th = $(th);
+                tpos = $th.offset();
+                columns.push($th.attr('data-column'));
+                var pos = {l:tpos.left, w: tpos.left + $th.outerWidth(), m: tpos.left + $th.outerWidth()/2 }
+//                console.log(pos.m)
+                if(e.clientX > pos.m && e.clientX - pos.m < dis){
+                    match = idx;
+                    dis =  e.clientX - pos.m;
+                }
+            });
+            view.$el.find("#dragTable").remove();
+
+            columns.splice(match + 1, 0, dataColumn);
+/*            console.log(columns);
+            console.log(match);
+            console.log(dis)*/
+            app.getJsonData("perf/save-user-pref", {value: JSON.stringify(columns)},"Post").done(function(){
+                app.getFilterOrders(columns);
+                view.$el.trigger("DO_SEARCH");
+            });
+        }
 
     },
     // --------- /Events--------- //
@@ -419,7 +489,6 @@
 
       MainView : {
         "SEARCH_RESULT_CHANGE" : function(event, result) {
-            console.log("search ange")
           var labelAssigned = app.buildPathInfo().labelAssigned;
           var view = this;
           var $e = view.$el;
@@ -537,11 +606,32 @@
 
   });
 
+
+
   // --------- Private Methods--------- //
   function buildResult(items) {
     var result = [];
     var item;
-    var columns = app.preference.columns();
+      var oldColumns = app.preference.columns();
+      //reorder columns
+      var filterOrders = app.getFilterOrders();
+      var columns = [];
+
+      $.each(filterOrders, function (idx, colName) {
+          if ($.inArray(colName, oldColumns) >= 0) {
+              columns.push(colName);
+          }
+      });
+
+      $.each(oldColumns, function(idx, colName){
+          if($.inArray(colName, columns) <0){
+              columns.push(colName);
+          }
+      });
+      if (columns.length > 0 && columns.length != filterOrders.length) {
+          app.getFilterOrders(columns);
+      }
+
     var colLen = columns.length;
     var view = this;
     var dtd = $.Deferred();
