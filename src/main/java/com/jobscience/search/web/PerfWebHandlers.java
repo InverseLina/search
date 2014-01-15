@@ -123,7 +123,7 @@ public class PerfWebHandlers {
             try {
 
               List<Map> prefs = daoHelper.executeQuery(orgHolder.getOrgName(),
-                        "select * from pref where name = ? and user_id = ?", "filter_order", user.get("user_id"));
+                        "select * from pref where name = ? and user_id = ?", "filter_order", user.get("id"));
                 if(prefs.size() == 1) {
                     return WebResponse.success(prefs.get(0));
                 }else{

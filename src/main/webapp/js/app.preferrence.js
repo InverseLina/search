@@ -28,13 +28,13 @@ var app = app || {};
             return filterOrders;
         } else {
             app.getJsonData("perf/get-user-pref", {}, {async: false}).done(function(result){
-                if(result && result.length > 0){
-                    filterOrders = JSON.parse(result);
+                if(result){
+                    filterOrders = JSON.parse(result['val_text']);
                 }else{
                     var filters = app.getSearchUiConfig();
                     var displays = $.grep(filters, function(item, idx){
                         return item.show;
-                    })
+                    });
                     filterOrders = $.map(displays, function(item){
                         return item.type;
                     });
