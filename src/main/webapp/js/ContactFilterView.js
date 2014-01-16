@@ -32,17 +32,18 @@
 	        showSelectedItem.call(view);
 		},
 		events : {
-			"btap; .save":function(){
+			"click; .save":function(event){
 	            addItem.call(this);
+	            event.preventDefault();
 	        },
-	        "btap;.cancel":function(event){
+	        "click;.cancel":function(event){
 	        	var view = this;
 	        	var $span =$(event.target);
 	        	view.$el.find(".save").parent().addClass("hide");
 	        	view.$el.find(".selectedItems .add").removeClass("hide");
 	        	view.$el.find(":text").val("");
 	        },
-	        "btap;.selectedItems .item":function(event){
+	        "click;.selectedItems .item":function(event){
 	        	var view = this;
 	        	var $span = $(event.target);
 	//        	var value = $("[data-column='contact']").find("[data-name='"+$span.attr("data-name")+"']").data("value");
@@ -56,12 +57,12 @@
 	            view.$el.find(":input[name='Title']").val(value.title||"");
 	
 	        },
-	        "btap; .content .contactRow .clear": function (event) {
-	            event.preventDefault();
-	            event.stopPropagation();
+	        "click; .content .contactRow .clear": function (event) {
 	            var view = this;
 	            var $input = $(event.currentTarget).closest("div").find("input");
 	            $input.val("").focus().change();
+	            event.preventDefault();
+	            event.stopPropagation();
 	        },
 	        "keydown focus change; input[type='text']": function(event){
 	            $input = $(event.currentTarget);
@@ -84,7 +85,7 @@
 	                }
 	            }
 	        },
-            "btap; .selectedItems span.clear": function (event) {
+            "click; .selectedItems span.clear": function (event) {
                 event.preventDefault();
                 event.stopPropagation();
                 var view = this;
