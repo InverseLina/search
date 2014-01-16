@@ -2,7 +2,7 @@
     function getDisplayOrders() {
         var oldColumns = app.preference.columns();
         //reorder columns
-        var filterOrders = app.getFilterOrders();
+        var filterOrders = app.getFilterOrders()||[];
         var columns = [];
 
         $.each(filterOrders, function (idx, colName) {
