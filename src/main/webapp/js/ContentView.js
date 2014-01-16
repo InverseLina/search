@@ -388,6 +388,7 @@
           if(view.filterDlg && view.filterDlg.$el) {
               //view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
           }
+          event.preventDefault();
       },
       "REMOVE_FILTER":function(event, extra){
           var view = this;
@@ -397,11 +398,12 @@
           if(view.filterDlg && view.filterDlg.$el) {
               //view.filterDlg.$el.trigger("SHOWSEARCHRESULT", {});
           }
-
+          event.preventDefault();
       },
       "UPDATE_FILTER": function(event, extra){
           var view = this;
           view.$el.trigger("DO_SEARCH");
+          event.preventDefault();
       },
       "ON_ERROR":function(event, extra) {
           var view = this;

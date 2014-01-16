@@ -115,10 +115,10 @@ var app = app || {};
                         $input.closest("span.autoCompleteContainer").removeClass("active");
                     }
                 },
-                "keyup;.autoComplete": function (event) {
+               /* "keyup;.autoComplete": function (event) {
                     var view = this;
                     changeAutoComplete.call(view, event);
-                },
+                },*/
                 "keydown;.autoComplete": function (event) {
                     var view = this;
                     changeAutoComplete.call(view, event, true);
@@ -213,7 +213,7 @@ var app = app || {};
             var $nextItem, view = this;
             var $item = view.$el.find(".contentText.active");
             if ($item.length > 0) {
-                $nextItem = $item.closest("div").next("div").find(".contentText");
+                $nextItem = $item.parent().next("div").find(".contentText");
                 if ($nextItem.length == 0) {
                     $nextItem = view.$el.find(".contentText:first");
                 }
@@ -240,7 +240,7 @@ var app = app || {};
             var $nextItem, view = this;
             var $item = view.$el.find(".contentText.active");
             if ($item.length > 0) {
-                $nextItem = $item.closest("div").prev("div").find(".contentText");
+                $nextItem = $item.parent().prev("div").find(".contentText");
                 if ($nextItem.length == 0) {
                     $nextItem = view.$el.find(".contentText:last");
                 }
@@ -298,7 +298,7 @@ var app = app || {};
                     view.$el.trigger("UPDATE_FILTER");
                 }
             }
-
+            return false;
         }
 
         function changeAutoComplete(event, keydown) {
@@ -327,7 +327,7 @@ var app = app || {};
                         setTimeout(function () {
                             $input.focus();
                         }, 200)
-
+                        event.preventDefault();
                     }
                     break;
                 case borderKey.ESC:
