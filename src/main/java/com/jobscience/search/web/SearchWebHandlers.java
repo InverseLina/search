@@ -34,7 +34,7 @@ public class SearchWebHandlers {
     public WebResponse search(@WebParam("searchValues") String searchValues,
                               @WebParam("pageIndex") Integer pageIndex, @WebParam("pageSize") Integer pageSize,
                               @WebParam("orderBy")String orderBy,@WebParam("orderType")Boolean orderType,
-                              @WebParam("searchColumns")String searchColumns,@WebUser String token ){
+                              @WebParam("searchColumns")String searchColumns,@WebUser Map token ){
         if(pageIndex == null ){
         	pageIndex = 0;
         }
@@ -66,7 +66,7 @@ public class SearchWebHandlers {
         }
         //for contact,use id,name,title,email,CreatedDate instead
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-        SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon,searchValues,token);
+        SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon,searchValues,(String)token.get("ctoken"));
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }

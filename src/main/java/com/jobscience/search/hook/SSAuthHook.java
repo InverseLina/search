@@ -11,7 +11,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.PassCodeException;
-import com.jobscience.search.web.OAuthToken;
 import com.jobscience.search.exception.JsonAuthException;
 
 import java.util.Map;
