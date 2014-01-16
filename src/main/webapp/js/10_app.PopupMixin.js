@@ -66,9 +66,9 @@ var app = app || {};
                             if (type == "company") {
                                 type = "employer";
                             }
-                            $input.closest(".rootFilterContainer").find(".autoCompleteList").html(render("filterPanel-autoComplete-list", {results: result["list"], type: type}));
+                            $input.parent().parent().parent().find(".autoCompleteList").html(render("filterPanel-autoComplete-list", {results: result["list"], type: type}));
                             activeFirstItem.call(view);
-                            view.$el.bView("HeaderPopup").$el.find(".duration").text("" + (result.duration || 0) + "ms");
+                            $input.parent().parent().parent().parent().next().text("" + (result.duration || 0) + "ms");
                         });
                 }
             },

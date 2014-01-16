@@ -113,8 +113,7 @@
           event.preventDefault();
           event.stopPropagation();
     	  var view = this;
-    	  var $th = $(event.currentTarget).closest("th");
-
+    	  var $th = $(event.currentTarget).parent().parent();
           view.$el.trigger("POPUP_CLOSE");
           brite.display("HeaderPopup", ".ContentView", {
               $target : $th

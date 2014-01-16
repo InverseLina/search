@@ -19,6 +19,7 @@
 			 	 view.contentView = contentView;
 			 });
 		 }
+		 app.MainView = view;
 	 },
     // --------- /View Interface Implement--------- //
 

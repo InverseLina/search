@@ -3,7 +3,7 @@ var app = app || {};
     var _storeValue = {};
     var queryKey = "";
     function getMainView(){
-        return $("body .MainView").bView("MainView");
+        return app.MainView;
     }
     app.ParamsControl = {
         getParamsForSearch: function(params){
