@@ -1,5 +1,49 @@
 (function($){
-       
+    function getDisplayOrders() {
+        var oldColumns = app.preference.columns();
+        //reorder columns
+        var filterOrders = app.getFilterOrders()||[];
+        var columns = [];
+
+        $.each(filterOrders, function (idx, colName) {
+            if ($.inArray(colName, oldColumns) >= 0) {
+                columns.push(colName);
+            }
+        });
+
+        $.each(oldColumns, function (idx, colName) {
+            if ($.inArray(colName, columns) < 0) {
+                columns.push(colName);
+            }
+        });
+        if (columns.length > 0 && columns.length != filterOrders.length) {
+            app.getFilterOrders(columns);
+        }
+
+
+        var displays = [];
+        /*        $.each(app.preference.displayColumns(), function(idx, item){
+         if(IsContain(columns, item.name)){
+         displays.push(item);
+         }
+         });*/
+        $.each(columns,
+            function (idx, colName) {
+                $.each(app.preference.
+                    displayColumns(), function (didx, item) {
+                    if (item.name == colName
+                        ) {
+                        displays
+                            .push(item);
+                    }
+                })
+            });
+        return displays;
+    }
+
+    app = app||{};
+    app.getDisplayOrders = getDisplayOrders;
+
     Handlebars.registerHelper('listNum', function(start,end,currentPage, options) {
 	  currentPage = parseInt(currentPage);
 	  var fn = options.fn, inverse = options.inverse;
@@ -74,36 +118,7 @@
 
     Handlebars.registerHelper('colHeader', function(template,labelAssigned, options) {
         labelAssigned = labelAssigned || false;
-        var oldColumns = app.preference.columns();
-        //reorder columns
-        var filterOrders = app.getFilterOrders();
-        var columns = [];
-
-       $.each(filterOrders, function (idx, colName) {
-            if ($.inArray(colName, oldColumns) >= 0) {
-                columns.push(colName);
-            }
-        });
-
-        $.each(oldColumns, function(idx, colName){
-            if($.inArray(colName, columns) <0){
-                columns.push(colName);
-            }
-        });
-        if (columns.length > 0 && columns.length != filterOrders.length) {
-            app.getFilterOrders(columns);
-        }
-
-        var displays = [];
-
-
-        $.each(columns, function(idx, colName){
-            $.each(app.preference.displayColumns(), function(didx, item){
-                if(item.name == colName){
-                    displays.push(item);
-                }
-            })
-        })
+        var displays = getDisplayOrders();
         var html = Handlebars.templates[template]({displayColumns:displays, colWidth:100/displays.length,
             colsLen:displays.length,labelAssigned:labelAssigned});
         return html;
@@ -111,41 +126,7 @@
 
     Handlebars.registerHelper('colBody', function(template, options) {
 //        var columns = app.preference.columns();
-        var oldColumns = app.preference.columns();
-        //reorder columns
-        var filterOrders = app.getFilterOrders();
-        var columns = [];
-
-        $.each(filterOrders, function (idx, colName) {
-            if ($.inArray(colName, oldColumns) >= 0) {
-                columns.push(colName);
-            }
-        });
-
-        $.each(oldColumns, function(idx, colName){
-            if($.inArray(colName, columns) <0){
-                columns.push(colName);
-            }
-        });
-        if (columns.length > 0 && columns.length != filterOrders.length) {
-            app.getFilterOrders(columns);
-        }
-
-
-        var displays = [];
-
-/*        $.each(app.preference.displayColumns(), function(idx, item){
-            if(IsContain(columns, item.name)){
-                displays.push(item);
-            }
-        });*/
-        $.each(columns, function(idx, colName){
-            $.each(app.preference.displayColumns(), function(didx, item){
-                if(item.name == colName){
-                    displays.push(item);
-                }
-            })
-        });
+        var displays = getDisplayOrders();
 //        console.log(displays)
         var buffer = options.fn(this);
         var html = Handlebars.templates[template]({displayColumns:displays, block:buffer,
