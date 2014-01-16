@@ -20,12 +20,12 @@
 	        var items = app.ParamsControl.get("contact");
 	        items = items || [];
 	        $.each(items, function(idx, val){
-	            item =  {name:val.name};
+	            var item =  {name:val.name};
 	            val = val.value;
 	            if(val.minYears||val.minRadius){
 	                item.min = val.minYears||val.minRadius;
 	            }
-	           var html = render("ContactFilterView-selectedItem-add",item);
+	            var html = render("ContactFilterView-selectedItem-add",item);
 	            view.$el.find("span.add").before(html);
 	
 	        });
