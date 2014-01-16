@@ -63,7 +63,7 @@
 	            var $input = $(event.currentTarget).closest("div").find("input");
 	            $input.val("").focus().change();
 	        },
-	        "keyup focus change; input[type='text']": function(event){
+	        "keydown focus change; input[type='text']": function(event){
 	            $input = $(event.currentTarget);
 	            var val, $input, view = this;
 	            if(event.keyCode == 13){
@@ -71,7 +71,7 @@
 	                setTimeout(function(){
 	                    $input.focus();
 	                }, 200);
-	
+	                event.preventDefault();
 	            }else if(event.keyCode == 27){
 	                view.close();
 	            }else{
@@ -83,7 +83,6 @@
 	                    $input.closest("div").addClass("active");
 	                }
 	            }
-	
 	        },
             "btap; .selectedItems span.clear": function (event) {
                 event.preventDefault();

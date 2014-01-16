@@ -99,6 +99,7 @@
          },
          "DO_SEARCH": function(event,opts){
              doSearch.call(this,opts);
+             event.preventDefault()
          },
          "SEARCH_QUERY_CHANGE":function(event){
         	 this.$el.trigger("CHECK_CLEAR_BTN");
