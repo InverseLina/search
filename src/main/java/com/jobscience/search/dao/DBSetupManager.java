@@ -111,6 +111,7 @@ public class DBSetupManager {
         tableMap.put("savedsearches", orgExtraTableNames.contains("savedsearches,"));
         tableMap.put("user", orgExtraTableNames.contains("user,"));
         tableMap.put("searchlog", orgExtraTableNames.contains("searchlog,"));
+        tableMap.put("pref", orgExtraTableNames.contains("pref,"));
         status.put("tables", tableMap);
         status.put("ex_grouped_skills",  orgExtraTableNames.contains("ex_grouped_skills,"));
         status.put("ex_grouped_educations",  orgExtraTableNames.contains("ex_grouped_educations,"));
@@ -573,7 +574,7 @@ public class DBSetupManager {
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
     	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','searchlog','contact_ex','savedsearches','user','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers','ex_grouped_locations')");
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','searchlog','contact_ex','savedsearches','user','pref','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers','ex_grouped_locations')");
     	if(list.size()==1){
             String names = (String)list.get(0).get("names");
             if(names==null){
