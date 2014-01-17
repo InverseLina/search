@@ -71,6 +71,7 @@ var app = app || {};
                             $input.parent().parent().parent().parent().next().text("" + (result.duration || 0) + "ms");
                         });
                 }
+                $(":text").placeholder();
             },
             getValue: function () {
                 var datasName = this.type.substring(0, 1).toLocaleLowerCase() + this.type.substring(1) + "s";
@@ -115,10 +116,10 @@ var app = app || {};
                         $input.closest("span.autoCompleteContainer").removeClass("active");
                     }
                 },
-               /* "keyup;.autoComplete": function (event) {
+                "keyup;.autoComplete": function (event) {
                     var view = this;
                     changeAutoComplete.call(view, event);
-                },*/
+                },
                 "keydown;.autoComplete": function (event) {
                     var view = this;
                     changeAutoComplete.call(view, event, true);

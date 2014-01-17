@@ -30,6 +30,7 @@
 	
 	        });
 	        showSelectedItem.call(view);
+	        $(":text").placeholder();
 		},
 		events : {
 			"click; .save":function(event){
@@ -160,7 +161,7 @@
         ele.data("value", data);
 //        view.$el.find(".save").parent().addClass("hide");
         view.$el.find(".selectedItems .add").removeClass("hide");
-        view.$el.find(":text").val("").change();
+        view.$el.find(":text").val("").removeClass("placeholder").trigger("blur.placeholder");
         view.$el.find("input:first").focus();
         showSelectedItem.call(view);
     }

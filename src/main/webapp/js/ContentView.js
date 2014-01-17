@@ -52,6 +52,7 @@
             delete app.startError;
            }, 100);
         }
+        $(":text").placeholder();
     },
     // --------- /View Interface Implement--------- //
 

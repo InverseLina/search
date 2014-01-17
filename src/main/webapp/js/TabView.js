@@ -136,6 +136,7 @@
                     var html = render("TabView-add-list");
                     var $input = $(event.currentTarget);
                     $input.closest("div").html(html);
+                    view.$el.find(":text").placeholder();
                 },
                 "click; .showSave": function(event){
                     var view = this;
