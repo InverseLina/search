@@ -233,66 +233,84 @@
         "bdragstart; th[data-column]": function (event) {
             event.stopPropagation();
             event.preventDefault();
-            var $th = $(event.currentTarget).closest("th");
+            var $th = $(event.currentTarget);
             var view = this;
-            var $table = $("<table id='dragTable'><thead><tr></tr></thead></table>");
-            $table.css({"display": "block","position":"absolute", "width":$th.outerWidth(), height: $th.outerHeight()});
-
-            $table.find("tr").append($th.clone());
+            var $e = view.$el;
+            var $table = $("<table id='dragTable'><thead><tr></tr></thead><tbody></tbody></table>");
             var pos = $th.position();
+            $table.css({"display": "block","position":"absolute", opacity:0.5, left: pos.left, top: pos.top,
+                "cursor": "pointer", "width":$th.outerWidth()});
 
-            $table.css({"display": "block","position":"absolute", left: pos.left, top: pos.top,
-                "cursor": "pointer", "width":$th.outerWidth(), height: $th.outerHeight()});
+            $table.find("thead tr").append($th.clone());
+            var index = $th.index();
+            $e.find(".scrollTable tbody tr td:nth-child("+(index + 1)+")").each(function(){
+                var $td = $(this);
+                $table.find("tbody").append("<tr></tr>");
+                $table.find("tbody tr:last").append($td.clone());
+                $(this).addClass("holderSpace");
+            });
+
+
+
+
+            // holderSpace style
+            // .holderSpace{
+            // color: #ccc;
+            // .headerTh{
+            // color: #ccc;
+            // background: #fff !important;
+            // border: 1px #ccc dashed;
+            // }
+            // a{
+            // color: #ccc;
+            // }
+            // }
+
+            $th.addClass("holderSpace");
 
             view.$el.find(".tableContainer").append($table);
-//            view.drag = $target;
-//            console.log($target);
-
         },
         "bdragmove; th[data-column]":function(e){
             var view = this;
+            var $e = view.$el;
             e.stopPropagation();
             e.preventDefault();
-           var $dragTable = view.$el.find("#dragTable");
-            var ppos = view.$el.find(".tableContainer").offset();
-            var pos = {left: e.clientX - ppos.left - $dragTable.outerWidth()/2, top: 0}
-//            var pos = {left: e.clientX - ppos.left - $dragTable.outerWidth()/2, top: e.clientY - ppos.top - $dragTable.outerHeight()/2}
+            var $dragTable = view.$el.find("#dragTable");
+            var ppos = $dragTable.position();
+            var pos = {left: ppos.left + e.bextra.deltaX, top: 0}
             $dragTable.css(pos);
-            //todo
-//            var $trs = view.$el.find(".scrollTable th[data-column]");
 
-
-//            console.log(e)
-            /*
-            console.log(view.drag)*/
+            $e.find(".scrollTable tr").each(function(){
+                var $tr = $(this);
+                var $holder = $tr.find(".holderSpace");
+                $tr.find("th[data-column],td[data-column]").each(function(idx, th){
+                    var $th = $(th);
+                    var tpos = $th.offset();
+                    if(e.bextra.pageX > tpos.left && e.bextra.pageX  < tpos.left + $th.outerWidth()){
+                        if(e.bextra.pageX < tpos.left + $th.outerWidth() / 2){
+                            $holder.insertAfter($th);
+                        }else{
+                            $holder.insertBefore($th);
+                        }
+                    }
+                });
+            });
         },
         "bdragend; th[data-column]":function(e){
-           e.stopPropagation();
+            e.stopPropagation();
             e.preventDefault();
-            var match = -1, dis = 9999, tpos, $th, view = this;
+            var view = this;
+            var $e = view.$el;
 
-            var position =   {x: e.clientX, y: e.clientY};
-            var dataColumn = view.$el.find("#dragTable th").attr("data-column");
-
-            var $ths = view.$el.find(".scrollTable th[data-column]" + ":not(th[data-column='" + dataColumn + "'])");
             var columns = [];
-            $ths.each(function(idx, th){
-                $th = $(th);
-                tpos = $th.offset();
+            $e.find(".scrollTable th[data-column]").each(function(idx, th){
+                var $th = $(th);
                 columns.push($th.attr('data-column'));
-                var pos = {l:tpos.left, w: tpos.left + $th.outerWidth(), m: tpos.left + $th.outerWidth()/2 }
-//                console.log(pos.m)
-                if(e.clientX > pos.m && e.clientX - pos.m < dis){
-                    match = idx;
-                    dis =  e.clientX - pos.m;
-                }
             });
             view.$el.find("#dragTable").remove();
 
-            columns.splice(match + 1, 0, dataColumn);
-/*            console.log(columns);
-            console.log(match);
-            console.log(dis)*/
+            $e.find(".scrollTable th, .scrollTable td").removeClass("holderSpace");
+
             app.getJsonData("perf/save-user-pref", {value: JSON.stringify(columns)},"Post").done(function(){
                 app.getFilterOrders(columns);
                 view.$el.trigger("DO_SEARCH");
