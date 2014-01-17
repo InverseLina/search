@@ -496,9 +496,6 @@
                     });
                 }
             }
-        },
-        "APPLY_PRESS":function(event, extra){
-            console.log(extra);
         }
     },
     // --------- /Document Events--------- //
