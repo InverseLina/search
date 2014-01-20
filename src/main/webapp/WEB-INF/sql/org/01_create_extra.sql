@@ -76,7 +76,6 @@ CREATE TABLE if not exists searchlog
 CREATE OR REPLACE FUNCTION update_ex_group_skills() RETURNS trigger AS $BODY$ 
   DECLARE  c integer; 
     BEGIN 
-      IF OLD.ts2__skill_name__c<>NEW.ts2__skill_name__c THEN
         IF(TG_OP = 'UPDATE') THEN
           
             c:=(select "count" from ex_grouped_skills where name = OLD.ts2__skill_name__c);
@@ -96,7 +95,6 @@ CREATE OR REPLACE FUNCTION update_ex_group_skills() RETURNS trigger AS $BODY$
            INSERT into ex_grouped_skills(count,name) values(1,NEW.ts2__skill_name__c);
         END IF; 
 
-      END IF;
 
         RETURN NEW;
       END;  
@@ -117,7 +115,6 @@ CREATE OR REPLACE FUNCTION update_ex_group_skills() RETURNS trigger AS $BODY$
 CREATE OR REPLACE FUNCTION update_ex_group_educations() RETURNS trigger AS $BODY$ 
   DECLARE  c integer; 
     BEGIN 
-      IF OLD.ts2__name__c<>NEW.ts2__name__c THEN
         IF(TG_OP = 'UPDATE') THEN
           
             c:=(select "count" from ex_grouped_educations where name = OLD.ts2__name__c);
@@ -137,7 +134,6 @@ CREATE OR REPLACE FUNCTION update_ex_group_educations() RETURNS trigger AS $BODY
            INSERT into ex_grouped_educations(count,name) values(1,NEW.ts2__name__c);
         END IF; 
 
-      END IF;
 
         RETURN NEW;
       END;  
@@ -158,7 +154,6 @@ CREATE OR REPLACE FUNCTION update_ex_group_educations() RETURNS trigger AS $BODY
 CREATE OR REPLACE FUNCTION update_ex_group_employers() RETURNS trigger AS $BODY$  
   DECLARE  c integer; 
     BEGIN 
-      IF OLD.ts2__name__c<>NEW.ts2__name__c THEN
         IF(TG_OP = 'UPDATE') THEN
           
             c:=(select "count" from ex_grouped_employers where name = OLD.ts2__name__c);
@@ -178,7 +173,6 @@ CREATE OR REPLACE FUNCTION update_ex_group_employers() RETURNS trigger AS $BODY$
            INSERT into ex_grouped_employers(count,name) values(1,NEW.ts2__name__c);
         END IF; 
 
-      END IF;
 
         RETURN NEW;
       END;  
