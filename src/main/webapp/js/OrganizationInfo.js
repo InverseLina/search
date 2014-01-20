@@ -486,6 +486,13 @@
 	    				 tableInfo+=", "+table;
 	    			 }
 	    		  }
+	    		  var triggerInfo = "";
+	    		  for(var trigger in result.triggers){
+	    			 if(!result.triggers[trigger]){
+	    				 triggerInfo+=", "+trigger;
+	    			 }
+	    		  }
+	    		  
 	    		  if(result.ex_grouped_skills){
 	    			  view.$el.find(".ex_grouped_skills").prop("disabled",true).html("Ex_grouped_skills Created").addClass("btn-success");
 	    		  }else{
@@ -509,6 +516,9 @@
 	    		  if(tableInfo){
 	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
 	    			  view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Table(s): "+tableInfo.substring(1)).removeClass("transparent");
+	    		  }else if(triggerInfo){
+	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
+	    			  view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Trigger(s): "+triggerInfo.substring(1)).removeClass("transparent");
 	    		  }else{
 	    			  view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
 	    		  }

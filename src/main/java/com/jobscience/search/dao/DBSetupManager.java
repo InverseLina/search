@@ -112,7 +112,17 @@ public class DBSetupManager {
         tableMap.put("user", orgExtraTableNames.contains("user,"));
         tableMap.put("searchlog", orgExtraTableNames.contains("searchlog,"));
         tableMap.put("pref", orgExtraTableNames.contains("pref,"));
+        
         status.put("tables", tableMap);
+        
+        Map triggers = new HashMap();
+        String triggerNames = this.checkTriggers(orgName)+",";
+        triggers.put("employer_trigger", triggerNames.contains("employer_trigger,"));
+        triggers.put("education_trigger", triggerNames.contains("education_trigger,"));
+        triggers.put("skill_trigger", triggerNames.contains("skill_trigger,"));
+        
+        status.put("triggers", triggers);
+        
         status.put("ex_grouped_skills",  orgExtraTableNames.contains("ex_grouped_skills,"));
         status.put("ex_grouped_educations",  orgExtraTableNames.contains("ex_grouped_educations,"));
         status.put("ex_grouped_employers",  orgExtraTableNames.contains("ex_grouped_employers,"));
@@ -853,5 +863,23 @@ public class DBSetupManager {
            }
        }
        return false;
+   }
+   
+   public  String checkTriggers(String orgName){
+   	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+   	String schemaname="" ;
+   	if(orgs.size()==1){
+   		schemaname = orgs.get(0).get("schemaname").toString();
+   	}
+   	List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName),
+   			"select string_agg(trigger_name,',') as names from information_schema.triggers where trigger_schema='"+schemaname+"'");
+   	if(list.size()==1){
+           String names = (String)list.get(0).get("names");
+           if(names==null){
+               return "";
+           }
+           return names;
+       }
+   	return "";
    }
 }    
