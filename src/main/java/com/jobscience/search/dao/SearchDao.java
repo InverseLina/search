@@ -302,6 +302,17 @@ public class SearchDao {
     	boolean hasSearchValue = false;//to check if the search box has value or not
     	StringBuilder labelSql = new StringBuilder();
     	StringBuilder locationSql = new StringBuilder();
+    	List<Map> configs = configManager.getConfig("config_userlistFeature",orgHolder.getId());
+    	boolean userlistFeature = false;
+    	for(Map m:configs){
+    		if("config_userlistFeature".equals(m.get("name"))){
+    			if(m.get("value")!=null){
+    				userlistFeature=Boolean.valueOf(m.get("value").toString());;
+    			}
+    			
+    		}
+    	}
+    	
     	if(baseTable==null){
     		baseTable = "";
     	}
@@ -344,37 +355,38 @@ public class SearchDao {
            if(label==null){
                label="Favorites";
            }
-           if(label!=null){
-               if(advanced){
-                   if(!"true".equals(labelAssigned)){
-                       joinTables.append(" left ");
-                   }
-                   joinTables.append(" join (select label.\"id\",label_contact.\"ts2__r_contact__c\" from "+schemaname+".ts2__s_userlistlink__c label_contact ")
-                   		     .append(" join "+schemaname+".\"ts2__s_userlist__c\" label on label.\"sfid\"=label_contact.\"ts2__r_user_list__c\"")
-                   		     .append(" and \"ownerid\"='")
-                   		     .append(sfid)
-               		         .append("' and label.\"name\" ='")
-                             .append(label)
-                             .append("' ) labelcontact on labelcontact.\"contact_id\" = a.\"sfid\" ");
-                           
-               }else{
-                   if(!"true".equals(labelAssigned)){
-                       labelSql.append(" left ");
-                   }else{
-                       hasCondition = true;
-                   }
-                   labelSql.append(" join (select label.\"id\" as \"id\",label_contact.\"ts2__r_contact__c\" as \"contact_id\" from "+schemaname+".ts2__s_userlistlink__c label_contact ")
-                             .append(" join "+schemaname+".\"ts2__s_userlist__c\" label on label.\"sfid\"=label_contact.\"ts2__r_user_list__c\"")
-                             .append(" and \"ownerid\"='")
-                             .append(sfid)
-                             .append("' and label.\"name\" ='")
-                             .append(label)
-                             .append("' ) labelcontact on labelcontact.\"contact_id\" = %s.\"sfid\" ");
-                   
-               }
-             
+           if(userlistFeature){
+	           if(label!=null){
+	               if(advanced){
+	                   if(!"true".equals(labelAssigned)){
+	                       joinTables.append(" left ");
+	                   }
+	                   joinTables.append(" join (select label.\"id\",label_contact.\"ts2__r_contact__c\" from "+schemaname+".ts2__s_userlistlink__c label_contact ")
+	                   		     .append(" join "+schemaname+".\"ts2__s_userlist__c\" label on label.\"sfid\"=label_contact.\"ts2__r_user_list__c\"")
+	                   		     .append(" and \"ownerid\"='")
+	                   		     .append(sfid)
+	               		         .append("' and label.\"name\" ='")
+	                             .append(label)
+	                             .append("' ) labelcontact on labelcontact.\"contact_id\" = a.\"sfid\" ");
+	                           
+	               }else{
+	                   if(!"true".equals(labelAssigned)){
+	                       labelSql.append(" left ");
+	                   }else{
+	                       hasCondition = true;
+	                   }
+	                   labelSql.append(" join (select label.\"id\" as \"id\",label_contact.\"ts2__r_contact__c\" as \"contact_id\" from "+schemaname+".ts2__s_userlistlink__c label_contact ")
+	                             .append(" join "+schemaname+".\"ts2__s_userlist__c\" label on label.\"sfid\"=label_contact.\"ts2__r_user_list__c\"")
+	                             .append(" and \"ownerid\"='")
+	                             .append(sfid)
+	                             .append("' and label.\"name\" ='")
+	                             .append(label)
+	                             .append("' ) labelcontact on labelcontact.\"contact_id\" = %s.\"sfid\" ");
+	                   
+	               }
+	             
+	           }
            }
-           
        	   //Get the contacts parameters and render them
            JSONArray contacts = JSONArray.fromObject(searchValues.get("contacts"));
            if(contacts.size()>0){//First add 1!=1,cause for all contacts,would do with "OR"
@@ -920,7 +932,7 @@ public class SearchDao {
      * @param searchColumns
      * @return
      */
-    private String getSearchColumnsForOuter(String searchColumns){
+    private String getSearchColumnsForOuter(String searchColumns,boolean userlistFeature){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
         StringBuilder sb = new StringBuilder();
     	if(searchColumns==null){
@@ -964,7 +976,10 @@ public class SearchDao {
 	    	}
 	    	sb.append("id,name");//make id and name always return
     	}
-    	sb.append(",sfid,haslabel");//,phone
+    	sb.append(",sfid");//,phone
+    	if(userlistFeature){
+    		sb.append(",haslabel");
+    	}
         return sb.toString();
     }
     
@@ -975,7 +990,7 @@ public class SearchDao {
      * @param groupBy
      * @return
      */
-    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy){
+    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,boolean userlistFeature){
     	 StringBuilder columnsSql = new StringBuilder();
     	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
     	 if(searchColumns==null){//a.phone,
@@ -984,7 +999,10 @@ public class SearchDao {
              groupBy.append(","+sc.toContactFieldsString("a")+",a.\"haslabel\" ");//
     	 }else{
     		 String temp = "";
-    		 StringBuffer sb = new StringBuffer("id,name,sfid,haslabel,");
+    		 StringBuffer sb = new StringBuffer("id,name,sfid,");
+    		 if(userlistFeature){
+    			 sb.append("haslabel,");
+    		 }
  	        for(String column:searchColumns.split(",")){
  	        	temp = getQueryColumnName(column,columnJoinTables,groupBy,sb);
  	        	if(!temp.trim().equals("")){
@@ -992,12 +1010,18 @@ public class SearchDao {
 	 	            columnsSql.append(",");
  	        	}
  	        }
- 	        columnsSql.append("a.id,a.name,a.sfid,a.haslabel");//,a.phone,
+ 	        columnsSql.append("a.id,a.name,a.sfid");//,a.phone,
+ 	        if(userlistFeature){
+ 	        	columnsSql.append(",a.haslabel");
+ 	        }
  	        if(groupBy.length()>0){
  	        	groupBy.append(",");
  	        }
  	        //a.phone,
- 	        groupBy.append("a.name,a.sfid,a.haslabel");//always return these columns ,
+ 	        groupBy.append("a.name,a.sfid");//always return these columns ,
+ 	        if(userlistFeature){
+ 	    	  groupBy.append(",a.haslabel");
+  	        }
          }
     	 return columnsSql.toString();
     }
@@ -1033,12 +1057,24 @@ public class SearchDao {
         List values = new ArrayList();
         String cteSql = "";
         
+        //get the userlist feature
+        List<Map> configs = configManager.getConfig("config_userlistFeature",orgHolder.getId());
+        boolean userlistFeature = false;
+    	for(Map m:configs){
+    		if("config_userlistFeature".equals(m.get("name"))){
+    			if(m.get("value")!=null){
+    				userlistFeature=Boolean.valueOf(m.get("value").toString());;
+    			}
+    			
+    		}
+    	}
+        
         querySql.append("select ");
-        querySql.append(getSearchColumnsForOuter(searchColumns));
+        querySql.append(getSearchColumnsForOuter(searchColumns,userlistFeature));
         querySql.append(" from ( ");
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
-        querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy));
+        querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy,userlistFeature));
         
         
         //---------------------- add select columns ----------------------//
@@ -1059,8 +1095,10 @@ public class SearchDao {
                 .append(" is null  or " )
                 .append("char_length(")
                 .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
-                .append(") = 0 then -1  else contact.id end as resume ")
-                .append(",case when labelcontact.contact_id is null then false else true end haslabel ");
+                .append(") = 0 then -1  else contact.id end as resume ");
+                if(userlistFeature){
+                	querySql.append(",case when labelcontact.contact_id is null then false else true end haslabel ");
+                }
         //---------------------- /add select columns----------------------//
         
         
@@ -1168,25 +1206,32 @@ public class SearchDao {
 	        String locationSql = sqls[4];
 	        joinSql = new StringBuilder(sqls[0]);
 	        prefixSql = sqls[1];
+	        String labelSql = sqls[3];
+	        boolean userlistFeature = (labelSql.length()>0);
 	        countSql = new StringBuilder(joinSql.toString());
 	        String labelAssigned = searchValues.get("labelAssigned");
 	        if(searchValues.get("contacts")!=null){
 	            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
 	        }
 	        if(!Strings.isNullOrEmpty(searchValue)&&searchValue.length()>=3){
-	            if(!hasContactsCondition&&!"true".equals(labelAssigned)&&locationSql.length()==0&&!hasExtraSearchColumn(searchValues)){
+	            if(!hasContactsCondition&&userlistFeature&&!"true".equals(labelAssigned)&&locationSql.length()==0&&!hasExtraSearchColumn(searchValues)){
 	                joinSql.append(" offset "+offset+" limit "+pageSize);
 	            }
-    	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
+    	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(labelSql,"subcontact"));
     	       if(locationSql.length()==0&&!hasContactsCondition&&!hasExtraSearchColumn(searchValues)){
     	           countSql.replace(0, 6," from ");
     	           countSql.append(" ) a  ");
     	       }else{
-    	           countSql.append(" ) subcontact on contact.id=subcontact.id ").append(String.format(sqls[3],"subcontact"));
+    	           countSql.append(" ) subcontact on contact.id=subcontact.id ");
+    	           if(userlistFeature){
+    	        	   countSql.append(String.format(labelSql,"subcontact"));
+    	           }
     	       }
 	        }else{
-	            joinSql.append(String.format(sqls[3],"contact"));
-                countSql.append(String.format(sqls[3],"contact"));
+	        	if(userlistFeature){
+		            joinSql.append(String.format(labelSql,"contact"));
+	                countSql.append(String.format(labelSql,"contact"));
+	        	}
 	        }
 	        joinSql.append(locationSql);
 	        countSql.append(locationSql);
