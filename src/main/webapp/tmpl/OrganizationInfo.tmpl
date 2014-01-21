@@ -128,17 +128,26 @@
         <h3 class="title">Organization Info</h3>
         <div class="baseInfo-content">
             <table class="content-table">
-                <tr><td class="left"><span>Name: </span></td><td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="Name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
+                <tr><td class="left"><span>Name : </span></td><td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="Name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
                 </tr>
-                <tr><td class="left"><span>Schema Name: </span></td><td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="Schema Name" /></td><td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
+                <tr><td class="left"><span>Schema Name : </span></td><td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="Schema Name" /></td><td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
                 </tr>
-                <tr><td class="left"><span>SFID: </span></td><td class="right"><input type="text" name="sfid" value="{{data.sfid}}" class="text" placeholder="SFID" /></td><td></td>
+                <tr><td class="left"><span>SFID : </span></td><td class="right"><input type="text" name="sfid" value="{{data.sfid}}" class="text" placeholder="SFID" /></td><td></td>
                 </tr>
-                <tr><td class="left"><span>Instance Url: </span></td><td class="right"><input type="text" name="instance_url" value="{{data.instance_url}}" class="text" placeholder="Instance Url" /></td><td></td>
+                <tr><td class="left"><span>Instance Url : </span></td><td class="right"><input type="text" name="instance_url" value="{{data.instance_url}}" class="text" placeholder="Instance Url" /></td><td></td>
                 </tr>
-                <tr><td class="left"><span>Apex Resume URL: </span></td><td class="right"><input type="text" name="apex_resume_url" value="{{data.apex_resume_url}}" class="text" placeholder="Apex Resume URL" /></td><td></td>
+                <tr><td class="left"><span>Apex Resume URL : </span></td><td class="right"><input type="text" name="apex_resume_url" value="{{data.apex_resume_url}}" class="text" placeholder="Apex Resume URL" /></td><td></td>
                 </tr>
                 <tr><td class="left"><span>Canvas App Secret : </span></td><td class="right"><input type="text" name="canvasapp_secret" value="{{data.canvasapp_secret}}" class="text" placeholder="Canvas App Secret" /></td><td></td>
+                
+                <tr><td class="left"><span>Userlist Feature : </span></td>
+                    <td class="right">
+                         <select name="config_userlistFeature">
+                            <option value="true">enabled</option>   
+                            <option value="false">disabled</option>                    
+                        </select>
+                    </td>
+                    <td></td>
                 </tr>
             </table>
         </div>

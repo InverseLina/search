@@ -152,6 +152,7 @@
     	  var configs = {};
     	      configs["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
     	      configs["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
+    	      configs["config_userlistFeature"]=view.$el.find("[name='config_userlistFeature']").val();
               var callbackUrl = $.trim(view.$el.find("[name='config_callBackUrl']").val());
               if(validateURL(callbackUrl)){
     	        configs["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();

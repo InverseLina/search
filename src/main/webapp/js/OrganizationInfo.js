@@ -60,7 +60,7 @@
 			var $saveBtn = view.$el.find(".save");
 			$saveBtn.removeClass("disabled");
 		},
-		"click;.save":function(event){
+	   "click;.save":function(event){
 			var view = this;
 			var values = {};
         doValidate.call(view);
@@ -76,6 +76,7 @@
           configs["instance_url"] = view.$el.find("[name='instance_url']").val();
           configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();
           configs["canvasapp_secret"] = view.$el.find("[name='canvasapp_secret']").val();
+          configs["config_userlistFeature"] = view.$el.find("[name='config_userlistFeature']").val();
 
           values.configsJson = JSON.stringify(configs);
           app.getJsonData("/config/save", values, "Post").done(function(data) {

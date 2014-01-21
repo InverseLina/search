@@ -31,6 +31,10 @@ public class ConfigManager {
     @Inject
     @Named("saleforce.callBackUrl")
     private String callBackUrl;
+    
+    @Inject(optional=true)
+    @Named("jss.feature.userlist")
+    private String userlistFeature;
 
     /**
      * Save or Update org config
@@ -130,6 +134,7 @@ public class ConfigManager {
             boolean isApiKey = false;
             boolean isApiSecret = false;
             boolean isCallBackUrl = false;
+            boolean isUserlistFeature = false;
             for (Map<String,String> map : list) {
                 if ("config_apiKey".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isApiKey = true;
@@ -137,6 +142,8 @@ public class ConfigManager {
                     isApiSecret = true;
                 } else if ("config_callBackUrl".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isCallBackUrl = true;
+                } else if ("config_userlistFeature".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
+                	isUserlistFeature = true;
                 }
             }
             Map map1 = new HashMap();
@@ -158,6 +165,12 @@ public class ConfigManager {
                 map1.put("value", callBackUrl);
                 list.add(map1);
             }
+            if (!isUserlistFeature) {
+            	map1 = new HashMap();
+            	map1.put("name", "config_userlistFeature");
+            	map1.put("value", userlistFeature);
+            	list.add(map1);
+            }
         } else {
             Map map = new HashMap();
             map.put("name", "config_apiKey");
@@ -170,6 +183,10 @@ public class ConfigManager {
             map = new HashMap();
             map.put("name", "config_callBackUrl");
             map.put("value", callBackUrl);
+            list.add(map);
+            map = new HashMap();
+            map.put("name", "config_userlistFeature");
+            map.put("value", userlistFeature);
             list.add(map);
         }
         return list;
