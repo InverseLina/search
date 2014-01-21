@@ -546,14 +546,17 @@
                      view.$el.trigger("DO_SEARCH",{pageIdx:pageIdx});
                  }
                }).done(function(){
-                       var pagination = view.$el.find(".pagination");
+                       var $pagination = view.$el.find(".pagination");
+                       var pagination = view.$el.find(".Pagination").bComponent();
                        if(labelAssigned){
                            $e.trigger("CHANGE_TO_FAV_VIEW");
+                           pagination.hide();
                        }else{
                            $e.trigger("RESTORE_SEARCH_VIEW");
+                           pagination.show();
                        }
 
-                       showSearchInfo.call(view, result, htmlInfo, "left", (pagination.offset().left - view.$searchInfo.offset().left -155 ))
+                       showSearchInfo.call(view, result, htmlInfo, "left", ($pagination.offset().left - view.$searchInfo.offset().left -155 ));
                    });
 
 
