@@ -11,7 +11,12 @@
         {
             // --------- Implement Interface--------- //
             create: function (data, config) {
-                return render("TabView");
+            	data = data || {};
+            	var $e = $(render("TabView"));
+            	if(data.hide){
+            		$e.hide();
+            	}
+                return $e;
             },
 
             postDisplay: function (data) {
@@ -72,8 +77,6 @@
                     event.preventDefault();
                     var $li = $(event.currentTarget);
                     changeView.call(view, $li);
-
-
                 },
                 PATH_INFO_CHANGE: function(event, extra){
                     var view = this;

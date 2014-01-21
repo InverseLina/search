@@ -16,7 +16,7 @@
       view.$searchInfo = view.$el.find(".search-info");
       view.tableOrderColumn = null;
       view.tableOrderType = null;
-
+	  view.labelDisable = org.config_userlistFeature == 'false' ? true : false;
       view.showContentMessage("empty");
       if(app.cookie("userName")){
           var userName = app.cookie("userName");
@@ -32,7 +32,8 @@
     	  $sfInfo.html((app.cookie("org")||" ")+userName.replace(/"/g,""));
           $sfInfo.css(configOffset)
       }
-        brite.display("TabView").done(function(tabView){
+      
+        brite.display("TabView",null, {hide: view.labelDisable}).done(function(tabView){
             view.tabView = tabView;
         });
 
@@ -750,6 +751,7 @@
 
   function fixColWidth() {
     var view = this;
+    var $e = view.$el;
     var colWidth;
     var colName;
     var columns = app.preference.columns();
@@ -833,7 +835,12 @@
             $item.find(".addFilter").hide();
         }
 
-    })
+    });
+    
+    if(view.labelDisable){
+    	$e.find("th.favLabel").hide();
+    	$e.find("td.favLabel").hide();
+    }
   }
 
 
