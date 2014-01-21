@@ -131,7 +131,14 @@ public class AppAuthRequest implements AuthRequest {
             List<Map> configs = configManager.getConfig(null, orgHolder.getId());
             Map configMap = new HashMap();
             for (Map c : configs) {
-                configMap.put(c.get("name"), c.get("value"));
+            	if(!c.get("org_id").equals(-1)){
+            		configMap.put(c.get("name"), c.get("value"));
+            	}
+            }
+            for (Map c : configs) {
+            	if(c.get("org_id").equals(-1)&&!configMap.containsKey(c.get("name"))){
+            		configMap.put(c.get("name"), c.get("value"));
+            	}
             }
             m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
         } catch (Exception e) {

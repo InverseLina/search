@@ -135,7 +135,7 @@ public class ConfigManager {
             boolean isApiSecret = false;
             boolean isCallBackUrl = false;
             boolean isUserlistFeature = false;
-            for (Map<String,String> map : list) {
+            for (Map map : list) {
                 if ("config_apiKey".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isApiKey = true;
                 } else if ("config_apiSecret".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
