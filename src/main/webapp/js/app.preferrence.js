@@ -23,6 +23,20 @@ var app = app || {};
     app.getFilterOrders = function (update) {
         if (update) {
             filterOrders = update;
+            app.getJsonData("perf/get-user-pref", {}, {async: false}).done(function(result){
+                if(result){
+                    filterOrders = JSON.parse(result['val_text']);
+                }else{
+                    var filters = app.getSearchUiConfig();
+                    var displays = $.grep(filters, function(item, idx){
+                        return item.show;
+                    });
+                    filterOrders = $.map(displays, function(item){
+                        return item.type;
+                    });
+                }
+
+            });
         }
         if (filterOrders) {
             return filterOrders;
