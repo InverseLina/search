@@ -10,10 +10,10 @@
     
     [@webBundle path="/css/" type="css" /]
     [@webBundle path="/js/" type="js" /]
-      <!--[if IE 8]>
+      <!--[if lt IE 9]>
       <link rel="stylesheet" type="text/css" href="${_r.contextPath}/hack/ie8_hack.css">
       <![endif]-->
-    
+
     [#if signedRequestJson??]
     
     <link rel="stylesheet" type="text/css" href="/canvassdk/css/canvas.css" />
@@ -36,7 +36,6 @@
         var org = JSON.parse('${orgConfigs}');
       [/#if]
     </script>
-    
   </head>
   
   <body>
