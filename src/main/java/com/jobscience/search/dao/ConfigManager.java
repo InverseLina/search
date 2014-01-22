@@ -130,65 +130,114 @@ public class ConfigManager {
      * @return
      */
     public List checkSaleforceInfo(List<Map> list) {
+    	List<Map> configList =new ArrayList<Map>();
         if (list.size() > 0) {
             boolean isApiKey = false;
             boolean isApiSecret = false;
             boolean isCallBackUrl = false;
             boolean isUserlistFeature = false;
+            Map apiKey = null,apiSecret = null,callBackUrl = null,userListFeature = null;
             for (Map map : list) {
                 if ("config_apiKey".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
-                    isApiKey = true;
+                	isApiKey = true;
+                	if(apiKey!=null){
+                		if(!apiKey.get("org_id").equals(-1)){
+                			continue;
+                		}
+                	}
+                	apiKey  = map;
+                	continue;
                 } else if ("config_apiSecret".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isApiSecret = true;
+                	if(apiSecret!=null){
+                		if(!apiSecret.get("org_id").equals(-1)){
+                			continue;
+                		}
+                	}
+                	apiSecret  = map;
+                	continue;
                 } else if ("config_callBackUrl".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                     isCallBackUrl = true;
+                    if(callBackUrl!=null){
+                		if(!callBackUrl.get("org_id").equals(-1)){
+                			continue;
+                		}
+                	}
+                    callBackUrl  = map;
+                    continue;
                 } else if ("config_userlistFeature".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
                 	isUserlistFeature = true;
+                	if(userListFeature!=null){
+                 		if(!userListFeature.get("org_id").equals(-1)){
+                 			continue;
+                 		}
+                 	}
+                	 userListFeature  = map;
+                	 continue;
                 }
+                
+                configList.add(map);
             }
+            
             Map map1 = new HashMap();
             if (!isApiKey) {
                 map1 = new HashMap();
                 map1.put("name", "config_apiKey");
                 map1.put("value", apiKey);
-                list.add(map1);
+                map1.put("org_id", -1);
+                configList.add(map1);
+            }else{
+            	configList.add(apiKey);
             }
             if (!isApiSecret) {
                 map1 = new HashMap();
                 map1.put("name", "config_apiSecret");
                 map1.put("value", apiSecret);
-                list.add(map1);
+                map1.put("org_id", -1);
+                configList.add(map1);
+            }else{
+            	configList.add(apiSecret);
             }
             if (!isCallBackUrl) {
                 map1 = new HashMap();
                 map1.put("name", "config_callBackUrl");
                 map1.put("value", callBackUrl);
-                list.add(map1);
+                map1.put("org_id", -1);
+                configList.add(map1);
+            }else{
+            	configList.add(callBackUrl);
             }
             if (!isUserlistFeature) {
             	map1 = new HashMap();
             	map1.put("name", "config_userlistFeature");
             	map1.put("value", userlistFeature);
-            	list.add(map1);
+            	map1.put("org_id", -1);
+            	configList.add(map1);
+            }else{
+            	configList.add(userListFeature);
             }
         } else {
             Map map = new HashMap();
             map.put("name", "config_apiKey");
             map.put("value", apiKey);
-            list.add(map);
+            map.put("org_id", -1);
+            configList.add(map);
             map = new HashMap();
             map.put("name", "config_apiSecret");
             map.put("value", apiSecret);
-            list.add(map);
+            map.put("org_id", -1);
+            configList.add(map);
             map = new HashMap();
             map.put("name", "config_callBackUrl");
             map.put("value", callBackUrl);
-            list.add(map);
+            map.put("org_id", -1);
+            configList.add(map);
             map = new HashMap();
             map.put("name", "config_userlistFeature");
             map.put("value", userlistFeature);
-            list.add(map);
+            map.put("org_id", -1);
+            configList.add(map);
         }
-        return list;
+        return configList;
     }
 }

@@ -97,14 +97,12 @@
 			var view = this;
 			var currentField;
 			$.each(result.data,function(index,e){
-				if(e.org_id!=-1){
-					currentField = view.$el.find("[name='"+e.name+"']");
-					if(currentField.length>0){
-						if(currentField.attr("type") == 'checkbox'){
-							currentField.prop("checked",e.value=='true');
-						}else{
-							currentField.val(e.value);
-						}
+				currentField = view.$el.find("[name='"+e.name+"']");
+				if(currentField.length>0){
+					if(currentField.attr("type") == 'checkbox'){
+						currentField.prop("checked",e.value=='true');
+					}else{
+						currentField.val(e.value);
 					}
 				}
 			});
