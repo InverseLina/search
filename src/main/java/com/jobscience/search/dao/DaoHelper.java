@@ -59,10 +59,10 @@ public class DaoHelper {
     // --------- DaoHelper Initialization --------- //
     @WebApplicationHook(phase = AppPhase.INIT)
     public void initDBHelpers(){
-        defaultDBHelper = new DBBuilder().newDBHelper(defaultDs);
+        defaultDBHelper = new DBBuilder().newDB(defaultDs);
         if (checkSysSchema()) {
             sysDs = buildDs(url, sysSchema);
-            sysDBHelper = new DBBuilder().newDBHelper(getSysDataSource());
+            sysDBHelper = new DBBuilder().newDB(getSysDataSource());
         }
     }
     // --------- /DaoHelper Initialization --------- //
@@ -89,7 +89,7 @@ public class DaoHelper {
                 // since we are in a synchronize queue now we double check again
                 orgDBHelper = orgDBHelperByName.get(orgName);
                 if (orgDBHelper == null){
-                    orgDBHelper = new DBBuilder().newDBHelper(getOrgDataSource(orgName));
+                    orgDBHelper = new DBBuilder().newDB(getOrgDataSource(orgName));
                     orgDBHelperByName.put(orgName, orgDBHelper);
                 }
             }
@@ -202,7 +202,7 @@ public class DaoHelper {
         }
         if(sysDs==null){
             sysDs = buildDs(url, sysSchema);
-            sysDBHelper = new DBBuilder().newDBHelper(getSysDataSource());
+            sysDBHelper = new DBBuilder().newDB(getSysDataSource());
         }
         return sysDs;
     }
