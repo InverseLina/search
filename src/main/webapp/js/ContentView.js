@@ -16,7 +16,9 @@
       view.$searchInfo = view.$el.find(".search-info");
       view.tableOrderColumn = null;
       view.tableOrderType = null;
-	  view.labelDisable = org.config_userlistFeature == 'false' ? true : false;
+      if(typeof(org)!='undefined'){
+    	  view.labelDisable = org.config_userlistFeature == 'false' ? true : false;
+      }
       view.showContentMessage("empty");
       if(app.cookie("userName")){
           var userName = app.cookie("userName");
