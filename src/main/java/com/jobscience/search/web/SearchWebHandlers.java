@@ -136,10 +136,4 @@ public class SearchWebHandlers {
 		return originalName;
     }
     
-    public static void main(String[] args) {
-        String a = "{asdsd:\"\"asdasdsadsad\"\"}".replaceAll("\\\"\\\"", "\"#");
-        System.out.println(a);
-        JSONObject jo = JSONObject.fromObject(a);
-        System.out.println(jo);
-    }
 }

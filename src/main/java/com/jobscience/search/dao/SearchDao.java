@@ -391,8 +391,8 @@ public class SearchDao {
            JSONArray contacts = JSONArray.fromObject(searchValues.get("contacts"));
            if(contacts.size()>0){//First add 1!=1,cause for all contacts,would do with "OR"
         	   conditions.append(" AND (1!=1 ");
-        	   
            }
+           boolean needJoinRecordtype = false;
            for(int i=0,j=contacts.size();i<j;i++){
         	   JSONObject contact = JSONObject.fromObject(contacts.get(i));
         	   conditions.append(" OR (1=1 ");//for single contact,would do with "AND"
@@ -516,12 +516,51 @@ public class SearchDao {
                  }
                   hasCondition = true;
         	  }
+        	  
+        	  //handle the ojectType
+        	  if(contact.containsKey("objectType")&&!"".equals(contact.getString("objectType"))){
+        		  value = contact.getString("objectType");
+        		  if(!advanced){
+        			  if("Both".equals(value)){
+        				  conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
+        			  }else{
+        				  conditions.append("  and rt.\"sobjecttype\" = ? ");
+        				  subValues.add(value);
+        			  }
+        			  needJoinRecordtype = true;
+        		  }
+        		  hasCondition = true;
+        	  }
+        	  
+        	  //handle the status
+        	  if(contact.containsKey("status")&&!"".equals(contact.getString("status"))){
+        		  value = contact.getString("status");
+        		  if(!advanced){
+        			  if("Active".equals(value)){
+        				  conditions.append("  and rt.\"isactive\" = true ");
+        				  needJoinRecordtype = true;
+        			  }else  if("Inactive".equals(value)){
+        				  conditions.append("  and rt.\"isactive\" = false ");
+        				  needJoinRecordtype = true;
+        			  }
+        		  }
+        		  hasCondition = true;
+        	  }
+        	  
+        	  
         	  conditions.append(" ) ");
            }
            
-           if(contacts.size()>0)
-           conditions.append(" ) ");
-     
+           if(contacts.size()>0){
+        	   conditions.append(" ) ");
+           }
+           if(needJoinRecordtype){
+        	   if(hasSearchValue){
+    		       contactQuery.append(" inner join  "+schemaname+".recordtype rt on con.\"recordtypeid\" = rt.\"sfid\" ");
+    		   }else{
+    		       contactQuery.append(" inner join  "+schemaname+".recordtype rt on contact.\"recordtypeid\" = rt.\"sfid\" ");
+    		   }
+           }
            // add the 'educations' filter, and join ts2__education_history__c table
            if (searchValues.get("educations") != null && !"".equals(searchValues.get("educations"))) {
         	   String value = searchValues.get("educations");

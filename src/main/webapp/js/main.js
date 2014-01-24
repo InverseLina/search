@@ -53,9 +53,8 @@ var app = app||{};
 app.defaultMenuSize = 5;
 
 (function(){
-    var fields = ["firstName","lastName","email","title"];
+    var fields = ["firstName","lastName","email","title","objectType","status"];
     app.getContactDisplayName = function(contact){
-
         contact = contact||{};
         var displayName = "";
         for (var i = 0; i < fields.length; i++) {
