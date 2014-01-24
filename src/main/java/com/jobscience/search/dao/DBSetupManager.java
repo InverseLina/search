@@ -112,7 +112,7 @@ public class DBSetupManager {
         tableMap.put("user", orgExtraTableNames.contains("user,"));
         tableMap.put("searchlog", orgExtraTableNames.contains("searchlog,"));
         tableMap.put("pref", orgExtraTableNames.contains("pref,"));
-        
+        tableMap.put("recordtype", orgExtraTableNames.contains("recordtype,"));
         status.put("tables", tableMap);
         
         Map triggers = new HashMap();
@@ -584,7 +584,7 @@ public class DBSetupManager {
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
     	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','searchlog','contact_ex','savedsearches','user','pref','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers','ex_grouped_locations')");
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','searchlog','recordtype','contact_ex','savedsearches','user','pref','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers','ex_grouped_locations')");
     	if(list.size()==1){
             String names = (String)list.get(0).get("names");
             if(names==null){

@@ -202,4 +202,17 @@ CREATE TABLE if not exists pref
   CONSTRAINT pref_pkey PRIMARY KEY (id)
 );
 
+-- SCRIPTS
+ CREATE TABLE if not exists recordtype
+(
+  sobjecttype character varying(40),
+  id serial not null,
+  sfid character varying(18),
+  isactive          boolean,                      
+ lastmodifieddate  timestamp without time zone , 
+ namespaceprefix   character varying(15) ,      
+ _c5_source        character varying(18) ,       
+ name              character varying(80) ,
+  CONSTRAINT recordtype_pkey PRIMARY KEY (id)
+);       
 
