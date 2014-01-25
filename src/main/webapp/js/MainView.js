@@ -9,6 +9,18 @@
 		 var view = this;
 		 view.$el.find(".config").removeClass("hide");
 		 view.$el.find(".home").addClass("hide");
+		 
+		 if(app.cookie("userName")){
+	          var userName = app.cookie("userName");
+	          if(userName) {
+	              userName = ":"+ userName
+	          }else{
+	              userName="";
+	          }
+	          var $sfInfo =view.$el.find(".sf-info");
+	    	  $sfInfo.html((app.cookie("org")||" ")+userName.replace(/"/g,""));
+	      }
+		 
 		 if(data&&data.type=="admin"){
 			 brite.display("AdminMainView");
 		 }else{
@@ -53,14 +65,7 @@
 	         event.stopPropagation();
 	 	},
 	 	"click;.clear-all":function(event){
-	 		var view = this;
-	 		var $el = view.contentView.$el;
-	 		app.ParamsControl.clear();
-	 		view.$el.find(".contentview-ctn").bEmpty();
-	 		brite.display("ContentView",this.$el.find(".contentview-ctn")).done(function(contentView){
-			 	 view.contentView = contentView;
-			 	 $(event.currentTarget).prop("disabled",true);
-			});
+	 		 clearSearch.call(this);
 	 	},
 	 	"CHECK_CLEAR_BTN":function(){
 	 		 var view = this;
@@ -112,13 +117,14 @@
     // --------- Private Methods--------- //
     function doSearch(opts) {
         var view = this;
+        var $e = view.$el;
         opts = opts || {};
         var search = opts.search;
         var searchParameter = app.ParamsControl.getParamsForSearch({search: search});
         var searchKey = app.ParamsControl.getQuery();
         var filters = app.ParamsControl.getFilterParams();
         if($.trim(searchKey).length>0&&$.trim(searchKey).length < 3 ){
-            view.contentView.showContentMessage("lessword");
+            view.contentView.dataGridView.showContentMessage("lessword");
             var labelAssigned = app.buildPathInfo().labelAssigned;
             if(labelAssigned){
                 view.$el.trigger("CHANGE_TO_FAV_VIEW");
@@ -126,8 +132,8 @@
             return;
         }
 
-        view.contentView.showContentMessage("loading");
-        view.contentView.restoreSearchParam();
+        view.contentView.dataGridView.showContentMessage("loading");
+        view.contentView.dataGridView.restoreSearchParam();
 
 
         searchParameter.pageIndex = opts.pageIdx || 1;
@@ -136,7 +142,18 @@
         	view.$el.trigger("CHECK_CLEAR_BTN");
             view.$el.trigger("SEARCH_RESULT_CHANGE", result);
         });
-
+        
+    }
+    
+    function clearSearch(){
+    	var view = this;
+	 	var $el = view.contentView.$el;
+	 	app.ParamsControl.clear();
+	 	view.$el.find(".contentview-ctn").bEmpty();
+	 	brite.display("ContentView",this.$el.find(".contentview-ctn")).done(function(contentView){
+			view.contentView = contentView;
+			view.$el.find(".clear-all").prop("disabled",true);;
+		});
     }
     
     // --------- /Private Methods--------- //

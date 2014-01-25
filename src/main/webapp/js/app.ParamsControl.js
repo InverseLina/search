@@ -12,7 +12,7 @@ var app = app || {};
             var obj, key, newKey;
             var data, result = {};
             var searchData = result.searchValues = {};
-            var contentSearchValues = view.contentView.getSearchValues();
+            var contentSearchValues = view.contentView.dataGridView.getSearchValues();
             queryKey = $.trim(params.search||contentSearchValues.search);
             result.searchColumns = app.preference.columns().join(",");
             if(contentSearchValues.sort){
@@ -26,17 +26,17 @@ var app = app || {};
             var pathInfo = app.buildPathInfo();
             if(pathInfo.paths && pathInfo.paths.length == 3 && pathInfo.paths[1] == "list"){
                 searchData.q_labelAssigned = true;
-                searchData.q_label = view.contentView.tabView.getLabelName(pathInfo.paths[2])
+                searchData.q_label = view.contentView.dataGridView.tabView.getLabelName(pathInfo.paths[2])
             }else{
                 searchData.q_labelAssigned = false;
-                searchData.q_label = view.contentView.tabView.getSelectLabel().name;
+                searchData.q_label = view.contentView.dataGridView.tabView.getSelectLabel().name;
             }
 
 /*            searchData.q_labelAssigned = params.labelAssigned || false;
             if(searchData.q_labelAssigned){
                 searchData.q_label =  params.label ||"Favorites";
             }else{
-                searchData.q_label = view.contentView.tabView.getSelectLabel().name;
+                searchData.q_label = view.contentView.dataGridView.tabView.getSelectLabel().name;
             }*/
 
 
@@ -59,8 +59,8 @@ var app = app || {};
                 }
             }
             result.searchValues = JSON.stringify(searchData);
-            result.pageIndex = view.contentView.pageIdx || 1;
-            result.pageSize = view.contentView.pageSize || 15;
+            result.pageIndex = view.contentView.dataGridView.pageIdx || 1;
+            result.pageSize = view.contentView.dataGridView.pageSize || 15;
 //         console.log(result);
             return result;
         },
