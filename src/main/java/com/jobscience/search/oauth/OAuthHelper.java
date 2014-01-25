@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.oauth.OAuthService;
 
@@ -23,9 +24,11 @@ public class OAuthHelper {
     @Inject
     private DBSetupManager dbSetupManager;
 
-    private String apiKey = null;
-    private String apiSecret = null;
-    private String callbackUrl = null;
+    private volatile String apiKey = null;
+    private volatile String apiSecret = null;
+    private volatile String callbackUrl = null;
+    
+    private Logger log = Logger.getLogger(getClass());
 
     /**
      * Get the auth service for salesforce,
@@ -53,9 +56,15 @@ public class OAuthHelper {
                     callbackUrl = map.get("value");
                 }
             }
-            ServiceBuilder builder = new ServiceBuilder().provider(ForceDotComApi.class).apiKey(apiKey).apiSecret(apiSecret);
-            builder.callback(callbackUrl);
-            return builder.build();
+            ServiceBuilder builder = null;
+            OAuthService servcie = null;
+            try{
+                builder = new ServiceBuilder().provider(ForceDotComApi.class).apiKey(apiKey).apiSecret(apiSecret).callback(callbackUrl);
+                servcie = builder.build();
+            }catch(Exception e){
+                log.error(e.getMessage());
+            }
+            return servcie;
         }
         return null;
     }
