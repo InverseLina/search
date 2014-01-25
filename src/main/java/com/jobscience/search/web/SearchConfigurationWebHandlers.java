@@ -1,5 +1,12 @@
 package com.jobscience.search.web;
 
+import static com.britesnow.snow.util.MapUtil.mapIt;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
@@ -8,15 +15,9 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.SearchConfigurationDao;
 import com.jobscience.search.searchconfig.SearchConfigurationManager;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-
-import static com.britesnow.snow.util.MapUtil.mapIt;
 
 @Singleton
 public class SearchConfigurationWebHandlers {
@@ -28,6 +29,9 @@ public class SearchConfigurationWebHandlers {
 
     @Inject
     private SearchConfigurationDao searchConfigurationDao;
+    
+    @Inject
+    private DBSetupManager dbSetupManager;
 
     @WebGet("/searchuiconfig")
     public WebResponse searchuiconfig(@WebParam("org") String orgName){
@@ -36,6 +40,11 @@ public class SearchConfigurationWebHandlers {
 
     @WebGet("/getSearchConfig")
     public WebResponse getSearchConfig(RequestContext rc) throws IOException {
+        boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
+        if(!isSysSchemaExist){
+            URL url = rc.getServletContext().getResource(CONFIG_PATH);
+            return WebResponse.success(Resources.toString(url, Charsets.UTF_8));
+        }
         List<Map> result = searchConfigurationDao.getSearchConfig();
         if (result.size() == 0) {
             URL url = rc.getServletContext().getResource(CONFIG_PATH);

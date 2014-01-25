@@ -63,6 +63,11 @@ public class AppAuthRequest implements AuthRequest {
     public AuthToken authRequest(RequestContext rc) {
         String ctoken = rc.getCookie("ctoken");
         if(ctoken != null) {
+            boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
+            if(!isSysSchemaExist){
+                return null;
+            }
+            
             Map user = userCache.getIfPresent(ctoken);
             if (user == null) {
                 user = userDao.getUserByToken(ctoken);
