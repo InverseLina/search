@@ -101,7 +101,7 @@ public class AppAuthRequest implements AuthRequest {
             rc.setCookie("org", orgName);
             m.put("user", user);
         }
-
+        
         if (passCode != null && passCode.length() > 0 ) {
             String pcode = rc.getCookie("passCode");
             if (pcode == null || !pcode.equals("true")) {
@@ -145,6 +145,7 @@ public class AppAuthRequest implements AuthRequest {
             		configMap.put(c.get("name"), c.get("value"));
             	}
             }
+            configMap.put("instanceUrl", rc.getCookie("instanceUrl"));
             m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
         } catch (Exception e) {
 

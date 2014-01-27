@@ -15,8 +15,8 @@
       view.$searchResult = view.$el.find(".search-result");
       view.tableOrderColumn = null;
       view.tableOrderType = null;
-      if(typeof(org)!='undefined'){
-    	  view.labelDisable = org.config_userlistFeature == 'false' ? true : false;
+      if(typeof(app.orgInfo)!='undefined'){
+    	  view.labelDisable = app.orgInfo.config_userlistFeature == 'false' ? true : false;
       }
       view.showContentMessage("empty");
       
@@ -116,8 +116,8 @@
           var cid = $(event.currentTarget).closest("i").attr("data-id");
           var sfid = $(event.currentTarget).closest("i").attr("data-sfid");
           var cname = $(event.currentTarget).closest("i").attr("data-cname");
-          if (org.apex_resume_url && org.apex_resume_url.length && org.apex_resume_url.length > 0){
-              var url = org.apex_resume_url + sfid;
+          if (app.orgInfo.apex_resume_url && app.orgInfo.apex_resume_url.length && app.orgInfo.apex_resume_url.length > 0){
+              var url = app.orgInfo.apex_resume_url + sfid;
               window.showModalDialog(url,"dialogWidth=540px;dialogHeight=430px");
           }else{
               brite.display("ResumeView","body", {id: cid,sfid: sfid, name:cname});
@@ -623,7 +623,7 @@
   	                notLast : colLen - j > 1
   	              });
   	         } else if (columns[j] == "contact") {
-  	           var displayValue = "<a class='lineInfo name' href='"+org.instance_url+items[i]["sfid"]+"'>"+items[i]["name"]+"</a>";
+  	           var displayValue = "<a class='lineInfo name' href='"+app.orgInfo.instance_url+items[i]["sfid"]+"'>"+items[i]["name"]+"</a>";
   	           displayValue += "<div class='lineInfo title'>"+items[i]["title"]+"</div>";
   	           displayValue += "<a class='lineInfo email' href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a>";
   	           //displayValue += "<div class='lineInfo phone'>"+items[i]["phone"]+"</div>";

@@ -33,7 +33,8 @@
     [/#if]
     <script>
       [#if orgConfigs??]
-        var org = JSON.parse('${orgConfigs}');
+     	var app = app||{};
+        app.orgInfo = JSON.parse('${orgConfigs}');
       [/#if]
     </script>
   </head>
