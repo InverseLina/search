@@ -50,7 +50,7 @@
 			},
 			"click; .btnClearSearch": function(event) {
 				var view = this;
-				alert("Not Implement");
+				view.$el.trigger("CLEAR_SEARCH_QUERY")
 			},
 		},
         parentEvents: {
