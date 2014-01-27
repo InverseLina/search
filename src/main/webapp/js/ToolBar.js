@@ -53,6 +53,19 @@
 				alert("Not Implement");
 			},
 		},
+        parentEvents: {
+            SearchDataGrid: {
+                "keyup change; .search-input": function(event){
+                    var view = this;
+                    var $this = $(event.currentTarget);
+                    if(/^\s*$/.test($this.val())){
+                        view.$el.find(".btnClearSearch").addClass("disabled")
+                    }else{
+                        view.$el.find(".btnClearSearch").removeClass("disabled")
+                    }
+                }
+            }
+        },
 		docEvents:{
 			"DO_TOOLBAR_ACTIVE_BUTTONS":function(){
 				var view = this;
