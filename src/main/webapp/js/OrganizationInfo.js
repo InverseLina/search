@@ -122,10 +122,11 @@
 					$createExtraBtn.prop("disabled",false).html("Create Extra Tables");
 				}else{
 					 $createExtraBtn.html("Extra Tables Created").addClass("btn-success");
-					 view.$el.find(".resume").prop("disabled",false).html("Create Index Resume").removeClass("btn-success");
-					 view.$el.find(".index").prop("disabled",false).html("Create Index Columns").removeClass("btn-success");
-					view.$el.find(".index-info,.status").removeClass("hide");
-					$alert.addClass("hide");
+					 //view.$el.find(".resume").prop("disabled",false).html("Create Index Resume").removeClass("btn-success");
+					 //view.$el.find(".index").prop("disabled",false).html("Create Index Columns").removeClass("btn-success");
+					 view.$el.trigger("STATUS_CHANGE");
+					 view.$el.find(".index-info,.status").removeClass("hide");
+					 $alert.addClass("hide");
 				}
 			});
 		},
@@ -533,7 +534,7 @@
 		    		  if(indexInfo){
 		    			  view.$el.find(".index").prop("disabled",false).html("Create Index Columns").removeClass("btn-success");
 		    		  }else{
-		    			  view.$el.find(".index").prop("disabled",true).html("Index Columns Created").addClass("btn-success");
+		    			  view.$el.find(".index").prop("disabled",true).html("Other Indexes Created").addClass("btn-success");
 		    		  }
 		    		  view.$el.trigger("INDEXCOLUMNSSTATUS");
 		    		  view.$el.trigger("CONTACTINDEXCOLUMNSSTATUS");
@@ -549,7 +550,7 @@
 	  		  			}, 3000);
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else if(result.resume=="done"){
-	    			  view.$el.find(".resume").prop("disabled",true).html("Index Resume created").attr("data-status","pause").addClass("btn-success");
+	    			  view.$el.find(".resume").prop("disabled",true).html("Index Resume Created").attr("data-status","pause").addClass("btn-success");
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else if(result.resume=="part"){
 	    			  view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
@@ -693,7 +694,7 @@
 	  if(perform==all){
 		  view.$el.find(".contact-tsv-status-bar .contact-tsv-percentage").html(formateNumber(all));
 		  view.$el.find(".contact-tsv-status-bar .contact-tsv-count-info").empty();
-		  view.$el.find(".contact-tsv").prop("disabled",true).html("contact-tsv Created").addClass("btn-success");
+		  view.$el.find(".contact-tsv").prop("disabled",true).html("contact_tsv Created").addClass("btn-success");
 	  }else{
 		  //perform = perform/1000;
 		  //all = all/1000;
