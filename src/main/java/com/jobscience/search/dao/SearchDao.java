@@ -304,6 +304,9 @@ public class SearchDao {
     	StringBuilder locationSql = new StringBuilder();
     	List<Map> configs = configManager.getConfig("config_userlistFeature",orgHolder.getId());
     	boolean userlistFeature = false;
+    	
+    	boolean needJoinRecordtype = false;
+    	 
     	for(Map m:configs){
     		if("config_userlistFeature".equals(m.get("name"))){
     			if(m.get("value")!=null){
@@ -392,7 +395,7 @@ public class SearchDao {
            if(contacts.size()>0){//First add 1!=1,cause for all contacts,would do with "OR"
         	   conditions.append(" AND (1!=1 ");
            }
-           boolean needJoinRecordtype = false;
+          
            for(int i=0,j=contacts.size();i<j;i++){
         	   JSONObject contact = JSONObject.fromObject(contacts.get(i));
         	   conditions.append(" OR (1=1 ");//for single contact,would do with "AND"
@@ -554,13 +557,7 @@ public class SearchDao {
            if(contacts.size()>0){
         	   conditions.append(" ) ");
            }
-           if(needJoinRecordtype){
-        	   if(hasSearchValue){
-    		       contactQuery.append(" inner join  "+schemaname+".recordtype rt on con.\"recordtypeid\" = rt.\"sfid\" ");
-    		   }else{
-    		       contactQuery.append(" inner join  "+schemaname+".recordtype rt on contact.\"recordtypeid\" = rt.\"sfid\" ");
-    		   }
-           }
+          
            // add the 'educations' filter, and join ts2__education_history__c table
            if (searchValues.get("educations") != null && !"".equals(searchValues.get("educations"))) {
         	   String value = searchValues.get("educations");
@@ -888,8 +885,11 @@ public class SearchDao {
                querySql=new StringBuilder(" join (").append(querySql);
            }
        }
-       
-	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),labelSql.toString(),locationSql.toString()};
+       String recordType = "";
+       if(needJoinRecordtype){
+           recordType = (" inner join  "+schemaname+".recordtype rt on contact.\"recordtypeid\" = rt.\"sfid\" ");
+       }
+	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),labelSql.toString(),locationSql.toString(),recordType};
     }
     
     /**
@@ -1248,6 +1248,7 @@ public class SearchDao {
 	        String labelSql = sqls[3];
 	        boolean userlistFeature = (labelSql.length()>0);
 	        countSql = new StringBuilder(joinSql.toString());
+	        String recordTypeSql = sqls[5];
 	        String labelAssigned = searchValues.get("labelAssigned");
 	        if(searchValues.get("contacts")!=null){
 	            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
@@ -1274,6 +1275,8 @@ public class SearchDao {
 	        }
 	        joinSql.append(locationSql);
 	        countSql.append(locationSql);
+	        joinSql.append(recordTypeSql);
+	        countSql.append(recordTypeSql);
 	        
 	        joinSql.append(" where 1=1 ").append(condition);
 	        countSql.append(" where 1=1 ").append(condition);
