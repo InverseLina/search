@@ -494,19 +494,19 @@
 
 
           } else {
-            view.$searchResult.find(".tableContainer").html(render("search-query-notfound", {
+              view.$searchResult.find(".tableContainer").html(render("search-query-notfound", {
               colWidth : getColWidth.call(view),
               labelAssigned: app.buildPathInfo().labelAssigned
-            }));
-            view.$searchResult.find(".page").empty();
-            fixColWidth.call(view);
-              showSearchInfo.call(view, result, htmlInfo, "right", 0);
-              view.restoreSearchParam();
-              if(labelAssigned){
-                  $e.trigger("CHANGE_TO_FAV_VIEW");
-              }else{
-                  $e.trigger("RESTORE_SEARCH_VIEW");
-              }
+              }));
+              view.$searchResult.find(".page").empty();
+              fixColWidth.call(view);
+              $e.find(".resultCount").html("{0} match{1}".format(result.count, result.count > 1 ? "es":""));
+	          view.restoreSearchParam();
+	          if(labelAssigned){
+	              $e.trigger("CHANGE_TO_FAV_VIEW");
+	          }else{
+	              $e.trigger("RESTORE_SEARCH_VIEW");
+	          }
 
           }
 
