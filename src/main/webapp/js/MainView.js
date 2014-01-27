@@ -77,7 +77,7 @@
 	                 break;
 	             }
 	         }
-	         if($.trim(view.contentView.$el.find(".search-form .search-input").val())||hasFilter){
+	         if($.trim(view.contentView.dataGridView.$el.find(".gridControls .search-input").val())||hasFilter){
 	        	view.$el.find(".clear-all").prop("disabled",false);
 	         }else{
 	        	 view.$el.find(".clear-all").prop("disabled",true);
