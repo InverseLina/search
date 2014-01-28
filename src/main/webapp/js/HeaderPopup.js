@@ -23,7 +23,7 @@
 				var $target = data.$target;
 				var targetCenter = $target.offset().left + $target.outerWidth() / 2;
 				var left = targetCenter - $e.width() / 2;
-				var top = $target.offset().top + $target.height() + 10;
+				var top = $target.offset().top + $target.height() + 24;
 				
 				if(left <= 10){
 					var arrowPos = $e.find(".arrow").offset();
