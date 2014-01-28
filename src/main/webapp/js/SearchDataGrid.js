@@ -424,10 +424,6 @@
                     });
                 }
             }
-        },
-        CLEAR_SEARCH_QUERY: function(event){
-            var view = this;
-            view.$el.find(".search-input").val("").change();
         }
     },
     // --------- /Document Events--------- //

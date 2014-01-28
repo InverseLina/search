@@ -78,9 +78,9 @@
 	             }
 	         }
 	         if($.trim(view.contentView.dataGridView.$el.find(".gridControls .search-input").val())||hasFilter){
-	        	view.$el.find(".clear-all").prop("disabled",false);
+	        	view.$el.find(".btnClearSearch").prop("disabled",false).removeClass("disabled");
 	         }else{
-	        	 view.$el.find(".clear-all").prop("disabled",true);
+	        	 view.$el.find(".btnClearSearch").prop("disabled",true).addClass("disabled");
 	         }
 	 	}
 	 },
@@ -109,6 +109,10 @@
          },
          "SEARCH_QUERY_CHANGE":function(event){
         	 this.$el.trigger("CHECK_CLEAR_BTN");
+         },
+         "CLEAR_SEARCH_QUERY": function(event){
+             var view = this;
+             clearSearch.call(view);
          }
      }
     // --------- /Document Events--------- //
