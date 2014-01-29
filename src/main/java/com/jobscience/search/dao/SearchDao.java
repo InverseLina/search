@@ -767,8 +767,8 @@ public class SearchDao {
                            if(ol.containsKey("minRadius")){
             				   double minRadius = ol.getDouble("minRadius");
             				   locationSql.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\")," )
-            				   			 .append(" ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("a")
-            				   			     +","+sc.getContactField("ts2__longitude__c").toString("a")+"))<=")
+            				   			 .append(" ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("contact")
+            				   			     +","+sc.getContactField("ts2__longitude__c").toString("contact")+"))<=")
             				   			 .append(minRadius*1000);
                             }
                            locationSql.append(")");

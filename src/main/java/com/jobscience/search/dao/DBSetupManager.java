@@ -88,7 +88,9 @@ public class DBSetupManager {
         }else{
             status.put("zipcode_import", false);
         }
-        status.put("pgtrgm", this.checkExtension("pg_trgm"));
+        status.put("pgtrgm", this.checkExtension("pg_trgm")&&
+                             this.checkExtension("cube")&&
+                             this.checkExtension("earthdistance"));
         
         return status;
     }
@@ -250,7 +252,7 @@ public class DBSetupManager {
     		return true;
     	}
     	
-    	daoHelper.executeUpdate(daoHelper.openDefaultRunner(), "CREATE extension "+extName+"  with schema pg_catalog;");
+    	daoHelper.executeUpdate(daoHelper.openDefaultRunner(), "CREATE extension  if not exists "+extName+"  with schema pg_catalog;");
 		return result;
     }
     /**
