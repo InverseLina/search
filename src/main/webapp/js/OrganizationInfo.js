@@ -557,7 +557,7 @@
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else{
 	    			  if(tableInfo.indexOf("contact_ex")==-1){
-	    				  view.$el.find(".resume").prop("disabled",false).attr("data-status","pause").removeClass("btn-success");
+	    				  view.$el.find(".resume").prop("disabled",false).attr("data-status","create").removeClass("btn-success");
 	    			  }
 	    		  }
 	    		  if(result.sfid=="running"){
@@ -723,7 +723,7 @@
         var html = render("OrganizationInfo-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
-        view.$el.trigger("STATUS_CHANGE",true);
+        view.$el.trigger("STATUS_CHANGE",false);
         dfd.resolve(data[0].name);
         app.getJsonData("/config/get/",{orgId:view.orgId}).done(function(data){
            if(view && view.$el){
