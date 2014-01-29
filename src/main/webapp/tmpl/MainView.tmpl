@@ -1,6 +1,6 @@
 <script id="MainView" type="text/html">
 <div class="MainView">
-  <header>
+  <header {{#unless showHeader}}style="display:none"{{/unless}}>
     <div class="navbar">
       <div class="navbar-inner">
         <a class="brand" href="{{contextPath}}/"><img src="css/images/js-logo.png" /></a>

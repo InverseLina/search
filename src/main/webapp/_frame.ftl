@@ -16,7 +16,6 @@
 
     [#if signedRequestJson??]
     
-    <link rel="stylesheet" type="text/css" href="/canvassdk/css/canvas.css" />
     <!-- Include all the canvas JS dependencies in one file -->
     <script type="text/javascript" src="/canvassdk/js/canvas-all.js"></script>
     <!-- Third part libraries, substitute with your own -->
@@ -37,6 +36,15 @@
         app.orgInfo = JSON.parse('${orgConfigs}');
       [/#if]
     </script>
+    <script type="text/javascript">
+		var app = app || {};
+		app.uiFlags = {};
+		[#if (_r.rc.paramMap.header)?? && _r.rc.paramMap.header == "false"]
+			app.uiFlags.showHeader = false;
+		[#else]
+			app.uiFlags.showHeader = true;
+		[/#if]
+	</script>
   </head>
   
   <body>
