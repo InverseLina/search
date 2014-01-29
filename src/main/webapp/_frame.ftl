@@ -16,7 +16,6 @@
 
     [#if signedRequestJson??]
     
-    <link rel="stylesheet" type="text/css" href="/canvassdk/css/canvas.css" />
     <!-- Include all the canvas JS dependencies in one file -->
     <script type="text/javascript" src="/canvassdk/js/canvas-all.js"></script>
     <!-- Third part libraries, substitute with your own -->
