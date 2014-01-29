@@ -525,12 +525,13 @@ public class SearchDao {
         		  value = contact.getString("objectType");
         		  if(!advanced){
         			  if("Both".equals(value)){
-        				  conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
+        				  //conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
         			  }else{
         				  conditions.append("  and rt.\"sobjecttype\" = ? ");
         				  subValues.add(value);
+        				  needJoinRecordtype = true;
         			  }
-        			  needJoinRecordtype = true;
+        			  
         		  }
         		  hasCondition = true;
         	  }
@@ -540,10 +541,10 @@ public class SearchDao {
         		  value = contact.getString("status");
         		  if(!advanced){
         			  if("Active".equals(value)){
-        				  conditions.append("  and rt.\"isactive\" = true ");
+        				  conditions.append("  and contact.\"ts2__people__status__c\" = true ");
         				  needJoinRecordtype = true;
         			  }else  if("Inactive".equals(value)){
-        				  conditions.append("  and rt.\"isactive\" = false ");
+        				  conditions.append("  and contact.\"ts2__people__status__c\" = false ");
         				  needJoinRecordtype = true;
         			  }
         		  }
