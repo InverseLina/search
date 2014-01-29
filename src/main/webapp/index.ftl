@@ -3,7 +3,7 @@
     if("${sys_schema?string('true','false')}"=="false"){
     	window.location.href=contextPath+"/admin";
     }else{
-    	 brite.display("MainView");
+    	 brite.display("MainView",null,{uiFlags:app.uiFlags});
     }
     var $searchInput = $("#search-input"); 
     var $searchResult = $("#search-result");

@@ -37,6 +37,15 @@
         app.orgInfo = JSON.parse('${orgConfigs}');
       [/#if]
     </script>
+    <script type="text/javascript">
+		var app = app || {};
+		app.uiFlags = {};
+		[#if (_r.rc.paramMap.header)?? && _r.rc.paramMap.header == "false"]
+			app.uiFlags.showHeader = false;
+		[#else]
+			app.uiFlags.showHeader = true;
+		[/#if]
+	</script>
   </head>
   
   <body>

@@ -3,7 +3,12 @@
 	brite.registerView("MainView",{parent:"body"},{
     // --------- View Interface Implement--------- //
 	 create: function(data){
-		return render("MainView",{contextPath:contextPath});
+	 	data = data || {};
+	 	var uiFlags = data.uiFlags = data.uiFlags || {};
+	 	if(typeof uiFlags.showHeader == "undefined"){
+	 		uiFlags.showHeader = true;
+	 	}
+		return render("MainView",{contextPath:contextPath, showHeader:uiFlags.showHeader});
 	 },
 	 postDisplay: function(data){
 		 var view = this;

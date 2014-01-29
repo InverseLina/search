@@ -1,7 +1,7 @@
 <script type="text/javascript">
   $(function(){
   [#if user??]
-      brite.display("MainView");
+      brite.display("MainView",null,{uiFlags:app.uiFlags});
 
       var $searchInput = $("#search-input");
       var $searchResult = $("#search-result");
