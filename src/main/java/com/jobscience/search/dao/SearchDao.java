@@ -541,11 +541,9 @@ public class SearchDao {
         		  value = contact.getString("status");
         		  if(!advanced){
         			  if("Active".equals(value)){
-        				  conditions.append("  and contact.\"ts2__people__status__c\" = true ");
-        				  needJoinRecordtype = true;
+        				  conditions.append("  and contact.\"ts2__people_status__c\" = 'Active' ");
         			  }else  if("Inactive".equals(value)){
-        				  conditions.append("  and contact.\"ts2__people__status__c\" = false ");
-        				  needJoinRecordtype = true;
+        				  conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
         			  }
         		  }
         		  hasCondition = true;
