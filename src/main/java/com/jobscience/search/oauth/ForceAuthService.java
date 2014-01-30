@@ -15,11 +15,9 @@ import com.google.inject.Singleton;
 public class ForceAuthService {
     @Inject
     private OAuthHelper helper;
-    private OAuthService oAuthService;
 
     @WebApplicationHook(phase = AppPhase.INIT)
     public void init() {
-        reloadService();
     }
 
     public String getAuthorizationUrl() {
@@ -32,13 +30,7 @@ public class ForceAuthService {
         return accessToken;
     }
 
-    public void reloadService(){
-        oAuthService = helper.getService();
-    }
     public OAuthService getOAuthService(){
-        if(oAuthService == null){
-            oAuthService = helper.getService();
-        }
-        return oAuthService;
+        return helper.getService();
     }
 }

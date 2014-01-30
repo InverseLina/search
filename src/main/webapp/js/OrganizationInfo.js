@@ -74,6 +74,7 @@
           configs["advanced_auto_complete"] = view.$el.find("[name='advanced_auto_complete']").prop("checked");
           values["orgId"] = view.orgId;
           configs["instance_url"] = view.$el.find("[name='instance_url']").val();
+          configs["force_login_url"] = view.$el.find("[name='force_login_url']").val();
           configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();
           configs["canvasapp_secret"] = view.$el.find("[name='canvasapp_secret']").val();
           configs["config_userlistFeature"] = view.$el.find("[name='config_userlistFeature']").val();

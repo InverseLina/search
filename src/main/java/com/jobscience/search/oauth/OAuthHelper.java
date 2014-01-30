@@ -10,10 +10,10 @@ import org.scribe.oauth.OAuthService;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.DaoHelper;
-import com.jobscience.search.oauth.api.ForceDotComApi;
 
 @Singleton
 public class OAuthHelper {
@@ -23,6 +23,11 @@ public class OAuthHelper {
     private DaoHelper daoHelper;
     @Inject
     private DBSetupManager dbSetupManager;
+    @Inject 
+    private ForceDotComApiManager forceDotComApiManager;
+    
+    @Inject 
+    private CurrentOrgHolder currentOrgHolder;
 
     private volatile String apiKey = null;
     private volatile String apiSecret = null;
@@ -59,7 +64,7 @@ public class OAuthHelper {
             ServiceBuilder builder = null;
             OAuthService servcie = null;
             try{
-                builder = new ServiceBuilder().provider(ForceDotComApi.class).apiKey(apiKey).apiSecret(apiSecret).callback(callbackUrl);
+                builder = new ServiceBuilder().provider(forceDotComApiManager.getForceDotComApi(currentOrgHolder.getId())).apiKey(apiKey).apiSecret(apiSecret).callback(callbackUrl);
                 servcie = builder.build();
             }catch(Exception e){
                 log.error(e.getMessage());

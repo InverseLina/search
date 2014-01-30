@@ -27,47 +27,28 @@ public class ForceDotComApi extends DefaultApi20
     private static final String AUTHORIZE_URL_PATH = "/services/oauth2/authorize?response_type=code&client_id=%s&redirect_uri=%s";
     private static final String SCOPED_AUTHORIZE_URL_PATH = AUTHORIZE_URL_PATH + "&scope=%s";
     private static final String ACCESS_URL_PATH = "/services/oauth2/token?grant_type=authorization_code";
-
-    private final ForceInstanceType instanceType;
-
-    public enum ForceInstanceType
-    {
-        PRE_RELEASE("https://prerellogin.pre.salesforce.com"),
-        PRODUCTION("https://login.salesforce.com"),
-        SANDBOX("https://test.salesforce.com"),
-        ;
-
-        String baseUrl;
-
-        private ForceInstanceType(String baseUrl)
-        {
-            this.baseUrl = baseUrl;
-        }
-
-        public String getBaseUrl()
-        {
-            return this.baseUrl;
-        }
-    }
+    
+    private String loginUrl;
 
     public ForceDotComApi()
     {
-        // The default instance type is PRODUCTION
-        this(ForceInstanceType.PRODUCTION);
+        this(null);
     }
 
-    public ForceDotComApi(ForceInstanceType instanceType)
+    public ForceDotComApi(String loginUrl)
     {
         super();
-
-        Preconditions.checkNotNull(instanceType, "Force.com API instance type cannot be null");
-        this.instanceType = instanceType;
+        if(loginUrl == null){
+            this.loginUrl = "https://login.salesforce.com";
+        }else{
+            this.loginUrl = loginUrl;
+        }
     }
 
     @Override
     public String getAccessTokenEndpoint()
     {
-        return instanceType.getBaseUrl() + ACCESS_URL_PATH;
+        return loginUrl + ACCESS_URL_PATH;
     }
 
     @Override
@@ -89,11 +70,11 @@ public class ForceDotComApi extends DefaultApi20
 
         if (config.hasScope())
         {
-            return String.format(instanceType.getBaseUrl() + SCOPED_AUTHORIZE_URL_PATH, config.getApiKey(), formURLEncode(config.getCallback()), formURLEncode(config.getScope()));
+            return String.format(loginUrl + SCOPED_AUTHORIZE_URL_PATH, config.getApiKey(), formURLEncode(config.getCallback()), formURLEncode(config.getScope()));
         }
         else
         {
-            return String.format(instanceType.getBaseUrl() + AUTHORIZE_URL_PATH, config.getApiKey(), formURLEncode(config.getCallback()));
+            return String.format(loginUrl + AUTHORIZE_URL_PATH, config.getApiKey(), formURLEncode(config.getCallback()));
         }
     }
 

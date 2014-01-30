@@ -15,33 +15,19 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.dao.ConfigManager;
-import com.jobscience.search.oauth.ForceAuthService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ConfigWebHandlers {
-    private static final Logger log = LoggerFactory.getLogger(ConfigWebHandlers.class);
 
     @Inject
     private ConfigManager configManager;
-
-    @Inject
-    private ForceAuthService forceAuthService;
 
     @WebPost("/config/save")
     public WebResponse saveConfig(@WebParam("configsJson") String configsJson,
                             @WebParam("orgId") Integer orgId) throws SQLException {
         Map paramConfigs = JsonUtil.toMapAndList(configsJson);
         configManager.saveOrUpdateConfig(paramConfigs,orgId);
-        try {
-            forceAuthService.reloadService();
-            return WebResponse.success();
-        } catch (Exception e) {
-            log.warn(e.getMessage(), e);
-            return WebResponse.fail(e.getMessage());
-        }
-
+        return WebResponse.success();
     }
 
     @WebGet("/config/get/{name}")
