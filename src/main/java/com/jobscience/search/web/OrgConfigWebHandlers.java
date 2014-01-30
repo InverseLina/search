@@ -13,6 +13,7 @@ import com.google.inject.Singleton;
 import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.OrgConfigDao;
+import com.jobscience.search.oauth.ForceDotComApiManager;
 
 @Singleton
 public class OrgConfigWebHandlers {
@@ -23,6 +24,8 @@ public class OrgConfigWebHandlers {
   private DaoHelper daoHelper;
   @Inject
   private CurrentOrgHolder currentOrgHolder;
+  @Inject
+  private ForceDotComApiManager forceDotComApiManager;
   
   @WebPost("/org/save")
   public WebResponse saveEntity(@WebParam("name")String name,@WebParam("schemaname")String schemaname,
@@ -35,6 +38,7 @@ public class OrgConfigWebHandlers {
       orgConfigDao.saveOrUpdateOrg(params);
       daoHelper.updateDataSource(name);
       currentOrgHolder.updateSchema();
+      forceDotComApiManager.clearForceDotComApi(currentOrgHolder.getId());
       return WebResponse.success();
   }
   

@@ -41,9 +41,7 @@ public class ForceDotComApiManager {
         return null;
     }
     
-    public ForceDotComApi clearForceDotComApi(Integer orgId){
+    public void clearForceDotComApi(Integer orgId){
         apiCache.remove(orgId);
-        ForceDotComApi api = getForceDotComApi(orgId);
-        return api;
     }
 }
