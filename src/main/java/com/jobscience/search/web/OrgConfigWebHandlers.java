@@ -29,7 +29,7 @@ public class OrgConfigWebHandlers {
   
   @WebPost("/org/save")
   public WebResponse saveEntity(@WebParam("name")String name,@WebParam("schemaname")String schemaname,
-                                @WebParam("sfid")String sfid,@WebParam("id")String id) throws SQLException{
+                                @WebParam("sfid")String sfid,@WebParam("orgId")String orgId,@WebParam("id")String id) throws SQLException{
       Map<String,String> params = new HashMap<String,String>();
       params.put("name", name);
       params.put("id", id);
@@ -37,8 +37,11 @@ public class OrgConfigWebHandlers {
       params.put("sfid", sfid);
       orgConfigDao.saveOrUpdateOrg(params);
       daoHelper.updateDataSource(name);
-      currentOrgHolder.updateSchema();
-      forceDotComApiManager.clearForceDotComApi(currentOrgHolder.getId());
+      try{
+          currentOrgHolder.updateSchema();
+          forceDotComApiManager.clearForceDotComApi(currentOrgHolder.getId());
+      }catch(Exception e){
+      }
       return WebResponse.success();
   }
   
