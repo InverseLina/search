@@ -13,6 +13,9 @@
             create: function (data, config) {
             	data = data || {};
             	var $e = $(render("TabView"));
+            	if(typeof data.hide == 'undefined'){
+            		data.hide = true;
+            	}
             	if(data.hide){
             		$e.hide();
             	}
