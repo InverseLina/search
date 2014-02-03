@@ -6,6 +6,7 @@
  *
  */
 (function ($) {
+	var cookiePrefix = "contact_filter_";
 	brite.registerView("ContactFilterView", {
 		emptyParent : true
 	}, {
@@ -16,6 +17,7 @@
 
 		postDisplay : function(data) {
 			var view = this;
+			var $e = view.$el;
 	        view.$el.find("input:first").focus();
 	        var items = app.ParamsControl.get("contact");
 	        items = items || [];
@@ -31,7 +33,21 @@
 	        });
 	        showSelectedItem.call(view);
 	        $(":text").placeholder();
-	        $('.btn').button()
+	        $('.btn').button();
+	        
+	        var objectType = app.preference.get(cookiePrefix+"objectType");
+	        var status = app.preference.get(cookiePrefix+"status");
+	        if(objectType){
+	        	console.log(objectType);
+	        	$e.find("input[name='objectType']").closest(".btn").removeClass("active");
+	        	$e.find("input[name='objectType'][value='"+objectType+"']").closest(".btn").addClass("active");
+	        }
+	        
+	        if(status){
+	        	$e.find("input[name='status']").closest(".btn").removeClass("active");
+	        	$e.find("input[name='status'][value='"+status+"']").closest(".btn").addClass("active");
+	        }
+	        
 		},
 		events : {
 			"click; .save":function(event){
@@ -94,6 +110,14 @@
 	        	$(event.currentTarget).removeClass("active");
 	        	event.preventDefault();
                 event.stopPropagation();
+	        },
+	        "click;.contact-btn-group .btn-group .btn":function(event){
+	        	var view = this;
+	        	var $btn = $(event.currentTarget);
+	        	var $radio = $btn.find("input[type='radio']");
+	        	var name = $radio.attr("name");
+	        	var value = $radio.val();
+	        	app.preference.store(cookiePrefix+name,value);
 	        },
             "click; .selectedItems span.clear": function (event) {
                 event.preventDefault();
