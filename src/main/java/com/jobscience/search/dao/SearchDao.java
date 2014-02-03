@@ -525,7 +525,8 @@ public class SearchDao {
         		  value = contact.getString("objectType");
         		  if(!advanced){
         			  if("Both".equals(value)){
-        				  //conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
+        				  conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
+        				  needJoinRecordtype = true;
         			  }else{
         				  conditions.append("  and rt.\"sobjecttype\" = ? ");
         				  subValues.add(value);
