@@ -129,12 +129,12 @@ public class DaoHelper {
     }
     // --------- /update method -------- //
     
-    // --------- insert method -------- //
-    public Object insert(String orgName, String sql, Object... vals){
-       return insert(openNewOrgRunner(orgName), sql, vals);
+    // --------- create method -------- //
+    public Object create(String orgName, String sql, Object... vals){
+       return create(openNewOrgRunner(orgName), sql, vals);
     }
     
-    public Object insert(Runner runner, String sql, Object... vals){
+    public Object create(Runner runner, String sql, Object... vals){
         try{
             return runner.executeWithReturn(sql, vals);
         }finally{
@@ -143,7 +143,7 @@ public class DaoHelper {
     }
     public Object insert(Runner runner, String tableName, Map objMap){
         try{
-            return runner.insert(tableName, objMap);
+            return runner.create(tableName, objMap);
         }finally{
             runner.close();
         }

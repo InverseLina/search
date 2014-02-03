@@ -18,7 +18,7 @@ public class LabelDao {
     private CurrentOrgHolder orgHolder;
     
     public Object addLabel(String sfid, String name) {
-        Map result = (Map) daoHelper.insert(orgHolder.getOrgName(),
+        Map result = (Map) daoHelper.create(orgHolder.getOrgName(),
                 "insert into ts2__s_userlist__c(name,ownerid, sfid) values(?,?, ?) returning id", name, sfid, demoSfid());
         return  result.get("id");
     }

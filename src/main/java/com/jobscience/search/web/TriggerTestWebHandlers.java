@@ -41,21 +41,21 @@ public class TriggerTestWebHandlers {
         if (skills.length() > 0) {
             String[] skill = skills.split(",");
             for (String s : skill) {
-                daoHelper.insert(org, "insert into ts2__skill__c (ts2__contact__c, ts2__skill_name__c) values(?, ?)  returning id", sfid, s);
+                daoHelper.create(org, "insert into ts2__skill__c (ts2__contact__c, ts2__skill_name__c) values(?, ?)  returning id", sfid, s);
             }
         }
         educations = educations.trim();
         if (educations.length() > 0) {
             String[] education = educations.split(",");
             for (String s : education) {
-                daoHelper.insert(org, "insert into ts2__education_history__c (ts2__contact__c, ts2__name__c) values(?, ?)  returning id", sfid, s);
+                daoHelper.create(org, "insert into ts2__education_history__c (ts2__contact__c, ts2__name__c) values(?, ?)  returning id", sfid, s);
             }
         }
         companies = companies.trim();
         if (companies.length() > 0) {
             String[] company = companies.split(",");
             for (String s : company) {
-                daoHelper.insert(org, "insert into ts2__employment_history__c (ts2__contact__c, ts2__name__c) values(?, ?)  returning id", sfid, s);
+                daoHelper.create(org, "insert into ts2__employment_history__c (ts2__contact__c, ts2__name__c) values(?, ?)  returning id", sfid, s);
             }
         }
         return WebResponse.success();
