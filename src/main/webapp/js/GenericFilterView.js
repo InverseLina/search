@@ -16,7 +16,7 @@
 
         postDisplay: function (data) {
             var item, html, displayName, view = this;
-            data = (data || {}).data || [];
+            var data = (data || {}).data || [];
             $.each(data, function (idx, val) {
                 item = {name: val.name};
                 val = val.value;
@@ -28,7 +28,7 @@
 
             });
 
-            var data = app.ParamsControl.get(view.type);
+            data = app.ParamsControl.get(view.type);
             if (data && data.length > 0) {
                 showSPline.call(view, true);
             }

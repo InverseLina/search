@@ -1,6 +1,6 @@
 (function($){
     function getDisplayOrders() {
-        var oldColumns = app.preference.columns();
+        var i, oldColumns = app.preference.columns();
         //reorder columns
         var filterOrders = app.getFilterOrders()||[];
         var columns = [];
@@ -52,7 +52,7 @@
 	    data = Handlebars.createFrame(options.data);
 	  }
 	  var nums=new Array();
-	  for(var i=start;i<=end;i++){
+	  for(i=start;i<=end;i++){
 		 if(currentPage==i){
 			nums.push({num:i,css:"currentPage"});
 		 } else{
@@ -60,7 +60,7 @@
 		 }
 	  }
 	  if(nums && nums.length > 0) {
-	    for(var i=0, j=nums.length; i<j; i++) {
+	    for(i=0, j=nums.length; i<j; i++) {
 	      if (data) { data.index = i; }
 	      ret = ret + fn(nums[i], { data: data });
 	    }
@@ -71,18 +71,18 @@
     });
 
     Handlebars.registerHelper('fromTo', function(start,end,pageIdx, options) {
-	  var fn = options.fn, inverse = options.inverse;
+	  var i, fn = options.fn, inverse = options.inverse;
 	  var ret = "", data;
 	  if (options.data) {
 	    data = Handlebars.createFrame(options.data);
 
 	  }
 	  var nums=new Array();
-	  for(var i=start;i<=end;i++){
+	  for(i=start;i<=end;i++){
 		 nums.push({num:i, pageIdx:pageIdx});
 	  }
 	  if(nums && nums.length > 0) {
-	    for(var i=0, j=nums.length; i<j; i++) {
+	    for(i=0, j=nums.length; i<j; i++) {
 	      if (data) { data.index = i; }
 	      ret = ret + fn(nums[i], { data: data });
 	    }

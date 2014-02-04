@@ -78,7 +78,6 @@ var app = app || {};
         },
         location: {
             headerRenderer: genericHeaderFilterRenderer,
-            headerRenderer: genericHeaderFilterRenderer,
             filterRenderer: function ($content, headerInfo) {
                 var data = app.ParamsControl.getFilterParams()['location'] || [];
                 brite.display("LocationFilterView", $content, {data: data, th: headerInfo });

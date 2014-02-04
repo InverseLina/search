@@ -16,7 +16,7 @@
 		},
 
 		postDisplay : function(data) {
-			var view = this;
+			var arrowPos,deltaX, deltaX, view = this;
 			var $e = view.$el;
 			view.$content = $e.find(".popover-content");
 			if (data.$target) {
@@ -26,17 +26,17 @@
 				var top = $target.offset().top + $target.height() + 24;
 				
 				if(left <= 10){
-					var arrowPos = $e.find(".arrow").offset();
-					var deltaX = left - 10;
-					var arrowLeft = arrowPos.left + deltaX;
+					arrowPos = $e.find(".arrow").offset();
+					deltaX = left - 10;
+					arrowLeft = arrowPos.left + deltaX;
 					$e.find(".arrow").offset({left:arrowLeft, top: arrowPos.top});
 					left = 10;
 				}
 				
 				if(left + $e.width() + 10 >= $(window).width()){
-					var arrowPos = $e.find(".arrow").offset();
-					var deltaX = left + $e.width() + 10 - $(window).width();
-					var arrowLeft = arrowPos.left + deltaX;
+					arrowPos = $e.find(".arrow").offset();
+					deltaX = left + $e.width() + 10 - $(window).width();
+					arrowLeft = arrowPos.left + deltaX;
 					$e.find(".arrow").offset({left:arrowLeft, top: arrowPos.top});
 					left = $(window).width() - $e.width() - 10;
 				}

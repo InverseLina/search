@@ -40,14 +40,14 @@
   
   // --------- Private Methods--------- //
   function showView(data){
-      var view = this;
+      var $content, view = this;
       var $e = view.$el;
       var $body = $e.find(".modal-body");
       app.getJsonData("getResume", {cid: data.id}).done(function (result) {
           if (result.length > 0) {
-              var $content = $(render("ResumeView-content", {resume: result[0]["ts2__text_resume__c"]}));
+              $content = $(render("ResumeView-content", {resume: result[0]["ts2__text_resume__c"]}));
           } else {
-              var $content = $(render("ResumeView-content", {resume: "not resume"}));
+              $content = $(render("ResumeView-content", {resume: "not resume"}));
           }
           $body.append($content);
 

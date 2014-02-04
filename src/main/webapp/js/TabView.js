@@ -115,9 +115,8 @@
                             })
                         }
                     }else if(event.keyCode == 27){
-                    		var view = this;
                             var html = render("TabView-add-list");
-                            var $input = $(event.currentTarget);
+                            $input = $(event.currentTarget);
                             $input.closest("div").html(html);
                 	}
                     event.preventDefault() ;

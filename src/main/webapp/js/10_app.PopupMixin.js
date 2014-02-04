@@ -6,13 +6,13 @@ var app = app || {};
 
         return {
             create: function (data, config) {
-                var dfd = $.Deferred();
+                var $e, dfd = $.Deferred();
                 var view = this;
                 if (type == "company" || type == "education" || type == "skill" || type == "location") {
-                    var $e = $(render(view.name, {}));
+                    $e = $(render(view.name, {}));
                     dfd.resolve($e);
                 } else {
-                    var $e = $(render(view.name));
+                    $e = $(render(view.name));
                     dfd.resolve($e);
                 }
                 return dfd.promise();

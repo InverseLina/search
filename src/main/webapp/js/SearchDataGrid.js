@@ -302,7 +302,8 @@
                 dataName = "contact";
             }
             $th = view.$el.find("table thead th[data-column='{0}']".format(dataName));
-            var item,  data = result[key];
+            var item;
+            data = result[key];
             if (data && data.length > 0) {
                 $.each(data, function (index, val) {
                     item = {name: val.name};
