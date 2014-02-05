@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.jobscience.search.CurrentOrgHolder;
+import com.jobscience.search.OrganizationNotSelectException;
 import com.jobscience.search.dao.DaoHelper;
 import net.sf.json.JSONObject;
 
@@ -42,25 +43,28 @@ public class PerfWebHandlers {
      */
     @WebGet("/perf/search")
     public WebResponse search(@WebParam("searchValues") String searchValues,
-                            @WebParam("searchColumns") String searchColumns,@WebUser String token) {
-        orgHolder.getOrgName();
-        String orderCon = "";
-        JSONObject jo = JSONObject.fromObject(searchValues);
-        Map<String, String> searchMap = new HashMap<String, String>();
-        // resolve the search parameters,cause all parameters begin with "q_"
-        for (Object key : jo.keySet()) {
-            searchMap.put(key.toString().substring(2), jo.get(key).toString());
-        }
+                            @WebParam("searchColumns") String searchColumns,@WebUser Map user) {
+        if (user != null) {
+            orgHolder.getOrgName();
+            String orderCon = "";
+            JSONObject jo = JSONObject.fromObject(searchValues);
+            Map<String, String> searchMap = new HashMap<String, String>();
+            // resolve the search parameters,cause all parameters begin with "q_"
+            for (Object key : jo.keySet()) {
+                searchMap.put(key.toString().substring(2), jo.get(key).toString());
+            }
 
-        // for contact,use id,name,title,email,CreatedDate instead
-        searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-        SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon,searchValues,token);
-        Map<String, Number> resultMap = new HashMap<String, Number>();
-        resultMap.put("count", searchResult.getCount());
-        resultMap.put("duration", searchResult.getSelectDuration());
-        resultMap.put("countDuration", searchResult.getCountDuration());
-        WebResponse wr = WebResponse.success(resultMap);
-        return wr;
+            // for contact,use id,name,title,email,CreatedDate instead
+            searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
+            SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon, searchValues, (String) user.get("ctoken"));
+            Map<String, Number> resultMap = new HashMap<String, Number>();
+            resultMap.put("count", searchResult.getCount());
+            resultMap.put("duration", searchResult.getSelectDuration());
+            resultMap.put("countDuration", searchResult.getCountDuration());
+            WebResponse wr = WebResponse.success(resultMap);
+            return wr;
+        }
+        throw new OrganizationNotSelectException();
     }
 
     /**
