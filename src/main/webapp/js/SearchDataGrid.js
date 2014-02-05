@@ -179,6 +179,12 @@
               $e.trigger("DO_TOOLBAR_DEACTIVE_BUTTONS");
           }
       },
+      "click; a.lineInfo.email": function(event) {
+        var href = $(event.currentTarget).attr('href');
+        this.$el.trigger("EMAIL_PRESS", {
+            mailTo : href.substring(href.indexOf(':') + 1)
+        });                   
+      },
         //add drag event
 
         "bdragstart; th[data-column]": function (event) {
