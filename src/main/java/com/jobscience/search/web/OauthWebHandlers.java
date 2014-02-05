@@ -13,8 +13,9 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.dao.UserDao;
 import com.jobscience.search.oauth.ForceAuthService;
-import com.jobscience.search.oauth.SalesForceService;
 import com.jobscience.search.oauth.api.ForceDotComApi;
+import com.jobscience.search.service.SalesForceCommonService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class OauthWebHandlers {
     @Inject
     private ForceAuthService forceAuthService;
     @Inject
-    private SalesForceService salesForceService;
+    private SalesForceCommonService salesForceService;
     @Inject
     private UserDao userDao;
     @Named("jss.prod")

@@ -1,4 +1,4 @@
-package com.jobscience.search.oauth;
+package com.jobscience.search.service;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import com.google.inject.Singleton;
 import com.jobscience.search.oauth.api.ForceDotComApi;
 
 @Singleton
-public class SalesForceService {
+public class SalesForceCommonService {
     private  static final String SF_URL = "/services/data/v28.0";
     private  static final String SF_QUERY_URL = SF_URL+"/query";
 
