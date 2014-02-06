@@ -17,10 +17,10 @@
       view.$el.trigger("STATUS_CHANGE");
 
       app.getJsonData("/config/get/",{orgId:-1}).done(function(data){
-    	  if(view && view.$el){
-    	   view.$el.trigger("FILLDATA",{data:data});
-    	  }
-    	});
+    	if(view && view.$el){
+    	  	view.$el.trigger("FILLDATA",{data:data});
+    	}
+      });
       
       brite.display("AdminSearchConfig");
     },
@@ -28,7 +28,7 @@
     
     // --------- Events--------- //
     events:{
-       "btap;.cancel":function(event){
+      "btap;.cancel":function(event){
     		window.location.href=contextPath + "/";
        },
       "btap;.home":function(event){
@@ -139,10 +139,10 @@
       "FILLDATA":function(event,result){
     	  var view = this;
     	  var currentField;
-    	  $.each(result.data,function(index,e){
-    	    currentField = view.$el.find("[name='"+e.name+"']");
-    	    if(currentField.length>0){
-    	      currentField.val(e.value);
+    	  $.each(result.data,function(key,value){
+    	    currentField = view.$el.find("[name='"+key+"']");
+    	    if(currentField.length > 0){
+    	      currentField.val(value);
     	    }
     	  });
     	 },
@@ -150,14 +150,15 @@
     	  var view = this;
     	  var values = {};
     	  var configs = {};
-    	      configs["config_apiKey"]=view.$el.find("[name='config_apiKey']").val();
-    	      configs["config_apiSecret"]=view.$el.find("[name='config_apiSecret']").val();
-    	      configs["config_userlistFeature"]=view.$el.find("[name='config_userlistFeature']").val();
-              var callbackUrl = $.trim(view.$el.find("[name='config_callBackUrl']").val());
+    	      configs["saleforce.apiKey"]=view.$el.find("[name='saleforce.apiKey']").val();
+    	      configs["saleforce.apiSecret"]=view.$el.find("[name='saleforce.apiSecret']").val();
+    	      configs["jss.feature.userlist"]=view.$el.find("[name='jss.feature.userlist']").val();
+              var callbackUrl = $.trim(view.$el.find("[name='saleforce.callBackUrl']").val());
               if(validateURL(callbackUrl)){
-    	        configs["config_callBackUrl"]=view.$el.find("[name='config_callBackUrl']").val();
+    	        configs["saleforce.callBackUrl"]=view.$el.find("[name='saleforce.callBackUrl']").val();
               }
     	      values["orgId"]=-1;
+    	      console.log(configs);
     	      values.configsJson = JSON.stringify(configs);
     	      app.getJsonData("/config/save", values,"Post").done(function(data){
     	          window.location.href=contextPath + "/";

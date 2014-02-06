@@ -77,7 +77,7 @@
           configs["force_login_url"] = view.$el.find("[name='force_login_url']").val();
           configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();
           configs["canvasapp_secret"] = view.$el.find("[name='canvasapp_secret']").val();
-          configs["config_userlistFeature"] = view.$el.find("[name='config_userlistFeature']").val();
+          configs["jss.feature.userlist"] = view.$el.find("[name='jss.feature.userlist']").val();
 
           values.configsJson = JSON.stringify(configs);
           app.getJsonData("/config/save", values, "Post").done(function(data) {
@@ -97,13 +97,13 @@
 		"FILLDATA":function(event,result){
 			var view = this;
 			var currentField;
-			$.each(result.data,function(index,e){
-				currentField = view.$el.find("[name='"+e.name+"']");
+			$.each(result.data,function(key,value){
+				currentField = view.$el.find("[name='"+key+"']");
 				if(currentField.length>0){
 					if(currentField.attr("type") == 'checkbox'){
-						currentField.prop("checked",e.value=='true');
+						currentField.prop("checked",value=='true');
 					}else{
-						currentField.val(e.value);
+						currentField.val(value);
 					}
 				}
 			});
@@ -721,6 +721,7 @@
     var dfd = $.Deferred();
     app.getJsonData("/org/get/", {id:id}).done(function(data){
     	view.currentOrgName = data[0].name;
+    	data[0]["jss_feature_userlist"] = data[0]["jss.feature.userlist"];
         var html = render("OrganizationInfo-content",{data:data[0]});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);

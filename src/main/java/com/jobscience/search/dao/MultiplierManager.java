@@ -44,26 +44,15 @@ public class MultiplierManager {
             org = orgs.get(0);
         }
         Integer orgId = Integer.parseInt(org.get("id").toString());
-        List<Map> configs = configManager.getConfig(null, orgId);
+//        List<Map> configs = configManager.getConfig(null, orgId);
+        Map configs = configManager.getConfigs(orgId);
         Long current_iteration_number =1L;
         Long origin_count = null,companyCount = null,skillCount=null,educationCount=null;
-        for(Map m:configs){
-            if("current_iteration_number".equals(m.get("name").toString())){
-                current_iteration_number = Long.parseLong((String)m.get("value"));
-            }
-            if((tableName+"_origin_count").equals(m.get("name").toString())){
-                origin_count = Long.parseLong((String)m.get("value"));
-            }
-            if(("ts2__employment_history__c_origin_count").equals(m.get("name").toString())){
-                companyCount = Long.parseLong((String)m.get("value"));
-            }
-            if(("ts2__skill__c_origin_count").equals(m.get("name").toString())){
-                skillCount = Long.parseLong((String)m.get("value"));
-            }
-            if(("ts2__education_history__c_origin_count").equals(m.get("name").toString())){
-                educationCount = Long.parseLong((String)m.get("value"));
-            }
-        }
+        current_iteration_number = Long.parseLong((String) configs.get("current_iteration_number"));
+        origin_count = Long.parseLong((String) configs.get(tableName + "_origin_count"));
+        companyCount = Long.parseLong((String) configs.get("ts2__employment_history__c_origin_count"));
+        skillCount = Long.parseLong((String) configs.get("ts2__skill__c_origin_count"));
+        educationCount = Long.parseLong((String) configs.get("ts2__education_history__c_origin_count"));
         Map newConfig = new HashMap();
         newConfig.put("current_iteration_number", current_iteration_number+times);
         if(origin_count==null){

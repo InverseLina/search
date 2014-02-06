@@ -113,10 +113,10 @@ public class SearchDao {
      * @throws SQLException
      */
     public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
-        Map m = configManager.getConfig("advanced_auto_complete");
+        String advancedAutoCompleteStr = configManager.getConfig("advanced_auto_complete", orgHolder.getId());
         Boolean advancedAutoComplete  = false;
-        if(m!=null){
-            advancedAutoComplete= "true".equals(m.get("value"));
+        if(advancedAutoCompleteStr!=null){
+            advancedAutoComplete= "true".equals(advancedAutoCompleteStr);
         }
         if(!advancedAutoComplete){
             return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum);
@@ -165,13 +165,13 @@ public class SearchDao {
         
         //------- get the skill_assessment_rating config for current org ----------//
         if(min!=null&&!"0".equals(min)&&type.equals("skill")){
-           Map m = configManager.getConfig("skill_assessment_rating");
-                  if(m==null||!("true".equals((String)m.get("value")))){
-                          skill_assessment_rating = false;
-                  }else{
-                          skill_assessment_rating = true;
-                  }
-                  appendJoinTable=(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
+           String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", orgHolder.getId());
+            if (!"true".equals(skillAssessmentRatingStr)) {
+                skill_assessment_rating = false;
+            } else {
+                skill_assessment_rating = true;
+            }
+            appendJoinTable=(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
         }
         //-------- /get the skill_assessment_rating config for current org ---------//
         
@@ -302,20 +302,11 @@ public class SearchDao {
     	boolean hasSearchValue = false;//to check if the search box has value or not
     	StringBuilder labelSql = new StringBuilder();
     	StringBuilder locationSql = new StringBuilder();
-    	List<Map> configs = configManager.getConfig("config_userlistFeature",orgHolder.getId());
-    	boolean userlistFeature = false;
+    	String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",orgHolder.getId());
+    	boolean userlistFeature = Boolean.valueOf(userlistFeatureStr);
     	
     	boolean needJoinRecordtype = false;
     	 
-    	for(Map m:configs){
-    		if("config_userlistFeature".equals(m.get("name"))){
-    			if(m.get("value")!=null){
-    				userlistFeature=Boolean.valueOf(m.get("value").toString());;
-    			}
-    			
-    		}
-    	}
-    	
     	if(baseTable==null){
     		baseTable = "";
     	}
@@ -646,9 +637,9 @@ public class SearchDao {
            if (searchValues.get("skills") != null && !"".equals(searchValues.get("skills"))) {
         	   
         	   //Get the skill_assessment_rating for current org,if true,will join with ts2__assessment__c
-        	   Map m = configManager.getConfig("skill_assessment_rating");
+        	   String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", orgHolder.getId());
          	   boolean skill_assessment_rating = false;
-         	   if(m==null||!("true".equals((String)m.get("value")))){
+         	   if(!"true".equals(skillAssessmentRatingStr)){
          		   skill_assessment_rating = false;
          	   }else{
          		   skill_assessment_rating = true;
@@ -1097,16 +1088,8 @@ public class SearchDao {
         String cteSql = "";
         
         //get the userlist feature
-        List<Map> configs = configManager.getConfig("config_userlistFeature",orgHolder.getId());
-        boolean userlistFeature = false;
-    	for(Map m:configs){
-    		if("config_userlistFeature".equals(m.get("name"))){
-    			if(m.get("value")!=null){
-    				userlistFeature=Boolean.valueOf(m.get("value").toString());;
-    			}
-    			
-    		}
-    	}
+        String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",orgHolder.getId());
+        boolean userlistFeature = Boolean.valueOf(userlistFeatureStr);
         
         querySql.append("select ");
         querySql.append(getSearchColumnsForOuter(searchColumns,userlistFeature));

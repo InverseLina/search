@@ -1,6 +1,5 @@
 package com.jobscience.search.web;
 
-import java.util.List;
 import java.util.Map;
 
 import com.britesnow.snow.web.RequestContext;
@@ -38,10 +37,9 @@ public class CanvasWebHandler {
             }
             
             if (orgId != null) {
-                List<Map> list = configManager.getConfig("canvasapp_secret", orgId);
+                String canvasappSecretStr = configManager.getConfig("canvasapp_secret", orgId);
                 try {
-                    Map<String, String> map = list.get(0);
-                    String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, map.get("value"));
+                    String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, canvasappSecretStr);
                     m.put("signedRequestJson", signedRequestJson);
                     userDao.checkAndUpdateUser(2, signedRequestJson, null);
                 } catch (Exception e) {

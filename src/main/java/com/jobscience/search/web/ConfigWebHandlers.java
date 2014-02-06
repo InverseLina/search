@@ -14,6 +14,7 @@ import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 
 @Singleton
@@ -21,22 +22,37 @@ public class ConfigWebHandlers {
 
     @Inject
     private ConfigManager configManager;
+    @Inject
+    private CurrentOrgHolder orgHolder;
 
     @WebPost("/config/save")
     public WebResponse saveConfig(@WebParam("configsJson") String configsJson,
                             @WebParam("orgId") Integer orgId) throws SQLException {
         Map paramConfigs = JsonUtil.toMapAndList(configsJson);
-        configManager.saveOrUpdateConfig(paramConfigs,orgId);
+        Integer id = -1;
+        try {
+            if(orgId != null){
+                id = orgId;
+            }else{
+                id = orgHolder.getId();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        configManager.saveOrUpdateConfig(paramConfigs,id);
         return WebResponse.success();
     }
 
     @WebGet("/config/get/{name}")
     public WebResponse getConfig(@WebPath(2) String name,@WebParam("orgId") Integer orgId) throws SQLException {
+        if(name == null){
+            return WebResponse.success(configManager.getConfigs(orgId));
+        }
         return WebResponse.success(configManager.getConfig(name,orgId));
     }
     @WebGet("/config/getByName/{name}")
     public WebResponse getConfigByName(@WebPath(2) String name) throws Exception {
-        return WebResponse.success(configManager.getConfig(name));
+        return WebResponse.success(configManager.getConfig(name,orgHolder.getId()));
     }
 
     @WebModelHandler(startsWith = "/admin")

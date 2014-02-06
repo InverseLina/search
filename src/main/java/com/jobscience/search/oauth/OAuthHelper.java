@@ -50,17 +50,10 @@ public class OAuthHelper {
 	            list = configList;
 	        }
     	}
-        list = configManager.checkSaleforceInfo(list);
         if(list != null && list.size() > 0){
-            for (Map<String,String> map : list) {
-                if ("config_apiKey".equals((String)map.get("name"))) {
-                    apiKey = map.get("value");
-                } else if ("config_apiSecret".equals((String)map.get("name"))) {
-                    apiSecret = map.get("value");
-                } else if ("config_callBackUrl".equals((String)map.get("name"))) {
-                    callbackUrl = map.get("value");
-                }
-            }
+            apiKey = configManager.getConfig("saleforce.apiKey", currentOrgHolder.getId());
+            apiSecret = configManager.getConfig("saleforce.apiSecret", currentOrgHolder.getId());
+            callbackUrl = configManager.getConfig("saleforce.callBackUrl", currentOrgHolder.getId());
             ServiceBuilder builder = null;
             OAuthService servcie = null;
             try{

@@ -4,14 +4,17 @@ import static java.lang.String.format;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.jobscience.search.CurrentOrgHolder;
 
 
 @Singleton
@@ -19,9 +22,7 @@ public class ConfigManager {
 
     @Inject
     private DaoHelper daoHelper;
-    @Inject
-    private CurrentOrgHolder  orgHolder;
-
+    
     @Inject
     @Named("saleforce.apiKey")
     private String apiKey;
@@ -35,6 +36,83 @@ public class ConfigManager {
     @Inject(optional=true)
     @Named("jss.feature.userlist")
     private String userlistFeature;
+    
+    private static final String[] snowPropertiesInheritedArray = new String[]{"saleforce.apiKey","saleforce.apiSecret","saleforce.apiSecret","saleforce.callBackUrl","jss.feature.userlist"};
+    private static final Set<String> snowPropertiesInherited = new HashSet<String>(Arrays.asList(snowPropertiesInheritedArray));
+    
+    /**
+     * Get org configs,will always get the global configs
+     * @param name
+     * @param orgId the special org config need query
+     * @return
+     */
+    public String getConfig(String name, Integer orgId){
+        List params = new ArrayList();
+        Integer id = orgId;
+        String sql = "select * from config where name = ?";
+        params.add(name);
+        
+        if (id == null) {
+            id = -1;
+        }
+        
+        if(id == -1){
+            sql += " and org_id= -1 ";
+        }else{
+            sql += " and ( org_id = ? or org_id = -1 )";
+            params.add(orgId);
+        }
+        
+        List valueList = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql, params.toArray());
+        String value = getConfigValueFromValueList(valueList, orgId);
+        
+        // if null, we try to get it from the sys database (which we already have)
+        if (value == null) {
+            value = getConfigValueFromValueList(valueList, -1);
+        }
+        
+        // if still null, and it is a snowPropertiesInherited, we get it from the properties.
+        if (value == null && snowPropertiesInherited.contains(name)) {
+            value = getValueFromProperties(name);
+        }
+        
+        return value;
+    }
+    
+    public Map<String, Object> getConfigs(Integer orgId){
+        
+        List params = new ArrayList();
+        Integer id = orgId;
+        String sql = "select * from config where 1=1 ";
+        
+        if (id == null) {
+            id = -1;
+        }
+        
+        if(id == -1){
+            sql += " and org_id= -1 ";
+        }else{
+            sql += " and ( org_id = ? or org_id = -1 )";
+            params.add(orgId);
+        }
+        
+        List valueList = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql, params.toArray());
+        Map m = getConfigValuesFromValueList(valueList, -1);
+        if(orgId != -1){
+            Map m1 = getConfigValuesFromValueList(valueList, orgId);
+            m.putAll(m1);
+        }
+        
+        for(Iterator i = snowPropertiesInherited.iterator(); i.hasNext(); ){
+            String key = (String) i.next();
+            if(!m.containsKey(key)){
+                m.put(key, getValueFromProperties(key));
+            }
+        }
+        
+        return m;
+    }
+    
 
     /**
      * Save or Update org config
@@ -45,199 +123,59 @@ public class ConfigManager {
     public void saveOrUpdateConfig(Map<String, String> params,Integer orgId) throws SQLException {
         StringBuilder names = new StringBuilder("(");
         StringBuilder sql = new StringBuilder();
-        Integer id = 0;
-        try {
-           id = orgHolder.getId();
-        } catch (Exception e) {
-           e.printStackTrace();
-        }
-        if(orgId!=null){
-        	id=orgId;
-        }
-        if(id==null){
-        	id = -1;
-        }
         for (String key : params.keySet()) {
             names.append("'" + key + "'");
             names.append(",");
-            sql.append(format("(%s, '%s', '%s'),", id, key, params.get(key)));
+            sql.append(format("(%s, '%s', '%s'),", orgId, key, params.get(key)));
         }
         names.append("'-1')");
         sql.deleteCharAt(sql.length() - 1);
-        daoHelper.executeUpdate(daoHelper.openNewSysRunner(), format("delete from config where org_id = %s and  name in %s", id, names));
+        daoHelper.executeUpdate(daoHelper.openNewSysRunner(), format("delete from config where org_id = %s and  name in %s", orgId, names));
         daoHelper.executeUpdate(daoHelper.openNewSysRunner(), format("insert into  config(org_id, name,value) values %s ", sql));
     }
 
-    /**
-     * Get org configs,will always get the global configs
-     * @param name
-     * @param orgId the special org config need query
-     * @return
-     */
-    public List<Map> getConfig(String name,Integer orgId) {
-        String sql = "select * from config where 1=1 ";
-        if (name != null) {
-            sql += " and name='" + name + "'";
+    private String getConfigValueFromValueList(List<Map> valueList, Integer orgId) {
+        String value = null;
+        for (Map valMap : valueList) {
+            Integer valOrgId = (Integer) valMap.get("org_id");
+            if (orgId.equals(valOrgId)) {
+                value = (String) valMap.get("value");
+                if (value == null) {
+                    value = (String) valMap.get("val_text");
+                }
+                break;
+            }
         }
-        Integer it = -1;
-        try {
-            it = orgHolder.getId();
-        } catch (Exception e) {
-        	//e.printStackTrace();
-        }
-        if(orgId!=null){
-          it = orgId;
-        }
-        sql += " and (org_id = " + it;
-         
-        if(it!=-1){
-          sql += " or org_id = -1" ;
-        }
-        sql+=")";
-        List<Map> configList = new ArrayList();
-        try{
-          configList = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql);
-        }catch (Exception e) {
-			
-		}
-        List list = new ArrayList();
-        if (configList != null && configList.size() > 0) {
-           list = configList;
-        }
-        list = checkSaleforceInfo(list);
-        return list;
+        return value;
     }
     
-    /**
-     * only get current org config
-     * @param name
-     * @return
-     */
-    public Map getConfig(String name) {
-        String sql = "select * from config where name = ? and org_id = ? ";
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql, name, orgHolder.getId());
-        if (list.size() == 1) {
-            return list.get(0);
-        }else{
-            return null;
-        }
-    }
-
-    /**
-     * get salesforce auth app configs,
-     * if org app auth configs not existed,use global as default
-     * @param list
-     * @return
-     */
-    public List checkSaleforceInfo(List<Map> list) {
-    	List<Map> configList =new ArrayList<Map>();
-        if (list.size() > 0) {
-            boolean isApiKey = false;
-            boolean isApiSecret = false;
-            boolean isCallBackUrl = false;
-            boolean isUserlistFeature = false;
-            Map apiKey = null,apiSecret = null,callBackUrl = null,userListFeature = null;
-            for (Map map : list) {
-                if ("config_apiKey".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
-                	isApiKey = true;
-                	if(apiKey!=null){
-                		if(!apiKey.get("org_id").equals(-1)){
-                			continue;
-                		}
-                	}
-                	apiKey  = map;
-                	continue;
-                } else if ("config_apiSecret".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
-                    isApiSecret = true;
-                	if(apiSecret!=null){
-                		if(!apiSecret.get("org_id").equals(-1)){
-                			continue;
-                		}
-                	}
-                	apiSecret  = map;
-                	continue;
-                } else if ("config_callBackUrl".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
-                    isCallBackUrl = true;
-                    if(callBackUrl!=null){
-                		if(!callBackUrl.get("org_id").equals(-1)){
-                			continue;
-                		}
-                	}
-                    callBackUrl  = map;
-                    continue;
-                } else if ("config_userlistFeature".equals((String)map.get("name")) && !"".equals(map.get("value"))) {
-                	isUserlistFeature = true;
-                	if(userListFeature!=null){
-                 		if(!userListFeature.get("org_id").equals(-1)){
-                 			continue;
-                 		}
-                 	}
-                	 userListFeature  = map;
-                	 continue;
+    private Map getConfigValuesFromValueList(List<Map> valueList, Integer orgId) {
+        Map result = new HashMap();
+        for (Map valMap : valueList) {
+            String value = null;
+            Integer valOrgId = (Integer) valMap.get("org_id");
+            if (orgId.equals(valOrgId)) {
+                String key = (String) valMap.get("name");
+                value = (String) valMap.get("value");
+                if (value == null) {
+                    value = (String) valMap.get("val_text");
                 }
-                
-                configList.add(map);
+                result.put(key, value);
             }
-            
-            Map map1 = new HashMap();
-            if (!isApiKey) {
-                map1 = new HashMap();
-                map1.put("name", "config_apiKey");
-                map1.put("value", apiKey);
-                map1.put("org_id", -1);
-                configList.add(map1);
-            }else{
-            	configList.add(apiKey);
-            }
-            if (!isApiSecret) {
-                map1 = new HashMap();
-                map1.put("name", "config_apiSecret");
-                map1.put("value", apiSecret);
-                map1.put("org_id", -1);
-                configList.add(map1);
-            }else{
-            	configList.add(apiSecret);
-            }
-            if (!isCallBackUrl) {
-                map1 = new HashMap();
-                map1.put("name", "config_callBackUrl");
-                map1.put("value", callBackUrl);
-                map1.put("org_id", -1);
-                configList.add(map1);
-            }else{
-            	configList.add(callBackUrl);
-            }
-            if (!isUserlistFeature) {
-            	map1 = new HashMap();
-            	map1.put("name", "config_userlistFeature");
-            	map1.put("value", userlistFeature);
-            	map1.put("org_id", -1);
-            	configList.add(map1);
-            }else{
-            	configList.add(userListFeature);
-            }
-        } else {
-            Map map = new HashMap();
-            map.put("name", "config_apiKey");
-            map.put("value", apiKey);
-            map.put("org_id", -1);
-            configList.add(map);
-            map = new HashMap();
-            map.put("name", "config_apiSecret");
-            map.put("value", apiSecret);
-            map.put("org_id", -1);
-            configList.add(map);
-            map = new HashMap();
-            map.put("name", "config_callBackUrl");
-            map.put("value", callBackUrl);
-            map.put("org_id", -1);
-            configList.add(map);
-            map = new HashMap();
-            map.put("name", "config_userlistFeature");
-            map.put("value", userlistFeature);
-            map.put("org_id", -1);
-            configList.add(map);
         }
-        return configList;
+        return result;
+    }
+    
+    private String getValueFromProperties(String key){
+        if("saleforce.apiKey".equals(key)){
+            return apiKey;
+        }else if("saleforce.apiSecret".equals(key)){
+            return apiSecret;
+        }else if("saleforce.callBackUrl".equals(key)){
+            return callBackUrl;
+        }else if("jss.feature.userlist".equals(key)){
+            return userlistFeature;
+        }
+        return null;
     }
 }

@@ -16,7 +16,7 @@
       view.tableOrderColumn = null;
       view.tableOrderType = null;
       if(typeof(app.orgInfo)!='undefined'){
-    	  view.labelDisable = app.orgInfo.config_userlistFeature == 'false' ? true : false;
+    	  view.labelDisable = app.orgInfo['jss.feature.userlist'] == 'false' ? true : false;
       }
       view.showContentMessage("empty");
       

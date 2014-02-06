@@ -1,31 +1,29 @@
 package com.jobscience.search.web;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.britesnow.snow.web.AbortWithHttpRedirectException;
-import com.britesnow.snow.web.param.annotation.WebParam;
-import com.britesnow.snow.web.rest.annotation.WebPost;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.inject.name.Named;
 import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.britesnow.snow.web.AbortWithHttpRedirectException;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.auth.AuthRequest;
 import com.britesnow.snow.web.auth.AuthToken;
 import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebModel;
+import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
+import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
@@ -133,22 +131,10 @@ public class AppAuthRequest implements AuthRequest {
         }
         // check org is set or not
         try {
-            List<Map> configs = configManager.getConfig(null, orgHolder.getId());
-            Map configMap = new HashMap();
-            for (Map c : configs) {
-            	if(!c.get("org_id").equals(-1)){
-            		configMap.put(c.get("name"), c.get("value"));
-            	}
-            }
-            for (Map c : configs) {
-            	if(c.get("org_id").equals(-1)&&!configMap.containsKey(c.get("name"))){
-            		configMap.put(c.get("name"), c.get("value"));
-            	}
-            }
+            Map configMap = configManager.getConfigs(orgHolder.getId());
             configMap.put("instanceUrl", rc.getCookie("instanceUrl"));
             m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
         } catch (Exception e) {
-
             rc.removeCookie("ctoken");
         }
     }
