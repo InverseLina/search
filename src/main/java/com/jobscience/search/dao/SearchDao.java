@@ -382,174 +382,179 @@ public class SearchDao {
 	           }
            }
        	   //Get the contacts parameters and render them
-           JSONArray contacts = JSONArray.fromObject(searchValues.get("contacts"));
-           if(contacts.size()>0){//First add 1!=1,cause for all contacts,would do with "OR"
-        	   conditions.append(" AND (1!=1 ");
-           }
-          
-           for(int i=0,j=contacts.size();i<j;i++){
-        	   JSONObject contact = JSONObject.fromObject(contacts.get(i));
-        	   conditions.append(" OR (1=1 ");//for single contact,would do with "AND"
-        	   String value ;
-        	   //handle for first name
-        	   if(contact.containsKey("firstName")&&!"".equals(contact.getString("firstName"))){
-        		  value = contact.getString("firstName");
-        		  if(advanced){
-	                   if(baseTable.indexOf("contact") ==-1){
-	   	                	 if(baseTableIns.indexOf("z")>-1){
-	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns  );
-	 	       					joinTables.append(" on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
-	 	       				}else{
-	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns);
-	 	       					joinTables.append(" on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
-	 	       				}
-	   	                	baseTable =  schemaname+".contact " ;
-	        	            baseTableIns = "a";
-	                    }
-	                   conditions.append(" and a.\"firstname\" ilike ? ");
-	                   if(!value.contains("%")){
-	                       value =  value + "%";
-	                   }
-	                   values.add(value);
-                  }else{
-            		  conditions.append("  and "+sc.getContactField("firstname").toString("contact") +" ilike ? ");
-            		  if(!value.contains("%")){
-            			  value = value+"%";	
-              		  }
-                      subValues.add(value);
-                  }
-                   hasCondition = true;
-        	  }
-        	   
-        	  //handle for last name 
-        	  if(contact.containsKey("lastName")&&!"".equals(contact.getString("lastName"))){
-        		  value = contact.getString("lastName");
-        		  if(advanced){
-	                   if(baseTable.indexOf("contact") ==-1){
-		                	 if(baseTableIns.indexOf("z")>-1){
-		 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns );
-		       						joinTables.append(" on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
-		                	 }else{
-		 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns );
-		 	       					joinTables.append(" on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
-		 	       			 }
-		    	            baseTable =  schemaname+".contact " ;
-		    	            baseTableIns = "a";
-	                    }
-	                   conditions.append(" and a.\"lastname\" ilike ? ");
-	                   if(!value.contains("%")){
-	                       value =  value + "%";
-	                   }
-	                   values.add(value);
-                  }else{
-            		  conditions.append("  and "+sc.getContactField("lastname").toString("contact")+" ilike ? ");
-            		  if(!value.contains("%")){
-            			  value = value+"%";	
-              		  }
-                      subValues.add(value);
-                  }
-                  hasCondition = true;
-        	  }
-        	  
-        	  //handle for email
-        	  if(contact.containsKey("email")&&!"".equals(contact.getString("email"))){
-        		  value = contact.getString("email");
-        		  if(advanced){
-                     if(baseTable.indexOf("contact") ==-1){
-                    	 if(baseTableIns.indexOf("z")>-1){
-	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns );
-	       						joinTables.append(" on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
-	                	 }else{
-	 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns );
-	 	       					joinTables.append(" on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
-	 	       			 }
-                	 	 baseTable =  schemaname+".contact " ;
-                         baseTableIns = "a";
-                     }
-                     conditions.append(" and a.\"email\" ilike ? ");
-                     if(!value.contains("%")){
-                       value = value + "%";
-                     }
-                     values.add(value);
-                  }else{
-            		  conditions.append("  and "+sc.getContactField("email").toString("contact")+" ilike ? ");
-            		  if(!value.contains("%")){
-            			  value = value+"%";	
-              		  }
-                      subValues.add(value);
-                  }
-        		  hasCondition = true;
-        	  }
-        	  
-        	  //handle the title
-        	  if(contact.containsKey("title")&&!"".equals(contact.getString("title"))){
-        		  value = contact.getString("title");
-        		  if(advanced){
-  	                   if(baseTable.indexOf("contact") ==-1){
-	  	                	 if(baseTableIns.indexOf("z")>-1){
-		 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns );
-		       						joinTables.append(" on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
-		                	 }else{
-		 	       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns );
-		 	       					joinTables.append(" on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
-		 	       			 }
-      	                     baseTable =  schemaname+".contact " ;
-                             baseTableIns = "a";
-  	                   }
-  	                   conditions.append(" and a.\"title\" ilike ? ");
-  	                   if(!value.contains("%")){
-  	                       value =  value + "%";
-  	                   }
-  	                   values.add(value);
-                 }else{
-            		  conditions.append("  and "+sc.getContactField("title").toString("contact")+" ilike ? ");
-            		  if(!value.contains("%")){
-            			  value = value+"%";	
-              		  }
-                      subValues.add(value);
-                 }
-                  hasCondition = true;
-        	  }
-        	  
-        	  //handle the ojectType
-        	  if(contact.containsKey("objectType")&&!"".equals(contact.getString("objectType"))){
-        		  value = contact.getString("objectType");
-        		  if(!advanced){
-        			  if("Both".equals(value)){
-        				  conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
-        				  needJoinRecordtype = true;
-        			  }else{
-        				  conditions.append("  and rt.\"sobjecttype\" = ? ");
-        				  subValues.add(value);
-        				  needJoinRecordtype = true;
-        			  }
-        			  
-        		  }
-        		  hasCondition = true;
-        	  }
-        	  
-        	  //handle the status
-        	  if(contact.containsKey("status")&&!"".equals(contact.getString("status"))){
-        		  value = contact.getString("status");
-        		  if(!advanced){
-        			  if("Active".equals(value)){
-        				  conditions.append("  and contact.\"ts2__people_status__c\" = 'Active' ");
-        			  }else  if("Inactive".equals(value)){
-        				  conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
-        			  }
-        		  }
-        		  hasCondition = true;
-        	  }
-        	  
-        	  
-        	  conditions.append(" ) ");
-           }
-           
-           if(contacts.size()>0){
-        	   conditions.append(" ) ");
-           }
-          
-           // add the 'educations' filter, and join ts2__education_history__c table
+            String contactVal = searchValues.get("contacts");
+            if (contactVal != null) {
+                JSONArray contacts = JSONArray.fromObject(contactVal);
+                if (contacts.size() > 0) {//First add 1!=1,cause for all contacts,would do with "OR"
+                    conditions.append(" AND (1!=1 ");
+                }
+
+                for (int i = 0, j = contacts.size(); i < j; i++) {
+                    JSONObject contact = JSONObject.fromObject(contacts.get(i));
+                    conditions.append(" OR (1=1 ");//for single contact,would do with "AND"
+                    String value;
+                    //handle for first name
+                    if (contact.containsKey("firstName") && !"".equals(contact.getString("firstName"))) {
+                        value = contact.getString("firstName");
+                        if (advanced) {
+                            if (baseTable.indexOf("contact") == -1) {
+                                if (baseTableIns.indexOf("z") > -1) {
+                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
+                                    joinTables.append(" on " + baseTableIns + ".\"zip\" = a.\"mailingpostalcode\" ");
+                                } else {
+                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
+                                    joinTables.append(" on " + baseTableIns + ".\"ts2__contact__c\" = a.\"sfid\" ");
+                                }
+                                baseTable = schemaname + ".contact ";
+                                baseTableIns = "a";
+                            }
+                            conditions.append(" and a.\"firstname\" ilike ? ");
+                            if (!value.contains("%")) {
+                                value = value + "%";
+                            }
+                            values.add(value);
+                        } else {
+                            conditions.append("  and " + sc.getContactField("firstname").toString("contact") + " ilike ? ");
+                            if (!value.contains("%")) {
+                                value = value + "%";
+                            }
+                            subValues.add(value);
+                        }
+                        hasCondition = true;
+                    }
+
+                    //handle for last name
+                    if (contact.containsKey("lastName") && !"".equals(contact.getString("lastName"))) {
+                        value = contact.getString("lastName");
+                        if (advanced) {
+                            if (baseTable.indexOf("contact") == -1) {
+                                if (baseTableIns.indexOf("z") > -1) {
+                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
+                                    joinTables.append(" on " + baseTableIns + ".\"zip\" = a.\"mailingpostalcode\" ");
+                                } else {
+                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
+                                    joinTables.append(" on " + baseTableIns + ".\"ts2__contact__c\" = a.\"sfid\" ");
+                                }
+                                baseTable = schemaname + ".contact ";
+                                baseTableIns = "a";
+                            }
+                            conditions.append(" and a.\"lastname\" ilike ? ");
+                            if (!value.contains("%")) {
+                                value = value + "%";
+                            }
+                            values.add(value);
+                        } else {
+                            conditions.append("  and " + sc.getContactField("lastname").toString("contact") + " ilike ? ");
+                            if (!value.contains("%")) {
+                                value = value + "%";
+                            }
+                            subValues.add(value);
+                        }
+                        hasCondition = true;
+                    }
+
+                    //handle for email
+                    if (contact.containsKey("email") && !"".equals(contact.getString("email"))) {
+                        value = contact.getString("email");
+                        if (advanced) {
+                            if (baseTable.indexOf("contact") == -1) {
+                                if (baseTableIns.indexOf("z") > -1) {
+                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
+                                    joinTables.append(" on " + baseTableIns + ".\"zip\" = a.\"mailingpostalcode\" ");
+                                } else {
+                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
+                                    joinTables.append(" on " + baseTableIns + ".\"ts2__contact__c\" = a.\"sfid\" ");
+                                }
+                                baseTable = schemaname + ".contact ";
+                                baseTableIns = "a";
+                            }
+                            conditions.append(" and a.\"email\" ilike ? ");
+                            if (!value.contains("%")) {
+                                value = value + "%";
+                            }
+                            values.add(value);
+                        } else {
+                            conditions.append("  and " + sc.getContactField("email").toString("contact") + " ilike ? ");
+                            if (!value.contains("%")) {
+                                value = value + "%";
+                            }
+                            subValues.add(value);
+                        }
+                        hasCondition = true;
+                    }
+
+                    //handle the title
+                    if (contact.containsKey("title") && !"".equals(contact.getString("title"))) {
+                        value = contact.getString("title");
+                        if (advanced) {
+                            if (baseTable.indexOf("contact") == -1) {
+                                if (baseTableIns.indexOf("z") > -1) {
+                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
+                                    joinTables.append(" on " + baseTableIns + ".\"zip\" = a.\"mailingpostalcode\" ");
+                                } else {
+                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
+                                    joinTables.append(" on " + baseTableIns + ".\"ts2__contact__c\" = a.\"sfid\" ");
+                                }
+                                baseTable = schemaname + ".contact ";
+                                baseTableIns = "a";
+                            }
+                            conditions.append(" and a.\"title\" ilike ? ");
+                            if (!value.contains("%")) {
+                                value = value + "%";
+                            }
+                            values.add(value);
+                        } else {
+                            conditions.append("  and " + sc.getContactField("title").toString("contact") + " ilike ? ");
+                            if (!value.contains("%")) {
+                                value = value + "%";
+                            }
+                            subValues.add(value);
+                        }
+                        hasCondition = true;
+                    }
+
+
+                    conditions.append(" ) ");
+                }
+
+                if (contacts.size() > 0) {
+                    conditions.append(" ) ");
+
+                    //handle the ojectType
+                    if (searchValues.get("objectType") != null && !"".equals(searchValues.get("objectType"))) {
+                        String value = searchValues.get("objectType");
+                        if (!advanced) {
+                            if ("Both".equals(value)) {
+                                conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
+                                needJoinRecordtype = true;
+                            } else {
+                                conditions.append("  and rt.\"sobjecttype\" = ? ");
+                                subValues.add(value);
+                                needJoinRecordtype = true;
+                            }
+
+                        }
+                        hasCondition = true;
+                    }
+
+                    //handle the status
+                    if (searchValues.get("status") != null && !"".equals(searchValues.get("status"))) {
+                        String value = searchValues.get("status");
+                        if (!advanced) {
+                            if ("Active".equals(value)) {
+                                conditions.append("  and contact.\"ts2__people_status__c\" = 'Active' ");
+                            } else if ("Inactive".equals(value)) {
+                                conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
+                            }
+                        }
+                        hasCondition = true;
+                    }
+
+
+                }
+            }
+
+            // add the 'educations' filter, and join ts2__education_history__c table
            if (searchValues.get("educations") != null && !"".equals(searchValues.get("educations"))) {
         	   String value = searchValues.get("educations");
         	   JSONArray educationValues = JSONArray.fromObject(value);
@@ -805,7 +810,10 @@ public class SearchDao {
 	           }
 	           String filterName = name.substring(0, name.length()-1);//remove the s at last, example filters-->filter
 	           Filter filter = sc.getFilterByName(filterName);
-	           FilterField ff = filter.getFilterField();
+               if (filter == null) {
+                   continue;
+               }
+               FilterField ff = filter.getFilterField();
 	           if(!contactTable.equals(ff.getTable())){
 	               JSONArray extraValues = JSONArray.fromObject(searchValues.get(name));
 	               if(hasSearchValue){
@@ -849,6 +857,9 @@ public class SearchDao {
 	       }
 	       String filterName = name.substring(0, name.length()-1);
 	       Filter filter = sc.getFilterByName(filterName);
+           if (filter == null) {
+               continue;
+           }
            FilterField ff = filter.getFilterField();
 	       if(contactTable.equals(ff.getTable())){
     	       JSONArray extraValues = JSONArray.fromObject(searchValues.get(name));

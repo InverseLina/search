@@ -74,9 +74,7 @@
 	            view.$el.find(":input[name='Email']").val(value.email||"");
 	            view.$el.find(":input[name='Title']").val(value.title||"");
 	            view.$el.find(".active").removeClass("active");
-	            view.$el.find(":radio[name='objectType'][value='"+(value.objectType)+"']").parent().addClass("active");
-	            view.$el.find(":radio[name='status'][value='"+(value.status)+"']").parent().addClass("active");
-	
+
 	        },
 	        "click; .content .contactRow .clear": function (event) {
 	            var view = this;
@@ -176,11 +174,6 @@
             data.title = $item.val();
         }
         
-        $item = view.$el.find(".active :radio");
-        $.each($item,function(index,r){
-        	 data[$(r).attr("name")] = $(r).val();
-        });
-
         var displayName = app.getContactDisplayName(data);
         if(/^\s*$/g.test(displayName)){
             return;
