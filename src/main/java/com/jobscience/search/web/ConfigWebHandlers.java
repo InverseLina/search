@@ -46,7 +46,7 @@ public class ConfigWebHandlers {
     @WebGet("/config/get/{name}")
     public WebResponse getConfig(@WebPath(2) String name,@WebParam("orgId") Integer orgId) throws SQLException {
         if(name == null){
-            return WebResponse.success(configManager.getConfigs(orgId));
+            return WebResponse.success(configManager.getConfigMap(orgId));
         }
         return WebResponse.success(configManager.getConfig(name,orgId));
     }

@@ -23,22 +23,14 @@ public class ConfigManager {
     @Inject
     private DaoHelper daoHelper;
     
-    @Inject
-    @Named("saleforce.apiKey")
-    private String apiKey;
-    @Inject
-    @Named("saleforce.apiSecret")
-    private String apiSecret;
-    @Inject
-    @Named("saleforce.callBackUrl")
-    private String callBackUrl;
-    
     @Inject(optional=true)
     @Named("jss.feature.userlist")
     private String userlistFeature;
     
-    private static final String[] snowPropertiesInheritedArray = new String[]{"saleforce.apiKey","saleforce.apiSecret","saleforce.apiSecret","saleforce.callBackUrl","jss.feature.userlist"};
+    private static final String[] snowPropertiesInheritedArray = new String[]{"jss.feature.userlist"};
     private static final Set<String> snowPropertiesInherited = new HashSet<String>(Arrays.asList(snowPropertiesInheritedArray));
+    private static final String[] orgInfoKeysArray = new String[]{"jss.feature.userlist", "apex_resume_url"};
+    private static final Set<String> orgInfoKeys = new HashSet<String>(Arrays.asList(orgInfoKeysArray));
     
     /**
      * Get org configs,will always get the global configs
@@ -79,7 +71,7 @@ public class ConfigManager {
         return value;
     }
     
-    public Map<String, Object> getConfigs(Integer orgId){
+    public Map<String, Object> getConfigMap(Integer orgId){
         
         List params = new ArrayList();
         Integer id = orgId;
@@ -111,6 +103,16 @@ public class ConfigManager {
         }
         
         return m;
+    }
+    
+    public Map<String, Object> getOrgInfo(Integer orgId){
+        Map map = getConfigMap(orgId);
+        Map orgInfo = new HashMap();
+        for(Iterator i = orgInfoKeys.iterator(); i.hasNext();){
+            String key = (String) i.next();
+            orgInfo.put(key, map.get(key));
+        }
+        return orgInfo;
     }
     
 
@@ -167,13 +169,7 @@ public class ConfigManager {
     }
     
     private String getValueFromProperties(String key){
-        if("saleforce.apiKey".equals(key)){
-            return apiKey;
-        }else if("saleforce.apiSecret".equals(key)){
-            return apiSecret;
-        }else if("saleforce.callBackUrl".equals(key)){
-            return callBackUrl;
-        }else if("jss.feature.userlist".equals(key)){
+        if("jss.feature.userlist".equals(key)){
             return userlistFeature;
         }
         return null;

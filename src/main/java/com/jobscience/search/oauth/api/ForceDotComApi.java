@@ -38,7 +38,7 @@ public class ForceDotComApi extends DefaultApi20
     public ForceDotComApi(String loginUrl)
     {
         super();
-        if(loginUrl == null){
+        if(loginUrl == null || "".equals(loginUrl)){
             this.loginUrl = "https://login.salesforce.com";
         }else{
             this.loginUrl = loginUrl;

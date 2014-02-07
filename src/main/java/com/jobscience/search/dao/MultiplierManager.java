@@ -45,7 +45,7 @@ public class MultiplierManager {
         }
         Integer orgId = Integer.parseInt(org.get("id").toString());
 //        List<Map> configs = configManager.getConfig(null, orgId);
-        Map configs = configManager.getConfigs(orgId);
+        Map configs = configManager.getConfigMap(orgId);
         Long current_iteration_number =1L;
         Long origin_count = null,companyCount = null,skillCount=null,educationCount=null;
         current_iteration_number = Long.parseLong((String) configs.get("current_iteration_number"));

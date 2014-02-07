@@ -131,7 +131,7 @@ public class AppAuthRequest implements AuthRequest {
         }
         // check org is set or not
         try {
-            Map configMap = configManager.getConfigs(orgHolder.getId());
+            Map configMap = configManager.getOrgInfo(orgHolder.getId());
             configMap.put("instanceUrl", rc.getCookie("instanceUrl"));
             m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
         } catch (Exception e) {

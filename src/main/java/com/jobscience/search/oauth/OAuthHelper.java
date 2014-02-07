@@ -14,6 +14,7 @@ import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.DaoHelper;
+import com.jobscience.search.exception.OAuthConfigBuildException;
 
 @Singleton
 public class OAuthHelper {
@@ -61,6 +62,7 @@ public class OAuthHelper {
                 servcie = builder.build();
             }catch(Exception e){
                 log.error(e.getMessage());
+                throw new OAuthConfigBuildException(e.getMessage());
             }
             return servcie;
         }
