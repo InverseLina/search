@@ -746,8 +746,10 @@ public class SearchDao {
                             conditions.append(" OR ( z.\"city\"='").append(name).append("'");
                              if(ol.containsKey("minRadius")){
             				   double minRadius = ol.getDouble("minRadius");
+                               if(minRadius >0) {
             				   conditions.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\"),ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("a")
             				       +","+sc.getContactField("ts2__longitude__c").toString("a")+"))<=").append(minRadius*1000);
+                               }
                              }
                              conditions.append(")");
                         }
@@ -763,10 +765,12 @@ public class SearchDao {
                            locationSql.append(" OR ( z.\"city\"='").append(name).append("'");
                            if(ol.containsKey("minRadius")){
             				   double minRadius = ol.getDouble("minRadius");
+                               if(minRadius > 0){
             				   locationSql.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\")," )
             				   			 .append(" ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("contact")
             				   			     +","+sc.getContactField("ts2__longitude__c").toString("contact")+"))<=")
             				   			 .append(minRadius*1000);
+                               }
                             }
                            locationSql.append(")");
                        }
