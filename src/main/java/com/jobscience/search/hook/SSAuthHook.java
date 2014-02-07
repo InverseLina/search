@@ -6,12 +6,11 @@ import com.britesnow.snow.web.hook.On;
 import com.britesnow.snow.web.hook.ReqPhase;
 import com.britesnow.snow.web.hook.annotation.WebRequestHook;
 import com.britesnow.snow.web.param.annotation.WebUser;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.jobscience.search.PassCodeException;
 import com.jobscience.search.exception.JsonAuthException;
+import com.jobscience.search.exception.PassCodeException;
 
 import java.util.Map;
 

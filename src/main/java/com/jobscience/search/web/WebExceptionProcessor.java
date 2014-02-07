@@ -10,9 +10,9 @@ import com.britesnow.snow.web.exception.annotation.WebExceptionCatcher;
 import com.britesnow.snow.web.renderer.JsonRenderer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.OrganizationNotSelectException;
-import com.jobscience.search.PassCodeException;
 import com.jobscience.search.exception.OAuthConfigBuildException;
+import com.jobscience.search.exception.OrganizationNotSelectException;
+import com.jobscience.search.exception.PassCodeException;
 
 @Singleton
 public class WebExceptionProcessor {

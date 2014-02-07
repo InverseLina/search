@@ -1,4 +1,4 @@
-package com.jobscience.search;
+package com.jobscience.search.exception;
 
 @SuppressWarnings("serial")
 public class OrganizationNotSelectException extends RuntimeException {

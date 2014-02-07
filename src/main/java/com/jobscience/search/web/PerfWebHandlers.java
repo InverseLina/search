@@ -11,8 +11,8 @@ import javax.inject.Singleton;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.jobscience.search.CurrentOrgHolder;
-import com.jobscience.search.OrganizationNotSelectException;
 import com.jobscience.search.dao.DaoHelper;
+
 import net.sf.json.JSONObject;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
@@ -20,6 +20,7 @@ import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
+import com.jobscience.search.exception.OrganizationNotSelectException;
 
 @Singleton
 public class PerfWebHandlers {

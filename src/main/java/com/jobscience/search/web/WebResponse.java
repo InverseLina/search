@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.base.Strings;
-import com.jobscience.search.AppException;
+import com.jobscience.search.exception.AppException;
 
 public class WebResponse {
 

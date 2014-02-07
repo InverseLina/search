@@ -12,7 +12,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.OrgConfigDao;
-
+import com.jobscience.search.exception.OrganizationNotSelectException;
 
 import java.util.HashMap;
 import java.util.List;
