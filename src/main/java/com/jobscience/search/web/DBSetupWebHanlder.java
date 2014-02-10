@@ -69,8 +69,10 @@ public class DBSetupWebHanlder {
         try{
              return WebResponse.success(dbSetupManager.getSysConfig());
         }catch (SQLException e) {
+            e.printStackTrace();
             return WebResponse.success(new JSSSqlException(e) );
         } catch (Exception e) {
+            e.printStackTrace();
             return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()) );
         }
     }

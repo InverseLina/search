@@ -88,9 +88,12 @@ public class DBSetupManager {
         }else{
             status.put("zipcode_import", false);
         }
-        status.put("pgtrgm", this.checkExtension("pg_trgm")&&
-                             this.checkExtension("cube")&&
-                             this.checkExtension("earthdistance"));
+        
+        Map extensionMap = new HashMap();
+        extensionMap.put("pgtrgm", this.checkExtension("pg_trgm"));
+        extensionMap.put("cube", this.checkExtension("cube"));
+        extensionMap.put("earthdistance", this.checkExtension("earthdistance"));
+        status.put("extensions", extensionMap);
         
         return status;
     }
@@ -248,7 +251,7 @@ public class DBSetupManager {
      */
     public boolean createExtension(String extName) throws SQLException{
     	boolean result = false;
-    	if(checkExtension(extName)){
+    	if(checkExtension(extName)>0){
     		return true;
     	}
     	
@@ -856,15 +859,22 @@ public class DBSetupManager {
     * @param extName
     * @return
     */
-   private boolean checkExtension(String extName){
-       List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select count(*) as count from pg_catalog.pg_extension" +
-               " where extname='"+extName+"' ");
+   private int checkExtension(String extName){
+       List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), 
+               "select sum(case when nspname='pg_catalog' then 1 else 0 end) as pg,"
+             + "sum(case when nspname!='pg_catalog' then 1 else 0 end) as not_pg "
+             + "from pg_catalog.pg_extension e left join pg_catalog.pg_namespace n on e.extnamespace=n.oid"
+             + " and  extname='"+extName+"' ");
        if(list.size()==1){
-           if("1".equals(list.get(0).get("count").toString())){
-               return true;
+           if("1".equals(list.get(0).get("pg").toString())){
+               return 1;
+           }else if("1".equals(list.get(0).get("not_pg").toString())){
+               return 2;
+           }else{
+               return 0;
            }
        }
-       return false;
+       return 0;
    }
    
    public  String checkTriggers(String orgName){

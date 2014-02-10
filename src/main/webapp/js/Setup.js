@@ -67,10 +67,9 @@
     	  app.getJsonData("/createPgTrgm",{},{type:"Post"}).done(function(data){
     		  if(data){
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
-    			  $createBtn.prop("disabled",false).html("Create pg_trgm").removeClass("btn-success");
+    			  $createBtn.prop("disabled",false).html("Create Extensions").removeClass("btn-success");
     		  }else{
-    			  $createBtn.html("pg_trgm Created").addClass("btn-success");
-    			  $alert.html("&nbsp;").addClass("transparent");
+    			  view.$el.trigger("STATUS_CHANGE");
     		  }
     	  });
       },
@@ -95,10 +94,40 @@
       "STATUS_CHANGE":function(event){
     	  var view = this;
     	  app.getJsonData("/checkSysSchema",{},{type:"Get"}).done(function(result){
-    		  if(result.pgtrgm){
-    			  view.$el.find(".create_pg_trgm").prop("disabled",true).html("pg_trgm Created").addClass("btn-success");
+    		  var createdExtensionsInfo="",extentionWarning="",missingExentions="" ;
+    		  $.each(result.extensions,function(e,index){
+    			  if(result.extensions[e]==1){
+    				  createdExtensionsInfo +=e+" , ";
+    			  }else if(result.extensions[e]==2){
+    				  extentionWarning +=e+" , "
+    			  }else{
+    				  missingExentions+=e+" , ";
+    			  }
+    		  });
+    		  
+    		  if(!missingExentions){
+    			  view.$el.find(".create_pg_trgm").prop("disabled",true).html("Extensions Created").addClass("btn-success");
     		  }else{
-    			  view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create pg_trgm").removeClass("btn-success");
+    			  view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create Extensions").removeClass("btn-success");
+    		  }
+    		  if(createdExtensionsInfo||extentionWarning||missingExentions){
+    			  var info = "";
+    			  var $alert =  view.$el.find(".create_pg_trgm").closest(".setting").find(".alert");
+    			  if(extentionWarning){
+    				  info+=" <strong>Extention(s) not in pg_catalog: </strong>"+extentionWarning.substring(0, extentionWarning.length-2);
+    			  }
+    			  if(missingExentions){
+    				  info+=" <strong>Missing Extention(s): </strong>"+missingExentions.substring(0, missingExentions.length-2);
+    			  }
+    			  if(!(extentionWarning||missingExentions)){//when there no warnings and no missing,show the created info
+    				  $alert.removeClass("alert-danger").addClass("alert-info");
+    				  if(createdExtensionsInfo){
+        				  info+=" <strong>Created Extention(s): </strong>"+createdExtensionsInfo.substring(0, createdExtensionsInfo.length-2);
+        			  }
+    			  }else if(extentionWarning&&!missingExentions){//when only has warning,make button gray see#893
+    				  view.$el.find(".create_pg_trgm").prop("disabled",true).html("Create Extensions").removeClass("btn-success");
+    			  }
+    			  $alert.html(info).removeClass("transparent");
     		  }
     		  var schemaInfo = "";
     		  if(!result.schema_create){
