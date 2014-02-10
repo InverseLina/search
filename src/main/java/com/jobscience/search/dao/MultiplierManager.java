@@ -48,42 +48,50 @@ public class MultiplierManager {
         Map configs = configManager.getConfigMap(orgId);
         Long current_iteration_number =1L;
         Long origin_count = null,companyCount = null,skillCount=null,educationCount=null;
-        current_iteration_number = Long.parseLong((String) configs.get("current_iteration_number"));
-        origin_count = Long.parseLong((String) configs.get(tableName + "_origin_count"));
-        companyCount = Long.parseLong((String) configs.get("ts2__employment_history__c_origin_count"));
-        skillCount = Long.parseLong((String) configs.get("ts2__skill__c_origin_count"));
-        educationCount = Long.parseLong((String) configs.get("ts2__education_history__c_origin_count"));
+
+
         Map newConfig = new HashMap();
-        newConfig.put("current_iteration_number", current_iteration_number+times);
-        if(origin_count==null){
-            List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from "+tableName);
-            if(counts.size()==1){
-                origin_count = Long.parseLong( counts.get(0).get("count").toString());
-                newConfig.put(tableName+"_origin_count", origin_count);
-            }
+        if (configs.get(tableName + "_origin_count") == null) {
+            List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from " + tableName);
+            origin_count = Long.parseLong(counts.get(0).get("count").toString());
+            newConfig.put(tableName + "_origin_count", origin_count);
+        }else{
+            origin_count = Long.parseLong((String) configs.get(tableName + "_origin_count"));
         }
-        if(companyCount==null){
+
+        if (configs.get("ts2__employment_history__c_origin_count") == null) {
             List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from ts2__employment_history__c");
-            if(counts.size()==1){
-                companyCount = Long.parseLong( counts.get(0).get("count").toString());
-                newConfig.put("ts2__employment_history__c_origin_count", companyCount);
-            }
+            companyCount = Long.parseLong(counts.get(0).get("count").toString());
+            newConfig.put("ts2__employment_history__c_origin_count", companyCount);
+        } else {
+            companyCount = Long.parseLong((String) configs.get("ts2__employment_history__c_origin_count"));
         }
-        if(skillCount==null){
+
+
+        if (configs.get("ts2__skill__c_origin_count") == null) {
             List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from ts2__skill__c");
-            if(counts.size()==1){
-                skillCount = Long.parseLong( counts.get(0).get("count").toString());
-                newConfig.put("ts2__skill__c_origin_count", skillCount);
-            }
+            skillCount = Long.parseLong(counts.get(0).get("count").toString());
+            newConfig.put("ts2__skill__c_origin_count", skillCount);
+        }else{
+            skillCount = Long.parseLong((String) configs.get("ts2__skill__c_origin_count"));
         }
-        if(educationCount==null){
+
+        if( configs.get("ts2__education_history__c_origin_count")==null){
             List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from ts2__education_history__c");
-            if(counts.size()==1){
-                educationCount = Long.parseLong( counts.get(0).get("count").toString());
-                newConfig.put("ts2__education_history__c_origin_count", educationCount);
-            }
+            educationCount = Long.parseLong(counts.get(0).get("count").toString());
+            newConfig.put("ts2__education_history__c_origin_count", educationCount);
+        }else{
+            educationCount = Long.parseLong((String) configs.get("ts2__education_history__c_origin_count"));
         }
-        
+
+        if (configs.get("current_iteration_number") == null) {
+            current_iteration_number = 0l;
+        }else{
+            current_iteration_number = Long.parseLong((String) configs.get("current_iteration_number"));
+        }
+
+        newConfig.put("current_iteration_number", current_iteration_number+times);
+
         contactCounts = origin_count;
         configManager.saveOrUpdateConfig(newConfig, orgId);
         currentTime = 0;
