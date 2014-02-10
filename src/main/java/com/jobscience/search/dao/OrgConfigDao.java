@@ -16,21 +16,22 @@ public class OrgConfigDao {
 
 
   public void saveOrUpdateOrg(Map<String,String> params) throws SQLException{
-      String sql = "";
-      if(params.size() > 0 && !"".equals(params.get("id"))&&params.get("id")!=null){
-          sql =  "update org set name = '"+params.get("name")+"',schemaname = '" +
-                 params.get("schemaname")+"',sfid='"+params.get("sfid")+"'  where id = "+params.get("id");
+      String sql;
+      if(params.size() > 0 && !"".equals(params.get("id"))&&params.get("id")!=null) {
+          sql = "update org set name = ? ,schemaname = ? ,sfid=?  where id = ?";
+          daoHelper.executeUpdate(daoHelper.openNewSysRunner(), sql, params.get("name"),
+                  params.get("schemaname"), params.get("sfid"), Integer.valueOf(params.get("id")));
       }else{
-          sql = " insert into org(name,schemaname,sfid) values ('"+
-                  params.get("name")+"','"+params.get("schemaname")+"','"+params.get("sfid")+"')";
+          sql = " insert into org(name,schemaname,sfid) values (?,?,?)";
+          daoHelper.executeUpdate(daoHelper.openNewSysRunner(), sql,
+                  params.get("name"), params.get("schemaname"), params.get("sfid"));
       }
-      daoHelper.executeUpdate(daoHelper.openNewSysRunner(), sql);
   }
   
   public void deleteOrg(String id) throws SQLException{
       daoHelper.executeUpdate(daoHelper.openNewSysRunner(), "delete from org where id  = "+id);
   }
-  
+
   public Object getOrg(String id){
       String sql = "select * from org where id="+id;
       return daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql);

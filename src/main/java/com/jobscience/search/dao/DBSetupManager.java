@@ -8,10 +8,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -149,7 +146,7 @@ public class DBSetupManager {
         SearchConfiguration sc = scm.getSearchConfiguration(orgName);
         for(Filter f:sc.getFilters()){
             if(f.getFilterType()==null){
-                String indexName = f.getFilterField().getTable()+"_"+f.getFilterField().getColumn()+"_index";
+                String indexName = String.format("%s_%s_index", f.getFilterField().getTable(), f.getFilterField().getColumn());
                 indexMap.put(indexName, indexNames.contains(indexName+","));
             }
         }
@@ -386,7 +383,8 @@ public class DBSetupManager {
                    if(f.getFilterType()==null){
                        FilterField ff = f.getFilterField();
                        JSONObject jo = new JSONObject();
-                       jo.accumulate("name",f.getFilterField().getTable()+"_"+f.getFilterField().getColumn()+"_index");
+                       jo.accumulate("name", String.format("%s_%s_index", f.getFilterField().getTable(),
+                               f.getFilterField().getColumn()));
                        jo.accumulate("column", ff.getColumn());
                        jo.accumulate("operator", "");
                        jo.accumulate("unique", "");
@@ -568,9 +566,7 @@ public class DBSetupManager {
             }
             in.close();
             String sqls[] = temp.toString().split("-- SCRIPTS");
-            for (String sql : sqls) {
-                sqlList.add(sql);
-            }
+            Collections.addAll(sqlList, sqls);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -687,7 +683,7 @@ public class DBSetupManager {
        }
        File orgFolder = new File(getRootSqlFolderPath() + "/org");
        File[] sqlFiles = orgFolder.listFiles();
-       String indexes = new String();
+       String indexes = "";
        for(File file : sqlFiles){
             if(file.getName().equals("indexes.json")){//only load the indexes.json
                 List<String> subSqlList = loadSQLFile(file);
