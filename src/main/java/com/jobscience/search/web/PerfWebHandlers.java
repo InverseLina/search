@@ -57,7 +57,7 @@ public class PerfWebHandlers {
 
             // for contact,use id,name,title,email,CreatedDate instead
             searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-            SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon, searchValues, (String) user.get("ctoken"));
+            SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon, searchValues, (String) user.get("ctoken"),orgHolder.getCurrentOrg());
             Map<String, Number> resultMap = new HashMap<String, Number>();
             resultMap.put("count", searchResult.getCount());
             resultMap.put("duration", searchResult.getSelectDuration());
@@ -103,7 +103,7 @@ public class PerfWebHandlers {
         if (pageNum == null || pageNum < 1) {
             pageNum = 1;
         }
-        SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum);
+        SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum,orgHolder.getCurrentOrg());
 
         HashMap<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", sResult.getCount());

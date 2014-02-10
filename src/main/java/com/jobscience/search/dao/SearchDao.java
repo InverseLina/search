@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
 import com.jobscience.search.searchconfig.ContactFieldType;
@@ -41,9 +40,6 @@ public class SearchDao {
     private DaoHelper      daoHelper;
 
     @Inject
-    private CurrentOrgHolder orgHolder;
-    
-    @Inject
     private ConfigManager configManager;
     
     @Inject
@@ -66,12 +62,12 @@ public class SearchDao {
      * @return
      */
     public SearchResult search(String searchColumns,Map<String, String> searchValues,
-    		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token) {
+    		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token,Map org) {
         Runner runner = daoHelper.openDefaultRunner();
         
         //builder statements
         SearchStatements statementAndValues = 
-        		buildSearchStatements(searchColumns,searchValues, pageIdx, pageSize,orderCon);
+        		buildSearchStatements(searchColumns,searchValues, pageIdx, pageSize,orderCon,org);
         //excute query and caculate times
         long start = System.currentTimeMillis();
         List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
@@ -112,19 +108,19 @@ public class SearchDao {
      * @return
      * @throws SQLException
      */
-    public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
-        String advancedAutoCompleteStr = configManager.getConfig("advanced_auto_complete", orgHolder.getId());
+    public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,Map org) throws SQLException {
+        String advancedAutoCompleteStr = configManager.getConfig("advanced_auto_complete", (Integer)org.get("id"));
         Boolean advancedAutoComplete  = false;
         if(advancedAutoCompleteStr!=null){
             advancedAutoComplete= "true".equals(advancedAutoCompleteStr);
         }
         if(!advancedAutoComplete){
-            return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum);
+            return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum,org);
         }
-        return advancedAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum);
+        return advancedAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum,org);
     }
     
-    public SearchResult advancedAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
+    public SearchResult advancedAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,Map org) throws SQLException {
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
         String column = null;
@@ -132,7 +128,7 @@ public class SearchDao {
         querySql.append("select result.name, count(*) as count from ( select ");
         String baseTable = new String();
         List values = new ArrayList();
-        String schemaname = orgHolder.getSchemaName();
+        String schemaname = (String)org.get("schemaname");
         
         if(type.equals("company")){
             baseTable = schemaname+".ts2__employment_history__c ";
@@ -165,7 +161,7 @@ public class SearchDao {
         
         //------- get the skill_assessment_rating config for current org ----------//
         if(min!=null&&!"0".equals(min)&&type.equals("skill")){
-           String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", orgHolder.getId());
+           String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.get("id"));
             if (!"true".equals(skillAssessmentRatingStr)) {
                 skill_assessment_rating = false;
             } else {
@@ -175,7 +171,7 @@ public class SearchDao {
         }
         //-------- /get the skill_assessment_rating config for current org ---------//
         
-        querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable)[0]);
+        querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable,org)[0]);
         
         //if has min year or min raidus or min rating,need do filter for this
         if(min!=null&&!"0".equals(min)){
@@ -207,7 +203,7 @@ public class SearchDao {
             log.debug(querySql.toString());
         }
         Long start = System.currentTimeMillis();
-        Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
+        Runner runner = daoHelper.openNewOrgRunner((String)org.get("name"));
         List<Map> result =runner.executeQuery(querySql.toString(),values.toArray());
         runner.close();
         Long end = System.currentTimeMillis();
@@ -220,8 +216,8 @@ public class SearchDao {
         return searchResult;
     }
     
-    public SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum) throws SQLException {
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
+    public SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,Map org) throws SQLException {
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         Filter filter = sc.getFilterByName(type);
         if(filter==null){
              return null;
@@ -260,7 +256,7 @@ public class SearchDao {
         querySql.append(" order by count desc limit 7 ");
         
         Long start = System.currentTimeMillis();
-        Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
+        Runner runner = daoHelper.openNewOrgRunner((String)org.get("name"));
         queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
         List<Map> result =runner.executeQuery(querySql.toString());
         runner.close();
@@ -285,8 +281,8 @@ public class SearchDao {
      * @param appendJoinTable
      * @return
      */
-    private String[] renderSearchCondition(Map<String, String> searchValues,String type,String baseTable,String baseTableIns,List values,  String appendJoinTable ){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
+    private String[] renderSearchCondition(Map<String, String> searchValues,String type,String baseTable,String baseTableIns,List values,  String appendJoinTable ,Map org){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         StringBuilder joinTables = new StringBuilder();
         StringBuilder searchConditions = new StringBuilder();
         StringBuilder querySql = new StringBuilder();
@@ -294,7 +290,7 @@ public class SearchDao {
     	List subValues = new ArrayList();
     	boolean advanced = "advanced".equals(type);
     	boolean hasCondition = false;
-    	String schemaname = orgHolder.getSchemaName();
+    	String schemaname = (String)org.get("schemaname");
     	StringBuilder contactQuery = new StringBuilder();
     	StringBuilder contactExQuery = new StringBuilder();
     	StringBuilder prefixSql = new StringBuilder("");
@@ -302,7 +298,7 @@ public class SearchDao {
     	boolean hasSearchValue = false;//to check if the search box has value or not
     	StringBuilder labelSql = new StringBuilder();
     	StringBuilder locationSql = new StringBuilder();
-    	String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",orgHolder.getId());
+    	String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",(Integer)org.get("id"));
     	boolean userlistFeature = Boolean.valueOf(userlistFeatureStr);
     	
     	boolean needJoinRecordtype = false;
@@ -327,11 +323,11 @@ public class SearchDao {
        				}
         		   baseTable =  schemaname+".contact " ;
                    baseTableIns = "a";
-                   searchConditions.append(getSearchValueJoinTable(search, values,"a"));
+                   searchConditions.append(getSearchValueJoinTable(search, values,"a",org));
                    hasCondition = true;
         	   }else{
         	       if(search.length()>=3){
-        	           contactQuery.append(getSearchValueJoinTable(search, values,"contact"));
+        	           contactQuery.append(getSearchValueJoinTable(search, values,"contact",org));
         	           hasSearchValue = true;
             	       hasCondition = true;
         	       }
@@ -642,7 +638,7 @@ public class SearchDao {
            if (searchValues.get("skills") != null && !"".equals(searchValues.get("skills"))) {
         	   
         	   //Get the skill_assessment_rating for current org,if true,will join with ts2__assessment__c
-        	   String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", orgHolder.getId());
+        	   String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.get("id"));
          	   boolean skill_assessment_rating = false;
          	   if(!"true".equals(skillAssessmentRatingStr)){
          		   skill_assessment_rating = false;
@@ -906,8 +902,8 @@ public class SearchDao {
      * @param groupBy
      * @return
      */
-    private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy,StringBuffer searchedColumns){
-        String schemaname = orgHolder.getSchemaName();
+    private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy,StringBuffer searchedColumns,Map org){
+        String schemaname = (String)org.get("schemaname");
         if(searchedColumns.toString().contains(orginalName.toLowerCase()+",")){
             return "";
         }
@@ -951,7 +947,7 @@ public class SearchDao {
     	    return " (select  string_agg(distinct d.\"ts2__name__c\",',') " +
     	    		"from "+schemaname+".ts2__education_history__c d  where a.\"sfid\" = d.\"ts2__contact__c\"   ) as education ";
     	}else if(orginalName.toLowerCase().equals("location")){
-    		columnJoinTables.add(getAdvancedJoinTable("location"));
+    		columnJoinTables.add(getAdvancedJoinTable("location",org));
     		 if(groupBy.length()>0){
                  groupBy.append(",");
              }
@@ -959,7 +955,7 @@ public class SearchDao {
     		return "  z.\"city\" as location ";
     	}
         
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         Filter f = sc.getFilterByName(orginalName);
         String tableName = f.getFilterField().getTable();
         String contactTableName = sc.getContact().getTable();
@@ -978,8 +974,8 @@ public class SearchDao {
      * @param searchColumns
      * @return
      */
-    private String getSearchColumnsForOuter(String searchColumns,boolean userlistFeature){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
+    private String getSearchColumnsForOuter(String searchColumns,boolean userlistFeature,Map org){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         StringBuilder sb = new StringBuilder();
     	if(searchColumns==null){
     		sb.append("id,name,lower(name) as \"lname\",email,lower(\"email\") as \"lemail\"lower(title) as \"ltitle\",title ,createddate");
@@ -1036,9 +1032,9 @@ public class SearchDao {
      * @param groupBy
      * @return
      */
-    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,boolean userlistFeature){
+    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,boolean userlistFeature,Map org){
     	 StringBuilder columnsSql = new StringBuilder();
-    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
+    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
     	 if(searchColumns==null){//a.phone,
              columnsSql.append(sc.toContactFieldsString("a"));
              //,a.phone
@@ -1050,7 +1046,7 @@ public class SearchDao {
     			 sb.append("haslabel,");
     		 }
  	        for(String column:searchColumns.split(",")){
- 	        	temp = getQueryColumnName(column,columnJoinTables,groupBy,sb);
+ 	        	temp = getQueryColumnName(column,columnJoinTables,groupBy,sb,org);
  	        	if(!temp.trim().equals("")){
 	 	            columnsSql.append(temp);
 	 	            columnsSql.append(",");
@@ -1077,14 +1073,14 @@ public class SearchDao {
      * @return SearchStatements
      */
     private SearchStatements buildSearchStatements(String searchColumns, Map<String, String> searchValues,
-                                                   Integer pageIdx, Integer pageSize,String orderCon) {
+                                                   Integer pageIdx, Integer pageSize,String orderCon,Map org) {
         SearchStatements ss = new SearchStatements();
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         if(pageIdx < 1){
             pageIdx = 1;
         }
         int offset = (pageIdx -1) * pageSize;
-        String schemaname = orgHolder.getSchemaName();
+        String schemaname = (String)org.get("schemaname");
         
         //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
@@ -1104,15 +1100,15 @@ public class SearchDao {
         String cteSql = "";
         
         //get the userlist feature
-        String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",orgHolder.getId());
+        String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",(Integer)org.get("id"));
         boolean userlistFeature = Boolean.valueOf(userlistFeatureStr);
         
         querySql.append("select ");
-        querySql.append(getSearchColumnsForOuter(searchColumns,userlistFeature));
+        querySql.append(getSearchColumnsForOuter(searchColumns,userlistFeature,org));
         querySql.append(" from ( ");
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
-        querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy,userlistFeature));
+        querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy,userlistFeature,org));
         
         
         //---------------------- add select columns ----------------------//
@@ -1178,7 +1174,7 @@ public class SearchDao {
         if(searchValues!=null){
            
             // for all search mode, we preform the same condition
-            String[] sqls = getCondtion(search, searchValues,values,orderCon,offset,pageSize);
+            String[] sqls = getCondtion(search, searchValues,values,orderCon,offset,pageSize,org);
             querySql.append(sqls[0]);
             countSql.append(sqls[1]);
             cteSql=sqls[2];
@@ -1233,12 +1229,12 @@ public class SearchDao {
      * @return first for query sql,second for query sql
      */
     private String[] getCondtion(String searchValue, Map<String, String> searchValues, List values,String orderCon,
-    		Integer offset,Integer pageSize){
+    		Integer offset,Integer pageSize,Map org){
     	StringBuilder joinSql = new StringBuilder();
     	StringBuilder countSql = new StringBuilder();
     	String prefixSql = "";
         if(searchValues!=null){
-            String[] sqls = renderSearchCondition(searchValues,"search",null,null,values,null);
+            String[] sqls = renderSearchCondition(searchValues,"search",null,null,values,null,org);
             String condition = sqls[2];
 	        boolean hasContactsCondition = false;
 	        String locationSql = sqls[4];
@@ -1307,9 +1303,9 @@ public class SearchDao {
      * @param type available value : company,education,skill and location
      * @return
      */
-    private String getAdvancedJoinTable(String type){
+    private String getAdvancedJoinTable(String type,Map org){
         StringBuilder joinSql = new StringBuilder();
-        String schemaname = orgHolder.getSchemaName();
+        String schemaname = (String)org.get("schemaname");
         
         if(type.equals("company")){
             joinSql.append( " left join  "+schemaname+".ts2__employment_history__c c ");
@@ -1334,16 +1330,16 @@ public class SearchDao {
      * @param alias
      * @return
      */
-    private String getSearchValueJoinTable(String searchValue, List values,String alias){
+    private String getSearchValueJoinTable(String searchValue, List values,String alias,Map org){
         StringBuilder joinSql = new StringBuilder();
         if("a".equals(alias)){
             joinSql.append(" right join (");
-            joinSql.append(booleanSearchHandler(searchValue, null, values));
+            joinSql.append(booleanSearchHandler(searchValue, null, values,org));
             joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
             return joinSql.toString();
         }else{
             joinSql.append(" select  distinct con.id,con.sfid  from (");
-    	    joinSql.append(booleanSearchHandler(searchValue, null, values));
+    	    joinSql.append(booleanSearchHandler(searchValue, null, values,org));
     	    joinSql.append(")  con ");
     	    return joinSql.toString();
 	    }
@@ -1356,9 +1352,9 @@ public class SearchDao {
      * @param values
      * @return
      */
-    public  String booleanSearchHandler(String searchValue,String type, List values){
-    	String schemaname = orgHolder.getSchemaName();
-    	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
+    public  String booleanSearchHandler(String searchValue,String type, List values,Map org){
+    	String schemaname = (String)org.get("schemaname");
+    	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
     	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
     	if(!searchValue.contains("NOT ")&&
@@ -1385,7 +1381,7 @@ public class SearchDao {
 	    	for(int i=0;i<orConditions.length;i++){
 	    		String orCondition = orConditions[i];
 	    		sb.append("select a_extr"+i+".id,a_extr"+i+".sfid from (");
-	    		sb.append(booleanSearchHandler(orCondition, "AND",values));
+	    		sb.append(booleanSearchHandler(orCondition, "AND",values,org));
 	    		sb.append(" a_extr"+i+" union ");
 	    		hasSearch = true;
 	    	}
@@ -1401,7 +1397,7 @@ public class SearchDao {
     			if(i==0){
     				sb.append(" select n_ext0.id as id,n_ext0.sfid as sfid from ");
     			}
-	    		sb.append(booleanSearchHandler(andCondition, "NOT",values)+(i));
+	    		sb.append(booleanSearchHandler(andCondition, "NOT",values,org)+(i));
 	    		if(i>0){
 	    			sb.append(" on n_ext"+i+".id=n_ext"+(i-1)+".id");
 	    		}
@@ -1421,7 +1417,7 @@ public class SearchDao {
     		temp = notConditions[0].trim();
 
 			sb.append(" select ex.id,ex.sfid from   "+schemaname
-			    +".contact_ex ex where "+renderKeywordSearch(values,temp)  );
+			    +".contact_ex ex where "+renderKeywordSearch(values,temp,org)  );
     		
 			if(notConditions.length==1){
     			sb.append(") n_ext");
@@ -1437,7 +1433,7 @@ public class SearchDao {
 	    		temp = notConditions[i].trim();
 	    		sb.append(" except ");
                         
-	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where "+renderKeywordSearch(values,temp) + " ) ");
+	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where "+renderKeywordSearch(values,temp,org) + " ) ");
 	    		//values.add(temp);
 	    		//values.add(temp);
 	    	}
@@ -1449,8 +1445,8 @@ public class SearchDao {
     	return sb.toString();
     }
     
-    private String renderKeywordSearch(List values,String param){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration(orgHolder.getOrgName());
+    private String renderKeywordSearch(List values,String param,Map org){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         StringBuilder sb = new StringBuilder();
         for(Field f:sc.getKeyword().getFields()){
             sb.append("OR ").append(f.toString("ex")).append("@@ plainto_tsquery(?)");
@@ -1472,14 +1468,14 @@ public class SearchDao {
      * @throws SQLException
      */
     @Deprecated
-    public List getTopAdvancedType(Integer offset,Integer size,String type,String keyword,String min) throws SQLException {
+    public List getTopAdvancedType(Integer offset,Integer size,String type,String keyword,String min,Map org) throws SQLException {
         if(size == null||size<8){
             size = 7;
         }
         offset = offset < 0 ? 0 : offset;
-        Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
+        Runner runner = daoHelper.openNewOrgRunner((String)org.get("name"));
         String name = getNameExpr(type);
-        String table = getTable(type);
+        String table = getTable(type,org);
         StringBuilder querySql =new StringBuilder();
         if("location".equals(type)){
         	querySql.append("select city as name from jss_sys.zipcode_us  ");
@@ -1541,9 +1537,9 @@ public class SearchDao {
      * @param type
      * @return
      */
-    private String getTable(String type){
+    private String getTable(String type,Map org){
         String table = null;
-        String schemaname = orgHolder.getSchemaName();
+        String schemaname = (String)org.get("schemaname");
         if(type.equals("company")){
             table =  schemaname+".ts2__employment_history__c";
         }else if(type.equals("education")){

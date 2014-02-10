@@ -12,6 +12,7 @@ import net.sf.json.JSONObject;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
+import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
 
@@ -19,6 +20,9 @@ import com.jobscience.search.dao.SearchResult;
 public class SearchWebHandlers {
     @Inject
     private SearchDao searchDao;
+    
+    @Inject
+    private CurrentOrgHolder orgHolder;
     
     /**
      * api for main search
@@ -66,7 +70,7 @@ public class SearchWebHandlers {
         }
         //for contact,use id,name,title,email,CreatedDate instead
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-        SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon,searchValues,(String)token.get("ctoken"));
+        SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon,searchValues,(String)token.get("ctoken"),orgHolder.getCurrentOrg());
         WebResponse wr = WebResponse.success(searchResult);
         return wr;
     }
@@ -107,7 +111,7 @@ public class SearchWebHandlers {
         if(pageSize==null||pageSize<1){
         	pageSize=7;
         }
-        SearchResult  sResult = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount,min,pageSize,pageNum);
+        SearchResult  sResult = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount,min,pageSize,pageNum,orgHolder.getCurrentOrg());
         result.put("list", sResult.getResult());
         result.put("selectDuration", sResult.getSelectDuration());
         result.put("duration", sResult.getDuration());

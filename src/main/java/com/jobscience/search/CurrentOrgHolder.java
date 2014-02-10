@@ -71,6 +71,15 @@ public class CurrentOrgHolder {
     }
 
     protected Object getFieldValue(String fieldName){
+        Map map = getCurrentOrg();
+        if (map != null) {
+            return map.get(fieldName);
+        }
+        OrganizationNotSelectException e = new OrganizationNotSelectException();
+        throw e;
+    }
+
+    public Map getCurrentOrg() {
         Map map = null;
         if (crh != null) {
             RequestContext rc = crh.getCurrentRequestContext();
@@ -87,30 +96,23 @@ public class CurrentOrgHolder {
                         map = orgMap.get(orgName);
                         if (map == null) {
                             List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
-                                    "select * from org where name = ?",
-                                    orgName);
-                            if (list.size() > 0){
+                                    "select * from org where name = ?", orgName);
+                            if (list.size() > 0) {
                                 map = list.get(0);
                             }
                             orgMap.put(orgName, map);
                         }
-                        if(map.get("sfid") != null&&((String)map.get("sfid")).length()>0){
-                              //forece sf1 test
+                        if (map.get("sfid") != null && ((String) map.get("sfid")).length() > 0) {
+                            // forece sf1 test
                             rc.removeCookie("org");
                             throw new AbortWithHttpRedirectException("/sf1");
                         }
                     }
                 }
             }
-            if (map != null) {
-                return map.get(fieldName);
-            }
         }
-
-        OrganizationNotSelectException e = new OrganizationNotSelectException();
-        throw e;
+        return map;
     }
-
     private Map getOrg(String ctoken) {
         return cache.getIfPresent(ctoken);
     }
