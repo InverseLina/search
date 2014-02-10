@@ -756,9 +756,8 @@ public class SearchDao {
                         conditions.append(" ) ");
             	   }else{
             	       locationSql.append(" join jss_sys.zipcode_us z on ");
-            	       locationSql.append(f.toString("contact")+" =z.\"zip\"");
             		   JSONObject ol;
-            		   locationSql.append(" AND (1!=1  ");
+            		   locationSql.append("  (1!=1  ");
                        for (Object location : locationValues) {
                            ol = (JSONObject) location;
                            String name = (String) ol.get("name");
@@ -771,6 +770,8 @@ public class SearchDao {
             				   			     +","+sc.getContactField("ts2__longitude__c").toString("contact")+"))<=")
             				   			 .append(minRadius*1000);
                                }
+                            }else{
+                                locationSql.append(" AND ").append(f.toString("contact")+" =z.\"zip\"");
                             }
                            locationSql.append(")");
                        }
