@@ -81,6 +81,7 @@
 
           values.configsJson = JSON.stringify(configs);
           app.getJsonData("/config/save", values, "Post").done(function(data) {
+              $.extend(app.orgInfo||{}, configs);
             values = {};
             values["name"] = view.$el.find("[name='name']").val();
             values["id"] = view.$el.find("[name='id']").val();

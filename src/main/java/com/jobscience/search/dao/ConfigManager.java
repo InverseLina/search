@@ -29,7 +29,8 @@ public class ConfigManager {
     
     private static final String[] snowPropertiesInheritedArray = new String[]{"jss.feature.userlist"};
     private static final Set<String> snowPropertiesInherited = new HashSet<String>(Arrays.asList(snowPropertiesInheritedArray));
-    private static final String[] orgInfoKeysArray = new String[]{"jss.feature.userlist", "apex_resume_url"};
+    private static final String[] orgInfoKeysArray = new String[]{"jss.feature.userlist",
+            "apex_resume_url","local_distance","local_date"};
     private static final Set<String> orgInfoKeys = new HashSet<String>(Arrays.asList(orgInfoKeysArray));
     
     /**

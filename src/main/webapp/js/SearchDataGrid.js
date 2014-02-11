@@ -576,15 +576,8 @@
     var dtd = $.Deferred();
     var label = view.tabView.getSelectLabel();
     var isFav = label.name == "Favorites" ? true: false;
-	 $.ajax({
-			url: contextPath +"/config/get/local_date",
-			type:"Get",
-			dataType:'json'
-  	  }).done(function(config){
-  		var dateFormat = "YYYY-MM-DD";
-  		if(config.result&&config.result[0]){
-  			dateFormat = config.result[0].value;
-  		}
+    var dateFormat = app.orgInfo["local_date"]||"YYYY-MM-DD";
+
   	    for (var i = 0; i < items.length; i++) {
   	      item = [];
   	      for (var j = 0; j < columns.length; j++) {
@@ -656,7 +649,7 @@
   	      });
   	    }
   	    dtd.resolve(result);
-  	  });
+
    return dtd.promise();
   }
 
