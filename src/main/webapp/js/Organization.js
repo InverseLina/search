@@ -50,7 +50,16 @@
   function refreshEntityTable(){
     var view = this;
     app.getJsonData("/org/list").done(function(data){
-        var html = render("Organization-list",{list:data});
+        var contextUrl, baseUrl,  adminIndex = window.location.pathname.indexOf("/admin");
+        var loc = window.location;
+        if(adminIndex == 0){
+            baseUrl = "/";
+        }else{
+            baseUrl = window.location.pathname.substr(0, adminIndex+1);
+        }
+
+        contextUrl = loc.protocol + "//" +  loc.host + baseUrl;
+        var html = render("Organization-list",{list:data, ctxUrl: contextUrl});
         view.$tabContent.bEmpty();
         view.$tabContent.html(html);
     });

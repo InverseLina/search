@@ -19,6 +19,7 @@
                 <th style="">name</th>
                 <th style="">schemaname</th>
                 <th style="">sfid</th>
+                <th style="">app url</th>
                 <th style="width:35px"></th>
             </tr>
             </thead>
@@ -29,6 +30,7 @@
                     </td>
                     <td>{{schemaname}}</td>
                     <td>{{sfid}}</td>
+                    <td><a href="{{../ctxUrl}}?org={{name}}">{{../ctxUrl}}?org={{name}}</a></td>
                     <td><i class="f-icon-remove icon-remove glyphicon glyphicon-remove del" data-entity="{{id}}"></i></td>
                 </tr>
                 {{/each}}
