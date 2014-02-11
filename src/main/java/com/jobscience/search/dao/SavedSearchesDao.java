@@ -1,14 +1,13 @@
 package com.jobscience.search.dao;
 
 
-import com.google.inject.Singleton;
-import com.jobscience.search.CurrentOrgHolder;
-
-import javax.inject.Inject;
-
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
+
+import com.google.inject.Singleton;
 
 @Singleton
 public class SavedSearchesDao {
@@ -24,32 +23,30 @@ public class SavedSearchesDao {
 
     @Inject
     private DaoHelper daoHelper;
-    @Inject
-    private CurrentOrgHolder orgHolder;
 
-    public List<Map> list(int offset, int limit) {
-        return daoHelper.executeQuery(orgHolder.getOrgName(), getSql, offset, limit);
+    public List<Map> list(int offset, int limit,Map org) {
+        return daoHelper.executeQuery((String)org.get("name"), getSql, offset, limit);
     }
 
-    public void save(String name, String content){
-        List<Map> list = daoHelper.executeQuery(orgHolder.getOrgName(), getByNameSql, name);
+    public void save(String name, String content,Map org){
+        List<Map> list = daoHelper.executeQuery((String)org.get("name"), getByNameSql, name);
         if(list.size()==0){
-            daoHelper.executeUpdate(orgHolder.getOrgName(), insertSql, new Timestamp(System.currentTimeMillis()), name, content);
+            daoHelper.executeUpdate((String)org.get("name"), insertSql, new Timestamp(System.currentTimeMillis()), name, content);
         }else{
-            daoHelper.executeUpdate(orgHolder.getOrgName(), updateSql, new Timestamp(System.currentTimeMillis()), content, name);
+            daoHelper.executeUpdate((String)org.get("name"), updateSql, new Timestamp(System.currentTimeMillis()), content, name);
         }
     }
 
-    public void delete(Long id){
-        daoHelper.executeUpdate(orgHolder.getOrgName(), deleteSql, id);
+    public void delete(Long id,Map org){
+        daoHelper.executeUpdate((String)org.get("name"), deleteSql, id);
     }
 
-    public int count(String name) {
-        return daoHelper.executeQuery(orgHolder.getOrgName(), getByNameSql, name).size();
+    public int count(String name,Map org) {
+        return daoHelper.executeQuery((String)org.get("name"), getByNameSql, name).size();
     }
 
-    public Map get(Long id) {
-       List<Map> list = daoHelper.executeQuery(orgHolder.getOrgName(), getByIDSql, id);
+    public Map get(Long id,Map org) {
+       List<Map> list = daoHelper.executeQuery((String)org.get("name"), getByIDSql, id);
         if (list.size() > 0) {
             return list.get(0);
         }else{

@@ -8,19 +8,16 @@ import org.jasql.Runner;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.CurrentOrgHolder;
 
 @Singleton
 public class SyncDao {
     
     @Inject
     private DaoHelper daoHelper;
-    @Inject
-    private CurrentOrgHolder orgHolder;
     
-    public  List<Map> getTablesByOrg(String schemaName){
+    public  List<Map> getTablesByOrg(String schemaName,Map org){
         if(schemaName == null){
-            schemaName = orgHolder.getSchemaName();
+            schemaName = (String)org.get("schemaname");
         }
         
         List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select table_name as name from information_schema.tables" +
@@ -33,8 +30,8 @@ public class SyncDao {
         return list;
     }
     
-    public  List<Map> getData(String tableName, int pageIndex, int pageSize){
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgHolder.getOrgName()), "select * from "+tableName+" offset "+pageIndex+" limit "+pageSize);
+    public  List<Map> getData(String tableName, int pageIndex, int pageSize,Map org){
+        List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner((String)org.get("name")), "select * from "+tableName+" offset "+pageIndex+" limit "+pageSize);
         return list;
     }
     
@@ -43,7 +40,7 @@ public class SyncDao {
         return list;
     }
     
-    public void syncFromSF(String tableName, List<Map> data){
+    public void syncFromSF(String tableName, List<Map> data,Map org){
         if(data==null||data.size()==0){
             return ;
         }
@@ -59,7 +56,7 @@ public class SyncDao {
         
         String prefix = "insert into "+tableName+"("+columns+") values(";
         StringBuilder sql =new StringBuilder();
-        Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
+        Runner runner = daoHelper.openNewOrgRunner((String)org.get("name"));
         int time = 0;
         for(Map d:data){
             if(time%99==0){

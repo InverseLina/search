@@ -84,7 +84,7 @@ public class SearchDao {
             userId=Long.parseLong(user.get("id").toString());
         }
        
-        searchLogDao.addSearchLog(searchValuesString, end - mid, mid - start, userId);
+        searchLogDao.addSearchLog(searchValuesString, end - mid, mid - start, userId,org);
         
         SearchResult searchResult = new SearchResult(result, count)
         							.setDuration(end - start)
