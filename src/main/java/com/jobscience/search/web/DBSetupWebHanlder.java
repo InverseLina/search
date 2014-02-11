@@ -224,7 +224,8 @@ public class DBSetupWebHanlder {
     
     @WebPost("/dropExTables")
     public WebResponse dropExTables(@WebParam("orgName")String orgName){
-        return WebResponse.success(dbSetupManager.dropExTables(orgName));
+        dbSetupManager.dropExTables(orgName);
+        return WebResponse.success();
     }
    
 }

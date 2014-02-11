@@ -19,6 +19,8 @@ import net.sf.json.JSONObject;
 
 import org.jasql.PQuery;
 import org.jasql.Runner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.common.cache.Cache;
@@ -57,6 +59,8 @@ public class DBSetupManager {
     private SearchConfigurationManager scm;
     
     private volatile ConcurrentMap<String,JSONArray> indexesMap;
+    
+    private Logger log = LoggerFactory.getLogger(DBSetupManager.class);
     
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
@@ -281,7 +285,7 @@ public class DBSetupManager {
             try {
                 runner.roolback();
             } catch (Exception e1) {
-                e1.printStackTrace();
+                log.error(e1.getMessage());
                 result = false;
             }
            throw e;
@@ -337,12 +341,12 @@ public class DBSetupManager {
             }
             runner.commit();
         } catch (Exception e) {
-        	e.printStackTrace();
+            log.error(e.getMessage());
         	result = false;
             try {
                 runner.roolback();
             } catch (Exception e1) {
-                e1.printStackTrace();
+                log.error(e1.getMessage());
             }
             throw e;
         }finally{
@@ -396,11 +400,11 @@ public class DBSetupManager {
            result = true;
        }catch (Exception e) {
         	result = false;
-        	e.printStackTrace();
+        	log.error(e.getMessage());
             try {
                 runner.roolback();
             } catch (Exception e1) {
-                e1.printStackTrace();
+                log.error(e1.getMessage());
             }
             throw e;
         }finally{
@@ -536,11 +540,11 @@ public class DBSetupManager {
                 runner.executeUpdate(" drop index "+m.get("indexname")+" ;");
             }
         }catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             try {
                 runner.roolback();
             } catch (Exception e1) {
-                e1.printStackTrace();
+                log.error(e1.getMessage());
             }
             throw e;
         }finally{
@@ -568,7 +572,7 @@ public class DBSetupManager {
             String sqls[] = temp.toString().split("-- SCRIPTS");
             Collections.addAll(sqlList, sqls);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
         return sqlList;
     }
@@ -629,12 +633,12 @@ public class DBSetupManager {
            }
            runner.commit();
        } catch (Exception e) {
-           e.printStackTrace();
+           log.error(e.getMessage());
            result = false;
            try {
                runner.roolback();
            } catch (Exception e1) {
-               e1.printStackTrace();
+               log.error(e1.getMessage());
            }
            throw e;
        }finally{
@@ -670,12 +674,11 @@ public class DBSetupManager {
        return  indexesCount;
    }
    
-   public int  dropExTables(String orgName){
-       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop table if exists ex_grouped_locations");
-       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop table if exists ex_grouped_employers");
-       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop table if exists ex_grouped_educations");
-       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName), "drop table if exists ex_grouped_skills");
-       return 4;
+   public void  dropExTables(String orgName){
+       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName),  "drop table if exists ex_grouped_locations;"
+                                                                   + "drop table if exists ex_grouped_employers;"
+                                                                   + "drop table if exists ex_grouped_educations;"
+                                                                   + "drop table if exists ex_grouped_skills");
    }
    private Map<String,JSONArray> getIndexMapFromJsonFile(){
        if(indexesMap!=null){
@@ -814,11 +817,11 @@ public class DBSetupManager {
                    runner.commit();
                }
            }catch (Exception e) {
-               e.printStackTrace();
+               log.error(e.getMessage());
                try {
                    runner.roolback();
                } catch (Exception e1) {
-                   e1.printStackTrace();
+                   log.error(e1.getMessage());
                }
                throw e;
            }finally{
