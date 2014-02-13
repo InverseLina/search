@@ -7,7 +7,12 @@
     }, {
         // --------- View Interface Implement--------- //
         create : function(data) {
-            return render("PerfView");
+            var dfd = $.Deferred()
+            app.getJsonData("test/getOrgs").done(function(result){
+                var html = render("PerfView", {orgs: result});
+                dfd.resolve(html);
+            })
+            return dfd.promise();
         },
         postDisplay : function(data) {
             var view = this;
@@ -18,11 +23,11 @@
             view.$navTabs.find("li.active").removeClass("active");
 
             view.$navTabs.find("a[href='#perf']").closest("li").addClass("active");
-            perfSearchDao.checkStatus().done(function(result){
+/*            perfSearchDao.checkStatus().done(function(result){
                 if(!result){
                    view.$el.find('button').attr("disabled", true);
                 }
-            });
+            });*/
         },
         // --------- /View Interface Implement--------- //
 
@@ -63,6 +68,7 @@
         var view = this;
         var $perfItem = $button.closest(".perf-item");
         var $perfValues = $button.closest(".perf-values");
+        var org = view.$el.find("select[name='org']").val();
         $button.attr("disabled", "true").addClass("running").html("Running...");
         var data = {};
         $perfValues.find("input").each(function() {
@@ -82,6 +88,7 @@
 
         });
         var searchParameter = getSearchParameter(view, data);
+        searchParameter.org = org;
         var methodName = $perfItem.attr("data-perf-method");
         if (methodName == 'autocomplete') {
             searchParameter.type = $button.attr("data-type");

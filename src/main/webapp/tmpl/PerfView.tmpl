@@ -1,9 +1,19 @@
 <script id="PerfView" type="text/html">
     <div class="PerfView">
+
 	  <div class="perf-body">
-    	<div class="perf-search row">
-         <button class="btn btn-primary all ">GO All</button>
-       </div>
+          <div class="perf-search perf-values row">
+              <span>
+                  <label>Select Org:</label>
+
+                  <select name="org" style="display: inline-block; width:155px; height: 30px; line-height: 30px">
+                      {{#each orgs}}
+                          <option value="{{name}}">{{name}}</option>
+                      {{/each}}
+                  </select>
+              </span>
+             <button class="btn btn-primary all ">GO All</button>
+          </div>
     
     	<h3>Search Test</h3>
      	<div class="perf-item perf-search row " data-perf-method="search">

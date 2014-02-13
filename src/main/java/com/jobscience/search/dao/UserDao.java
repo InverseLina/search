@@ -40,7 +40,9 @@ public class UserDao {
         RequestContext rc = crh.getCurrentRequestContext();
         if (rc != null) {
             String ctoken = rc.getCookie("ctoken");
-            return getUserByToken(ctoken);
+            if(ctoken != null){
+                return getUserByToken(ctoken);
+            }
         }
         return null;
     }
@@ -51,6 +53,14 @@ public class UserDao {
 
     public Map getUserByToken(String ctoken) {
         List<Map> users = daoHelper.executeQuery(orgHolder.getOrgName(), selectByTokenSql, ctoken);
+        if (users.size() > 0) {
+            return users.get(0);
+        }else{
+            return null;
+        }
+    }
+    public Map getUserByTokenAndOrg(String ctoken, String orgName) {
+        List<Map> users = daoHelper.executeQuery(orgName, selectByTokenSql, ctoken);
         if (users.size() > 0) {
             return users.get(0);
         }else{

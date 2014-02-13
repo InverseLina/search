@@ -13,6 +13,8 @@ import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.DaoHelper;
 
+import com.jobscience.search.dao.OrgConfigDao;
+import com.jobscience.search.exception.AppException;
 import net.sf.json.JSONObject;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
@@ -31,6 +33,9 @@ public class PerfWebHandlers {
     @Inject
     private CurrentOrgHolder orgHolder;
 
+    @Inject
+    private OrgConfigDao orgConfigDao;
+
 
     @Inject
     private DaoHelper daoHelper;
@@ -44,28 +49,32 @@ public class PerfWebHandlers {
      */
     @WebGet("/perf/search")
     public WebResponse search(@WebParam("searchValues") String searchValues,
-                            @WebParam("searchColumns") String searchColumns,@WebUser Map user) {
-        if (user != null) {
-            orgHolder.getOrgName();
-            String orderCon = "";
-            JSONObject jo = JSONObject.fromObject(searchValues);
-            Map<String, String> searchMap = new HashMap<String, String>();
-            // resolve the search parameters,cause all parameters begin with "q_"
-            for (Object key : jo.keySet()) {
-                searchMap.put(key.toString().substring(2), jo.get(key).toString());
-            }
-
-            // for contact,use id,name,title,email,CreatedDate instead
-            searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-            SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon, searchValues, (String) user.get("ctoken"),orgHolder.getCurrentOrg());
-            Map<String, Number> resultMap = new HashMap<String, Number>();
-            resultMap.put("count", searchResult.getCount());
-            resultMap.put("duration", searchResult.getSelectDuration());
-            resultMap.put("countDuration", searchResult.getCountDuration());
-            WebResponse wr = WebResponse.success(resultMap);
-            return wr;
+                            @WebParam("searchColumns") String searchColumns,@WebParam("org") String org) {
+        String orderCon = "";
+        JSONObject jo = JSONObject.fromObject(searchValues);
+        Map<String, String> searchMap = new HashMap<String, String>();
+        // resolve the search parameters,cause all parameters begin with "q_"
+        for (Object key : jo.keySet()) {
+            searchMap.put(key.toString().substring(2), jo.get(key).toString());
         }
-        throw new OrganizationNotSelectException();
+
+        // for contact,use id,name,title,email,CreatedDate instead
+        searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
+        SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon, searchValues, "-1", getOrgMap(org));
+        Map<String, Number> resultMap = new HashMap<String, Number>();
+        resultMap.put("count", searchResult.getCount());
+        resultMap.put("duration", searchResult.getSelectDuration());
+        resultMap.put("countDuration", searchResult.getCountDuration());
+        WebResponse wr = WebResponse.success(resultMap);
+        return wr;
+    }
+
+    private Map getOrgMap(String org) {
+        List<Map> orgs = orgConfigDao.getOrgByName(org);
+        if (orgs.size() != 1) {
+            throw new RuntimeException("multi org has same name");
+        }
+        return orgs.get(0);
     }
 
     /**
@@ -84,9 +93,9 @@ public class PerfWebHandlers {
     public WebResponse autocomplete(@WebParam("searchValues") String searchValues, @WebParam("type") String type,
                             @WebParam("queryString") String queryString,
                             @WebParam("orderByCount") Boolean orderByCount, @WebParam("min") String min,
-                            @WebParam("pageSize") Integer pageSize, @WebParam("pageNum") Integer pageNum)
+                            @WebParam("pageSize") Integer pageSize, @WebParam("pageNum") Integer pageNum,
+                            @WebParam("org") String org)
                             throws SQLException {
-        orgHolder.getOrgName();
         Map<String, String> result = new HashMap<String, String>();
         JSONObject jo = JSONObject.fromObject(searchValues);
         if (queryString == null) {
@@ -103,7 +112,7 @@ public class PerfWebHandlers {
         if (pageNum == null || pageNum < 1) {
             pageNum = 1;
         }
-        SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum,orgHolder.getCurrentOrg());
+        SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum,getOrgMap(org));
 
         HashMap<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", sResult.getCount());

@@ -79,7 +79,7 @@ public class SearchDao {
         queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,end - mid);
         
         Long userId = -1L;
-        Map user =  userDao.getUserByToken(token);
+        Map user =  userDao.getUserByTokenAndOrg(token, (String)org.get("name"));
         if(user!=null){
             userId=Long.parseLong(user.get("id").toString());
         }
@@ -338,14 +338,19 @@ public class SearchDao {
            //Get the label parameters and render them
            String label = searchValues.get("label");
            String labelAssigned = searchValues.get("labelAssigned");
-           String sfid = (String) userDao.getCurrentUser().get("sfid");
+           Map userMap = userDao.getCurrentUser();
+            String sfid = null;
+            if (userMap != null) {
+                sfid = (String) userMap.get("sfid");
+            }
+
            if(sfid==null){
                sfid = "1";
            }
            if(label==null){
                label="Favorites";
            }
-           if(userlistFeature){
+           if(userlistFeature && userMap != null){
 	           if(label!=null){
 	               if(advanced){
 	                   if(!"true".equals(labelAssigned)){
