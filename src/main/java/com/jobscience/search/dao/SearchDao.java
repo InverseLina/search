@@ -1285,7 +1285,7 @@ public class SearchDao {
 	        	if(hasContactsCondition||"true".equals(labelAssigned)||locationSql.length()>0){
                     joinSql.append(" offset "+offset);
                 }else{
-                    joinSql.append(" offset 0 ");
+                    joinSql.append(" offset  "+offset);
                 }
 	        	joinSql.append(" limit ").append(pageSize);
 	        }
