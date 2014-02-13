@@ -1,5 +1,9 @@
 # Mac stuff, ignore
 .DS_Store
+
+# ignore dev/ folder
+dev/
+
 # Eclipse stuff, should be for each developer, so, ignore
 .classpath
 .project
