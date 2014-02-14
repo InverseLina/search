@@ -43,25 +43,45 @@
             },
             "click; .all" : function(event) {
                 var view = this;
-                $("input[type=text]").each(function() {
-                    if ($(this).val() == '') {
-                        alert("Please enter all the value!");
-                        return false;
-                    }
-                });
-                view.$el.find(".perf-value").empty();
-                var $buttons = view.$el.find(".go");
-                var $allButton = view.$el.find(".all");
-                $buttons.attr("disabled", "true");
-                $allButton.attr("disabled", "true").addClass("running").html("Running...");
-                view.goAll = true;
-                doSearchAll.call(view, $buttons, 0);
+                goAllStart.call(view);
             }
         }
         // --------- /Events--------- //
 
     });
     // --------- Private Methods --------- //
+
+    function goAllStart(){
+        var view = this;
+        var repeat = view.$el.find("input.repeat").val() * 1, delay = view.$el.find("input.delay").val() ;
+        var items = new Array(repeat);
+
+        brite.whenEach(items,function(value,index){
+            // we create another deferred, because we need to wait the delay
+            var dfd = $.Deferred();
+            goAll.call(view)
+            setTimeout(function(){dfd.resolve();}, delay);
+
+            return dfd.promise();
+        });
+    }
+
+    function goAll(){
+        var view = this;
+        $("input[type=text]").each(function() {
+            if ($(this).val() == '') {
+                alert("Please enter all the value!");
+                return false;
+            }
+        });
+        view.$el.find(".perf-value").empty();
+        var $buttons = view.$el.find(".go");
+        var $allButton = view.$el.find(".all");
+        $buttons.attr("disabled", "true");
+        $allButton.attr("disabled", "true").addClass("running").html("Running...");
+        view.goAll = true;
+        doSearchAll.call(view, $buttons, 0);
+    }
 
     function doSearch($button, $buttons) {
         var dfd = $.Deferred();

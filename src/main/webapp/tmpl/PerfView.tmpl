@@ -2,17 +2,31 @@
     <div class="PerfView">
 
 	  <div class="perf-body">
-          <div class="perf-search perf-values row">
-              <span>
-                  <label>Select Org:</label>
+          <div class="perf-search perf-values row form-group goall">
+              <label class="col-lg-2 control-label">Select Org:</label>
 
-                  <select name="org" style="display: inline-block; width:155px; height: 30px; line-height: 30px">
+              <div class="col-lg-2">
+                  <select class="form-control" name="org">
                       {{#each orgs}}
                           <option value="{{name}}">{{name}}</option>
                       {{/each}}
                   </select>
-              </span>
-             <button class="btn btn-primary all ">GO All</button>
+              </div>
+               <button class="btn btn-primary all pull-left">GO All</button>
+              <div class="col-lg-2" style="width:100px">
+                  <div class="input-group">
+                      <span class="input-group-addon" style="width:20px">repeat:</span>
+                      <input type="text" name='repeat' style="width:20px" class="form-control repeat"
+                             placeholder="repeat times" value='1'>
+                  </div>
+              </div>
+              <div class="col-lg-2">
+              <div class="input-group">
+                  <span class="input-group-addon" style="width:20px">delay:</span>
+                  <input type="text" name='delay' class="form-control delay" value='500'>
+                  <span class="input-group-addon" style="width:20px">ms</span>
+              </div>
+              </div>
           </div>
     
     	<h3>Search Test</h3>
