@@ -59,9 +59,9 @@
         brite.whenEach(items,function(value,index){
             // we create another deferred, because we need to wait the delay
             var dfd = $.Deferred();
-            goAll.call(view)
-            setTimeout(function(){dfd.resolve();}, delay);
-
+            goAll.call(view).done(function(){
+                setTimeout(function(){dfd.resolve();}, delay);
+            });
             return dfd.promise();
         });
     }
@@ -80,7 +80,7 @@
         $buttons.attr("disabled", "true");
         $allButton.attr("disabled", "true").addClass("running").html("Running...");
         view.goAll = true;
-        doSearchAll.call(view, $buttons, 0);
+        return doSearchAll.call(view, $buttons, 0);
     }
 
     function doSearch($button, $buttons) {
@@ -168,20 +168,27 @@
 
     function doSearchAll($buttons, index) {
         var view = this;
-        var $btn = $($buttons[index]);
+        var dfdDone = $.Deferred();
         var $allButton = view.$el.find(".all");
-        doSearch.call(view, $btn, $buttons).then(function(data) {
-            index++;
-            $btn.removeAttr("disabled").removeClass("running").html("GO");
-            if (data.length > index) {
-                doSearchAll.call(view, data, index);
-            } else {
-                $allButton.removeAttr("disabled").removeClass("running").html("GO ALL");
-            };
-        }, function(){
-            $buttons.attr("disabled", true).removeClass("running").html("GO");
-            $allButton.attr("disabled", true).removeClass("running").html("GO ALL");
+
+        brite.whenEach($buttons,function(btn,index){
+            // we create another deferred, because we need to wait the delay
+            var $btn = $(btn)
+            var dfd = $.Deferred();
+            doSearch.call(view, $btn, $buttons).done(function(){
+                $btn.removeAttr("disabled").removeClass("running").html("GO");
+                dfd.resolve();
+                if(index == $buttons.length -1){
+                    $allButton.removeAttr("disabled").removeClass("running").html("GO ALL");
+                    dfdDone.resolve();
+                }
+
+            });
+            return dfd.promise();
         });
+
+        return dfdDone.promise();
+
     }
 
     function getSearchParameter(view, searchData) {
