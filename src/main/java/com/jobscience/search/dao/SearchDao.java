@@ -756,7 +756,8 @@ public class SearchDao {
                         }
                         conditions.append(" ) ");
             	   }else{
-            	       locationSql.append(" join jss_sys.zipcode_us z on ");
+            	       locationSql.append(" join  (select city,avg(latitude) as latitude,avg(longitude)")
+            	                  .append(" as longitude from jss_sys.zipcode_us group by city) z on ");
             		   JSONObject ol;
             		   locationSql.append("  (1!=1  ");
                        for (Object location : locationValues) {
