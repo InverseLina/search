@@ -70,23 +70,24 @@
         var $perfValues = $button.closest(".perf-values");
         var org = view.$el.find("select[name='org']").val();
         $button.attr("disabled", "true").addClass("running").html("Running...");
-        var data = {};
-        $perfValues.find("input").each(function() {
-            var $input = $(this);
-
-            if ($input.attr("name") != "q_search") {
-                var datas = [];
-                var opt = {};
-                opt = {
-                    name : $.trim($input.val())
-                };
-                datas.push(opt);
-                data[$input.attr("name")] = datas;
-            } else {
-                data["q_search"] = $input.val();
+        var obj, datas, data = {};
+        $perfValues.find("span[data-group]").each(function(idx, group) {
+            var $group = $(group);
+            var groupName = $group.attr('data-group');
+            if( groupName == 'q_search'){
+                data["q_search"] = $.trim($group.find('input').val());
+            }else{
+                datas = [];
+                obj = {};
+                $group.find("input").each(function() {
+                    var $input = $(this);
+                    obj[$input.attr('name')] = $.trim($input.val());
+                });
+                datas.push(obj);
+                data[groupName] = datas;
             }
-
         });
+
         var searchParameter = getSearchParameter(view, data);
         searchParameter.org = org;
         var methodName = $perfItem.attr("data-perf-method");
