@@ -756,28 +756,39 @@ public class SearchDao {
                         }
                         conditions.append(" ) ");
             	   }else{
-            	       locationSql.append(" join  (select city,avg(latitude) as latitude,avg(longitude)")
-            	                  .append(" as longitude from jss_sys.zipcode_us group by city) z on ");
+            	       StringBuilder joinZip = new StringBuilder();
+            	       StringBuilder joinCity = new StringBuilder();
             		   JSONObject ol;
-            		   locationSql.append("  (1!=1  ");
                        for (Object location : locationValues) {
                            ol = (JSONObject) location;
                            String name = (String) ol.get("name");
-                           locationSql.append(" OR ( z.\"city\"='").append(name).append("'");
                            if(ol.containsKey("minRadius")){
-            				   double minRadius = ol.getDouble("minRadius");
-                               if(minRadius > 0){
-            				   locationSql.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\")," )
-            				   			 .append(" ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("contact")
-            				   			     +","+sc.getContactField("ts2__longitude__c").toString("contact")+"))<=")
-            				   			 .append(minRadius*1000);
-                               }
-                            }else{
-                                locationSql.append(" AND ").append(f.toString("contact")+" =z.\"zip\"");
-                            }
-                           locationSql.append(")");
+                               double minRadius = ol.getDouble("minRadius");
+                               joinCity.append(" OR (city.name='"+name+"' ")
+                                       .append(" AND  earth_distance(ll_to_earth(city.\"latitude\",city.\"longitude\")," )
+                                       .append(" ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("contact")
+                                       +","+sc.getContactField("ts2__longitude__c").toString("contact")+"))<=")
+                                       .append(minRadius*1000)
+                                       .append(") ");
+                           }else{
+                               joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
+                           }
                        }
-                       locationSql.append(" ) ");
+                       if(joinZip.length()>0){
+                           locationSql.append(" join  jss_sys.zipcode_us z on (")
+                                      .append(f.toString("contact")+" =z.\"zip\" AND (1!=1 ")
+                                      .append(joinZip)
+                                      .append(")) ");
+                           if(joinCity.length()>0){
+                              locationSql.append(" OR ").append("(select count(*) from jss_sys.city where 1!=1")
+                                         .append(joinCity).append(")>0 "); 
+                           }
+                       }else{
+                           if(joinCity.length()>0){
+                               locationSql.append(" join  jss_sys.city city on 1!=1 ")
+                               .append(joinCity); 
+                           }
+                       }
                        hasCondition = true;
             	   }
     	      }
