@@ -282,7 +282,8 @@ public class SearchDao {
      * @param appendJoinTable
      * @return
      */
-    private String[] renderSearchCondition(Map<String, String> searchValues,String type,String baseTable,String baseTableIns,List values,  String appendJoinTable ,Map org){
+    private String[] renderSearchCondition(Map<String, String> searchValues,String type,
+            String baseTable,String baseTableIns,List values,  String appendJoinTable ,Map org){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         StringBuilder joinTables = new StringBuilder();
         StringBuilder searchConditions = new StringBuilder();
@@ -775,6 +776,7 @@ public class SearchDao {
 //                                       .append(") ");
                                citiesWithRadius.put(name, minRadius);
                                cities.append("'"+name+"',");
+                               joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
                            }else{
                                joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
                            }
@@ -793,6 +795,7 @@ public class SearchDao {
                                          .append(" AND contact.ts2__longitude__c<="+range[3])
                                          .append(") ");
                            }
+                           runner.close();
                        }
                        if(joinZip.length()>0){
                            if(joinCity.length()>0){
@@ -806,6 +809,7 @@ public class SearchDao {
                        }else{
                            if(joinCity.length()>0){
                                conditions.append(" AND (1!=1 ").append(joinCity).append(") ");
+                               locationSql.append(" ");
                            }
                        }
                        hasCondition = true;
