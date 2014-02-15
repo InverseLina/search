@@ -2,6 +2,7 @@ package com.jobscience.search.dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -758,35 +759,53 @@ public class SearchDao {
             	   }else{
             	       StringBuilder joinZip = new StringBuilder();
             	       StringBuilder joinCity = new StringBuilder();
+            	       StringBuilder cities = new StringBuilder();
             		   JSONObject ol;
+            		   Map<String,Double> citiesWithRadius = new HashMap<String,Double>();
                        for (Object location : locationValues) {
                            ol = (JSONObject) location;
                            String name = (String) ol.get("name");
                            if(ol.containsKey("minRadius")){
                                double minRadius = ol.getDouble("minRadius");
-                               joinCity.append(" OR (city.name='"+name+"' ")
-                                       .append(" AND  earth_distance(ll_to_earth(city.\"latitude\",city.\"longitude\")," )
-                                       .append(" ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("contact")
-                                       +","+sc.getContactField("ts2__longitude__c").toString("contact")+"))<=")
-                                       .append(minRadius*1000)
-                                       .append(") ");
+//                               joinCity.append(" OR (city.name='"+name+"' ")
+//                                       .append(" AND  earth_distance(ll_to_earth(city.\"latitude\",city.\"longitude\")," )
+//                                       .append(" ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("contact")
+//                                       +","+sc.getContactField("ts2__longitude__c").toString("contact")+"))<=")
+//                                       .append(minRadius*1000)
+//                                       .append(") ");
+                               citiesWithRadius.put(name, minRadius);
+                               cities.append("'"+name+"',");
                            }else{
                                joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
                            }
                        }
+                       
+                       if(cities.length()!=0){
+                           Runner runner = daoHelper.openNewSysRunner();
+                           List<Map> c = runner.executeQuery("select * from city where name in("+cities+"'#')");
+                           for(Map city:c){//minLat,minLng,maxLat,maxLng
+                               double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
+                                                          Double.valueOf(city.get("longitude").toString()),
+                                                          citiesWithRadius.get(city.get("name"))*1000);
+                               joinCity.append(" OR (").append("contact.ts2__latitude__c>="+range[0])
+                                         .append(" AND contact.ts2__latitude__c<="+range[2])
+                                         .append(" AND contact.ts2__longitude__c>="+range[1])
+                                         .append(" AND contact.ts2__longitude__c<="+range[3])
+                                         .append(") ");
+                           }
+                       }
                        if(joinZip.length()>0){
+                           if(joinCity.length()>0){
+                               locationSql.append(" left ");
+                           }
                            locationSql.append(" join  jss_sys.zipcode_us z on (")
                                       .append(f.toString("contact")+" =z.\"zip\" AND (1!=1 ")
                                       .append(joinZip)
                                       .append(")) ");
-                           if(joinCity.length()>0){
-                              locationSql.append(" OR ").append("(select count(*) from jss_sys.city where 1!=1")
-                                         .append(joinCity).append(")>0 "); 
-                           }
+                           conditions.append(" AND (1!=1 ").append(joinCity).append(" OR z.city is not null ").append(") ");
                        }else{
                            if(joinCity.length()>0){
-                               locationSql.append(" join  jss_sys.city city on 1!=1 ")
-                               .append(joinCity); 
+                               conditions.append(" AND (1!=1 ").append(joinCity).append(") ");
                            }
                        }
                        hasCondition = true;
@@ -1653,6 +1672,27 @@ public class SearchDao {
         }
         return false;
     }
+    
+    public static double[] getAround(double lat,double lon,double raidus){  
+        
+        Double latitude = lat;  
+        Double longitude = lon;  
+          
+        Double degree = (24901*1609)/360.0;  
+        double raidusMile = raidus;  
+          
+        Double dpmLat = 1/degree;  
+        Double radiusLat = dpmLat*raidusMile;  
+        Double minLat = latitude - radiusLat;  
+        Double maxLat = latitude + radiusLat;  
+          
+        Double mpdLng = degree*Math.cos(latitude * (Math.PI/180));  
+        Double dpmLng = 1 / mpdLng;  
+        Double radiusLng = dpmLng*raidusMile;  
+        Double minLng = longitude - radiusLng;  
+        Double maxLng = longitude + radiusLng;  
+        return new double[]{minLat,minLng,maxLat,maxLng};  
+    }  
     
 }
 
