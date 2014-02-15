@@ -47,6 +47,9 @@ public class DBSetupManager {
     @Named("org.path")
     @Inject
     private String orgPath;
+    @Named("city.path")
+    @Inject
+    private String cityPath;
     @Inject
     private OrgConfigDao orgConfigDao;
     @Inject
@@ -82,8 +85,10 @@ public class DBSetupManager {
         tableMap.put("org", sysTableNames.contains("org"));
         tableMap.put("config", sysTableNames.contains("config"));
         tableMap.put("zipcode_us", sysTableNames.contains("zipcode_us"));
+        tableMap.put("city", sysTableNames.contains("city"));
         status.put("tables", tableMap);
         
+        status.put("city", checkCity());
         if(sysTableNames.contains("zipcode_us")){
             status.put("zipcode_import", this.checkZipcodeImported());
         }else{
@@ -265,34 +270,7 @@ public class DBSetupManager {
      * @throws SQLException
      */
     public boolean createSysSchema() throws Exception{
-    	boolean result = true;
-    	daoHelper.createSysSchemaIfNecessary();
-        File sysFolder = new File(getRootSqlFolderPath() + "/jss_sys");
-        File[] sqlFiles = sysFolder.listFiles();
-        List<String> allSqls = new ArrayList();
-        for(File file : sqlFiles){
-            List subSqlList = loadSQLFile(file);
-            allSqls.addAll(subSqlList);
-        }
-        Runner runner = daoHelper.openNewSysRunner();
-        try {
-            runner.startTransaction();
-            for(String sql : allSqls){
-               runner.executeUpdate(sql);
-            }
-            runner.commit();
-        } catch (Exception e) {
-            try {
-                runner.roolback();
-            } catch (Exception e1) {
-                log.error(e1.getMessage());
-                result = false;
-            }
-           throw e;
-        }finally{
-            runner.close();
-        }
-        return result;
+        return excuteSqlUnderSys(null);
     }
     
     public boolean updateZipCode() throws Exception{
@@ -305,7 +283,7 @@ public class DBSetupManager {
      */
     public  String checkSysTables(){
     	List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
-        		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config')");
+        		" where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config','city')");
     	if(list.size()==1){
     	    String names = (String)list.get(0).get("names");
     	    if(names==null){
@@ -407,6 +385,45 @@ public class DBSetupManager {
                 log.error(e1.getMessage());
             }
             throw e;
+        }finally{
+            runner.close();
+        }
+        return result;
+    }
+    
+    /**
+     * excute the sql files under /sql/jss_sys
+     * @param prefix if null,would excute all
+     * @return
+     * @throws Exception
+     */
+    private boolean excuteSqlUnderSys(String prefix) throws Exception{
+        boolean result = true;
+        daoHelper.createSysSchemaIfNecessary();
+        File sysFolder = new File(getRootSqlFolderPath() + "/jss_sys");
+        File[] sqlFiles = sysFolder.listFiles();
+        List<String> allSqls = new ArrayList();
+        for(File file : sqlFiles){
+            if(prefix==null||file.getName().startsWith(prefix)){
+                List subSqlList = loadSQLFile(file);
+                allSqls.addAll(subSqlList);
+            }
+        }
+        Runner runner = daoHelper.openNewSysRunner();
+        try {
+            runner.startTransaction();
+            for(String sql : allSqls){
+               runner.executeUpdate(sql);
+            }
+            runner.commit();
+        } catch (Exception e) {
+            try {
+                runner.roolback();
+            } catch (Exception e1) {
+                log.error(e1.getMessage());
+                result = false;
+            }
+           throw e;
         }finally{
             runner.close();
         }
@@ -680,6 +697,74 @@ public class DBSetupManager {
                                                                    + "drop table if exists ex_grouped_educations;"
                                                                    + "drop table if exists ex_grouped_skills");
    }
+   
+   private boolean checkCity(){
+       boolean done = false;
+       String extraSysTables = checkSysTables();
+       if(extraSysTables.contains("city")){
+           done = true;
+       }else{
+           return done;
+       }
+       List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select count(*) from city");
+       if(list.size()==1){
+           if(!"0".equals(list.get(0).get("count").toString())){
+               done =  true;
+           }else{
+               done = false;
+           }
+       }
+       return done;
+   }
+   
+   public void computeCity() throws Exception{
+       String extraSysTables = checkSysTables();
+       if(!extraSysTables.contains("city")){
+           excuteSqlUnderSys("01_");
+       }
+       Runner runner = daoHelper.openNewSysRunner();
+       runner.executeUpdate("insert into city(name,longitude,latitude)"
+               +" select city,avg(longitude),avg(latitude) from zipcode_us group by city",
+               new Object[0]);
+       runner.close();
+   }
+   
+   public void importCity() throws Exception{
+       String extraSysTables = checkSysTables();
+       if(!extraSysTables.contains("city")){
+           excuteSqlUnderSys("01_");
+       }
+       try{
+           URL url = new URL(cityPath);
+           HttpURLConnection con =  (HttpURLConnection) url.openConnection();
+           ZipInputStream in = new ZipInputStream(con.getInputStream());
+           in.getNextEntry();
+           BufferedReader br = new BufferedReader(new InputStreamReader(in));
+           String line = br.readLine();
+           Runner runner = daoHelper.openNewSysRunner();
+           try{
+               runner.startTransaction();
+               while(line!=null){
+                   runner.executeUpdate(line);
+                   line = br.readLine();
+               }
+               runner.commit();
+           }catch (Exception e) {
+               try {
+                   runner.roolback();
+               } catch (Exception e1) {
+                   e.printStackTrace();
+               }
+               throw e;
+           }finally{
+               runner.close();
+           }
+           in.close();
+       }catch (IOException e) {
+           throw e;
+       }
+   }
+   
    private Map<String,JSONArray> getIndexMapFromJsonFile(){
        if(indexesMap!=null){
            return indexesMap;

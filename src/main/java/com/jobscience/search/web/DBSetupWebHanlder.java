@@ -227,5 +227,25 @@ public class DBSetupWebHanlder {
         dbSetupManager.dropExTables(orgName);
         return WebResponse.success();
     }
+    
+    @WebPost("/computeCity")
+    public WebResponse computeCity(@WebParam("orgName")String orgName){
+        try{
+            dbSetupManager.computeCity();
+        }catch(Exception e){
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
+        return WebResponse.success();
+    }
+    
+    @WebPost("/importCity")
+    public WebResponse importCity(@WebParam("orgName")String orgName){
+        try{
+            dbSetupManager.importCity();
+        }catch(Exception e){
+            return WebResponse.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
+        return WebResponse.success();
+    }
    
 }

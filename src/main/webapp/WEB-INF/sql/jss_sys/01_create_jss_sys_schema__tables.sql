@@ -18,5 +18,13 @@ CREATE TABLE if not exists config
   val_text text,
   CONSTRAINT config_pkey PRIMARY KEY (id)
 );
-
+-- SCRIPTS
+CREATE TABLE if not exists city
+(
+  id serial NOT NULL,
+  name character varying(64) NOT NULL,
+  longitude  double precision,
+  latitude  double precision,
+  CONSTRAINT city_pkey PRIMARY KEY (id)
+);
 

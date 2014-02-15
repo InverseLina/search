@@ -13,7 +13,7 @@
       view.$tabContent = view.$el.find(".tab-content");
       view.$navTabs.find("li.active").removeClass("active");
       view.$navTabs.find("a[href='#setup']").closest("li").addClass("active");
-      view.$el.find(".create,.import,.create_pg_trgm").prop("disabled",true).html("Loading...");
+      view.$el.find(".create,.import,.create_pg_trgm,.import-city,.compute-city").prop("disabled",true).html("Loading...");
       view.$el.trigger("STATUS_CHANGE");
 
       app.getJsonData("/config/get/",{orgId:-1}).done(function(data){
@@ -91,6 +91,50 @@
     		  }
     	  });
       },
+      "click;.compute-city":function(event){
+    	  var view = this;
+    	  var $computeBtn = $(event.target);
+    	  if($computeBtn.prop("disabled")){
+    		  return false;
+    	  }
+    	  var $alert = $computeBtn.closest(".setting").find(".alert");
+    	  $computeBtn.prop("disabled",true).html("computing...");
+    	  view.$el.find(".import-city").prop("disabled",true);
+    	  app.getJsonData("/computeCity",{},{type:"Post"}).done(function(data){
+    		  if(data){
+    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
+    			  $computeBtn.prop("disabled",false).html("Compute City long/lat").removeClass("btn-success");
+    			  view.$el.find(".import-city").prop("disabled",false).removeClass("btn-success").html("Import City");
+    		  }else{
+    			  $computeBtn.html("City long/lat computed").addClass("btn-success");
+    			  view.$el.find(".import-city").prop("disabled",true).addClass("btn-success").html("City Imported");
+    			  $alert.html("&nbsp;").addClass("transparent");
+    		  }
+    		  view.$el.trigger("STATUS_CHANGE");
+    	  });
+      },
+      "click;.import-city":function(event){
+    	  var view = this;
+    	  var $importBtn = $(event.target);
+    	  if($importBtn.prop("disabled")){
+    		  return false;
+    	  }
+    	  var $alert = $importBtn.closest(".setting").find(".alert");
+    	  $importBtn.prop("disabled",true).html("importing...");
+    	  view.$el.find(".compute-city").prop("disabled",true);
+    	  app.getJsonData("/importCity",{},{type:"Post"}).done(function(data){
+    		  if(data){
+    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
+    			  $importBtn.prop("disabled",false).html("Import City").removeClass("btn-success");
+    			  view.$el.find(".compute-city").prop("disabled",false).removeClass("btn-success").html("Compute City long/lat");
+    		  }else{
+    			  $importBtn.html("City Imported").addClass("btn-success");
+    			  view.$el.find(".compute-city").prop("disabled",true).addClass("btn-success").html("City long/lat Computed");
+    			  $alert.html("&nbsp;").addClass("transparent");
+    		  }
+    		  view.$el.trigger("STATUS_CHANGE");
+    	  });
+      },
       "STATUS_CHANGE":function(event){
     	  var view = this;
     	  app.getJsonData("/checkSysSchema",{},{type:"Get"}).done(function(result){
@@ -129,6 +173,15 @@
     			  }
     			  $alert.html(info).removeClass("transparent");
     		  }
+    		  
+    		  if(result.city){
+    			  view.$el.find(".compute-city").prop("disabled",true).addClass("btn-success").html("City long/lat Computed");
+    			  view.$el.find(".import-city").prop("disabled",true).addClass("btn-success").html("City Imported");
+    		  }else{
+    			  view.$el.find(".compute-city").prop("disabled",false).removeClass("btn-success").html("Compute City long/lat");
+    			  view.$el.find(".import-city").prop("disabled",false).removeClass("btn-success").html("Import City");
+    		  }
+    		  
     		  var schemaInfo = "";
     		  if(!result.schema_create){
     			  schemaInfo+="schema not created";
@@ -142,12 +195,20 @@
 	    		  if(!result.tables.zipcode_us){
 	    			  schemaInfo+="zipcode_us ";
 	    		  }
+	    		  if(!result.tables.city){
+	    			  schemaInfo+="city ";
+	    		  }
+	    		  if(schemaInfo){
+	    			  schemaInfo="Missing table(s): "+schemaInfo;
+	    		  }
     		  }
     			
     		  if(schemaInfo){
     			  view.$el.find(".create").prop("disabled",false).html("Create System schema").removeClass("btn-success");
+    			  view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html(schemaInfo)
     		  }else{
     			  view.$el.find(".create").prop("disabled",true).html("System schema Created").addClass("btn-success");
+    			  view.$el.find(".create").closest(".setting").find(".alert").addClass("transparent").html("&nbsp;")
     		  }
     		  
     		  if(result.zipcode_import){
