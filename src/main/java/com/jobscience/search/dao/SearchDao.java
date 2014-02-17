@@ -1014,7 +1014,7 @@ public class SearchDao {
      * @param searchColumns
      * @return
      */
-    private String getSearchColumnsForOuter(String searchColumns,boolean userlistFeature,Map org){
+    private String getSearchColumnsForOuter(String searchColumns,boolean userlistFeature,Map user,Map org){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         StringBuilder sb = new StringBuilder();
     	if(searchColumns==null){
@@ -1059,7 +1059,7 @@ public class SearchDao {
 	    	sb.append("id,name");//make id and name always return
     	}
     	sb.append(",sfid");//,phone
-    	if(userlistFeature){
+    	if(userlistFeature&&user!=null){
     		sb.append(",haslabel");
     	}
         return sb.toString();
@@ -1072,17 +1072,17 @@ public class SearchDao {
      * @param groupBy
      * @return
      */
-    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,boolean userlistFeature,Map org){
+    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,boolean userlistFeature,Map user,Map org){
     	 StringBuilder columnsSql = new StringBuilder();
     	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
     	 if(searchColumns==null){//a.phone,
              columnsSql.append(sc.toContactFieldsString("a"));
              //,a.phone
-             groupBy.append(","+sc.toContactFieldsString("a")+",a.\"haslabel\" ");//
+             groupBy.append(","+sc.toContactFieldsString("a"));
     	 }else{
     		 String temp = "";
     		 StringBuffer sb = new StringBuffer("id,name,sfid,");
-    		 if(userlistFeature){
+    		 if(userlistFeature&&userDao.getCurrentUser()!=null){
     			 sb.append("haslabel,");
     		 }
  	        for(String column:searchColumns.split(",")){
@@ -1093,7 +1093,7 @@ public class SearchDao {
  	        	}
  	        }
  	        columnsSql.append("a.id,a.name,a.sfid");//,a.phone,
- 	        if(userlistFeature){
+ 	        if(userlistFeature&&user!=null){
  	        	columnsSql.append(",a.haslabel");
  	        }
  	        if(groupBy.length()>0){
@@ -1101,7 +1101,7 @@ public class SearchDao {
  	        }
  	        //a.phone,
  	        groupBy.append("a.name,a.sfid");//always return these columns ,
- 	        if(userlistFeature){
+ 	        if(userlistFeature&&user!=null){
  	    	  groupBy.append(",a.haslabel");
   	        }
          }
@@ -1142,13 +1142,14 @@ public class SearchDao {
         //get the userlist feature
         String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",(Integer)org.get("id"));
         boolean userlistFeature = Boolean.valueOf(userlistFeatureStr);
+        Map userMap = userDao.getCurrentUser();
         
         querySql.append("select ");
-        querySql.append(getSearchColumnsForOuter(searchColumns,userlistFeature,org));
+        querySql.append(getSearchColumnsForOuter(searchColumns,userlistFeature,userMap,org));
         querySql.append(" from ( ");
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
-        querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy,userlistFeature,org));
+        querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy,userlistFeature,userMap,org));
         
         
         //---------------------- add select columns ----------------------//
@@ -1170,7 +1171,7 @@ public class SearchDao {
                 .append("char_length(")
                 .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
                 .append(") = 0 then -1  else contact.id end as resume ");
-                if(userlistFeature){
+                if(userlistFeature&&userMap!=null){
                 	querySql.append(",case when labelcontact.contact_id is null then false else true end haslabel ");
                 }
         //---------------------- /add select columns----------------------//
