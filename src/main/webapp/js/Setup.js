@@ -45,7 +45,7 @@
     	  $createBtn.prop("disabled",true).html("Creating...");
     	  app.getJsonData("/createSysSchema",{},{type:"Post"}).done(function(data){
     		  if(data){
-    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
+    			  $alertÏ.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
     			  $createBtn.prop("disabled",false).html("Create System schema").removeClass("btn-success");
     		  }else{
     			  $createBtn.html("System schema Created").addClass("btn-success");
@@ -148,82 +148,83 @@
     				  missingExentions+=e+" , ";
     			  }
     		  });
-    		  
-    		  if(!missingExentions){
-    			  view.$el.find(".create_pg_trgm").prop("disabled",true).html("Extensions Created").addClass("btn-success");
-    		  }else{
-    			  view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create Extensions").removeClass("btn-success");
-    		  }
-    		  if(createdExtensionsInfo||extentionWarning||missingExentions){
-    			  var info = "";
-    			  var $alert =  view.$el.find(".create_pg_trgm").closest(".setting").find(".alert");
-    			  if(extentionWarning){
-    				  info+=" <strong>Extention(s) not in pg_catalog: </strong>"+extentionWarning.substring(0, extentionWarning.length-2);
-    			  }
-    			  if(missingExentions){
-    				  info+=" <strong>Missing Extention(s): </strong>"+missingExentions.substring(0, missingExentions.length-2);
-    			  }
-    			  if(!(extentionWarning||missingExentions)){//when there no warnings and no missing,show the created info
-    				  $alert.removeClass("alert-danger").addClass("alert-info");
-    				  if(createdExtensionsInfo){
-        				  info+=" <strong>Created Extention(s): </strong>"+createdExtensionsInfo.substring(0, createdExtensionsInfo.length-2);
-        			  }
-    			  }else if(extentionWarning&&!missingExentions){//when only has warning,make button gray see#893
-    				  view.$el.find(".create_pg_trgm").prop("disabled",true).html("Create Extensions").removeClass("btn-success");
-    			  }
-    			  $alert.html(info).removeClass("transparent");
-    		  }
-    		  
-    		  if(result.city){
-    			  view.$el.find(".compute-city").prop("disabled",true).addClass("btn-success").html("City long/lat Computed");
-    			  view.$el.find(".import-city").prop("disabled",true).addClass("btn-success").html("City Imported");
-    		  }else{
-    			  view.$el.find(".compute-city").prop("disabled",false).removeClass("btn-success").html("Compute City long/lat");
-    			  view.$el.find(".import-city").prop("disabled",false).removeClass("btn-success").html("Import City");
-    		  }
-    		  
-    		  var schemaInfo = "";
-    		  if(!result.schema_create){
-    			  schemaInfo+="schema not created";
-    		  }else{
-	    		  if(!result.tables.config){
-	    			  schemaInfo+="config ";
-	    		  }
-	    		  if(!result.tables.org){
-	    			  schemaInfo+="org ";
-	    		  }
-	    		  if(!result.tables.zipcode_us){
-	    			  schemaInfo+="zipcode_us ";
-	    		  }
-	    		  if(!result.tables.city){
-	    			  schemaInfo+="city ";
-	    		  }
-	    		  if(schemaInfo){
-	    			  schemaInfo="Missing table(s): "+schemaInfo;
-	    		  }
-    		  }
-    			
-    		  if(schemaInfo){
-    			  view.$el.find(".create").prop("disabled",false).html("Create System schema").removeClass("btn-success");
-    			  view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html(schemaInfo)
-    		  }else{
-    			  view.$el.find(".create").prop("disabled",true).html("System schema Created").addClass("btn-success");
-    			  view.$el.find(".create").closest(".setting").find(".alert").addClass("transparent").html("&nbsp;")
-    		  }
-    		  
-    		  if(result.zipcode_import){
-    			  view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported").addClass("btn-success");
-    		  }else{
-    			  if(result.tables.zipcode_us){
-    				  view.$el.find(".import").prop("disabled",false).html("Import Zipcode table").removeClass("btn-success");
-    			  }else{
-    				  view.$el.find(".import").prop("disabled",true).html("Import Zipcode table").removeClass("btn-success");
-    			  }
-    		  }
-        	
-    		  if(result.errorMsg){
-    			  view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html("Fail to load status,Please try to refresh page.")
-    		  }
+    		  if(view.$el){
+                  if(!missingExentions){
+                      view.$el.find(".create_pg_trgm").prop("disabled",true).html("Extensions Created").addClass("btn-success");
+                  }else{
+                      view.$el.find(".create_pg_trgm").prop("disabled",false).html("Create Extensions").removeClass("btn-success");
+                  }
+                  if(createdExtensionsInfo||extentionWarning||missingExentions){
+                      var info = "";
+                      var $alert =  view.$el.find(".create_pg_trgm").closest(".setting").find(".alert");
+                      if(extentionWarning){
+                          info+=" <strong>Extention(s) not in pg_catalog: </strong>"+extentionWarning.substring(0, extentionWarning.length-2);
+                      }
+                      if(missingExentions){
+                          info+=" <strong>Missing Extention(s): </strong>"+missingExentions.substring(0, missingExentions.length-2);
+                      }
+                      if(!(extentionWarning||missingExentions)){//when there no warnings and no missing,show the created info
+                          $alert.removeClass("alert-danger").addClass("alert-info");
+                          if(createdExtensionsInfo){
+                              info+=" <strong>Created Extention(s): </strong>"+createdExtensionsInfo.substring(0, createdExtensionsInfo.length-2);
+                          }
+                      }else if(extentionWarning&&!missingExentions){//when only has warning,make button gray see#893
+                          view.$el.find(".create_pg_trgm").prop("disabled",true).html("Create Extensions").removeClass("btn-success");
+                      }
+                      $alert.html(info).removeClass("transparent");
+                  }
+
+                  if(result.city){
+                      view.$el.find(".compute-city").prop("disabled",true).addClass("btn-success").html("City long/lat Computed");
+                      view.$el.find(".import-city").prop("disabled",true).addClass("btn-success").html("City Imported");
+                  }else{
+                      view.$el.find(".compute-city").prop("disabled",false).removeClass("btn-success").html("Compute City long/lat");
+                      view.$el.find(".import-city").prop("disabled",false).removeClass("btn-success").html("Import City");
+                  }
+
+                  var schemaInfo = "";
+                  if(!result.schema_create){
+                      schemaInfo+="schema not created";
+                  }else{
+                      if(!result.tables.config){
+                          schemaInfo+="config ";
+                      }
+                      if(!result.tables.org){
+                          schemaInfo+="org ";
+                      }
+                      if(!result.tables.zipcode_us){
+                          schemaInfo+="zipcode_us ";
+                      }
+                      if(!result.tables.city){
+                          schemaInfo+="city ";
+                      }
+                      if(schemaInfo){
+                          schemaInfo="Missing table(s): "+schemaInfo;
+                      }
+                  }
+
+                  if(schemaInfo){
+                      view.$el.find(".create").prop("disabled",false).html("Create System schema").removeClass("btn-success");
+                      view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html(schemaInfo)
+                  }else{
+                      view.$el.find(".create").prop("disabled",true).html("System schema Created").addClass("btn-success");
+                      view.$el.find(".create").closest(".setting").find(".alert").addClass("transparent").html("&nbsp;")
+                  }
+
+                  if(result.zipcode_import){
+                      view.$el.find(".import").prop("disabled",true).html("Zipcode table Imported").addClass("btn-success");
+                  }else{
+                      if(result.tables.zipcode_us){
+                          view.$el.find(".import").prop("disabled",false).html("Import Zipcode table").removeClass("btn-success");
+                      }else{
+                          view.$el.find(".import").prop("disabled",true).html("Import Zipcode table").removeClass("btn-success");
+                      }
+                  }
+
+                  if(result.errorMsg){
+                      view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html("Fail to load status,Please try to refresh page.")
+                  }
+              }
           });
       },
       "FILLDATA":function(event,result){
