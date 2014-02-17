@@ -104,11 +104,6 @@
 	                }
 	            }
 	        },
-	        "click;.btn.active":function(event){
-	        	$(event.currentTarget).removeClass("active");
-	        	event.preventDefault();
-                event.stopPropagation();
-	        },
 	        "click;.contact-btn-group .btn-group .btn":function(event){
 	        	var view = this;
 	        	var $btn = $(event.currentTarget);
