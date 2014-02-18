@@ -678,7 +678,7 @@
       colLen--;
     }
     if ($.inArray("resume", columns) >= 0) {
-        tableWidth = tableWidth - 65;
+        tableWidth = tableWidth - 95;
         colLen--;
       }
     //checkbox
@@ -715,7 +715,7 @@
       } else if ($item.hasClass("favLabel")) {
         realWidth = 32;
       } else if (colName=="resume") {
-        realWidth = 65;
+        realWidth = 95;
       } else {
         realWidth = colWidth;
       }
