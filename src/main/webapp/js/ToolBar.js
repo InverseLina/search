@@ -23,13 +23,14 @@
 			"click; .btnApply": function(event) {
 				var view = this;
 				var list = [];
-				view.$el.find("tr.applySelect").each(function(idx, tr) {
+				$(".search-result").find("tr.applySelect").each(function(idx, tr) {
 					var $tr = $(tr);
 					list.push({
 						id : $tr.attr("data-entity-id"),
 						sfid : $tr.attr("data-sfid")
 					});
 				});
+//                console.log(list);
 				view.$el.trigger("APPLY_PRESS", {
 					selectedContactList : list
 				});
@@ -37,13 +38,14 @@
 			"click; .btnAddToShotList": function(event) {
 				var view = this;
 				var list = [];
-				view.$el.find("tr.applySelect").each(function(idx, tr) {
+                $(".search-result").find("tr.applySelect").each(function(idx, tr) {
 					var $tr = $(tr);
 					list.push({
 						id : $tr.attr("data-entity-id"),
 						sfid : $tr.attr("data-sfid")
 					});
 				});
+//                console.log(list);
 				view.$el.trigger("SHORTLIST_PRESS", {
 					selectedContactList : list
 				});
