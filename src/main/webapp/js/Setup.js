@@ -45,7 +45,7 @@
     	  $createBtn.prop("disabled",true).html("Creating...");
     	  app.getJsonData("/createSysSchema",{},{type:"Post"}).done(function(data){
     		  if(data){
-    			  $alertÏ.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
+    			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
     			  $createBtn.prop("disabled",false).html("Create System schema").removeClass("btn-success");
     		  }else{
     			  $createBtn.html("System schema Created").addClass("btn-success");
