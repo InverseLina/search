@@ -45,10 +45,16 @@ public class ConfigWebHandlers {
 
     @WebGet("/config/get/{name}")
     public WebResponse getConfig(@WebPath(2) String name,@WebParam("orgId") Integer orgId) throws SQLException {
-        if(name == null){
-            return WebResponse.success(configManager.getConfigMap(orgId));
+        try {
+            if(name == null){
+                return WebResponse.success(configManager.getConfigMap(orgId));
+            }
+            return WebResponse.success(configManager.getConfig(name,orgId));
+        } catch (NullPointerException e) {
+            //this exception just occur at first time when admin not finish config db
+            //e.printStackTrace();
+            return WebResponse.fail();
         }
-        return WebResponse.success(configManager.getConfig(name,orgId));
     }
     @WebGet("/config/getByName/{name}")
     public WebResponse getConfigByName(@WebPath(2) String name) throws Exception {
