@@ -522,41 +522,37 @@ public class SearchDao {
 
                 if (contacts.size() > 0) {
                     conditions.append(" ) ");
-
-                    //handle the ojectType
-                    if (searchValues.get("objectType") != null && !"".equals(searchValues.get("objectType"))) {
-                        String value = searchValues.get("objectType");
-                        if (!advanced) {
-                            if ("Both".equals(value)) {
-                                conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
-                                needJoinRecordtype = true;
-                            } else {
-                                conditions.append("  and rt.\"sobjecttype\" = ? ");
-                                subValues.add(value);
-                                needJoinRecordtype = true;
-                            }
-
-                        }
-                        hasCondition = true;
+                }
+            }
+            
+            //handle the ojectType
+            if (searchValues.get("objectType") != null && !"".equals(searchValues.get("objectType"))) {
+                String value = searchValues.get("objectType");
+                if (!advanced) {
+                    if ("Both".equals(value)) {
+                        conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
+                        needJoinRecordtype = true;
+                    } else {
+                        conditions.append("  and rt.\"sobjecttype\" = ? ");
+                        subValues.add(value);
+                        needJoinRecordtype = true;
                     }
-
-                    //handle the status
-                    if (searchValues.get("status") != null && !"".equals(searchValues.get("status"))) {
-                        String value = searchValues.get("status");
-                        if (!advanced) {
-                            if ("Active".equals(value)) {
-                                conditions.append("  and contact.\"ts2__people_status__c\" = 'Active' ");
-                            } else if ("Inactive".equals(value)) {
-                                conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
-                            }
-                        }
-                        hasCondition = true;
-                    }
-
 
                 }
             }
 
+            //handle the status
+            if (searchValues.get("status") != null && !"".equals(searchValues.get("status"))) {
+                String value = searchValues.get("status");
+                if (!advanced) {
+                    if ("Both".equals(value)) {
+                        conditions.append("  and (contact.\"ts2__people_status__c\" = 'Active' ")
+                                  .append(" OR contact.\"ts2__people_status__c\" = 'Inactive') ");
+                    } else  {
+                        conditions.append("  and contact.\"ts2__people_status__c\" = '"+value+"' ");
+                    }
+                }
+            }
             // add the 'educations' filter, and join ts2__education_history__c table
            if (searchValues.get("educations") != null && !"".equals(searchValues.get("educations"))) {
         	   String value = searchValues.get("educations");
