@@ -1371,12 +1371,12 @@ public class SearchDao {
         StringBuilder joinSql = new StringBuilder();
         if("a".equals(alias)){
             joinSql.append(" right join (");
-            joinSql.append(booleanSearchHandler(searchValue, null, values,org));
+            joinSql.append(booleanSearchHandler(searchValue, null, values,org,false));
             joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
             return joinSql.toString();
         }else{
             joinSql.append(" select  distinct con.id,con.sfid  from (");
-    	    joinSql.append(booleanSearchHandler(searchValue, null, values,org));
+    	    joinSql.append(booleanSearchHandler(searchValue, null, values,org,false));
     	    joinSql.append(")  con ");
     	    return joinSql.toString();
 	    }
@@ -1389,23 +1389,27 @@ public class SearchDao {
      * @param values
      * @return
      */
-    public  String booleanSearchHandler(String searchValue,String type, List values,Map org){
+    public  String booleanSearchHandler(String searchValue,String type, List values,Map org,boolean exact){
     	String schemaname = (String)org.get("schemaname");
     	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
     	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
-    	if(!searchValue.contains("NOT ")&&
-    	   !searchValue.contains("AND ")&&
-    	   !searchValue.contains("NOT ")){
-        	if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
-        	    searchValue = searchValue.replaceAll("\\s+", " OR ");
+    	if(!exact){
+        	if(!searchValue.contains("NOT ")&&
+        	   !searchValue.contains("AND ")&&
+        	   !searchValue.contains("NOT ")){
+            	if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
+            	    searchValue = searchValue.replaceAll("\\s+", " OR ");
+            	    exact = false;
+            	}else{
+            	    exact = true;
+                    searchValue = searchValue.replaceAll("\\\"", "");//.replaceAll("\\s+", " AND ");
+            	}
         	}else{
-                searchValue = searchValue.replaceAll("\\\"", "").replaceAll("\\s+", " AND ");
+        	    if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
+                    searchValue = searchValue.replaceAll("\\\"", "");
+                }
         	}
-    	}else{
-    	    if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
-                searchValue = searchValue.replaceAll("\\\"", "");
-            }
     	}
     	//if no search value,just return sql with 1!=1
     	if(searchValue.equals("")){
@@ -1418,7 +1422,7 @@ public class SearchDao {
 	    	for(int i=0;i<orConditions.length;i++){
 	    		String orCondition = orConditions[i];
 	    		sb.append("select a_extr"+i+".id,a_extr"+i+".sfid from (");
-	    		sb.append(booleanSearchHandler(orCondition, "AND",values,org));
+	    		sb.append(booleanSearchHandler(orCondition, "AND",values,org,exact));
 	    		sb.append(" a_extr"+i+" union ");
 	    		hasSearch = true;
 	    	}
@@ -1434,7 +1438,7 @@ public class SearchDao {
     			if(i==0){
     				sb.append(" select n_ext0.id as id,n_ext0.sfid as sfid from ");
     			}
-	    		sb.append(booleanSearchHandler(andCondition, "NOT",values,org)+(i));
+	    		sb.append(booleanSearchHandler(andCondition, "NOT",values,org,exact)+(i));
 	    		if(i>0){
 	    			sb.append(" on n_ext"+i+".id=n_ext"+(i-1)+".id");
 	    		}
@@ -1454,7 +1458,7 @@ public class SearchDao {
     		temp = notConditions[0].trim();
 
 			sb.append(" select ex.id,ex.sfid from   "+schemaname
-			    +".contact_ex ex where "+renderKeywordSearch(values,temp,org)  );
+			    +".contact_ex ex where "+renderKeywordSearch(values,temp,org,exact)  );
     		
 			if(notConditions.length==1){
     			sb.append(") n_ext");
@@ -1470,7 +1474,7 @@ public class SearchDao {
 	    		temp = notConditions[i].trim();
 	    		sb.append(" except ");
                         
-	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where "+renderKeywordSearch(values,temp,org) + " ) ");
+	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where "+renderKeywordSearch(values,temp,org,exact) + " ) ");
 	    		//values.add(temp);
 	    		//values.add(temp);
 	    	}
@@ -1482,15 +1486,18 @@ public class SearchDao {
     	return sb.toString();
     }
     
-    private String renderKeywordSearch(List values,String param,Map org){
+    private String renderKeywordSearch(List values,String param,Map org,boolean exact){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         StringBuilder sb = new StringBuilder();
+        String exactFilter = "";
+        if(exact){
+            exactFilter=" ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
+        }
         for(Field f:sc.getKeyword().getFields()){
             sb.append("OR ").append(f.toString("ex")).append("@@ plainto_tsquery(?)");
             values.add(param);
         }
-        
-        return sb.delete(0, 2).toString();
+        return exactFilter+sb.delete(0, 2).toString()+(exact?")":"");
     }
     /**
      * Get auto complete data just for name not for count
