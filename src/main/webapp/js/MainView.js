@@ -158,6 +158,8 @@
     	var view = this;
 	 	var $el = view.contentView.$el;
 	 	app.ParamsControl.clear();
+	 	app.preference.store("contact_filter_objectType","Both");
+	 	app.preference.store("contact_filter_status","Both");
 	 	view.$el.find(".contentview-ctn").bEmpty();
 	 	brite.display("ContentView",this.$el.find(".contentview-ctn")).done(function(contentView){
 			view.contentView = contentView;
