@@ -23,6 +23,9 @@ public class SearchWebHandlers {
     
     @Inject
     private CurrentOrgHolder orgHolder;
+
+	@Inject
+	private WebResponseBuilder webResponseBuilder;
     
     /**
      * api for main search
@@ -71,8 +74,8 @@ public class SearchWebHandlers {
         //for contact,use id,name,title,email,CreatedDate instead
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
         SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon,searchValues,(String)token.get("ctoken"),orgHolder.getCurrentOrg());
-        WebResponse wr = WebResponse.success(searchResult);
-        return wr;
+        //WebResponse wr = WebResponse.success(searchResult);
+        return webResponseBuilder.success(searchResult);
     }
     
     /**
