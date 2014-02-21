@@ -330,6 +330,9 @@ public class SearchDao {
         	   }else{
         	       if(search.length()>=3){
         	           contactQuery.append(getSearchValueJoinTable(search, values,"contact",org));
+        	           if(search.matches("^\\s*\"[^\"]+\"\\s*$")){
+        	               conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '"+search.replaceAll("\\\"", "%")+"'");
+        	           }
         	           hasSearchValue = true;
             	       hasCondition = true;
         	       }
@@ -1490,6 +1493,7 @@ public class SearchDao {
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
         StringBuilder sb = new StringBuilder();
         String exactFilter = "";
+        exact = false;
         if(exact){
             exactFilter=" ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
         }
