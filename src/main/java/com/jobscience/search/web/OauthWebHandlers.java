@@ -8,9 +8,12 @@ import com.britesnow.snow.web.AbortWithHttpRedirectException;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebParam;
+import com.britesnow.snow.web.param.annotation.WebUser;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.jobscience.search.CurrentOrgHolder;
+import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.UserDao;
 import com.jobscience.search.oauth.ForceAuthService;
 import com.jobscience.search.oauth.api.ForceDotComApi;
@@ -31,6 +34,10 @@ public class OauthWebHandlers {
     @Named("jss.prod")
     @Inject
     private boolean productMode;
+    @Inject
+    private ConfigManager configManager;
+    @Inject
+    private CurrentOrgHolder orgHolder;
 
     private final Logger log = LoggerFactory.getLogger(OauthWebHandlers.class);
 
@@ -39,9 +46,20 @@ public class OauthWebHandlers {
      * @param rc
      */
     @WebModelHandler(startsWith="/sf1")
-    public void authorize(RequestContext rc) {
-        String url = forceAuthService.getAuthorizationUrl();
-        throw new AbortWithHttpRedirectException(url);
+    public void authorize(@WebUser Map user, RequestContext rc) {
+        if(user==null || user.get("rtoken") == null){
+            String url = forceAuthService.getAuthorizationUrl();
+            throw new AbortWithHttpRedirectException(url);
+        }else {
+            //update token
+            long timeout = (Long)user.get("timeout");
+            if(System.currentTimeMillis() - timeout > 0){
+                ForceDotComApi.ForceDotComToken token = (ForceDotComApi.ForceDotComToken) forceAuthService.updateToken((String) user.get("rtoken"));
+                updateUserToken(token);
+            }
+            throw new AbortWithHttpRedirectException(rc.getContextPath());
+        }
+
     }
 
     /**
@@ -80,13 +98,24 @@ public class OauthWebHandlers {
         }
 
 
-/*        OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
+        /*        OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
         oAuthToken.updateCookie(rc);*/
+        updateUserToken(token);
+
+    }
+
+    private void updateUserToken(ForceDotComApi.ForceDotComToken token) {
         try {
-            userDao.checkAndUpdateUser(1, token.getId(), token.getToken());
+            String timeout = configManager.getConfig("sf_session_timeout", orgHolder.getId());
+            long sfTimeout;
+            try {
+                sfTimeout = token.getIssuedAt().getTime() + Integer.valueOf(timeout)*1000*60;
+            } catch (NumberFormatException e) {
+                sfTimeout = token.getIssuedAt().getTime() + 1000*60 * 180;
+            }
+            userDao.checkAndUpdateUser(1, token.getId(), token.getToken(), sfTimeout, token.getRefreshToken());
         } catch (Exception e) {
             throw new AbortWithHttpRedirectException("/");
         }
-
     }
 }

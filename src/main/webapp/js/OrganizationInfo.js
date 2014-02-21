@@ -78,6 +78,12 @@
           configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();
           configs["canvasapp_secret"] = view.$el.find("[name='canvasapp_secret']").val();
           configs["jss.feature.userlist"] = view.$el.find("[name='jss.feature.userlist']").val();
+          var sfTimeout = $.trim(view.$el.find("[name='sf_session_timeout']").val());
+
+          if(/^\d+$/.test(sfTimeout)){
+              configs["sf_session_timeout"] = sfTimeout;
+          }
+
 
           values.configsJson = JSON.stringify(configs);
           app.getJsonData("/config/save", values, "Post").done(function(data) {

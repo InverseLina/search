@@ -3,8 +3,11 @@ package com.jobscience.search.web;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.jobscience.search.oauth.ForceAuthService;
+import com.jobscience.search.oauth.api.ForceDotComApi;
 import net.sf.json.JSONObject;
 
+import org.scribe.model.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +42,8 @@ public class AppAuthRequest implements AuthRequest {
     private ConfigManager       configManager;
     @Inject
     private DBSetupManager      dbSetupManager;
+    @Inject
+    private ForceAuthService forceAuthService;
     @Inject(optional = true)
     @Named("jss.passcode")
     private String passCode = "";
@@ -122,7 +127,7 @@ public class AppAuthRequest implements AuthRequest {
             if (ctoken == null) {
                 try {
                     ctoken = userDao.buildCToken(null);
-                    userDao.insertUser(null, ctoken);
+                    userDao.insertUser(null, ctoken, 0l, null);
                     rc.setCookie("ctoken", ctoken);
                 }catch (AbortWithHttpRedirectException ar){
                     throw ar;
@@ -139,6 +144,29 @@ public class AppAuthRequest implements AuthRequest {
             m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
         } catch (Exception e) {
             rc.removeCookie("ctoken");
+        }
+        //update token
+        if (user != null && user.get("rtoken") != null) {
+            long timeout = (Long) user.get("timeout");
+            if (System.currentTimeMillis() - timeout > 0) {
+                ForceDotComApi.ForceDotComToken token = (ForceDotComApi.ForceDotComToken) forceAuthService.updateToken((String) user.get("rtoken"));
+                updateUserToken(token);
+            }
+        }
+    }
+
+    private void updateUserToken(ForceDotComApi.ForceDotComToken token) {
+        try {
+            String timeout = configManager.getConfig("sf_session_timeout", orgHolder.getId());
+            long sfTimeout;
+            try {
+                sfTimeout = token.getIssuedAt().getTime() + Integer.valueOf(timeout);
+            } catch (NumberFormatException e) {
+                sfTimeout = token.getIssuedAt().getTime() + 1000*60 * 180;
+            }
+            userDao.checkAndUpdateUser(1, token.getId(), token.getToken(), sfTimeout, token.getRefreshToken());
+        } catch (Exception e) {
+            throw new AbortWithHttpRedirectException("/");
         }
     }
 
