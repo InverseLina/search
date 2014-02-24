@@ -14,22 +14,24 @@ public class MultiplierWebHandler {
 
     @Inject
     private MultiplierManager multiplierManager;
+    @Inject
+    private WebResponseBuilder webResponseBuilder;
     
     @WebPost("/multiplyData")
     public WebResponse multiplyData(@WebParam("orgName")String orgName,
             @WebParam("times")Integer times,@WebParam("tableName")String tableName) throws SQLException{
-        return WebResponse.success(multiplierManager.multiplyData(times, orgName,tableName));
+        return webResponseBuilder.success(multiplierManager.multiplyData(times, orgName,tableName));
     }
     
     @WebGet("/getMultiplyStatus")
     public WebResponse getStatus(){
-        return WebResponse.success(multiplierManager.getStatus());
+        return webResponseBuilder.success(multiplierManager.getStatus());
     }
     
     @WebPost("/stopMultiply")
     public WebResponse stopMultiply(){
         multiplierManager.stop();
-        return WebResponse.success();
+        return webResponseBuilder.success();
     }
     
 }
