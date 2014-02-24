@@ -17,6 +17,7 @@ import org.jasql.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.common.base.Strings;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
@@ -27,6 +28,8 @@ import com.jobscience.search.searchconfig.FilterField;
 import com.jobscience.search.searchconfig.FilterType;
 import com.jobscience.search.searchconfig.SearchConfiguration;
 import com.jobscience.search.searchconfig.SearchConfigurationManager;
+import com.jobscience.search.web.ReqPerf;
+import com.jobscience.search.web.ReqPerfHook;
 
 @Singleton
 public class SearchDao {
@@ -54,6 +57,10 @@ public class SearchDao {
     
     @Inject
     private SearchConfigurationManager searchConfigurationManager;
+    
+    @Inject
+    CurrentRequestContextHolder crch;
+       
     /**
      * @param searchColumns
      * @param searchValues
@@ -66,9 +73,12 @@ public class SearchDao {
     		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token,Map org) {
         Runner runner = daoHelper.openDefaultRunner();
         
+        ReqPerf reqPerf = crch.getCurrentRequestContext().getAttributeAs(ReqPerfHook.REQ_PERF,ReqPerf.class);
+        reqPerf.start("beforeSelect");
         //builder statements
         SearchStatements statementAndValues = 
         		buildSearchStatements(searchColumns,searchValues, pageIdx, pageSize,orderCon,org);
+        reqPerf.stop("beforeSelect");
         //excute query and caculate times
         long start = System.currentTimeMillis();
         List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
@@ -76,6 +86,8 @@ public class SearchDao {
         int count =  runner.executeCount(statementAndValues.countSql, statementAndValues.values);
         long end = System.currentTimeMillis();
 
+        reqPerf.start("afterSelect");
+        
         queryLogger.debug(LoggerType.SEARCH_PERF,mid - start);
         queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,end - mid);
         
@@ -94,6 +106,8 @@ public class SearchDao {
         runner.close();
         searchResult.setPageIdx(pageIdx);
         searchResult.setPageSize(pageSize);
+        
+        reqPerf.stop("afterSelect");
         return searchResult;
     }
     
