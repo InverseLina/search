@@ -185,6 +185,8 @@ public class DBSetupManager {
             schemaname = orgs.get(0).get("schemaname").toString();
         }
         
+        status.put("user_timeout",checkColumn("timeout","user",schemaname));
+        
         if(orgExtraTableNames.contains("contact_ex,")){
             if(checkColumn("sfid", "contact_ex", schemaname)){
                 if(sfidManager.isOn()){
@@ -318,6 +320,14 @@ public class DBSetupManager {
         		runner.executeUpdate(sql);
             }
             runner.commit();
+            List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+            String schemaname="" ;
+            if(orgs.size()==1){
+                schemaname = orgs.get(0).get("schemaname").toString();
+            }
+            if(!checkColumn("timeout","user",schemaname)){
+                daoHelper.executeUpdate(orgName,"alter table \"user\" add column timeout bigint not null default 0;");
+            }
         } catch (Exception e) {
             log.error(e.getMessage());
         	result = false;

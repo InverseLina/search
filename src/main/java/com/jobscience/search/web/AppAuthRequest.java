@@ -3,11 +3,8 @@ package com.jobscience.search.web;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.jobscience.search.oauth.ForceAuthService;
-import com.jobscience.search.oauth.api.ForceDotComApi;
 import net.sf.json.JSONObject;
 
-import org.scribe.model.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +28,8 @@ import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.UserDao;
+import com.jobscience.search.oauth.ForceAuthService;
+import com.jobscience.search.oauth.api.ForceDotComApi;
 
 @Singleton
 public class AppAuthRequest implements AuthRequest {
