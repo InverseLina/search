@@ -26,6 +26,9 @@ public class OrgConfigWebHandlers {
   private CurrentOrgHolder currentOrgHolder;
   @Inject
   private ForceDotComApiManager forceDotComApiManager;
+
+  @Inject
+  private WebResponseBuilder webResponseBuilder;
   
   @WebPost("/org/save")
   public WebResponse saveEntity(@WebParam("name")String name,@WebParam("schemaname")String schemaname,
@@ -42,23 +45,23 @@ public class OrgConfigWebHandlers {
           forceDotComApiManager.clearForceDotComApi(currentOrgHolder.getId());
       }catch(Exception e){
       }
-      return WebResponse.success();
+      return webResponseBuilder.success();
   }
   
   @WebGet("/org/get/{id}")
   public WebResponse getEntity(@WebParam("id")String id) throws SQLException{
-      return WebResponse.success(orgConfigDao.getOrg(id));
+      return webResponseBuilder.success(orgConfigDao.getOrg(id));
   }
   
   @WebPost("/org/del/{id}")
   public WebResponse delEntity(@WebParam("id")String id) throws SQLException{
       orgConfigDao.deleteOrg(id);
-      return WebResponse.success();
+      return webResponseBuilder.success();
   }
   
   @WebGet("/org/list")
   public WebResponse listEntity(){
       List list = orgConfigDao.getOrgsList(null);
-      return WebResponse.success(list);
+      return webResponseBuilder.success(list);
   }
 }

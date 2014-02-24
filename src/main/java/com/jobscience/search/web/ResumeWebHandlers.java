@@ -19,11 +19,14 @@ public class ResumeWebHandlers {
     private DaoHelper daoHelper;
     @Inject
     private CurrentOrgHolder orgHolder;
+
+    @com.google.inject.Inject
+    private WebResponseBuilder webResponseBuilder;
     
     @WebGet("/getResume")
     public WebResponse search(@WebParam("cid") Long cid) {
     	String sql = "select \"name\", \"ts2__text_resume__c\" from  contact where id = ?";
     	List<Map> map = daoHelper.executeQuery(orgHolder.getOrgName(), sql, cid);
-    	return WebResponse.success(map);
+        return webResponseBuilder.success(map);
     }
 }

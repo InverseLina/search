@@ -33,9 +33,12 @@ public class SearchConfigurationWebHandlers {
     @Inject
     private DBSetupManager dbSetupManager;
 
+    @Inject
+    private WebResponseBuilder webResponseBuilder;
+
     @WebGet("/searchuiconfig")
     public WebResponse searchuiconfig(@WebParam("org") String orgName){
-        return WebResponse.success(searchConfigurationManager.getFilters(orgName));
+        return webResponseBuilder.success(searchConfigurationManager.getFilters(orgName));
     }
 
     @WebGet("/getSearchConfig")
@@ -43,15 +46,15 @@ public class SearchConfigurationWebHandlers {
         boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
         if(!isSysSchemaExist){
             URL url = rc.getServletContext().getResource(CONFIG_PATH);
-            return WebResponse.success(Resources.toString(url, Charsets.UTF_8));
+            return webResponseBuilder.success(Resources.toString(url, Charsets.UTF_8));
         }
         List<Map> result = searchConfigurationDao.getSearchConfig();
         if (result.size() == 0) {
             URL url = rc.getServletContext().getResource(CONFIG_PATH);
-            return WebResponse.success(Resources.toString(url, Charsets.UTF_8));
+            return webResponseBuilder.success(Resources.toString(url, Charsets.UTF_8));
 
         }else{
-            return WebResponse.success(result.get(0).get("val_text"));
+            return webResponseBuilder.success(result.get(0).get("val_text"));
         }
 
     }
@@ -60,21 +63,21 @@ public class SearchConfigurationWebHandlers {
     public WebResponse resetSearchConfig(RequestContext rc) throws IOException {
         searchConfigurationDao.resetSearchConfig();
         URL url = rc.getServletContext().getResource(CONFIG_PATH);
-        return WebResponse.success(Resources.toString(url, Charsets.UTF_8));
+        return webResponseBuilder.success(Resources.toString(url, Charsets.UTF_8));
     }
 
     @WebPost("/saveSearchConfig")
     public WebResponse saveSearchConfig(@WebParam("content") String content, RequestContext rc) throws IOException {
         if(!searchConfigurationManager.isValid(content)){
-            return WebResponse.success(mapIt("valid",false));
+            return webResponseBuilder.success(mapIt("valid",false));
         }
         searchConfigurationDao.saveSearchConfig(content);
-        return WebResponse.success(mapIt("valid", true));
+        return webResponseBuilder.success(mapIt("valid", true));
     }
 
     @WebGet("/getOrgSearchConfig")
     public WebResponse getOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
-        return WebResponse.success(searchConfigurationManager.getOrgConfig(orgName));
+        return webResponseBuilder.success(searchConfigurationManager.getOrgConfig(orgName));
 
     }
 
@@ -82,18 +85,18 @@ public class SearchConfigurationWebHandlers {
     public WebResponse resetOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
 
         searchConfigurationDao.resetOrgSearchConfig(orgName);
-        return WebResponse.success(searchConfigurationManager.getOrgConfig(orgName));
+        return webResponseBuilder.success(searchConfigurationManager.getOrgConfig(orgName));
     }
 
     @WebPost("/saveOrgSearchConfig")
     public WebResponse saveOrgSearchConfig(@WebParam("orgName") String orgName,
                                            @WebParam("content") String content, RequestContext rc) throws Exception {
         if(!searchConfigurationManager.isValid(content)){
-            return WebResponse.success(mapIt("valid",false));
+            return webResponseBuilder.success(mapIt("valid",false));
         }
         searchConfigurationDao.saveOrgSearchConfig(orgName, content);
 
-        return WebResponse.success(mapIt("valid", true, "config", searchConfigurationManager.getOrgConfig(orgName)));
+        return webResponseBuilder.success(mapIt("valid", true, "config", searchConfigurationManager.getOrgConfig(orgName)));
     }
     
 }

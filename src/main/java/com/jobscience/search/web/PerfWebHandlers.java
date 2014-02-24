@@ -37,6 +37,9 @@ public class PerfWebHandlers {
     @Inject
     private DaoHelper daoHelper;
 
+    @Inject
+    private WebResponseBuilder webResponseBuilder;
+
     /**
      * api for main search
      * 
@@ -62,8 +65,7 @@ public class PerfWebHandlers {
         resultMap.put("count", searchResult.getCount());
         resultMap.put("duration", searchResult.getSelectDuration());
         resultMap.put("countDuration", searchResult.getCountDuration());
-        WebResponse wr = WebResponse.success(resultMap);
-        return wr;
+        return webResponseBuilder.success(resultMap);
     }
 
     private Map getOrgMap(String org) {
@@ -114,17 +116,16 @@ public class PerfWebHandlers {
         HashMap<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", sResult.getCount());
         resultMap.put("duration", sResult.getDuration());
-        WebResponse wr = WebResponse.success(resultMap);
-        return wr;
+        return webResponseBuilder.success(resultMap);
     }
 
     @WebGet("/perf/checkStatus")
     public WebResponse checkStatus() throws SQLException {
         try {
             orgHolder.getOrgName();
-            return WebResponse.success(true);
+            return webResponseBuilder.success(true);
         } catch (Exception e) {
-            return WebResponse.success(false);
+            return webResponseBuilder.success(false);
         }
     }
 
@@ -136,16 +137,16 @@ public class PerfWebHandlers {
               List<Map> prefs = daoHelper.executeQuery(orgHolder.getOrgName(),
                         "select * from pref where name = ? and user_id = ?", "filter_order", user.get("id"));
                 if(prefs.size() == 1) {
-                    return WebResponse.success(prefs.get(0));
+                    return webResponseBuilder.success(prefs.get(0));
                 }else{
-                    return WebResponse.success(false);
+                    return webResponseBuilder.success(false);
                 }
 
             } catch (Exception e) {
-                return WebResponse.success(false);
+                return webResponseBuilder.success(false);
             }
         }else{
-            return WebResponse.fail("not login");
+            return webResponseBuilder.fail("not login");
         }
     }
 
@@ -162,12 +163,12 @@ public class PerfWebHandlers {
                     daoHelper.executeUpdate(orgHolder.getOrgName(),
                             "update pref set val_text = ? where id = ?",value, prefs.get(0).get("id") );
                 }
-                return WebResponse.success(true);
+                return webResponseBuilder.success(true);
             } catch (Exception e) {
-                return WebResponse.success(false);
+                return webResponseBuilder.success(false);
             }
         }else{
-            return WebResponse.fail();
+            return webResponseBuilder.fail();
         }
 
     }

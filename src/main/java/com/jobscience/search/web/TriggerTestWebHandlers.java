@@ -21,12 +21,15 @@ public class TriggerTestWebHandlers {
     @Inject
     private DaoHelper daoHelper;
 
+    @Inject
+    private WebResponseBuilder webResponseBuilder;
+
     
     @WebGet("/test/getOrgs")
     public WebResponse queryOrgs() {
 
     	List<Map> map = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select * from org");
-    	return WebResponse.success(map);
+        return webResponseBuilder.success(map);
     }
 
     @WebPost("/test/saveContact")
@@ -58,6 +61,6 @@ public class TriggerTestWebHandlers {
                 daoHelper.create(org, "insert into ts2__employment_history__c (ts2__contact__c, ts2__name__c) values(?, ?)  returning id", sfid, s);
             }
         }
-        return WebResponse.success();
+        return webResponseBuilder.success();
     }
 }

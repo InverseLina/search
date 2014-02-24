@@ -25,6 +25,9 @@ public class ConfigWebHandlers {
     @Inject
     private CurrentOrgHolder orgHolder;
 
+    @Inject
+    private WebResponseBuilder webResponseBuilder;
+
     @WebPost("/config/save")
     public WebResponse saveConfig(@WebParam("configsJson") String configsJson,
                             @WebParam("orgId") Integer orgId) throws SQLException {
@@ -40,25 +43,25 @@ public class ConfigWebHandlers {
             e.printStackTrace();
         }
         configManager.saveOrUpdateConfig(paramConfigs,id);
-        return WebResponse.success();
+        return webResponseBuilder.success();
     }
 
     @WebGet("/config/get/{name}")
     public WebResponse getConfig(@WebPath(2) String name,@WebParam("orgId") Integer orgId) throws SQLException {
         try {
             if(name == null){
-                return WebResponse.success(configManager.getConfigMap(orgId));
+                return webResponseBuilder.success(configManager.getConfigMap(orgId));
             }
-            return WebResponse.success(configManager.getConfig(name,orgId));
+            return webResponseBuilder.success(configManager.getConfig(name,orgId));
         } catch (NullPointerException e) {
             //this exception just occur at first time when admin not finish config db
             //e.printStackTrace();
-            return WebResponse.fail();
+            return webResponseBuilder.fail();
         }
     }
     @WebGet("/config/getByName/{name}")
     public WebResponse getConfigByName(@WebPath(2) String name) throws Exception {
-        return WebResponse.success(configManager.getConfig(name,orgHolder.getId()));
+        return webResponseBuilder.success(configManager.getConfig(name,orgHolder.getId()));
     }
 
     @WebModelHandler(startsWith = "/admin")
@@ -72,10 +75,10 @@ public class ConfigWebHandlers {
         if (configPassword.equals(password)) {
             rc.setCookie("login", true);
             rc.setCookie("passCode", true);
-            return WebResponse.success();
+            return webResponseBuilder.success();
         } else {
             rc.setCookie("login", false);
-            return WebResponse.fail();
+            return webResponseBuilder.fail();
         }
     }
 

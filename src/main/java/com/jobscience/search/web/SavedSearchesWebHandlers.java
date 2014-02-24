@@ -19,6 +19,9 @@ public class SavedSearchesWebHandlers {
     private SavedSearchesDao savedSearchesDao;
     @Inject
     private CurrentOrgHolder orgHolder;
+
+    @Inject
+    private WebResponseBuilder webResponseBuilder;
     
     @WebGet("/listSavedSearches")
     public WebResponse list(@WebParam("offset") Integer offset, @WebParam("limit") Integer limit) {
@@ -29,33 +32,33 @@ public class SavedSearchesWebHandlers {
             limit = 999;
         }
         List<Map> map = savedSearchesDao.list(offset, limit,orgHolder.getCurrentOrg());
-        return WebResponse.success(map);
+        return webResponseBuilder.success(map);
     }
 
     @WebPost("/saveSavedSearches")
     public WebResponse save(@WebParam("name") String name, @WebParam("content") String content) {
         try {
             savedSearchesDao.save(name, content,orgHolder.getCurrentOrg());
-            return WebResponse.success();
+            return webResponseBuilder.success();
         } catch (Exception e) {
             e.printStackTrace();
-            return WebResponse.fail(e.getMessage());
+            return webResponseBuilder.fail(e.getMessage());
         }
     }
 
     @WebPost("/deleteSavedSearches")
     public WebResponse delete(@WebParam("id") Long id) {
         savedSearchesDao.delete(id,orgHolder.getCurrentOrg());
-        return WebResponse.success();
+        return webResponseBuilder.success();
     }
     @WebGet("/countSavedSearches")
     public WebResponse count(@WebParam("name") String name) {
         int result = savedSearchesDao.count(name,orgHolder.getCurrentOrg());
-        return WebResponse.success().setResult(result);
+        return webResponseBuilder.success(result);
     }
     @WebGet("/getOneSavedSearches")
     public WebResponse get(@WebParam("id") Long id) {
         Map map = savedSearchesDao.get(id,orgHolder.getCurrentOrg());
-        return WebResponse.success(map);
+        return webResponseBuilder.success(map);
     }
 }
