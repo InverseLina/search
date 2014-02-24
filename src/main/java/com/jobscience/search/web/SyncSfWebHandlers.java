@@ -14,6 +14,9 @@ public class SyncSfWebHandlers {
     @Inject
     private SalesForceSyncService salesForceSyncService;
 
+    @Inject
+    private WebResponseBuilder webResponseBuilder;
+
     @WebGet("/syncsf/startDownload")
     public WebResponse download(RequestContext rc){
         String ctoken = rc.getCookie("ctoken");
@@ -26,7 +29,7 @@ public class SyncSfWebHandlers {
             }
         }
     
-        return WebResponse.fail();
+        return webResponseBuilder.fail();
     }
     @WebGet("/syncsf/stopDownload")
     public WebResponse stopDownload(RequestContext rc){
@@ -34,11 +37,11 @@ public class SyncSfWebHandlers {
         if (ctoken != null) {
 
         }
-        return WebResponse.fail();
+        return webResponseBuilder.fail();
     }
     @WebGet("/syncsf/downloadStatus")
     public WebResponse getDownStatus(RequestContext rc){
-        return WebResponse.success(isDownloading);
+        return webResponseBuilder.success(isDownloading);
     }
     
 

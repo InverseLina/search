@@ -43,6 +43,9 @@ public class AppAuthRequest implements AuthRequest {
     @Named("jss.passcode")
     private String passCode = "";
 
+    @Inject
+    private WebResponseBuilder webResponseBuilder;
+
     private static final Logger log = LoggerFactory.getLogger(AppAuthRequest.class);
 
     private final Cache<String, Map> userCache;
@@ -88,9 +91,9 @@ public class AppAuthRequest implements AuthRequest {
     public WebResponse validatePasscode(@WebParam("passcode") String code ,RequestContext rc) {
         if (this.passCode != null && this.passCode.length() > 0 && passCode.equals(code)) {
             rc.setCookie("passCode", true);
-            return WebResponse.success(true);
+            return webResponseBuilder.success(true);
         }
-        return WebResponse.fail("passcode error");
+        return webResponseBuilder.fail("passcode error");
     }
 
     @WebModelHandler(startsWith = "/")
