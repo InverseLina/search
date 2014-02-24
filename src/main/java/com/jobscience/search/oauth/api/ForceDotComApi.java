@@ -106,15 +106,17 @@ public class ForceDotComApi extends DefaultApi20
         private final Date issuedAt;
         private final String instanceUrl;
         private final String signature;
+        private final String refreshToken;
 
         public ForceDotComToken(String id, String issuedAtStr, String secret, String instanceUrl, String signature,
-                                String token, String rawResponse)
+                                String token, String refreshToken, String rawResponse)
         {
             super(token, secret, rawResponse);
             this.id = id;
             this.issuedAt = new Date(Long.parseLong(issuedAtStr));
             this.instanceUrl = instanceUrl;
             this.signature = signature;
+            this.refreshToken = refreshToken;
         }
 
         public String getId()
@@ -136,6 +138,10 @@ public class ForceDotComApi extends DefaultApi20
         {
             return signature;
         }
+
+        public String getRefreshToken() {
+            return refreshToken;
+        }
     }
 
     /**
@@ -145,8 +151,15 @@ public class ForceDotComApi extends DefaultApi20
      */
     public static class ForceDotComTokenExtractor implements AccessTokenExtractor
     {
+        private String refreshToken = null;
+        public ForceDotComTokenExtractor() {
+        }
 
-//        private Pattern forceTokenPattern =
+        public ForceDotComTokenExtractor(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+
+        //        private Pattern forceTokenPattern =
 //                Pattern.compile("\"id\":\"(\\S*?)\",\"issued_at\":\"(\\d*?)\",.*,\"instance_url\":\"(\\S*?)\",.*,\"signature\":\"(\\S*?)\",\"access_token\":\"(\\S*?)\"");
 
         @Override
@@ -154,11 +167,17 @@ public class ForceDotComApi extends DefaultApi20
         {
             try{
                 Map opts = JsonUtil.toMapAndList(response);
+                if (opts.get("refresh_token") == null) {
+                    opts.put("refresh_token", refreshToken);
+                }
                 
                 return new ForceDotComToken(
-                    String.valueOf(opts.get("id")) /*id*/, String.valueOf(opts.get("issued_at")) /*issuedAt*/,
+                    String.valueOf(opts.get("id")) /*id*/,
+                        String.valueOf(opts.get("issued_at")) /*issuedAt*/,
                     String.valueOf(opts.get("secret")) /*refreshToken a.k.a secret*/, String.valueOf(opts.get("instance_url")) /*instanceUrl*/,
-                    String.valueOf(opts.get("signature")) /*signature*/, String.valueOf(opts.get("access_token")) /*accessToken*/,
+                    String.valueOf(opts.get("signature")) /*signature*/,
+                    String.valueOf(opts.get("access_token")) /*accessToken*/,
+                    String.valueOf(opts.get("refresh_token")) /*refreshToken*/,
                     response);
             }catch(Exception e){
                 throw new OAuthException("Cannot extract a Force.com acces token. Response was: " + response);

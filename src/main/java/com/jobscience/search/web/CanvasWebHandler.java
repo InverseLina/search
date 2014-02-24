@@ -41,7 +41,7 @@ public class CanvasWebHandler {
                 try {
                     String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, canvasappSecretStr);
                     m.put("signedRequestJson", signedRequestJson);
-                    userDao.checkAndUpdateUser(2, signedRequestJson, null);
+                    userDao.checkAndUpdateUser(2, signedRequestJson, null, 0, null);
                 } catch (Exception e) {
                     rc.getWebModel().put("errorCode", "CANVAS_AUTH_ERROR");
                     rc.getWebModel().put("errorMessage", "The app secret might be incorrect, Make sure you have correct secret");

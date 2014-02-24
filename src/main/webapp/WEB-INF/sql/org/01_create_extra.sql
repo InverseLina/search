@@ -56,6 +56,8 @@ CREATE TABLE if not exists "user"
   id bigserial NOT NULL,
   sfid character varying(255) NULL,
   ctoken character varying(255) NOT NULL,
+  rtoken character varying(255),
+  timeout bigint not null,
   CONSTRAINT pk_user PRIMARY KEY (id)
 );
 

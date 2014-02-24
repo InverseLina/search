@@ -62,7 +62,7 @@ public class LabelWebHandler {
         if (ctoken != null) {
             Map user = userDao.getUserByToken(ctoken);
             if (user == null) {
-                userDao.insertUser(null, ctoken);
+                userDao.insertUser(null, ctoken, 0l, null);
                 user = userDao.getUserByToken(ctoken);
             }
             return webResponseBuilder.success(labelDao.getLabelForUser(Long.parseLong(user.get("id").toString()),

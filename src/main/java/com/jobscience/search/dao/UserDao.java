@@ -32,8 +32,8 @@ public class UserDao {
 
     public static final String selectSql = "select * from \"user\" where sfid = ?";
     public static final String selectByTokenSql = "select * from \"user\" where ctoken = ?";
-    public static final String updateSql = "update \"user\" set ctoken = ? where sfid = ?";
-    public static final String insertSql = "insert into \"user\" (sfid, ctoken) values(?,?)";
+    public static final String updateSql = "update \"user\" set ctoken = ?, timeout = ?, rtoken=? where sfid = ?";
+    public static final String insertSql = "insert into \"user\" (sfid, ctoken, timeout,rtoken) values(?,?,?,?)";
 
     public Map getCurrentUser(){
        
@@ -68,19 +68,20 @@ public class UserDao {
         }
     }
 
-   public void updateCToken(String sfid, String CToken) {
-       daoHelper.executeUpdate(orgHolder.getOrgName(), updateSql, CToken, sfid);
+   public void updateCToken(String sfid, String ctoken, long sfTimeout, String rtoken) {
+       daoHelper.executeUpdate(orgHolder.getOrgName(), updateSql, ctoken, sfTimeout,sfid,rtoken);
    }
    
-   public void insertUser(String sfid, String CToken) {
+   public void insertUser(String sfid, String ctoken, long sfTimeout, String rtoken) {
        //for now label, sfid should not null
        if (sfid == null) {
            sfid = demoSfid();
        }
-       daoHelper.executeUpdate(orgHolder.getOrgName(), insertSql, sfid, CToken);
+       daoHelper.executeUpdate(orgHolder.getOrgName(), insertSql, sfid, ctoken, sfTimeout, rtoken);
    }
 
-   public String checkAndUpdateUser(int type, String content, String token) {
+   public String checkAndUpdateUser(int type, String content, String token,
+                                    long sfTimeout, String rtoken) {
        String sfid, ctoken;
        if (type == 1) {
            sfid = getSFIDbySF1(content);
@@ -95,9 +96,9 @@ public class UserDao {
        orgHolder.setOrg(ctoken, sfid);
        List<Map> users = getUserMap(sfid);
        if (users.size() > 0) {
-           updateCToken(sfid, ctoken);
+           updateCToken(sfid, ctoken, sfTimeout, rtoken);
        }else{
-           insertUser(sfid, ctoken);
+           insertUser(sfid, ctoken, sfTimeout, rtoken);
        }
 
        return ctoken;
