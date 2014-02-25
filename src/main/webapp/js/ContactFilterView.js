@@ -111,6 +111,7 @@
 	        	var name = $radio.attr("name");
 	        	var value = $radio.val();
 	        	app.preference.store(cookiePrefix+name,value);
+	        	view.$el.trigger("DO_SEARCH");
 	        },
             "click; .selectedItems span.clear": function (event) {
                 event.preventDefault();
