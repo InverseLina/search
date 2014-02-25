@@ -30,10 +30,10 @@ public class UserDao {
     @Inject
     private boolean productMode;
 
-    public static final String selectSql = "select * from \"user\" where sfid = ?";
-    public static final String selectByTokenSql = "select * from \"user\" where ctoken = ?";
-    public static final String updateSql = "update \"user\" set ctoken = ?, timeout = ?, rtoken=? where sfid = ?";
-    public static final String insertSql = "insert into \"user\" (sfid, ctoken, timeout,rtoken) values(?,?,?,?)";
+    public static final String selectSql = "select * from \"jss_user\" where sfid = ?";
+    public static final String selectByTokenSql = "select * from \"jss_user\" where ctoken = ?";
+    public static final String updateSql = "update \"jss_user\" set ctoken = ?, timeout = ?, rtoken=? where sfid = ?";
+    public static final String insertSql = "insert into \"jss_user\" (sfid, ctoken, timeout,rtoken) values(?,?,?,?)";
 
     public Map getCurrentUser(){
        

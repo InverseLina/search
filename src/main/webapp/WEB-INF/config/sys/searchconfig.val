@@ -1,7 +1,7 @@
 <searchconfig>
   <keyword>
-     <field table="contact_ex" name="contactInfoTsv" column="contact_tsv" />
-     <field table="contact_ex" name="contactResumeTsv" column="resume_tsv" />
+     <field table="jss_contact" name="contactInfoTsv" column="contact_tsv" />
+     <field table="jss_contact" name="contactResumeTsv" column="resume_tsv" />
   </keyword>
   <filter name="skill" title="Skill" filtertype="skill">
      <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" slider="ts2__rating__c">
@@ -18,7 +18,7 @@
   </filter>   
 
   <filter name="location" title="Location" filtertype="location" show="false">
-     <field table="ex_grouped_locations" column="name" />
+     <field table="jss_grouped_locations" column="name" />
   </filter> 
   
   <contact table="contact" title="Contact">

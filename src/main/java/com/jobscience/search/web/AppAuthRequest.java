@@ -75,7 +75,7 @@ public class AppAuthRequest implements AuthRequest {
             
             Map user = userCache.getIfPresent(ctoken);
             if (user == null) {
-                boolean isUserExist = dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("user");
+                boolean isUserExist = dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
                 if(isUserExist){
                     user = userDao.getUserByToken(ctoken);
                 }

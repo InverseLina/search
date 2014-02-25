@@ -1,21 +1,21 @@
 {
- "contact_ex":[
+ "jss_contact":[
                {
-                "name":"contact_ex_sfid",
+                "name":"jss_contact_sfid",
                 "type":"btree",
                 "column":"sfid",
                 "operator":"",
                 "unique":"unique"
                },
                {
-                "name":"contact_ex_resume_tsv_gin",
+                "name":"jss_contact_resume_tsv_gin",
                 "type":"gin",
                 "column":"resume_tsv",
                 "operator":" ",
                 "unique":""
                },
                {
-                "name":"contact_ex_contact_tsv_gin",
+                "name":"jss_contact_contact_tsv_gin",
                 "type":"gin",
                 "column":"contact_tsv",
                 "operator":" ",
@@ -128,36 +128,36 @@
                 "unique":"UNIQUE"
                }
               ],     
- "ex_grouped_skills":[
+ "jss_grouped_skills":[
               {
-                "name":"ex_grouped_skills_name",
+                "name":"jss_grouped_skills_name",
                 "type":"btree",
                 "column":"name",
                 "operator":"",
                 "unique":""
                }
               ],    
- "ex_grouped_educations":[
+ "jss_grouped_educations":[
               {
-                "name":"ex_grouped_educations_name",
+                "name":"jss_grouped_educations_name",
                 "type":"btree",
                 "column":"name",
                 "operator":"",
                 "unique":""
                }
               ],   
- "ex_grouped_employers":[
+ "jss_grouped_employers":[
               {
-                "name":"ex_grouped_employers_name",
+                "name":"jss_grouped_employers_name",
                 "type":"btree",
                 "column":"name",
                 "operator":"",
                 "unique":""
                }
               ],
- "ex_grouped_locations":[
+ "jss_grouped_locations":[
               {
-                "name":"ex_grouped_locations_name",
+                "name":"jss_grouped_locations_name",
                 "type":"btree",
                 "column":"name",
                 "operator":"",

@@ -37,7 +37,7 @@ public class LabelDao {
     
     public List<Map> getLabelForUser(Long userId,Map org){
         return daoHelper.executeQuery((String)org.get("name"),
-                "select a.* from  ts2__s_userlist__c a inner join \"user\" b on a.ownerid = b.sfid where b.id=?", userId);
+                "select a.* from  ts2__s_userlist__c a inner join \"jss_user\" b on a.ownerid = b.sfid where b.id=?", userId);
     }
     
     public  List<Map>  getLabelForById(Long labelId,Map org){
@@ -47,7 +47,7 @@ public class LabelDao {
     
     public  List<Map>  getLabelByName(String name, Object userId,Map org){
         return daoHelper.executeQuery((String)org.get("name"),
-                "select a.* from  ts2__s_userlist__c a inner join \"user\" b on a.ownerid = b.sfid where a.name=? and b.id = ? limit 1", name, userId);
+                "select a.* from  ts2__s_userlist__c a inner join \"jss_user\" b on a.ownerid = b.sfid where a.name=? and b.id = ? limit 1", name, userId);
     }
     
     

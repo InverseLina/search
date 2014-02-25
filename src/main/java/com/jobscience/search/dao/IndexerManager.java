@@ -107,7 +107,7 @@ public class IndexerManager {
 	 }
 	    
 	 private int getContactExCount(String orgName){
-    	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact_ex");
+    	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from jss_contact");
     	if(list.size()==1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}

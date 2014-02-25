@@ -116,10 +116,10 @@ public class SfidManager {
         if(orgs.size()==1){
             schemaname = orgs.get(0).get("schemaname").toString();
         }
-	    if(!checkColumn("sfid", "contact_ex", schemaname)){
+	    if(!checkColumn("sfid", "jss_contact", schemaname)){
 	        return 0;
 	    }
-    	List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from contact_ex where sfid is not null");
+    	List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact where sfid is not null");
     	if(list.size()==1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}

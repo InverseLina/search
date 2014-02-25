@@ -242,13 +242,13 @@ public class SearchDao {
         if(f==null&&!type.equals("location")){
             baseTable=filter.getFilterField().getTable();
         }else if(f.equals(FilterType.COMPANY)){
-            baseTable =  "ex_grouped_employers ";
+            baseTable =  "jss_grouped_employers ";
         }else if(f.equals(FilterType.EDUCATION)){
-            baseTable =  "ex_grouped_educations ";
+            baseTable =  "jss_grouped_educations ";
         }else if(f.equals(FilterType.SKILL)){
-            baseTable =  "ex_grouped_skills ";
+            baseTable =  "jss_grouped_skills ";
         }else if(f.equals(FilterType.LOCATION)){
-            baseTable =  "ex_grouped_locations ";
+            baseTable =  "jss_grouped_locations ";
         }
         
         StringBuilder querySql;
@@ -1475,7 +1475,7 @@ public class SearchDao {
     		temp = notConditions[0].trim();
 
 			sb.append(" select ex.id,ex.sfid from   "+schemaname
-			    +".contact_ex ex where "+renderKeywordSearch(values,temp,org,exact)  );
+			    +".jss_contact ex where "+renderKeywordSearch(values,temp,org,exact)  );
     		
 			if(notConditions.length==1){
     			sb.append(") n_ext");
@@ -1491,7 +1491,7 @@ public class SearchDao {
 	    		temp = notConditions[i].trim();
 	    		sb.append(" except ");
                         
-	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".contact_ex ex where "+renderKeywordSearch(values,temp,org,exact) + " ) ");
+	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".jss_contact ex where "+renderKeywordSearch(values,temp,org,exact) + " ) ");
 	    		//values.add(temp);
 	    		//values.add(temp);
 	    	}

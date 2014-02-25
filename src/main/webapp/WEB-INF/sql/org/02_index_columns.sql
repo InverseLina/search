@@ -8,7 +8,7 @@
 	    WHERE  c.relname = 'contact_ex_idx_resume_gin'
 	    AND    n.nspname =   current_schema
 	    ) THEN
-	   CREATE INDEX contact_ex_idx_resume_gin  ON contact_ex  USING gin(resume_tsv);
+	   CREATE INDEX contact_ex_idx_resume_gin  ON jss_contact  USING gin(resume_tsv);
 	END IF;
 	END$$;
 -- SCRIPTS  

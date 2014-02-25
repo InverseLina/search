@@ -252,4 +252,14 @@ public class DBSetupWebHanlder {
         return webResponseBuilder.success();
     }
    
+    @WebPost("/fixJssTableNames")
+    public WebResponse fixJssTableNames(@WebParam("orgName")String orgName){
+        try{
+            dbSetupManager.fixJssTableNames(orgName);
+        }catch(Exception e){
+            return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
+        return webResponseBuilder.success();
+    }
+    
 }

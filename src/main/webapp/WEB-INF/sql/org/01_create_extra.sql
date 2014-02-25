@@ -1,5 +1,5 @@
 -- SCRIPTS
-	CREATE TABLE if not exists contact_ex
+	CREATE TABLE if not exists jss_contact
 	(
 	  id bigint NOT NULL,
 	  resume_tsv tsvector,
@@ -37,7 +37,7 @@ CREATE TRIGGER contact_trg_resume_tsv
   EXECUTE PROCEDURE update_context_ex_resume();
   
 -- SCRIPTS
-CREATE TABLE if not exists savedsearches
+CREATE TABLE if not exists jss_savedsearches
 (
   id bigserial NOT NULL,
   user_id bigint,
@@ -51,7 +51,7 @@ CREATE TABLE if not exists savedsearches
 
 
 -- SCRIPTS
-CREATE TABLE if not exists "user"
+CREATE TABLE if not exists "jss_user"
 (
   id bigserial NOT NULL,
   sfid character varying(255) NULL,
@@ -63,7 +63,7 @@ CREATE TABLE if not exists "user"
 
 
 -- SCRIPTS
-CREATE TABLE if not exists searchlog
+CREATE TABLE if not exists jss_searchlog
 (
   id bigserial NOT NULL,
   user_id bigint NOT NULL,
@@ -80,21 +80,21 @@ CREATE OR REPLACE FUNCTION update_ex_group_skills() RETURNS trigger AS $BODY$
     BEGIN 
         IF(TG_OP = 'UPDATE') THEN
           
-            c:=(select "count" from ex_grouped_skills where name = OLD.ts2__skill_name__c);
+            c:=(select "count" from jss_grouped_skills where name = OLD.ts2__skill_name__c);
               
             IF (c=1) THEN 
-                DELETE FROM  ex_grouped_skills where name = OLD.ts2__skill_name__c;
+                DELETE FROM  jss_grouped_skills where name = OLD.ts2__skill_name__c;
             ELSE 
-                UPDATE ex_grouped_skills set count=(c-1) where name = OLD.ts2__skill_name__c;
+                UPDATE jss_grouped_skills set count=(c-1) where name = OLD.ts2__skill_name__c;
             END IF;
                 
         END IF;
 
-        SELECT ex_grouped_skills.count into c from ex_grouped_skills where name = NEW.ts2__skill_name__c limit 1;
+        SELECT jss_grouped_skills.count into c from jss_grouped_skills where name = NEW.ts2__skill_name__c limit 1;
         IF FOUND THEN
-           UPDATE ex_grouped_skills set count=(c+1) where name = NEW.ts2__skill_name__c;
+           UPDATE jss_grouped_skills set count=(c+1) where name = NEW.ts2__skill_name__c;
         ELSE
-           INSERT into ex_grouped_skills(count,name) values(1,NEW.ts2__skill_name__c);
+           INSERT into jss_grouped_skills(count,name) values(1,NEW.ts2__skill_name__c);
         END IF; 
 
 
@@ -119,21 +119,21 @@ CREATE OR REPLACE FUNCTION update_ex_group_educations() RETURNS trigger AS $BODY
     BEGIN 
         IF(TG_OP = 'UPDATE') THEN
           
-            c:=(select "count" from ex_grouped_educations where name = OLD.ts2__name__c);
+            c:=(select "count" from jss_grouped_educations where name = OLD.ts2__name__c);
               
             IF (c=1) THEN 
-                DELETE FROM  ex_grouped_educations where name = OLD.ts2__name__c;
+                DELETE FROM  jss_grouped_educations where name = OLD.ts2__name__c;
             ELSE 
-                UPDATE ex_grouped_educations set count=(c-1) where name = OLD.ts2__name__c;
+                UPDATE jss_grouped_educations set count=(c-1) where name = OLD.ts2__name__c;
             END IF;
                 
         END IF;
 
-        SELECT ex_grouped_educations.count into c from ex_grouped_educations where name = NEW.ts2__name__c limit 1;
+        SELECT jss_grouped_educations.count into c from jss_grouped_educations where name = NEW.ts2__name__c limit 1;
         IF FOUND THEN
-           UPDATE ex_grouped_educations set count=(c+1) where name = NEW.ts2__name__c;
+           UPDATE jss_grouped_educations set count=(c+1) where name = NEW.ts2__name__c;
         ELSE
-           INSERT into ex_grouped_educations(count,name) values(1,NEW.ts2__name__c);
+           INSERT into jss_grouped_educations(count,name) values(1,NEW.ts2__name__c);
         END IF; 
 
 
@@ -158,21 +158,21 @@ CREATE OR REPLACE FUNCTION update_ex_group_employers() RETURNS trigger AS $BODY$
     BEGIN 
         IF(TG_OP = 'UPDATE') THEN
           
-            c:=(select "count" from ex_grouped_employers where name = OLD.ts2__name__c);
+            c:=(select "count" from jss_grouped_employers where name = OLD.ts2__name__c);
               
             IF (c=1) THEN 
-                DELETE FROM  ex_grouped_employers where name = OLD.ts2__name__c;
+                DELETE FROM  jss_grouped_employers where name = OLD.ts2__name__c;
             ELSE 
-                UPDATE ex_grouped_employers set count=(c-1) where name = OLD.ts2__name__c;
+                UPDATE jss_grouped_employers set count=(c-1) where name = OLD.ts2__name__c;
             END IF;
                 
         END IF;
 
-        SELECT ex_grouped_employers.count into c from ex_grouped_employers where name = NEW.ts2__name__c limit 1;
+        SELECT jss_grouped_employers.count into c from jss_grouped_employers where name = NEW.ts2__name__c limit 1;
         IF FOUND THEN
-           UPDATE ex_grouped_employers set count=(c+1) where name = NEW.ts2__name__c;
+           UPDATE jss_grouped_employers set count=(c+1) where name = NEW.ts2__name__c;
         ELSE
-           INSERT into ex_grouped_employers(count,name) values(1,NEW.ts2__name__c);
+           INSERT into jss_grouped_employers(count,name) values(1,NEW.ts2__name__c);
         END IF; 
 
 
@@ -194,7 +194,7 @@ CREATE OR REPLACE FUNCTION update_ex_group_employers() RETURNS trigger AS $BODY$
 
 
 -- SCRIPTS
-CREATE TABLE if not exists pref
+CREATE TABLE if not exists jss_pref
 (
   id bigserial NOT NULL,
   user_id bigint NOT NULL,
@@ -205,16 +205,16 @@ CREATE TABLE if not exists pref
 );
 
 -- SCRIPTS
- CREATE TABLE if not exists recordtype
-(
-  sobjecttype character varying(40),
-  id serial not null,
-  sfid character varying(18),
-  isactive          boolean,                      
- lastmodifieddate  timestamp without time zone , 
- namespaceprefix   character varying(15) ,      
- _c5_source        character varying(18) ,       
- name              character varying(80) ,
-  CONSTRAINT recordtype_pkey PRIMARY KEY (id)
-);       
+-- CREATE TABLE if not exists jss_recordtype
+--(
+--  sobjecttype character varying(40),
+--  id serial not null,
+--  sfid character varying(18),
+--  isactive          boolean,                      
+-- lastmodifieddate  timestamp without time zone , 
+-- namespaceprefix   character varying(15) ,      
+-- _c5_source        character varying(18) ,       
+-- name              character varying(80) ,
+--  CONSTRAINT recordtype_pkey PRIMARY KEY (id)
+--);       
 

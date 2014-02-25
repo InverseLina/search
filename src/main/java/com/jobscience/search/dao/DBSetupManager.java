@@ -8,7 +8,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -65,6 +69,16 @@ public class DBSetupManager {
     
     private Logger log = LoggerFactory.getLogger(DBSetupManager.class);
     
+    private String[][] newTableNameChanges = {{"contact_ex","jss_contact"},
+                                              {"ex_grouped_educations","jss_grouped_educations"},
+                                              {"ex_grouped_employers","jss_grouped_employers"},
+                                              {"ex_grouped_locations","jss_grouped_locations"},
+                                              {"ex_grouped_skills","jss_grouped_skills"},
+                                              {"pref","jss_pref"},
+                                              {"searchlog","jss_searchlog"},
+                                              {"user","jss_user"},
+                                              {"savedsearches","jss_savedsearches"}};
+    
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
 		@Override
@@ -118,12 +132,11 @@ public class DBSetupManager {
         Map tableMap = new HashMap();
        // tableMap.put("label", orgExtraTableNames.contains("label,"));
        // tableMap.put("label_contact", orgExtraTableNames.contains("label_contact,"));
-        tableMap.put("contact_ex", orgExtraTableNames.contains("contact_ex,"));
-        tableMap.put("savedsearches", orgExtraTableNames.contains("savedsearches,"));
-        tableMap.put("user", orgExtraTableNames.contains("user,"));
-        tableMap.put("searchlog", orgExtraTableNames.contains("searchlog,"));
-        tableMap.put("pref", orgExtraTableNames.contains("pref,"));
-        tableMap.put("recordtype", orgExtraTableNames.contains("recordtype,"));
+        tableMap.put("jss_contact", orgExtraTableNames.contains("jss_contact,"));
+        tableMap.put("jss_savedsearches", orgExtraTableNames.contains("jss_savedsearches,"));
+        tableMap.put("jss_user", orgExtraTableNames.contains("jss_user,"));
+        tableMap.put("jss_searchlog", orgExtraTableNames.contains("jss_searchlog,"));
+        tableMap.put("jss_pref", orgExtraTableNames.contains("jss_pref,"));
         status.put("tables", tableMap);
         
         Map triggers = new HashMap();
@@ -134,10 +147,10 @@ public class DBSetupManager {
         
         status.put("triggers", triggers);
         
-        status.put("ex_grouped_skills",  orgExtraTableNames.contains("ex_grouped_skills,"));
-        status.put("ex_grouped_educations",  orgExtraTableNames.contains("ex_grouped_educations,"));
-        status.put("ex_grouped_employers",  orgExtraTableNames.contains("ex_grouped_employers,"));
-        status.put("ex_grouped_locations",  orgExtraTableNames.contains("ex_grouped_locations,"));
+        status.put("jss_grouped_skills",  orgExtraTableNames.contains("jss_grouped_skills,"));
+        status.put("jss_grouped_educations",  orgExtraTableNames.contains("jss_grouped_educations,"));
+        status.put("jss_grouped_employers",  orgExtraTableNames.contains("jss_grouped_employers,"));
+        status.put("jss_grouped_locations",  orgExtraTableNames.contains("jss_grouped_locations,"));
 
         status.put("pgtrgm", this.checkExtension("pg_trgm"));
         Map indexMap = new HashMap();
@@ -161,7 +174,7 @@ public class DBSetupManager {
         }
         status.put("indexes", indexMap);
         
-        if(orgExtraTableNames.contains("contact_ex,")){
+        if(orgExtraTableNames.contains("jss_contact,")){
             if(indexerManager.isOn()){
                 status.put("resume", "running");
             }else{
@@ -185,10 +198,10 @@ public class DBSetupManager {
             schemaname = orgs.get(0).get("schemaname").toString();
         }
         
-        status.put("user_timeout",checkColumn("timeout","user",schemaname));
+        status.put("user_timeout",checkColumn("timeout","jss_user",schemaname));
         
-        if(orgExtraTableNames.contains("contact_ex,")){
-            if(checkColumn("sfid", "contact_ex", schemaname)){
+        if(orgExtraTableNames.contains("jss_contact,")){
+            if(checkColumn("sfid", "jss_contact", schemaname)){
                 if(sfidManager.isOn()){
                     status.put("sfid", "running");
                 }else{
@@ -209,8 +222,8 @@ public class DBSetupManager {
             status.put("sfid", false);
         }
         
-        if(orgExtraTableNames.contains("contact_ex,")){
-            if(checkColumn("contact_tsv", "contact_ex", schemaname)){
+        if(orgExtraTableNames.contains("jss_contact,")){
+            if(checkColumn("contact_tsv", "jss_contact", schemaname)){
                 if(contactTsvManager.isOn()){
                     status.put("contact_tsv", "running");
                 }else{
@@ -231,6 +244,7 @@ public class DBSetupManager {
             status.put("contact_tsv", false);
         }
         
+        status.put("hasOldJssTable", hasOldJssTableNames(orgName,schemaname));
         return status;
     }
     
@@ -325,8 +339,8 @@ public class DBSetupManager {
             if(orgs.size()==1){
                 schemaname = orgs.get(0).get("schemaname").toString();
             }
-            if(!checkColumn("timeout","user",schemaname)){
-                daoHelper.executeUpdate(orgName,"alter table \"user\" add column timeout bigint not null default 0;");
+            if(!checkColumn("timeout","jss_user",schemaname)){
+                daoHelper.executeUpdate(orgName,"alter table \"jss_user\" add column timeout bigint not null default 0;");
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -344,7 +358,7 @@ public class DBSetupManager {
     }
     
     /**
-     * create index for contact and contact_ex
+     * create index for contact and jss_contact
      * @param orgName
      * @return
      * @throws SQLException
@@ -354,15 +368,15 @@ public class DBSetupManager {
        Map<String,JSONArray> m = getIndexMapFromJsonFile();
        Runner runner = daoHelper.openNewOrgRunner(orgName);
        try {
-           if(contactEx&&m.get("contact_ex")!=null){
-               JSONArray ja = m.get("contact_ex");
+           if(contactEx&&m.get("jss_contact")!=null){
+               JSONArray ja = m.get("jss_contact");
                for(int i=0;i<ja.size();i++){
                    JSONObject jo =  JSONObject.fromObject(ja.get(i));
-                   runner.executeUpdate(generateIndexSql("contact_ex",jo));
+                   runner.executeUpdate(generateIndexSql("jss_contact",jo));
                }
            }else{
                for(String key:m.keySet()){
-                   if(!key.equals("contact_ex")){
+                   if(!key.equals("jss_contact")){
                        JSONArray ja = m.get(key);
                        for(int i=0;i<ja.size();i++){
                            JSONObject jo =  JSONObject.fromObject(ja.get(i));
@@ -474,7 +488,7 @@ public class DBSetupManager {
         return sb.toString();
     }
     /**
-     * Get the count for index count for contact and contact_ex
+     * Get the count for index count for contact and jss_contact
      * @param orgName
      * @return
      * @see {@link #createIndexColumns(String)}
@@ -487,7 +501,7 @@ public class DBSetupManager {
            .append(getIndexesNamesAndTables()[0])
            .append(getOrgCustomFilterIndex(orgName))
            .append(") and schemaname=current_schema ")
-           .append(contactEx?" and tablename='contact_ex' ":" and tablename<>'contact_ex' ");
+           .append(contactEx?" and tablename='jss_contact' ":" and tablename<>'jss_contact' ");
     	List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());
@@ -515,7 +529,7 @@ public class DBSetupManager {
         int count=0;
         Map<String,JSONArray> m = getIndexMapFromJsonFile();
         for(String key:m.keySet()){
-            if(!containsContactEx&&key.equals("contact_ex")){
+            if(!containsContactEx&&key.equals("jss_contact")){
                 continue;
             }
             JSONArray ja = m.get(key);
@@ -605,7 +619,7 @@ public class DBSetupManager {
     }
     
     /**
-     * check the org extra tables are existed or not(main for 'contact_ex','savedsearches','user')
+     * check the org extra tables are existed or not(main for 'jss_contact','savedsearches','user')
      * @param orgName
      * @return
      */
@@ -615,8 +629,13 @@ public class DBSetupManager {
     	if(orgs.size()==1){
     		schemaname = orgs.get(0).get("schemaname").toString();
     	}
+    	 StringBuilder sb = new StringBuilder();
+         for(String[] tables:newTableNameChanges){
+             sb.append(",'").append(tables[1]).append("'");
+         }
+    	
     	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ('label_contact','label','searchlog','recordtype','contact_ex','savedsearches','user','pref','ex_grouped_skills','ex_grouped_educations','ex_grouped_employers','ex_grouped_locations')");
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ("+sb.delete(0, 1)+")");
     	if(list.size()==1){
             String names = (String)list.get(0).get("names");
             if(names==null){
@@ -702,10 +721,10 @@ public class DBSetupManager {
    }
    
    public void  dropExTables(String orgName){
-       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName),  "drop table if exists ex_grouped_locations;"
-                                                                   + "drop table if exists ex_grouped_employers;"
-                                                                   + "drop table if exists ex_grouped_educations;"
-                                                                   + "drop table if exists ex_grouped_skills");
+       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName),  "drop table if exists jss_grouped_locations;"
+                                                                   + "drop table if exists jss_grouped_employers;"
+                                                                   + "drop table if exists jss_grouped_educations;"
+                                                                   + "drop table if exists jss_grouped_skills");
    }
    
    private boolean checkCity(){
@@ -930,7 +949,7 @@ public class DBSetupManager {
        }
    }
    /**
-    * check the contact and contact_ex index for org
+    * check the contact and jss_contact index for org
     * @param schemaname
     * @return
     */
@@ -987,5 +1006,31 @@ public class DBSetupManager {
            return names;
        }
    	return "";
+   }
+   
+   public void fixJssTableNames(String orgName){
+       Runner runner = daoHelper.openNewOrgRunner(orgName);
+       runner.startTransaction();
+       for(String[] tables:newTableNameChanges){
+           runner.executeUpdate(" Alter table if exists \""+tables[0]+"\" rename to \""+tables[1]+"\";" );
+       }
+       runner.commit();
+       runner.close();
+   }
+   
+   private boolean hasOldJssTableNames(String orgName,String schemaname){
+       StringBuilder sb = new StringBuilder();
+       for(String[] tables:newTableNameChanges){
+           sb.append(",'").append(tables[0]).append("'");
+       }
+       List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName),
+               "select count(*) as count from information_schema.tables "
+              +"where table_schema='"+schemaname+"' and table_type='BASE TABLE' "
+              +"and table_name in ("+sb.delete(0, 1).toString()+")");
+       if(list.size()==1){
+           Integer count = Integer.valueOf(list.get(0).get("count").toString());
+           return count>0;
+      }  
+       return false;   
    }
 }    

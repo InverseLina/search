@@ -15,7 +15,7 @@ public class SearchLogDao {
     private DaoHelper daoHelper;
     @Inject
     private DBSetupManager dbSetupManager;
-    private String INSERT_SQL = "INSERT INTO searchlog(user_id,date,search,perfcount,perffetch) values(?,?,?,?,?)";
+    private String INSERT_SQL = "INSERT INTO jss_searchlog(user_id,date,search,perfcount,perffetch) values(?,?,?,?,?)";
     
     public void addSearchLog(String search,Long perfCount,Long perfFetch,Long userId,Map org){
         if(dbSetupManager.checkOrgExtra((String)org.get("name")).contains("searchlog,")){

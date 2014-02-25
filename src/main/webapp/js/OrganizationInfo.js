@@ -179,9 +179,9 @@
 				window.clearInterval(view.contactIndexIntervalId);
 				if(data){
 					$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
-					$createIndexBtn.prop("disabled",false).html("Create Contact_ex Indexes").removeClass("btn-success");
+					$createIndexBtn.prop("disabled",false).html("Create jss_contact Indexes").removeClass("btn-success");
 				}else{
-					$createIndexBtn.html("Contact_ex Indexes Created").addClass("btn-success");
+					$createIndexBtn.html("jss_contact Indexes Created").addClass("btn-success");
 					$alert.addClass("hide");
 				}
 				$(view.el).trigger("CONTACTINDEXCOLUMNSSTATUS");
@@ -283,32 +283,39 @@
 				});
 			}
 		},
-		"click;.ex_grouped_skills":function(event){
+		"click;.jss_grouped_skills":function(event){
 			var view = this;
 			$(event.target).html("Creating...").prop("disabled",true);
-			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_skills'},{type:'Post'}).done(function(data){
-				$(event.target).html("ex_grouped_skills Created").prop("disabled",true).addClass("btn-success");
+			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'jss_grouped_skills'},{type:'Post'}).done(function(data){
+				$(event.target).html("jss_grouped_skills Created").prop("disabled",true).addClass("btn-success");
 			});
 		},
-		"click;.ex_grouped_educations":function(event){
+		"click;.jss_grouped_educations":function(event){
 			var view = this;
 			$(event.target).html("Creating...").prop("disabled",true);
-			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_educations'},{type:'Post'}).done(function(data){
-				$(event.target).html("ex_grouped_educations Created").prop("disabled",true).addClass("btn-success");
+			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'jss_grouped_educations'},{type:'Post'}).done(function(data){
+				$(event.target).html("jss_grouped_educations Created").prop("disabled",true).addClass("btn-success");
 			});
 		},
-		"click;.ex_grouped_employers":function(event){
+		"click;.jss_grouped_employers":function(event){
 			var view = this;
 			$(event.target).html("Creating...").prop("disabled",true);
-			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_employers'},{type:'Post'}).done(function(data){
-				$(event.target).html("ex_grouped_employers Created").prop("disabled",true).addClass("btn-success");
+			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'jss_grouped_employers'},{type:'Post'}).done(function(data){
+				$(event.target).html("jss_grouped_employers Created").prop("disabled",true).addClass("btn-success");
 			});
 		},
-		"click;.ex_grouped_locations":function(event){
+		"click;.jss_grouped_locations":function(event){
 			var view = this;
 			$(event.target).html("Creating...").prop("disabled",true);
-			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'ex_grouped_locations'},{type:'Post'}).done(function(data){
-				$(event.target).html("ex_grouped_locations Created").prop("disabled",true).addClass("btn-success");
+			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'jss_grouped_locations'},{type:'Post'}).done(function(data){
+				$(event.target).html("jss_grouped_locations Created").prop("disabled",true).addClass("btn-success");
+			});
+		},
+		"click;.fix-table":function(event){
+			var view = this;
+			$(event.target).html("Fixing...").prop("disabled",true);
+			app.getJsonData("/fixJssTableNames", {orgName:view.currentOrgName},{type:'Post'}).done(function(data){
+				$(event.target).html("Jss Table Names Fixed").prop("disabled",true).addClass("btn-success");
 			});
 		},
 		"INDEXCOLUMNSSTATUS":function(){
@@ -332,7 +339,7 @@
 				if(data.created<3){
 					view.$el.find(".contact-index").prop("disabled",false);
 				}else{
-					view.$el.find(".contact-index").prop("disabled",true).addClass("btn-success").html("Contact_ex Indexes Created");
+					view.$el.find(".contact-index").prop("disabled",true).addClass("btn-success").html("jss_contact Indexes Created");
 				}
 				percentage = data.created/3*100;
 			    view.$el.find(".contact-index-status-bar .progress-bar-success").css("width",percentage+"%");
@@ -503,25 +510,25 @@
 	    			 }
 	    		  }
 	    		  
-	    		  if(result.ex_grouped_skills){
-	    			  view.$el.find(".ex_grouped_skills").prop("disabled",true).html("Ex_grouped_skills Created").addClass("btn-success");
+	    		  if(result.jss_grouped_skills){
+	    			  view.$el.find(".jss_grouped_skills").prop("disabled",true).html("jss_grouped_skills Created").addClass("btn-success");
 	    		  }else{
-	    			  view.$el.find(".ex_grouped_skills").prop("disabled",false).html("Create ex_grouped_skills").removeClass("btn-success");
+	    			  view.$el.find(".jss_grouped_skills").prop("disabled",false).html("Create jss_grouped_skills").removeClass("btn-success");
 	    		  }
-	    		  if(result.ex_grouped_educations){
-	    			  view.$el.find(".ex_grouped_educations").prop("disabled",true).html("Ex_grouped_educations Created").addClass("btn-success");
+	    		  if(result.jss_grouped_educations){
+	    			  view.$el.find(".jss_grouped_educations").prop("disabled",true).html("jss_grouped_educations Created").addClass("btn-success");
 	    		  }else{
-	    			  view.$el.find(".ex_grouped_educations").prop("disabled",false).html("Create ex_grouped_educations").removeClass("btn-success");
+	    			  view.$el.find(".jss_grouped_educations").prop("disabled",false).html("Create jss_grouped_educations").removeClass("btn-success");
 	    		  }
-	    		  if(result.ex_grouped_employers){
-	    			  view.$el.find(".ex_grouped_employers").prop("disabled",true).html("Ex_grouped_employers Created").addClass("btn-success");
+	    		  if(result.jss_grouped_employers){
+	    			  view.$el.find(".jss_grouped_employers").prop("disabled",true).html("jss_grouped_employers Created").addClass("btn-success");
 	    		  }else{
-	    			  view.$el.find(".ex_grouped_employers").prop("disabled",false).html("Create ex_grouped_employers").removeClass("btn-success");
+	    			  view.$el.find(".jss_grouped_employers").prop("disabled",false).html("Create jss_grouped_employers").removeClass("btn-success");
 	    		  }
-	    		  if(result.ex_grouped_locations){
-	    			  view.$el.find(".ex_grouped_locations").prop("disabled",true).html("Ex_grouped_locations Created").addClass("btn-success");
+	    		  if(result.jss_grouped_locations){
+	    			  view.$el.find(".jss_grouped_locations").prop("disabled",true).html("jss_grouped_locations Created").addClass("btn-success");
 	    		  }else{
-	    			  view.$el.find(".ex_grouped_locations").prop("disabled",false).html("Create ex_grouped_locations").removeClass("btn-success");
+	    			  view.$el.find(".jss_grouped_locations").prop("disabled",false).html("Create jss_grouped_locations").removeClass("btn-success");
 	    		  }
 	    		  if(tableInfo){
 	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
@@ -567,7 +574,7 @@
 	    			  view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
 	    			  view.$el.trigger("RESUMEINDEXSTATUS");
 	    		  }else{
-	    			  if(tableInfo.indexOf("contact_ex")==-1){
+	    			  if(tableInfo.indexOf("jss_contact")==-1){
 	    				  view.$el.find(".resume").prop("disabled",false).attr("data-status","create").removeClass("btn-success");
 	    			  }
 	    		  }
@@ -584,7 +591,7 @@
 	    			  view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume").removeClass("btn-success");
 	    			  view.$el.trigger("SFIDSTATUS");
 	    		  }else{
-	    			  if(tableInfo.indexOf("contact_ex")==-1){
+	    			  if(tableInfo.indexOf("jss_contact")==-1){
 	    				  view.$el.find(".sfid").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
 	    			  }
 	    		  }
@@ -602,9 +609,14 @@
 	    			  view.$el.find(".contact-tsv").prop("disabled",false).html("Resume Create contact_tsv").attr("data-status","resume").removeClass("btn-success");
 	    			  view.$el.trigger("CONTACT_TSVSTATUS");
 	    		  }else{
-	    			  if(tableInfo.indexOf("contact_ex")==-1){
+	    			  if(tableInfo.indexOf("jss_contact")==-1){
 	    				  view.$el.find(".contact-tsv").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
 	    			  }
+	    		  }
+	    		  if(result.hasOldJssTable){
+	    			  view.$el.find(".fix-table").prop("disabled",false).removeClass("btn-success");
+	    		  }else{
+	    			  view.$el.find(".fix-table").html("Jss Table names Fixed").prop("disabled",true).addClass("btn-success");
 	    		  }
 	          });
 	      },
