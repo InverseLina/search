@@ -539,7 +539,10 @@
 	    		  }else if(!result.user_timeout){
 	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
 	    			  view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Column(s): user.timeout").removeClass("transparent");
-	    		  }else {
+	    		  }else if(!result.user_rtoken){
+	    			  view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
+	    			  view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Column(s): user.rtoken").removeClass("transparent");
+	    		  } else {
 	    			  view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
 	    		  }
 	    		  if(result.pgtrgm){

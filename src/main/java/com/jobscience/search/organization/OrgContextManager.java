@@ -136,6 +136,10 @@ public class OrgContextManager {
                 }
             }
         }
+        if(orgContext==null){
+            OrganizationNotSelectException e = new OrganizationNotSelectException();
+            throw e;
+        }
         return orgContext;
     }
     

@@ -199,6 +199,7 @@ public class DBSetupManager {
         }
         
         status.put("user_timeout",checkColumn("timeout","jss_user",schemaname));
+        status.put("user_rtoken",checkColumn("rtoken","jss_user",schemaname));
         
         if(orgExtraTableNames.contains("jss_contact,")){
             if(checkColumn("sfid", "jss_contact", schemaname)){
@@ -341,6 +342,9 @@ public class DBSetupManager {
             }
             if(!checkColumn("timeout","jss_user",schemaname)){
                 daoHelper.executeUpdate(orgName,"alter table \"jss_user\" add column timeout bigint not null default 0;");
+            }
+            if(!checkColumn("rtoken","jss_user",schemaname)){
+                daoHelper.executeUpdate(orgName,"alter table \"jss_user\" add column rtoken character varying(255);");
             }
         } catch (Exception e) {
             log.error(e.getMessage());

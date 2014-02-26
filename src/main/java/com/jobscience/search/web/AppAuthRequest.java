@@ -134,7 +134,6 @@ public class AppAuthRequest implements AuthRequest {
                 }catch (AbortWithHttpRedirectException ar){
                     throw ar;
                 } catch (Exception e) {
-                    e.printStackTrace();
                     rc.removeCookie("ctoken");
                     log.warn("add user fail");
                 }
