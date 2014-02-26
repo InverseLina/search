@@ -21,6 +21,7 @@ import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.common.base.Strings;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
+import com.jobscience.search.organization.OrgContext;
 import com.jobscience.search.searchconfig.ContactFieldType;
 import com.jobscience.search.searchconfig.Field;
 import com.jobscience.search.searchconfig.Filter;
@@ -70,7 +71,7 @@ public class SearchDao {
      * @return
      */
     public SearchResult search(String searchColumns,Map<String, String> searchValues,
-    		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token,Map org) {
+    		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token,OrgContext org) {
         Runner runner = daoHelper.openDefaultRunner();
         
         ReqPerf reqPerf = crch.getCurrentRequestContext().getAttributeAs(ReqPerfHook.REQ_PERF,ReqPerf.class);
@@ -92,7 +93,7 @@ public class SearchDao {
         queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,end - mid);
         
         Long userId = -1L;
-        Map user =  userDao.getUserByTokenAndOrg(token, (String)org.get("name"));
+        Map user =  userDao.getUserByTokenAndOrg(token, (String)org.getOrgMap().get("name"));
         if(user!=null){
             userId=Long.parseLong(user.get("id").toString());
         }
@@ -123,8 +124,8 @@ public class SearchDao {
      * @return
      * @throws SQLException
      */
-    public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,Map org) throws SQLException {
-        String advancedAutoCompleteStr = configManager.getConfig("advanced_auto_complete", (Integer)org.get("id"));
+    public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
+        String advancedAutoCompleteStr = configManager.getConfig("advanced_auto_complete", (Integer)org.getOrgMap().get("id"));
         Boolean advancedAutoComplete  = false;
         if(advancedAutoCompleteStr!=null){
             advancedAutoComplete= "true".equals(advancedAutoCompleteStr);
@@ -135,7 +136,7 @@ public class SearchDao {
         return advancedAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum,org);
     }
     
-    public SearchResult advancedAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,Map org) throws SQLException {
+    public SearchResult advancedAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
         String column = null;
@@ -143,7 +144,7 @@ public class SearchDao {
         querySql.append("select result.name, count(*) as count from ( select ");
         String baseTable = new String();
         List values = new ArrayList();
-        String schemaname = (String)org.get("schemaname");
+        String schemaname = (String)org.getOrgMap().get("schemaname");
         
         if(type.equals("company")){
             baseTable = schemaname+".ts2__employment_history__c ";
@@ -176,7 +177,7 @@ public class SearchDao {
         
         //------- get the skill_assessment_rating config for current org ----------//
         if(min!=null&&!"0".equals(min)&&type.equals("skill")){
-           String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.get("id"));
+           String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.getOrgMap().get("id"));
             if (!"true".equals(skillAssessmentRatingStr)) {
                 skill_assessment_rating = false;
             } else {
@@ -218,7 +219,7 @@ public class SearchDao {
             log.debug(querySql.toString());
         }
         Long start = System.currentTimeMillis();
-        Runner runner = daoHelper.openNewOrgRunner((String)org.get("name"));
+        Runner runner = daoHelper.openNewOrgRunner((String)org.getOrgMap().get("name"));
         List<Map> result =runner.executeQuery(querySql.toString(),values.toArray());
         runner.close();
         Long end = System.currentTimeMillis();
@@ -231,8 +232,8 @@ public class SearchDao {
         return searchResult;
     }
     
-    public SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,Map org) throws SQLException {
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
+    public SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         Filter filter = sc.getFilterByName(type);
         if(filter==null){
              return null;
@@ -271,7 +272,7 @@ public class SearchDao {
         querySql.append(" order by count desc limit 7 ");
         
         Long start = System.currentTimeMillis();
-        Runner runner = daoHelper.openNewOrgRunner((String)org.get("name"));
+        Runner runner = daoHelper.openNewOrgRunner((String)org.getOrgMap().get("name"));
         queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
         List<Map> result =runner.executeQuery(querySql.toString());
         runner.close();
@@ -297,8 +298,8 @@ public class SearchDao {
      * @return
      */
     private String[] renderSearchCondition(Map<String, String> searchValues,String type,
-            String baseTable,String baseTableIns,List values,  String appendJoinTable ,Map org){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
+            String baseTable,String baseTableIns,List values,  String appendJoinTable ,OrgContext org){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder joinTables = new StringBuilder();
         StringBuilder searchConditions = new StringBuilder();
         StringBuilder querySql = new StringBuilder();
@@ -306,7 +307,7 @@ public class SearchDao {
     	List subValues = new ArrayList();
     	boolean advanced = "advanced".equals(type);
     	boolean hasCondition = false;
-    	String schemaname = (String)org.get("schemaname");
+    	String schemaname = (String)org.getOrgMap().get("schemaname");
     	StringBuilder contactQuery = new StringBuilder();
     	StringBuilder contactExQuery = new StringBuilder();
     	StringBuilder prefixSql = new StringBuilder("");
@@ -314,7 +315,7 @@ public class SearchDao {
     	boolean hasSearchValue = false;//to check if the search box has value or not
     	StringBuilder labelSql = new StringBuilder();
     	StringBuilder locationSql = new StringBuilder();
-    	String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",(Integer)org.get("id"));
+    	String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",(Integer)org.getOrgMap().get("id"));
     	boolean userlistFeature = Boolean.valueOf(userlistFeatureStr);
     	
     	boolean needJoinRecordtype = false;
@@ -546,13 +547,12 @@ public class SearchDao {
             if (searchValues.get("objectType") != null && !"".equals(searchValues.get("objectType"))) {
                 String value = searchValues.get("objectType");
                 if (!advanced) {
-                    if ("Both".equals(value)) {
-                        conditions.append("  and (rt.\"sobjecttype\" = 'Contact' or rt.\"sobjecttype\" = 'Candidate') ");
-                        needJoinRecordtype = true;
-                    } else {
-                        conditions.append("  and rt.\"sobjecttype\" = ? ");
-                        subValues.add(value);
-                        needJoinRecordtype = true;
+                    if ("Contact".equals(value)) {
+                        conditions.append("  and contact.\"recordtypeid\" = ?");
+                        subValues.add(org.getSfid());
+                    }else if("Candidate".equals(value)){
+                        conditions.append("  and contact.\"recordtypeid\" != ?");
+                        subValues.add(org.getSfid());
                     }
 
                 }
@@ -562,11 +562,10 @@ public class SearchDao {
             if (searchValues.get("status") != null && !"".equals(searchValues.get("status"))) {
                 String value = searchValues.get("status");
                 if (!advanced) {
-                    if ("Both".equals(value)) {
-                        conditions.append("  and (contact.\"ts2__people_status__c\" = 'Active' ")
-                                  .append(" OR contact.\"ts2__people_status__c\" = 'Inactive') ");
-                    } else  {
-                        conditions.append("  and contact.\"ts2__people_status__c\" = '"+value+"' ");
+                    if ("Active".equals(value)) {
+                        conditions.append("  and contact.\"ts2__people_status__c\" in('',null, 'Active') ");
+                    } else if ("Inactive".equals(value)){
+                        conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
                     }
                 }
             }
@@ -658,7 +657,7 @@ public class SearchDao {
            if (searchValues.get("skills") != null && !"".equals(searchValues.get("skills"))) {
         	   
         	   //Get the skill_assessment_rating for current org,if true,will join with ts2__assessment__c
-        	   String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.get("id"));
+        	   String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.getOrgMap().get("id"));
          	   boolean skill_assessment_rating = false;
          	   if(!"true".equals(skillAssessmentRatingStr)){
          		   skill_assessment_rating = false;
@@ -955,8 +954,8 @@ public class SearchDao {
      * @param groupBy
      * @return
      */
-    private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy,StringBuffer searchedColumns,Map org){
-        String schemaname = (String)org.get("schemaname");
+    private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy,StringBuffer searchedColumns,OrgContext org){
+        String schemaname = (String)org.getOrgMap().get("schemaname");
         if(searchedColumns.toString().contains(orginalName.toLowerCase()+",")){
             return "";
         }
@@ -1008,7 +1007,7 @@ public class SearchDao {
     		return "  z.\"city\" as location ";
     	}
         
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         Filter f = sc.getFilterByName(orginalName);
         String tableName = f.getFilterField().getTable();
         String contactTableName = sc.getContact().getTable();
@@ -1027,8 +1026,8 @@ public class SearchDao {
      * @param searchColumns
      * @return
      */
-    private String getSearchColumnsForOuter(String searchColumns,boolean userlistFeature,Map user,Map org){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
+    private String getSearchColumnsForOuter(String searchColumns,boolean userlistFeature,Map user,OrgContext org){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
     	if(searchColumns==null){
     		sb.append("id,name,lower(name) as \"lname\",email,lower(\"email\") as \"lemail\"lower(title) as \"ltitle\",title ,createddate");
@@ -1085,9 +1084,9 @@ public class SearchDao {
      * @param groupBy
      * @return
      */
-    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,boolean userlistFeature,Map user,Map org){
+    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,boolean userlistFeature,Map user,OrgContext org){
     	 StringBuilder columnsSql = new StringBuilder();
-    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
+    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
     	 if(searchColumns==null){//a.phone,
              columnsSql.append(sc.toContactFieldsString("a"));
              //,a.phone
@@ -1126,14 +1125,14 @@ public class SearchDao {
      * @return SearchStatements
      */
     private SearchStatements buildSearchStatements(String searchColumns, Map<String, String> searchValues,
-                                                   Integer pageIdx, Integer pageSize,String orderCon,Map org) {
+                                                   Integer pageIdx, Integer pageSize,String orderCon,OrgContext org) {
         SearchStatements ss = new SearchStatements();
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         if(pageIdx < 1){
             pageIdx = 1;
         }
         int offset = (pageIdx -1) * pageSize;
-        String schemaname = (String)org.get("schemaname");
+        String schemaname = (String)org.getOrgMap().get("schemaname");
         
         //the select query  that will query data
         StringBuilder querySql = new StringBuilder();
@@ -1153,7 +1152,7 @@ public class SearchDao {
         String cteSql = "";
         
         //get the userlist feature
-        String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",(Integer)org.get("id"));
+        String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",(Integer)org.getOrgMap().get("id"));
         boolean userlistFeature = Boolean.valueOf(userlistFeatureStr);
         Map userMap = userDao.getCurrentUser();
         
@@ -1283,7 +1282,7 @@ public class SearchDao {
      * @return first for query sql,second for query sql
      */
     private String[] getCondtion(String searchValue, Map<String, String> searchValues, List values,String orderCon,
-    		Integer offset,Integer pageSize,Map org){
+    		Integer offset,Integer pageSize,OrgContext org){
     	StringBuilder joinSql = new StringBuilder();
     	StringBuilder countSql = new StringBuilder();
     	String prefixSql = "";
@@ -1357,9 +1356,9 @@ public class SearchDao {
      * @param type available value : company,education,skill and location
      * @return
      */
-    private String getAdvancedJoinTable(String type,Map org){
+    private String getAdvancedJoinTable(String type,OrgContext org){
         StringBuilder joinSql = new StringBuilder();
-        String schemaname = (String)org.get("schemaname");
+        String schemaname = (String)org.getOrgMap().get("schemaname");
         
         if(type.equals("company")){
             joinSql.append( " left join  "+schemaname+".ts2__employment_history__c c ");
@@ -1384,7 +1383,7 @@ public class SearchDao {
      * @param alias
      * @return
      */
-    private String getSearchValueJoinTable(String searchValue, List values,String alias,Map org){
+    private String getSearchValueJoinTable(String searchValue, List values,String alias,OrgContext org){
         StringBuilder joinSql = new StringBuilder();
         if("a".equals(alias)){
             joinSql.append(" right join (");
@@ -1406,9 +1405,9 @@ public class SearchDao {
      * @param values
      * @return
      */
-    public  String booleanSearchHandler(String searchValue,String type, List values,Map org,boolean exact){
-    	String schemaname = (String)org.get("schemaname");
-    	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
+    public  String booleanSearchHandler(String searchValue,String type, List values,OrgContext org,boolean exact){
+    	String schemaname = (String)org.getOrgMap().get("schemaname");
+    	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
     	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
     	if(!exact){
@@ -1503,8 +1502,8 @@ public class SearchDao {
     	return sb.toString();
     }
     
-    private String renderKeywordSearch(List values,String param,Map org,boolean exact){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.get("name"));
+    private String renderKeywordSearch(List values,String param,OrgContext org,boolean exact){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
         String exactFilter = "";
         exact = false;

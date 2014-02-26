@@ -12,11 +12,11 @@ import com.britesnow.snow.web.param.annotation.WebUser;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.UserDao;
 import com.jobscience.search.oauth.ForceAuthService;
 import com.jobscience.search.oauth.api.ForceDotComApi;
+import com.jobscience.search.organization.OrgContextManager;
 import com.jobscience.search.service.SalesForceCommonService;
 
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class OauthWebHandlers {
     @Inject
     private ConfigManager configManager;
     @Inject
-    private CurrentOrgHolder orgHolder;
+    private OrgContextManager orgHolder;
 
     private final Logger log = LoggerFactory.getLogger(OauthWebHandlers.class);
 

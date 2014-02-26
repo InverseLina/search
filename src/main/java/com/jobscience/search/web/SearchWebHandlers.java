@@ -12,9 +12,9 @@ import net.sf.json.JSONObject;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
+import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class SearchWebHandlers {
@@ -22,7 +22,7 @@ public class SearchWebHandlers {
     private SearchDao searchDao;
     
     @Inject
-    private CurrentOrgHolder orgHolder;
+    private OrgContextManager orgHolder;
 
 	@Inject
 	private WebResponseBuilder webResponseBuilder;

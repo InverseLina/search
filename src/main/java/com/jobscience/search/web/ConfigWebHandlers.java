@@ -14,8 +14,8 @@ import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
+import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class ConfigWebHandlers {
@@ -23,7 +23,7 @@ public class ConfigWebHandlers {
     @Inject
     private ConfigManager configManager;
     @Inject
-    private CurrentOrgHolder orgHolder;
+    private OrgContextManager orgHolder;
 
     @Inject
     private WebResponseBuilder webResponseBuilder;

@@ -15,11 +15,10 @@ import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.DaoHelper;
-import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
+import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class PerfWebHandlers {
@@ -28,11 +27,7 @@ public class PerfWebHandlers {
     private SearchDao searchDao;
 
     @Inject
-    private CurrentOrgHolder orgHolder;
-
-    @Inject
-    private OrgConfigDao orgConfigDao;
-
+    private OrgContextManager orgHolder;
 
     @Inject
     private DaoHelper daoHelper;
@@ -40,6 +35,9 @@ public class PerfWebHandlers {
     @Inject
     private WebResponseBuilder webResponseBuilder;
 
+    @Inject
+    private OrgContextManager orgContextManager;
+    
     /**
      * api for main search
      * 
@@ -60,20 +58,12 @@ public class PerfWebHandlers {
 
         // for contact,use id,name,title,email,CreatedDate instead
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-        SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon, searchValues, "-1", getOrgMap(org));
+        SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon, searchValues, "-1", orgContextManager.getOrgContext(org));
         Map<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", searchResult.getCount());
         resultMap.put("duration", searchResult.getSelectDuration());
         resultMap.put("countDuration", searchResult.getCountDuration());
         return webResponseBuilder.success(resultMap);
-    }
-
-    private Map getOrgMap(String org) {
-        List<Map> orgs = orgConfigDao.getOrgByName(org);
-        if (orgs.size() != 1) {
-            throw new RuntimeException("multi org has same name");
-        }
-        return orgs.get(0);
     }
 
     /**
@@ -111,7 +101,7 @@ public class PerfWebHandlers {
         if (pageNum == null || pageNum < 1) {
             pageNum = 1;
         }
-        SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum,getOrgMap(org));
+        SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum,orgContextManager.getOrgContext(org));
 
         HashMap<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", sResult.getCount());

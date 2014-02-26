@@ -1,12 +1,12 @@
 package com.jobscience.search.dao;
 
 import java.util.Date;
-import java.util.Map;
 
 import org.jasql.Runner;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.organization.OrgContext;
 
 @Singleton
 public class SearchLogDao {
@@ -17,9 +17,9 @@ public class SearchLogDao {
     private DBSetupManager dbSetupManager;
     private String INSERT_SQL = "INSERT INTO jss_searchlog(user_id,date,search,perfcount,perffetch) values(?,?,?,?,?)";
     
-    public void addSearchLog(String search,Long perfCount,Long perfFetch,Long userId,Map org){
-        if(dbSetupManager.checkOrgExtra((String)org.get("name")).contains("searchlog,")){
-            Runner runner = daoHelper.openNewOrgRunner((String)org.get("name"));
+    public void addSearchLog(String search,Long perfCount,Long perfFetch,Long userId,OrgContext org){
+        if(dbSetupManager.checkOrgExtra((String)org.getOrgMap().get("name")).contains("searchlog,")){
+            Runner runner = daoHelper.openNewOrgRunner((String)org.getOrgMap().get("name"));
             daoHelper.executeUpdate(runner, INSERT_SQL,userId,new Date(),search,perfCount,perfFetch);   
         }
     }

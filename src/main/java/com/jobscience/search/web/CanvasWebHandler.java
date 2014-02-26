@@ -7,10 +7,10 @@ import com.britesnow.snow.web.handler.annotation.WebModelHandler;
 import com.britesnow.snow.web.param.annotation.WebModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.canvas.SignedRequest;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.UserDao;
+import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class CanvasWebHandler {
@@ -19,7 +19,7 @@ public class CanvasWebHandler {
     @Inject
     private ConfigManager configManager;
     @Inject
-    private CurrentOrgHolder currentOrgHolder;
+    private OrgContextManager currentOrgHolder;
     
     @WebModelHandler(startsWith = "/sf-canvas")
     public void canvasApp(@WebModel Map m, RequestContext rc) {

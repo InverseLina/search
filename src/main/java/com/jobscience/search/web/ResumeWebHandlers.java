@@ -2,8 +2,8 @@ package com.jobscience.search.web;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.DaoHelper;
+import com.jobscience.search.organization.OrgContextManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,7 +18,7 @@ public class ResumeWebHandlers {
     @Inject
     private DaoHelper daoHelper;
     @Inject
-    private CurrentOrgHolder orgHolder;
+    private OrgContextManager orgHolder;
 
     @com.google.inject.Inject
     private WebResponseBuilder webResponseBuilder;

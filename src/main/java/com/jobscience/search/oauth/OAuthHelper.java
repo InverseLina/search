@@ -10,11 +10,11 @@ import org.scribe.oauth.OAuthService;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.exception.OAuthConfigBuildException;
+import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class OAuthHelper {
@@ -28,7 +28,7 @@ public class OAuthHelper {
     private ForceDotComApiManager forceDotComApiManager;
     
     @Inject 
-    private CurrentOrgHolder currentOrgHolder;
+    private OrgContextManager currentOrgHolder;
 
     private volatile String apiKey = null;
     private volatile String apiSecret = null;
@@ -44,7 +44,7 @@ public class OAuthHelper {
      */
     public OAuthService  getService(){
     	List<Map> list = new ArrayList();
-	    if(dbSetupManager.checkSysTables().contains("config")){
+	    if(dbSetupManager.checkSysTables().contains("jss_config")){
 	        String sql = "select * from config  where org_id = -1 ";
 	        List<Map> configList = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql);
 	        if (configList != null && configList.size() > 0) {

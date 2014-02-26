@@ -10,9 +10,9 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.LabelDao;
 import com.jobscience.search.dao.UserDao;
+import com.jobscience.search.organization.OrgContextManager;
  
 @Singleton
 public class LabelWebHandler {
@@ -22,7 +22,7 @@ public class LabelWebHandler {
     @Inject
     private UserDao userDao;
     @Inject
-    private CurrentOrgHolder orgHolder;
+    private OrgContextManager orgHolder;
 
     @Inject
     private WebResponseBuilder webResponseBuilder;
@@ -33,11 +33,11 @@ public class LabelWebHandler {
         if (ctoken != null) {
             Map user = userDao.getUserByToken(ctoken);
             if (user != null) {
-                List list = labelDao.getLabelByName(name, user.get("id"),orgHolder.getCurrentOrg());
+                List list = labelDao.getLabelByName(name, user.get("id"),orgHolder.getCurrentOrg().getOrgMap());
                 if (list != null && list.size() > 0) {
                     return webResponseBuilder.success(String.format("label of name %s has exits", name));
                 }
-                Object id = labelDao.addLabel((String)user.get("sfid"), name,orgHolder.getCurrentOrg());
+                Object id = labelDao.addLabel((String)user.get("sfid"), name,orgHolder.getCurrentOrg().getOrgMap());
                 return webResponseBuilder.success(id);
             }
         }
@@ -46,13 +46,13 @@ public class LabelWebHandler {
     
     @WebPost("/deleteLabel")
     public WebResponse deleteLabel(@WebParam("id")Long id){
-        labelDao.deleteLabel(id,orgHolder.getCurrentOrg());
+        labelDao.deleteLabel(id,orgHolder.getCurrentOrg().getOrgMap());
         return webResponseBuilder.success();
     }
     
     @WebPost("/updateLabel")
     public WebResponse updateLabel(@WebParam("id")Long labelId,@WebParam("name")String name){
-        labelDao.updateLabel(labelId, name,orgHolder.getCurrentOrg());
+        labelDao.updateLabel(labelId, name,orgHolder.getCurrentOrg().getOrgMap());
         return webResponseBuilder.success();
     }
     
@@ -66,7 +66,7 @@ public class LabelWebHandler {
                 user = userDao.getUserByToken(ctoken);
             }
             return webResponseBuilder.success(labelDao.getLabelForUser(Long.parseLong(user.get("id").toString()),
-                    orgHolder.getCurrentOrg()));
+                    orgHolder.getCurrentOrg().getOrgMap()));
         }
         return webResponseBuilder.fail();
     }
@@ -78,7 +78,7 @@ public class LabelWebHandler {
             Map user = userDao.getUserByToken(ctoken);
             if (user != null) {
                 return webResponseBuilder.success(labelDao.getLabelByName(name,
-                        user.get("id"),orgHolder.getCurrentOrg()));
+                        user.get("id"),orgHolder.getCurrentOrg().getOrgMap()));
             }
         }
         return webResponseBuilder.fail();
@@ -86,18 +86,18 @@ public class LabelWebHandler {
     
     @WebGet("/getLabel")
     public  WebResponse  getLabel(@WebParam("id")Long labelId){
-        return webResponseBuilder.success(labelDao.getLabelForById(labelId,orgHolder.getCurrentOrg()));
+        return webResponseBuilder.success(labelDao.getLabelForById(labelId,orgHolder.getCurrentOrg().getOrgMap()));
     }
     
     @WebPost("/assignLabelToContact")
     public WebResponse assignLabelToContact(@WebParam("contactId")Long contactId,@WebParam("labelId")Long labelId){
-       labelDao.assignLabelToContact(contactId, labelId,orgHolder.getCurrentOrg());
+       labelDao.assignLabelToContact(contactId, labelId,orgHolder.getCurrentOrg().getOrgMap());
        return webResponseBuilder.success();
     }
     
     @WebPost("/unAssignLabelFromContact")
     public WebResponse unAssignLabelFromContact(@WebParam("contactId")Long contactId,@WebParam("labelId")Long labelId){
-        labelDao.unAssignLabelFromContact(contactId, labelId,orgHolder.getCurrentOrg());
+        labelDao.unAssignLabelFromContact(contactId, labelId,orgHolder.getCurrentOrg().getOrgMap());
         return webResponseBuilder.success();
     }
     
@@ -106,11 +106,11 @@ public class LabelWebHandler {
         if(contactIds !=null &&contactIds.startsWith("[")&&contactIds.endsWith("]")){
             if(!contactIds.equals("[]")){
                 contactIds = contactIds.substring(1,contactIds.length()-1);
-                return webResponseBuilder.success(labelDao.getLabelStatus(contactIds, labelId,orgHolder.getCurrentOrg()));
+                return webResponseBuilder.success(labelDao.getLabelStatus(contactIds, labelId,orgHolder.getCurrentOrg().getOrgMap()));
             }
 
         }
-        return webResponseBuilder.success(labelDao.getLabelStatus(contactIds, labelId,orgHolder.getCurrentOrg()));
+        return webResponseBuilder.success(labelDao.getLabelStatus(contactIds, labelId,orgHolder.getCurrentOrg().getOrgMap()));
 
     }
 }

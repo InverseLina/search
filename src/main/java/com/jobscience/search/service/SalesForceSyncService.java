@@ -16,8 +16,8 @@ import java.util.zip.ZipOutputStream;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.SyncDao;
+import com.jobscience.search.organization.OrgContextManager;
 import com.jobscience.search.service.sfsync.BulkManager;
 import com.jobscience.search.service.sfsync.MetadataManager;
 import com.jobscience.search.service.sfsync.NameResolver;
@@ -38,7 +38,7 @@ public class SalesForceSyncService {
     @Inject
     private NameResolver nameResolver;
     @Inject
-    private CurrentOrgHolder orgHolder;
+    private OrgContextManager orgHolder;
     
     //FIXME
     String packageNamespacePrefix = "";
@@ -93,7 +93,7 @@ public class SalesForceSyncService {
     public void uploadData(BulkConnection bulkConnection,String tablename) throws AsyncApiException, IOException, ConnectionException{
             String object = nameResolver.escapeName(tablename);
             List headers = syncDao.getFields(tablename);
-            List data = syncDao.getData(tablename, 2000, 3000,orgHolder.getCurrentOrg());
+            List data = syncDao.getData(tablename, 2000, 3000,orgHolder.getCurrentOrg().getOrgMap());
             String content = toCSVData(headers, data);
             bulkManager.uploadData(packageNamespacePrefix+object + "__c", content, bulkConnection);
     }
@@ -138,7 +138,7 @@ public class SalesForceSyncService {
     }
     
     public void syncFromSF(String token, String instanceUrl) throws AsyncApiException, ConnectionException, IOException{
-        syncDao.syncFromSF("ts2__education_history__c", syncData(token, instanceUrl),orgHolder.getCurrentOrg());
+        syncDao.syncFromSF("ts2__education_history__c", syncData(token, instanceUrl),orgHolder.getCurrentOrg().getOrgMap());
     }
     
     private void pushTables(MetadataConnection metadataConnection,List tables){

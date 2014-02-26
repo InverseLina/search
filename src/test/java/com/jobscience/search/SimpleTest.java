@@ -12,6 +12,7 @@ import com.google.common.base.Splitter;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
+import com.jobscience.search.organization.OrgContextManager;
 
 public class SimpleTest extends SnowTestSupport {
 
@@ -23,7 +24,7 @@ public class SimpleTest extends SnowTestSupport {
     //@Test
     public void newSearchTest(){
        SearchDao searchDao = appInjector.getInstance(SearchDao.class);
-       CurrentOrgHolder orgHolder = appInjector.getInstance(CurrentOrgHolder.class);
+       OrgContextManager orgHolder = appInjector.getInstance(OrgContextManager.class);
        Map values = MapUtil.mapIt("search","java");
        values.put("contacts", "[{firstname:'kevin'},{lastname:'cook'}]");
        values.put("educations", "[{name:'education1',minYears:2},{name:'education2'}]");

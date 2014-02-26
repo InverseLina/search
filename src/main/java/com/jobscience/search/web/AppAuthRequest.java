@@ -24,19 +24,19 @@ import com.google.common.cache.CacheLoader;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.UserDao;
 import com.jobscience.search.oauth.ForceAuthService;
 import com.jobscience.search.oauth.api.ForceDotComApi;
+import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class AppAuthRequest implements AuthRequest {
     @Inject
     private UserDao             userDao;
     @Inject
-    CurrentOrgHolder            orgHolder;
+    OrgContextManager            orgHolder;
     @Inject
     private ConfigManager       configManager;
     @Inject
@@ -134,6 +134,7 @@ public class AppAuthRequest implements AuthRequest {
                 }catch (AbortWithHttpRedirectException ar){
                     throw ar;
                 } catch (Exception e) {
+                    e.printStackTrace();
                     rc.removeCookie("ctoken");
                     log.warn("add user fail");
                 }

@@ -10,10 +10,10 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.CurrentOrgHolder;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.oauth.ForceDotComApiManager;
+import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class OrgConfigWebHandlers {
@@ -23,7 +23,7 @@ public class OrgConfigWebHandlers {
   @Inject
   private DaoHelper daoHelper;
   @Inject
-  private CurrentOrgHolder currentOrgHolder;
+  private OrgContextManager currentOrgHolder;
   @Inject
   private ForceDotComApiManager forceDotComApiManager;
 

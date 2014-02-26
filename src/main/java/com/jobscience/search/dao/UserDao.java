@@ -16,14 +16,14 @@ import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.britesnow.snow.web.RequestContext;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.jobscience.search.CurrentOrgHolder;
+import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class UserDao {
     @Inject
     private DaoHelper daoHelper;
     @Inject
-    private CurrentOrgHolder orgHolder;
+    private OrgContextManager orgHolder;
     @Inject
     private CurrentRequestContextHolder crh;
     @Named("jss.prod")
