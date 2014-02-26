@@ -5,8 +5,8 @@
 	  resume_tsv tsvector,
 	  skills_tsv tsvector,
 	  sfid character varying(18),
-	  CONSTRAINT contact_ex_pkey PRIMARY KEY (id),
-	  CONSTRAINT fk_contact_ex_contact FOREIGN KEY (id)
+	  CONSTRAINT jss_contact_pkey PRIMARY KEY (id),
+	  CONSTRAINT fk_jss_contact_contact FOREIGN KEY (id)
 	      REFERENCES contact (id) MATCH SIMPLE
 	      ON UPDATE NO ACTION ON DELETE CASCADE
 	)
@@ -18,9 +18,9 @@
 	CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
 	BEGIN
 	IF( TG_OP='INSERT' ) THEN
-	    insert into contact_ex(id,resume_tsv,contact_tsv,sfid) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ),to_tsvector('english',new."firstname"||' '||new."lastname"||' '||new."title"),new.sfid||' ');
+	    insert into jss_contact(id,resume_tsv,contact_tsv,sfid) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ),to_tsvector('english',new."firstname"||' '||new."lastname"||' '||new."title"),new.sfid||' ');
 	ELSIF (TG_OP = 'UPDATE') THEN
-	    UPDATE contact_ex SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" ),contact_tsv= to_tsvector('english',new."firstname"||' '||new."lastname"||' '||new."title")  where id = new.id;
+	    UPDATE jss_contact SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" ),contact_tsv= to_tsvector('english',new."firstname"||' '||new."lastname"||' '||new."title")  where id = new.id;
 	END IF;
 	RETURN NEW;
 	END;
@@ -45,7 +45,7 @@ CREATE TABLE if not exists jss_savedsearches
   create_date timestamp ,
   update_date timestamp,
   search text NOT NULL,
-  CONSTRAINT pk_savedsearched PRIMARY KEY (id),
+  CONSTRAINT pk_jss_savedsearched PRIMARY KEY (id),
   CONSTRAINT unq_name UNIQUE (name)
 );
 
@@ -58,7 +58,7 @@ CREATE TABLE if not exists "jss_user"
   ctoken character varying(255) NOT NULL,
   rtoken character varying(255),
   timeout bigint not null,
-  CONSTRAINT pk_user PRIMARY KEY (id)
+  CONSTRAINT pk_jss_user PRIMARY KEY (id)
 );
 
 
@@ -71,7 +71,7 @@ CREATE TABLE if not exists jss_searchlog
   search character varying(512),
   perfcount bigint NOT NULL DEFAULT 0,
   perffetch bigint NOT NULL DEFAULT 0,
-  CONSTRAINT searchlog_pkey PRIMARY KEY (id)
+  CONSTRAINT jss_searchlog_pkey PRIMARY KEY (id)
 );
 
 -- SCRIPTS
