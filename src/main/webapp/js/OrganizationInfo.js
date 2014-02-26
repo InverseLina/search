@@ -316,6 +316,8 @@
 			$(event.target).html("Fixing...").prop("disabled",true);
 			app.getJsonData("/fixJssTableNames", {orgName:view.currentOrgName},{type:'Post'}).done(function(data){
 				$(event.target).html("Jss Table Names Fixed").prop("disabled",true).addClass("btn-success");
+				// TODO: at the end of each button, we should reload to make sure everything is updated correctly. 
+				reload.call(view);
 			});
 		},
 		"INDEXCOLUMNSSTATUS":function(){
@@ -670,6 +672,11 @@
    });
   
   // --------- Private Methods--------- //
+  function reload(){
+  	// TODO: needs to reload without a page refresh. 
+  }
+
+
   function fillProgressBar(percentage,perform,all){
 	  var view = this;
 	  if(percentage==0){
