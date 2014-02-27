@@ -132,7 +132,7 @@
 					$createExtraBtn.html("Extra Tables Created").addClass("btn-success");
 					//view.$el.find(".resume").prop("disabled",false).html("Create Index Resume").removeClass("btn-success");
 					//view.$el.find(".index").prop("disabled",false).html("Create Index Columns").removeClass("btn-success");
-					view.$el.trigger("STATUS_CHANGE");
+					refresh.call(view);
 					view.$el.find(".index-info,.status").removeClass("hide");
 					$alert.addClass("hide");
 				}
@@ -316,8 +316,7 @@
 			$(event.target).html("Fixing...").prop("disabled",true);
 			app.getJsonData("/fixJssTableNames", {orgName:view.currentOrgName},{type:'Post'}).done(function(data){
 				$(event.target).html("Jss Table Names Fixed").prop("disabled",true).addClass("btn-success");
-				// TODO: at the end of each button, we should reload to make sure everything is updated correctly. 
-				reload.call(view);
+				refresh.call(view);
 			});
 		},
 		"INDEXCOLUMNSSTATUS":function(){
@@ -367,7 +366,7 @@
 						$alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
 						$createIndexBtn.prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
 					}else{
-						view.$el.trigger("STATUS_CHANGE");
+						refresh.call(view);
 					}
 					window.clearInterval(view.intervalId);
 				});
@@ -379,13 +378,13 @@
 				$createIndexBtn.prop("disabled",true).html("Pausing");
 				app.getJsonData("/stopCreateIndexResume", {orgName:view.currentOrgName},{type:"Post"}).done(function(data){
 					$createIndexBtn.prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
-					view.$el.trigger("STATUS_CHANGE");
+					refresh.call(view);
 				});
 			}
 		},
 		"click;.status":function(event){
 			var view = this;
-			view.$el.trigger("STATUS_CHANGE");
+			refresh.call(view);
 		},
 		"RESUMEINDEXSTATUS":function(event,init){
 			var view = this;
@@ -510,18 +509,16 @@
 					var orgName = view.currentOrgName;
 					app.getJsonData("/checkOrgSchema",{org:orgName,quick:init},{type:"Get"}).done(function(result){
 						if(result.schema_create){
-							view.$el.find(".schema-info").addClass("alert-success").html("Org Schema Exists");
+							view.$el.find(".schema-info").removeClass("alert-danger").addClass("alert-success").html("Org Schema Exists");
 							if(result.ts2Table){
 								view.$el.find(".ts2table-info").addClass("alert-danger").html("<b>Default sync tables missing columns:</b> "+result.ts2Table);
 							}else{
-								view.$el.find(".ts2table-info").addClass("alert-success").html("Default sync tables valid");
+								view.$el.find(".ts2table-info").removeClass("alert-danger").addClass("alert-success").html("Default sync tables valid");
 							}
 							if(result.jssTable){
 								view.$el.find(".jsstable-info").addClass("alert-danger").html("<b>jss tables Missing columns:</b> "+result.jssTable);
-								view.$el.find(".fix-missing-columns").removeClass("hide");
 							}else{
-								view.$el.find(".jsstable-info").addClass("alert-success").html("jss tables valid");
-								view.$el.find(".fix-missing-columns").addClass("hide");
+								view.$el.find(".jsstable-info").removeClass("alert-danger").addClass("alert-success").html("jss tables valid");
 							}
 						}else{
 							view.$el.find(".schema-info").addClass("alert-danger").html("Org Schema Not Exists");
@@ -568,6 +565,12 @@
 							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Trigger(s): "+triggerInfo.substring(1)).removeClass("transparent");
 						}else {
 							view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
+							view.$el.find(".extra").closest("tr").find(".alert-danger").addClass("hide");
+							if(result.jssTable){
+								view.$el.find(".fix-missing-columns").removeClass("hide");
+							}else{
+								view.$el.find(".fix-missing-columns").addClass("hide");
+							}
 						}
 						if(result.pgtrgm){
 							var indexInfo = "";
@@ -671,20 +674,20 @@
 					disableBtn.prop("disabled",true).html("Disabling...");
 			app.getJsonData("removeAllIndexes", {orgName:view.orgName},{type:'Post'}).done(function(result){
 				disableBtn.html("Indexes Disabled");
-				view.$el.trigger("STATUS_CHANGE");
+				refresh.call(view);
 			});
 				},
 				"click;.enable-indexes":function(event){
 					var view = this;
 					var $disableBtn = $(event.currentTarget);
-					view.$el.trigger("STATUS_CHANGE");
+					refresh.call(view);
 					$(".alert",$disableBtn.closest("div")).show();
 				},
 			"click;.drop-ex":function(event){
 				var view = this;
 				var $disableBtn = $(event.currentTarget);
 				app.getJsonData("/dropExTables", {orgName:view.orgName},{type:'Post'}).done(function(result){
-					view.$el.trigger("STATUS_CHANGE");
+					refresh.call(view);
 					$(".alert",$disableBtn.closest("div")).show();
 			});
 			}
@@ -694,8 +697,9 @@
 	 });
 	
 	// --------- Private Methods--------- //
-	function reload(){
-		// TODO: needs to reload without a page refresh. 
+	function refresh(){
+		var view = this;
+		view.$el.trigger("STATUS_CHANGE");
 	}
 
 
