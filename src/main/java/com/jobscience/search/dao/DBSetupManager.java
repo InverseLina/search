@@ -287,7 +287,7 @@ public class DBSetupManager {
      * @throws SQLException
      */
     public boolean createSysSchema() throws Exception{
-        return excuteSqlUnderSys(null);
+        return excuteSqlUnderSys("01_")&&excuteSqlUnderSys("02_")&&excuteSqlUnderSys("03_");
     }
     
     public boolean updateZipCode() throws Exception{
