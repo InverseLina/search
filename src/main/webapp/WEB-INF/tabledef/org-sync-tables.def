@@ -1,0 +1,53 @@
+{
+	"contact":
+	        [
+			  "name",
+			  "ts2__latitude__c" ,
+			  "mailingpostalcode",
+			  "sfid",
+			  "ts2__people_status__c",
+			  "recordtypeid",
+			  "ts2__text_resume__c",
+			  "title",
+			  "email",
+			  "id",
+			  "ts2__longitude__c",
+			  "firstname",
+			  "lastname"
+	        ],
+ 	"ts2__education_history__c":
+ 	        [
+			  "sfid",
+			  "ts2__contact__c",
+			  "id",
+			  "ts2__name__c"
+ 	        ],
+ 	"ts2__employment_history__c":
+ 			[
+ 		      "id",
+			  "ts2__name__c",
+			  "ts2__contact__c" ,
+			  "sfid"
+ 			],
+ 	"ts2__skill__c":
+ 	        [
+			  "id",
+			  "ts2__skill_name__c",
+			  "ts2__rating__c",
+			  "sfid",
+			  "ts2__contact__c"
+ 	        ],
+    "ts2__s_userlist__c":
+    		[
+			  "ownerid",
+			  "name",
+			  "sfid" ,
+			  "id" 
+			],
+	"ts2__s_userlistlink__c":
+			[
+		      "id",
+		      "ts2__r_user_list__c",
+		      "ts2__r_contact__c"
+			]
+}

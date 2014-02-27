@@ -67,6 +67,7 @@ public class DBSetupManager {
     
     private volatile ConcurrentMap<String,JSONArray> indexesMap;
     
+    private volatile ConcurrentMap<String,Map> jsonMap = new ConcurrentHashMap<String, Map>();
     private Logger log = LoggerFactory.getLogger(DBSetupManager.class);
     
     private String[][] newTableNameChanges = {{"contact_ex","jss_contact"},
@@ -197,9 +198,8 @@ public class DBSetupManager {
         if(orgs.size()==1){
             schemaname = orgs.get(0).get("schemaname").toString();
         }
-        
-        status.put("user_timeout",checkColumn("timeout","jss_user",schemaname));
-        status.put("user_rtoken",checkColumn("rtoken","jss_user",schemaname));
+        status.put("jssTable", checkColumns(schemaname, true));
+        status.put("ts2Table", checkColumns(schemaname, false));
         
         if(orgExtraTableNames.contains("jss_contact,")){
             if(checkColumn("sfid", "jss_contact", schemaname)){
@@ -335,17 +335,6 @@ public class DBSetupManager {
         		runner.executeUpdate(sql);
             }
             runner.commit();
-            List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-            String schemaname="" ;
-            if(orgs.size()==1){
-                schemaname = orgs.get(0).get("schemaname").toString();
-            }
-            if(!checkColumn("timeout","jss_user",schemaname)){
-                daoHelper.executeUpdate(orgName,"alter table \"jss_user\" add column timeout bigint not null default 0;");
-            }
-            if(!checkColumn("rtoken","jss_user",schemaname)){
-                daoHelper.executeUpdate(orgName,"alter table \"jss_user\" add column rtoken character varying(255);");
-            }
         } catch (Exception e) {
             log.error(e.getMessage());
         	result = false;
@@ -1036,5 +1025,97 @@ public class DBSetupManager {
            return count>0;
       }  
        return false;   
+   }
+   
+   private String checkColumns(String org,boolean jssTable){
+       String fileName = jssTable?"org-jss-tables.def":"org-sync-tables.def";
+       Map<String,JSONArray> arrays = loadJsonFile(fileName);
+       Map columnsMap = getColumnsGroupbyTable(org); 
+       StringBuilder result = new StringBuilder();
+       for(String key:arrays.keySet()){
+           checkMissingColumns(result, arrays.get(key), (String)columnsMap.get(key), key, jssTable);
+       }
+       return result.length()>0?result.substring(1):result.toString();
+   }
+   
+   
+   private Map<String,JSONArray> loadJsonFile(String name){
+       if(jsonMap.containsKey(name)){
+           return jsonMap.get(name);
+       }
+       
+       StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
+       path.append("/WEB-INF/tabledef");
+       File orgFolder = new File(path.toString());
+       File[] sqlFiles = orgFolder.listFiles();
+       String indexes = "";
+       for(File file : sqlFiles){
+            if(file.getName().equals(name)){
+                List<String> subSqlList = loadSQLFile(file);
+                indexes = subSqlList.get(0);
+            }
+       }
+       JSONObject indexesObj = JSONObject.fromObject(indexes);
+       ConcurrentMap<String,JSONArray> m = new ConcurrentHashMap<String,JSONArray>();
+       for(Object tableName:indexesObj.keySet()){
+          m.put(tableName.toString(), JSONArray.fromObject(indexesObj.get(tableName)));
+       }
+       jsonMap.put(name, m);
+       return m;
+   }
+   
+   
+   private Map getColumnsGroupbyTable(String org){
+       List<Map> list =  daoHelper.executeQuery(daoHelper.openDefaultRunner(),
+               " select string_agg(\"column_name\",',') as column_string,table_name from information_schema.columns"
+             + "  where table_schema=? group by table_name",org);
+       Map<String,String> columnsStringMap = new HashMap<String, String>();
+       for(Map m:list){
+           columnsStringMap.put((String)m.get("table_name"),m.get("column_string")+",");
+       }
+       return columnsStringMap;
+   }
+   
+   private StringBuilder checkMissingColumns( StringBuilder sb,JSONArray array,String columnsString,String tableName,boolean jssTable){
+       columnsString+=",";
+       String temp;
+       if(jssTable){
+           for(int i=0,j=array.size();i<j;i++){
+               temp = ((JSONObject)array.get(i)).getString("name");
+               if(!columnsString.contains(temp+",")){
+                   sb.append(", ").append(tableName).append(".").append(temp); 
+               }
+           }
+       }else{
+           for(int i=0,j=array.size();i<j;i++){
+               temp = array.getString(i);
+               if(!columnsString.contains(temp+",")){
+                   sb.append(", ").append(tableName).append(".").append(temp); 
+               }
+           }
+       }
+       return sb;
+   }
+   
+   public void fixMissingColumns(String orgName){
+       Map<String,JSONArray> arrays = loadJsonFile("org-jss-tables.def");
+       Runner runner = daoHelper.openNewOrgRunner(orgName);
+       runner.startTransaction();
+       for(String key:arrays.keySet()){
+           JSONArray ja = arrays.get(key);
+           for(int i=0,j=ja.size();i<j;i++){
+               JSONObject jo = (JSONObject) ja.get(i);
+               runner.executeUpdate("  DO $$ BEGIN BEGIN ALTER TABLE "
+                          +key
+                          +" ADD COLUMN "
+                          +jo.getString("name")
+                          +" "
+                          +jo.getString("type")
+                          + "; EXCEPTION WHEN duplicate_column THEN RAISE NOTICE 'column exists.';"
+                          + " END; END;$$;");
+           }
+       }
+       runner.commit();
+       runner.close();
    }
 }    

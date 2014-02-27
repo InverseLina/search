@@ -481,6 +481,16 @@
 				$arrow.next().show();
 			}
 		},
+		"click;.fix-missing-columns":function(event){
+			var $btn = $(event.currentTarget);
+			var view = this;
+			app.getJsonData("/fixJssColumns",{orgName:view.currentOrgName},{type:"Post"}).done(function(result){
+				if(!result){
+					$btn.addClass("hide");
+					view.$el.find(".jsstable-info").removeClass("alert-danger").addClass("alert-success").html("jss tables valid");
+				}
+			});
+		},
 		"click;[data-time]":function(event){
 			var view = this;
 			var $li = $(event.currentTarget);
@@ -499,6 +509,25 @@
 					var view = this;
 					var orgName = view.currentOrgName;
 					app.getJsonData("/checkOrgSchema",{org:orgName,quick:init},{type:"Get"}).done(function(result){
+						if(result.schema_create){
+							view.$el.find(".schema-info").addClass("alert-success").html("Org Schema Exists");
+							if(result.ts2Table){
+								view.$el.find(".ts2table-info").addClass("alert-danger").html("<b>Default sync tables missing columns:</b> "+result.ts2Table);
+							}else{
+								view.$el.find(".ts2table-info").addClass("alert-success").html("Default sync tables valid");
+							}
+							if(result.jssTable){
+								view.$el.find(".jsstable-info").addClass("alert-danger").html("<b>jss tables Missing columns:</b> "+result.jssTable);
+								view.$el.find(".fix-missing-columns").removeClass("hide");
+							}else{
+								view.$el.find(".jsstable-info").addClass("alert-success").html("jss tables valid");
+								view.$el.find(".fix-missing-columns").addClass("hide");
+							}
+						}else{
+							view.$el.find(".schema-info").addClass("alert-danger").html("Org Schema Not Exists");
+							view.$el.find(".ts2table-info,.fix-missing-columns,.jsstable-info").addClass("hide");
+						}
+						
 						var tableInfo = "";
 						for(var table in result.tables){
 							if(!result.tables[table]){
@@ -511,7 +540,6 @@
 								triggerInfo+=", "+trigger;
 							}
 						}
-						
 						if(result.jss_grouped_skills){
 							view.$el.find(".jss_grouped_skills").prop("disabled",true).html("jss_grouped_skills Created").addClass("btn-success");
 						}else{
@@ -538,13 +566,7 @@
 						}else if(triggerInfo){
 							view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
 							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Trigger(s): "+triggerInfo.substring(1)).removeClass("transparent");
-						}else if(!result.user_timeout){
-							view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
-							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Column(s): user.timeout").removeClass("transparent");
-						}else if(!result.user_rtoken){
-							view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
-							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Column(s): user.rtoken").removeClass("transparent");
-						} else {
+						}else {
 							view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
 						}
 						if(result.pgtrgm){

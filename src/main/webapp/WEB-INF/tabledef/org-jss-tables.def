@@ -1,0 +1,182 @@
+{
+	"jss_contact":[
+				    {
+				      "name":"id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"resume_tsv",
+				      "type":"tsvector"
+				    },
+				    {
+				      "name":"skills_tsv",
+				      "type":"tsvector"
+				    },
+				    {
+				      "name":"sfid",
+				      "type":"character varying(18)"
+				    },
+				    {
+				      "name":"contact_tsv",
+				      "type":"tsvector"
+				    }
+				  ],
+	"jss_grouped_educations":
+				  [
+				    {
+				      "name":"id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"count",
+				      "type":"bigint"
+				    },
+				    {
+				      "name":"name",
+				      "type":"character varying(150)"
+				    }
+				  ],
+   "jss_grouped_employers":
+                 [
+                    {
+				      "name":"id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"count",
+				      "type":"bigint"
+				    },
+				    {
+				      "name":"name",
+				      "type":"character varying(150)"
+				    }
+                 ],
+   "jss_grouped_locations":
+                 [
+                    {
+				      "name":"id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"count",
+				      "type":"bigint"
+				    },
+				    {
+				      "name":"name",
+				      "type":"character varying(150)"
+				    }
+                 ],
+   "jss_grouped_skills":
+                 [
+                    {
+				      "name":"id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"count",
+				      "type":"bigint"
+				    },
+				    {
+				      "name":"name",
+				      "type":"character varying(150)"
+				    }
+                 ],
+    "jss_pref":  [
+    				{
+				      "name":"id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"user_id",
+				      "type":"bigint NOT NULL default 0"
+				    },
+				    {
+				      "name":"name",
+				      "type":"character varying(32)"
+				    },
+				    {
+				      "name":"val",
+				      "type":"character varying(128)"
+				    },
+				    {
+				      "name":"val_text",
+				      "type":"text"
+				    }
+    			 ],
+    "jss_savedsearches":
+    			  [
+    			    {
+				      "name":"id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"user_id",
+				      "type":"bigint"
+				    },
+				    {
+				      "name":"name",
+				      "type":"character varying(64) NOT NULL default ''" 
+				    },
+				    {
+				      "name":"create_date",
+				      "type":"timestamp without time zone"
+				    },
+				    {
+				      "name":"update_date",
+				      "type":"timestamp without time zone"
+				    },
+				    {
+				      "name":"search",
+				      "type":"text NOT NULL"
+				    }
+    			  ],
+    "jss_searchlog":
+                  [
+                    {
+				      "name":"id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"user_id",
+				      "type":"bigint NOT NULL default 0"
+				    },
+				    {
+				      "name":"date",
+				      "type":"timestamp with time zone"
+				    },
+				    {
+				      "name":"search",
+				      "type":"character varying(512)"
+				    },
+				    {
+				      "name":"perfcount",
+				      "type":"bigint NOT NULL DEFAULT 0"
+				    },
+				    {
+				      "name":"perffetch",
+				      "type":"bigint NOT NULL DEFAULT 0"
+				    }
+                  ],
+    "jss_user":   [
+    				{
+				      "name":"id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"sfid",
+				      "type":"character varying(255)"
+				    },
+				    {
+				      "name":"ctoken",
+				      "type":"character varying(255) NOT NULL default ''"
+				    },
+				    {
+				      "name":"timeout",
+				      "type":"bigint NOT NULL default 0"
+				    },
+				    {
+				      "name":"rtoken",
+				      "type":"character varying(255)"
+				    }
+    			  ]
+}
