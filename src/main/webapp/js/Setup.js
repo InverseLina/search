@@ -48,10 +48,7 @@
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
     			  $createBtn.prop("disabled",false).html("Create System schema").removeClass("btn-success");
     		  }else{
-    			  $createBtn.html("System schema Created").addClass("btn-success");
-    			  view.$el.find(".import").prop("disabled",false).removeClass("btn-success");
-    			  $alert.html("&nbsp;").addClass("transparent");
-        		  $(".organization-tab").removeClass("hide");
+        		  refresh.call(view);
     		  }
     	  });
       },
@@ -69,7 +66,7 @@
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
     			  $createBtn.prop("disabled",false).html("Create Extensions").removeClass("btn-success");
     		  }else{
-    			  view.$el.trigger("STATUS_CHANGE");
+    			  refresh.call(view);
     		  }
     	  });
       },
@@ -86,8 +83,7 @@
     			  $alert.removeClass("transparent").html("ErrorCode:"+data.errorCode+"<p>"+data.errorMsg);
     			  $importBtn.prop("disabled",false).html("Import Zipcode table").removeClass("btn-success");
     		  }else{
-    			  $importBtn.html("Zipcode table Imported").addClass("btn-success");
-    			  $alert.html("&nbsp;").addClass("transparent");
+    			  refresh.call(view);
     		  }
     	  });
       },
@@ -110,7 +106,7 @@
     			  view.$el.find(".import-city").prop("disabled",true).addClass("btn-success").html("City Imported");
     			  $alert.html("&nbsp;").addClass("transparent");
     		  }
-    		  view.$el.trigger("STATUS_CHANGE");
+    		  refresh.call(view);
     	  });
       },
       "click;.import-city":function(event){
@@ -132,7 +128,7 @@
     			  view.$el.find(".compute-city").prop("disabled",true).addClass("btn-success").html("City long/lat Computed");
     			  $alert.html("&nbsp;").addClass("transparent");
     		  }
-    		  view.$el.trigger("STATUS_CHANGE");
+    		  refresh.call(view);
     	  });
       },
       "click;.fix-missing-columns":function(event){
@@ -142,7 +138,7 @@
 				if(!result){
 					$btn.addClass("hide");
 					view.$el.find(".jsstable-info").removeClass("alert-danger").addClass("alert-success").html("jss_sys tables valid");
-					view.$el.trigger("STATUS_CHANGE");
+					refresh.call(view);
 				}
 			});
 	  },
@@ -164,7 +160,7 @@
     				  view.$el.find(".columns-info").removeClass("alert-danger").addClass("alert-success").html("jss_sys Tables Valid");
     			  }else{
     				  view.$el.find(".columns-info").removeClass("alert-success")
-    				  .addClass("alert-danger").html("Missing column(s):"+result.jssTable);
+    				  .addClass("alert-danger").html("<b>Missing column(s):</b>"+result.jssTable);
     			  }
                   if(!missingExentions){
                       view.$el.find(".create_pg_trgm").prop("disabled",true).html("Extensions Created").addClass("btn-success");
@@ -285,5 +281,10 @@
         var urlregex = new RegExp(
             "^(http|https)\://([a-zA-Z0-9\.\-]+(\:[a-zA-Z0-9\.&amp;%\$\-]+)*@)*((25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])|localhost|([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(\:[0-9]+)*(/($|[a-zA-Z0-9\.\,\?\'\\\+&amp;%\$#\=~_\-]+))*$");
         return urlregex.test(textval);
+    }
+    
+    function refresh(){
+    	var view = this;
+		view.$el.trigger("STATUS_CHANGE");
     }
 })(jQuery);
