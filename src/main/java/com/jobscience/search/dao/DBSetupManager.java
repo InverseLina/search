@@ -115,7 +115,7 @@ public class DBSetupManager {
         extensionMap.put("cube", this.checkExtension("cube"));
         extensionMap.put("earthdistance", this.checkExtension("earthdistance"));
         status.put("extensions", extensionMap);
-        
+        status.put("jssTable", checkColumns("jss_sys", "jss-sys-tables.def",true));
         return status;
     }
     
@@ -198,8 +198,8 @@ public class DBSetupManager {
         if(orgs.size()==1){
             schemaname = orgs.get(0).get("schemaname").toString();
         }
-        status.put("jssTable", checkColumns(schemaname, true));
-        status.put("ts2Table", checkColumns(schemaname, false));
+        status.put("jssTable", checkColumns(schemaname,"org-jss-tables.def", true));
+        status.put("ts2Table", checkColumns(schemaname,"org-sync-tables.def", false));
         
         if(orgExtraTableNames.contains("jss_contact,")){
             if(checkColumn("sfid", "jss_contact", schemaname)){
@@ -1027,10 +1027,9 @@ public class DBSetupManager {
        return false;   
    }
    
-   private String checkColumns(String org,boolean jssTable){
-       String fileName = jssTable?"org-jss-tables.def":"org-sync-tables.def";
+   private String checkColumns(String schemaName,String fileName,boolean jssTable){
        Map<String,JSONArray> arrays = loadJsonFile(fileName);
-       Map columnsMap = getColumnsGroupbyTable(org); 
+       Map columnsMap = getColumnsGroupbyTable(schemaName); 
        StringBuilder result = new StringBuilder();
        for(String key:arrays.keySet()){
            checkMissingColumns(result, arrays.get(key), (String)columnsMap.get(key), key, jssTable);
@@ -1097,9 +1096,9 @@ public class DBSetupManager {
        return sb;
    }
    
-   public void fixMissingColumns(String orgName){
-       Map<String,JSONArray> arrays = loadJsonFile("org-jss-tables.def");
-       Runner runner = daoHelper.openNewOrgRunner(orgName);
+   public void fixMissingColumns(String orgName,Boolean sys){
+       Map<String,JSONArray> arrays = loadJsonFile(sys?"jss-sys-tables.def":"org-jss-tables.def");
+       Runner runner = sys?daoHelper.openNewSysRunner():daoHelper.openNewOrgRunner(orgName);
        runner.startTransaction();
        for(String key:arrays.keySet()){
            JSONArray ja = arrays.get(key);

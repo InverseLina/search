@@ -263,9 +263,12 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/fixJssColumns")
-    public WebResponse fixJssColumns(@WebParam("orgName")String orgName){
+    public WebResponse fixJssColumns(@WebParam("orgName")String orgName,@WebParam("sys")Boolean sys){
+        if(sys==null){
+            sys = false;
+        }
         try{
-            dbSetupManager.fixMissingColumns(orgName);
+            dbSetupManager.fixMissingColumns(orgName,sys);
         }catch(Exception e){
             e.printStackTrace();
             return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));

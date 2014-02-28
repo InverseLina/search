@@ -1,0 +1,92 @@
+{
+	"city": [
+		        {
+		        	"name":"id",
+		        	"type":"serial NOT NULL"
+		        },
+		        {
+		        	"name":"name",
+		        	"type":"character varying(64) NOT NULL"
+		        },
+		        {
+		        	"name":"longitude",
+		        	"type":"double precision"
+		        },
+		        {
+		        	"name":"latitude",
+		        	"type":"double precision"
+		        }
+		    ],
+	"config":
+			[
+				{
+		        	"name":"id",
+		        	"type":"serial NOT NULL"
+		        },
+		        {
+		        	"name":"org_id",
+		        	"type":"integer"
+		        },
+		        {
+		        	"name":"name",
+		        	"type":"character varying(255) NOT NULL"
+		        },
+		        {
+		        	"name":"value",
+		        	"type":"character varying(512)"
+		        },
+		        {
+		        	"name":"val_text",
+		        	"type":"text"
+		        }
+			],
+	"org":  [
+				{
+		        	"name":"id",
+		        	"type":"serial NOT NULL"
+		        },
+		        {
+		        	"name":"schemaname",
+		        	"type":"character varying(64) NOT NULL"
+		        },
+		        {
+		        	"name":"name",
+		        	"type":"character varying(255) NOT NULL"
+		        },
+		        {
+		        	"name":"sfid",
+		        	"type":"character varying(255)"
+		        }
+			],
+	"zipcode_us":
+			[
+				{
+		        	"name":"zip",
+		        	"type":"character(5) NOT NULL"
+		        },
+		        {
+		        	"name":"city",
+		        	"type":"character varying(64)"
+		        },
+		        {
+		        	"name":"state",
+		        	"type":"character(2)"
+		        },
+		        {
+		        	"name":"latitude",
+		        	"type":"double precision"
+		        },
+		        {
+		        	"name":"longitude",
+		        	"type":"double precision"
+		        },
+		        {
+		        	"name":"timezone",
+		        	"type":"integer"
+		        },
+		        {
+		        	"name":"dst",
+		        	"type":"integer"
+		        }		      
+			]
+}	

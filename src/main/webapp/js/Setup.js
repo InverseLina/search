@@ -135,6 +135,17 @@
     		  view.$el.trigger("STATUS_CHANGE");
     	  });
       },
+      "click;.fix-missing-columns":function(event){
+			var $btn = $(event.currentTarget);
+			var view = this;
+			app.getJsonData("/fixJssColumns",{orgName:view.currentOrgName,sys:true},{type:"Post"}).done(function(result){
+				if(!result){
+					$btn.addClass("hide");
+					view.$el.find(".jsstable-info").removeClass("alert-danger").addClass("alert-success").html("jss_sys tables valid");
+					view.$el.trigger("STATUS_CHANGE");
+				}
+			});
+	  },
       "STATUS_CHANGE":function(event){
     	  var view = this;
     	  app.getJsonData("/checkSysSchema",{},{type:"Get"}).done(function(result){
@@ -149,6 +160,12 @@
     			  }
     		  });
     		  if(view.$el){
+    			  if(result.jssTable==""){
+    				  view.$el.find(".columns-info").removeClass("alert-danger").addClass("alert-success").html("jss_sys Tables Valid");
+    			  }else{
+    				  view.$el.find(".columns-info").removeClass("alert-success")
+    				  .addClass("alert-danger").html("Missing column(s):"+result.jssTable);
+    			  }
                   if(!missingExentions){
                       view.$el.find(".create_pg_trgm").prop("disabled",true).html("Extensions Created").addClass("btn-success");
                   }else{
@@ -185,7 +202,9 @@
                   var schemaInfo = "";
                   if(!result.schema_create){
                       schemaInfo+="schema not created";
+                      view.$el.find(".schema-info").removeClass("alert-success").addClass("alert-danger").html("jss_sys Schema Not Exists");
                   }else{
+                	  view.$el.find(".schema-info").removeClass("alert-danger").addClass("alert-success").html("jss_sys Schema Exists");
                       if(!result.tables.config){
                           schemaInfo+="config ";
                       }
@@ -205,10 +224,13 @@
 
                   if(schemaInfo){
                       view.$el.find(".create").prop("disabled",false).html("Create System schema").removeClass("btn-success");
-                      view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html(schemaInfo)
+                      view.$el.find(".create").closest(".setting").find(".alert").removeClass("transparent").html(schemaInfo);
                   }else{
                       view.$el.find(".create").prop("disabled",true).html("System schema Created").addClass("btn-success");
-                      view.$el.find(".create").closest(".setting").find(".alert").addClass("transparent").html("&nbsp;")
+                      view.$el.find(".create").closest(".setting").find(".alert").addClass("transparent").html("&nbsp;");
+                      if(result.jssTable!=""){
+                    	  view.$el.find(".fix-missing-columns").removeClass("hide");
+                      }
                   }
 
                   if(result.zipcode_import){
