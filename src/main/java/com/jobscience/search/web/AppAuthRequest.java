@@ -172,4 +172,7 @@ public class AppAuthRequest implements AuthRequest {
         }
     }
 
+    public void updateCache(Map user){
+        userCache.put((String)user.get("ctoken"), user);
+    }
 }

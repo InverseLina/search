@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.jasql.Runner;
 
 import com.britesnow.snow.util.JsonUtil;
 import com.britesnow.snow.web.CurrentRequestContextHolder;
@@ -33,7 +34,7 @@ public class UserDao {
     public static final String selectSql = "select * from \"jss_user\" where sfid = ?";
     public static final String selectByTokenSql = "select * from \"jss_user\" where ctoken = ?";
     public static final String updateSql = "update \"jss_user\" set ctoken = ?, timeout = ?, rtoken=? where sfid = ?";
-    public static final String insertSql = "insert into \"jss_user\" (sfid, ctoken, timeout,rtoken) values(?,?,?,?)";
+    public static final String insertSql = "insert into \"jss_user\" (sfid, ctoken, timeout,rtoken) values(?,?,?,?) returning *";
 
     public Map getCurrentUser(){
        
@@ -72,15 +73,19 @@ public class UserDao {
        daoHelper.executeUpdate(orgHolder.getOrgName(), updateSql, ctoken, sfTimeout,sfid,rtoken);
    }
    
-   public void insertUser(String sfid, String ctoken, long sfTimeout, String rtoken) {
+   public Map insertUser(String sfid, String ctoken, long sfTimeout, String rtoken) {
        //for now label, sfid should not null
        if (sfid == null) {
            sfid = demoSfid();
        }
-       daoHelper.executeUpdate(orgHolder.getOrgName(), insertSql, sfid, ctoken, sfTimeout, rtoken);
+       
+       Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
+       Map user = runner.executeWithReturn(insertSql, sfid, ctoken, sfTimeout, rtoken);
+       runner.close();
+       return user;
    }
 
-   public String checkAndUpdateUser(int type, String content, String token,
+   public Map checkAndUpdateUser(int type, String content, String token,
                                     long sfTimeout, String rtoken) {
        String sfid, ctoken;
        if (type == 1) {
@@ -96,12 +101,17 @@ public class UserDao {
        orgHolder.setOrg(ctoken, sfid);
        List<Map> users = getUserMap(sfid);
        if (users.size() > 0) {
+           Map user = users.get(0);
+           user.put("sfid",sfid);
+           user.put("ctoken",ctoken);
+           user.put("timeout",sfTimeout);
+           user.put("rtoken",rtoken);
            updateCToken(sfid, ctoken, sfTimeout, rtoken);
+           return user;
        }else{
-           insertUser(sfid, ctoken, sfTimeout, rtoken);
+           return insertUser(sfid, ctoken, sfTimeout, rtoken);
        }
 
-       return ctoken;
    }
 
     public  String getSFIDbySF1(String id) {

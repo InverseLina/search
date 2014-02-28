@@ -20,7 +20,8 @@ public class CanvasWebHandler {
     private ConfigManager configManager;
     @Inject
     private OrgContextManager currentOrgHolder;
-    
+    @Inject 
+    private AppAuthRequest appAuthRequest;
     @WebModelHandler(startsWith = "/sf-canvas")
     public void canvasApp(@WebModel Map m, RequestContext rc) {
         // Pull the signed request out of the request body and verify/decode it.
@@ -41,7 +42,8 @@ public class CanvasWebHandler {
                 try {
                     String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, canvasappSecretStr);
                     m.put("signedRequestJson", signedRequestJson);
-                    userDao.checkAndUpdateUser(2, signedRequestJson, null, 0, null);
+                    appAuthRequest.updateCache(userDao.checkAndUpdateUser(2, signedRequestJson, null, 0, null));
+                    
                 } catch (Exception e) {
                     rc.getWebModel().put("errorCode", "CANVAS_AUTH_ERROR");
                     rc.getWebModel().put("errorMessage", "The app secret might be incorrect, Make sure you have correct secret");
