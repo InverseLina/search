@@ -334,7 +334,7 @@
                 $th.find(".addFilter").hide();
             }
         }
-
+		resizeHeight.call(view);
     },
     // --------- /Public Methods--------- //
 
@@ -492,7 +492,6 @@
               $e.find(".search-input").val(app.ParamsControl.getQuery());
 
               view.restoreSearchParam();
-
             });
 
 
@@ -752,8 +751,33 @@
     	$e.find("th.favLabel").hide();
     	$e.find("td.favLabel").hide();
     }
+    
+    resizeHeight.call(view);
   }
 
+  function resizeHeight(){
+  	var $e = this.$el;
+  	var height = 0;
+  	$e.find(".tableContainer thead th[data-column='contact']").each(function(){
+  		var $th = $(this);
+  		var $columnName = $th.find(".columnName");
+  		var $indicators = $th.find(".indicators");
+  		var $selectedItems = $th.find(".selectedItems");
+  		var thHeight = $columnName.height();
+  		thHeight += $selectedItems.height();
+  		if($indicators.length > 0){
+	  		thHeight += $indicators.height();
+  		}
+  		if(thHeight > height){
+  			height = thHeight;
+  		}
+  	});
+  	height += 10;
+  	$e.find(".tableContainer thead .headerTh").css("height", height+"px");
+  	$e.find(".btnPopupColumns").css("height", height+"px");
+  	$e.find(".btnPopupColumns").css("line-height", (height - 6)+"px");
+  	$e.find(".tableContainer tbody").css("top", (height + 15)+"px");
+  }
 
 
   function translate(value) {

@@ -38,7 +38,6 @@
 	        var objectType = app.preference.get(cookiePrefix+"objectType");
 	        var status = app.preference.get(cookiePrefix+"status");
 	        if(objectType){
-	        	console.log(objectType);
 	        	$e.find("input[name='objectType']").closest(".btn").removeClass("active");
 	        	$e.find("input[name='objectType'][value='"+objectType+"']").closest(".btn").addClass("active");
 	        }
@@ -50,10 +49,6 @@
 	        
 		},
 		events : {
-			"click; .save":function(event){
-	            addItem.call(this);
-	            event.preventDefault();
-	        },
 	        "click;.cancel":function(event){
 	        	var view = this;
 	        	var $span =$(event.target);
@@ -130,6 +125,23 @@
                 }, 200);
                 view.$el.find("input:first").focus();
 
+            },
+            "click; .btnSearchForPerson":function(e){
+            	var view = this;
+            	var $btn = $(e.currentTarget);
+            	var $i = $btn.find("i");
+            	var $personFields = view.$el.find(".personFields");
+            	if($btn.hasClass("active")){
+            		$btn.removeClass("active");
+	            	$i.addClass("glyphicon-chevron-down");
+	            	$i.removeClass("glyphicon-chevron-up");
+	            	$personFields.hide();
+            	}else{
+            		$btn.addClass("active");
+	            	$i.addClass("glyphicon-chevron-up");
+	            	$i.removeClass("glyphicon-chevron-down");
+	            	$personFields.show();
+            	}
             }
 		},
 		docEvents : {

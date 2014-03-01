@@ -121,8 +121,7 @@
 			color: #ffffff;
 			border-radius: 0px;
 			padding: 0px 12px;
-			height: 96px;//
-			padding-top: 4px;
+			height: 96px;
 			padding-left: 3px;
 			box-sizing: border-box;
 		}
@@ -190,6 +189,22 @@
 							padding: 4px 10px;
 							position: relative;
 							background: #000000;
+							.indicators{
+								overflow:hidden;
+								.indicator{
+									display:inline-block;
+									color:#4b4b4b;
+									font-size:12px;
+									padding:3px 6px;
+									border-radius:4px;
+									border:1px solid #8f8f8f;
+									background:#D0CD41;
+									.value{
+										color:#fff;
+										margin-left:5px;
+									}
+								}
+							}
 							.selectedItems{
 								position: absolute;
 								bottom: 5px;

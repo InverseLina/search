@@ -51,32 +51,59 @@
     max-width: 100px;
   }
   .contact-btn-group{
-    text-align: center;
 	margin-right: 13px;
-	padding-bottom:13px;
-	border-bottom:1px solid #BDB8B8 !important;
+	.filterLabels{
+		width:60px;
+		text-align:right;
+		font-weight: normal;
+    	color:#4b4b4b;
+    	vertical-align:middle;
+    	margin-right:5px;
+    	height: 30px;
+		vertical-align: middle;
+		line-height: 48px;
+	}
     .btn-group{
     	margin-top: 15px;
     	.active.btn{
-    		background: #aea055!important;
+    		background: #aea156!important;
     		-webkit-box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.125);
 			box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.125);
 			border-right: 0px;
-			-ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#aea055', endColorstr='#aea055'); 
-    		filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#aea055', endColorstr='#aea055');
     	}
     	.btn{
     		width: 100px;
-    		color:#FFFFFF;
+    		color:#4b4b4b;
     		border: 1px solid #b9ab62;
-		    background:-moz-linear-gradient(top, #e4d47c, #bbae5f);  
-		    background:-webkit-gradient(linear, 0 0, 0 bottom, from(#e4d47c), to(#bbae5f));  
-		    background:-o-linear-gradient(top, #e4d47c, #bbae5f); 
-		    -ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#e4d47c', endColorstr='#bbae5f'); 
-    		filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#e4d47c', endColorstr='#bbae5f');
-    		background: -ms-linear-gradient(top, #e4d47c, #bbae5f);
+		    background:#d3c74d;
+		    margin-left:1px;
+		    border:none;
+		    &.active, &:hover{
+			    margin-left:1px;
+		    }
+		    &:first-child{
+			    margin-left:0px;
+		    }
     	}
     }
+    .btnSearchForPerson{
+    	background:#d1cd41;
+    	margin:15px 0 0 100px;
+    	color:#ffffff;
+    	padding:7px 10px 7px 25px;
+    	i{
+    		margin-left:7px;
+    		color:#ebebeb;
+    	}
+    	&.active{
+    		background:#aea157;
+    	}
+    }
+  }
+  
+  .personFields{
+  	display:none;
+  	margin-top:25px;
   }
 }
 // --------- /ContactFilterView --------- //

@@ -139,6 +139,20 @@
     </div>
 </script>
 
+<script id="search-query-contact-filter-render-header" type="text/html">
+    <div class="headerTh {{name}}Th">
+        <span class="columnName">{{title}}</span>
+        <div class="indicators">
+			<span class="indicator type">Type:<span class="value">{{objectType}}</span></span>
+			<span class="indicator status">Status:<span class="value">{{status}}</span></span>
+		</div>
+        <div class="selectedItems">
+            <span class="addFilter">+&nbsp;add filter</span>
+        </div>
+        <span class="desc">&darr;</span><span class="asc">&uarr;</span>
+    </div>
+</script>
+
 <script id="search-query-generic-render-cell" type="text/html">
     <td data-column="{{name}}" data-value="{{realValue}}"
             ><span>{{rmComma value}}</span></td>

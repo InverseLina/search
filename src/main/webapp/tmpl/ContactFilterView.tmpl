@@ -5,44 +5,53 @@
         </div>
         <div class="content contact">
         	<div class="contact-btn-group">
-                <div class="btn-group"  data-toggle="buttons">
-                    <label class="btn">
-                       <input type="radio" name="objectType" value="Contact"> Contact
-                    </label>
-                    <label class="btn">
-                       <input type="radio" name="objectType" value="Candidate"> Candidate
-                    </label>
-                    <label class="btn active">
-                       <input type="radio" name="objectType" value="Both"> Both
-                    </label>
-                </div>
-                <div class="btn-group" data-toggle="buttons">
-                    <label class="btn">
-                       <input type="radio" name="status" value="Active"> Active
-                    </label>
-                    <label class="btn">
-                       <input type="radio" name="status" value="Inactive"> Inactive
-                    </label>
-                    <label class="btn active">
-                       <input type="radio" name="status" value="Both"> Both
-                    </label>
-                </div>
+        		<div>
+        			<label class="filterLabels">Type</label>
+        			<div class="btn-group"  data-toggle="buttons">
+	                    <label class="btn">
+	                       <input type="radio" name="objectType" value="Contact"> Contact
+	                    </label>
+	                    <label class="btn">
+	                       <input type="radio" name="objectType" value="Candidate"> Candidate
+	                    </label>
+	                    <label class="btn active">
+	                       <input type="radio" name="objectType" value="All"> All
+	                    </label>
+	                </div>
+        		</div>
+                <div>
+        			<label class="filterLabels">Status</label>
+        			<div class="btn-group" data-toggle="buttons">
+	                    <label class="btn">
+	                       <input type="radio" name="status" value="Active"> Active
+	                    </label>
+	                    <label class="btn">
+	                       <input type="radio" name="status" value="Inactive"> Inactive
+	                    </label>
+	                    <label class="btn active">
+	                       <input type="radio" name="status" value="All"> All
+	                    </label>
+	                </div>
+        		</div>
+            	<div class="btn btnSearchForPerson">
+            		Search For Person
+            		<i class="glyphicon glyphicon-chevron-down"></i>
+            	</div>
             </div>
-        	<div class="contactRow"><span>First Name:</span><input name="FirstName" type="text" placeholder="First Name"/>
-                <label class="clear"><i></i></label>
+            <div class="personFields">
+            	<div class="contactRow"><span>First Name:</span><input name="FirstName" type="text" placeholder="First Name"/>
+	                <label class="clear"><i></i></label>
+	            </div>
+	        	<div class="contactRow"><span>Last Name:</span><input name="LastName" type="text" placeholder="Last Name"/>
+	                <label class="clear"><i></i></label>
+	            </div>
+	        	<div class="contactRow"><span>Email:</span><input name="Email" type="text" placeholder="Email"/>
+	                <label class="clear"><i></i></label>
+	            </div>
+	        	<div class="contactRow"><span>Title:</span><input type="text"  name="Title"  placeholder="Title"/>
+	                <label class="clear"><i></i></label>
+	            </div>
             </div>
-        	<div class="contactRow"><span>Last Name:</span><input name="LastName" type="text" placeholder="Last Name"/>
-                <label class="clear"><i></i></label>
-            </div>
-        	<div class="contactRow"><span>Email:</span><input name="Email" type="text" placeholder="Email"/>
-                <label class="clear"><i></i></label>
-            </div>
-        	<div class="contactRow"><span>Title:</span><input type="text"  name="Title"  placeholder="Title"/>
-                <label class="clear"><i></i></label>
-            </div>
-        	<div class="contactRow">
-                <a href="#" class="save">Press Enter to add contact</a>
-        	</div>
         </div>
 	</div>
 </script>

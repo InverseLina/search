@@ -47,7 +47,12 @@ var app = app || {};
 
     var filters = {
         contact: {
-            headerRenderer: genericHeaderFilterRenderer,
+            headerRenderer: function(filterInfo){
+            	var cookiePrefix = "contact_filter_";
+            	filterInfo.objectType = app.preference.get(cookiePrefix+"objectType") || "All";
+	        	filterInfo.status = app.preference.get(cookiePrefix+"status") || "All";
+		        return render("search-query-contact-filter-render-header", filterInfo);
+            },
             filterRenderer: function ($content, headerInfo) {
                 var data = app.ParamsControl.getFilterParams()['contract'] || [];
                 return brite.display("ContactFilterView", $content, {data: data, th: headerInfo });
