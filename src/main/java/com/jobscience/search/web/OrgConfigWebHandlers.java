@@ -38,14 +38,14 @@ public class OrgConfigWebHandlers {
       params.put("id", id);
       params.put("schemaname", schemaname);
       params.put("sfid", sfid);
-      orgConfigDao.saveOrUpdateOrg(params);
+      Integer oId = orgConfigDao.saveOrUpdateOrg(params);
       daoHelper.updateDataSource(name);
       try{
           currentOrgHolder.updateSchema();
           forceDotComApiManager.clearForceDotComApi(currentOrgHolder.getId());
       }catch(Exception e){
       }
-      return webResponseBuilder.success();
+      return webResponseBuilder.success(oId);
   }
   
   @WebGet("/org/get/{id}")

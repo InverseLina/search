@@ -15,16 +15,21 @@ public class OrgConfigDao {
   private DaoHelper daoHelper;
 
 
-  public void saveOrUpdateOrg(Map<String,String> params) throws SQLException{
+  public Integer saveOrUpdateOrg(Map<String,String> params) throws SQLException{
       String sql;
       if(params.size() > 0 && !"".equals(params.get("id"))&&params.get("id")!=null) {
+          Integer id = Integer.valueOf(params.get("id"));
           sql = "update org set name = ? ,schemaname = ? ,sfid=?  where id = ?";
           daoHelper.executeUpdate(daoHelper.openNewSysRunner(), sql, params.get("name"),
-                  params.get("schemaname"), params.get("sfid"), Integer.valueOf(params.get("id")));
+                  params.get("schemaname"), params.get("sfid"), id);
+          return id;
+          
       }else{
-          sql = " insert into org(name,schemaname,sfid) values (?,?,?)";
-          daoHelper.executeUpdate(daoHelper.openNewSysRunner(), sql,
-                  params.get("name"), params.get("schemaname"), params.get("sfid"));
+          if(params.containsKey("id")){
+              params.remove("id");
+          }
+          Map result = (Map) daoHelper.insert(daoHelper.openNewSysRunner(), "org", params);
+          return (Integer) result.get("id");
       }
   }
   
