@@ -520,7 +520,33 @@
 							}else{
 								view.$el.find(".jsstable-info").removeClass("alert-danger").addClass("alert-success").html("jss tables valid");
 							}
+							if(result.jss_grouped_skills){
+								view.$el.find(".jss_grouped_skills").prop("disabled",true).html("jss_grouped_skills Created").addClass("btn-success");
+							}else{
+								view.$el.find(".jss_grouped_skills").prop("disabled",false).html("Create jss_grouped_skills").removeClass("btn-success");
+							}
+							if(result.jss_grouped_educations){
+								view.$el.find(".jss_grouped_educations").prop("disabled",true).html("jss_grouped_educations Created").addClass("btn-success");
+							}else{
+								view.$el.find(".jss_grouped_educations").prop("disabled",false).html("Create jss_grouped_educations").removeClass("btn-success");
+							}
+							if(result.jss_grouped_employers){
+								view.$el.find(".jss_grouped_employers").prop("disabled",true).html("jss_grouped_employers Created").addClass("btn-success");
+							}else{
+								view.$el.find(".jss_grouped_employers").prop("disabled",false).html("Create jss_grouped_employers").removeClass("btn-success");
+							}
+							if(result.jss_grouped_locations){
+								view.$el.find(".jss_grouped_locations").prop("disabled",true).html("jss_grouped_locations Created").addClass("btn-success");
+							}else{
+								view.$el.find(".jss_grouped_locations").prop("disabled",false).html("Create jss_grouped_locations").removeClass("btn-success");
+							}
+							if(result.hasOldJssTable){
+								view.$el.find(".fix-table").prop("disabled",false).removeClass("btn-success");
+							}else{
+								view.$el.find(".fix-table").html("Jss Table names Fixed").prop("disabled",true).addClass("btn-success");
+							}
 						}else{
+							view.$el.find(".notice").removeClass("hide");
 							view.$el.find(".schema-info").addClass("alert-danger").html("Org Schema Not Exists");
 							view.$el.find(".ts2table-info,.fix-missing-columns,.jsstable-info").addClass("hide");
 						}
@@ -537,29 +563,12 @@
 								triggerInfo+=", "+trigger;
 							}
 						}
-						if(result.jss_grouped_skills){
-							view.$el.find(".jss_grouped_skills").prop("disabled",true).html("jss_grouped_skills Created").addClass("btn-success");
-						}else{
-							view.$el.find(".jss_grouped_skills").prop("disabled",false).html("Create jss_grouped_skills").removeClass("btn-success");
-						}
-						if(result.jss_grouped_educations){
-							view.$el.find(".jss_grouped_educations").prop("disabled",true).html("jss_grouped_educations Created").addClass("btn-success");
-						}else{
-							view.$el.find(".jss_grouped_educations").prop("disabled",false).html("Create jss_grouped_educations").removeClass("btn-success");
-						}
-						if(result.jss_grouped_employers){
-							view.$el.find(".jss_grouped_employers").prop("disabled",true).html("jss_grouped_employers Created").addClass("btn-success");
-						}else{
-							view.$el.find(".jss_grouped_employers").prop("disabled",false).html("Create jss_grouped_employers").removeClass("btn-success");
-						}
-						if(result.jss_grouped_locations){
-							view.$el.find(".jss_grouped_locations").prop("disabled",true).html("jss_grouped_locations Created").addClass("btn-success");
-						}else{
-							view.$el.find(".jss_grouped_locations").prop("disabled",false).html("Create jss_grouped_locations").removeClass("btn-success");
-						}
 						if(tableInfo){
-							view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
+							view.$el.find(".extra").html("Create Extra Tables").removeClass("btn-success");
 							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Table(s): "+tableInfo.substring(1)).removeClass("transparent");
+							if(schema_create){
+								view.$el.find(".extra").prop("disabled",true);
+							}
 						}else if(triggerInfo){
 							view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
 							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Trigger(s): "+triggerInfo.substring(1)).removeClass("transparent");
@@ -642,11 +651,6 @@
 							if(tableInfo.indexOf("jss_contact")==-1){
 								view.$el.find(".contact-tsv").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
 							}
-						}
-						if(result.hasOldJssTable){
-							view.$el.find(".fix-table").prop("disabled",false).removeClass("btn-success");
-						}else{
-							view.$el.find(".fix-table").html("Jss Table names Fixed").prop("disabled",true).addClass("btn-success");
 						}
 						});
 				},
