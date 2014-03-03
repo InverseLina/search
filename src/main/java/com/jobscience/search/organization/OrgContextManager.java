@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import com.britesnow.snow.web.AbortWithHttpRedirectException;
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.britesnow.snow.web.RequestContext;
 import com.google.common.cache.Cache;
@@ -126,11 +125,6 @@ public class OrgContextManager {
                             });
                         } catch (ExecutionException e) {
                             e.printStackTrace();
-                        }
-                        if (orgContext.getOrgMap().get("sfid") != null && 
-                            ((String) orgContext.getOrgMap().get("sfid")).length() > 0) {
-                            rc.removeCookie("org");
-                            throw new AbortWithHttpRedirectException("/sf1");
                         }
                     }
                 }

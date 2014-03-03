@@ -262,10 +262,10 @@
     	      configs["saleforce.apiKey"]=view.$el.find("[name='saleforce.apiKey']").val();
     	      configs["saleforce.apiSecret"]=view.$el.find("[name='saleforce.apiSecret']").val();
     	      configs["jss.feature.userlist"]=view.$el.find("[name='jss.feature.userlist']").val();
-              var callbackUrl = $.trim(view.$el.find("[name='saleforce.callBackUrl']").val());
-              if(validateURL(callbackUrl)){
-    	        configs["saleforce.callBackUrl"]=view.$el.find("[name='saleforce.callBackUrl']").val();
-              }
+              //var callbackUrl = $.trim(view.$el.find("[name='saleforce.callBackUrl']").val());
+//              if(validateURL(callbackUrl)){
+//    	        configs["saleforce.callBackUrl"]=view.$el.find("[name='saleforce.callBackUrl']").val();
+//              }
     	      values["orgId"]=-1;
     	      console.log(configs);
     	      values.configsJson = JSON.stringify(configs);

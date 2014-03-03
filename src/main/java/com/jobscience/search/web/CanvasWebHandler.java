@@ -1,4 +1,4 @@
-package com.jobscience.search.web;
+/*package com.jobscience.search.web;
 
 import java.util.Map;
 
@@ -22,7 +22,7 @@ public class CanvasWebHandler {
     private OrgContextManager currentOrgHolder;
     @Inject 
     private AppAuthRequest appAuthRequest;
-    @WebModelHandler(startsWith = "/sf-canvas")
+   // @WebModelHandler(startsWith = "/sf-canvas")
     public void canvasApp(@WebModel Map m, RequestContext rc) {
         // Pull the signed request out of the request body and verify/decode it.
         String signedRequest = rc.getParam("signed_request");
@@ -56,3 +56,4 @@ public class CanvasWebHandler {
     }
     
 }
+*/
