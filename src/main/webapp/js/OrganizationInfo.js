@@ -95,7 +95,7 @@
 						values["sfid"] = view.$el.find("[name='sfid']").val();
 
 						app.getJsonData("/org/save", values, "Post").done(function(data) {
-							window.location.href = contextPath + "/admin#organization";
+							window.location.href = contextPath + "/admin#organization/edit/"+data;
 						});
 					});
 				}

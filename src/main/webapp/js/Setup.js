@@ -270,7 +270,7 @@
     	      console.log(configs);
     	      values.configsJson = JSON.stringify(configs);
     	      app.getJsonData("/config/save", values,"Post").done(function(data){
-    	          window.location.href=contextPath + "/";
+    	          window.location.href = window.location.href;
     	  });
     	}
     }
