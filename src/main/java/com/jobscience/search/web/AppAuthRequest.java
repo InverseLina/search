@@ -5,9 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 import net.sf.json.JSONObject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.britesnow.snow.web.AbortWithHttpRedirectException;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.auth.AuthRequest;
@@ -17,7 +14,6 @@ import com.britesnow.snow.web.param.annotation.WebModel;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebPost;
-import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -49,8 +45,6 @@ public class AppAuthRequest implements AuthRequest {
 
     @Inject
     private WebResponseBuilder webResponseBuilder;
-
-    private static final Logger log = LoggerFactory.getLogger(AppAuthRequest.class);
 
     private final Cache<String, Map> userCache;
 
@@ -109,35 +103,8 @@ public class AppAuthRequest implements AuthRequest {
             rc.setCookie("org", orgName);
             m.put("user", user);
         }
-        
-        if (passCode != null && passCode.length() > 0 ) {
-            String pcode = rc.getCookie("passCode");
-            if (pcode == null || !pcode.equals("true")) {
-                rc.getWebModel().put("errorCode", "NO_PASSCODE");
-                rc.getWebModel().put("errorMessage", "No passcode exists");
-                rc.getWebModel().put("success", "false");
-                rc.getWebModel().put("errorCode", "NO_ORG");
-                rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
-                rc.getWebModel().put("success", "false");
-                return;
-            }
-        }
-
-        String path = rc.getReq().getRequestURI();
-        if ((Strings.isNullOrEmpty(rc.getReq().getContextPath()) || path.equals(rc.getReq().getContextPath() + "/")) && isSysSchemaExist) {
-            String ctoken = rc.getCookie("ctoken");
-            if (ctoken == null) {
-                try {
-                    ctoken = userDao.buildCToken(null);
-                    userDao.insertUser(null, ctoken, 0l, null);
-                    rc.setCookie("ctoken", ctoken);
-                }catch (AbortWithHttpRedirectException ar){
-                    throw ar;
-                } catch (Exception e) {
-                    rc.removeCookie("ctoken");
-                    log.warn("add user fail");
-                }
-            }
+        if(isSysSchemaExist){
+            forceAuthService.auth(rc);
         }
         // check org is set or not
         try {

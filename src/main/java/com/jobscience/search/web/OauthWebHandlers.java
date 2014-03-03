@@ -1,4 +1,4 @@
-package com.jobscience.search.web;
+/*package com.jobscience.search.web;
 
 import java.io.IOException;
 import java.util.Map;
@@ -41,10 +41,10 @@ public class OauthWebHandlers {
 
     private final Logger log = LoggerFactory.getLogger(OauthWebHandlers.class);
 
-    /**
+    *//**
      * web get auth flow
      * @param rc
-     */
+     *//*
     @WebModelHandler(startsWith="/sf1")
     public void authorize(@WebUser Map user, RequestContext rc) {
         if(user==null || user.get("rtoken") == null){
@@ -62,10 +62,10 @@ public class OauthWebHandlers {
 
     }
 
-    /**
+    *//**
      * web get auth flow
      * @param rc
-     */
+     *//*
     @WebModelHandler(startsWith = "/sf1test")
     public void sf1test(RequestContext rc) {
         String ctoken = rc.getCookie("ctoken");
@@ -80,12 +80,12 @@ public class OauthWebHandlers {
         }
     }
 
-    /**
+    *//**
      * callback when salesforce authorized
      * @param rc
      * @param code
      * @throws Exception
-     */
+     *//*
     @WebModelHandler(startsWith = "/forceCallback")
     public void callback(RequestContext rc, @WebParam("code") String code) throws Exception {
         ForceDotComApi.ForceDotComToken token = (ForceDotComApi.ForceDotComToken) forceAuthService.getAccessToken(code);
@@ -98,8 +98,8 @@ public class OauthWebHandlers {
         }
 
 
-        /*        OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
-        oAuthToken.updateCookie(rc);*/
+                OAuthToken oAuthToken = new OAuthToken(token.getToken(), token.getIssuedAt().getTime());
+        oAuthToken.updateCookie(rc);
         updateUserToken(token);
 
     }
@@ -119,3 +119,4 @@ public class OauthWebHandlers {
         }
     }
 }
+*/
