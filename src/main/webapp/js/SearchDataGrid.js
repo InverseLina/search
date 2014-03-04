@@ -774,6 +774,8 @@
   	});
   	height += 10;
   	$e.find(".tableContainer thead .headerTh").css("height", height+"px");
+  	var newHeight = $e.find(".tableContainer thead .headerTh").css("min-height").replace("px","") * 1;
+  	height = height > newHeight ? height : newHeight;
   	$e.find(".btnPopupColumns").css("height", height+"px");
   	$e.find(".btnPopupColumns").css("line-height", (height - 6)+"px");
   	$e.find(".tableContainer tbody").css("top", (height + 15)+"px");
