@@ -5,14 +5,15 @@
 		create: function(){
 			return render("OrganizationInfo");
 		},
+
 		postDisplay:function(data){
 			var view = this;
 
 			view.section = app.pathInfo.paths[0] || "organization";
 
 			view.$navTabs = $(".nav-tabs");
-		view.$tabContent = view.$el.find(".tab-content");
-		view.$navTabs.find("li.active").removeClass("active");
+			view.$tabContent = view.$el.find(".tab-content");
+			view.$navTabs.find("li.active").removeClass("active");
 
 			if(app.pathInfo.paths[1] == "add"){
 				var li = render("OrganizationInfo-li",{type:"OrganizationInfo",url:"#organization/add"});
@@ -21,11 +22,10 @@
 				view.$tabContent.html(html);
 				view.orgId = -1;
 				view.$el.find(".extra,.resume,.index").prop("disabled",true);
-					app.getJsonData("getOrgSearchConfig").done(function(result){
-							view.$el.find("textarea[name='searchConfig']").val(result);
-
-					});
-					view.$el.find("button.saveSearchConfig, button.resetSearchConfig").attr("disable", "true");
+				app.getJsonData("getOrgSearchConfig").done(function(result){
+						view.$el.find("textarea[name='searchConfig']").val(result);
+				});
+				view.$el.find("button.saveSearchConfig, button.resetSearchConfig").attr("disable", "true");
 			}else if(app.pathInfo.paths[1] == "edit"){
 				view.orgId = app.pathInfo.paths[2] * 1;
 					getDate.call(view, app.pathInfo.paths[2] * 1).done(function (orgName) {
@@ -371,8 +371,9 @@
 					window.clearInterval(view.intervalId);
 				});
 				view.intervalId = window.setInterval(function(){
-							 $(view.el).trigger("RESUMEINDEXSTATUS");
-						}, 3000);
+							$(view.el).trigger("RESUMEINDEXSTATUS");
+				}, 3000);
+
 			}else if(status=="pause"){
 				window.clearInterval(view.intervalId);
 				$createIndexBtn.prop("disabled",true).html("Pausing");
@@ -508,6 +509,7 @@
 					var view = this;
 					var orgName = view.currentOrgName;
 					app.getJsonData("/checkOrgSchema",{org:orgName,quick:init},{type:"Get"}).done(function(result){
+
 						if(result.schema_create){
 							view.$el.find(".schema-info").removeClass("alert-danger").addClass("alert-success").html("Org Schema Exists");
 							if(result.ts2Table){
@@ -566,7 +568,7 @@
 						if(tableInfo){
 							view.$el.find(".extra").html("Create Extra Tables").removeClass("btn-success");
 							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Table(s): "+tableInfo.substring(1)).removeClass("transparent");
-							if(schema_create){
+							if(result.schema_create){
 								view.$el.find(".extra").prop("disabled",true);
 							}
 						}else if(triggerInfo){
@@ -676,10 +678,10 @@
 					var view = this;
 					var disableBtn = $(event.currentTarget);
 					disableBtn.prop("disabled",true).html("Disabling...");
-			app.getJsonData("removeAllIndexes", {orgName:view.orgName},{type:'Post'}).done(function(result){
-				disableBtn.html("Indexes Disabled");
-				refresh.call(view);
-			});
+					app.getJsonData("removeAllIndexes", {orgName:view.orgName},{type:'Post'}).done(function(result){
+						disableBtn.html("Indexes Disabled");
+						refresh.call(view);
+					});
 				},
 				"click;.enable-indexes":function(event){
 					var view = this;
@@ -687,18 +689,18 @@
 					refresh.call(view);
 					$(".alert",$disableBtn.closest("div")).show();
 				},
-			"click;.drop-ex":function(event){
-				var view = this;
-				var $disableBtn = $(event.currentTarget);
-				app.getJsonData("/dropExTables", {orgName:view.orgName},{type:'Post'}).done(function(result){
-					refresh.call(view);
-					$(".alert",$disableBtn.closest("div")).show();
-			});
+				"click;.drop-ex":function(event){
+					var view = this;
+					var $disableBtn = $(event.currentTarget);
+					app.getJsonData("/dropExTables", {orgName:view.orgName},{type:'Post'}).done(function(result){
+						refresh.call(view);
+						$(".alert",$disableBtn.closest("div")).show();
+				});
 			}
 		}
 
 		// --------- /Events--------- //
-	 });
+	});
 	
 	// --------- Private Methods--------- //
 	function refresh(){
@@ -709,14 +711,14 @@
 
 	function fillProgressBar(percentage,perform,all){
 		var view = this;
-		if(percentage==0){
+		if(percentage === 0){
 			view.$el.find(".db-status-bar").hide();
 		}else{
 			view.$el.find(".db-status-bar").show();
 		}
 		view.$el.find(".db-status-bar .progress-bar-success").css("width",percentage+"%");
 		
-		if(perform==all){
+		if(perform == all){
 			view.$el.find(".db-status-bar .db-percentage").html(formateNumber(all));
 			view.$el.find(".db-status-bar .db-count-info").empty();
 			view.$el.find(".resume").prop("disabled",true).html("Index Resume Created").addClass("btn-success");
@@ -728,7 +730,7 @@
 	
 	function fillProgressBarForSfid(percentage,perform,all){
 		var view = this;
-		if(percentage==0){
+		if(percentage === 0){
 			view.$el.find(".sfid-status-bar").hide();
 		}else{
 			view.$el.find(".sfid-status-bar").show();
@@ -748,7 +750,7 @@
 	
 	function fillProgressBarForContactTsv(percentage,perform,all){
 		var view = this;
-		if(percentage==0){
+		if(percentage === 0){
 			view.$el.find(".contact-tsv-status-bar").hide();
 		}else{
 			view.$el.find(".contact-tsv-status-bar").show();
@@ -769,8 +771,8 @@
 		val=val+"";
 		var newVal = "";
 		var po = 0;
-		for(var i=val.length-1;i>=0;i--){
-			if(po%3==0&&po!=0){
+		for(var i=val.length-1; i>=0; i--){
+			if(po%3 === 0 && po !== 0){
 				newVal=","+newVal;
 			}
 			newVal =val.substring(i,i+1)+newVal;
@@ -803,13 +805,13 @@
 		var $nameMsg = view.$el.find(".alert-error.name");
 		var $schemanameMsg = view.$el.find(".alert-error.schemaname");
 
-		if(view.$el.find("[name='name']").val() == ''){
+		if(view.$el.find("[name='name']").val() === ''){
 			$nameMsg.removeClass("hide");
 		}else{
 			$nameMsg.addClass("hide");
 		}
 
-		if(view.$el.find("[name='schemaname']").val() == ''){
+		if(view.$el.find("[name='schemaname']").val() === ''){
 			$schemanameMsg.removeClass("hide");
 		}else{
 			$schemanameMsg.addClass("hide");
@@ -820,6 +822,6 @@
 		}else{
 			view.validation=true;
 		}
-		}
+	}
 	// --------- /Private Methods--------- //
 })(jQuery);
