@@ -102,7 +102,7 @@ public class ForceAuthService {
                         rc.getWebModel().put("signedRequestJson", signedRequestJson);
                         appAuthRequest.updateCache(userDao.checkAndUpdateUser(2, signedRequestJson, null, 0, null));
                         String sfid = (String)currentOrgHolder.getCurrentOrg().getOrgMap().get("sfid");
-                        if(sfid!=null&&!sfid.equals(userDao.getSFIDbySF2(signedRequestJson))){
+                        if(!Strings.isNullOrEmpty(sfid)&&!userDao.getSFIDbySF2(signedRequestJson).startsWith(sfid)){
                             rc.getWebModel().put("errorCode", "CANVAS_AUTH_ERROR");
                             rc.getWebModel().put("errorMessage", "Cannot Access Org SFID from SFCanvas does not match JSS Org SFID");
                             rc.getWebModel().put("success", "false");
