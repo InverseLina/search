@@ -569,7 +569,7 @@
 							view.$el.find(".extra").html("Create Extra Tables").removeClass("btn-success");
 							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Table(s): "+tableInfo.substring(1)).removeClass("transparent");
 							if(result.schema_create){
-								view.$el.find(".extra").prop("disabled",true);
+								view.$el.find(".extra").prop("disabled",false);
 							}
 						}else if(triggerInfo){
 							view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
