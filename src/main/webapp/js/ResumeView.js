@@ -45,11 +45,16 @@
       var $body = $e.find(".modal-body");
       app.getJsonData("getResume", {cid: data.id}).done(function (result) {
           if (result.length > 0) {
-              $content = $(render("ResumeView-content", {resume: result[0]["ts2__text_resume__c"]}));
+        	  var resume = result[0]["ts2__text_resume__c"];
+        	  var keyWord = app.ParamsControl.getQuery();
+        	  var reg = new RegExp("("+keyWord+")","gi");
+        	  resume = resume.replace(reg,"<span class=\"highlight\">$1</span>");
+              $content = $(render("ResumeView-content", {resume: resume}));
+              $body.html("<pre>"+resume+"</pre>");
           } else {
               $content = $(render("ResumeView-content", {resume: "not resume"}));
+              $body.append($content);
           }
-          $body.append($content);
 
       });
   }
