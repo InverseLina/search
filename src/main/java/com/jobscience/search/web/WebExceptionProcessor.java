@@ -13,10 +13,13 @@ import com.google.inject.Singleton;
 import com.jobscience.search.exception.OAuthConfigBuildException;
 import com.jobscience.search.exception.OrganizationNotSelectException;
 import com.jobscience.search.exception.PassCodeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class WebExceptionProcessor {
-    @Inject
+	static private Logger logger                        = LoggerFactory.getLogger(WebExceptionProcessor.class);
+	@Inject
     private JsonRenderer jsonRenderer;
 
     @WebExceptionCatcher
@@ -24,6 +27,7 @@ public class WebExceptionProcessor {
         rc.getWebModel().put("errorCode", "NO_ORG");
         rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
         rc.getWebModel().put("success", "false");
+		logger.warn("NO_ORG",e);
         if (rc.getWebRequestType() == WebRequestType.WEB_REST) {
             jsonRenderer.render(rc.getWebModel(), rc.getWriter());
         }
@@ -36,6 +40,7 @@ public class WebExceptionProcessor {
         rc.getRes().setHeader("Cache-Control","no-cache");
         rc.getRes().setHeader("Pragma","no-cache");
         rc.getRes().setDateHeader ("Expires", -1);
+		logger.warn("NO_PASSCODE",e);
         if (rc.getWebRequestType() == WebRequestType.WEB_REST) {
             jsonRenderer.render(rc.getWebModel(), rc.getWriter());
         }
@@ -48,6 +53,7 @@ public class WebExceptionProcessor {
         rc.getRes().setHeader("Cache-Control","no-cache");
         rc.getRes().setHeader("Pragma","no-cache");
         rc.getRes().setDateHeader ("Expires", -1);
+		logger.warn("OAUTH_CONFIG_BUILD_ERROR",e);
         try {
             rc.getWriter().write("OAuth configs (key, secret, callback url) might be incorrect");
         } catch (IOException e1) {

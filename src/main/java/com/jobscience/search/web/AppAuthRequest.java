@@ -75,7 +75,10 @@ public class AppAuthRequest implements AuthRequest {
             user = userCache.getIfPresent(ctoken);
         }
         if (user == null) {
-            boolean isUserExist = dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
+            boolean isUserExist = false;
+			if (orgName != null){
+				dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
+			}
             if (isUserExist) {
                 user = userDao.getUserByToken(ctoken);
             }
@@ -99,29 +102,31 @@ public class AppAuthRequest implements AuthRequest {
 
     @WebModelHandler(startsWith = "/")
     public void home(@WebModel Map m, @WebUser Map user, RequestContext rc) {
-        String orgName = orgHolder.getOrgName();
-        boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
-        m.put("sys_schema", isSysSchemaExist);
-        if (orgName != null) {
-            m.put("user", user);
-        }
-        // check org is set or not
-        try {
-            Map configMap = configManager.getOrgInfo(orgHolder.getId());
-            configMap.put("instanceUrl", rc.getCookie("instanceUrl"));
-            m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
-        } catch (Exception e) {
-            rc.removeCookie("ctoken");
-        }
-        
-        //update token
-        if (user != null && user.get("rtoken") != null) {
-            long timeout = (Long) user.get("timeout");
-            if (System.currentTimeMillis() - timeout > 0) {
-                ForceDotComApi.ForceDotComToken token = (ForceDotComApi.ForceDotComToken) forceAuthService.updateToken((String) user.get("rtoken"));
-                updateUserToken(token);
-            }
-        }
+		if (!rc.getPathInfo().equals("/admin")){
+			String orgName = orgHolder.getOrgName();
+			boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
+			m.put("sys_schema", isSysSchemaExist);
+			if (orgName != null) {
+				m.put("user", user);
+			}
+			// check org is set or not
+			try {
+				Map configMap = configManager.getOrgInfo(orgHolder.getId());
+				configMap.put("instanceUrl", rc.getCookie("instanceUrl"));
+				m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
+			} catch (Exception e) {
+				rc.removeCookie("ctoken");
+			}
+
+			//update token
+			if (user != null && user.get("rtoken") != null) {
+				long timeout = (Long) user.get("timeout");
+				if (System.currentTimeMillis() - timeout > 0) {
+					ForceDotComApi.ForceDotComToken token = (ForceDotComApi.ForceDotComToken) forceAuthService.updateToken((String) user.get("rtoken"));
+					updateUserToken(token);
+				}
+			}
+		}
     }
 
     private void updateUserToken(ForceDotComApi.ForceDotComToken token) {
