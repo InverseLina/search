@@ -61,31 +61,31 @@ public class AppAuthRequest implements AuthRequest {
     @Override
     public AuthToken authRequest(RequestContext rc) {
         String ctoken = rc.getCookie("ctoken");
-        if(ctoken != null) {
-            boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
-            if(!isSysSchemaExist){
-                return null;
-            }
-            
-            Map user = userCache.getIfPresent(ctoken);
-            if (user == null) {
-                boolean isUserExist = dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
-                if(isUserExist){
-                    user = userDao.getUserByToken(ctoken);
-                }
-                if(user==null){
-                    user = userDao.insertUser(null, ctoken, 0l, null);
-                }
-                if (user != null) {
-                    userCache.put(ctoken, user);
-                }
-            }
-            AuthToken<Map> at = new AuthToken<Map>();
-            at.setUser(user);
-            return at;
-        }else{
-            return null;
+        String orgName = rc.getParam("org");
+        boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
+        if (orgName != null) {
+            rc.setCookie("org", orgName);
         }
+        if (isSysSchemaExist) {
+            forceAuthService.auth(rc);
+        }
+        ctoken = rc.getCookie("ctoken");
+        Map user = null;
+        if (ctoken != null) {
+            user = userCache.getIfPresent(ctoken);
+        }
+        if (user == null) {
+            boolean isUserExist = dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
+            if (isUserExist) {
+                user = userDao.getUserByToken(ctoken);
+            }
+            if (user != null) {
+                userCache.put(ctoken, user);
+            }
+        }
+        AuthToken<Map> at = new AuthToken<Map>();
+        at.setUser(user);
+        return at;
     }
 
     @WebPost("/validatePasscode")
