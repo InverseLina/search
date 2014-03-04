@@ -73,6 +73,9 @@ public class AppAuthRequest implements AuthRequest {
                 if(isUserExist){
                     user = userDao.getUserByToken(ctoken);
                 }
+                if(user==null){
+                    user = userDao.insertUser(null, ctoken, 0l, null);
+                }
                 if (user != null) {
                     userCache.put(ctoken, user);
                 }
