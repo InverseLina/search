@@ -13,6 +13,12 @@
   margin:10px;
 }
 
+.MainView .header-right{
+	position: absolute;
+	right: 0px;
+	z-index: 1;
+}
+
 .MainView header .navbar{
   margin: 0;
   padding: 0px;
@@ -21,7 +27,6 @@
 .MainView header .navbar-inner{
   border-radius: 0px;
   background-image: none;
-  background-color: #fff;
   .box-shadow(~"none");
   height:60px;
 }
@@ -49,7 +54,7 @@
 
 .MainView .admin{
 	float:right;
-	margin: 15px 8px;
+	margin: 15px 8px 0 0;
 }
 
 .MainView .clear-all{
@@ -65,11 +70,11 @@
 	color: #ccc;
 }
 
-.MainView.noHeader header{
+.MainView.noHeader header .navbar{
 	display:none;
 }
 .MainView.noHeader .contentview-ctn{
-	top:0px;
+	top:30px;
 }
 
 // --------- /MainView --------- //
