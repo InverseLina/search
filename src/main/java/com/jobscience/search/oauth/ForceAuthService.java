@@ -2,6 +2,8 @@ package com.jobscience.search.oauth;
 
 import static org.scribe.model.OAuthConstants.EMPTY_TOKEN;
 
+import java.util.Map;
+
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Token;
@@ -133,17 +135,22 @@ public class ForceAuthService {
             String path = rc.getReq().getRequestURI();
             if ((Strings.isNullOrEmpty(rc.getReq().getContextPath()) || path.equals(rc.getReq().getContextPath() + "/")) ) {
                 String ctoken = rc.getCookie("ctoken");
-                if (ctoken == null) {
-                    try {
+                try {
+                    Map user = userDao.getUserByToken(ctoken);
+                    if (user == null) {
                         ctoken = userDao.buildCToken(null);
                         userDao.insertUser(null, ctoken, 0l, null);
                         rc.setCookie("ctoken", ctoken);
-                    }catch (AbortWithHttpRedirectException ar){
-                        throw ar;
-                    } catch (Exception e) {
-                        rc.removeCookie("ctoken");
-                        log.warn("add user fail");
+                        if (user == null) {
+                            user = userDao.getUserByToken(ctoken);
+                            appAuthRequest.updateCache(user);
+                        }
                     }
+                } catch (AbortWithHttpRedirectException ar) {
+                    throw ar;
+                } catch (Exception e) {
+                    rc.removeCookie("ctoken");
+                    log.warn("add user fail");
                 }
             }
         }

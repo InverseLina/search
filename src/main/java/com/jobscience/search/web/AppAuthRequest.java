@@ -99,15 +99,11 @@ public class AppAuthRequest implements AuthRequest {
 
     @WebModelHandler(startsWith = "/")
     public void home(@WebModel Map m, @WebUser Map user, RequestContext rc) {
-        String orgName = rc.getParam("org");
+        String orgName = orgHolder.getOrgName();
         boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
         m.put("sys_schema", isSysSchemaExist);
         if (orgName != null) {
-            rc.setCookie("org", orgName);
             m.put("user", user);
-        }
-        if(isSysSchemaExist){
-            forceAuthService.auth(rc);
         }
         // check org is set or not
         try {
@@ -117,6 +113,7 @@ public class AppAuthRequest implements AuthRequest {
         } catch (Exception e) {
             rc.removeCookie("ctoken");
         }
+        
         //update token
         if (user != null && user.get("rtoken") != null) {
             long timeout = (Long) user.get("timeout");
