@@ -18,7 +18,7 @@
 		 view.$el.find(".organization-tab").addClass("hide");
 		 app.getJsonData("/checkSysSchema",{},{type:"Get"}).done(function(result){
 			 if(result.schema_create){
-				 view.$el.find(".organization-tab").removeClass("hide");
+				 showOrgTab.call(view);
 			 }
 	      });
 
@@ -38,6 +38,9 @@
 	 events: {
 		"PATH_INFO_CHANGE": function(event,pathInfo){
 	      changeView.call(this,pathInfo);
+	   },
+	    "DO_SHOW_ORG_TAB": function(){
+	    	showOrgTab.call(this);
 	    }
 	 }
     // --------- /Events--------- //
@@ -67,6 +70,11 @@
             view.$el.find(".nav-tabs li.active").removeClass("active");
             view.$el.find(".nav-tabs li." + viewName).addClass("active");
         }
+    }
+    
+    function showOrgTab(){
+    	var view = this;
+    	view.$el.find(".organization-tab").removeClass("hide");
     }
     
     // --------- /Private Methods --------- //  

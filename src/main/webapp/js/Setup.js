@@ -224,6 +224,7 @@
                   }else{
                       view.$el.find(".create").prop("disabled",true).html("System schema Created").addClass("btn-success");
                       view.$el.find(".create").closest(".setting").find(".alert").addClass("transparent").html("&nbsp;");
+                      view.$el.trigger("DO_SHOW_ORG_TAB");
                       if(result.jssTable!=""){
                     	  view.$el.find(".fix-missing-columns").removeClass("hide");
                       }
