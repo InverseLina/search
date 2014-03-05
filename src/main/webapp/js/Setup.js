@@ -260,20 +260,23 @@
     	  var view = this;
     	  var values = {};
     	  var configs = {};
-    	      configs["saleforce.apiKey"]=view.$el.find("[name='saleforce.apiKey']").val();
-    	      configs["saleforce.apiSecret"]=view.$el.find("[name='saleforce.apiSecret']").val();
-    	      configs["jss.feature.userlist"]=view.$el.find("[name='jss.feature.userlist']").val();
-              //var callbackUrl = $.trim(view.$el.find("[name='saleforce.callBackUrl']").val());
+    	  var $btn = $(event.currentTarget);
+		  $btn.prop("disabled",true).html("saving...");
+	      configs["saleforce.apiKey"]=view.$el.find("[name='saleforce.apiKey']").val();
+	      configs["saleforce.apiSecret"]=view.$el.find("[name='saleforce.apiSecret']").val();
+	      configs["jss.feature.userlist"]=view.$el.find("[name='jss.feature.userlist']").val();
+          //var callbackUrl = $.trim(view.$el.find("[name='saleforce.callBackUrl']").val());
 //              if(validateURL(callbackUrl)){
 //    	        configs["saleforce.callBackUrl"]=view.$el.find("[name='saleforce.callBackUrl']").val();
 //              }
-    	      values["orgId"]=-1;
-    	      values.configsJson = JSON.stringify(configs);
-    	      app.getJsonData("/config/save", values,"Post").done(function(data){
-    	          //window.location.href = window.location.href;
-    	    	  view.$el.trigger("DO_SHOW_MSG",{selector:".config-alert",msg:"Values saved successfully",type:"success"});
-    	  });
-    	}
+	      values["orgId"]=-1;
+	      values.configsJson = JSON.stringify(configs);
+	      app.getJsonData("/config/save", values,"Post").done(function(data){
+	          //window.location.href = window.location.href;
+	    	  view.$el.trigger("DO_SHOW_MSG",{selector:".config-alert",msg:"Values saved successfully",type:"success"});
+	    	  $btn.prop("disabled",false).html("save");
+	      });
+      }
     }
     // --------- /Events--------- //
   });

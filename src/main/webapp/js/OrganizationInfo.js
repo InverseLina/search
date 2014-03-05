@@ -71,6 +71,7 @@
 		"click;.save":function(event){
 			var view = this;
 			var $btn = $(event.currentTarget);
+			$btn.prop("disabled",true).html("saving...");
 			var values = {};
 				doValidate.call(view);
 				if (view.validation) {
@@ -105,6 +106,7 @@
 
 						app.getJsonData("/org/save", values, "Post").done(function(data) {
                     		view.$el.trigger("DO_SHOW_MSG",{selector:$(".alert",$btn.closest(".btns")),msg:"Values saved successfully",type:"success"});
+                    		$btn.prop("disabled",false).html("save");
 						});
 					});
 				}
@@ -675,6 +677,8 @@
 						event.stopPropagation();
 						event.preventDefault();
 						var view = this;
+						var $btn = $(event.currentTarget);
+						$btn.prop("disabled",true).html("saving...");
 						var content = view.$el.find("textarea[name='searchConfig']").val();
 						app.getJsonData("saveOrgSearchConfig", {orgName:view.orgName, content:content}, "Post").done(function(result){
 							if(!result.valid){
@@ -684,16 +688,19 @@
 	                    		view.$el.find(".search-content").css("background","#ffffff");
 	                    		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"Values saved successfully",type:"success"});
 	                     	}
+							$btn.prop("disabled",false).html("save");
 						});
 						return false;
 				},
-				"click; button.resetSearchConfig":function(){
+				"click; button.resetSearchConfig":function(event){
 						var view = this;
+						var $btn = $(event.currentTarget);
+						$btn.prop("disabled",true).html("resetting...");
 						app.getJsonData("resetOrgSearchConfig", {orgName:view.orgName}).done(function(result){
 								view.$el.find("textarea[name='searchConfig']").val(result);
 								view.$el.find(".search-content").css("background","#ffffff");
 			                	view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"search config has been reset successfully.",type:"success"});
-			                    
+			                	$btn.prop("disabled",false).html("reset");
 						});
 				},
 				"click;.disable-indexes":function(event){
