@@ -329,6 +329,12 @@ public class SearchConfigurationManager {
                             Node keywordField = keywordFields.item(i);
                             if(keywordField.getNodeType()==1){
                                String val = keywordField.getAttributes().getNamedItem("name").getNodeValue();
+                               if(!checkAttribute(keywordField, "column")){
+                                   errorMsg = "Missing column attribute for keyword field";
+                               }
+                               if(!checkAttribute(keywordField, "table")){
+                                   errorMsg = "Missing table attribute for keyword field";
+                               }
                                if("contactInfoTsv".equals(val)){
                                    contactTsv = true;
                                }
@@ -419,6 +425,9 @@ public class SearchConfigurationManager {
                         for(int i=0,j=contactFields.getLength();i<j;i++){
                             Node contactField = contactFields.item(i);
                             if(contactField.getNodeType()==1){
+                                if(!checkAttribute(contactField, "column")){
+                                    errorMsg = "Missing column attribute for contact field";
+                                }
                                 if("id".equals(getVal(contactField, "name"))){
                                     columns.remove("id");
                                 }

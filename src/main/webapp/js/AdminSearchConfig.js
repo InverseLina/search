@@ -17,7 +17,7 @@
                 app.getJsonData("getSearchConfig").done(function(result){
                     view.$el.find("textarea").val(result.content);
                     if(result.errorMsg){
-                    	view.$el.trigger("DO_SHOW_MSG",{selector:".alert",msg:result.errorMsg,type:"error"});
+                    	view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:result.errorMsg,type:"error"});
                 		view.$el.find(".search-content").css("background","#ffdddd");
                     }
                 });
