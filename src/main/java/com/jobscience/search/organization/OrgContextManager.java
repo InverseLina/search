@@ -15,6 +15,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.exception.OrganizationNotSelectException;
@@ -27,6 +28,8 @@ public class OrgContextManager {
     private DaoHelper daoHelper;
     @Inject
     private OrgConfigDao orgConfigDao;
+    @Inject
+    private DBSetupManager dbSetupManager;
     private Cache<String, OrgContext> orgCacheByToken;
     private Cache<String, OrgContext> orgCacheByorgName;
     @Named("jss.prod")
@@ -195,12 +198,14 @@ public class OrgContextManager {
     }*/
     
     private String loadOrgSfid(String orgName){
-        List<Map> list = daoHelper.executeQuery(orgName,
-                "select sfid from recordtype where recordtype.sobjecttype='Contact' "
-                +" and recordtype.name='Candidate' and recordtype.namespaceprefix='ts2'");
-        String sfid = "";
-        if (list.size() > 0) {
-            sfid = (String) list.get(0).get("sfid");
+        String sfid = null;
+        if(dbSetupManager.hasOrgTable(orgName, "recordtype")){
+            List<Map> list = daoHelper.executeQuery(orgName,
+                    "select sfid from recordtype where recordtype.sobjecttype='Contact' "
+                    +" and recordtype.name='Candidate' and recordtype.namespaceprefix='ts2'");
+            if (list.size() > 0) {
+                sfid = (String) list.get(0).get("sfid");
+            }
         }
         return sfid;
     }

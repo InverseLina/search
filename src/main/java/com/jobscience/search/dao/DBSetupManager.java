@@ -639,6 +639,20 @@ public class DBSetupManager {
     	return "";
     }
     
+    public  boolean hasOrgTable(String orgName,String tableName){
+        List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+        String schemaname="" ;
+        if(orgs.size()==1){
+            schemaname = orgs.get(0).get("schemaname").toString();
+        }
+        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select count(*) as count from information_schema.tables" +
+                " where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name=?",tableName);
+        if(list.size()==1){
+           return (Long)list.get(0).get("count")>0;
+        }
+        return false;
+    }
+    
    public List<String> getSqlCommandForOrg(String fileName){
        return loadSQLFile(new File(getRootSqlFolderPath()+"/org/"+fileName));
    }
