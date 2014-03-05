@@ -327,7 +327,7 @@ public class SearchConfigurationManager {
                         boolean contactTsv = false,resumeTsv = false;
                         for(int i=0,j=keywordFields.getLength();i<j;i++){
                             Node keywordField = keywordFields.item(i);
-                            if(keywordField.getNodeType()==1){
+                            if(keywordField.getNodeType()==1&&"field".equals(keywordField.getNodeName())){
                                String val = keywordField.getAttributes().getNamedItem("name").getNodeValue();
                                if(!checkAttribute(keywordField, "column")){
                                    errorMsg = "Missing column attribute for keyword field";
