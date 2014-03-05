@@ -121,29 +121,41 @@ public class AppAuthRequest implements AuthRequest {
     @WebModelHandler(startsWith = "/")
     public void home(@WebModel Map m, @WebUser Map user, RequestContext rc) {
 		if (!rc.getPathInfo().equals("/admin")){
-			String orgName = orgHolder.getOrgName();
-			boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
-			m.put("sys_schema", isSysSchemaExist);
-			if (orgName != null) {
-				m.put("user", user);
-			}
-			// check org is set or not
-			try {
-				Map configMap = configManager.getOrgInfo(orgHolder.getId());
-				configMap.put("instanceUrl", rc.getCookie("instanceUrl"));
-				m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
-			} catch (Exception e) {
-				rc.removeCookie(COOKIE_ORG_USER_TOKEN);
-			}
-
-			//update token
-//			if (user != null && user.get("rtoken") != null) {
-//				long timeout = (Long) user.get("timeout");
-//				if (System.currentTimeMillis() - timeout > 0) {
-//					ForceDotComApi.ForceDotComToken token = (ForceDotComApi.ForceDotComToken) forceAuthService.updateToken((String) user.get("rtoken"));
-//					updateUserToken(token);
-//				}
-//			}
+		    String orgName = null;
+		    boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
+		    m.put("sys_schema", isSysSchemaExist);
+		    try{
+		        orgName = orgHolder.getOrgName();
+		    }catch(Exception e){
+		        log.warn("NO_ORG");
+		    }
+		    
+		    if(orgName == null){
+		        rc.getWebModel().put("errorCode", "NO_ORG");
+		        rc.getWebModel().put("errorMessage", "No organization selected, please, authenticate via SalesForce.com");
+		        rc.getWebModel().put("success", "false");
+            }else{
+                if (orgName != null) {
+                    m.put("user", user);
+                }
+                // check org is set or not
+                try {
+                    Map configMap = configManager.getOrgInfo(orgHolder.getId());
+                    configMap.put("instanceUrl", rc.getCookie("instanceUrl"));
+                    m.put("orgConfigs", JSONObject.fromObject(configMap).toString());
+                } catch (Exception e) {
+                    rc.removeCookie(COOKIE_ORG_USER_TOKEN);
+                }
+                
+                //update token
+//    			if (user != null && user.get("rtoken") != null) {
+//    				long timeout = (Long) user.get("timeout");
+//    				if (System.currentTimeMillis() - timeout > 0) {
+//    					ForceDotComApi.ForceDotComToken token = (ForceDotComApi.ForceDotComToken) forceAuthService.updateToken((String) user.get("rtoken"));
+//    					updateUserToken(token);
+//    				}
+//    			}
+            }
 		}
     }
     
