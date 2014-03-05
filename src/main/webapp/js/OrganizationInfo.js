@@ -554,7 +554,7 @@
 							if(result.hasOldJssTable){
 								view.$el.find(".fix-table").prop("disabled",false).removeClass("btn-success");
 							}else{
-								view.$el.find(".fix-table").html("Jss Table names Fixed").prop("disabled",true).addClass("btn-success");
+								view.$el.find(".fix-table").closest(".btn_tr").addClass("hide");//.html("Jss Table names Fixed").prop("disabled",true).addClass("btn-success");
 							}
 						}else{
 							view.$el.find(".notice").removeClass("hide");
