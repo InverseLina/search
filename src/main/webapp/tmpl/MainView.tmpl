@@ -1,14 +1,12 @@
 <script id="MainView" type="text/html">
 <div class="MainView  {{#unless showHeader}}noHeader{{/unless}}">
   <header>
-  	<span class="header-right">
-  		<a href="#admin" class="admin config">admin</a>
-      	<!--<button class="btn admin btn-primary btn-sm clear-all" disabled>Clear All</button>-->
-      	<a href="{{contextPath}}/" class="admin home hide">home</a>
-  	</span>
     <div class="navbar">
       <div class="navbar-inner">
         <a class="brand" href="{{contextPath}}/"><img src="css/images/js-logo.png" /></a>
+        <a href="#admin" class="admin config">admin</a>
+        <!--<button class="btn admin btn-primary btn-sm clear-all" disabled>Clear All</button>-->
+        <a href="{{contextPath}}/" class="admin home hide">home</a>
       	<span class="sf-info"></span>
       </div>
      </div>
