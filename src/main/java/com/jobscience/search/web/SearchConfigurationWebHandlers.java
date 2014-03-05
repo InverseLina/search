@@ -12,6 +12,7 @@ import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -46,15 +47,16 @@ public class SearchConfigurationWebHandlers {
         boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
         if(!isSysSchemaExist){
             URL url = rc.getServletContext().getResource(CONFIG_PATH);
-            return webResponseBuilder.success(Resources.toString(url, Charsets.UTF_8));
+            return webResponseBuilder.success(mapIt("content",Resources.toString(url, Charsets.UTF_8)));
         }
         List<Map> result = searchConfigurationDao.getSearchConfig();
         if (result.size() == 0) {
             URL url = rc.getServletContext().getResource(CONFIG_PATH);
-            return webResponseBuilder.success(Resources.toString(url, Charsets.UTF_8));
+            return webResponseBuilder.success(mapIt("content",Resources.toString(url, Charsets.UTF_8)));
 
         }else{
-            return webResponseBuilder.success(result.get(0).get("val_text"));
+            return webResponseBuilder.success(mapIt("content",result.get(0).get("val_text"),
+                    "errorMsg",searchConfigurationManager.getErrorMsg((String)result.get(0).get("val_text"))));
         }
 
     }
@@ -68,8 +70,9 @@ public class SearchConfigurationWebHandlers {
 
     @WebPost("/saveSearchConfig")
     public WebResponse saveSearchConfig(@WebParam("content") String content, RequestContext rc) throws IOException {
-        if(!searchConfigurationManager.isValid(content)){
-            return webResponseBuilder.success(mapIt("valid",false));
+        String errorMsg = searchConfigurationManager.getErrorMsg(content);
+        if(!Strings.isNullOrEmpty(errorMsg)){
+            return webResponseBuilder.success(mapIt("valid",false,"errorMsg",errorMsg));
         }
         searchConfigurationDao.saveSearchConfig(content);
         return webResponseBuilder.success(mapIt("valid", true));
@@ -91,8 +94,9 @@ public class SearchConfigurationWebHandlers {
     @WebPost("/saveOrgSearchConfig")
     public WebResponse saveOrgSearchConfig(@WebParam("orgName") String orgName,
                                            @WebParam("content") String content, RequestContext rc) throws Exception {
-        if(!searchConfigurationManager.isValid(content)){
-            return webResponseBuilder.success(mapIt("valid",false));
+        String errorMsg = searchConfigurationManager.getErrorMsg(content);
+        if(!Strings.isNullOrEmpty(errorMsg)){
+            return webResponseBuilder.success(mapIt("valid",false,"errorMsg",errorMsg));
         }
         searchConfigurationDao.saveOrgSearchConfig(orgName, content);
 
