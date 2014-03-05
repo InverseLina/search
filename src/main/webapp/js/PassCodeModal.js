@@ -35,10 +35,10 @@
                         view.$el.find(".alert").show();
                     }
 
-                    app.getJsonData(contextPath + "/validatePasscode",
+                    app.getJsonData(contextPath + "/passcode",
                         {passcode: passcode}, {fail: fail ,type: "Post"}).done(function(res){
                            window.location.href= contextPath + "/";
-                    })
+                    });
                 },
                 "btap;.login":function(event){
                 	this.$el.trigger("validate");

@@ -121,22 +121,15 @@ public class PerfWebHandlers {
 
     @WebGet("/perf/get-user-pref")
     public WebResponse getUserPref (@WebUser Map user) throws SQLException {
-        if(user != null){
-            try {
-
-              List<Map> prefs = daoHelper.executeQuery(orgHolder.getOrgName(),
-                        "select * from pref where name = ? and user_id = ?", "filter_order", user.get("id"));
-                if(prefs.size() == 1) {
-                    return webResponseBuilder.success(prefs.get(0));
-                }else{
-                    return webResponseBuilder.success(false);
-                }
-
-            } catch (Exception e) {
+        try {
+            List<Map> prefs = daoHelper.executeQuery(orgHolder.getOrgName(), "select * from pref where name = ? and user_id = ?", "filter_order", user.get("id"));
+            if (prefs.size() == 1) {
+                return webResponseBuilder.success(prefs.get(0));
+            } else {
                 return webResponseBuilder.success(false);
             }
-        }else{
-            return webResponseBuilder.fail("not login");
+        } catch (Exception e) {
+            return webResponseBuilder.success(false);
         }
     }
 

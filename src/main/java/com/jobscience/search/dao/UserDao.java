@@ -126,6 +126,7 @@ public class UserDao {
     public  String getSFIDbySF2(String signedRequest) {
         JSONObject map = (JSONObject) JsonUtil.toMapAndList(signedRequest);
         String orgId = (String) ((Map)((Map)map.get("context")).get("organization")).get("organizationId");
+        System.out.println(signedRequest);
         return orgId;
     }
 

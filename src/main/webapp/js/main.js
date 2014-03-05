@@ -98,7 +98,6 @@ app.defaultMenuSize = 5;
                 if(data.success === true){
                     dfd.resolve(data.result);
                 }else{
-//                    $(document).trigger("ON_ERROR", data);
                     data = $.extend({}, defaultError, data||{})
                     if(options.fail && $.isFunction(options.fail)){
                         dfd.fail(options.fail);

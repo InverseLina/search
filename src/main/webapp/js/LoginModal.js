@@ -27,7 +27,7 @@
                 "validate":function(event){
                 	var view = this;
                 	$.ajax({
-                		url:contextPath + "/admin/validate",
+                		url:contextPath + "/admin-login",
                 		type:"Post",
                 		data:{
                 			password:view.$el.find(":password").val()

@@ -73,13 +73,9 @@ public class SearchWebHandlers {
         }
         //for contact,use id,name,title,email,CreatedDate instead
         searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-        if(token==null||!token.containsKey("ctoken")){
-            return webResponseBuilder.fail().setErrorCode("Not Login").setErrorMessage("Not Login");
-        }else{
-            SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon,searchValues,(String)token.get("ctoken"),orgHolder.getCurrentOrg());
-            //WebResponse wr = WebResponse.success(searchResult);
-            return webResponseBuilder.success(searchResult);
-        }
+        SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon,searchValues,(String)token.get("ctoken"),orgHolder.getCurrentOrg());
+        //WebResponse wr = WebResponse.success(searchResult);
+        return webResponseBuilder.success(searchResult);
     }
     
     /**

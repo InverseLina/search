@@ -1,7 +1,8 @@
 <script>
-	if("${login?string("true","false")}"=="false"){
+
+	[#if (errorCode)?? ]
 		brite.display("LoginModal");
-	}else{
+	[#else]
 		brite.display("MainView","body",{type:"admin",uiFlags:app.uiFlags});
-	}
+	[/#if]
 </script>
