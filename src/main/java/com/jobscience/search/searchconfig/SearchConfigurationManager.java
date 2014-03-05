@@ -476,29 +476,4 @@ public class SearchConfigurationManager {
         }
         return n.getAttributes().getNamedItem(attributeName).getNodeValue();
     }
-    public static void main(String[] args) {
-        System.out.println(new SearchConfigurationManager().getErrorMsg("<searchconfig>"
-                + "<keyword><field table=\"jss_contact\" name=\"contactInfoTsv\" column=\"contact_tsv\" />"
-                + "     <field table=\"jss_contact\" name=\"contactResumeTsv\" column=\"resume_tsv\" /></keyword>"
-                +" <filter name=\"skill\" title=\"Skill\" filtertype=\"skill\">"
-                        +"     <field table=\"ts2__skill__c\" column=\"ts2__skill_name__c\" joinfrom=\"sfid\" jointo=\"ts2__contact__c\" slider=\"ts2__rating__c\">"
-                                +"        <joinslider table=\"ts2__assessment__c\" column=\"ts2__rating__c\" joincolumn=\"\"/>"
-                                        +"     </field>"
-                                        +"  </filter>"
-                                        +"  <filter name=\"education\" title=\"Education\" filtertype=\"education\">"
-                                                +"     <field table=\"ts2__education_history__c\" column=\"ts2__name__c\" joinfrom=\"sfid\" jointo=\"ts2__contact__c\"/>"
-                                                        +"  </filter>   "
-                                                        +"    <filter name=\"company\" title=\"Employer\" filtertype=\"company\">"
-                                                                +"     <field table=\"ts2__employment_history__c\" column=\"ts2__name__c\" joinfrom=\"sfid\" jointo=\"ts2__contact__c\"/>"
-                                                                        +"  </filter>   "
-                                                                        +"  <filter name=\"location\" title=\"Location\" filtertype=\"location\" show=\"false\">"
-                                                                                +"     <field table=\"jss_grouped_locations\" column=\"name\" />  </filter> "
-                + ""
-                + ""
-                + ""
-                + ""
-                + ""
-                + "</searchconfig>")
-        );
-    }
 }
