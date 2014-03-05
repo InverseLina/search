@@ -297,6 +297,7 @@
 			$(event.target).html("Creating...").prop("disabled",true);
 			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'jss_grouped_skills'},{type:'Post'}).done(function(data){
 				$(event.target).html("jss_grouped_skills Created").prop("disabled",true).addClass("btn-success");
+				refresh.call(view);
 			});
 		},
 		"click;.jss_grouped_educations":function(event){
@@ -304,6 +305,7 @@
 			$(event.target).html("Creating...").prop("disabled",true);
 			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'jss_grouped_educations'},{type:'Post'}).done(function(data){
 				$(event.target).html("jss_grouped_educations Created").prop("disabled",true).addClass("btn-success");
+				refresh.call(view);
 			});
 		},
 		"click;.jss_grouped_employers":function(event){
@@ -318,6 +320,7 @@
 			$(event.target).html("Creating...").prop("disabled",true);
 			app.getJsonData("/createExtraGrouped", {orgName:view.currentOrgName,tableName:'jss_grouped_locations'},{type:'Post'}).done(function(data){
 				$(event.target).html("jss_grouped_locations Created").prop("disabled",true).addClass("btn-success");
+				refresh.call(view);
 			});
 		},
 		"click;.fix-table":function(event){
@@ -496,6 +499,7 @@
 			app.getJsonData("/fixJssColumns",{orgName:view.currentOrgName},{type:"Post"}).done(function(result){
 				if(!result){
 					$btn.addClass("hide");
+					refresh.call(view);
 					view.$el.find(".jsstable-info").removeClass("alert-danger").addClass("alert-success").html("jss tables valid");
 				}
 			});
@@ -586,7 +590,9 @@
 						}else {
 							view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
 							view.$el.find(".extra").closest("tr").find(".alert-danger").addClass("hide");
-							if(result.jssTable){
+							if(result.jssTable&&result.jss_grouped_employers&&
+							   result.jss_grouped_skills&&result.jss_grouped_educations&&
+							   result.jss_grouped_locations){
 								view.$el.find(".fix-missing-columns").removeClass("hide");
 							}else{
 								view.$el.find(".fix-missing-columns").addClass("hide");
