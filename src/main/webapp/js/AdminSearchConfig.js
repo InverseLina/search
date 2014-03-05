@@ -17,8 +17,7 @@
                 app.getJsonData("getSearchConfig").done(function(result){
                     view.$el.find("textarea").val(result.content);
                     if(result.errorMsg){
-                    	view.$el.find(".alert").removeClass("hide")
-                		.removeClass("alert-success").addClass("alert-danger").html(result.errorMsg);
+                    	view.$el.trigger("DO_SHOW_MSG",{selector:".alert",msg:result.errorMsg,type:"error"});
                 		view.$el.find(".search-content").css("background","#ffdddd");
                     }
                 });
@@ -29,8 +28,7 @@
                     app.getJsonData("resetSearchConfig").done(function(result){
                         view.$el.find("textarea").val(result);
                         view.$el.find(".search-content").css("background","#ffffff");
-                		view.$el.find(".alert").addClass("alert-success").removeClass("hide")
-                		.removeClass("alert-danger").html("search config has been reset successfully.");
+                		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"search config has been reset successfully.",type:"success"});
                     });
                 },
                 "submit; form":function(event){
@@ -40,14 +38,11 @@
                     var content = view.$el.find("form textarea").val();
                     app.getJsonData("saveSearchConfig",{content:content} ,"Post").done(function(result){
                     	if(!result.valid){
-                    		view.$el.find(".alert").removeClass("hide")
-                    		.removeClass("alert-success").addClass("alert-danger").html(result.errorMsg);
                     		view.$el.find(".search-content").css("background","#ffdddd");
-                     		//alert("The search config xml has something incorrect.");
+                    		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:result.errorMsg,type:"error"});
                      	}else{
                     		view.$el.find(".search-content").css("background","#ffffff");
-                    		view.$el.find(".alert").addClass("alert-success").removeClass("hide")
-                    		.removeClass("alert-danger").html("search config has been saved successfully.");
+                    		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"Values saved successfully",type:"success"});
                      	}
                     })
                 }

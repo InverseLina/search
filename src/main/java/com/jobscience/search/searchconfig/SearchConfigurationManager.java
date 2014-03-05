@@ -311,149 +311,149 @@ public class SearchConfigurationManager {
         return e;
     }
     
-    public String getErrorMsg(String content){
+    public String getErrorMsg(String content,boolean isOrg){
         String errorMsg = "";
         if(content!=null){
             try{
-            DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document document = db.parse(new ByteArrayInputStream(content.getBytes()));
-            NodeList sysKeywords = document.getElementsByTagName("keyword");
-            
-            //handle for keywords
-            if(sysKeywords.getLength()==0){
-                errorMsg = "Missing keyword element.";
-            }else{
-                NodeList keywordFields = sysKeywords.item(0).getChildNodes();
-                boolean contactTsv = false,resumeTsv = false;
-                for(int i=0,j=keywordFields.getLength();i<j;i++){
-                    Node keywordField = keywordFields.item(i);
-                    if(keywordField.getNodeType()==1){
-                       String val = keywordField.getAttributes().getNamedItem("name").getNodeValue();
-                       if("contactInfoTsv".equals(val)){
-                           contactTsv = true;
-                       }
-                       if("contactResumeTsv".equals(val)){
-                           resumeTsv = true;
-                       }
+                DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                Document document = db.parse(new ByteArrayInputStream(content.getBytes()));
+                if(!isOrg){
+                    NodeList sysKeywords = document.getElementsByTagName("keyword");
+                    //handle for keywords
+                    if(sysKeywords.getLength()==0){
+                        errorMsg = "Missing keyword element.";
+                    }else{
+                        NodeList keywordFields = sysKeywords.item(0).getChildNodes();
+                        boolean contactTsv = false,resumeTsv = false;
+                        for(int i=0,j=keywordFields.getLength();i<j;i++){
+                            Node keywordField = keywordFields.item(i);
+                            if(keywordField.getNodeType()==1){
+                               String val = keywordField.getAttributes().getNamedItem("name").getNodeValue();
+                               if("contactInfoTsv".equals(val)){
+                                   contactTsv = true;
+                               }
+                               if("contactResumeTsv".equals(val)){
+                                   resumeTsv = true;
+                               }
+                            }
+                        }
+                        if(!contactTsv&&!resumeTsv){
+                            errorMsg="Missing contactInfoTsv and contactResumeTsv keyword field.";
+                        }else if(!contactTsv){
+                            errorMsg="Missing contactInfoTsv keyword field.";
+                        }else if(!resumeTsv){
+                            errorMsg="Missing contactResumeTsv keyword field.";
+                        }
                     }
-                }
-                if(!contactTsv&&!resumeTsv){
-                    errorMsg="Missing contactInfoTsv and contactResumeTsv keyword field.";
-                }else if(!contactTsv){
-                    errorMsg="Missing contactInfoTsv keyword field.";
-                }else if(!resumeTsv){
-                    errorMsg="Missing contactResumeTsv keyword field.";
-                }
-            }
-            //handle filter
-            NodeList filterNodes = document.getElementsByTagName("filter");
-            boolean skillFilter = false,educationFilter = false,locationFilter = false,companyFilter = false;
-            for(int i=0,j=filterNodes.getLength();i<j;i++){
-                Node filterField = filterNodes.item(i);
-                if(filterField.getNodeType()==1&&checkAttribute(filterField, "filtertype")){
-                   String val = filterField.getAttributes().getNamedItem("filtertype").getNodeValue();
-                   if("skill".equals(val)){
-                       skillFilter = true;
-                   }
-                   if("education".equals(val)){
-                       educationFilter = true;
-                   }
-                   if("location".equals(val)){
-                       locationFilter = true;
-                   }
-                   if("company".equals(val)){
-                       companyFilter = true;
-                   }
-                   for(int m=0,n=filterField.getChildNodes().getLength();m<n;m++){
-                       Node fieldNode = filterField.getChildNodes().item(m);
-                       if(fieldNode.getNodeType()==1){
-                           if(!checkAttribute(fieldNode,"table")){
-                               errorMsg="Missing table attribute for "+val+" filter field";
-                           }
-                           if(!checkAttribute(fieldNode,"column")){
-                               errorMsg="Missing column attribute for "+val+" filter field";
-                           }
-                           if(!"location".equals(val)){
-                               if(!checkAttribute(fieldNode,"joinfrom")){
-                                   errorMsg="Missing joinfrom attribute for "+val+" filter field";
-                               }
-                               if(!checkAttribute(fieldNode,"table")){
-                                   errorMsg="Missing jointo attribute for "+val+" filter field";
-                               }
-                           }
+                    //handle filter
+                    NodeList filterNodes = document.getElementsByTagName("filter");
+                    boolean skillFilter = false,educationFilter = false,locationFilter = false,companyFilter = false;
+                    for(int i=0,j=filterNodes.getLength();i<j;i++){
+                        Node filterField = filterNodes.item(i);
+                        if(filterField.getNodeType()==1&&checkAttribute(filterField, "filtertype")){
+                           String val = filterField.getAttributes().getNamedItem("filtertype").getNodeValue();
                            if("skill".equals(val)){
-                               if(!checkAttribute(fieldNode,"slider")){
-                                   errorMsg="Missing slider attribute for "+val+" filter field";
+                               skillFilter = true;
+                           }
+                           if("education".equals(val)){
+                               educationFilter = true;
+                           }
+                           if("location".equals(val)){
+                               locationFilter = true;
+                           }
+                           if("company".equals(val)){
+                               companyFilter = true;
+                           }
+                           for(int m=0,n=filterField.getChildNodes().getLength();m<n;m++){
+                               Node fieldNode = filterField.getChildNodes().item(m);
+                               if(fieldNode.getNodeType()==1){
+                                   if(!checkAttribute(fieldNode,"table")){
+                                       errorMsg="Missing table attribute for "+val+" filter field";
+                                   }
+                                   if(!checkAttribute(fieldNode,"column")){
+                                       errorMsg="Missing column attribute for "+val+" filter field";
+                                   }
+                                   if(!"location".equals(val)){
+                                       if(!checkAttribute(fieldNode,"joinfrom")){
+                                           errorMsg="Missing joinfrom attribute for "+val+" filter field";
+                                       }
+                                       if(!checkAttribute(fieldNode,"table")){
+                                           errorMsg="Missing jointo attribute for "+val+" filter field";
+                                       }
+                                   }
+                                   if("skill".equals(val)){
+                                       if(!checkAttribute(fieldNode,"slider")){
+                                           errorMsg="Missing slider attribute for "+val+" filter field";
+                                       }
+                                   }
                                }
                            }
-                       }
-                   }
-                }
-            }
-                
-            StringBuilder sb = new StringBuilder();
-            if(!skillFilter){
-                sb.append("skill,");
-            }
-            if(!companyFilter){
-                sb.append("company,");
-            }
-            if(!locationFilter){
-                sb.append("location,");
-            }
-            if(!educationFilter){
-                sb.append("education,");
-            }
-            if(sb.length()>0){
-                errorMsg = "Missing filters : "+sb.deleteCharAt(sb.length()-1).toString();
-            }
-            
-            //handle contact
-            NodeList contactFiler = document.getElementsByTagName("contact");
-            if(contactFiler.getLength()==0){
-                errorMsg = "Missing contact element.";
-            }else{
-                NodeList contactFields = contactFiler.item(0).getChildNodes();
-                Map columns = mapIt("id",1,"email",1,"name",1,"sfid",1,
-                        "title",1,"createddate",1,"resume",1,"mailingpostalcode",1);
-                for(int i=0,j=contactFields.getLength();i<j;i++){
-                    Node contactField = contactFields.item(i);
-                    if(contactField.getNodeType()==1){
-                        if("id".equals(getVal(contactField, "name"))){
-                            columns.remove("id");
-                        }
-                        if("email".equals(getVal(contactField, "name"))){
-                            columns.remove("email");
-                        }
-                        if("name".equals(getVal(contactField, "name"))){
-                            columns.remove("name");
-                        }
-                        if("sfid".equals(getVal(contactField, "name"))){
-                            columns.remove("sfid");
-                        }
-                        if("title".equals(getVal(contactField, "name"))){
-                            columns.remove("title");
-                        }
-                        if("createddate".equals(getVal(contactField, "name"))){
-                            columns.remove("createddate");
-                        }
-                        if("resume".equals(getVal(contactField, "name"))){
-                            columns.remove("resume");
-                        }
-                        if("mailingpostalcode".equals(getVal(contactField, "name"))){
-                            columns.remove("mailingpostalcode");
                         }
                     }
-                }
-                if(columns.keySet().size()>0){
-                    errorMsg="Missing contact fields: ";
-                    for(Object s:columns.keySet()){
-                        errorMsg+=s+",";
+                        
+                    StringBuilder sb = new StringBuilder();
+                    if(!skillFilter){
+                        sb.append("skill,");
                     }
-                    errorMsg = errorMsg.substring(0,errorMsg.length()-1);
-                }
-            }
-            
+                    if(!companyFilter){
+                        sb.append("company,");
+                    }
+                    if(!locationFilter){
+                        sb.append("location,");
+                    }
+                    if(!educationFilter){
+                        sb.append("education,");
+                    }
+                    if(sb.length()>0){
+                        errorMsg = "Missing filters : "+sb.deleteCharAt(sb.length()-1).toString();
+                    }
+                    
+                    //handle contact
+                    NodeList contactFiler = document.getElementsByTagName("contact");
+                    if(contactFiler.getLength()==0){
+                        errorMsg = "Missing contact element.";
+                    }else{
+                        NodeList contactFields = contactFiler.item(0).getChildNodes();
+                        Map columns = mapIt("id",1,"email",1,"name",1,"sfid",1,
+                                "title",1,"createddate",1,"resume",1,"mailingpostalcode",1);
+                        for(int i=0,j=contactFields.getLength();i<j;i++){
+                            Node contactField = contactFields.item(i);
+                            if(contactField.getNodeType()==1){
+                                if("id".equals(getVal(contactField, "name"))){
+                                    columns.remove("id");
+                                }
+                                if("email".equals(getVal(contactField, "name"))){
+                                    columns.remove("email");
+                                }
+                                if("name".equals(getVal(contactField, "name"))){
+                                    columns.remove("name");
+                                }
+                                if("sfid".equals(getVal(contactField, "name"))){
+                                    columns.remove("sfid");
+                                }
+                                if("title".equals(getVal(contactField, "name"))){
+                                    columns.remove("title");
+                                }
+                                if("createddate".equals(getVal(contactField, "name"))){
+                                    columns.remove("createddate");
+                                }
+                                if("resume".equals(getVal(contactField, "name"))){
+                                    columns.remove("resume");
+                                }
+                                if("mailingpostalcode".equals(getVal(contactField, "name"))){
+                                    columns.remove("mailingpostalcode");
+                                }
+                            }
+                        }
+                        if(columns.keySet().size()>0){
+                            errorMsg="Missing contact fields: ";
+                            for(Object s:columns.keySet()){
+                                errorMsg+=s+",";
+                            }
+                            errorMsg = errorMsg.substring(0,errorMsg.length()-1);
+                        }
+                    }
+              }
             }catch(Exception e){
                 errorMsg="The search config xml has grammer issues.";
             }

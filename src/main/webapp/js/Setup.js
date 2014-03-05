@@ -268,10 +268,10 @@
 //    	        configs["saleforce.callBackUrl"]=view.$el.find("[name='saleforce.callBackUrl']").val();
 //              }
     	      values["orgId"]=-1;
-    	      console.log(configs);
     	      values.configsJson = JSON.stringify(configs);
     	      app.getJsonData("/config/save", values,"Post").done(function(data){
-    	          window.location.href = window.location.href;
+    	          //window.location.href = window.location.href;
+    	    	  view.$el.trigger("DO_SHOW_MSG",{selector:".config-alert",msg:"Values saved successfully",type:"success"});
     	  });
     	}
     }

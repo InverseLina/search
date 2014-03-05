@@ -41,6 +41,19 @@
 	   },
 	    "DO_SHOW_ORG_TAB": function(){
 	    	showOrgTab.call(this);
+	    },
+	    "DO_SHOW_MSG":function(event,opts){
+	    	var $place = $(opts.selector);
+	    	console.log($place);
+	    	if(opts.type=="success"){
+	    		$place.addClass("alert-success").removeClass("alert-danger")
+	    		.removeClass("hide").removeClass("out").addClass("in").html(opts.msg);
+	    		setTimeout(function(){
+	    			$place.addClass("out").removeClass("in");
+	    		},2000);
+	    	}else{
+	    		$place.removeClass("alert-success").removeClass("out").addClass("in").addClass("alert-danger").removeClass("hide").html(opts.msg);
+	    	}
 	    }
 	 }
     // --------- /Events--------- //

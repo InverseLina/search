@@ -23,7 +23,11 @@
 				view.orgId = -1;
 				view.$el.find(".extra,.resume,.index").prop("disabled",true);
 				app.getJsonData("getOrgSearchConfig").done(function(result){
-						view.$el.find("textarea[name='searchConfig']").val(result);
+					view.$el.find("textarea[name='searchConfig']").val(result.content);
+					if(result.errorMsg){
+                    	view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:result.errorMsg,type:"error"});
+                		view.$el.find(".search-content").css("background","#ffdddd");
+                    }
 				});
 				view.$el.find("button.saveSearchConfig, button.resetSearchConfig").attr("disable", "true");
 			}else if(app.pathInfo.paths[1] == "edit"){
@@ -34,7 +38,11 @@
 							view.$navTabs.find('li:last').before(li);
 							view.$el.trigger("WRONGINDEXES");
 							app.getJsonData("getOrgSearchConfig", {orgName: view.orgName}).done(function (result) {
-									view.$el.find("textarea[name='searchConfig']").val(result);
+									view.$el.find("textarea[name='searchConfig']").val(result.content);
+									if(result.errorMsg){
+				                    	view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:result.errorMsg,type:"error"});
+				                		view.$el.find(".search-content").css("background","#ffdddd");
+				                    }
 							});
 					});
 			}
@@ -62,6 +70,7 @@
 		},
 		"click;.save":function(event){
 			var view = this;
+			var $btn = $(event.currentTarget);
 			var values = {};
 				doValidate.call(view);
 				if (view.validation) {
@@ -95,7 +104,7 @@
 						values["sfid"] = view.$el.find("[name='sfid']").val();
 
 						app.getJsonData("/org/save", values, "Post").done(function(data) {
-							window.location.href = contextPath + "/admin#organization/edit/"+data;
+                    		view.$el.trigger("DO_SHOW_MSG",{selector:$(".alert",$btn.closest(".btns")),msg:"Values saved successfully",type:"success"});
 						});
 					});
 				}
@@ -661,10 +670,14 @@
 						event.preventDefault();
 						var view = this;
 						var content = view.$el.find("textarea[name='searchConfig']").val();
-						app.getJsonData("saveOrgSearchConfig", {orgName:view.orgName, content:content}, "Post").done(function(data){
-							if(!data.valid){
-								alert("The search config xml has something incorrect.");
-							}
+						app.getJsonData("saveOrgSearchConfig", {orgName:view.orgName, content:content}, "Post").done(function(result){
+							if(!result.valid){
+	                    		view.$el.find(".search-content").css("background","#ffdddd");
+	                    		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:result.errorMsg,type:"error"});
+	                     	}else{
+	                    		view.$el.find(".search-content").css("background","#ffffff");
+	                    		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"Values saved successfully",type:"success"});
+	                     	}
 						});
 						return false;
 				},
@@ -672,6 +685,9 @@
 						var view = this;
 						app.getJsonData("resetOrgSearchConfig", {orgName:view.orgName}).done(function(result){
 								view.$el.find("textarea[name='searchConfig']").val(result);
+								view.$el.find(".search-content").css("background","#ffffff");
+			                	view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"search config has been reset successfully.",type:"success"});
+			                    
 						});
 				},
 				"click;.disable-indexes":function(event){

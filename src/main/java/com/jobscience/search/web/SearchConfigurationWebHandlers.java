@@ -56,7 +56,7 @@ public class SearchConfigurationWebHandlers {
 
         }else{
             return webResponseBuilder.success(mapIt("content",result.get(0).get("val_text"),
-                    "errorMsg",searchConfigurationManager.getErrorMsg((String)result.get(0).get("val_text"))));
+                    "errorMsg",searchConfigurationManager.getErrorMsg((String)result.get(0).get("val_text"),false)));
         }
 
     }
@@ -70,7 +70,7 @@ public class SearchConfigurationWebHandlers {
 
     @WebPost("/saveSearchConfig")
     public WebResponse saveSearchConfig(@WebParam("content") String content, RequestContext rc) throws IOException {
-        String errorMsg = searchConfigurationManager.getErrorMsg(content);
+        String errorMsg = searchConfigurationManager.getErrorMsg(content,false);
         if(!Strings.isNullOrEmpty(errorMsg)){
             return webResponseBuilder.success(mapIt("valid",false,"errorMsg",errorMsg));
         }
@@ -80,8 +80,9 @@ public class SearchConfigurationWebHandlers {
 
     @WebGet("/getOrgSearchConfig")
     public WebResponse getOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
-        return webResponseBuilder.success(searchConfigurationManager.getOrgConfig(orgName));
-
+        String content = searchConfigurationManager.getOrgConfig(orgName);
+        String errorMsg = searchConfigurationManager.getErrorMsg(content,true);
+        return webResponseBuilder.success(mapIt("content",content,"errorMsg",errorMsg));
     }
 
     @WebGet("/resetOrgSearchConfig")
@@ -94,7 +95,7 @@ public class SearchConfigurationWebHandlers {
     @WebPost("/saveOrgSearchConfig")
     public WebResponse saveOrgSearchConfig(@WebParam("orgName") String orgName,
                                            @WebParam("content") String content, RequestContext rc) throws Exception {
-        String errorMsg = searchConfigurationManager.getErrorMsg(content);
+        String errorMsg = searchConfigurationManager.getErrorMsg(content,true);
         if(!Strings.isNullOrEmpty(errorMsg)){
             return webResponseBuilder.success(mapIt("valid",false,"errorMsg",errorMsg));
         }
