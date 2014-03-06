@@ -10,6 +10,7 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.oauth.ForceDotComApiManager;
@@ -31,6 +32,7 @@ public class OrgConfigWebHandlers {
   private WebResponseBuilder webResponseBuilder;
   
   @WebPost("/org/save")
+  @RequireAdmin
   public WebResponse saveEntity(@WebParam("name")String name,@WebParam("schemaname")String schemaname,
                                 @WebParam("sfid")String sfid,@WebParam("orgId")String orgId,@WebParam("id")String id) throws SQLException{
       Map<String,String> params = new HashMap<String,String>();
@@ -49,17 +51,20 @@ public class OrgConfigWebHandlers {
   }
   
   @WebGet("/org/get/{id}")
+  @RequireAdmin
   public WebResponse getEntity(@WebParam("id")String id) throws SQLException{
       return webResponseBuilder.success(orgConfigDao.getOrg(id));
   }
   
   @WebPost("/org/del/{id}")
+  @RequireAdmin
   public WebResponse delEntity(@WebParam("id")String id) throws SQLException{
       orgConfigDao.deleteOrg(id);
       return webResponseBuilder.success();
   }
   
   @WebGet("/org/list")
+  @RequireAdmin
   public WebResponse listEntity(){
       List list = orgConfigDao.getOrgsList(null);
       return webResponseBuilder.success(list);

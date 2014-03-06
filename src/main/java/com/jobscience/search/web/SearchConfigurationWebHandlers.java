@@ -16,6 +16,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.SearchConfigurationDao;
 import com.jobscience.search.searchconfig.SearchConfigurationManager;
@@ -43,6 +44,7 @@ public class SearchConfigurationWebHandlers {
     }
 
     @WebGet("/getSearchConfig")
+    @RequireAdmin
     public WebResponse getSearchConfig(RequestContext rc) throws IOException {
         boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
         if(!isSysSchemaExist){
@@ -62,6 +64,7 @@ public class SearchConfigurationWebHandlers {
     }
 
     @WebGet("/resetSearchConfig")
+    @RequireAdmin
     public WebResponse resetSearchConfig(RequestContext rc) throws IOException {
         searchConfigurationDao.resetSearchConfig();
         URL url = rc.getServletContext().getResource(CONFIG_PATH);
@@ -69,6 +72,7 @@ public class SearchConfigurationWebHandlers {
     }
 
     @WebPost("/saveSearchConfig")
+    @RequireAdmin
     public WebResponse saveSearchConfig(@WebParam("content") String content, RequestContext rc) throws IOException {
         String errorMsg = searchConfigurationManager.getErrorMsg(content,false);
         if(!Strings.isNullOrEmpty(errorMsg)){
@@ -79,6 +83,7 @@ public class SearchConfigurationWebHandlers {
     }
 
     @WebGet("/getOrgSearchConfig")
+    @RequireAdmin
     public WebResponse getOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
         String content = searchConfigurationManager.getOrgConfig(orgName);
         String errorMsg = searchConfigurationManager.getErrorMsg(content,true);
@@ -86,6 +91,7 @@ public class SearchConfigurationWebHandlers {
     }
 
     @WebGet("/resetOrgSearchConfig")
+    @RequireAdmin
     public WebResponse resetOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
 
         searchConfigurationDao.resetOrgSearchConfig(orgName);
@@ -93,6 +99,7 @@ public class SearchConfigurationWebHandlers {
     }
 
     @WebPost("/saveOrgSearchConfig")
+    @RequireAdmin
     public WebResponse saveOrgSearchConfig(@WebParam("orgName") String orgName,
                                            @WebParam("content") String content, RequestContext rc) throws Exception {
         String errorMsg = searchConfigurationManager.getErrorMsg(content,true);

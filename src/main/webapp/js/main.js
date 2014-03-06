@@ -70,8 +70,8 @@ app.defaultMenuSize = 5;
      * A method about use ajax to get json data
      */
     var defaultOption = {dataType:"json", async: true,type:"Get"};
-    var defaultError = {errorCode: "NO_ORG",
-        errorMessage: "No organization selected, please, authenticate via SalesForce.com"
+    var defaultError = {errorCode: "ERROR",
+        errorMessage: "Unknown error."
     }
 
     app.getJsonData = function(url, params, options) {

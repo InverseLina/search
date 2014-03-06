@@ -15,6 +15,7 @@ import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
+import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
@@ -46,6 +47,7 @@ public class PerfWebHandlers {
      * @return
      */
     @WebGet("/perf/search")
+    @RequireAdmin
     public WebResponse search(@WebParam("searchValues") String searchValues,
                             @WebParam("searchColumns") String searchColumns,@WebParam("org") String org) {
         String orderCon = "";
@@ -79,6 +81,7 @@ public class PerfWebHandlers {
      * @throws SQLException
      */
     @WebGet("/perf/autocomplete")
+    @RequireAdmin
     public WebResponse autocomplete(@WebParam("searchValues") String searchValues, @WebParam("type") String type,
                             @WebParam("queryString") String queryString,
                             @WebParam("orderByCount") Boolean orderByCount, @WebParam("min") String min,
@@ -110,6 +113,7 @@ public class PerfWebHandlers {
     }
 
     @WebGet("/perf/checkStatus")
+    @RequireAdmin
     public WebResponse checkStatus() throws SQLException {
         try {
             orgHolder.getOrgName();
@@ -134,6 +138,7 @@ public class PerfWebHandlers {
     }
 
     @WebPost("/perf/save-user-pref")
+    @RequireAdmin
     public WebResponse saveUserPref (@WebUser Map user, @WebParam("value") String value, RequestContext rc) throws SQLException {
         if (user != null && value.trim().length() > 0) {
             try {

@@ -2,6 +2,7 @@ package com.jobscience.search.web;
 
 import java.nio.charset.Charset;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -102,6 +103,8 @@ public class AppAuthRequest implements AuthRequest {
             String codeSha1 = Hashing.sha1().hashString(code,Charset.forName("UTF-8")).toString();
             rc.setCookie(COOKIE_PASSCODE, codeSha1);
             return webResponseBuilder.success(true);
+        }else{
+            rc.removeCookie(COOKIE_PASSCODE);
         }
         return webResponseBuilder.fail("passcode error");
     }
@@ -114,13 +117,15 @@ public class AppAuthRequest implements AuthRequest {
             rc.setCookie(COOKIE_ADMIN_TOKEN, passwordSha1);
             return webResponseBuilder.success();
         } else {
-            return webResponseBuilder.fail();
+            rc.removeCookie(COOKIE_ADMIN_TOKEN);
         }
+        return webResponseBuilder.fail();
     }
 
     @WebModelHandler(startsWith = "/")
     public void home(@WebModel Map m, @WebUser Map user, RequestContext rc) {
-		if (!rc.getPathInfo().equals("/admin")){
+        
+		if (!rc.getPathInfo().startsWith("/admin")){
 		    String orgName = null;
 		    boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");
 		    m.put("sys_schema", isSysSchemaExist);
@@ -156,28 +161,36 @@ public class AppAuthRequest implements AuthRequest {
 //    				}
 //    			}
             }
+		}else{
+		    //FIXME: for now do check here, cause the expection catcher just for rest methods.
+	        boolean isAdmin = false;
+	        if(user != null && user.containsKey("isAdmin")){
+	            isAdmin = (Boolean) user.get("isAdmin");
+	        }
+	        
+	        if(!isAdmin){
+	            rc.getWebModel().put("errorCode", AuthCode.NO_ADMIN_ACCESS.toString());
+	            rc.getWebModel().put("errorMessage", "You have no privaliges to access for admin resources");
+	            rc.getWebModel().put("success", "false");
+	        }
 		}
     }
     
     private AuthToken authWebRequest(RequestContext rc){
         AuthToken authToken = null;
         String path = rc.getPathInfo();
-        if(path.startsWith("/admin")){
-            //FIXME:Hard code, although we are in canvas mode, just this request is sf-canvas
-            String codeSha1 = Hashing.sha1().hashString(passCode,Charset.forName("UTF-8")).toString();
-            rc.setCookie(COOKIE_PASSCODE, codeSha1);
+        String contextPath = rc.getContextPath();
+        if(path.equals("/admin")){
             String atoken = rc.getCookie(COOKIE_ADMIN_TOKEN);
-            if(Strings.isNullOrEmpty(atoken) || !atoken.equals(Hashing.sha1().hashString(configPassword,Charset.forName("UTF-8")).toString())){
-                rc.getWebModel().put("errorCode", AuthCode.NO_ADMIN_ACCESS.toString());
-                rc.getWebModel().put("errorMessage", "Have no rights to access /admin");
-                rc.getWebModel().put("success", "false");
+            if(!Strings.isNullOrEmpty(atoken) && atoken.equals(Hashing.sha1().hashString(configPassword,Charset.forName("UTF-8")).toString())){
+                Map adminUser = new HashMap();
+                adminUser.put("isAdmin", true);
+                authToken = new AuthToken();
+                authToken.setUser(adminUser);
+            }else{
+                rc.removeCookie(COOKIE_ADMIN_TOKEN);
             }
-            return null;
         }else if(path.equals("/sf-canvas")){
-            //FIXME:Hard code, although we are in canvas mode, just this request is sf-canvas
-            String codeSha1 = Hashing.sha1().hashString(passCode,Charset.forName("UTF-8")).toString();
-            rc.setCookie(COOKIE_PASSCODE, codeSha1);
-            
             String signedRequest = rc.getParam("signed_request");
 
             if (signedRequest != null) {
@@ -201,6 +214,10 @@ public class AppAuthRequest implements AuthRequest {
                             rc.getWebModel().put("errorCode", "CANVAS_AUTH_ERROR");
                             rc.getWebModel().put("errorMessage", "Cannot Access Org SFID from SFCanvas does not match JSS Org SFID");
                             rc.getWebModel().put("success", "false");
+                        }else{
+                            Map user = getUserFromCToken(rc);
+                            authToken = new AuthToken();
+                            authToken.setUser(user);
                         }
                     } catch (Exception e) {
                         rc.getWebModel().put("errorCode", "CANVAS_AUTH_ERROR");
@@ -213,7 +230,7 @@ public class AppAuthRequest implements AuthRequest {
                 rc.getWebModel().put("errorMessage", "The signedRequest can't be empty.");
                 rc.getWebModel().put("success", "false");
             }
-        }else{
+        }else if(path.equals(contextPath + "/") || path.equals(rc.getContextPath())){
             if (passCode != null && passCode.length() > 0 ) {
                 String pcode = rc.getCookie(COOKIE_PASSCODE);
                 if (pcode == null || !pcode.equals(Hashing.sha1().hashString(passCode,Charset.forName("UTF-8")).toString())) {
@@ -222,34 +239,30 @@ public class AppAuthRequest implements AuthRequest {
                     rc.getWebModel().put("success", "false");
                     return null;
                 }
+                
+                Map user = getOrCreateUserFromCToken(rc);
+                
+                authToken = new AuthToken();
+                authToken.setUser(user);
             }
-    
-            String contextPath = rc.getContextPath();
-            boolean isRootUrl = path.equals(contextPath + "/") || path.equals(rc.getContextPath()) ? true : false;
-            String ctoken = rc.getCookie(COOKIE_ORG_USER_TOKEN);
+            
+            
+        }else{
             try {
-                Map user = null;
+                Map user = getUserFromCToken(rc);
                 
-                if (ctoken != null) {
-                    user = userCache.getIfPresent(ctoken);
+                if(user == null){
+                    rc.removeCookie(COOKIE_ORG_USER_TOKEN);
                 }
                 
-                if (user == null) {
-                    boolean isUserExist = false;
-                    if (orgHolder.getOrgName() != null) {
-                        dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
+                String atoken = rc.getCookie(COOKIE_ADMIN_TOKEN);
+                if(atoken != null){
+                    if(user == null){
+                        user = new HashMap();
                     }
-                    if (isUserExist) {
-                        user = userDao.getUserByToken(ctoken);
-                    }
-                }
-                
-                if(isRootUrl){
-                    ctoken = userDao.buildCToken(null);
-                    userDao.insertUser(null, ctoken, 0l, null);
-                    rc.setCookie(COOKIE_ORG_USER_TOKEN, ctoken);
-                    user = userDao.getUserByToken(ctoken);
-                    updateCache(user);
+                    user.put("isAdmin", true);
+                }else{
+                    rc.removeCookie(COOKIE_ADMIN_TOKEN);
                 }
                 
                 if(user != null){
@@ -259,12 +272,65 @@ public class AppAuthRequest implements AuthRequest {
                 
             } catch (Exception e) {
                 rc.removeCookie(COOKIE_ORG_USER_TOKEN);
-                log.warn("add user fail");
+                log.warn("Does not have user token");
             }
         }
     
         return authToken;
     }
+    
+    private Map getOrCreateUserFromCToken(RequestContext rc){
+        Map user = getUserFromCToken(rc);
+        
+        try{
+            if(user == null){
+                String ctoken = userDao.buildCToken(null);
+                userDao.insertUser(null, ctoken, 0l, null);
+                rc.setCookie(COOKIE_ORG_USER_TOKEN, ctoken);
+                user = userDao.getUserByToken(ctoken);
+                updateCache(user);
+            }
+        }catch(Exception e){
+            rc.getWebModel().put("errorCode", "NO_ORG");
+            rc.getWebModel().put("errorMessage", "Organization is not correct, Please enter correct organization");
+            rc.getWebModel().put("success", "false");
+        }
+        
+        
+        
+        return user;
+    }
+    
+    private Map getUserFromCToken(RequestContext rc){
+        Map user = null;
+        String ctoken = rc.getCookie(COOKIE_ORG_USER_TOKEN);
+        
+        if (ctoken != null) {
+            user = userCache.getIfPresent(ctoken);
+        }
+        
+        if (user == null) {
+            boolean isUserExist = false;
+            String orgName = null;
+            try{
+                orgName = orgHolder.getOrgName();
+                if (orgName != null) {
+                    dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
+                }
+                if (isUserExist) {
+                    user = userDao.getUserByToken(ctoken);
+                }
+            }catch(Exception e){
+                rc.getWebModel().put("errorCode", "NO_ORG");
+                rc.getWebModel().put("errorMessage", "Organization is not correct, Please enter correct organization");
+                rc.getWebModel().put("success", "false");
+            }
+            
+        }
+        
+        return user;
+    }
+    
 
 //    private void updateUserToken(ForceDotComApi.ForceDotComToken token) {
 //        try {
@@ -284,4 +350,6 @@ public class AppAuthRequest implements AuthRequest {
     public void updateCache(Map user){
         userCache.put((String)user.get(COOKIE_ORG_USER_TOKEN), user);
     }
+    
+    
 }

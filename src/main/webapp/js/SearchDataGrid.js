@@ -25,21 +25,7 @@
         });
 
         brite.display("ToolBar");
-        if(app.startError){
-           setTimeout(function(){
-           view.$el.find(".search-info").empty();
-            view.$el.find("input").attr("disabled", true);
-            if(app.startError.errorCode == "NO_PASSCODE"){
-                if($("body").bFindComponents("PassCodeModal").length ==0){
-                    brite.display("PassCodeModal");
-                }
-            }else{
-                brite.display("MessagePanel", ".search-result", {message: app.startError.errorMessage})
-            }
-
-            delete app.startError;
-           }, 100);
-        }
+        
         $(":text").placeholder();
     },
     // --------- /View Interface Implement--------- //
@@ -367,22 +353,14 @@
             view.showContentMessage("error",{title:title, detail:detail});
           }
       },
-      "ERROR_PROCESS": function (event, extra) {
-
-            var view = this;
-            view.$el.find(".search-info").empty();
-            view.$el.find("input").attr("disabled", true);
-            view.$el.find(".TabView").hide();
-            view.$el.find(".gridControls").hide();
-            if(extra.errorCode == "NO_PASSCODE"){
-                if($("body").bFindComponents("PassCodeModal").length ==0){
-                    brite.display("PassCodeModal");
-                }
-
-            }else {
-                brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
-            }
-        } ,
+      // "ERROR_PROCESS": function (event, extra) {
+            // var view = this;
+            // view.$el.find(".search-info").empty();
+            // view.$el.find("input").attr("disabled", true);
+            // view.$el.find(".TabView").hide();
+            // view.$el.find(".gridControls").hide();
+           	// brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
+        // } ,
       "CHANGE_TO_FAV_VIEW": function(event, extra){
           var view = this;
           view.$el.find(".tableContainer th").addClass("favFilter");

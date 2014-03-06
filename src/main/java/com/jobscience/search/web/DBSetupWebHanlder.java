@@ -10,6 +10,7 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.ContactTsvManager;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.IndexerManager;
@@ -35,6 +36,7 @@ public class DBSetupWebHanlder {
     private ContactTsvManager contactTsvManager;
     
     @WebPost("/createSysSchema")
+    @RequireAdmin
     public WebResponse createSysSchema(){
        try{
     	   dbSetupManager.createSysSchema();
@@ -46,6 +48,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/updateZipCode")
+    @RequireAdmin
     public WebResponse updateZipCode() {
         try{
         	dbSetupManager.updateZipCode();
@@ -58,6 +61,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/createExtraGrouped")
+    @RequireAdmin
     public WebResponse createExtraGrouped(@WebParam("orgName")String orgName,@WebParam("tableName")String tableName){
        try{
             return webResponseBuilder.success(dbSetupManager.createExtraGroup(orgName,tableName));
@@ -69,6 +73,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/checkSysSchema")
+    @RequireAdmin
     public WebResponse checkSysSchema (){
         try{
              return webResponseBuilder.success(dbSetupManager.getSysConfig());
@@ -82,6 +87,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/checkOrgSchema")
+    @RequireAdmin
     public WebResponse checkOrgSchema (@WebParam("org")String orgName,@WebParam("quick")Boolean quick){
         if(quick==null){
             quick = false;
@@ -96,6 +102,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/createExtraTables")
+    @RequireAdmin
     public WebResponse createExtraTables(@WebParam("orgName")String orgName) {
         try{
         	dbSetupManager.createExtraTables(orgName);
@@ -108,6 +115,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/createPgTrgm")
+    @RequireAdmin
     public WebResponse createExtraTables() {
         try{
         	dbSetupManager.createExtension("pg_trgm");
@@ -120,6 +128,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/createIndexColumns")
+    @RequireAdmin
     public WebResponse createIndexColumns(@WebParam("orgName")String orgName,@WebParam("contactEx")Boolean contactEx) {
         try{
             if(contactEx==null){
@@ -135,6 +144,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/getIndexColumnsStatus")
+    @RequireAdmin
     public WebResponse getIndexColumnsStatus(@WebParam("orgName")String orgName,@WebParam("contactEx")Boolean contactEx){
         if(contactEx==null){
             contactEx = false;
@@ -143,6 +153,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/createIndexResume")
+    @RequireAdmin
     public WebResponse createIndexResume(@WebParam("orgName")String orgName) {
     	 try{
     		 indexerManager.run(orgName);
@@ -153,6 +164,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/copySfid")
+    @RequireAdmin
     public WebResponse copySfid(@WebParam("orgName")String orgName) {
          try{
              sfidManager.run(orgName);
@@ -163,28 +175,33 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/getSfidStatus")
+    @RequireAdmin
     public WebResponse getSfidStatus(@WebParam("orgName")String orgName) {
         return webResponseBuilder.success(sfidManager.getStatus(orgName,false));
     }
     
     @WebPost("/stopCopySfid")
+    @RequireAdmin
     public WebResponse stopCopySfid(@WebParam("orgName")String orgName) {
         sfidManager.stop();
         return webResponseBuilder.success(sfidManager.getStatus(orgName,false));
     }
     
     @WebGet("/getResumeIndexStatus")
+    @RequireAdmin
     public WebResponse getStatus(@WebParam("orgName")String orgName) {
         return webResponseBuilder.success(indexerManager.getStatus(orgName,false));
     }
     
     @WebPost("/stopCreateIndexResume")
+    @RequireAdmin
     public WebResponse createIndesxResume(@WebParam("orgName")String orgName) {
     	indexerManager.stop();
         return webResponseBuilder.success(indexerManager.getStatus(orgName,false));
     }
     
     @WebPost("/createContactTsv")
+    @RequireAdmin
     public WebResponse createContactTsv(@WebParam("orgName")String orgName) {
          try{
              contactTsvManager.run(orgName);
@@ -195,22 +212,26 @@ public class DBSetupWebHanlder {
     }
     
     @WebGet("/getContactTsvStatus")
+    @RequireAdmin
     public WebResponse getContactTsvStatus(@WebParam("orgName")String orgName) {
         return webResponseBuilder.success(contactTsvManager.getStatus(orgName,false));
     }
     
     @WebPost("/stopCreateContactTsv")
+    @RequireAdmin
     public WebResponse stopCreateContactTsv(@WebParam("orgName")String orgName) {
         contactTsvManager.stop();
         return webResponseBuilder.success(contactTsvManager.getStatus(orgName,false));
     }
     
     @WebGet("/getWrongIndexes")
+    @RequireAdmin
     public WebResponse getWrongIndexes(@WebParam("orgName")String orgName){
         return webResponseBuilder.success(dbSetupManager.getWrongIndex(orgName));
     }
     
     @WebPost("/removeWrongIndexes")
+    @RequireAdmin
     public WebResponse removeWrongIndex(@WebParam("orgName")String orgName){
         try {
             return webResponseBuilder.success(dbSetupManager.removeWrongIndex(orgName));
@@ -222,17 +243,20 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/removeAllIndexes")
+    @RequireAdmin
     public WebResponse removeAllIndexes(@WebParam("orgName")String orgName){
         return webResponseBuilder.success(dbSetupManager.dropIndexes(orgName));
     }
     
     @WebPost("/dropExTables")
+    @RequireAdmin
     public WebResponse dropExTables(@WebParam("orgName")String orgName){
         dbSetupManager.dropExTables(orgName);
         return webResponseBuilder.success();
     }
     
     @WebPost("/computeCity")
+    @RequireAdmin
     public WebResponse computeCity(@WebParam("orgName")String orgName){
         try{
             dbSetupManager.computeCity();
@@ -243,6 +267,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/importCity")
+    @RequireAdmin
     public WebResponse importCity(@WebParam("orgName")String orgName){
         try{
             dbSetupManager.importCity();
@@ -253,6 +278,7 @@ public class DBSetupWebHanlder {
     }
    
     @WebPost("/fixJssTableNames")
+    @RequireAdmin
     public WebResponse fixJssTableNames(@WebParam("orgName")String orgName){
         try{
             dbSetupManager.fixJssTableNames(orgName);
@@ -263,6 +289,7 @@ public class DBSetupWebHanlder {
     }
     
     @WebPost("/fixJssColumns")
+    @RequireAdmin
     public WebResponse fixJssColumns(@WebParam("orgName")String orgName,@WebParam("sys")Boolean sys){
         if(sys==null){
             sys = false;

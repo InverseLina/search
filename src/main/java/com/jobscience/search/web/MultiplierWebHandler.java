@@ -7,6 +7,7 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.MultiplierManager;
 
 @Singleton
@@ -18,17 +19,20 @@ public class MultiplierWebHandler {
     private WebResponseBuilder webResponseBuilder;
     
     @WebPost("/multiplyData")
+    @RequireAdmin
     public WebResponse multiplyData(@WebParam("orgName")String orgName,
             @WebParam("times")Integer times,@WebParam("tableName")String tableName) throws SQLException{
         return webResponseBuilder.success(multiplierManager.multiplyData(times, orgName,tableName));
     }
     
     @WebGet("/getMultiplyStatus")
+    @RequireAdmin
     public WebResponse getStatus(){
         return webResponseBuilder.success(multiplierManager.getStatus());
     }
     
     @WebPost("/stopMultiply")
+    @RequireAdmin
     public WebResponse stopMultiply(){
         multiplierManager.stop();
         return webResponseBuilder.success();

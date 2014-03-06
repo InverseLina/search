@@ -12,6 +12,7 @@ import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
+import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.DaoHelper;
 
 @Singleton
@@ -26,6 +27,7 @@ public class TriggerTestWebHandlers {
 
     
     @WebGet("/test/getOrgs")
+    @RequireAdmin
     public WebResponse queryOrgs() {
 
     	List<Map> map = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select * from org");
@@ -33,6 +35,7 @@ public class TriggerTestWebHandlers {
     }
 
     @WebPost("/test/saveContact")
+    @RequireAdmin
     public WebResponse saveContact(RequestContext rc, @WebParam("org") String org,
                                    @WebParam("skills") String skills,  @WebParam("educations") String educations,
                                    @WebParam("companies") String companies) {
