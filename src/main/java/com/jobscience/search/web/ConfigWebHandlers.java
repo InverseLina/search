@@ -10,6 +10,7 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.organization.OrgContextManager;
 
@@ -25,6 +26,7 @@ public class ConfigWebHandlers {
     private WebResponseBuilder webResponseBuilder;
 
     @WebPost("/config/save")
+    @RequireAdmin
     public WebResponse saveConfig(@WebParam("configsJson") String configsJson,
                             @WebParam("orgId") Integer orgId) throws SQLException {
         Map paramConfigs = JsonUtil.toMapAndList(configsJson);
@@ -43,6 +45,7 @@ public class ConfigWebHandlers {
     }
 
     @WebGet("/config/get/{name}")
+    @RequireAdmin
     public WebResponse getConfig(@WebPath(2) String name,@WebParam("orgId") Integer orgId) throws SQLException {
         try {
             if(name == null){
@@ -55,6 +58,7 @@ public class ConfigWebHandlers {
             return webResponseBuilder.fail();
         }
     }
+    
     @WebGet("/config/getByName/{name}")
     public WebResponse getConfigByName(@WebPath(2) String name) throws Exception {
         return webResponseBuilder.success(configManager.getConfig(name,orgHolder.getId()));
