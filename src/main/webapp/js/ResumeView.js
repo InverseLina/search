@@ -47,8 +47,17 @@
           if (result.length > 0) {
         	  var resume = result[0]["ts2__text_resume__c"];
         	  var keyWord = app.ParamsControl.getQuery();
-        	  var reg = new RegExp("("+keyWord+")","gi");
-        	  resume = resume.replace(reg,"<span class=\"highlight\">$1</span>");
+        	  var keyWordsSplited ;
+        	  if(/^\s*\".+\"\s*$/.test(keyWord)){
+        		  keyWordsSplited = [keyWord.replace(/^\s*\"(.+)\"\s*$/,"$1")];
+        	  }else{
+        		  keyWordsSplited = keyWord.split(/\s+/);
+        	  }
+        	  for(var k in keyWordsSplited){
+	        	  var reg = new RegExp("("+keyWordsSplited[k]+")","gi");
+	        	  console.log(keyWordsSplited[k]);
+	        	  resume = resume.replace(reg,"<span class=\"highlight\">$1</span>");
+        	  }
               $content = $(render("ResumeView-content", {resume: resume}));
               $body.html("<pre>"+resume+"</pre>");
           } else {
