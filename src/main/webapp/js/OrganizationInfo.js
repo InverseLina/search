@@ -848,6 +848,7 @@
 
 		if(view.$el.find(".alert-error:not(.hide)").length>0){
 			view.validation=false;
+			view.$el.find(".save").prop("disabled",false).html("Save");
 		}else{
 			view.validation=true;
 		}
