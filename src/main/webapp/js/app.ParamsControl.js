@@ -59,8 +59,8 @@ var app = app || {};
                 }
 
             }
-            searchData["q_objectType"] = app.preference.get("contact_filter_objectType", "Both");
-            searchData["q_status"] = app.preference.get("contact_filter_status", "Both");
+            searchData["q_objectType"] = app.preference.get("contact_filter_objectType", "All");
+            searchData["q_status"] = app.preference.get("contact_filter_status", "All");
             result.searchValues = JSON.stringify(searchData);
             result.pageIndex = view.contentView.dataGridView.pageIdx || 1;
             result.pageSize = view.contentView.dataGridView.pageSize || 15;
