@@ -16,12 +16,6 @@
       view.$el.find(".create,.import,.create_pg_trgm,.import-city,.compute-city").prop("disabled",true).html("Loading...");
       view.$el.trigger("STATUS_CHANGE");
 
-      app.getJsonData("/config/get/",{orgId:-1}).done(function(data){
-    	if(view && view.$el){
-    	  	view.$el.trigger("FILLDATA",{data:data});
-    	}
-      });
-      
       brite.display("AdminSearchConfig");
     },
     // --------- /View Interface Implement--------- //
@@ -203,6 +197,12 @@
                 	  view.$el.find(".schema-info").removeClass("alert-danger").addClass("alert-success").html("jss_sys Schema Exists");
                       if(!result.tables.config){
                           schemaInfo+="config ";
+                      }else{
+                    	  app.getJsonData("/config/get/",{orgId:-1}).done(function(data){
+                    	    	if(view && view.$el){
+                    	    	  	view.$el.trigger("FILLDATA",{data:data});
+                    	    	}
+                	      });
                       }
                       if(!result.tables.org){
                           schemaInfo+="org ";
