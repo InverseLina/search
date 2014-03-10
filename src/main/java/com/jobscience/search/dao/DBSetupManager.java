@@ -442,6 +442,7 @@ public class DBSetupManager {
             }
            throw e;
         }finally{
+            daoHelper.updateSysDs();
             runner.close();
         }
         return result;

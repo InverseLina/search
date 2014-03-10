@@ -207,6 +207,11 @@ public class DaoHelper {
         return sysDs;
     }
 
+    public void updateSysDs(){
+        sysDs = buildDs(url, sysSchema);
+        sysDBHelper = new DBBuilder().newDB(getSysDataSource());
+    }
+    
     public void updateDataSource(String orgName) {
         orgDBHelperByName.remove(orgName);
     }
