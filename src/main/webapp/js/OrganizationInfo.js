@@ -107,6 +107,9 @@
 						app.getJsonData("/org/save", values, "Post").done(function(data) {
                     		view.$el.trigger("DO_SHOW_MSG",{selector:$(".alert",$btn.closest(".btns")),msg:"Values saved successfully",type:"success"});
                     		$btn.prop("disabled",false).html("save");
+                    		if(app.pathInfo.paths[1] == "add"){
+                    			 window.location.hash="#organization/edit/"+data;
+                    		}
 						});
 					});
 				}
