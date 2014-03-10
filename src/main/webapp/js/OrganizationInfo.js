@@ -330,6 +330,7 @@
 			$(event.target).html("Fixing...").prop("disabled",true);
 			app.getJsonData("/fixJssTableNames", {orgName:view.currentOrgName},{type:'Post'}).done(function(data){
 				$(event.target).html("Jss Table Names Fixed").prop("disabled",true).addClass("btn-success");
+				disableAllBtns.call(view);
 				refresh.call(view);
 			});
 		},
@@ -853,5 +854,12 @@
 			view.validation=true;
 		}
 	}
+	
+	function disableAllBtns(){
+		var view = this;
+		var $e = view.$el;
+		$e.find(".content-table .btn").prop("disabled", true);
+	}
+	
 	// --------- /Private Methods--------- //
 })(jQuery);
