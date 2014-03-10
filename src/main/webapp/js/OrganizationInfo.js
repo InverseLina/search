@@ -107,6 +107,9 @@
 						app.getJsonData("/org/save", values, "Post").done(function(data) {
                     		view.$el.trigger("DO_SHOW_MSG",{selector:$(".alert",$btn.closest(".btns")),msg:"Values saved successfully",type:"success"});
                     		$btn.prop("disabled",false).html("save");
+                    		if(app.pathInfo.paths[1] == "add"){
+                    			 window.location.hash="#organization/edit/"+data;
+                    		}
 						});
 					});
 				}
@@ -344,8 +347,10 @@
 				}else{
 					view.$el.find(".index").prop("disabled",true).addClass("btn-success").html("Other Indexes Created");
 				}
-					view.$el.find(".index-status-bar .progress-bar-success").css("width",percentage+"%");
-					view.$el.find(".index-status-bar .db-percentage").html(data.created+"/"+data.all);
+				view.$el.find(".index-status-bar .progress-bar-success").css("width",percentage+"%");
+				view.$el.find(".index-status-bar .db-percentage").html(data.created+"/"+data.all);
+				view.$el.trigger("WRONGINDEXES");
+					
 			});
 		},
 		"CONTACTINDEXCOLUMNSSTATUS":function(){
@@ -358,8 +363,8 @@
 					view.$el.find(".contact-index").prop("disabled",true).addClass("btn-success").html("jss_contact Indexes Created");
 				}
 				percentage = data.created/3*100;
-					view.$el.find(".contact-index-status-bar .progress-bar-success").css("width",percentage+"%");
-					view.$el.find(".contact-index-status-bar .contact-index-percentage").html(data.created+"/3");
+				view.$el.find(".contact-index-status-bar .progress-bar-success").css("width",percentage+"%");
+				view.$el.find(".contact-index-status-bar .contact-index-percentage").html(data.created+"/3");
 			});
 		},
 		"click;.resume":function(event){ 
@@ -386,7 +391,7 @@
 					window.clearInterval(view.intervalId);
 				});
 				view.intervalId = window.setInterval(function(){
-							$(view.el).trigger("RESUMEINDEXSTATUS");
+					$(view.el).trigger("RESUMEINDEXSTATUS");
 				}, 3000);
 
 			}else if(status=="pause"){
