@@ -569,29 +569,29 @@
 						if(!result.ts2Table){//only the sync tables valid,will check the jss_ tables status
 							if(result.jss_grouped_skills){//check the jss_grouped_skills table
 								view.$el.find(".jss_grouped_skills").prop("disabled",true).html("jss_grouped_skills Created").addClass("btn-success");
-							}else{
+							}else if(!result.hasOldJssTable){
 								view.$el.find(".jss_grouped_skills").prop("disabled",false).html("Create jss_grouped_skills").removeClass("btn-success");
 							}
 							if(result.jss_grouped_educations){//check the jss_grouped_educations table
 								view.$el.find(".jss_grouped_educations").prop("disabled",true).html("jss_grouped_educations Created").addClass("btn-success");
-							}else{
+							}else if(!result.hasOldJssTable){
 								view.$el.find(".jss_grouped_educations").prop("disabled",false).html("Create jss_grouped_educations").removeClass("btn-success");
 							}
 							if(result.jss_grouped_employers){//check the jss_grouped_employers table
 								view.$el.find(".jss_grouped_employers").prop("disabled",true).html("jss_grouped_employers Created").addClass("btn-success");
-							}else{
+							}else if(!result.hasOldJssTable){
 								view.$el.find(".jss_grouped_employers").prop("disabled",false).html("Create jss_grouped_employers").removeClass("btn-success");
 							}
 							if(result.jss_grouped_locations){//check the jss_grouped_locations table
 								view.$el.find(".jss_grouped_locations").prop("disabled",true).html("jss_grouped_locations Created").addClass("btn-success");
-							}else{
+							}else if(!result.hasOldJssTable){
 								view.$el.find(".jss_grouped_locations").prop("disabled",false).html("Create jss_grouped_locations").removeClass("btn-success");
 							}
 							
 							if(tableInfo){
 								view.$el.find(".extra").html("Create Extra Tables").removeClass("btn-success");
 								view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Table(s): "+tableInfo.substring(1)).removeClass("transparent");
-								if(result.schema_create){
+								if(result.schema_create&&!result.hasOldJssTable){
 									view.$el.find(".extra").prop("disabled",false);
 								}
 							}else if(triggerInfo){
