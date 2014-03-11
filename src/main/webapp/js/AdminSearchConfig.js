@@ -31,7 +31,7 @@
                         view.$el.find("textarea").val(result);
                         view.$el.find(".search-content").css("background","#ffffff");
                 		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"search config has been reset successfully.",type:"success"});
-                		$btn.prop("disabled",false).html("reset");
+                		$btn.prop("disabled",false).html("Reset");
                     });
                 },
                 "submit; form":function(event){
@@ -49,7 +49,7 @@
                     		view.$el.find(".search-content").css("background","#ffffff");
                     		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"Values saved successfully",type:"success"});
                      	}
-                    	$btn.prop("disabled",false).html("save");
+                    	$btn.prop("disabled",false).html("Save");
                     })
                 }
             },

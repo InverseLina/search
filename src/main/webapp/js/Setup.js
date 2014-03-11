@@ -274,7 +274,7 @@
 	      app.getJsonData("/config/save", values,"Post").done(function(data){
 	          //window.location.href = window.location.href;
 	    	  view.$el.trigger("DO_SHOW_MSG",{selector:".config-alert",msg:"Values saved successfully",type:"success"});
-	    	  $btn.prop("disabled",false).html("save");
+	    	  $btn.prop("disabled",false).html("Save");
 	      });
       }
     }
