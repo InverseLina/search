@@ -531,42 +531,22 @@
 					var orgName = view.currentOrgName;
 					app.getJsonData("/checkOrgSchema",{org:orgName,quick:init},{type:"Get"}).done(function(result){
 
-						if(result.schema_create){
+						if(result.schema_create){//when schema exists
 							view.$el.find(".schema-info").removeClass("alert-danger").addClass("alert-success").html("Org Schema Exists");
-							if(result.ts2Table){
+							if(result.ts2Table){//check the sync tables
 								view.$el.find(".ts2table-info").addClass("alert-danger").html("<b>Default sync tables missing columns:</b> "+result.ts2Table);
 							}else{
 								view.$el.find(".ts2table-info").removeClass("alert-danger").addClass("alert-success").html("Default sync tables valid");
 							}
-							if(result.jssTable){
+							if(result.jssTable){//check the jss_ tables
 								view.$el.find(".jsstable-info").addClass("alert-danger").html("<b>jss tables Missing columns:</b> "+result.jssTable);
 							}else{
 								view.$el.find(".jsstable-info").removeClass("alert-danger").addClass("alert-success").html("jss tables valid");
 							}
-							if(result.jss_grouped_skills){
-								view.$el.find(".jss_grouped_skills").prop("disabled",true).html("jss_grouped_skills Created").addClass("btn-success");
-							}else{
-								view.$el.find(".jss_grouped_skills").prop("disabled",false).html("Create jss_grouped_skills").removeClass("btn-success");
-							}
-							if(result.jss_grouped_educations){
-								view.$el.find(".jss_grouped_educations").prop("disabled",true).html("jss_grouped_educations Created").addClass("btn-success");
-							}else{
-								view.$el.find(".jss_grouped_educations").prop("disabled",false).html("Create jss_grouped_educations").removeClass("btn-success");
-							}
-							if(result.jss_grouped_employers){
-								view.$el.find(".jss_grouped_employers").prop("disabled",true).html("jss_grouped_employers Created").addClass("btn-success");
-							}else{
-								view.$el.find(".jss_grouped_employers").prop("disabled",false).html("Create jss_grouped_employers").removeClass("btn-success");
-							}
-							if(result.jss_grouped_locations){
-								view.$el.find(".jss_grouped_locations").prop("disabled",true).html("jss_grouped_locations Created").addClass("btn-success");
-							}else{
-								view.$el.find(".jss_grouped_locations").prop("disabled",false).html("Create jss_grouped_locations").removeClass("btn-success");
-							}
-							if(result.hasOldJssTable){
+							if(result.hasOldJssTable){// if there has old jss tables(start with ex_ or end with ex_)
 								view.$el.find(".fix-table").prop("disabled",false).removeClass("btn-success");
 							}else{
-								view.$el.find(".fix-table").closest(".btn_tr").addClass("hide");//.html("Jss Table names Fixed").prop("disabled",true).addClass("btn-success");
+								view.$el.find(".fix-table").closest(".btn_tr").addClass("hide");
 							}
 						}else{
 							view.$el.find(".notice").removeClass("hide");
@@ -586,98 +566,107 @@
 								triggerInfo+=", "+trigger;
 							}
 						}
-						if(tableInfo){
-							view.$el.find(".extra").html("Create Extra Tables").removeClass("btn-success");
-							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Table(s): "+tableInfo.substring(1)).removeClass("transparent");
-							if(result.schema_create){
-								view.$el.find(".extra").prop("disabled",false);
-							}
-						}else if(triggerInfo){
-							view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
-							view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Trigger(s): "+triggerInfo.substring(1)).removeClass("transparent");
-						}else {
-							view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
-							view.$el.find(".extra").closest("tr").find(".alert-danger").addClass("hide");
-							if(result.jssTable&&result.jss_grouped_employers&&
-							   result.jss_grouped_skills&&result.jss_grouped_educations&&
-							   result.jss_grouped_locations){
-								view.$el.find(".fix-missing-columns").removeClass("hide");
+						if(!result.ts2Table){//only the sync tables valid,will check the jss_ tables status
+							if(result.jss_grouped_skills){//check the jss_grouped_skills table
+								view.$el.find(".jss_grouped_skills").prop("disabled",true).html("jss_grouped_skills Created").addClass("btn-success");
 							}else{
-								view.$el.find(".fix-missing-columns").addClass("hide");
+								view.$el.find(".jss_grouped_skills").prop("disabled",false).html("Create jss_grouped_skills").removeClass("btn-success");
 							}
-						}
-						if(result.pgtrgm){
-							var indexInfo = "";
-							for(var indexName in result.indexes){
-							if(!result.indexes[indexName]){
-								indexInfo+=indexName+" ";
-							}
-							}
-							if(indexInfo){
-								view.$el.find(".index").prop("disabled",false).html("Create Index Columns").removeClass("btn-success");
+							if(result.jss_grouped_educations){//check the jss_grouped_educations table
+								view.$el.find(".jss_grouped_educations").prop("disabled",true).html("jss_grouped_educations Created").addClass("btn-success");
 							}else{
-								view.$el.find(".index").prop("disabled",true).html("Other Indexes Created").addClass("btn-success");
+								view.$el.find(".jss_grouped_educations").prop("disabled",false).html("Create jss_grouped_educations").removeClass("btn-success");
 							}
-							view.$el.trigger("INDEXCOLUMNSSTATUS");
-							view.$el.trigger("CONTACTINDEXCOLUMNSSTATUS");
-						}else{
-							view.$el.find(".index").prop("disabled",true).html("Create Index Columns").removeClass("btn-success");
-							view.$el.trigger("INDEXCOLUMNSSTATUS");
-							view.$el.trigger("CONTACTINDEXCOLUMNSSTATUS");
-						}
-						if(result.resume=="running"){
-							view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume").attr("data-status","pause").addClass("btn-success");
-							view.intervalId = window.setInterval(function(){
-								$(view.el).trigger("RESUMEINDEXSTATUS");
-								}, 3000);
-							view.$el.trigger("RESUMEINDEXSTATUS");
-						}else if(result.resume=="done"){
-							view.$el.find(".resume").prop("disabled",true).html("Index Resume Created").attr("data-status","pause").addClass("btn-success");
-							view.$el.trigger("RESUMEINDEXSTATUS");
-						}else if(result.resume=="part"){
-							view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
-							view.$el.trigger("RESUMEINDEXSTATUS");
-						}else{
+							if(result.jss_grouped_employers){//check the jss_grouped_employers table
+								view.$el.find(".jss_grouped_employers").prop("disabled",true).html("jss_grouped_employers Created").addClass("btn-success");
+							}else{
+								view.$el.find(".jss_grouped_employers").prop("disabled",false).html("Create jss_grouped_employers").removeClass("btn-success");
+							}
+							if(result.jss_grouped_locations){//check the jss_grouped_locations table
+								view.$el.find(".jss_grouped_locations").prop("disabled",true).html("jss_grouped_locations Created").addClass("btn-success");
+							}else{
+								view.$el.find(".jss_grouped_locations").prop("disabled",false).html("Create jss_grouped_locations").removeClass("btn-success");
+							}
+							
+							if(tableInfo){
+								view.$el.find(".extra").html("Create Extra Tables").removeClass("btn-success");
+								view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Table(s): "+tableInfo.substring(1)).removeClass("transparent");
+								if(result.schema_create){
+									view.$el.find(".extra").prop("disabled",false);
+								}
+							}else if(triggerInfo){
+								view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
+								view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Trigger(s): "+triggerInfo.substring(1)).removeClass("transparent");
+							}else{
+								view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
+								view.$el.find(".extra").closest("tr").find(".alert-danger").addClass("hide");
+								if(result.jssTable){
+									view.$el.find(".fix-missing-columns").removeClass("hide");
+								}else{
+									view.$el.find(".fix-missing-columns").addClass("hide");
+								}
+							}
+							if(result.resume=="running"){
+								view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume").attr("data-status","pause").removeClass("btn-success");
+								view.intervalId = window.setInterval(function(){
+									$(view.el).trigger("RESUMEINDEXSTATUS");
+									}, 3000);
+								view.$el.trigger("RESUMEINDEXSTATUS");
+							}else if(result.resume=="done"){
+								view.$el.find(".resume").prop("disabled",true).html("Index Resume Created").attr("data-status","pause").addClass("btn-success");
+								view.$el.trigger("RESUMEINDEXSTATUS");
+							}else if(result.resume=="part"){
+								view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
+								view.$el.trigger("RESUMEINDEXSTATUS");
+							}else{
+								if(tableInfo.indexOf("jss_contact")==-1){
+									view.$el.find(".resume").prop("disabled",false).attr("data-status","create").removeClass("btn-success");
+								}
+							}
+							if(result.sfid=="running"){
+								view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid").attr("data-status","pause").removeClass("btn-success");
+								view.sfidIntervalId = window.setInterval(function(){
+									$(view.el).trigger("SFIDSTATUS");
+									}, 3000);
+								view.$el.trigger("SFIDSTATUS");
+							}else if(result.sfid=="done"){
+								view.$el.find(".sfid").prop("disabled",true).html("sfid copied").attr("data-status","copied").addClass("btn-success");
+								view.$el.trigger("SFIDSTATUS");
+							}else if(result.sfid=="part"){
+								view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume").removeClass("btn-success");
+								view.$el.trigger("SFIDSTATUS");
+							}else{
+								if(tableInfo.indexOf("jss_contact")==-1){
+									view.$el.find(".sfid").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
+								}
+							}
+							
+							if(result.contact_tsv=="running"){
+								view.$el.find(".contact-tsv").prop("disabled",false).html("Pause Create contact_tsv").attr("data-status","pause").removeClass("btn-success");
+								view.contactIntervalId = window.setInterval(function(){
+									$(view.el).trigger("CONTACT_TSVSTATUS");
+									}, 3000);
+								view.$el.trigger("CONTACT_TSVSTATUS");
+							}else if(result.contact_tsv=="done"){
+								view.$el.find(".contact-tsv").prop("disabled",true).html("contact_tsv Created").attr("data-status","copied").addClass("btn-success");
+								view.$el.trigger("CONTACT_TSVSTATUS");
+							}else if(result.contact_tsv=="part"){
+								view.$el.find(".contact-tsv").prop("disabled",false).html("Resume Create contact_tsv").attr("data-status","resume").removeClass("btn-success");
+								view.$el.trigger("CONTACT_TSVSTATUS");
+							}else{
+								if(tableInfo.indexOf("jss_contact")==-1){
+									view.$el.find(".contact-tsv").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
+								}
+							}
 							if(tableInfo.indexOf("jss_contact")==-1){
-								view.$el.find(".resume").prop("disabled",false).attr("data-status","create").removeClass("btn-success");
+								view.$el.trigger("CONTACTINDEXCOLUMNSSTATUS");
+							}
+							
+							if(!result.ts2Table&&!result.jssTable){//only all the tables valid,check the indexes
+								view.$el.trigger("INDEXCOLUMNSSTATUS");
 							}
 						}
-						if(result.sfid=="running"){
-							view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid").attr("data-status","pause").removeClass("btn-success");
-							view.sfidIntervalId = window.setInterval(function(){
-								$(view.el).trigger("SFIDSTATUS");
-								}, 3000);
-							view.$el.trigger("SFIDSTATUS");
-						}else if(result.sfid=="done"){
-							view.$el.find(".sfid").prop("disabled",true).html("sfid copied").attr("data-status","copied").addClass("btn-success");
-							view.$el.trigger("SFIDSTATUS");
-						}else if(result.sfid=="part"){
-							view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume").removeClass("btn-success");
-							view.$el.trigger("SFIDSTATUS");
-						}else{
-							if(tableInfo.indexOf("jss_contact")==-1){
-								view.$el.find(".sfid").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
-							}
-						}
-						
-						if(result.contact_tsv=="running"){
-							view.$el.find(".contact-tsv").prop("disabled",false).html("Pause Create contact_tsv").attr("data-status","pause").removeClass("btn-success");
-							view.contactIntervalId = window.setInterval(function(){
-								$(view.el).trigger("CONTACT_TSVSTATUS");
-								}, 3000);
-							view.$el.trigger("CONTACT_TSVSTATUS");
-						}else if(result.contact_tsv=="done"){
-							view.$el.find(".contact-tsv").prop("disabled",true).html("contact_tsv Created").attr("data-status","copied").addClass("btn-success");
-							view.$el.trigger("CONTACT_TSVSTATUS");
-						}else if(result.contact_tsv=="part"){
-							view.$el.find(".contact-tsv").prop("disabled",false).html("Resume Create contact_tsv").attr("data-status","resume").removeClass("btn-success");
-							view.$el.trigger("CONTACT_TSVSTATUS");
-						}else{
-							if(tableInfo.indexOf("jss_contact")==-1){
-								view.$el.find(".contact-tsv").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
-							}
-						}
-						});
+					});
 				},
 				"click; button.saveSearchConfig":function(event){
 						event.stopPropagation();
