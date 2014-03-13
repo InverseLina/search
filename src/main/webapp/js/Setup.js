@@ -16,9 +16,7 @@
       view.$navTabs.find("a[href='#setup']").closest("li").addClass("active");
       view.$el.find(".setting .alert").html("Loading...");
       
-      app.getJsonData("/admin-sys-status", {},"Get").done(function(data){
-  	  	$e.trigger("STATUS_CHANGE", data);
-	  });
+      getStatus.call(view);
 
       brite.display("AdminSearchConfig");
     },
@@ -68,54 +66,53 @@
     	  var $btnPause = $e.find(".setupPause");
     	  var $btnRestart = $e.find(".setupRestart");
     	  var $btnResume = $e.find(".setupResume");
-    	  var $alertCreateSchema = $e.find(".create .alert");
-    	  var $alertImportZipcode = $e.find(".import .alert");
-    	  var $alertCreatePgTrgm = $e.find(".create_pg_trgm .alert");
-    	  var $alertImportCity = $e.find(".import-city .alert");
-    	  var $alertCheckColumns = $e.find(".check-columns .alert");
-    	  console.log(statusData);
+    	  var $alertCreateSchema = $e.find(".create .alert").removeClass("alert-warning alert-success alert-error alert-info");
+    	  var $alertImportZipcode = $e.find(".import .alert").removeClass("alert-warning alert-success alert-error alert-info");;
+    	  var $alertCreatePgTrgm = $e.find(".create_pg_trgm .alert").removeClass("alert-warning alert-success alert-error alert-info");;
+    	  var $alertImportCity = $e.find(".import-city .alert").removeClass("alert-warning alert-success alert-error alert-info");;
+    	  var $alertCheckColumns = $e.find(".check-columns .alert").removeClass("alert-warning alert-success alert-error alert-info");;
     	  if(!statusData){
     	  	return ;
     	  }
     	  
     	  if(statusData.create_sys_schema.status == "done"){
-    	  	$alertCreateSchema.removeClass("alert-info").addClass("alert-success").html("Done");
+    	  	$alertCreateSchema.addClass("alert-success").html("Done");
     	  }else if(statusData.create_sys_schema.status == "incomplete"){
-    	  	$alertCreateSchema.removeClass("alert-info").addClass("alert-warning").html("Incomplete");
+    	  	$alertCreateSchema.addClass("alert-warning").html("Incomplete");
     	  }else{
-    	  	$alertCreateSchema.html(statusData.create_sys_schema.status);
+    	  	$alertCreateSchema.addClass("alert-info").html(statusData.create_sys_schema.status);
     	  }
     	  
     	  if(statusData.import_zipcode.status == "done"){
-    	  	$alertImportZipcode.removeClass("alert-info").addClass("alert-success").html("Done");
+    	  	$alertImportZipcode.addClass("alert-success").html("Done");
     	  }else if(statusData.import_zipcode.status == "incomplete"){
-    	  	$alertImportZipcode.removeClass("alert-info").addClass("alert-warning").html("Incomplete");
+    	  	$alertImportZipcode.addClass("alert-warning").html("Incomplete");
     	  }else{
-    	  	$alertImportZipcode.html(statusData.import_zipcode.status);
+    	  	$alertImportZipcode.addClass("alert-info").html(statusData.import_zipcode.status);
     	  }
     	  
     	  if(statusData.create_extension.status == "done"){
-    	  	$alertCreatePgTrgm.removeClass("alert-info").addClass("alert-success").html("Done");
+    	  	$alertCreatePgTrgm.addClass("alert-success").html("Done");
     	  }else if(statusData.create_extension.status == "incomplete"){
-    	  	$alertCreatePgTrgm.removeClass("alert-info").addClass("alert-warning").html("Incomplete");
+    	  	$alertCreatePgTrgm.addClass("alert-warning").html("Incomplete");
     	  }else{
-    	  	$alertCreatePgTrgm.html(statusData.create_extension.status);
+    	  	$alertCreatePgTrgm.addClass("alert-info").html(statusData.create_extension.status);
     	  }
     	  
     	  if(statusData.import_city.status == "done"){
-    	  	$alertImportCity.removeClass("alert-info").addClass("alert-success").html("Done");
+    	  	$alertImportCity.addClass("alert-success").html("Done");
     	  }else if(statusData.import_city.status == "incomplete"){
-    	  	$alertImportCity.removeClass("alert-info").addClass("alert-warning").html("Incomplete");
+    	  	$alertImportCity.addClass("alert-warning").html("Incomplete");
     	  }else{
-    	  	$alertImportCity.html(statusData.import_city.status);
+    	  	$alertImportCity.addClass("alert-info").html(statusData.import_city.status);
     	  }
     	  
     	  if(statusData.check_missing_columns.status == "done"){
-    	  	$alertCheckColumns.removeClass("alert-info").addClass("alert-success").html("Done");
+    	  	$alertCheckColumns.addClass("alert-success").html("Done");
     	  }else if(statusData.check_missing_columns.status == "incomplete"){
-    	  	$alertCheckColumns.removeClass("alert-info").addClass("alert-warning").html("Incomplete, "+"<b>Missing column(s):</b>"+statusData.check_missing_columns.missingsColumns);
+    	  	$alertCheckColumns.addClass("alert-warning").html("Incomplete, "+"<b>Missing column(s):</b>"+statusData.check_missing_columns.missingsColumns);
     	  }else{
-    	  	$alertCheckColumns.html(statusData.check_missing_columns.status);
+    	  	$alertCheckColumns.addClass("alert-info").html(statusData.check_missing_columns.status);
     	  }
     	  
     	  if(statusData.status == "notstarted"){
@@ -132,7 +129,6 @@
     	  	// $btnResume.removeClass("hide").prop("disabled",true);
     	  	// $btnPause.removeClass("hide").prop("disabled",false);
     	  	// $btnRestart.removeClass("hide").prop("disabled",false);
-    	  	
     	  	startTimer.call(view);
     	  }else if(statusData.status == "incomplete"){
     	  	$btnStart.removeClass("hide").prop("disabled",false);
@@ -150,6 +146,7 @@
     	  	stopTimer.call(view);
     	  	
     	  	$e.find(".setting .alert").removeClass("alert-info").addClass("alert-success").html("Done");
+    	  	$e.trigger("DO_SHOW_ORG_TAB");
     	  }
     	  
       },
@@ -190,22 +187,32 @@
   
   	function startTimer(){
   		var view = this;
-  		var $e = view.$el;
   		if(!view.timer){
-  			view.timer = setInterval(function(){
-  				app.getJsonData("/admin-sys-status", {},"Get").done(function(data){
-  					$e.trigger("STATUS_CHANGE", data);
-			    });
-  			}, 500);
+	  		view.timer = true;
+			getStatus.call(view);
   		}
+
   	}
   	
   	function stopTimer(){
   		var view = this;
   		if(view.timer){
-  			clearInterval(view.timer);
-  			view.timer = null;
+	  		view.timer = false;
   		}
+  	}
+  	
+  	function getStatus(){
+  		var view = this;
+  		var $e = view.$el;
+		app.getJsonData("/admin-sys-status", {}, "Get").done(function(data) {
+			$e.trigger("STATUS_CHANGE", data);
+			if (view.timer) {
+				setTimeout(function(){
+					getStatus.call(view);
+				},1000);
+			}
+		}); 
+
   	}
 
     function validateURL(textval) {

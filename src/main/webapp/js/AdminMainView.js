@@ -16,8 +16,8 @@
 		 $(".config").addClass("hide");
 		 $(".clear-all").addClass("hide");
 		 view.$el.find(".organization-tab").addClass("hide");
-		 app.getJsonData("/checkSysSchema",{},{type:"Get"}).done(function(result){
-			 if(result.schema_create){
+		 app.getJsonData("/admin-sys-status",{},{type:"Get"}).done(function(result){
+			 if(result.status=="done"){
 				 showOrgTab.call(view);
 			 }
 	      });
@@ -39,9 +39,6 @@
 		"PATH_INFO_CHANGE": function(event,pathInfo){
 	      changeView.call(this,pathInfo);
 	   },
-	    "DO_SHOW_ORG_TAB": function(){
-	    	showOrgTab.call(this);
-	    },
 	    "DO_SHOW_MSG":function(event,opts){
 	    	var $place = $(opts.selector);
 	    	console.log($place);
@@ -54,6 +51,11 @@
 	    	}else{
 	    		$place.removeClass("alert-success").removeClass("out").addClass("in").addClass("alert-danger").removeClass("hide").html(opts.msg);
 	    	}
+	    }
+	 },
+	 docEvents:{
+	 	"DO_SHOW_ORG_TAB": function(){
+	    	showOrgTab.call(this);
 	    }
 	 }
     // --------- /Events--------- //
