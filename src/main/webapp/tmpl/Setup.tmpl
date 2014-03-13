@@ -1,47 +1,44 @@
 <script id="Setup" type="text/html">
     <div class="Setup">
-        <h3>Schema Check</h3>
-         <div class="check-status">
-            <div class="alert schema-info"></div>
-        </div>
-        <div class="check-status">
-            <div class="alert columns-info"></div>
-        </div>
-        <div class="fix-btn">
-            <button class="btn btn-primary fix-missing-columns hide">Fix the missing columns</button>
-        </div>
+    	
         
         <h3 class="title">Setup</h3>
+        <div>
+    		<button class="btn btn-primary setupStart hide">Start</button>
+    		<button class="btn btn-primary setupResume hide">Resume</button>
+    		<!--<button class="btn btn-primary setupPause hide">Pause</button>
+    		<button class="btn btn-warning setupRestart hide">Restart</button>-->
+    	</div>
         <div class="tab-content">
-			<div class="setting form-inline">
+			<div class="setting form-inline create">
 	                <label class="left">
-	                    <button class="btn btn-primary create">Create System schema</button>
+	                    Create System schema
 	                </label>
-	                <div class="alert alert-danger transparent">&nbsp;</div>
+	                <div class="alert alert-info">&nbsp;</div>
 	        </div>
-	        <div class="setting form-inline">
+	        <div class="setting form-inline import">
 	                <label class="left">
-	                  <button class="btn btn-primary import" disabled>Import Zipcode table</button>
+	                  	Import Zipcode table
 	                </label>
-	                 <div class="alert alert-danger transparent" disabled>&nbsp;</div>
+	                <div class="alert alert-info">&nbsp;</div>
 	        </div>
-	        <div class="setting form-inline">
+	        <div class="setting form-inline create_pg_trgm">
 	                <label class="left">
-	                    <button class="btn btn-primary create_pg_trgm" disabled>Create Extensions</button>
+	                    Create Extensions
 	                </label>
-	                <div class="alert alert-danger transparent">&nbsp;</div>
+	                <div class="alert alert-info">&nbsp;</div>
 	        </div>
-	        <div class="setting form-inline hide">
+	        <div class="setting form-inline import-city">
 	                <label class="left">
-	                    <button class="btn btn-primary compute-city" disabled>Compute City long/lat</button>
+	                	Import City
 	                </label>
-	                <div class="alert alert-danger transparent">&nbsp;</div>
+	                <div class="alert alert-info">&nbsp;</div>
 	        </div>
-	        <div class="setting form-inline">
-	                <label class="left">
-	                    <button class="btn btn-primary import-city" disabled>Import City</button>
+	        <div class="setting form-inline check-columns">
+	                <label class="left ">
+	                	Check if missing columns
 	                </label>
-	                <div class="alert alert-danger transparent">&nbsp;</div>
+	                <div class="alert alert-info">&nbsp;</div>
 	        </div>
         </div>
         

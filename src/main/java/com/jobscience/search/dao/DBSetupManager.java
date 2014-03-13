@@ -28,7 +28,7 @@ import org.jasql.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.britesnow.snow.web.CurrentRequestContextHolder;
+import com.britesnow.snow.web.binding.WebAppFolder;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -45,8 +45,6 @@ public class DBSetupManager {
 
     @Inject
     private DaoHelper daoHelper;
-    @Inject
-    private CurrentRequestContextHolder currentRequestContextHolder;
     @Named("zipcode.path")
     @Inject
     private String zipcodePath;
@@ -69,6 +67,9 @@ public class DBSetupManager {
     
     private volatile ConcurrentMap<String,JSONArray> indexesMap;
     
+    @Inject 
+    private @WebAppFolder File  webAppFolder;
+    
     private volatile ConcurrentMap<String,Map> jsonMap = new ConcurrentHashMap<String, Map>();
     private Logger log = LoggerFactory.getLogger(DBSetupManager.class);
     
@@ -88,7 +89,7 @@ public class DBSetupManager {
 		public Object load(String key) throws Exception {
 			return key;
 	}});
- 
+    
     /**
      * get the sys schema status
      * @return
@@ -607,7 +608,7 @@ public class DBSetupManager {
     }
     
     private String getRootSqlFolderPath(){
-        StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
+        StringBuilder path = new StringBuilder(webAppFolder.getAbsolutePath());
         path.append("/WEB-INF/sql");
         return path.toString();
     }
@@ -1075,7 +1076,7 @@ public class DBSetupManager {
            return jsonMap.get(name);
        }
        
-       StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
+       StringBuilder path = new StringBuilder(webAppFolder.getAbsolutePath());
        path.append("/WEB-INF/tabledef");
        File orgFolder = new File(path.toString());
        File[] sqlFiles = orgFolder.listFiles();
