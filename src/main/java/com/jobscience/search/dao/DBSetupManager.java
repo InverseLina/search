@@ -1167,7 +1167,7 @@ public class DBSetupManager {
        indexerManager.run(orgName);
        sfidManager.run(orgName);
        contactTsvManager.run(orgName);
-       
+
        createIndexColumns(orgName, true);
        createIndexColumns(orgName, false);
        removeWrongIndex(orgName);
