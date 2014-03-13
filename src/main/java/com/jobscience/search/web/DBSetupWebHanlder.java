@@ -1,7 +1,5 @@
 package com.jobscience.search.web;
 
-import static com.britesnow.snow.util.MapUtil.mapIt;
-
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -141,15 +139,6 @@ public class DBSetupWebHanlder {
             return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
         }
         return webResponseBuilder.success();
-    }
-    
-    @WebGet("/getIndexColumnsStatus")
-    @RequireAdmin
-    public WebResponse getIndexColumnsStatus(@WebParam("orgName")String orgName,@WebParam("contactEx")Boolean contactEx){
-        if(contactEx==null){
-            contactEx = false;
-        }
-        return webResponseBuilder.success(mapIt("created",dbSetupManager.getIndexStatus(orgName,contactEx),"all",dbSetupManager.getTotalIndexCount(orgName,false)));
     }
     
     @WebPost("/createIndexResume")
@@ -303,4 +292,50 @@ public class DBSetupWebHanlder {
         return webResponseBuilder.success();
     }
     
+    @WebPost("/admin-org-setup")
+    @RequireAdmin
+    public WebResponse orgSetup(@WebParam("org")String orgName){
+        try{
+            dbSetupManager.orgSetup(orgName);
+        }catch(Exception e){
+            e.printStackTrace();
+            return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
+        return webResponseBuilder.success();
+    }
+    
+    @WebPost("/stop-org-setup")
+    @RequireAdmin
+    public WebResponse stopOrgSetup(@WebParam("org")String orgName){
+        try{
+            dbSetupManager.stopOrgSetup(orgName);
+        }catch(Exception e){
+            e.printStackTrace();
+            return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
+        return webResponseBuilder.success();
+    }
+    
+    @WebGet("/admin-org-status")
+    @RequireAdmin
+    public WebResponse getOrgSetupStatus(@WebParam("org")String orgName){
+        try{
+            return webResponseBuilder.success(dbSetupManager.orgStatus(orgName));
+        }catch(Exception e){
+            e.printStackTrace();
+            return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
+    }
+    
+    @WebPost("/reset-org-setup")
+    @RequireAdmin
+    public WebResponse resetOrgSetup(@WebParam("org")String orgName){
+        try{
+            dbSetupManager.resetOrgSetup(orgName);
+        }catch(Exception e){
+            e.printStackTrace();
+            return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
+        return webResponseBuilder.success();
+    }
 }

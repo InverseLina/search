@@ -526,201 +526,143 @@
 			view.tableName = $li.attr("data-table");
 			$li.closest(".control-group").find("[name='tableName']").val($li.attr("data-table"));
 		},
+		"click;.org-reset":function(event){
+			var view = this;
+			var orgName = view.currentOrgName;
+			app.getJsonData("/reset-org-setup",{org:orgName},{type:"Post"}).done(function(result){
+				window.clearInterval(view.orgSetupIntervalId);
+				refresh.call(view);
+			});
+		},
+		"click;.org-pause":function(event){
+			var view = this;
+			var orgName = view.currentOrgName;
+			app.getJsonData("/stop-org-setup",{org:orgName},{type:"Post"}).done(function(result){
+				window.clearInterval(view.orgSetupIntervalId);
+				refresh.call(view);
+			});
+		},
+		"click;.org-setup":function(event){
+			var view = this;
+			var orgName = view.currentOrgName;
+			var $btn = $(event.currentTarget);
+			$btn.prop("disabled",true).html("Setup...");
+			app.getJsonData("/admin-org-setup",{org:orgName},{type:"Post"}).done(function(result){
+				window.clearInterval(view.orgSetupIntervalId);
+				refresh.call(view);
+			});
+			view.orgSetupIntervalId = window.setInterval(function(){
+				refresh.call(view);
+			}, 3000);
+		},
 		"STATUS_CHANGE":function(event,init){
-					var view = this;
-					var orgName = view.currentOrgName;
-					app.getJsonData("/checkOrgSchema",{org:orgName,quick:init},{type:"Get"}).done(function(result){
-
-						if(result.schema_create){//when schema exists
-							view.$el.find(".schema-info").removeClass("alert-danger").addClass("alert-success").html("Org Schema Exists");
-							if(result.ts2Table){//check the sync tables
-								view.$el.find(".ts2table-info").addClass("alert-danger").html("<b>Default sync tables missing columns:</b> "+result.ts2Table);
-							}else{
-								view.$el.find(".ts2table-info").removeClass("alert-danger").addClass("alert-success").html("Default sync tables valid");
-							}
-							if(result.jssTable){//check the jss_ tables
-								view.$el.find(".jsstable-info").addClass("alert-danger").html("<b>jss tables Missing columns:</b> "+result.jssTable);
-							}else{
-								view.$el.find(".jsstable-info").removeClass("alert-danger").addClass("alert-success").html("jss tables valid");
-							}
-							if(result.hasOldJssTable){// if there has old jss tables(start with ex_ or end with ex_)
-								view.$el.find(".fix-table").prop("disabled",false).removeClass("btn-success");
-							}else{
-								view.$el.find(".fix-table").closest(".btn_tr").addClass("hide");
-							}
-						}else{
-							view.$el.find(".notice").removeClass("hide");
-							view.$el.find(".schema-info").addClass("alert-danger").html("Org Schema Not Exists");
-							view.$el.find(".ts2table-info,.fix-missing-columns,.jsstable-info").addClass("hide");
-						}
-						
-						var tableInfo = "";
-						for(var table in result.tables){
-							if(!result.tables[table]){
-								tableInfo+=", "+table;
-							}
-						}
-						var triggerInfo = "";
-						for(var trigger in result.triggers){
-							if(!result.triggers[trigger]){
-								triggerInfo+=", "+trigger;
-							}
-						}
-						if(!result.ts2Table){//only the sync tables valid,will check the jss_ tables status
-							if(result.jss_grouped_skills){//check the jss_grouped_skills table
-								view.$el.find(".jss_grouped_skills").prop("disabled",true).html("jss_grouped_skills Created").addClass("btn-success");
-							}else if(!result.hasOldJssTable){
-								view.$el.find(".jss_grouped_skills").prop("disabled",false).html("Create jss_grouped_skills").removeClass("btn-success");
-							}
-							if(result.jss_grouped_educations){//check the jss_grouped_educations table
-								view.$el.find(".jss_grouped_educations").prop("disabled",true).html("jss_grouped_educations Created").addClass("btn-success");
-							}else if(!result.hasOldJssTable){
-								view.$el.find(".jss_grouped_educations").prop("disabled",false).html("Create jss_grouped_educations").removeClass("btn-success");
-							}
-							if(result.jss_grouped_employers){//check the jss_grouped_employers table
-								view.$el.find(".jss_grouped_employers").prop("disabled",true).html("jss_grouped_employers Created").addClass("btn-success");
-							}else if(!result.hasOldJssTable){
-								view.$el.find(".jss_grouped_employers").prop("disabled",false).html("Create jss_grouped_employers").removeClass("btn-success");
-							}
-							if(result.jss_grouped_locations){//check the jss_grouped_locations table
-								view.$el.find(".jss_grouped_locations").prop("disabled",true).html("jss_grouped_locations Created").addClass("btn-success");
-							}else if(!result.hasOldJssTable){
-								view.$el.find(".jss_grouped_locations").prop("disabled",false).html("Create jss_grouped_locations").removeClass("btn-success");
-							}
-							
-							if(tableInfo){
-								view.$el.find(".extra").html("Create Extra Tables").removeClass("btn-success");
-								view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Table(s): "+tableInfo.substring(1)).removeClass("transparent");
-								if(result.schema_create&&!result.hasOldJssTable){
-									view.$el.find(".extra").prop("disabled",false);
-								}
-							}else if(triggerInfo){
-								view.$el.find(".extra").prop("disabled",false).html("Create Extra Tables").removeClass("btn-success");
-								view.$el.find(".extra").closest("tr").find(".alert-danger").html("Missing Trigger(s): "+triggerInfo.substring(1)).removeClass("transparent");
-							}else{
-								view.$el.find(".extra").prop("disabled",true).html("Extra Tables Created").addClass("btn-success");
-								view.$el.find(".extra").closest("tr").find(".alert-danger").addClass("hide");
-								if(result.jssTable){
-									view.$el.find(".fix-missing-columns").removeClass("hide");
-								}else{
-									view.$el.find(".fix-missing-columns").addClass("hide");
-								}
-							}
-							if(result.resume=="running"){
-								view.$el.find(".resume").prop("disabled",false).html("Pause Index Resume").attr("data-status","pause").removeClass("btn-success");
-								view.intervalId = window.setInterval(function(){
-									$(view.el).trigger("RESUMEINDEXSTATUS");
-									}, 3000);
-								view.$el.trigger("RESUMEINDEXSTATUS");
-							}else if(result.resume=="done"){
-								view.$el.find(".resume").prop("disabled",true).html("Index Resume Created").attr("data-status","pause").addClass("btn-success");
-								view.$el.trigger("RESUMEINDEXSTATUS");
-							}else if(result.resume=="part"){
-								view.$el.find(".resume").prop("disabled",false).html("Resume Index Resume").attr("data-status","resume").removeClass("btn-success");
-								view.$el.trigger("RESUMEINDEXSTATUS");
-							}else{
-								if(tableInfo.indexOf("jss_contact")==-1){
-									view.$el.find(".resume").prop("disabled",false).attr("data-status","create").removeClass("btn-success");
-								}
-							}
-							if(result.sfid=="running"){
-								view.$el.find(".sfid").prop("disabled",false).html("Pause copy sfid").attr("data-status","pause").removeClass("btn-success");
-								view.sfidIntervalId = window.setInterval(function(){
-									$(view.el).trigger("SFIDSTATUS");
-									}, 3000);
-								view.$el.trigger("SFIDSTATUS");
-							}else if(result.sfid=="done"){
-								view.$el.find(".sfid").prop("disabled",true).html("sfid copied").attr("data-status","copied").addClass("btn-success");
-								view.$el.trigger("SFIDSTATUS");
-							}else if(result.sfid=="part"){
-								view.$el.find(".sfid").prop("disabled",false).html("Resume copy sfid").attr("data-status","resume").removeClass("btn-success");
-								view.$el.trigger("SFIDSTATUS");
-							}else{
-								if(tableInfo.indexOf("jss_contact")==-1){
-									view.$el.find(".sfid").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
-								}
-							}
-							
-							if(result.contact_tsv=="running"){
-								view.$el.find(".contact-tsv").prop("disabled",false).html("Pause Create contact_tsv").attr("data-status","pause").removeClass("btn-success");
-								view.contactIntervalId = window.setInterval(function(){
-									$(view.el).trigger("CONTACT_TSVSTATUS");
-									}, 3000);
-								view.$el.trigger("CONTACT_TSVSTATUS");
-							}else if(result.contact_tsv=="done"){
-								view.$el.find(".contact-tsv").prop("disabled",true).html("contact_tsv Created").attr("data-status","copied").addClass("btn-success");
-								view.$el.trigger("CONTACT_TSVSTATUS");
-							}else if(result.contact_tsv=="part"){
-								view.$el.find(".contact-tsv").prop("disabled",false).html("Resume Create contact_tsv").attr("data-status","resume").removeClass("btn-success");
-								view.$el.trigger("CONTACT_TSVSTATUS");
-							}else{
-								if(tableInfo.indexOf("jss_contact")==-1){
-									view.$el.find(".contact-tsv").prop("disabled",false).attr("data-status","copy").removeClass("btn-success");
-								}
-							}
-							if(tableInfo.indexOf("jss_contact")==-1){
-								view.$el.trigger("CONTACTINDEXCOLUMNSSTATUS");
-							}
-							
-							if(!result.ts2Table&&!result.jssTable){//only all the tables valid,check the indexes
-								view.$el.trigger("INDEXCOLUMNSSTATUS");
-							}
-						}
-					});
-				},
-				"click; button.saveSearchConfig":function(event){
-						event.stopPropagation();
-						event.preventDefault();
-						var view = this;
-						var $btn = $(event.currentTarget);
-						$btn.prop("disabled",true).html("saving...");
-						var content = view.$el.find("textarea[name='searchConfig']").val();
-						app.getJsonData("saveOrgSearchConfig", {orgName:view.orgName, content:content}, "Post").done(function(result){
-							if(!result.valid){
-	                    		view.$el.find(".search-content").css("background","#ffdddd");
-	                    		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:result.errorMsg,type:"error"});
-	                     	}else{
-	                    		view.$el.find(".search-content").css("background","#ffffff");
-	                    		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"Values saved successfully",type:"success"});
-	                     	}
-							$btn.prop("disabled",false).html("Save");
-						});
-						return false;
-				},
-				"click; button.resetSearchConfig":function(event){
-						var view = this;
-						var $btn = $(event.currentTarget);
-						$btn.prop("disabled",true).html("resetting...");
-						app.getJsonData("resetOrgSearchConfig", {orgName:view.orgName}).done(function(result){
-								view.$el.find("textarea[name='searchConfig']").val(result);
-								view.$el.find(".search-content").css("background","#ffffff");
-			                	view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"search config has been reset successfully.",type:"success"});
-			                	$btn.prop("disabled",false).html("Reset");
-						});
-				},
-				"click;.disable-indexes":function(event){
-					var view = this;
-					var disableBtn = $(event.currentTarget);
-					disableBtn.prop("disabled",true).html("Disabling...");
-					app.getJsonData("removeAllIndexes", {orgName:view.orgName},{type:'Post'}).done(function(result){
-						disableBtn.html("Indexes Disabled");
-						refresh.call(view);
-					});
-				},
-				"click;.enable-indexes":function(event){
-					var view = this;
-					var $disableBtn = $(event.currentTarget);
-					refresh.call(view);
-					$(".alert",$disableBtn.closest("div")).show();
-				},
-				"click;.drop-ex":function(event){
-					var view = this;
-					var $disableBtn = $(event.currentTarget);
-					app.getJsonData("/dropExTables", {orgName:view.orgName},{type:'Post'}).done(function(result){
-						refresh.call(view);
-						$(".alert",$disableBtn.closest("div")).show();
-				});
-			}
+			var view = this;
+			var orgName = view.currentOrgName;
+			var addClass = "alert-success",removeClass="alert-danger";
+			var $setupBtn = view.$el.find(".org-setup"),
+				$pasueBtn = view.$el.find(".org-pause"),
+				$resetBtn = view.$el.find(".org-reset");
+			app.getJsonData("/admin-org-status",{org:orgName},{type:"Get"}).done(function(result){
+				switch(result.status){
+					case  "done"      :
+						$setupBtn.prop("disabled",true).html("Setup");
+						$pasueBtn.prop("disabled",true);
+						$resetBtn.prop("disabled",false);
+						break;
+					case  "part"      :
+						$setupBtn.prop("disabled",false).html("Resume");
+						$pasueBtn.prop("disabled",true);
+						$resetBtn.prop("disabled",false);
+						break;
+					case  "error"     :
+						$setupBtn.prop("disabled",true).html("Setup");
+						$pasueBtn.prop("disabled",true);
+						$resetBtn.prop("disabled",true);
+						break;
+					case  "notstarted":
+						$setupBtn.prop("disabled",false).html("Setup");
+						$pasueBtn.prop("disabled",true);
+						$resetBtn.prop("disabled",false);
+						break;
+					case  "running"   :
+						$setupBtn.prop("disabled",true).html("Setup...");
+						$pasueBtn.prop("disabled",false);
+						$resetBtn.prop("disabled",true);
+						setTimeout(function(){
+							refresh.call(view);
+						},3000);
+						break;
+				
+				}
+				$.each(result.setups,function(index,setup){
+					switch(setup.status){
+						case "done":addClass = "alert-success";removeClass="alert-danger";break;
+						case "part":addClass = "alert-danger";removeClass="alert-success";
+						case "error":addClass = "alert-danger";removeClass="alert-success";
+						case "notstarted":addClass = "alert-danger";removeClass="alert-success";
+					}
+					if(setup.progress||setup.progress===0){
+						fillProgressBar.call(view,setup)
+					}else{
+						view.$el.find("."+setup.name+"_info").addClass(addClass)
+						.removeClass(removeClass).removeClass("hide").html(setup.msg);
+					}
+				});			
+			});
+		},
+		"click; button.saveSearchConfig":function(event){
+			event.stopPropagation();
+			event.preventDefault();
+			var view = this;
+			var $btn = $(event.currentTarget);
+			$btn.prop("disabled",true).html("saving...");
+			var content = view.$el.find("textarea[name='searchConfig']").val();
+			app.getJsonData("saveOrgSearchConfig", {orgName:view.orgName, content:content}, "Post").done(function(result){
+				if(!result.valid){
+            		view.$el.find(".search-content").css("background","#ffdddd");
+            		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:result.errorMsg,type:"error"});
+             	}else{
+            		view.$el.find(".search-content").css("background","#ffffff");
+            		view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"Values saved successfully",type:"success"});
+             	}
+				$btn.prop("disabled",false).html("Save");
+			});
+			return false;
+		},
+		"click; button.resetSearchConfig":function(event){
+			var view = this;
+			var $btn = $(event.currentTarget);
+			$btn.prop("disabled",true).html("resetting...");
+			app.getJsonData("resetOrgSearchConfig", {orgName:view.orgName}).done(function(result){
+					view.$el.find("textarea[name='searchConfig']").val(result);
+					view.$el.find(".search-content").css("background","#ffffff");
+                	view.$el.trigger("DO_SHOW_MSG",{selector:".search-config-alert",msg:"search config has been reset successfully.",type:"success"});
+                	$btn.prop("disabled",false).html("Reset");
+			});
+		},
+		"click;.disable-indexes":function(event){
+			var view = this;
+			var disableBtn = $(event.currentTarget);
+			disableBtn.prop("disabled",true).html("Disabling...");
+			app.getJsonData("removeAllIndexes", {orgName:view.orgName},{type:'Post'}).done(function(result){
+				disableBtn.html("Indexes Disabled");
+				refresh.call(view);
+			});
+		},
+		"click;.enable-indexes":function(event){
+			var view = this;
+			var $disableBtn = $(event.currentTarget);
+			refresh.call(view);
+			$(".alert",$disableBtn.closest("div")).show();
+		},
+		"click;.drop-ex":function(event){
+			var view = this;
+			var $disableBtn = $(event.currentTarget);
+			app.getJsonData("/dropExTables", {orgName:view.orgName},{type:'Post'}).done(function(result){
+				refresh.call(view);
+				$(".alert",$disableBtn.closest("div")).show();
+		});
+	}
 		}
 
 		// --------- /Events--------- //
@@ -731,64 +673,37 @@
 		var view = this;
 		view.$el.trigger("STATUS_CHANGE");
 	}
-
-
-	function fillProgressBar(percentage,perform,all){
-		var view = this;
-		if(percentage === 0){
-			view.$el.find(".db-status-bar").hide();
-		}else{
-			view.$el.find(".db-status-bar").show();
-		}
-		view.$el.find(".db-status-bar .progress-bar-success").css("width",percentage+"%");
-		
-		if(perform == all){
-			view.$el.find(".db-status-bar .db-percentage").html(formateNumber(all));
-			view.$el.find(".db-status-bar .db-count-info").empty();
-			view.$el.find(".resume").prop("disabled",true).html("Index Resume Created").addClass("btn-success");
-		}else{
-			view.$el.find(".db-status-bar .db-percentage").html(percentage+"%");
-			view.$el.find(".db-status-bar .db-count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
-			}
-	}
 	
-	function fillProgressBarForSfid(percentage,perform,all){
+	function fillProgressBar(setup){
 		var view = this;
-		if(percentage === 0){
-			view.$el.find(".sfid-status-bar").hide();
-		}else{
-			view.$el.find(".sfid-status-bar").show();
+		var name = setup.name,
+			all = setup.progress.perform+setup.progress.remaining,
+			perform = setup.progress.perform,
+			percentage = perform/all*100+"";
+		if(setup.progress === 0){
+			all = 0,
+			perform = 0,
+			percentage = "0";
 		}
-		view.$el.find(".sfid-status-bar .progress-bar-success").css("width",percentage+"%");
-		if(perform==all){
-			view.$el.find(".sfid-status-bar .sfid-percentage").html(formateNumber(all));
-			view.$el.find(".sfid-status-bar .sfid-count-info").empty();
-			view.$el.find(".sfid").prop("disabled",true).html("sfid copied").addClass("btn-success");
+		if(percentage.indexOf(".")!=-1){
+			percentage = percentage.substring(0,percentage.indexOf("."));
+		}
+		if(percentage === 0){
+			view.$el.find("."+name+"_status_bar").hide();
 		}else{
-			//perform = perform/1000;
-			//all = all/1000;
-			view.$el.find(".sfid-status-bar .sfid-percentage").html(percentage+"%");
-			view.$el.find(".sfid-status-bar .sfid-count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
+			view.$el.find("."+name+"_status_bar").show();
+		}
+		view.$el.find("."+name+"_status_bar .progress-bar-success").css("width",percentage+"%");
+		if(perform==all){
+			if(setup.progress === 0){
+				view.$el.find("."+name+"_status_bar .percentage").html("Not Started");
+			}else{
+				view.$el.find("."+name+"_status_bar .percentage").html(formateNumber(all));
 			}
-	}
-	
-	function fillProgressBarForContactTsv(percentage,perform,all){
-		var view = this;
-		if(percentage === 0){
-			view.$el.find(".contact-tsv-status-bar").hide();
+			view.$el.find("."+name+"_status_bar .count-info").empty();
 		}else{
-			view.$el.find(".contact-tsv-status-bar").show();
-		}
-		view.$el.find(".contact-tsv-status-bar .progress-bar-success").css("width",percentage+"%");
-		if(perform==all){
-			view.$el.find(".contact-tsv-status-bar .contact-tsv-percentage").html(formateNumber(all));
-			view.$el.find(".contact-tsv-status-bar .contact-tsv-count-info").empty();
-			view.$el.find(".contact-tsv").prop("disabled",true).html("contact_tsv Created").addClass("btn-success");
-		}else{
-			//perform = perform/1000;
-			//all = all/1000;
-			view.$el.find(".contact-tsv-status-bar .contact-tsv-percentage").html(percentage+"%");
-			view.$el.find(".contact-tsv-status-bar .contact-tsv-count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
+			view.$el.find("."+name+"_status_bar  .percentage").html(percentage+"%");
+			view.$el.find("."+name+"_status_bar  .count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
 			}
 	}
 	function formateNumber(val){

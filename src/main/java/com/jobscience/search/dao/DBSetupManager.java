@@ -1,5 +1,7 @@
 package com.jobscience.search.dao;
 
+import static com.britesnow.snow.util.MapUtil.mapIt;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -318,6 +320,9 @@ public class DBSetupManager {
      * @throws SQLException
      */
     public boolean createExtraTables(String orgName) throws Exception{
+        if(!orgSetupStatus.get(orgName).booleanValue()){
+            return false;
+        }
     	boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
         File[] sqlFiles = orgFolder.listFiles();
@@ -332,6 +337,10 @@ public class DBSetupManager {
         try {
             runner.startTransaction();
             for(String sql : allSqls){
+                if(!orgSetupStatus.get(orgName).booleanValue()){//when stop the org setup,should jump out
+                    runner.commit();
+                    return false;
+                }
         		runner.executeUpdate(sql);
             }
             runner.commit();
@@ -357,6 +366,9 @@ public class DBSetupManager {
      * @throws SQLException
      */
     public boolean createIndexColumns(String orgName,boolean contactEx) throws Exception{
+       if(!orgSetupStatus.get(orgName).booleanValue()){
+           return false;
+       }
        boolean result = true;
        Map<String,JSONArray> m = getIndexMapFromJsonFile();
        Runner runner = daoHelper.openNewOrgRunner(orgName);
@@ -364,6 +376,9 @@ public class DBSetupManager {
            if(contactEx&&m.get("jss_contact")!=null){
                JSONArray ja = m.get("jss_contact");
                for(int i=0;i<ja.size();i++){
+                   if(!orgSetupStatus.get(orgName).booleanValue()){
+                       return false;
+                   }
                    JSONObject jo =  JSONObject.fromObject(ja.get(i));
                    runner.executeUpdate(generateIndexSql("jss_contact",jo));
                }
@@ -487,15 +502,15 @@ public class DBSetupManager {
      * @return
      * @see {@link #createIndexColumns(String)}
      */
-    public Integer getIndexStatus(String orgName,boolean contactEx){
+    public Integer getIndexStatus(String orgName){
     	StringBuilder sql = new StringBuilder();
         
     	sql.append( "select count(*) as count from pg_indexes " )
            .append("where indexname in (")
            .append(getIndexesNamesAndTables()[0])
            .append(getOrgCustomFilterIndex(orgName))
-           .append(") and schemaname=current_schema ")
-           .append(contactEx?" and tablename='jss_contact' ":" and tablename<>'jss_contact' ");
+           .append(") and schemaname=current_schema ");
+           //.append(contactEx?" and tablename='jss_contact' ":" and tablename<>'jss_contact' ");
     	List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
     	if(list.size()==1){
     			return Integer.parseInt(list.get(0).get("count").toString());
@@ -519,13 +534,10 @@ public class DBSetupManager {
         return sb.toString();
     }
     
-    public int getTotalIndexCount(String orgName,boolean containsContactEx){
+    public int getTotalIndexCount(String orgName){
         int count=0;
         Map<String,JSONArray> m = getIndexMapFromJsonFile();
         for(String key:m.keySet()){
-            if(!containsContactEx&&key.equals("jss_contact")){
-                continue;
-            }
             JSONArray ja = m.get(key);
             for(int i=0;i<ja.size();i++){
                 count++;
@@ -558,6 +570,9 @@ public class DBSetupManager {
     }
     
     public String removeWrongIndex(String orgName) throws Exception{
+        if(!orgSetupStatus.get(orgName).booleanValue()){
+            return "";
+        }
         StringBuilder sql = new StringBuilder();
         sql.append( "select indexname from pg_indexes " )
            .append("where indexname not in (")
@@ -572,6 +587,9 @@ public class DBSetupManager {
         Runner runner = daoHelper.openNewOrgRunner(orgName);
         try{
             for(Map m:list){
+                if(!orgSetupStatus.get(orgName).booleanValue()){
+                    return "";
+                }
                 runner.executeUpdate(" drop index "+m.get("indexname")+" ;");
             }
         }catch (Exception e) {
@@ -617,7 +635,7 @@ public class DBSetupManager {
      * @param orgName
      * @return
      */
-    public  String checkOrgExtra(String orgName){
+    public  List<Map> checkOrgExtra(String orgName){
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
     	String schemaname="" ;
     	if(orgs.size()==1){
@@ -628,16 +646,12 @@ public class DBSetupManager {
              sb.append(",'").append(tables[1]).append("'");
          }
     	
-    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select string_agg(table_name,',') as names from information_schema.tables" +
-        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ("+sb.delete(0, 1)+")");
-    	if(list.size()==1){
-            String names = (String)list.get(0).get("names");
-            if(names==null){
-                return "";
-            }
-            return names;
-        }
-    	return "";
+    	List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+    	        "select unnest(ARRAY["+sb.delete(0, 1)+"]) as tablename "+
+    	        " EXCEPT "+
+    	        " select table_name as tablename from information_schema.tables" +
+        		" where table_schema='"+schemaname+"' and table_type='BASE TABLE' and table_name in ("+sb+")");
+    	return list;
     }
     
     public  boolean hasOrgTable(String orgName,String tableName){
@@ -659,6 +673,9 @@ public class DBSetupManager {
    }
    
    public boolean createExtraGroup(String orgName,String tableName) throws Exception{
+       if(!orgSetupStatus.get(orgName).booleanValue()){
+           return false;
+       }
        boolean result = true;
        File orgFolder = new File(getRootSqlFolderPath() + "/org");
        File[] sqlFiles = orgFolder.listFiles();
@@ -1131,5 +1148,172 @@ public class DBSetupManager {
        }
        runner.commit();
        runner.close();
+   }
+   
+   private Map<String, Boolean> orgSetupStatus = new ConcurrentHashMap<String, Boolean>();
+   public void orgSetup(String orgName) throws Exception{
+       if(orgSetupStatus.get(orgName)!=null&&orgSetupStatus.get(orgName)){
+           return;
+       }
+       orgSetupStatus.put(orgName, true);
+       fixJssTableNames(orgName);
+       
+       createExtraTables(orgName);
+       createExtraGroup(orgName, "skills");
+       createExtraGroup(orgName, "educations");
+       createExtraGroup(orgName, "employers");
+       createExtraGroup(orgName, "locations");
+       
+       indexerManager.run(orgName);
+       sfidManager.run(orgName);
+       contactTsvManager.run(orgName);
+       
+       createIndexColumns(orgName, true);
+       createIndexColumns(orgName, false);
+       removeWrongIndex(orgName);
+       stopOrgSetup(orgName);
+   }
+   
+   public void resetOrgSetup(String orgName){
+       dropIndexes(orgName);
+       
+       StringBuilder sb = new StringBuilder();
+       for(String[] tables:newTableNameChanges){
+           sb.append(",").append(tables[1]);
+       }
+      
+       daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName),
+               "drop table if exists "+sb.delete(0, 1));
+   }
+   
+   public void stopOrgSetup(String orgName){
+       orgSetupStatus.put(orgName,false);
+       indexerManager.stop();
+       sfidManager.stop();
+       contactTsvManager.stop();
+   }
+   
+   private String DONE="done",RUNNING="running",NOTSTARTED="notstarted",ERROR="error",PART="part";
+   
+   public Map orgStatus(String orgName) throws SQLException{
+       Map status = new HashMap();
+       
+       String totalStatus = DONE;
+       List<Map> setups = new ArrayList<Map>();
+       List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+       String schemaname="" ;
+       if(orgs.size()==1){
+           schemaname = orgs.get(0).get("schemaname").toString();
+       }
+       
+       boolean schemaExist = this.checkSchema(orgName);
+       setups.add(mapIt("name","schema",
+                        "status",schemaExist?DONE:NOTSTARTED,
+                         "msg",schemaExist?"Org Schema Exists":"Org Schema Not Exists"));
+       if(!schemaExist){
+           totalStatus = ERROR;
+       }
+       String missingColumns = checkColumns(schemaname,"org-sync-tables.def", false);
+       setups.add(mapIt("name","ts2_table",
+               "status",missingColumns.length()>0?ERROR:DONE,
+               "msg",missingColumns.length()<=0?"Default sync tables valid":"Default sync tables missing columns: "+missingColumns));
+       if(missingColumns.length()>0){
+           totalStatus = ERROR;
+       }
+       
+       missingColumns = checkColumns(schemaname,"org-jss-tables.def", true);
+       setups.add(mapIt("name","jss_table",
+                        "status",missingColumns.length()>0?ERROR:DONE,
+                        "msg",missingColumns.length()<=0?"jss tables valid valid":"jss tables Missing columns: "+missingColumns));
+       if(missingColumns.length()>0&&totalStatus.equals(DONE)){
+           totalStatus = NOTSTARTED;
+       }
+       
+       setups.add(mapIt("name","fix_old_jss_table",
+                        "status",hasOldJssTableNames(orgName,schemaname)?NOTSTARTED:DONE));
+
+       
+       
+       List<Map> jssTables = this.checkOrgExtra(orgName);
+       StringBuffer missingTables = new StringBuffer();
+       for(Map m:jssTables){
+           missingTables.append(", ").append(m.get("tablename"));
+       }
+       setups.add(mapIt("name","create_extra_table",
+                        "status", missingTables.length()>0?NOTSTARTED:DONE,
+                         "msg",missingTables.length()>0?"Missing Tables:"+missingTables.delete(0, 1):"Jss tables created"));
+       setups.add(mapIt("pgtrgm", this.checkExtension("pg_trgm")>0?DONE:NOTSTARTED));
+
+       
+       if(missingTables.indexOf("jss_contact")==-1){
+           if(checkColumn("contact_tsv", "jss_contact", schemaname)){
+               IndexerStatus tsvIs = contactTsvManager.getStatus(orgName, false);
+               String tsvStatus = contactTsvManager.isOn() ? RUNNING : (tsvIs.getRemaining() > 0 ? PART
+                       : DONE);
+               setups.add(mapIt("name", "tsv",
+                       "status", tsvStatus, 
+                       "progress",tsvIs));
+               if(tsvIs.getRemaining()>0&&totalStatus.equals(DONE)){
+                   totalStatus = PART;
+               }
+           }else{
+               setups.add(mapIt("name","tsv",
+                       "status",NOTSTARTED,
+                       "progress",0));
+           }
+           
+           IndexerStatus is = indexerManager.getStatus(orgName, false);
+           String indexStatus = indexerManager.isOn()?RUNNING:
+                                                      (is.getRemaining()>0?PART:DONE);
+           setups.add(mapIt("name","resume",
+                   "status",indexStatus,
+                   "progress",is));
+           if(is.getRemaining()>0&&totalStatus.equals(DONE)){
+               totalStatus = PART;
+           }
+           
+           IndexerStatus sfIs = sfidManager.getStatus(orgName, false);
+           String sfidStatus = sfidManager.isOn() ? RUNNING : (sfIs.getRemaining() > 0 ? PART
+                    : DONE);
+           setups.add(mapIt("name", "sfid",
+                             "status", sfidStatus, 
+                             "progress",sfIs));
+           
+           if(sfIs.getRemaining()>0&&totalStatus.equals(DONE)){
+               totalStatus = PART;
+           }
+           
+       }else{
+           setups.add(mapIt("name","resume",
+                   "status",NOTSTARTED,
+                   "progress",0));
+           setups.add(mapIt("name","sfid",
+                   "status",NOTSTARTED,
+                   "progress",0));
+           setups.add(mapIt("name","tsv",
+                   "status",NOTSTARTED,
+                   "progress",0));
+           if(totalStatus.equals(DONE)){
+               totalStatus = PART;
+           }
+       }
+       int indexCount = getIndexStatus(orgName);
+       int totalIndexCount = getTotalIndexCount(orgName);
+       setups.add(mapIt("name","indexes",
+                        "status",totalIndexCount>indexCount?PART:DONE,
+                         "progress",new IndexerStatus(totalIndexCount-indexCount, indexCount)));
+       
+       if((totalIndexCount>indexCount)&&totalStatus.equals(DONE)){
+           totalStatus = PART;
+       }
+       
+       if(orgSetupStatus.get(orgName)!=null&&orgSetupStatus.get(orgName)){
+           totalStatus = RUNNING;
+       }
+       status.put("status", totalStatus);
+       status.put("setups", setups);
+       
+       return status;
+   
    }
 }    

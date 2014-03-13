@@ -60,11 +60,7 @@ public class ContactTsvManager {
 	    	e.printStackTrace();
 			throw e;
 		}
-	    if(indexerStatus==null){
-	    	int all = getContactsCount(orgName);
-	    	int perform = getContactExCount(orgName);
-	    	indexerStatus = new IndexerStatus(all-perform, perform);
-	    }
+	    indexerStatus = getStatus(orgName, false);
 	    
 	    Runner runner = daoHelper.openNewOrgRunner(orgName);
         PQuery pq = runner.newPQuery(insertSql);
@@ -76,10 +72,13 @@ public class ContactTsvManager {
 	    if(indexerStatus.getRemaining()==0){
 	    	this.on = false;
 	    }
+	    pq.close();
+        runner.close();
 	 }
 	 
 	 public void stop(){
 		 this.on = false;
+		 indexerStatus = null;
 	 }
 
     public IndexerStatus getStatus(String orgName, boolean quick) {

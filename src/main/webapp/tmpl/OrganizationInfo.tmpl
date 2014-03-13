@@ -10,137 +10,81 @@
         <div class="OrganizationInfo-content">
             <h3>Schema Check</h3>
             <div class="check-status">
-                <div class="alert schema-info"></div>
+                <div class="alert schema_info"></div>
             </div>
             <div class="check-status">
-                <div class="alert ts2table-info"></div>
+                <div class="alert ts2_table_info"></div>
             </div>
             <div class="check-status">
-                <div class="alert jsstable-info"></div>
+                <div class="alert jss_table_info"></div>
             </div>
             <div class="fix-btn">
                 <button class="btn btn-primary fix-missing-columns hide">Fix the missing columns</button>
             </div>
         <h3 class="title">Setup</h3>
         <div class="notice hide">Must set the right schema name</div>
+        <div class="opts-btns">
+            <button class="btn btn-primary org-setup">Setup</button>            
+            <button class="btn btn-primary org-pause">Pause</button>            
+            <button class="btn btn-danger org-reset">Reset</button>            
+        </div>
         <div class="setup-content">
             <table class="content-table">
                 <!--<tr><td class="left"><span>Import base data and tables: </span></td><td class="right"><button class="btn btn-primary save import">Import</button></td>
                 </tr>-->
                 <tr class="btn_tr">
-                  <td class="left"><span>0. </span></td><td class="right"><button class="btn btn-primary fix-table" disabled>Fix JSS Table Names</button></td>
-                  <td class="alert-td"><div class="alert alert-danger transparent"></div>
-                  </td>                
-                </div>
+                    <td class="right">
+                       <span>Jss Tables:</span>
+                   </td>
+                 	<td class="alert-td"><div class="alert create_extra_table_info "></div></td>
                 </tr>
                 <tr class="btn_tr">
-                	<td class="left"><span>1. </span></td><td class="right"><button class="btn btn-primary  extra" disabled>Create Extra Tables</button></td>
-                 	<td class="alert-td"><div class="alert alert-danger transparent"></div></td>
-                </tr>
-               
-                <tr class="btn_tr">
-                	<td class="left"><span>2. </span></td><td class="right"><button class="btn btn-primary  resume" disabled>Create Index Resume</button>
-                                     <!-- <button class="btn btn-primary status hide">Get Status</button> --><span class="index-info info"></span></td>
+                   <td class="right">
+                       <span>Resume Copy:</span>
+                   </td>
                    <td class="alert-td">
-                   <div class="progress db-status-bar">
-			         <div class="progress-bar progress-bar-success">
-			         </div>
-			         <span class="db-percentage"></span>
-			         <span class="db-count-info"></span>
-			       </div>
-			       </td>
-			       <td>
-                  	 <div class="alert alert-danger transparent"></div>
+                        <div class="progress resume_status_bar">
+                            <div class="progress-bar progress-bar-success"></div>
+                            <span class="percentage"></span>
+                            <span class="count-info"></span>
+                        </div>
                    </td>
                 </tr>
-                
-              <tr class="btn_tr">
-                  <td class="left"><span>3. </span></td><td class="right"><button class="btn btn-primary  sfid" disabled>copy sfid</button>
-                                   <span class="index-info info"></span></td>
+                <tr class="btn_tr">
+                    <td class="right">
+                       <span>Sfid Copy:</span>
+                   </td>
                    <td class="alert-td">
-                   <div class="progress sfid-status-bar">
-               <div class="progress-bar progress-bar-success">
-               </div>
-               <span class="sfid-percentage"></span>
-               <span class="sfid-count-info"></span>
-             </div>
-             </td>
-             <td>
-                     <div class="alert alert-danger transparent"></div>
+                        <div class="progress sfid_status_bar">
+                            <div class="progress-bar progress-bar-success"></div>
+                            <span class="percentage"></span>
+                            <span class="count-info"></span>
+                        </div>
                    </td>
                 </tr>
-                
-                  <tr class="btn_tr">
-                  <td class="left"><span>4. </span></td><td class="right"><button class="btn btn-primary  contact-tsv" disabled>Create contact_tsv</button>
-                                   <span class="index-info info"></span></td>
+                <tr class="btn_tr">
+                    <td class="right">
+                       <span>Contact_tsv Copy:</span>
+                   </td>
                    <td class="alert-td">
-                   <div class="progress contact-tsv-status-bar">
-                     <div class="progress-bar progress-bar-success">
-                     </div>
-                     <span class="contact-tsv-percentage"></span>
-                     <span class="contact-tsv-count-info"></span>
-                   </div>
-                   </td>
-                   <td>
-                     <div class="alert alert-danger transparent"></div>
-                   </td>
-                </tr>
-                
-                 <tr class="btn_tr" id="index">
-                    <td class="left"><span>5.  </span></td><td class="right"><button class="btn btn-primary  contact-index" disabled>Create jss_contact Indexes</button></td>
-                      <td class="alert-td">
-                       <div class="progress contact-index-status-bar">
-                       <div class="progress-bar progress-bar-success">
-                       </div>
-                       <span class="contact-index-percentage"></span>
-                     </div>
-                   </td>
-                    <td class="alert-td"><div class="alert alert-danger transparent"></div></td>
-                </tr>
-                
-                <tr class="btn_tr">
-                   <td class="left"><span>6. </span></td><td class="right"><button class="btn btn-primary  jss_grouped_skills ex_grouped" disabled>Create jss_grouped_skills</button>
-                   </td>
-                   <td>
-                     <div class="alert alert-danger transparent"></div>
+                        <div class="progress tsv_status_bar">
+                            <div class="progress-bar progress-bar-success"></div>
+                            <span class="percentage"></span>
+                            <span class="count-info"></span>
+                        </div>
                    </td>
                 </tr>
                 <tr class="btn_tr">
-                   <td class="left"><span>7. </span></td><td class="right"><button class="btn btn-primary  jss_grouped_educations ex_grouped" disabled>Create jss_grouped_educations</button>
+                    <td class="right">
+                       <span>Indexes:</span>
                    </td>
-                   <td>
-                     <div class="alert alert-danger transparent"></div>
+                   <td class="alert-td">
+                        <div class="progress indexes_status_bar">
+                            <div class="progress-bar progress-bar-success"></div>
+                            <span class="percentage"></span>
+                            <span class="count-info"></span>
+                        </div>
                    </td>
-                </tr>
-                <tr class="btn_tr">
-                   <td class="left"><span>8. </span></td><td class="right"><button class="btn btn-primary  jss_grouped_employers ex_grouped" disabled>Create jss_grouped_employers</button>
-                   </td>
-                   <td>
-                     <div class="alert alert-danger transparent"></div>
-                   </td>
-                </tr>
-                <tr class="btn_tr">
-                   <td class="left"><span>9. </span></td><td class="right"><button class="btn btn-primary  jss_grouped_locations ex_grouped" disabled>Create jss_grouped_locations</button>
-                   </td>
-                   <td>
-                     <div class="alert alert-danger transparent"></div>
-                   </td>
-                </tr>
-                 <tr class="btn_tr">
-                  <td class="left"><span>10.  </span></td><td class="right"><button class="btn btn-primary  index" disabled>Create Index Columns</button></td>
-                    <td class="alert-td">
-                     <div class="progress index-status-bar">
-                 <div class="progress-bar progress-bar-success">
-                 </div>
-                 <span class="db-percentage"></span>
-               </div>
-             </td>
-                    <td class="alert-td"><div class="alert alert-danger transparent"></div></td>
-                </tr>
-                
-                <tr class="btn_tr">
-                  <td class="left"><span>11.  </span></td><td class="right"><button class="btn btn-primary  remove-wrong-index" disabled>Remove Wrong indexes</button></td>
-                  <td class="alert-td" colspan="2"><div class="alert alert-danger transparent"></div></td>
                 </tr>
              </table>
          </div>

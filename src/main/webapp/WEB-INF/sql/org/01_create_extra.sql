@@ -4,6 +4,7 @@
 	  id bigint NOT NULL,
 	  resume_tsv tsvector,
 	  skills_tsv tsvector,
+	  contact_tsv tsvector,
 	  sfid character varying(18),
 	  CONSTRAINT jss_contact_pkey PRIMARY KEY (id),
 	  CONSTRAINT fk_jss_contact_contact FOREIGN KEY (id)
