@@ -29,6 +29,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.auth.AuthCode;
+import com.jobscience.search.auth.AuthException;
 import com.jobscience.search.canvas.SignedRequest;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
@@ -106,7 +107,7 @@ public class AppAuthRequest implements AuthRequest {
         }else{
             rc.removeCookie(COOKIE_PASSCODE);
         }
-        return webResponseBuilder.fail("passcode error");
+        return webResponseBuilder.fail(new AuthException(AuthCode.NO_PASSCODE));
     }
     
     @WebPost("/admin-login")

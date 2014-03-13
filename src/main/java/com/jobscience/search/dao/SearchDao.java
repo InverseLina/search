@@ -29,8 +29,6 @@ import com.jobscience.search.searchconfig.FilterField;
 import com.jobscience.search.searchconfig.FilterType;
 import com.jobscience.search.searchconfig.SearchConfiguration;
 import com.jobscience.search.searchconfig.SearchConfigurationManager;
-import com.jobscience.search.web.ReqPerf;
-import com.jobscience.search.web.ReqPerfHook;
 
 @Singleton
 public class SearchDao {
@@ -74,12 +72,16 @@ public class SearchDao {
     		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token,OrgContext org) {
         Runner runner = daoHelper.openDefaultRunner();
         
-        ReqPerf reqPerf = crch.getCurrentRequestContext().getAttributeAs(ReqPerfHook.REQ_PERF,ReqPerf.class);
-        reqPerf.start("beforeSelect");
+        // Use new perf hook for now.
+//        ReqPerf reqPerf = crch.getCurrentRequestContext().getAttributeAs(ReqPerfHook.REQ_PERF,ReqPerf.class);
+//        reqPerf.start("beforeSelect");
+        
         //builder statements
         SearchStatements statementAndValues = 
         		buildSearchStatements(searchColumns,searchValues, pageIdx, pageSize,orderCon,org);
-        reqPerf.stop("beforeSelect");
+        
+//        reqPerf.stop("beforeSelect");
+        
         //excute query and caculate times
         long start = System.currentTimeMillis();
         List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
@@ -87,7 +89,7 @@ public class SearchDao {
         int count =  runner.executeCount(statementAndValues.countSql, statementAndValues.values);
         long end = System.currentTimeMillis();
 
-        reqPerf.start("afterSelect");
+//        reqPerf.start("afterSelect");
         
         queryLogger.debug(LoggerType.SEARCH_PERF,mid - start);
         queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,end - mid);
@@ -108,7 +110,8 @@ public class SearchDao {
         searchResult.setPageIdx(pageIdx);
         searchResult.setPageSize(pageSize);
         
-        reqPerf.stop("afterSelect");
+//        reqPerf.stop("afterSelect");
+        
         return searchResult;
     }
     

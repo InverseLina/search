@@ -118,7 +118,7 @@ public class SearchWebHandlers {
         result.put("list", sResult.getResult());
         result.put("selectDuration", sResult.getSelectDuration());
         result.put("duration", sResult.getDuration());
-        WebResponse wr = WebResponse.success(result);
+        WebResponse wr = webResponseBuilder.success(result);
         return wr;
     }
 

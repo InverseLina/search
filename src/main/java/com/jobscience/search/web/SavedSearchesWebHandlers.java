@@ -42,7 +42,7 @@ public class SavedSearchesWebHandlers {
             return webResponseBuilder.success();
         } catch (Exception e) {
             e.printStackTrace();
-            return webResponseBuilder.fail(e.getMessage());
+            return webResponseBuilder.fail(e);
         }
     }
 
