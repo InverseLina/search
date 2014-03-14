@@ -58,6 +58,22 @@
 		left: 5px;
 		top: 10px;
 		right: 0px;
+		.btnSelect{
+			width: 25px;
+			height: 25px;
+			border-radius: 32px;
+			border: 1px solid #a1c5c8;
+			float: left;
+			margin-left: 10px;
+			cursor:pointer;
+			&.selectAll{
+				margin-left:25px;
+				background:#92c7cb;
+			}
+			&.deselect{
+				margin-right:10px;
+			}
+		}
 		.searchField{
 			float:left;
 		}
@@ -195,7 +211,7 @@
 						&.applyContact {
 							padding-left: 0;
 							.headerTh {
-								background: #ebebeb;
+								background:none;
 								padding-left: 0;
 							}
 						}
@@ -338,18 +354,19 @@
 						top: 38px;
 					}
 					tr {
-						padding-bottom: 8px;
-						padding-top: 8px;
-						min-height: 60px;
+						padding:2px 0;
 					}
-					tr.select, tr.applySelect, tr:hover {
+					tr.select td:not(.applyContact), tr.applySelect:not(.full) td:not(.applyContact), tr:not(.full):hover td:not(.applyContact) {
 						background: #D5FEFF !important;
 					}
 					
-					tr:nth-of-type(even) {
+					tr:nth-of-type(even) td:not(.applyContact){
 						background: #ECECEC;
 					}
 					td {
+						padding-bottom: 8px;
+						padding-top: 8px;
+						min-height: 60px;
 						> span {
 							display: block;
 							width: 100%;
@@ -384,13 +401,21 @@
 						}
 					}
 					td.applyContact {
-						width: 32px;
-						input {
-							line-height: 60px;
-							height: 60px;
-							margin-top: -1px;
-							margin-left: 5px;
+						width: 15px;
+						position: relative;
+						.selectCheckbox{
+							cursor:pointer;
+							position:absolute;
+							left:0px;
+							top:0px;
+							right:4px;
+							bottom:0px;
+							border:1px solid #a1c5c8;
+							&.selected{
+								background:#92c7cb;
+							}
 						}
+						
 					}
 					td.favLabel {
 						width: 32px;
@@ -415,7 +440,6 @@
 			
 						
 			table.scrollTable tbody tr {
-				border-bottom: 1px solid #dddddd;
 				display: block;
 			}
 

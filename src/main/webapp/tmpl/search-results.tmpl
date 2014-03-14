@@ -5,7 +5,7 @@
             {{#each items}}
             <tr data-entity="Contact" data-entity-id="{{names.id}}" data-objId="{{names.id}}" data-contractName="{{names.name}}" data-sfid="{{names.sfid}}">
                 <td class="applyContact">
-                    <div><input type="checkbox" name="applyId" value="{{names.id}}"/></div>
+                    <div class="selectCheckbox" data-name="{{applyId}}" data-value="{{names.id}}"></div>
                 </td>
                 <td class="favLabel  {{#if hasLabel}}hasLabel{{/if}} " title = {{labelName}}><div>
                     {{#if isFav}}

@@ -150,16 +150,36 @@
             brite.display("CellPopup", null, data);
         }
       },
-      "click; .applyContact input": function(event) {
+      "click; .applyContact .selectCheckbox": function(event) {
           var view = this;
           var $e = view.$el;
-          var $tr = $(event.currentTarget).closest("tr");
+          var $this = $(event.currentTarget);
+          var $tr = $this.closest("tr");
+          
+          $this.toggleClass("selected");
           if($tr.hasClass("applySelect")){
               $tr.removeClass("applySelect");
           }else{
               $tr.addClass("applySelect");
           }
-          if(view.$el.find("tr.applySelect").length > 0){
+          if(view.$el.find("tr.applySelect[data-entity]").length > 0){
+              $e.trigger("DO_TOOLBAR_ACTIVE_BUTTONS");
+          }else{
+              $e.trigger("DO_TOOLBAR_DEACTIVE_BUTTONS");
+          }
+      },
+      "click; .btnSelect": function(event) {
+          var view = this;
+          var $e = view.$el;
+          var $this = $(event.currentTarget);
+          
+          if($this.hasClass("selectAll")){
+          	$e.find(".tableContainer tr").addClass("applySelect").find(".selectCheckbox").addClass("selected");
+          }else{
+          	$e.find(".tableContainer tr").removeClass("applySelect").find(".selectCheckbox").removeClass("selected");
+          }
+          
+          if(view.$el.find("tr.applySelect[data-entity]").length > 0){
               $e.trigger("DO_TOOLBAR_ACTIVE_BUTTONS");
           }else{
               $e.trigger("DO_TOOLBAR_DEACTIVE_BUTTONS");
@@ -659,8 +679,12 @@
         colLen--;
       }
     //checkbox
-    tableWidth = tableWidth - 30;
-    tableWidth = tableWidth - 32;
+    var applyContactCheckboxWidth = 15;
+    tableWidth = tableWidth - applyContactCheckboxWidth;
+    if(!view.labelDisable){
+	    tableWidth = tableWidth - 32;
+    }
+    
     if (colLen != 0) {
       colWidth = tableWidth / colLen;
     } else {
@@ -688,32 +712,40 @@
       } else if ($item.hasClass("checkboxCol")) {
         realWidth = 30;
       } else if ($item.hasClass("applyContact")) {
-        realWidth = 32;
+        realWidth = applyContactCheckboxWidth;
       } else if ($item.hasClass("favLabel")) {
-        realWidth = 32;
+        if(!view.labelDisable){
+	    	realWidth = 32;
+	    }
       } else if (colName=="resume") {
         realWidth = 95;
       } else {
         realWidth = colWidth;
       }
       if (idx == tlen) {
-          $item.css({
+        $item.css({
           width : realWidth + 50,
           "max-width" : realWidth + 50,
           "min-width" : realWidth
         });
+        $body.find("tr td:nth-child("+(idx+1)+")").css({
+	      width : realWidth + 50,
+	      "max-width" : realWidth + 50,
+	      "min-width" : realWidth
+	    });
       } else {
-          $item.css({
+        $item.css({
           width : realWidth,
           "max-width" : realWidth,
           "min-width" : realWidth
         });
+        $body.find("tr td:nth-child("+(idx+1)+")").css({
+	      width : realWidth,
+	      "max-width" : realWidth,
+	      "min-width" : realWidth
+	    });
       }
-      $body.find("td[data-column='" + colName + "']").css({
-        width : realWidth,
-        "max-width" : realWidth,
-        "min-width" : realWidth
-      });
+      
         //fix for ie
         $body.find("td[data-column='" + colName + "'] > span").css({
             width : Math.floor(realWidth - 4),
