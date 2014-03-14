@@ -601,19 +601,7 @@
 					  notLast : colLen - j > 1
 			  });
 			  
-		   }else if (columns[j] == "resume") {
-              var value = "", resume = items[i][columns[j]];
-
-               if(items[i][columns[j]] != -1){
-                  value = "<i data-id='" + items[i][columns[j]] + "' data-sfid='"+items[i]["sfid"]+"' data-cname='"+items[i]["name"]+"' title='View Resume.' class='resume-ico glyphicon glyphicon-file'></i>";
-               }
-
-  	          item.push({
-  	            name : columns[j],
-  	            value : value,
-  	            notLast : colLen - j > 1
-  	          });
-  	        } else if (columns[j] == "CreatedDate") {
+		   }else if (columns[j] == "CreatedDate") {
   	            item.push({
   	                name : columns[j],
   	                value : formateDate(items[i][columns[j]],dateFormat),
@@ -621,6 +609,9 @@
   	              });
   	         } else if (columns[j] == "contact") {
   	           var displayValue = "<a class='lineInfo name' target='_blank' href='"+app.orgInfo.instance_url+items[i]["sfid"]+"'>"+items[i]["name"]+"</a>";
+  	           if(items[i]['resume'] != -1){
+                  displayValue += "<i data-id='" + items[i]["resume"] + "' data-sfid='"+items[i]["sfid"]+"' data-cname='"+items[i]["name"]+"' title='View Resume.' class='resume-ico glyphicon glyphicon-file'></i>";
+               }
   	           displayValue += "<div class='lineInfo title'>"+items[i]["title"]+"</div>";
   	           displayValue += "<a class='lineInfo email' href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a>";
   	           //displayValue += "<div class='lineInfo phone'>"+items[i]["phone"]+"</div>";

@@ -72,7 +72,7 @@ public class SearchWebHandlers {
             orderCon = " \"id\" asc";
         }
         //for contact,use id,name,title,email,CreatedDate instead
-        searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
+        searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate,resume");
         SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon,searchValues,(String)token.get("ctoken"),orgHolder.getCurrentOrg());
         //WebResponse wr = WebResponse.success(searchResult);
         return webResponseBuilder.success(searchResult);

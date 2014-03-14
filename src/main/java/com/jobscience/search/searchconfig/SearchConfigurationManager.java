@@ -78,12 +78,6 @@ public class SearchConfigurationManager {
                     filters.add(m);
                 }
         }
-        
-         filters.add(mapIt(          "name",   "resume",
-                                    "title",   "Resume",
-                                   "native",   true,
-                                     "show",   false,
-                                     "type",   "resume"));
         return filters;
     }
     
