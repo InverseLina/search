@@ -32,23 +32,23 @@
       },
       "click;.setupStart:not([disabled])":function(event){
       	var view = this;
-      	view.$el.trigger("START",false);
+      	view.$el.trigger("START");
       },
       "click;.setupResume:not([disabled])":function(event){
       	var view = this;
-      	view.$el.trigger("START",false);
+      	view.$el.trigger("START");
       },
       "click;.setupPause:not([disabled])":function(event){
       	var view = this;
       	view.$el.trigger("PAUSE");
       },
-      "click;.setupRestart:not([disabled])":function(event){
+      "click;.setupReset:not([disabled])":function(event){
       	var view = this;
-      	view.$el.trigger("START",true);
+      	view.$el.trigger("RESET");
       },
-      "START":function(event,force){
+      "START":function(event){
     	  var view = this;
-    	  app.getJsonData("/admin-sys-start",{force:force},{type:"Post"}).done(function(data){
+    	  app.getJsonData("/admin-sys-start",{},{type:"Post"}).done(function(data){
     	  	view.$el.trigger("STATUS_CHANGE", data);
     	  	startTimer.call(view);
     	  });
@@ -56,7 +56,14 @@
       "PAUSE":function(event){
     	  var view = this;
     	  app.getJsonData("/admin-sys-pause",{},{type:"Post"}).done(function(data){
+    	  	view.$el.trigger("STATUS_CHANGE", data);
     	  	stopTimer.call(view);
+    	  });
+      },
+      "RESET":function(event){
+    	  var view = this;
+    	  app.getJsonData("/admin-sys-reset",{},{type:"Post"}).done(function(data){
+    	  	view.$el.trigger("STATUS_CHANGE", data);
     	  });
       },
       "STATUS_CHANGE":function(event, statusData){
@@ -64,7 +71,7 @@
     	  var $e = view.$el;
     	  var $btnStart = $e.find(".setupStart");
     	  var $btnPause = $e.find(".setupPause");
-    	  var $btnRestart = $e.find(".setupRestart");
+    	  var $btnReset = $e.find(".setupReset");
     	  var $btnResume = $e.find(".setupResume");
     	  var $alertCreateSchema = $e.find(".create .alert").removeClass("alert-warning alert-success alert-error alert-info");
     	  var $alertImportZipcode = $e.find(".import .alert").removeClass("alert-warning alert-success alert-error alert-info");;
@@ -74,7 +81,7 @@
     	  if(!statusData){
     	  	return ;
     	  }
-    	  
+    	  console.log(statusData);
     	  if(statusData.create_sys_schema.status == "done"){
     	  	$alertCreateSchema.addClass("alert-success").html("Done");
     	  }else if(statusData.create_sys_schema.status == "incomplete"){
@@ -117,32 +124,40 @@
     	  
     	  if(statusData.status == "notstarted"){
     	  	$btnStart.removeClass("hide").prop("disabled",false);
+    	  	$btnReset.removeClass("hide").prop("disabled",false).html("Reset");
     	  	// $btnStart.removeClass("hide").prop("disabled",false);
     	  	// $btnResume.addClass("hide");
     	  	// $btnPause.removeClass("hide").prop("disabled",true);
-    	  	// $btnRestart.removeClass("hide").prop("disabled",true);
+    	  	// $btnReset.removeClass("hide").prop("disabled",true);
     	  	
     	  	stopTimer.call(view);
     	  }else if(statusData.status == "running"){
-    	  	$btnStart.removeClass("hide").prop("disabled",true).html("Running...");
+    	  	$btnStart.removeClass("hide").prop("disabled",true);
+    	  	$btnReset.removeClass("hide");
+    	  	if(statusData.caceling){
+	    	  	$btnReset.html("Reseting...").prop("disabled",true);
+    	  	}else{
+	    	  	$btnReset.html("Reset").prop("disabled",false);
+    	  	}
     	  	// $btnStart.addClass("hide");
     	  	// $btnResume.removeClass("hide").prop("disabled",true);
     	  	// $btnPause.removeClass("hide").prop("disabled",false);
-    	  	// $btnRestart.removeClass("hide").prop("disabled",false);
+    	  	// $btnReset.removeClass("hide").prop("disabled",false);
     	  	startTimer.call(view);
     	  }else if(statusData.status == "incomplete"){
     	  	$btnStart.removeClass("hide").prop("disabled",false);
+    	  	$btnReset.removeClass("hide").prop("disabled",false).html("Reset");
     	  	// $btnStart.addClass("hide");
     	  	// $btnResume.removeClass("hide").prop("disabled",false);
     	  	// $btnPause.removeClass("hide").prop("disabled",true);
-    	  	// $btnRestart.removeClass("hide").prop("disabled",false);
+    	  	// $btnReset.removeClass("hide").prop("disabled",false);
     	  	
     	  	stopTimer.call(view);
     	  }else if(statusData.status == "done"){
-    	  	$btnStart.hide();
-    	  	$btnResume.hide();
-    	  	$btnPause.hide();
-    	  	$btnRestart.hide();
+    	  	$btnStart.addClass("hide");
+    	  	$btnResume.addClass("hide");
+    	  	$btnPause.addClass("hide");
+    	  	$btnReset.addClass("hide");
     	  	stopTimer.call(view);
     	  	
     	  	$e.find(".setting .alert").removeClass("alert-info").addClass("alert-success").html("Done");

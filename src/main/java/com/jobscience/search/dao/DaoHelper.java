@@ -206,6 +206,20 @@ public class DaoHelper {
         }
         return sysDs;
     }
+    
+    /**
+     * if system table not existed,need create it
+     * @return
+     */
+    public void dropSysSchemaIfNecessary() {
+        if(checkSysSchema()){
+            executeUpdate(openDefaultRunner(), "Drop SCHEMA " + sysSchema + " CASCADE ", new Object[0]);
+        }
+        if(sysDs!=null){
+            sysDs = null;
+            sysDBHelper = null;
+        }
+    }
 
     public void updateSysDs(){
         sysDs = buildDs(url, sysSchema);

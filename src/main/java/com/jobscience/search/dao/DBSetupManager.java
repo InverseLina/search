@@ -96,6 +96,9 @@ public class DBSetupManager {
             INCOMPLETE="incomplete";
      
     private volatile Thread sysThread;
+    private volatile boolean sysReseting = false;
+    private volatile HttpURLConnection zipCodeConnection = null;
+    private volatile HttpURLConnection cityConnection = null;
     private boolean firstSetup = false;
     private String step = null;
     
@@ -252,11 +255,11 @@ public class DBSetupManager {
 
     // ---------- system setup interfaces ----------//
     // ---------- Thread ----------//
-    public void systemSetup(boolean force) {
-        if (sysThread != null && force) {
+    public void systemSetup() {
+        if (sysThread != null) {
             stopSystemSetup();
         }
-
+        
         if (sysThread == null) {
             sysThread = new Thread(new Runnable() {
                 @Override
@@ -278,6 +281,23 @@ public class DBSetupManager {
         if (sysThread != null) {
             sysThread.interrupt();
             sysThread = null;
+        }
+    }
+    
+    public void resetSysSetup() {
+        try {
+            clearSysSetup();
+            firstSetup = false;
+            step = null;
+            sysReseting = true;
+            if(cityConnection != null){
+                cityConnection.disconnect();
+            }
+            if(zipCodeConnection != null){
+                zipCodeConnection.disconnect();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -321,6 +341,13 @@ public class DBSetupManager {
 
             if (isSystemSetupRunning()) {
                 status.put(statusKey, RUNNING);
+                if (sysReseting) {
+                    status.put("caceling", true);
+                }
+            } else {
+                if (sysReseting) {
+                    sysReseting = false;
+                }
             }
 
             if (!(Boolean) result.get("schema_create")) {
@@ -427,6 +454,32 @@ public class DBSetupManager {
     // ---------- /system setup interfaces ----------//
 
     // ---------- public methods ----------//
+    
+    /**
+     * drop extension for db
+     * 
+     * @param extName
+     * @return
+     * @throws SQLException
+     */
+    public boolean dropExtension(String extName) throws SQLException {
+        boolean result = false;
+
+        if (checkExtension(extName) != 0) {
+            result = true;
+            daoHelper.executeUpdate(daoHelper.openDefaultRunner(), "drop extension  if  exists " + extName
+                                    + "  cascade;");
+        }
+
+        return result;
+    }
+
+    public void clearSysSetup() throws SQLException {
+        dropExtension("earthdistance");
+        dropExtension("cube");
+        dropExtension("pg_trgm");
+        daoHelper.dropSysSchemaIfNecessary();
+    }
 
     /**
      * create extension for public schema
@@ -716,8 +769,8 @@ public class DBSetupManager {
         }
         try {
             URL url = new URL(cityPath);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            ZipInputStream in = new ZipInputStream(con.getInputStream());
+            cityConnection = (HttpURLConnection) url.openConnection();
+            ZipInputStream in = new ZipInputStream(cityConnection.getInputStream());
             in.getNextEntry();
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line = br.readLine();
@@ -1166,8 +1219,8 @@ public class DBSetupManager {
         try {
             int rowCount = 0;
             URL url = new URL(zipcodePath);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            ZipInputStream in = new ZipInputStream(con.getInputStream());
+            zipCodeConnection = (HttpURLConnection) url.openConnection();
+            ZipInputStream in = new ZipInputStream(zipCodeConnection.getInputStream());
             in.getNextEntry();
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line = br.readLine();
@@ -1375,53 +1428,46 @@ public class DBSetupManager {
     }
 
     private void setupSystemSchema() throws Exception {
-        if (isSystemSetupRunning()) {
-            Map status = getSystemSetupStatus();
+        Map status = getSystemSetupStatus();
 
-            Map stepCreateSysSchema = (Map) status.get("create_sys_schema");
-            String statusStr = (String) stepCreateSysSchema.get("status");
-            if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE)
-                    || statusStr.equals(ERROR)) {
-                step = "create_sys_schema";
-                createSysSchema();
-            }
-
-            Map stepImportZipcode = (Map) status.get("import_zipcode");
-            statusStr = (String) stepImportZipcode.get("status");
-            if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE)
-                    || statusStr.equals(ERROR)) {
-                step = "import_zipcode";
-                updateZipCode();
-            }
-
-            Map stepCreateExtension = (Map) status.get("create_extension");
-            statusStr = (String) stepCreateExtension.get("status");
-            if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE)
-                    || statusStr.equals(ERROR)) {
-                step = "create_extension";
-                createExtension("pg_trgm");
-                createExtension("cube");
-                createExtension("earthdistance");
-            }
-
-            Map stepImportCity = (Map) status.get("import_city");
-            statusStr = (String) stepImportCity.get("status");
-            if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE)
-                    || statusStr.equals(ERROR)) {
-                step = "import_city";
-                importCity();
-            }
-
-            Map stepCheckMissingColumns = (Map) status.get("check_missing_columns");
-            statusStr = (String) stepCheckMissingColumns.get("status");
-            if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE)
-                    || statusStr.equals(ERROR)) {
-                step = "check_missing_columns";
-                fixMissingColumns(null, true);
-            }
-
-            firstSetup = false;
+        Map stepCreateSysSchema = (Map) status.get("create_sys_schema");
+        String statusStr = (String) stepCreateSysSchema.get("status");
+        if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE) || statusStr.equals(ERROR)) {
+            step = "create_sys_schema";
+            createSysSchema();
         }
+
+        Map stepImportZipcode = (Map) status.get("import_zipcode");
+        statusStr = (String) stepImportZipcode.get("status");
+        if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE) || statusStr.equals(ERROR)) {
+            step = "import_zipcode";
+            updateZipCode();
+        }
+
+        Map stepCreateExtension = (Map) status.get("create_extension");
+        statusStr = (String) stepCreateExtension.get("status");
+        if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE) || statusStr.equals(ERROR)) {
+            step = "create_extension";
+            createExtension("pg_trgm");
+            createExtension("cube");
+            createExtension("earthdistance");
+        }
+
+        Map stepImportCity = (Map) status.get("import_city");
+        statusStr = (String) stepImportCity.get("status");
+        if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE) || statusStr.equals(ERROR)) {
+            step = "import_city";
+            importCity();
+        }
+
+        Map stepCheckMissingColumns = (Map) status.get("check_missing_columns");
+        statusStr = (String) stepCheckMissingColumns.get("status");
+        if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE) || statusStr.equals(ERROR)) {
+            step = "check_missing_columns";
+            fixMissingColumns(null, true);
+        }
+
+        firstSetup = false;
 
     }
 }    

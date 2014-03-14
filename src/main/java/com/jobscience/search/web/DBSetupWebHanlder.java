@@ -77,9 +77,8 @@ public class DBSetupWebHanlder {
     
     @WebPost("/admin-sys-start")
     @RequireAdmin
-    public WebResponse start(@WebParam("force") Boolean force){
-        force = force == null ? false : true;
-        dbSetupManager.systemSetup(force);
+    public WebResponse start(){
+        dbSetupManager.systemSetup();
         Map status = dbSetupManager.getSystemSetupStatus();
         return webResponseBuilder.success(status);
     }
@@ -88,6 +87,14 @@ public class DBSetupWebHanlder {
     @RequireAdmin
     public WebResponse pause(){
         dbSetupManager.stopSystemSetup();
+        Map status = dbSetupManager.getSystemSetupStatus();
+        return webResponseBuilder.success(status);
+    }
+    
+    @WebPost("/admin-sys-reset")
+    @RequireAdmin
+    public WebResponse reset(){
+        dbSetupManager.resetSysSetup();
         Map status = dbSetupManager.getSystemSetupStatus();
         return webResponseBuilder.success(status);
     }
