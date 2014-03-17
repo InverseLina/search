@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.britesnow.snow.web.auth.AuthRequest;
+import com.britesnow.snow.web.renderer.JsonRenderer;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.AbstractModule;
@@ -17,6 +18,7 @@ import com.google.inject.matcher.Matchers;
 import com.jobscience.search.auth.AclInterceptor;
 import com.jobscience.search.perf.PerfInterceptor;
 import com.jobscience.search.web.AppAuthRequest;
+import com.jobscience.search.web.AppJsonRenderer;
 
 public class AppConfig extends AbstractModule {
     @SuppressWarnings("unused")
@@ -25,6 +27,9 @@ public class AppConfig extends AbstractModule {
     @Override
     protected void configure() {
         bind(AuthRequest.class).to(AppAuthRequest.class);
+        
+        // bind the jsonRender
+        bind(JsonRenderer.class).to(AppJsonRenderer.class);
         
         AclInterceptor aclInterceptor = new AclInterceptor();
         requestInjection(aclInterceptor);

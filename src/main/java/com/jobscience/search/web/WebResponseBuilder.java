@@ -1,11 +1,6 @@
 package com.jobscience.search.web;
 
-import javax.inject.Inject;
-
-import com.britesnow.snow.web.CurrentRequestContextHolder;
-import com.britesnow.snow.web.RequestContext;
 import com.google.inject.Singleton;
-import com.jobscience.search.perf.RcPerf;
 
 /**
  * <p>The WebResponse factory. Any @Web[REST] that needs to return a JSON data to the client should return a WebResponse built by this Injected factory.</p>
@@ -16,9 +11,6 @@ import com.jobscience.search.perf.RcPerf;
  */
 @Singleton
 public class WebResponseBuilder {
-
-	@Inject
-	private CurrentRequestContextHolder crch;
 
 	// --------- WebResponse Factories --------- //
 	public WebResponse success(){
@@ -41,12 +33,6 @@ public class WebResponseBuilder {
 
 	private WebResponse newWebResponse(){
 		WebResponse webResponse = new WebResponse();
-		RequestContext rc = crch.getCurrentRequestContext();
-		if (rc != null){
-			RcPerf rcPerf = rc.getData(RcPerf.class);
-			rcPerf.endRequest();
-			webResponse.setPerf(rcPerf.getRcPerfInfo());
-		}
 		return webResponse;
 	}
 }
