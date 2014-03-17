@@ -242,7 +242,9 @@
 			var view = this;
 			var orgName = view.currentOrgName;
 			var $btn = $(event.currentTarget);
+			var $resetBtn = view.$el.find(".org-reset");
 			$btn.prop("disabled",true).html("Setup...");
+			$resetBtn.prop("disabled",true);
 			app.getJsonData("/admin-org-setup",{org:orgName},{type:"Post"}).done(function(result){
 				window.clearInterval(view.orgSetupIntervalId);
 				refresh.call(view);
@@ -259,6 +261,9 @@
 				$pasueBtn = view.$el.find(".org-pause"),
 				$resetBtn = view.$el.find(".org-reset");
 			app.getJsonData("/admin-org-status",{org:orgName},{type:"Get"}).done(function(result){
+				if(result.errorCode){
+					result.status = "error";
+				}
 				switch(result.status){
 					case  "done"      :
 						$setupBtn.prop("disabled",true).html("Setup");
@@ -273,7 +278,7 @@
 					case  "error"     :
 						$setupBtn.prop("disabled",true).html("Setup");
 						$pasueBtn.prop("disabled",true);
-						$resetBtn.prop("disabled",true);
+						$resetBtn.prop("disabled",false);
 						break;
 					case  "notstarted":
 						$setupBtn.prop("disabled",false).html("Setup");
