@@ -99,7 +99,7 @@ public class DBSetupManager {
     private volatile boolean sysReseting = false;
     private volatile HttpURLConnection zipCodeConnection = null;
     private volatile HttpURLConnection cityConnection = null;
-    private boolean firstSetup = false;
+    private boolean firstSetup = true;
     private String step = null;
     
     // ---------- organization setup interfaces ----------//
