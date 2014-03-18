@@ -69,6 +69,7 @@
       "STATUS_CHANGE":function(event, statusData){
     	  var view = this;
     	  var $e = view.$el;
+    	  $e.find(".save,.button").addClass("disabled");
     	  var $btnStart = $e.find(".setupStart");
     	  var $btnPause = $e.find(".setupPause");
     	  var $btnReset = $e.find(".setupReset");
@@ -161,6 +162,7 @@
     	  	stopTimer.call(view);
     	  	
     	  	$e.find(".setting .alert").removeClass("alert-info").addClass("alert-success").html("Done");
+			$e.find(".save,.button").removeClass("disabled");
     	  	$e.trigger("DO_SHOW_ORG_TAB");
     	  }
     	  

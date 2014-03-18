@@ -11,19 +11,19 @@
 	 
 
 	 postDisplay: function(data){
-		 var view = this;
-		 $(".home").removeClass("hide");
-		 $(".config").addClass("hide");
-		 $(".clear-all").addClass("hide");
-		 view.$el.find(".organization-tab").addClass("hide");
-		 app.getJsonData("/admin-sys-status",{},{type:"Get"}).done(function(result){
-			 if(result.status=="done"){
-				 showOrgTab.call(view);
-			 }
-	      });
+		var view = this;
+		$(".home").removeClass("hide");
+		$(".config").addClass("hide");
+		$(".clear-all").addClass("hide");
+		view.$el.find(".organization-tab").addClass("hide");
+		app.getJsonData("/admin-sys-status",{},{type:"Get"}).done(function(result){
+			if(result.status=="done"){
+				showOrgTab.call(view);
+			}
+		});
 
-		 this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
-	 },
+		this.$el.trigger("PATH_INFO_CHANGE",buildPathInfo());
+	},
     // --------- /View Interface Implement--------- //
 
     // --------- Windows Event--------- //
@@ -56,7 +56,7 @@
 	 docEvents:{
 	 	"DO_SHOW_ORG_TAB": function(){
 	    	showOrgTab.call(this);
-	    }
+	   }
 	 }
     // --------- /Events--------- //
 
@@ -91,6 +91,7 @@
     	var view = this;
     	view.$el.find(".organization-tab").removeClass("hide");
     }
+    
     
     // --------- /Private Methods --------- //  
     
