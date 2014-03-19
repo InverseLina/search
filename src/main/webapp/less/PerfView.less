@@ -1,99 +1,16 @@
-// --------- PerfView --------- //
-.PerfView{ max-width:1060px; overflow:auto;margin-top:15px;margin-bottom:15px;}
-
-.PerfView .perf-body {
-  margin-left: 35px;
-  overflow:hidden;
-  .goall {
-  	min-width:700px;
-    input, span {padding-top: 1px; padding-bottom: 1px; width: 30px}
-    input {height: 30px};
-  }
-}
-
-.PerfView .perf-search {
-  line-height: 30px;
-  margin-left: 1px;
-}
-
-.PerfView .perf-search input {
-  box-sizing: content-box;
-  padding-left: 5px;
-  color:#777;
-  width:142px
-}
-
-.PerfView .perf-search label {
-  font-weight: normal;
-}
-
-.PerfView .perf-values label,.label {
-  text-align: right;
-  width: 120px;
-  vertical-align:top;
-  display:inline-block
-}
-
-.PerfView .btn {
-  min-width: 100px;
-  height: 30px;
-  line-height: 10px;
-  border: 0px;
-  margin-left: 10px;
-  vertical-align:top
-}
-
-.PerfView .atuo {
-  width: 1000px;
-  display: inline-block;
-  float: left;
-}
-
-.PerfView .running {
-  background-color: #797979;
-}
-
-.PerfView .all {
-  margin-left: 5px;
-}
-
-.PerfView .perf-results {
-  color: #1670ba;
-}
-
-.PerfView .perf-results .perf-results-item {
-  display: inline-block;
-  width: 110px;
-}
-
-.text{
-	background-color: #FFFFFF;
-    border: 1px solid #CCCCCC;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
-    transition: border 0.2s linear 0s, box-shadow 0.2s linear 0s;
-	 border-radius: 3px;
-    color: #555555;
-    display: inline-block;
-    font-size: 14px;
-    height: 20px;
-    line-height: 20px;
-    padding: 4px 6px;
-    vertical-align: middle;
+.PerfView{
+	.info{
+		margin: 5px;
 	}
-h3{ margin-top:25px}
-
-.perf-item .col-md-6:first-of-type,.perf-item .col-sm-6:first-of-type{
-	border-right:1px solid #cdcdcd}
+	.max{
+		color: #F33038;
+	}
 	
-.perf-item .col-md-6:last-of-type,.perf-item .col-sm-6:last-of-type{
-	border-left:1px solid #d3d3d3}
-
-.PerfView .col-lg-2{
-	float: left;
+	.min{
+		color: #28E428;
+	}
+	
+	.avg{
+		color: #5A38DF;
+	}
 }
-
-.PerfView .break-btn{
-	margin-left:124px;
-	margin-top:5px;
-}
-// --------- PerfView --------- //

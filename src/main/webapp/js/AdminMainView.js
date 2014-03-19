@@ -77,6 +77,8 @@
             brite.display("AdminSearchConfig");
         }else if(viewName == "sync-sf"){
             brite.display("SyncView");
+        }else if(viewName == "warmup"){
+        	brite.display("WarmupView");
         }else{
           brite.display("Setup");
         }

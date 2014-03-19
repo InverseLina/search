@@ -156,6 +156,7 @@ public class DaoHelper {
         ds.setJdbcUrl(url);
         ds.setUser(user);
         ds.setPassword(pwd);
+        ds.setMaxPoolSize(5);
         ds.setUnreturnedConnectionTimeout(0);
         if(schema == null || "".equals(schema)){
             return ds;

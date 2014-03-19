@@ -198,4 +198,8 @@
     		 return options.fn(this);
     	}
     });
+    
+    Handlebars.registerHelper("numberFormat",function(src,options){
+    	return new Handlebars.SafeString(src.toFixed(0));
+    });
 })(jQuery);

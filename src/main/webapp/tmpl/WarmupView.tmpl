@@ -1,0 +1,291 @@
+<script id="WarmupView" type="text/html">
+    <div class="WarmupView">
+
+	  <div class="warmup-body">
+          <div class="warmup-search warmup-values row form-group goall">
+              <label class="col-lg-2 control-label">Select Org:</label>
+
+              <div class="col-lg-2">
+                  <select class="form-control" name="org">
+                      {{#each orgs}}
+                          <option value="{{name}}">{{name}}</option>
+                      {{/each}}
+                  </select>
+              </div>
+               <button class="btn btn-primary all pull-left">GO All</button>
+              <div class="col-lg-2" style="width:100px">
+                  <div class="input-group">
+                      <span class="input-group-addon" style="width:20px">repeat:</span>
+                      <input type="text" name='repeat' style="width:20px" class="form-control repeat"
+                             placeholder="repeat times" value='1'>
+                  </div>
+              </div>
+              <div class="col-lg-2">
+              <div class="input-group">
+                  <span class="input-group-addon" style="width:20px">delay:</span>
+                  <input type="text" name='delay' class="form-control delay" value='500'>
+                  <span class="input-group-addon" style="width:20px">ms</span>
+              </div>
+              </div>
+          </div>
+    
+    	<h3>Search Test</h3>
+     	<div class="warmup-item warmup-search row " data-warmup-method="search">
+       	<div class="warmup-values ">
+             <span data-group='q_search'><label>Keyword :</label> <input type="text" name="q_search" value="Java" class="text"/></span>
+             <button class="btn btn-primary go">GO</button>
+          </div> 
+       	<div class="warmup-results ">
+        <label class="label">&nbsp;</label> 
+              <div class="warmup-results-item">
+                 <label>c:</label>
+                 <span class="warmup-value"  data-warmup="c"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+          </div>
+     </div><!-- /.warmup-item -->
+     <div class="warmup-item warmup-search row " data-warmup-method="search">
+       <div class="warmup-values ">
+             <span data-group='q_search'><label>Keyword :</label> <input type="text" name="q_search" value="Scala" class="text"/></span>
+             <button class="btn btn-primary go">GO</button>
+          </div> 
+       <div class="warmup-results ">
+       <label class="label">&nbsp;</label> 
+              <div class="warmup-results-item">
+                 <label>c:</label>
+                 <span class="warmup-value"  data-warmup="c"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+          </div>
+     </div><!-- /.warmup-item -->
+	 
+	 <h3>Search &Filter Test</h3>
+     <div class="warmup-item warmup-search row " data-warmup-method="search">
+       <div class="warmup-values ">
+             <span data-group='q_search' class="pull-left"><label>Keyword :</label> <input type="text" name="q_search" value="Java" class="text"/></span>
+             <span data-group='q_companies' class="pull-left"><label>Employer :</label> <input type="text" name="name" value="Oracle" class="text"/></span>
+             <div class = "clearfix"></div>
+             <button class = "btn btn-primary go break-btn">GO</button>
+          </div> 
+       <div class="warmup-results ">
+       <label class="label">&nbsp;</label> 
+              <div class="warmup-results-item">
+                 <label>c:</label>
+                 <span class="warmup-value"  data-warmup="c"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+          </div>
+     </div><!-- /.warmup-item -->
+     <div class="warmup-item warmup-search row " data-warmup-method="search">
+     
+       <div class="warmup-values ">
+             <span data-group='q_search'class="pull-left"><label>Keyword :</label> <input type="text" name="q_search" value="Scala" class="text"/></span>
+             <span data-group='q_companies'class="pull-left"><label>Employer :</label> <input type="text" name="name" value="SalesForce" class="text"/></span>
+             <div class = "clearfix"></div>
+             <button class = "btn btn-primary go break-btn">GO</button>
+          </div> 
+       <div class="warmup-results ">
+       <label class="label">&nbsp;</label> 
+              <div class="warmup-results-item">
+                 <label>c:</label>
+                 <span class="warmup-value"  data-warmup="c"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+          </div>
+     </div><!-- /.warmup-item -->
+      
+     <h3>Auto Complete</h3>
+     <div class="warmup-item warmup-search " data-warmup-method="autocomplete">
+     	  <div class="row">
+     	  	<div class="warmup-values col-md-6">
+             <span data-group='q_search'><label>Employer :</label> <input type="text" name="q_search" value="Oracle" class="text"/></span>
+             <button class="btn btn-primary go  warmup-left " data-type="company">GO</button>
+          	</div>
+          	<div class="warmup-values col-md-6">
+             <span data-group='q_search'><label>Employer :</label> <input type="text" name="q_search" value="SalesForce" class="text"/></span>
+             <button class="btn btn-primary go  warmup-right " data-type="company">GO</button>
+          	</div>  
+     	  </div>	
+       	  <div class="row">
+       	  	<div class="warmup-results col-md-6 left-items">
+            	<label class="label">&nbsp;</label>
+               <div class="warmup-results-item ">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+            </div>
+       	    <div class="warmup-results col-md-6 right-items">
+           		<label class="label">&nbsp;</label> 
+               <div class="warmup-results-item ">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+            </div>
+       	  </div>
+     	</div><!-- /.warmup-item -->
+	 	
+	 	<div class="warmup-item warmup-search " data-warmup-method="autocomplete">
+     	  <div class="row">
+     	  	<div class="warmup-values col-md-6">
+             <span data-group='q_search'><label>Skills :</label> <input type="text" name="q_search" value="Java" class="text"/></span>
+             <button class="btn btn-primary go  warmup-left" data-type="skill">GO</button>
+          	</div>
+          	<div class="warmup-values col-md-6">
+             <span data-group='q_search'><label>Skills :</label> <input type="text" name="q_search" value="Scala" class="text"/></span>
+             <button class="btn btn-primary go  warmup-right" data-type="skill">GO</button>
+          	</div>  
+     	  </div>	
+       	  <div class="row">
+       	  	<div class="warmup-results col-md-6 left-items">
+            	<label class="label">&nbsp;</label> 
+               <div class="warmup-results-item ">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+            </div>
+       	    <div class="warmup-results col-md-6 right-items">
+            	<label class="label">&nbsp;</label> 
+               <div class="warmup-results-item">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+            </div>
+       	  </div>
+     	</div><!-- /.warmup-item -->
+     	
+     	<div class="warmup-item warmup-search " data-warmup-method="autocomplete">
+     	  <div class="row">
+     	  	<div class="warmup-values col-md-6">
+             <span data-group='q_search'><label>Education :</label> <input type="text" name="q_search" value="Stanford" class="text"/></span>
+             <button class="btn btn-primary go warmup-left" data-type="education">GO</button>
+          	</div>
+          	<div class="warmup-values col-md-6">
+             <span data-group='q_search'><label>Education :</label> <input type="text" name="q_search" value="MIT" class="text"/></span>
+             <button class="btn btn-primary go warmup-right" data-type="education">GO</button>
+          	</div>  
+     	  </div>	
+       	  <div class="row">
+       	  	<div class="warmup-results col-md-6 left-items">
+            <label class="label">&nbsp;</label> 
+               <div class="warmup-results-item ">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+            </div>
+       	    <div class="warmup-results col-md-6 right-items">
+            <label class="label">&nbsp;</label> 
+               <div class="warmup-results-item">
+                 <label>s:</label>
+                 <span class="warmup-value" data-warmup="s"></span>
+               </div>
+               <div class="warmup-results-item">
+                 <label>matches:</label>
+                 <span class="warmup-value" data-warmup="match"></span>
+               </div>
+            </div>
+       	  </div>
+     	</div><!-- /.warmup-item -->
+
+          <h3>Search Location Test</h3>
+          <div class="warmup-item warmup-search row " data-warmup-method="search">
+              <div class="warmup-values ">
+                  <span data-group='q_search' class="pull-left"><label>Keyword :</label> <input type="text" name="q_search" value="Java" class="text"/></span>
+                  <span data-group='q_locations' class="pull-left">
+                  	<span  class="pull-left"><label>City :</label> <input type="text" name="name" value="San Francisco" class="text"/></span>
+                  	<span  class="pull-left"><label>Min Radius :</label> <input type="text" name="minRadius" value="30" class="text"/></span>
+                  </span>
+                  <div class="clearfix"></div>
+                  <button class="btn btn-primary go break-btn">GO</button>
+              </div>
+              <div class="warmup-results ">
+                  <label class="label">&nbsp;</label>
+                  <div class="warmup-results-item">
+                      <label>c:</label>
+                      <span class="warmup-value"  data-warmup="c"></span>
+                  </div>
+                  <div class="warmup-results-item">
+                      <label>s:</label>
+                      <span class="warmup-value" data-warmup="s"></span>
+                  </div>
+                  <div class="warmup-results-item">
+                      <label>matches:</label>
+                      <span class="warmup-value" data-warmup="match"></span>
+                  </div>
+              </div>
+          </div><!-- /.warmup-item -->
+          <div class="warmup-item warmup-search row " data-warmup-method="search">
+              <div class="warmup-values ">
+                  <span data-group='q_search' class="pull-left"><label>Keyword :</label> <input type="text" name="q_search" value="Java" class="text"/></span>
+                  <span data-group='q_locations' class="pull-left">
+                  	<span  class="pull-left"><label>City :</label> <input type="text" name="name" value="San Francisco" class="text"/></span>
+                  </span>
+                  <div class="clearfix"></div>
+                  <button class="btn btn-primary go break-btn">GO</button>
+              </div>
+              <div class="warmup-results ">
+                  <label class="label">&nbsp;</label>
+                  <div class="warmup-results-item">
+                      <label>c:</label>
+                      <span class="warmup-value"  data-warmup="c"></span>
+                  </div>
+                  <div class="warmup-results-item">
+                      <label>s:</label>
+                      <span class="warmup-value" data-warmup="s"></span>
+                  </div>
+                  <div class="warmup-results-item">
+                      <label>matches:</label>
+                      <span class="warmup-value" data-warmup="match"></span>
+                  </div>
+              </div>
+          </div><!-- /.warmup-item -->
+      </div>
+     </div>
+</script>
