@@ -108,7 +108,7 @@
                 <!-- <tr><td class="left"><span>SF Session Timeout: </span></td><td class="right"><input type="text" name="sf_session_timeout" value="{{data.sf_session_timeout}}" class="text" placeholder="SF Session Timeout" />min</td><td></td> -->
                 <tr><td class="left"><span>Userlist Feature : </span></td>
                     <td class="right">
-                         <select name="jss.feature.userlist">
+                         <select  class="form-control" name="jss.feature.userlist">
                             <option value="true" {{#if data.jss_feature_userlist}}selected{{/if}}>enabled</option>   
                             <option value="false" {{#if data.jss_feature_userlist}}{{else}}selected{{/if}}>disabled</option>                    
                         </select>

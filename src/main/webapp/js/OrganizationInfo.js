@@ -255,6 +255,7 @@
 		},
 		"STATUS_CHANGE":function(event,init){
 			var view = this;
+			view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.enable-indexes,.drop-ex").addClass("disabled");
 			var orgName = view.currentOrgName;
 			var addClass = "alert-success",removeClass="alert-danger";
 			var $setupBtn = view.$el.find(".org-setup"),
@@ -269,6 +270,7 @@
 						$setupBtn.prop("disabled",true).html("Setup");
 						$pasueBtn.prop("disabled",true);
 						$resetBtn.prop("disabled",false);
+						view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.enable-indexes,.drop-ex").removeClass("disabled");
 						break;
 					case  "part"      :
 						$setupBtn.prop("disabled",false).html("Resume");
@@ -405,6 +407,7 @@
 		}else{
 			view.$el.find("."+name+"_status_bar  .percentage").html(percentage+"%");
 			view.$el.find("."+name+"_status_bar  .count-info").html(formateNumber(perform)+" / "+formateNumber(all)+"");
+
 			}
 	}
 	function formateNumber(val){
