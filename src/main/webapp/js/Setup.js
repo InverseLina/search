@@ -82,7 +82,6 @@
     	  if(!statusData){
     	  	return ;
     	  }
-    	  console.log(statusData);
     	  if(statusData.create_sys_schema.status == "done"){
     	  	$alertCreateSchema.addClass("alert-success").html("Done");
     	  }else if(statusData.create_sys_schema.status == "incomplete"){

@@ -32,7 +32,7 @@
 				view.$el.find("button.saveSearchConfig, button.resetSearchConfig").attr("disable", "true");
 			}else{
 				view.orgId = app.pathInfo.paths[1] * 1;
-					getDate.call(view, view.orgId).done(function (orgName) {
+					getData.call(view, view.orgId).done(function (orgName) {
 							view.orgName = orgName;
 							var li = render("OrganizationInfo-li", {type: "Organization: " + orgName, url: "#" + app.pathInfo.paths[0] + "/" + app.pathInfo.paths[1]});
 							view.$navTabs.find('li:last').before(li);
@@ -44,6 +44,10 @@
 				                		view.$el.find(".search-content").css("background","#ffdddd");
 				                    }
 							});
+					}).fail(function(){
+						//show emtpty message
+						var html = render("OrganizationInfo-empty-item");
+						view.$el.find(".tab-content").html(html);
 					});
 			}
 
@@ -423,22 +427,28 @@
 		}
 		return newVal;
 	}
-	function getDate(id){
+	function getData(id){
 		var view = this;
 		var dfd = $.Deferred();
 		app.getJsonData("/org/get/", {id:id}).done(function(data){
-			view.currentOrgName = data[0].name;
-			data[0]["jss_feature_userlist"] = data[0]["jss.feature.userlist"];
-				var html = render("OrganizationInfo-content",{data:data[0]});
-				view.$tabContent.bEmpty();
-				view.$tabContent.html(html);
-				view.$el.trigger("STATUS_CHANGE",false);
-				dfd.resolve(data[0].name);
-				app.getJsonData("/config/get/",{orgId:view.orgId}).done(function(data){
-					if(view && view.$el){
-						view.$el.trigger("FILLDATA",{data:data});
-					}
-			});
+			if(!data || data.length == 0){
+				// show empty pages
+				dfd.reject();
+			}else{
+				view.currentOrgName = data[0].name;
+				data[0]["jss_feature_userlist"] = data[0]["jss.feature.userlist"];
+					var html = render("OrganizationInfo-content",{data:data[0]});
+					view.$tabContent.bEmpty();
+					view.$tabContent.html(html);
+					view.$el.trigger("STATUS_CHANGE",false);
+					dfd.resolve(data[0].name);
+					app.getJsonData("/config/get/",{orgId:view.orgId}).done(function(data){
+						if(view && view.$el){
+							view.$el.trigger("FILLDATA",{data:data});
+						}
+				});
+			}
+			
 		});
 		return dfd.promise();
 	}
