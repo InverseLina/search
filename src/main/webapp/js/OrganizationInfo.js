@@ -9,14 +9,14 @@
 		postDisplay:function(data){
 			var view = this;
 
-			view.section = app.pathInfo.paths[0] || "organization";
+			view.section = app.pathInfo.paths[0] || "org";
 
 			view.$navTabs = $(".nav-tabs");
 			view.$tabContent = view.$el.find(".tab-content");
 			view.$navTabs.find("li.active").removeClass("active");
 
 			if(app.pathInfo.paths[1] == "add"){
-				var li = render("OrganizationInfo-li",{type:"OrganizationInfo",url:"#organization/add"});
+				var li = render("OrganizationInfo-li",{type:"OrganizationInfo",url:"#org/add"});
 				view.$navTabs.find('li:last').before(li);
 				var html = render("OrganizationInfo-content",{data:null});
 				view.$tabContent.html(html);
@@ -30,11 +30,11 @@
                     }
 				});
 				view.$el.find("button.saveSearchConfig, button.resetSearchConfig").attr("disable", "true");
-			}else if(app.pathInfo.paths[1] == "edit"){
-				view.orgId = app.pathInfo.paths[2] * 1;
-					getDate.call(view, app.pathInfo.paths[2] * 1).done(function (orgName) {
+			}else{
+				view.orgId = app.pathInfo.paths[1] * 1;
+					getDate.call(view, view.orgId).done(function (orgName) {
 							view.orgName = orgName;
-							var li = render("OrganizationInfo-li", {type: "Organization: " + orgName, url: "#" + app.pathInfo.paths[0] + "/" + app.pathInfo.paths[1] + "/" + app.pathInfo.paths[2]});
+							var li = render("OrganizationInfo-li", {type: "Organization: " + orgName, url: "#" + app.pathInfo.paths[0] + "/" + app.pathInfo.paths[1]});
 							view.$navTabs.find('li:last').before(li);
 							view.$el.trigger("WRONGINDEXES");
 							app.getJsonData("getOrgSearchConfig", {orgName: view.orgName}).done(function (result) {
@@ -61,7 +61,7 @@
 			window.location.href=contextPath + "/";
 			},
 			"click;.cancel":function(event){
-				window.location.href=contextPath + "/admin#organization";
+				window.location.href=contextPath + "/admin#org";
 			},
 			"change;:checkbox,select":function(event){
 			var view = this;
@@ -108,7 +108,7 @@
                     		view.$el.trigger("DO_SHOW_MSG",{selector:$(".alert",$btn.closest(".btns")),msg:"Values saved successfully",type:"success"});
                     		$btn.prop("disabled",false).html("Save");
                     		if(app.pathInfo.paths[1] == "add"){
-                    			 window.location.hash="#organization/edit/"+data;
+                    			 window.location.hash="#org/"+data;
                     		}
 						});
 					});

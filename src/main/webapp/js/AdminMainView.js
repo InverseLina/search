@@ -67,7 +67,7 @@
        view.$el.find(".nav-tabs li.OrganizationInfo").remove()
       pathInfo = pathInfo || defaultPathInfo;
       var viewName = pathInfo.paths[0];
-        if(viewName == "organization"){
+        if(viewName == "org"){
           brite.display("Organization");
         }else if(viewName == "perf"){
         	brite.display("PerfView");

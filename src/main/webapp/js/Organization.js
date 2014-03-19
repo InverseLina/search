@@ -9,16 +9,16 @@
     postDisplay:function(data){
       var view = this;
 
-      view.section = app.pathInfo.paths[0] || "organization";
+      view.section = app.pathInfo.paths[0] || "org";
 
       view.$navTabs = $(".nav-tabs");
 	  view.$tabContent = view.$el.find(".tab-content");
 	  view.$navTabs.find("li.active").removeClass("active");
 
-	  if(app.pathInfo.paths[1] == "add" || app.pathInfo.paths[1] == "edit"){
+	  if(app.pathInfo.paths[1] == "add" || !isNaN(app.pathInfo.paths[1] * 1)){
 		   brite.display("OrganizationInfo");
 		  }else{
-		   view.$navTabs.find("a[href='#organization']").closest("li").addClass("active");
+		   view.$navTabs.find("a[href='#org']").closest("li").addClass("active");
 		   refreshEntityTable.call(view);
 		  }
     },
@@ -34,7 +34,7 @@
         var view = this;
         var html = render("Organization-content",{data:null});
         view.$tabContent.html(html);
-        window.location.href=contextPath + "/admin#organization/add";
+        window.location.href=contextPath + "/admin#org/add";
       },
       "click; .del": function(event){
         var view = this;
