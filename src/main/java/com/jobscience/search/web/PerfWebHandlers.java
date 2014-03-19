@@ -16,7 +16,6 @@ import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
-import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Snapshot;
 import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.DaoHelper;
@@ -170,9 +169,12 @@ public class PerfWebHandlers {
     @WebGet("/perf")
     @RequireAdmin
     public WebResponse getPerf(){
+        List<Map> connectionSize = daoHelper.executeQuery(daoHelper.openDefaultRunner(),
+                " select count(*) as count from pg_stat_activity;");
         Snapshot snap = perfHook.getResponseDurations().getSnapshot();
         return webResponseBuilder.success(MapUtil.mapIt("max",snap.getMax(),
                                           "min",snap.getMin(),
-                                          "mean",snap.getMean()));
+                                          "mean",snap.getMean(),
+                                          "connections",connectionSize.get(0).get("count")));
     }
 }

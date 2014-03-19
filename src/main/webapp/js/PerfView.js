@@ -9,7 +9,6 @@
         create : function(data) {
            var dfd = $.Deferred();
            app.getJsonData("/perf").done(function(result){
-        	   console.log(result.snapshot);
         	   dfd.resolve(render("PerfView",{data:result}));
            });
            return dfd.promise();

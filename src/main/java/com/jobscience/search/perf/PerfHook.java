@@ -10,7 +10,6 @@ import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.hook.ReqPhase;
 import com.britesnow.snow.web.hook.annotation.WebRequestHook;
 import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 
 /**
