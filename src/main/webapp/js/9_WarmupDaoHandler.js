@@ -4,15 +4,15 @@ var app = app || {};
 	app.WarmupDaoHandler = {};
 
 	app.WarmupDaoHandler.search = function(data) {
-		return app.getJsonData(contextPath + "/perf/search", data);
+		return app.getJsonData(contextPath + "/warmup/search", data);
 	}
 
 	app.WarmupDaoHandler.autocomplete = function(data) {
-		return app.getJsonData(contextPath + "/perf/autocomplete", data);
+		return app.getJsonData(contextPath + "/warmup/autocomplete", data);
 	}
 
 	app.WarmupDaoHandler.checkStatus = function() {
-		return app.getJsonData(contextPath + "/perf/checkStatus");
+		return app.getJsonData(contextPath + "/warmup/checkStatus");
 	}
 
 })(jQuery);

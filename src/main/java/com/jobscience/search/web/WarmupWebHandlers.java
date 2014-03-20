@@ -22,7 +22,7 @@ import com.jobscience.search.dao.SearchResult;
 import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
-public class PerfWebHandlers {
+public class WarmupWebHandlers {
 
     @Inject
     private SearchDao searchDao;
@@ -46,7 +46,7 @@ public class PerfWebHandlers {
      * @param searchColumns
      * @return
      */
-    @WebGet("/perf/search")
+    @WebGet("/warmup/search")
     @RequireAdmin
     public WebResponse search(@WebParam("searchValues") String searchValues,
                             @WebParam("searchColumns") String searchColumns,@WebParam("org") String org) {
@@ -80,7 +80,7 @@ public class PerfWebHandlers {
      * @return
      * @throws SQLException
      */
-    @WebGet("/perf/autocomplete")
+    @WebGet("/warmup/autocomplete")
     @RequireAdmin
     public WebResponse autocomplete(@WebParam("searchValues") String searchValues, @WebParam("type") String type,
                             @WebParam("queryString") String queryString,
@@ -112,7 +112,7 @@ public class PerfWebHandlers {
         return webResponseBuilder.success(resultMap);
     }
 
-    @WebGet("/perf/checkStatus")
+    @WebGet("/warmup/checkStatus")
     @RequireAdmin
     public WebResponse checkStatus() throws SQLException {
         try {
@@ -160,16 +160,4 @@ public class PerfWebHandlers {
         }
 
     }
-
-//    @WebGet("/perf")
-//    @RequireAdmin
-//    public WebResponse getPerf(){
-//        List<Map> connectionSize = daoHelper.executeQuery(datasourceManager.newRunner(),
-//                " select count(*) as count from pg_stat_activity;");
-//        Snapshot snap = perfHook.getResponseDurations().getSnapshot();
-//        return webResponseBuilder.success(MapUtil.mapIt("max",snap.getMax(),
-//                                          "min",snap.getMin(),
-//                                          "mean",snap.getMean(),
-//                                          "connections",connectionSize.get(0).get("count")));
-//    }
 }
