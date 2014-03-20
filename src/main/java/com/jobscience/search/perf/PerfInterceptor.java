@@ -32,7 +32,7 @@ public class PerfInterceptor implements MethodInterceptor {
 		RcPerf rcPerf = (rc != null)?rc.getData(RcPerf.class):null;
 
 		PerfContext requestPrefContext = (rcPerf != null)?rcPerf.start(name):null;
-		PerfContext appPerfContext = (perfManager != null)?perfManager.start(name):null;
+		PerfContext appPerfContext = (perfManager != null)?perfManager.startMethod(name):null;
 		try{
 			result = methodInvocation.proceed();
 		}finally{

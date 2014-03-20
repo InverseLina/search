@@ -38,7 +38,7 @@ public class AclInterceptor implements MethodInterceptor {
             }
         }
         // secture the other method (obviously, except "admin-login" and "passcode")
-        else if (user == null || user.get("ctoken") == null){
+        else if ((user == null || user.get("ctoken") == null) && !rc.getPathInfo().startsWith("/perf")){
             WebPost postAnnotation = method.getAnnotation(WebPost.class);
             
             boolean isLoginMethod = false;

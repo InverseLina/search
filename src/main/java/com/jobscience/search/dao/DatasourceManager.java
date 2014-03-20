@@ -1,11 +1,12 @@
 package com.jobscience.search.dao;
 
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Singleton;
-import javax.sql.DataSource;
 
 import org.jasql.DB;
 import org.jasql.DBBuilder;
@@ -24,7 +25,7 @@ public class DatasourceManager {
     private String user;
     private String pwd;
     private String sysSchema = "jss_sys";
-    private DataSource dataSource;
+    private ComboPooledDataSource dataSource;
     private volatile DB db;
     private ConcurrentHashMap<String, String> orgs = new ConcurrentHashMap<String, String>();
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -77,11 +78,23 @@ public class DatasourceManager {
         return runner;
     }
     
+    public Map getPoolInfo(){
+        Map poolInfo = new HashMap();
+        try {
+            poolInfo.put("numConnections",dataSource.getNumConnectionsDefaultUser());
+            poolInfo.put("numBusyConnections",dataSource.getNumBusyConnectionsDefaultUser());
+            poolInfo.put("numIdleConnections",dataSource.getNumIdleConnections());
+        } catch (SQLException e) {
+            // TODO: need to use logger.warn
+        }
+        return poolInfo;
+    }
+    
     private void setSearchPath(Runner runner,String searchPath){
         runner.executeUpdate("set search_path to "+searchPath);
     }
     
-    private DataSource buildDs() {
+    private ComboPooledDataSource buildDs() {
         ComboPooledDataSource ds = new ComboPooledDataSource();
         ds.setJdbcUrl(url);
         ds.setUser(user);

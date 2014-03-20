@@ -7,10 +7,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.britesnow.snow.web.RequestContext;
-import com.britesnow.snow.web.hook.ReqPhase;
+import com.britesnow.snow.web.WebRequestType;
 import com.britesnow.snow.web.hook.annotation.WebRequestHook;
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.MetricRegistry;
 
 /**
  *
@@ -19,29 +17,24 @@ import com.codahale.metrics.MetricRegistry;
 @Singleton
 public class PerfHook {
 
-    private PerfManager perfManager;
-    private Histogram responseDurations ;
-    
-    @Inject
-    public PerfHook(PerfManager perfManager){
-        this.perfManager = perfManager;
-        responseDurations = perfManager.appMetrics.histogram(MetricRegistry.name(PerfHook.class, "response-duration"));
-    }
-    
-    public Histogram getResponseDurations(){
-        return responseDurations;
-    }
+
+
+	@Inject
+	private PerfManager perfManager;
+
 	@WebRequestHook(phase = START)
 	public void startReqPerf(RequestContext rc) {
-		RcPerf rcPerf = perfManager.newRcPerf();
-		rc.setData(rcPerf);
-		rcPerf.startRequest();
+		// for now, monitor only json/webrest http request.
+		// Note that the "rcPerf.endRequest" is in the jsonRender, so, with this scheme
+		// only JSON webrest call are timed.
+		if (rc.getWebRequestType() == WebRequestType.WEB_REST){
+			RcPerf rcPerf = perfManager.newRcPerf(rc.getPathInfo());
+			rc.setData(rcPerf);
+			rcPerf.startRequest();
+		}
+
 	}
 
-	@WebRequestHook(phase = ReqPhase.END)
-    public void endReqPerf(RequestContext rc) {
-	    RcPerf.RcTimer rcTimer = (RcPerf.RcTimer)(rc.getData(RcPerf.class).getRcPerfInfo().get("req"));
-	    responseDurations.update(rcTimer.getDuration());
-    }
+
 
 }

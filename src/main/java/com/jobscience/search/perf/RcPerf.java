@@ -8,6 +8,8 @@ import java.util.Queue;
 
 import org.slf4j.Logger;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.codahale.metrics.Timer.Context;
 import com.jobscience.search.perf.PerfManager.PerfContext;
 
@@ -23,25 +25,35 @@ import com.jobscience.search.perf.PerfManager.PerfContext;
 public class RcPerf {
 	static private final Logger logger = org.slf4j.LoggerFactory.getLogger(RcPerf.class);
 
-	Context startEndContext;
+	// this is for the application wide request metrics (using Metrics).
+	private final MetricRegistry requestsMetrics;
+	private final String pathInfo;
+	private Context requestMetricsStartContext;
 
+	// single request metrics (not using Metrics)
 	Long requestOffset = null;
-
 	Map<String,RcTimer> rootRcTimers = new HashMap<String, RcTimer>();
 	final Queue<RcTimer> rcTimerStack = Collections.asLifoQueue(new ArrayDeque<RcTimer>());
 
 	public PerfContext rootRequestPerfCtx;
 
-	public RcPerf() {
+	public RcPerf(String pathInfo, MetricRegistry requestsMetrics) {
+		this.pathInfo = pathInfo;
+		this.requestsMetrics = requestsMetrics;
 	}
 
 	public void startRequest() {
 		rootRequestPerfCtx = start("req");
+		Timer metricsTimer = requestsMetrics.timer(pathInfo);
+		requestMetricsStartContext = metricsTimer.time();
 	}
 
 	public void endRequest() {
 		if (rootRequestPerfCtx != null) {
 			rootRequestPerfCtx.end();
+		}
+		if (requestMetricsStartContext != null){
+			requestMetricsStartContext.stop();
 		}
 	}
 
@@ -94,6 +106,7 @@ public class RcPerf {
 
 
 	private RcTimer newRcTimer(String name){
+//		RcTimer rcTimer;
 		Long timerStart;
 		if (requestOffset == null){
 			requestOffset = System.currentTimeMillis();

@@ -10,20 +10,16 @@ import javax.inject.Singleton;
 
 import net.sf.json.JSONObject;
 
-import com.britesnow.snow.util.MapUtil;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
-import com.codahale.metrics.Snapshot;
 import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.DaoHelper;
-import com.jobscience.search.dao.DatasourceManager;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchResult;
 import com.jobscience.search.organization.OrgContextManager;
-import com.jobscience.search.perf.PerfHook;
 
 @Singleton
 public class PerfWebHandlers {
@@ -43,12 +39,6 @@ public class PerfWebHandlers {
     @Inject
     private OrgContextManager orgContextManager;
     
-    @Inject
-    private PerfHook perfHook;
-    
-    @Inject
-    private DatasourceManager datasourceManager;
-
     /**
      * api for main search
      * 
@@ -171,15 +161,15 @@ public class PerfWebHandlers {
 
     }
 
-    @WebGet("/perf")
-    @RequireAdmin
-    public WebResponse getPerf(){
-        List<Map> connectionSize = daoHelper.executeQuery(datasourceManager.newRunner(),
-                " select count(*) as count from pg_stat_activity;");
-        Snapshot snap = perfHook.getResponseDurations().getSnapshot();
-        return webResponseBuilder.success(MapUtil.mapIt("max",snap.getMax(),
-                                          "min",snap.getMin(),
-                                          "mean",snap.getMean(),
-                                          "connections",connectionSize.get(0).get("count")));
-    }
+//    @WebGet("/perf")
+//    @RequireAdmin
+//    public WebResponse getPerf(){
+//        List<Map> connectionSize = daoHelper.executeQuery(datasourceManager.newRunner(),
+//                " select count(*) as count from pg_stat_activity;");
+//        Snapshot snap = perfHook.getResponseDurations().getSnapshot();
+//        return webResponseBuilder.success(MapUtil.mapIt("max",snap.getMax(),
+//                                          "min",snap.getMin(),
+//                                          "mean",snap.getMean(),
+//                                          "connections",connectionSize.get(0).get("count")));
+//    }
 }

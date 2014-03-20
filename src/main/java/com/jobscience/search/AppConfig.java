@@ -16,7 +16,9 @@ import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.matcher.Matcher;
 import com.google.inject.matcher.Matchers;
 import com.jobscience.search.auth.AclInterceptor;
+import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.perf.PerfInterceptor;
+import com.jobscience.search.perf.annotation.ToMonitor;
 import com.jobscience.search.web.AppAuthRequest;
 import com.jobscience.search.web.AppJsonRenderer;
 
@@ -44,6 +46,8 @@ public class AppConfig extends AbstractModule {
     
     private Matcher perfClassMatchers(){
         Matcher m = Matchers.inSubpackage("com.jobscience.search.dao");
+        m = m.or(Matchers.annotatedWith(ToMonitor.class));
+        m = m.or(new PerfClassMatcher(DaoHelper.class));
         return m;
     }
 
