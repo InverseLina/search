@@ -30,6 +30,8 @@ public class UserDao {
     @Named("jss.prod")
     @Inject
     private boolean productMode;
+    @Inject
+    private DatasourceManager datasourceManager;
 
     public static final String selectSql = "select * from \"jss_user\" where sfid = ?";
     public static final String selectByTokenSql = "select * from \"jss_user\" where ctoken = ?";
@@ -79,7 +81,7 @@ public class UserDao {
            sfid = demoSfid();
        }
        
-       Runner runner = daoHelper.openNewOrgRunner(orgHolder.getOrgName());
+       Runner runner = datasourceManager.newOrgRunner(orgHolder.getOrgName());
        Map user = runner.executeWithReturn(insertSql, sfid, ctoken, sfTimeout, rtoken);
        runner.close();
        return user;

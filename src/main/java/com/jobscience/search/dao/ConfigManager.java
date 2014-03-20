@@ -22,6 +22,8 @@ public class ConfigManager {
 
     @Inject
     private DaoHelper daoHelper;
+    @Inject
+    private DatasourceManager datasourceManager;
     
     @Inject(optional=true)
     @Named("jss.feature.userlist")
@@ -56,7 +58,7 @@ public class ConfigManager {
             params.add(orgId);
         }
         
-        List valueList = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql, params.toArray());
+        List valueList = daoHelper.executeQuery(datasourceManager.newSysRunner(), sql, params.toArray());
         String value = getConfigValueFromValueList(valueList, orgId);
         
         // if null, we try to get it from the sys database (which we already have)
@@ -89,7 +91,7 @@ public class ConfigManager {
             params.add(orgId);
         }
         
-        List valueList = daoHelper.executeQuery(daoHelper.openNewSysRunner(), sql, params.toArray());
+        List valueList = daoHelper.executeQuery(datasourceManager.newSysRunner(), sql, params.toArray());
         Map m = getConfigValuesFromValueList(valueList, -1);
         if(orgId != -1){
             Map m1 = getConfigValuesFromValueList(valueList, orgId);
@@ -133,8 +135,8 @@ public class ConfigManager {
         }
         names.append("'-1')");
         sql.deleteCharAt(sql.length() - 1);
-        daoHelper.executeUpdate(daoHelper.openNewSysRunner(), format("delete from config where org_id = %s and  name in %s", orgId, names));
-        daoHelper.executeUpdate(daoHelper.openNewSysRunner(), format("insert into  config(org_id, name,value) values %s ", sql));
+        daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("delete from config where org_id = %s and  name in %s", orgId, names));
+        daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("insert into  config(org_id, name,value) values %s ", sql));
     }
 
     private String getConfigValueFromValueList(List<Map> valueList, Integer orgId) {

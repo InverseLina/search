@@ -14,29 +14,31 @@ public class SyncDao {
     
     @Inject
     private DaoHelper daoHelper;
-    
+    @Inject
+    private DatasourceManager datasourceManager;
+
     public  List<Map> getTablesByOrg(String schemaName,Map org){
         if(schemaName == null){
             schemaName = (String)org.get("schemaname");
         }
         
-        List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select table_name as name from information_schema.tables" +
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newRunner(), "select table_name as name from information_schema.tables" +
                 " where table_schema= ? and table_type='BASE TABLE'", schemaName);
         return list;
     }
     
     public  List<Map> getFields(String tableName){
-        List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select column_name as name, data_type as type, character_maximum_length as length from information_schema.columns where table_name= ? ", tableName);
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newRunner(), "select column_name as name, data_type as type, character_maximum_length as length from information_schema.columns where table_name= ? ", tableName);
         return list;
     }
     
     public  List<Map> getData(String tableName, int pageIndex, int pageSize,Map org){
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner((String)org.get("name")), "select * from "+tableName+" offset "+pageIndex+" limit "+pageSize);
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newOrgRunner((String)org.get("name")), "select * from "+tableName+" offset "+pageIndex+" limit "+pageSize);
         return list;
     }
     
     public  List<Map> getAllData(String tableName){
-        List<Map> list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), "select * from "+tableName);
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newRunner(), "select * from "+tableName);
         return list;
     }
     
@@ -56,7 +58,7 @@ public class SyncDao {
         
         String prefix = "insert into "+tableName+"("+columns+") values(";
         StringBuilder sql =new StringBuilder();
-        Runner runner = daoHelper.openNewOrgRunner((String)org.get("name"));
+        Runner runner = datasourceManager.newOrgRunner((String)org.get("name"));
         int time = 0;
         for(Map d:data){
             if(time%99==0){

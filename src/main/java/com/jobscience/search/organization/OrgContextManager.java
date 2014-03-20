@@ -17,6 +17,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.dao.DBSetupManager;
 import com.jobscience.search.dao.DaoHelper;
+import com.jobscience.search.dao.DatasourceManager;
 import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.exception.OrganizationNotSelectException;
 
@@ -35,6 +36,8 @@ public class OrgContextManager {
     @Named("jss.prod")
     @Inject
     private boolean productMode;
+    @Inject
+    private DatasourceManager datasourceManager;
 
     public String getOrgName() {
         return (String)getFieldValue("name");
@@ -150,7 +153,7 @@ public class OrgContextManager {
      * @param sfid
      */
     public void setOrg(String ctoken, String sfid) {
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select * from org where sfid = ?", sfid);
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(), "select * from org where sfid = ?", sfid);
         if (list.size() > 0) {
             String orgName = (String) list.get(0).get("name");
             OrgContext orgContext = new OrgContext();
@@ -184,7 +187,7 @@ public class OrgContextManager {
         return orgContext;
     }
     private Map loadOrg(String orgName){
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
                 "select * from org where name = ?", orgName);
         Map map = null;
         if (list.size() > 0) {

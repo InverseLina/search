@@ -24,8 +24,10 @@ public class IndexerManager {
 	 private DaoHelper daoHelper;
 	 @Inject
 	 private CurrentRequestContextHolder currentRequestContextHolder;
-	 
 	 private IndexerStatus indexerStatus;
+	 @Inject
+	 private DatasourceManager datasourceManager;
+	 
 	 public synchronized void run(String orgName) throws Exception{
 		if(on){
 			return ;
@@ -58,7 +60,7 @@ public class IndexerManager {
 		}
 	    indexerStatus = getStatus(orgName, false);
 	    
-	    Runner runner = daoHelper.openNewOrgRunner(orgName);
+	    Runner runner = datasourceManager.newOrgRunner(orgName);
 	    PQuery pq = runner.newPQuery(insertSql+" limit ?");
 	    while(indexerStatus.getRemaining()>0&&on){
 	        pq.executeUpdate(new Object[]{1000});

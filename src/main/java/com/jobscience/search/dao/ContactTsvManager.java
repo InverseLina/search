@@ -27,6 +27,9 @@ public class ContactTsvManager {
 	 @Inject
      private OrgConfigDao orgConfigDao;
 	 private IndexerStatus indexerStatus ;
+	 @Inject
+     private DatasourceManager datasourceManager;
+	 
 	 public synchronized void run(String orgName) throws Exception{
 		if(on){
 			return ;
@@ -62,7 +65,7 @@ public class ContactTsvManager {
 		}
 	    indexerStatus = getStatus(orgName, false);
 	    
-	    Runner runner = daoHelper.openNewOrgRunner(orgName);
+	    Runner runner = datasourceManager.newOrgRunner(orgName);
         PQuery pq = runner.newPQuery(insertSql);
 	    while(indexerStatus.getRemaining()>0&&on){
 	        pq.executeUpdate(new Object[0]);
@@ -131,7 +134,7 @@ public class ContactTsvManager {
 	
 	private boolean checkColumn(String columnName,String table,String schemaName) {
         boolean result = false;
-        List list = daoHelper.executeQuery(daoHelper.openDefaultRunner(), " select 1 from information_schema.columns " +
+        List list = daoHelper.executeQuery(datasourceManager.newRunner(), " select 1 from information_schema.columns " +
                     " where table_name =? and table_schema=?  and column_name=? ", table, schemaName, columnName);
         if(list.size() > 0){
             result = true;

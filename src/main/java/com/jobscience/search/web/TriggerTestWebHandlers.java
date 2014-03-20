@@ -14,6 +14,7 @@ import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.DaoHelper;
+import com.jobscience.search.dao.DatasourceManager;
 
 @Singleton
 public class TriggerTestWebHandlers {
@@ -25,12 +26,15 @@ public class TriggerTestWebHandlers {
     @Inject
     private WebResponseBuilder webResponseBuilder;
 
+    @Inject
+    private DatasourceManager datasourceManager;
+
     
     @WebGet("/test/getOrgs")
     @RequireAdmin
     public WebResponse queryOrgs() {
 
-    	List<Map> map = daoHelper.executeQuery(daoHelper.openNewSysRunner(), "select * from org");
+    	List<Map> map = daoHelper.executeQuery(datasourceManager.newSysRunner(), "select * from org");
         return webResponseBuilder.success(map);
     }
 
@@ -42,7 +46,7 @@ public class TriggerTestWebHandlers {
         Map contact = rc.getParamMap("test.");
         String sfid = RandomStringUtils.random(18, "01234567890abcdedfhijklmnopqrst");
         contact.put("sfid", sfid);
-        daoHelper.insert(daoHelper.openNewOrgRunner(org), "contact", contact);
+        daoHelper.insert(datasourceManager.newOrgRunner(org), "contact", contact);
         skills = skills.trim();
         if (skills.length() > 0) {
             String[] skill = skills.split(",");

@@ -40,7 +40,7 @@ public class SearchDao {
     private Logger log = LoggerFactory.getLogger(SearchDao.class);
     
     @Inject
-    private DaoHelper      daoHelper;
+    private DatasourceManager datasourceManager;
 
     @Inject
     private ConfigManager configManager;
@@ -70,7 +70,7 @@ public class SearchDao {
      */
     public SearchResult search(String searchColumns,Map<String, String> searchValues,
     		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token,OrgContext org) {
-        Runner runner = daoHelper.openDefaultRunner();
+        Runner runner = datasourceManager.newRunner();
         
         // Use new perf hook for now.
 //        ReqPerf reqPerf = crch.getCurrentRequestContext().getAttributeAs(ReqPerfHook.REQ_PERF,ReqPerf.class);
@@ -222,7 +222,7 @@ public class SearchDao {
             log.debug(querySql.toString());
         }
         Long start = System.currentTimeMillis();
-        Runner runner = daoHelper.openNewOrgRunner((String)org.getOrgMap().get("name"));
+        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
         List<Map> result =runner.executeQuery(querySql.toString(),values.toArray());
         runner.close();
         Long end = System.currentTimeMillis();
@@ -275,7 +275,7 @@ public class SearchDao {
         querySql.append(" order by count desc limit 7 ");
         
         Long start = System.currentTimeMillis();
-        Runner runner = daoHelper.openNewOrgRunner((String)org.getOrgMap().get("name"));
+        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
         queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
         List<Map> result =runner.executeQuery(querySql.toString());
         runner.close();
@@ -798,7 +798,7 @@ public class SearchDao {
                        }
                        
                        if(cities.length()!=0){
-                           Runner runner = daoHelper.openNewSysRunner();
+                           Runner runner = datasourceManager.newSysRunner();
                            List<Map> c = runner.executeQuery("select * from city where name in("+cities+"'#')");
                            for(Map city:c){//minLat,minLng,maxLat,maxLng
                                double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
@@ -1537,7 +1537,7 @@ public class SearchDao {
             size = 7;
         }
         offset = offset < 0 ? 0 : offset;
-        Runner runner = daoHelper.openNewOrgRunner((String)org.get("name"));
+        Runner runner = datasourceManager.newOrgRunner((String)org.get("name"));
         String name = getNameExpr(type);
         String table = getTable(type,org);
         StringBuilder querySql =new StringBuilder();

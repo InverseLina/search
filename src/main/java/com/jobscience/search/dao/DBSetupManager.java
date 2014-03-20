@@ -67,12 +67,19 @@ public class DBSetupManager {
     
     private volatile ConcurrentMap<String,JSONArray> indexesMap;
     
+    @Inject
+    @Named("jss.db.user")
+    private String user;
+    
+    @Inject
+    private DatasourceManager datasourceManager;
+    
     @Inject 
     private @WebAppFolder File  webAppFolder;
     
     private volatile ConcurrentMap<String,Map> jsonMap = new ConcurrentHashMap<String, Map>();
     private Logger log = LoggerFactory.getLogger(DBSetupManager.class);
-    
+    private String sysSchema = "jss_sys";
     private String[][] newTableNameChanges = {{"contact_ex","jss_contact"},
                                               {"ex_grouped_educations","jss_grouped_educations"},
                                               {"ex_grouped_employers","jss_grouped_employers"},
@@ -137,7 +144,7 @@ public class DBSetupManager {
             sb.append(",").append(tables[1]);
         }
 
-        daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName),
+        daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
                 "drop table if exists " + sb.delete(0, 1));
     }
 
@@ -467,7 +474,7 @@ public class DBSetupManager {
 
         if (checkExtension(extName) != 0) {
             result = true;
-            daoHelper.executeUpdate(daoHelper.openDefaultRunner(), "drop extension  if  exists " + extName
+            daoHelper.executeUpdate(datasourceManager.newRunner(), "drop extension  if  exists " + extName
                                     + "  cascade;");
         }
 
@@ -478,9 +485,10 @@ public class DBSetupManager {
         dropExtension("earthdistance");
         dropExtension("cube");
         dropExtension("pg_trgm");
-        daoHelper.dropSysSchemaIfNecessary();
+        dropSysSchemaIfNecessary();
     }
 
+    
     /**
      * create extension for public schema
      * 
@@ -493,7 +501,7 @@ public class DBSetupManager {
         if (checkExtension(extName) > 0) {
             return true;
         }
-        daoHelper.executeUpdate(daoHelper.openDefaultRunner(), "CREATE extension  if not exists "
+        daoHelper.executeUpdate(datasourceManager.newRunner(), "CREATE extension  if not exists "
                 + extName + "  with schema pg_catalog;");
         return result;
     }
@@ -520,7 +528,7 @@ public class DBSetupManager {
     public String checkSysTables() {
         List<Map> list = daoHelper
                 .executeQuery(
-                        daoHelper.openDefaultRunner(),
+                        datasourceManager.newRunner(),
                         "select string_agg(table_name,',') as names from information_schema.tables"
                                 + " where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config','city')");
         if (list.size() == 1) {
@@ -556,7 +564,7 @@ public class DBSetupManager {
                 allSqls.addAll(subSqlList);
             }
         }
-        Runner runner = daoHelper.openNewOrgRunner(orgName);
+        Runner runner = datasourceManager.newOrgRunner(orgName);
         try {
             runner.startTransaction();
             for (String sql : allSqls) {
@@ -596,7 +604,7 @@ public class DBSetupManager {
         }
         boolean result = true;
         Map<String, JSONArray> m = getIndexMapFromJsonFile();
-        Runner runner = daoHelper.openNewOrgRunner(orgName);
+        Runner runner = datasourceManager.newOrgRunner(orgName);
         try {
             if (contactEx && m.get("jss_contact") != null) {
                 JSONArray ja = m.get("jss_contact");
@@ -656,7 +664,7 @@ public class DBSetupManager {
                 .append(getIndexesNamesAndTables()[1]).append(")")
                 .append(" and indexname not ilike '%pkey%' and schemaname=current_schema ");
         List<Map> list = daoHelper
-                .executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
+                .executeQuery(datasourceManager.newOrgRunner(orgName), sql.toString());
         if (list.size() == 1) {
             return list.get(0).get("indexes") == null ? "" : list.get(0).get("indexes").toString();
         }
@@ -673,9 +681,9 @@ public class DBSetupManager {
                 .append(") and tablename in(").append(getIndexesNamesAndTables()[1]).append(")")
                 .append(" and indexname not ilike '%pkey%' and schemaname=current_schema ");
         List<Map> list = daoHelper
-                .executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
+                .executeQuery(datasourceManager.newOrgRunner(orgName), sql.toString());
 
-        Runner runner = daoHelper.openNewOrgRunner(orgName);
+        Runner runner = datasourceManager.newOrgRunner(orgName);
         try {
             for (Map m : list) {
                 if (!orgSetupStatus.get(orgName).booleanValue()) {
@@ -715,7 +723,7 @@ public class DBSetupManager {
             sb.append(",'").append(tables[1]).append("'");
         }
 
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
                 "select unnest(ARRAY[" + sb.delete(0, 1) + "]) as tablename " + " EXCEPT "
                         + " select table_name as tablename from information_schema.tables"
                         + " where table_schema='" + schemaname
@@ -729,7 +737,7 @@ public class DBSetupManager {
         if (orgs.size() == 1) {
             schemaname = orgs.get(0).get("schemaname").toString();
         }
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
                 "select count(*) as count from information_schema.tables" + " where table_schema='"
                         + schemaname + "' and table_type='BASE TABLE' and table_name=?", tableName);
         if (list.size() == 1) {
@@ -743,7 +751,7 @@ public class DBSetupManager {
     }
 
     public void dropExTables(String orgName) {
-        daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName),
+        daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
                 "drop table if exists jss_grouped_locations;"
                         + "drop table if exists jss_grouped_employers;"
                         + "drop table if exists jss_grouped_educations;"
@@ -755,7 +763,7 @@ public class DBSetupManager {
         if (!extraSysTables.contains("city")) {
             excuteSqlUnderSys("01_");
         }
-        Runner runner = daoHelper.openNewSysRunner();
+        Runner runner = datasourceManager.newSysRunner();
         runner.executeUpdate("insert into city(name,longitude,latitude)"
                 + " select city,avg(longitude),avg(latitude) from zipcode_us group by city",
                 new Object[0]);
@@ -774,7 +782,7 @@ public class DBSetupManager {
             in.getNextEntry();
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line = br.readLine();
-            Runner runner = daoHelper.openNewSysRunner();
+            Runner runner = datasourceManager.newSysRunner();
             try {
                 runner.startTransaction();
                 while (line != null) {
@@ -806,7 +814,7 @@ public class DBSetupManager {
         }
         List<Map> list = daoHelper
                 .executeQuery(
-                        daoHelper.openNewOrgRunner(orgName),
+                        datasourceManager.newOrgRunner(orgName),
                         "select string_agg(trigger_name,',') as names from information_schema.triggers where trigger_schema='"
                                 + schemaname + "'");
         if (list.size() == 1) {
@@ -831,7 +839,7 @@ public class DBSetupManager {
             JSONArray ja = indexesInfo.get(key);
             for (int i = 0; i < ja.size(); i++) {
                 JSONObject jo = JSONObject.fromObject(ja.get(i));
-                daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName),
+                daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
                         "drop index if exists " + jo.getString("name"));
                 indexesCount++;
             }
@@ -842,7 +850,7 @@ public class DBSetupManager {
             if (f.getFilterType() == null) {
                 String indexName = f.getFilterField().getTable() + "_"
                         + f.getFilterField().getColumn() + "_index";
-                daoHelper.executeUpdate(daoHelper.openNewOrgRunner(orgName),
+                daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
                         "drop index if exists " + indexName);
                 indexesCount++;
             }
@@ -860,7 +868,7 @@ public class DBSetupManager {
      */
     private Map getSysConfig() throws Exception {
         Map status = new HashMap();
-        status.put("schema_create", daoHelper.checkSysSchema());
+        status.put("schema_create", checkSysSchema());
         String sysTableNames = this.checkSysTables();
         Map tableMap = new HashMap();
         tableMap.put("org", sysTableNames.contains("org"));
@@ -897,7 +905,7 @@ public class DBSetupManager {
     private boolean checkColumn(String columnName, String table, String schemaName)
             throws SQLException {
         boolean result = false;
-        List list = daoHelper.executeQuery(daoHelper.openDefaultRunner(),
+        List list = daoHelper.executeQuery(datasourceManager.newRunner(),
                 " select 1 from information_schema.columns "
                         + " where table_name =? and table_schema=?  and column_name=? ", table,
                 schemaName, columnName);
@@ -916,7 +924,7 @@ public class DBSetupManager {
      */
     private boolean excuteSqlUnderSys(String prefix) throws Exception {
         boolean result = true;
-        daoHelper.createSysSchemaIfNecessary();
+        createSysSchemaIfNecessary();
         File sysFolder = new File(getRootSqlFolderPath() + "/jss_sys");
         File[] sqlFiles = sysFolder.listFiles();
         List<String> allSqls = new ArrayList();
@@ -926,7 +934,7 @@ public class DBSetupManager {
                 allSqls.addAll(subSqlList);
             }
         }
-        Runner runner = daoHelper.openNewSysRunner();
+        Runner runner = datasourceManager.newSysRunner();
         try {
             runner.startTransaction();
             for (String sql : allSqls) {
@@ -942,7 +950,7 @@ public class DBSetupManager {
             }
             throw e;
         } finally {
-            daoHelper.updateSysDs();
+            datasourceManager.updateDB(null);
             runner.close();
         }
         return result;
@@ -984,7 +992,7 @@ public class DBSetupManager {
                 .append(getIndexesNamesAndTables()[0]).append(getOrgCustomFilterIndex(orgName))
                 .append(") and schemaname=current_schema ");
         List<Map> list = daoHelper
-                .executeQuery(daoHelper.openNewOrgRunner(orgName), sql.toString());
+                .executeQuery(datasourceManager.newOrgRunner(orgName), sql.toString());
         if (list.size() == 1) {
             return Integer.parseInt(list.get(0).get("count").toString());
         }
@@ -1076,7 +1084,7 @@ public class DBSetupManager {
                 allSqls.addAll(subSqlList);
             }
         }
-        Runner runner = daoHelper.openNewOrgRunner(orgName);
+        Runner runner = datasourceManager.newOrgRunner(orgName);
         try {
             runner.startTransaction();
             for (String sql : allSqls) {
@@ -1107,7 +1115,7 @@ public class DBSetupManager {
         } else {
             return done;
         }
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
                 "select count(*) from city");
         if (list.size() == 1) {
             if (!"0".equals(list.get(0).get("count").toString())) {
@@ -1172,7 +1180,7 @@ public class DBSetupManager {
         if (orgs.size() == 1) {
             schemaname = orgs.get(0).get("schemaname").toString();
         }
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
                 "select count(*) as count from information_schema.schemata"
                         + " where schema_name='" + schemaname + "'");
         if (list.size() == 1) {
@@ -1195,7 +1203,7 @@ public class DBSetupManager {
         if (zipcodeLoadCount == null) {
             zipcodeLoadCount = doUpdateZipCode(false);
         }
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
                 "select count(*) as count from zipcode_us");
         if (list.size() == 1) {
             if (list.get(0).get("count").toString().equals(zipcodeLoadCount + "")) {
@@ -1236,7 +1244,7 @@ public class DBSetupManager {
             }
             String sql = "INSERT INTO jss_sys.zipcode_us (" + line + ") values ("
                     + valueStr.toString() + ");";
-            Runner runner = daoHelper.openDefaultRunner();
+            Runner runner = datasourceManager.newRunner();
             try {
                 runner.startTransaction();
                 line = br.readLine();
@@ -1293,7 +1301,7 @@ public class DBSetupManager {
     private int checkExtension(String extName) {
         List<Map> list = daoHelper
                 .executeQuery(
-                        daoHelper.openDefaultRunner(),
+                        datasourceManager.newRunner(),
                         "select sum(case when nspname='pg_catalog' then 1 else 0 end) as pg,"
                                 + "sum(case when nspname!='pg_catalog' then 1 else 0 end) as not_pg "
                                 + "from pg_catalog.pg_extension e left join pg_catalog.pg_namespace n on e.extnamespace=n.oid"
@@ -1311,7 +1319,7 @@ public class DBSetupManager {
     }
 
     private void fixJssTableNames(String orgName) {
-        Runner runner = daoHelper.openNewOrgRunner(orgName);
+        Runner runner = datasourceManager.newOrgRunner(orgName);
         runner.startTransaction();
         for (String[] tables : newTableNameChanges) {
             runner.executeUpdate(" Alter table if exists \"" + tables[0] + "\" rename to \""
@@ -1326,7 +1334,7 @@ public class DBSetupManager {
         for (String[] tables : newTableNameChanges) {
             sb.append(",'").append(tables[0]).append("'");
         }
-        List<Map> list = daoHelper.executeQuery(daoHelper.openNewOrgRunner(orgName),
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),
                 "select count(*) as count from information_schema.tables " + "where table_schema='"
                         + schemaname + "' and table_type='BASE TABLE' " + "and table_name in ("
                         + sb.delete(0, 1).toString() + ")");
@@ -1376,7 +1384,7 @@ public class DBSetupManager {
     private Map getColumnsGroupbyTable(String org) {
         List<Map> list = daoHelper
                 .executeQuery(
-                        daoHelper.openDefaultRunner(),
+                        datasourceManager.newRunner(),
                         " select string_agg(\"column_name\",',') as column_string,table_name from information_schema.columns"
                                 + "  where table_schema=? group by table_name", org);
         Map<String, String> columnsStringMap = new HashMap<String, String>();
@@ -1411,7 +1419,7 @@ public class DBSetupManager {
     private void fixMissingColumns(String orgName, Boolean sys) {
         Map<String, JSONArray> arrays = loadJsonFile(sys ? "jss-sys-tables.def"
                 : "org-jss-tables.def");
-        Runner runner = sys ? daoHelper.openNewSysRunner() : daoHelper.openNewOrgRunner(orgName);
+        Runner runner = sys ? datasourceManager.newSysRunner() : datasourceManager.newOrgRunner(orgName);
         runner.startTransaction();
         for (String key : arrays.keySet()) {
             JSONArray ja = arrays.get(key);
@@ -1469,5 +1477,30 @@ public class DBSetupManager {
 
         firstSetup = false;
 
+    }
+    
+    private boolean checkSysSchema(){
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newRunner(),"select count(*) as count from information_schema.schemata" +
+                " where schema_name='"+sysSchema+"'");
+        if(list.size()==1){
+            if("1".equals(list.get(0).get("count").toString())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void createSysSchemaIfNecessary() {
+        if(!checkSysSchema()){
+            daoHelper.executeUpdate(datasourceManager.newRunner(), "CREATE SCHEMA " + sysSchema + " AUTHORIZATION " + user, new Object[0]);
+        }
+        datasourceManager.updateDB(null);
+    }
+    
+    private void dropSysSchemaIfNecessary() {
+        if(checkSysSchema()){
+            daoHelper.executeUpdate(datasourceManager.newRunner(),"Drop SCHEMA " + sysSchema + " CASCADE ", new Object[0]);
+        }
+        datasourceManager.updateDB(null);
     }
 }    

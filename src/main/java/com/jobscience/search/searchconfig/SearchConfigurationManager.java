@@ -27,6 +27,7 @@ import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.DaoHelper;
+import com.jobscience.search.dao.DatasourceManager;
 import com.jobscience.search.dao.OrgConfigDao;
 
 @Singleton
@@ -38,7 +39,8 @@ public class SearchConfigurationManager {
     private DaoHelper daoHelper;
     @Inject
     private OrgConfigDao orgConfigDao;
-    
+    @Inject
+    private DatasourceManager datasourceManager;
     private volatile Document sysDocument;
     
     
@@ -94,7 +96,7 @@ public class SearchConfigurationManager {
         if(orgs.size()>0){
             orgId = Integer.parseInt( orgs.get(0).get("id").toString());
         }
-        List<Map> orgConfig = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+        List<Map> orgConfig = daoHelper.executeQuery(datasourceManager.newSysRunner(),
             "select val_text from config where name = ? and org_id =?", "searchconfig",orgId);
         if(orgConfig.size()>0){
            return orgConfig.get(0).get("val_text").toString();
@@ -115,7 +117,7 @@ public class SearchConfigurationManager {
        
         DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         //get the sys config
-        List<Map> sysConfig = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+        List<Map> sysConfig = daoHelper.executeQuery(datasourceManager.newSysRunner(),
             "select val_text from config where name = ? and org_id is null", "searchconfig");
         Document sys = null;
         if (sysConfig.size() == 0) {
@@ -132,7 +134,7 @@ public class SearchConfigurationManager {
             orgId = Integer.parseInt( orgs.get(0).get("id").toString());
         }
         Document org ;
-        List<Map> orgConfig = daoHelper.executeQuery(daoHelper.openNewSysRunner(),
+        List<Map> orgConfig = daoHelper.executeQuery(datasourceManager.newSysRunner(),
             "select val_text from config where name = ? and org_id =?", "searchconfig",orgId);
         if(orgConfig.size()>0){
             ByteArrayInputStream in = new ByteArrayInputStream(orgConfig.get(0).get("val_text").toString().getBytes());
