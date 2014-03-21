@@ -4,8 +4,9 @@
     <link rel="stylesheet" type="text/css" href="${_r.contextPath}/bootstrap/css/bootstrap.css">
     <title>JobScience Search (Demo)</title>
     <script type="text/javascript">
+    var jssVersion = "${JSS_VERSION}";
 	  var contextPath = "${_r.contextPath}";
-      if(contextPath=="/"){contextPath="";};
+    if(contextPath=="/"){contextPath="";};
 	 </script> 
     
     [@webBundle path="/css/" type="css" /]

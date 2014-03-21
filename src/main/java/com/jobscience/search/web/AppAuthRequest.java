@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.jobscience.search.AppConfig;
 import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
@@ -125,7 +126,7 @@ public class AppAuthRequest implements AuthRequest {
 
     @WebModelHandler(startsWith = "/")
     public void home(@WebModel Map m, @WebUser Map user, RequestContext rc) {
-        
+        m.put("JSS_VERSION", AppConfig.JSS_VERSION);
 		if (!rc.getPathInfo().startsWith("/admin")){
 		    String orgName = null;
 		    boolean isSysSchemaExist = dbSetupManager.checkSysTables().contains("config");

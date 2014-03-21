@@ -12,6 +12,7 @@
 				uiFlags.showHeader = true;
 			}
 			return render("MainView", {
+				jssVersion: jssVersion,
 				contextPath : contextPath,
 				showHeader : uiFlags.showHeader
 			});
