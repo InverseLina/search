@@ -15,6 +15,7 @@ public class OrgContext {
     }
 
     public void setOrgMap(Map orgMap) {
+        orgMap.put("schemaname", "\""+orgMap.get("schemaname")+"\"");
         this.orgMap = orgMap;
     }
 

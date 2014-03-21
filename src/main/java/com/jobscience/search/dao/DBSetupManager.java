@@ -179,7 +179,6 @@ public class DBSetupManager {
         if (missingColumns.length() > 0) {
             totalStatus = ERROR;
         }
-
         missingColumns = checkColumns(schemaname, "org-jss-tables.def", true);
         setups.add(mapIt("name", "jss_table", "status", missingColumns.length() > 0 ? ERROR : DONE,
                 "msg", missingColumns.length() <= 0 ? "jss tables valid valid"
@@ -187,7 +186,6 @@ public class DBSetupManager {
         if (missingColumns.length() > 0 && totalStatus.equals(DONE)) {
             totalStatus = NOTSTARTED;
         }
-
         setups.add(mapIt("name", "fix_old_jss_table", "status",
                 hasOldJssTableNames(orgName, schemaname) ? NOTSTARTED : DONE));
 
@@ -244,7 +242,6 @@ public class DBSetupManager {
         int totalIndexCount = getTotalIndexCount(orgName);
         setups.add(mapIt("name", "indexes", "status", totalIndexCount > indexCount ? PART : DONE,
                 "progress", new IndexerStatus(totalIndexCount - indexCount, indexCount)));
-
         if ((totalIndexCount > indexCount) && totalStatus.equals(DONE)) {
             totalStatus = PART;
         }
@@ -254,7 +251,6 @@ public class DBSetupManager {
         }
         status.put("status", totalStatus);
         status.put("setups", setups);
-
         return status;
 
     }
@@ -718,16 +714,15 @@ public class DBSetupManager {
         if (orgs.size() == 1) {
             schemaname = orgs.get(0).get("schemaname").toString();
         }
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
         for (String[] tables : newTableNameChanges) {
             sb.append(",'").append(tables[1]).append("'");
         }
-
         List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
                 "select unnest(ARRAY[" + sb.delete(0, 1) + "]) as tablename " + " EXCEPT "
                         + " select table_name as tablename from information_schema.tables"
                         + " where table_schema='" + schemaname
-                        + "' and table_type='BASE TABLE' and table_name in (" + sb + ")");
+                        + "' and table_type='BASE TABLE' and table_name in (" + sb + ");");
         return list;
     }
 
@@ -1180,7 +1175,7 @@ public class DBSetupManager {
         if (orgs.size() == 1) {
             schemaname = orgs.get(0).get("schemaname").toString();
         }
-        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newRunner(),
                 "select count(*) as count from information_schema.schemata"
                         + " where schema_name='" + schemaname + "'");
         if (list.size() == 1) {

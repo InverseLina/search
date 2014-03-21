@@ -91,7 +91,7 @@ public class DatasourceManager {
     }
     
     private void setSearchPath(Runner runner,String searchPath){
-        runner.executeUpdate("set search_path to "+searchPath);
+        runner.executeUpdate("set search_path to \""+searchPath+"\"");
     }
     
     private ComboPooledDataSource buildDs() {
