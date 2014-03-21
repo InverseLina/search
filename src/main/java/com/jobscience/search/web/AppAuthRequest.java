@@ -1,6 +1,5 @@
 package com.jobscience.search.web;
 
-import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +19,7 @@ import com.britesnow.snow.web.param.annotation.WebModel;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebPost;
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -101,7 +101,7 @@ public class AppAuthRequest implements AuthRequest {
     @WebPost("/passcode")
     public WebResponse passcode(@WebParam("passcode") String code ,RequestContext rc) {
         if (passCode != null && passCode.length() > 0 && passCode.equals(code)) {
-            String codeSha1 = Hashing.sha1().hashString(code,Charset.forName("UTF-8")).toString();
+            String codeSha1 = sha1(code);
             rc.setCookie(COOKIE_PASSCODE, codeSha1);
             return webResponseBuilder.success(true);
         }else{
@@ -114,7 +114,7 @@ public class AppAuthRequest implements AuthRequest {
     public WebResponse adminLogin(RequestContext rc,
                             @WebParam("password") String password) throws SQLException {
         if (configPassword.equals(password)) {
-            String passwordSha1 = Hashing.sha1().hashString(password,Charset.forName("UTF-8")).toString();
+            String passwordSha1 = sha1(password);
             rc.setCookie(COOKIE_ADMIN_TOKEN, passwordSha1);
             return webResponseBuilder.success();
         } else {
@@ -183,7 +183,7 @@ public class AppAuthRequest implements AuthRequest {
         String contextPath = rc.getContextPath();
         if(path.equals("/admin")){
             String atoken = rc.getCookie(COOKIE_ADMIN_TOKEN);
-            if(!Strings.isNullOrEmpty(atoken) && atoken.equals(Hashing.sha1().hashString(configPassword,Charset.forName("UTF-8")).toString())){
+            if(!Strings.isNullOrEmpty(atoken) && atoken.equals(sha1(configPassword))){
                 Map adminUser = new HashMap();
                 adminUser.put("isAdmin", true);
                 authToken = new AuthToken();
@@ -234,7 +234,7 @@ public class AppAuthRequest implements AuthRequest {
         }else if(path.equals(contextPath + "/") || path.equals(rc.getContextPath())){
             if (passCode != null && passCode.length() > 0 ) {
                 String pcode = rc.getCookie(COOKIE_PASSCODE);
-                if (pcode == null || !pcode.equals(Hashing.sha1().hashString(passCode,Charset.forName("UTF-8")).toString())) {
+                if (pcode == null || !pcode.equals(sha1(passCode))) {
                     rc.getWebModel().put("errorCode", AuthCode.NO_PASSCODE.toString());
                     rc.getWebModel().put("errorMessage", "No passcode exists or incorrect");
                     rc.getWebModel().put("success", "false");
@@ -350,6 +350,10 @@ public class AppAuthRequest implements AuthRequest {
 
     public void updateCache(Map user){
         userCache.put((String)user.get(COOKIE_ORG_USER_TOKEN), user);
+    }
+    
+    static String sha1(String txt){
+        return Hashing.sha1().hashString(txt, Charsets.UTF_8).toString();
     }
     
     
