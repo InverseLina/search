@@ -14,7 +14,6 @@ import java.util.Set;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 
 
 @Singleton
@@ -25,14 +24,9 @@ public class ConfigManager {
     @Inject
     private DatasourceManager datasourceManager;
     
-    @Inject(optional=true)
-    @Named("jss.feature.userlist")
-    private String userlistFeature;
-    
-    private static final String[] snowPropertiesInheritedArray = new String[]{"jss.feature.userlist"};
+    private static final String[] snowPropertiesInheritedArray = new String[]{};
     private static final Set<String> snowPropertiesInherited = new HashSet<String>(Arrays.asList(snowPropertiesInheritedArray));
-    private static final String[] orgInfoKeysArray = new String[]{"jss.feature.userlist",
-            "apex_resume_url","local_distance","local_date","instance_url"};
+    private static final String[] orgInfoKeysArray = new String[]{"apex_resume_url","local_distance","local_date","instance_url"};
     private static final Set<String> orgInfoKeys = new HashSet<String>(Arrays.asList(orgInfoKeysArray));
     
     /**
@@ -172,9 +166,6 @@ public class ConfigManager {
     }
     
     private String getValueFromProperties(String key){
-        if("jss.feature.userlist".equals(key)){
-            return userlistFeature;
-        }
         return null;
     }
 }

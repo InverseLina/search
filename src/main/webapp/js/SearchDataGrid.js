@@ -15,18 +15,10 @@
       view.$searchResult = view.$el.find(".search-result");
       view.tableOrderColumn = null;
       view.tableOrderType = null;
-      if(typeof(app.orgInfo)!='undefined'){
-    	  view.labelDisable = app.orgInfo['jss.feature.userlist'] == 'false' ? true : false;
-      }
+      view.labelDisable = true;
       view.showContentMessage("empty");
-      
-        brite.display("TabView",null, {hide: view.labelDisable}).done(function(tabView){
-            view.tabView = tabView;
-        });
-
-        brite.display("ToolBar");
-        
-        $(":text").placeholder();
+      brite.display("ToolBar");
+      $(":text").placeholder();
     },
     // --------- /View Interface Implement--------- //
 
@@ -108,26 +100,6 @@
           }else{
               brite.display("ResumeView","body", {id: cid,sfid: sfid, name:cname});
           }
-
-      },
-      "click; tbody td.favLabel":function(event){
-         var view = this;
-         var $td = $(event.currentTarget);
-         event.stopPropagation();
-         event.preventDefault();
-
-         var labelId = view.tabView.getSelectLabel().id;
-          var contactId = $td.closest("tr").attr("data-objId");
-         if(labelId){
-
-             if($td.hasClass("hasLabel")){
-                 app.LabelDaoHandler.unAssign(contactId, labelId);
-                 $td.removeClass("hasLabel");
-             }else{
-                 app.LabelDaoHandler.assign(contactId, labelId);
-                 $td.addClass("hasLabel");
-             }
-         }
 
       },
       "click; table td[data-column='company'],td[data-column='skill'],td[data-column='education']" : function(event) {
@@ -402,34 +374,7 @@
           view.$el.find(".gridControls").show();
           view.$el.find(".toolBarContainer ").show();
 //          view.$el.find(".page").show();
-      },
-        CHANGE_SELECT_LABEL: function(event){
-            var view = this;
-            var label = view.tabView.getSelectLabel();
-            if (label) {
-                view.$el.find("tbody td.favLabel").attr("title", label.name);
-                var $icons = view.$el.find("tbody td.favLabel i");
-                if (label.name == "Favorites") {
-                    $icons.removeClass("glyphicon-stop").addClass("glyphicon-star");
-                } else {
-                    $icons.removeClass("glyphicon-star").addClass("glyphicon-stop");
-                }
-                var cids = [];
-                view.$el.find("tbody tr[data-objId]").each(function (idx, tr) {
-                    cids.push($(tr).attr("data-objId"));
-                });
-                view.$el.find("tbody td.favLabel").removeClass("hasLabel");
-                if(cids.length > 0){
-                    app.LabelDaoHandler.getLabelStatus("[" + cids.join(",") + "]", label.id).done(function(result){
-                        $.each(result, function(idx, obj){
-                           if(obj.haslabel){
-                               view.$el.find("tbody tr[data-objId='" + obj.id + "'] td.favLabel").addClass("hasLabel");
-                           }
-                        });
-                    });
-                }
-            }
-        }
+      }
     },
     // --------- /Document Events--------- //
 
@@ -571,8 +516,6 @@
     var colLen = columns.length;
     var view = this;
     var dtd = $.Deferred();
-    var label = view.tabView.getSelectLabel();
-    var isFav = label.name == "Favorites" ? true: false;
     var dateFormat = app.orgInfo["local_date"]||"YYYY-MM-DD";
 
   	    for (var i = 0; i < items.length; i++) {
@@ -614,7 +557,6 @@
                }
   	           displayValue += "<div class='lineInfo title'>"+items[i]["title"]+"</div>";
   	           displayValue += "<a class='lineInfo email' href='mailTo:"+items[i]["email"]+"'>"+items[i]["email"]+"</a>";
-  	           //displayValue += "<div class='lineInfo phone'>"+items[i]["phone"]+"</div>";
   	            item.push({
   	                name : columns[j],
   	                value : displayValue,
@@ -630,10 +572,7 @@
   	      }
   	      result.push({
   	        row : item,
-            names: {id: items[i].id, name: items[i].name, sfid: items[i].sfid},
-            hasLabel: items[i].haslabel,
-            isFav: isFav,
-            labelName: label.name
+            names: {id: items[i].id, name: items[i].name, sfid: items[i].sfid}
   	      });
   	    }
   	    dtd.resolve(result);

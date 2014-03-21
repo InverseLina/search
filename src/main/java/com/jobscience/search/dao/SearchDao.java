@@ -322,8 +322,6 @@ public class SearchDao {
     	boolean hasSearchValue = false;//to check if the search box has value or not
     	StringBuilder labelSql = new StringBuilder();
     	StringBuilder locationSql = new StringBuilder();
-    	String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",(Integer)org.getOrgMap().get("id"));
-    	boolean userlistFeature = Boolean.valueOf(userlistFeatureStr);
     	
     	boolean needJoinRecordtype = false;
     	 
@@ -362,53 +360,6 @@ public class SearchDao {
         	 
            }
            
-           //Get the label parameters and render them
-           String label = searchValues.get("label");
-           String labelAssigned = searchValues.get("labelAssigned");
-           Map userMap = userDao.getCurrentUser();
-            String sfid = null;
-            if (userMap != null) {
-                sfid = (String) userMap.get("sfid");
-            }
-
-           if(sfid==null){
-               sfid = "1";
-           }
-           if(label==null){
-               label="Favorites";
-           }
-           if(userlistFeature && userMap != null){
-	           if(label!=null){
-	               if(advanced){
-	                   if(!"true".equals(labelAssigned)){
-	                       joinTables.append(" left ");
-	                   }
-	                   joinTables.append(" join (select label.\"id\",label_contact.\"ts2__r_contact__c\" from "+schemaname+".ts2__s_userlistlink__c label_contact ")
-	                   		     .append(" join "+schemaname+".\"ts2__s_userlist__c\" label on label.\"sfid\"=label_contact.\"ts2__r_user_list__c\"")
-	                   		     .append(" and \"ownerid\"='")
-	                   		     .append(sfid)
-	               		         .append("' and label.\"name\" ='")
-	                             .append(label)
-	                             .append("' ) labelcontact on labelcontact.\"contact_id\" = a.\"sfid\" ");
-	                           
-	               }else{
-	                   if(!"true".equals(labelAssigned)){
-	                       labelSql.append(" left ");
-	                   }else{
-	                       hasCondition = true;
-	                   }
-	                   labelSql.append(" join (select label.\"id\" as \"id\",label_contact.\"ts2__r_contact__c\" as \"contact_id\" from "+schemaname+".ts2__s_userlistlink__c label_contact ")
-	                             .append(" join "+schemaname+".\"ts2__s_userlist__c\" label on label.\"sfid\"=label_contact.\"ts2__r_user_list__c\"")
-	                             .append(" and \"ownerid\"='")
-	                             .append(sfid)
-	                             .append("' and label.\"name\" ='")
-	                             .append(label)
-	                             .append("' ) labelcontact on labelcontact.\"contact_id\" = %s.\"sfid\" ");
-	                   
-	               }
-	             
-	           }
-           }
        	   //Get the contacts parameters and render them
             String contactVal = searchValues.get("contacts");
             if (contactVal != null) {
@@ -1033,7 +984,7 @@ public class SearchDao {
      * @param searchColumns
      * @return
      */
-    private String getSearchColumnsForOuter(String searchColumns,boolean userlistFeature,Map user,OrgContext org){
+    private String getSearchColumnsForOuter(String searchColumns,OrgContext org){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
     	if(searchColumns==null){
@@ -1078,9 +1029,6 @@ public class SearchDao {
 	    	sb.append("id,name");//make id and name always return
     	}
     	sb.append(",sfid");//,phone
-    	if(userlistFeature&&user!=null){
-    		sb.append(",haslabel");
-    	}
         return sb.toString();
     }
     
@@ -1091,7 +1039,7 @@ public class SearchDao {
      * @param groupBy
      * @return
      */
-    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,boolean userlistFeature,Map user,OrgContext org){
+    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,OrgContext org){
     	 StringBuilder columnsSql = new StringBuilder();
     	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
     	 if(searchColumns==null){//a.phone,
@@ -1101,10 +1049,7 @@ public class SearchDao {
     	 }else{
     		 String temp = "";
     		 StringBuffer sb = new StringBuffer("id,name,sfid,");
-    		 if(userlistFeature&&userDao.getCurrentUser()!=null){
-    			 sb.append("haslabel,");
-    		 }
- 	        for(String column:searchColumns.split(",")){
+ 	         for(String column:searchColumns.split(",")){
  	        	temp = getQueryColumnName(column,columnJoinTables,groupBy,sb,org);
  	        	if(!temp.trim().equals("")){
 	 	            columnsSql.append(temp);
@@ -1112,17 +1057,10 @@ public class SearchDao {
  	        	}
  	        }
  	        columnsSql.append("a.id,a.name,a.sfid");//,a.phone,
- 	        if(userlistFeature&&user!=null){
- 	        	columnsSql.append(",a.haslabel");
- 	        }
  	        if(groupBy.length()>0){
  	        	groupBy.append(",");
  	        }
- 	        //a.phone,
  	        groupBy.append("a.name,a.sfid");//always return these columns ,
- 	        if(userlistFeature&&user!=null){
- 	    	  groupBy.append(",a.haslabel");
-  	        }
          }
     	 return columnsSql.toString();
     }
@@ -1158,17 +1096,13 @@ public class SearchDao {
         List values = new ArrayList();
         String cteSql = "";
         
-        //get the userlist feature
-        String userlistFeatureStr = configManager.getConfig("jss.feature.userlist",(Integer)org.getOrgMap().get("id"));
-        boolean userlistFeature = Boolean.valueOf(userlistFeatureStr);
-        Map userMap = userDao.getCurrentUser();
         
         querySql.append("select ");
-        querySql.append(getSearchColumnsForOuter(searchColumns,userlistFeature,userMap,org));
+        querySql.append(getSearchColumnsForOuter(searchColumns,org));
         querySql.append(" from ( ");
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
-        querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy,userlistFeature,userMap,org));
+        querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy,org));
         
         
         //---------------------- add select columns ----------------------//
@@ -1190,9 +1124,6 @@ public class SearchDao {
                 .append("char_length(")
                 .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
                 .append(") = 0 then -1  else contact.id end as resume ");
-                if(userlistFeature&&userMap!=null){
-                	querySql.append(",case when labelcontact.contact_id is null then false else true end haslabel ");
-                }
         //---------------------- /add select columns----------------------//
         
         
@@ -1301,7 +1232,6 @@ public class SearchDao {
 	        joinSql = new StringBuilder(sqls[0]);
 	        prefixSql = sqls[1];
 	        String labelSql = sqls[3];
-	        boolean userlistFeature = (labelSql.length()>0);
 	        countSql = new StringBuilder(joinSql.toString());
 	        String recordTypeSql = sqls[5];
 	        String labelAssigned = searchValues.get("labelAssigned");
@@ -1309,7 +1239,7 @@ public class SearchDao {
 	            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
 	        }
 	        if(!Strings.isNullOrEmpty(searchValue)&&searchValue.length()>=3){
-	            if(!hasContactsCondition&&userlistFeature&&!"true".equals(labelAssigned)&&locationSql.length()==0&&!hasExtraSearchColumn(searchValues)){
+	            if(!hasContactsCondition&&!"true".equals(labelAssigned)&&locationSql.length()==0&&!hasExtraSearchColumn(searchValues)){
 	                joinSql.append(" offset "+offset+" limit "+pageSize);
 	            }
     	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(labelSql,"subcontact"));
@@ -1318,15 +1248,7 @@ public class SearchDao {
     	           countSql.append(" ) a  ");
     	       }else{
     	           countSql.append(" ) subcontact on contact.id=subcontact.id ");
-    	           if(userlistFeature){
-    	        	   countSql.append(String.format(labelSql,"subcontact"));
-    	           }
     	       }
-	        }else{
-	        	if(userlistFeature){
-		            joinSql.append(String.format(labelSql,"contact"));
-	                countSql.append(String.format(labelSql,"contact"));
-	        	}
 	        }
 	        joinSql.append(locationSql);
 	        countSql.append(locationSql);

@@ -91,7 +91,6 @@
 					configs["force_login_url"] = view.$el.find("[name='force_login_url']").val();
 					configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();
 					configs["canvasapp_secret"] = view.$el.find("[name='canvasapp_secret']").val();
-					configs["jss.feature.userlist"] = view.$el.find("[name='jss.feature.userlist']").val();
 					var sfTimeout = $.trim(view.$el.find("[name='sf_session_timeout']").val());
 
 					if(/^\d+$/.test(sfTimeout)){
@@ -439,7 +438,6 @@
 				dfd.reject();
 			}else{
 				view.currentOrgName = data[0].name;
-				data[0]["jss_feature_userlist"] = data[0]["jss.feature.userlist"];
 					var html = render("OrganizationInfo-content",{data:data[0]});
 					view.$tabContent.bEmpty();
 					view.$tabContent.html(html);
