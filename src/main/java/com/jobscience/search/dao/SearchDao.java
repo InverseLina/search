@@ -70,50 +70,54 @@ public class SearchDao {
      */
     public SearchResult search(String searchColumns,Map<String, String> searchValues,
     		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token,OrgContext org) {
-        Runner runner = datasourceManager.newRunner();
-        
-        // Use new perf hook for now.
-//        ReqPerf reqPerf = crch.getCurrentRequestContext().getAttributeAs(ReqPerfHook.REQ_PERF,ReqPerf.class);
-//        reqPerf.start("beforeSelect");
-        
-        //builder statements
-        SearchStatements statementAndValues = 
-        		buildSearchStatements(searchColumns,searchValues, pageIdx, pageSize,orderCon,org);
-        
-//        reqPerf.stop("beforeSelect");
-        
-        //excute query and caculate times
-        long start = System.currentTimeMillis();
-        List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
-        long mid = System.currentTimeMillis();
-        int count =  runner.executeCount(statementAndValues.countSql, statementAndValues.values);
-        long end = System.currentTimeMillis();
 
-//        reqPerf.start("afterSelect");
-        
-        queryLogger.debug(LoggerType.SEARCH_PERF,mid - start);
-        queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,end - mid);
-        
-        Long userId = -1L;
-        Map user =  userDao.getUserByTokenAndOrg(token, (String)org.getOrgMap().get("name"));
-        if(user!=null){
-            userId=Long.parseLong(user.get("id").toString());
-        }
-       
-        searchLogDao.addSearchLog(searchValuesString, end - mid, mid - start, userId,org);
-        
-        SearchResult searchResult = new SearchResult(result, count)
-        							.setDuration(end - start)
-        							.setSelectDuration(mid - start)
-        							.setCountDuration(end - mid);
-        runner.close();
-        searchResult.setPageIdx(pageIdx);
-        searchResult.setPageSize(pageSize);
-        
-//        reqPerf.stop("afterSelect");
-        
+		SearchResult searchResult = null;
+		//builder statements
+		SearchStatements statementAndValues =
+				buildSearchStatements(searchColumns,searchValues, pageIdx, pageSize,orderCon,org);
+
+		//excute query and caculate times
+		searchResult = executeSearch(statementAndValues);
+
+		queryLogger.debug(LoggerType.SEARCH_PERF,searchResult.getSelectDuration());
+		queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,searchResult.getCountDuration());
+
+		Long userId = -1L;
+		Map user =  userDao.getUserByTokenAndOrg(token, (String)org.getOrgMap().get("name"));
+		if(user!=null){
+			userId=Long.parseLong(user.get("id").toString());
+		}
+
+		searchLogDao.addSearchLog(searchValuesString, searchResult.getCountDuration(), searchResult.getSelectDuration(), userId,org);
+
+		if (searchResult != null){
+			searchResult.setPageIdx(pageIdx);
+			searchResult.setPageSize(pageSize);
+		}
+
         return searchResult;
     }
+
+	protected SearchResult executeSearch(SearchStatements statementAndValues){
+		Runner runner = datasourceManager.newRunner();
+		SearchResult searchResult = null;
+		try{
+			long start = System.currentTimeMillis();
+			List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+			long mid = System.currentTimeMillis();
+			int count =  runner.executeCount(statementAndValues.countSql, statementAndValues.values);
+			long end = System.currentTimeMillis();
+
+			searchResult = new SearchResult(result, count)
+					.setDuration(end - start)
+					.setSelectDuration(mid - start)
+					.setCountDuration(end - mid);
+		}finally{
+			runner.close();
+		}
+
+		return searchResult;
+	}
     
     /**
      * Get the auto complete data
@@ -235,7 +239,7 @@ public class SearchDao {
         return searchResult;
     }
     
-    public SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
+    protected SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         Filter filter = sc.getFilterByName(type);
         if(filter==null){
@@ -300,7 +304,7 @@ public class SearchDao {
      * @param appendJoinTable
      * @return
      */
-    private String[] renderSearchCondition(Map<String, String> searchValues,String type,
+    protected String[] renderSearchCondition(Map<String, String> searchValues,String type,
             String baseTable,String baseTableIns,List values,  String appendJoinTable ,OrgContext org){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder joinTables = new StringBuilder();
@@ -1127,7 +1131,7 @@ public class SearchDao {
      * @param searchValues
      * @return SearchStatements
      */
-    private SearchStatements buildSearchStatements(String searchColumns, Map<String, String> searchValues,
+    protected SearchStatements buildSearchStatements(String searchColumns, Map<String, String> searchValues,
                                                    Integer pageIdx, Integer pageSize,String orderCon,OrgContext org) {
         SearchStatements ss = new SearchStatements();
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
@@ -1721,7 +1725,9 @@ public class SearchDao {
         Double maxLng = longitude + radiusLng;  
         return new double[]{minLat,minLng,maxLat,maxLng};  
     }  
-    
+
+
+
 }
 
 class SearchStatements {

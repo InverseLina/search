@@ -47,7 +47,7 @@ public class AppConfig extends AbstractModule {
     private Matcher perfClassMatchers(){
         Matcher m = Matchers.inSubpackage("com.jobscience.search.dao");
         m = m.or(Matchers.annotatedWith(ToMonitor.class));
-        m = m.or(new PerfClassMatcher(DaoHelper.class));
+        m = m.or(new ClassSetMatcher(DaoHelper.class));
         return m;
     }
 
@@ -67,10 +67,10 @@ public class AppConfig extends AbstractModule {
         return m;
     }
     
-    class PerfClassMatcher extends AbstractMatcher<Class>{
+    class ClassSetMatcher extends AbstractMatcher<Class>{
         Set<Class> classSet = new HashSet<Class>();
 
-        PerfClassMatcher(Class... classes){
+        ClassSetMatcher(Class... classes){
             for (Class cls : classes) {
                 classSet.add(cls);
             }
