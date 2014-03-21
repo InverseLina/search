@@ -311,16 +311,13 @@ public class AppAuthRequest implements AuthRequest {
         }
         
         if (user == null) {
-            boolean isUserExist = false;
             String orgName = null;
             try{
                 orgName = orgHolder.getOrgName();
                 if (orgName != null) {
                     dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
                 }
-                if (isUserExist) {
-                    user = userDao.getUserByToken(ctoken);
-                }
+                user = userDao.getUserByToken(ctoken);
             }catch(Exception e){
                 rc.getWebModel().put("errorCode", "NO_ORG");
                 rc.getWebModel().put("errorMessage", "Organization is not correct, Please enter correct organization");
