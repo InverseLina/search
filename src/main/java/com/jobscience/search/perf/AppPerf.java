@@ -66,7 +66,7 @@ public class AppPerf {
 			Timer timer = methodTimers.get(name);
 			timer.getCount();
 			Snapshot snapshot = timer.getSnapshot();
-			r.put(name,new Snap(snapshot));
+			r.put(name,new Snap(timer.getCount(),snapshot));
 		}
 		return r;
 	}
@@ -77,21 +77,23 @@ public class AppPerf {
 	 */
 	public static class Snap{
 		private final Snapshot snapshot;
+		private final long count;
 
-		Snap(Snapshot snapshot){
+		Snap(long count, Snapshot snapshot){
+			this.count = count;
 			this.snapshot = snapshot;
 		}
 
-		public Integer getCount(){
-			return snapshot.getValues().length;
+		public Long getCount(){
+			return count;
 		}
 
 		public Long getMin(){
 			return TimeUnit.MILLISECONDS.convert(snapshot.getMin(), TimeUnit.NANOSECONDS);
 		}
 
-		public Long getMed(){
-			Double med = snapshot.getMedian();
+		public Long getMean(){
+			Double med = snapshot.getMean();
 			return TimeUnit.MILLISECONDS.convert(med.longValue(), TimeUnit.NANOSECONDS);
 		}
 
