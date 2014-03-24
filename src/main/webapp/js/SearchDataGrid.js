@@ -610,7 +610,6 @@
       }
     //checkbox
     var applyContactCheckboxWidth = 15;
-    tableWidth = tableWidth - applyContactCheckboxWidth;
     if(!view.labelDisable){
 	    tableWidth = tableWidth - 32;
     }
@@ -646,25 +645,49 @@
       } else if ($item.hasClass("favLabel")) {
         if(!view.labelDisable){
 	    	realWidth = 32;
+	    }else{
+	    	realWidth = 0;
 	    }
       } else if (colName=="resume") {
         realWidth = 95;
       } else {
         realWidth = colWidth;
       }
-      if (idx == tlen) {
-        $item.css({
+      if(idx == 0){
+      	$item.css({
+          width : 0,
+          "max-width" : 0,
+          "min-width" : 0
+        });
+        $body.find("tr td:nth-child("+(idx+1)+")").css({
+	      width : realWidth,
+	      "max-width" : realWidth,
+	      "min-width" : realWidth
+	    });
+      }else if(idx == 2){
+      	$item.css({
+          width : realWidth,
+          "max-width" : realWidth,
+          "min-width" : realWidth
+        });
+        $body.find("tr td:nth-child("+(idx+1)+")").css({
+	      width : realWidth - 15,
+	      "max-width" : realWidth - 15,
+	      "min-width" : realWidth
+	    });
+      }else if(idx == tlen){
+      	$item.css({
           width : realWidth + 50,
           "max-width" : realWidth + 50,
           "min-width" : realWidth
         });
         $body.find("tr td:nth-child("+(idx+1)+")").css({
-	      width : realWidth + 50,
-	      "max-width" : realWidth + 50,
+	      width : realWidth,
+	      "max-width" : realWidth,
 	      "min-width" : realWidth
 	    });
-      } else {
-        $item.css({
+      }else{
+      	$item.css({
           width : realWidth,
           "max-width" : realWidth,
           "min-width" : realWidth
@@ -675,6 +698,41 @@
 	      "min-width" : realWidth
 	    });
       }
+      
+      if (idx == tlen) {
+        
+      } else {
+      	if(idx != 0){
+      		
+      	 $item.css({
+          width : realWidth,
+          "max-width" : realWidth,
+          "min-width" : realWidth
+        });
+        
+        if(idx == 2){
+        	realWidth = realWidth - 19;
+        }
+        $body.find("tr td:nth-child("+(idx+1)+")").css({
+	      width : realWidth,
+	      "max-width" : realWidth,
+	      "min-width" : realWidth
+	    });
+	    
+      	}else{
+      	$item.css({
+          width : 0,
+          "max-width" : 0,
+          "min-width" : 0
+        });
+        
+      }
+      
+        
+        
+      }
+      
+      
       
         //fix for ie
         $body.find("td[data-column='" + colName + "'] > span").css({
