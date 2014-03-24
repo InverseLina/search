@@ -7,8 +7,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +21,10 @@ import java.util.zip.ZipInputStream;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.jasql.PQuery;
 import org.jasql.Runner;
 import org.slf4j.Logger;
@@ -104,8 +106,8 @@ public class DBSetupManager {
      
     private volatile Thread sysThread;
     private volatile boolean sysReseting = false;
-    private volatile HttpURLConnection zipCodeConnection = null;
-    private volatile HttpURLConnection cityConnection = null;
+    private volatile HttpGet zipCodeConnection = null;
+    private volatile HttpGet cityConnection = null;
     private boolean firstSetup = true;
     private String step = null;
     
@@ -289,17 +291,30 @@ public class DBSetupManager {
     
     public void resetSysSetup() {
         try {
-            clearSysSetup();
-            firstSetup = false;
-            step = null;
             sysReseting = true;
             if(cityConnection != null){
-                cityConnection.disconnect();
+                cityConnection.abort();
+                cityConnection = null;
             }
             if(zipCodeConnection != null){
-                zipCodeConnection.disconnect();
+                zipCodeConnection.abort();
+                zipCodeConnection = null;
             }
+            stopSystemSetup();
+            clearSysSetup();
+            step = null;
+            firstSetup = false;
+            sysReseting = false;
         } catch (Exception e) {
+            //FIXME: need once more
+            try {
+                clearSysSetup();
+                step = null;
+                firstSetup = false;
+                sysReseting = false;
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
     }
@@ -344,13 +359,10 @@ public class DBSetupManager {
 
             if (isSystemSetupRunning()) {
                 status.put(statusKey, RUNNING);
-                if (sysReseting) {
-                    status.put("caceling", true);
-                }
-            } else {
-                if (sysReseting) {
-                    sysReseting = false;
-                }
+            }
+            
+            if (sysReseting) {
+                status.put("reseting", true);
             }
 
             if (!(Boolean) result.get("schema_create")) {
@@ -771,9 +783,11 @@ public class DBSetupManager {
             excuteSqlUnderSys("01_");
         }
         try {
-            URL url = new URL(cityPath);
-            cityConnection = (HttpURLConnection) url.openConnection();
-            ZipInputStream in = new ZipInputStream(cityConnection.getInputStream());
+
+            CloseableHttpClient httpclient = HttpClients.createDefault();
+            cityConnection = new HttpGet(cityPath);
+            HttpResponse httpResponse = httpclient.execute(cityConnection);
+            ZipInputStream in = new ZipInputStream(httpResponse.getEntity().getContent());
             in.getNextEntry();
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line = br.readLine();
@@ -1221,9 +1235,11 @@ public class DBSetupManager {
     private int doUpdateZipCode(boolean updateDb) throws Exception {
         try {
             int rowCount = 0;
-            URL url = new URL(zipcodePath);
-            zipCodeConnection = (HttpURLConnection) url.openConnection();
-            ZipInputStream in = new ZipInputStream(zipCodeConnection.getInputStream());
+            
+            CloseableHttpClient httpclient = HttpClients.createDefault();
+            zipCodeConnection = new HttpGet(zipcodePath);
+            HttpResponse httpResponse = httpclient.execute(zipCodeConnection);
+            ZipInputStream in = new ZipInputStream(httpResponse.getEntity().getContent());
             in.getNextEntry();
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line = br.readLine();

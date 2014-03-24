@@ -71,9 +71,7 @@
     	  var $e = view.$el;
     	  $e.find(".save,.button").addClass("disabled");
     	  var $btnStart = $e.find(".setupStart");
-    	  var $btnPause = $e.find(".setupPause");
     	  var $btnReset = $e.find(".setupReset");
-    	  var $btnResume = $e.find(".setupResume");
     	  var $alertCreateSchema = $e.find(".create .alert").removeClass("alert-warning alert-success alert-error alert-info");
     	  var $alertImportZipcode = $e.find(".import .alert").removeClass("alert-warning alert-success alert-error alert-info");;
     	  var $alertCreatePgTrgm = $e.find(".create_pg_trgm .alert").removeClass("alert-warning alert-success alert-error alert-info");;
@@ -125,10 +123,6 @@
     	  if(statusData.status == "notstarted"){
     	  	$btnStart.removeClass("hide").prop("disabled",false);
     	  	$btnReset.removeClass("hide").prop("disabled",false).html("Reset");
-    	  	// $btnStart.removeClass("hide").prop("disabled",false);
-    	  	// $btnResume.addClass("hide");
-    	  	// $btnPause.removeClass("hide").prop("disabled",true);
-    	  	// $btnReset.removeClass("hide").prop("disabled",true);
     	  	
     	  	stopTimer.call(view);
     	  }else if(statusData.status == "running"){
@@ -139,25 +133,15 @@
     	  	}else{
 	    	  	$btnReset.html("Reset").prop("disabled",false);
     	  	}
-    	  	// $btnStart.addClass("hide");
-    	  	// $btnResume.removeClass("hide").prop("disabled",true);
-    	  	// $btnPause.removeClass("hide").prop("disabled",false);
-    	  	// $btnReset.removeClass("hide").prop("disabled",false);
     	  	startTimer.call(view);
     	  }else if(statusData.status == "incomplete"){
     	  	$btnStart.removeClass("hide").prop("disabled",false);
     	  	$btnReset.removeClass("hide").prop("disabled",false).html("Reset");
-    	  	// $btnStart.addClass("hide");
-    	  	// $btnResume.removeClass("hide").prop("disabled",false);
-    	  	// $btnPause.removeClass("hide").prop("disabled",true);
-    	  	// $btnReset.removeClass("hide").prop("disabled",false);
     	  	
     	  	stopTimer.call(view);
     	  }else if(statusData.status == "done"){
-    	  	$btnStart.addClass("hide");
-    	  	$btnResume.addClass("hide");
-    	  	$btnPause.addClass("hide");
-    	  	$btnReset.addClass("hide");
+    	  	$btnStart.removeClass("hide").prop("disabled",true);
+    	  	$btnReset.removeClass("hide");
     	  	stopTimer.call(view);
     	  	
     	  	$e.find(".setting .alert").removeClass("alert-info").addClass("alert-success").html("Done");
@@ -165,6 +149,11 @@
     	  	$e.trigger("DO_SHOW_ORG_TAB");
     	  }
     	  
+    	  if(statusData.reseting){
+    	  	startTimer.call(view);
+    	  }else if(statusData.status != "running"){
+    	  	stopTimer.call(view);
+    	  }
       },
       "FILLDATA":function(event,result){
     	  var view = this;
