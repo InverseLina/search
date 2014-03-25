@@ -70,11 +70,11 @@
         }
         event.stopPropagation();
       },
-      "click; table th[data-column] .selectedItems" : function(event) {
+      "click; table th[data-column]" : function(event) {
           event.preventDefault();
           event.stopPropagation();
     	  var view = this;
-    	  var $th = $(event.currentTarget).parent().parent();
+    	  var $th = $(event.currentTarget);
           view.$el.trigger("POPUP_CLOSE");
           brite.display("HeaderPopup", ".SearchDataGrid", {
               $target : $th
