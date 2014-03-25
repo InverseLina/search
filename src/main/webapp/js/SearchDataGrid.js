@@ -32,12 +32,6 @@
         		view.$el.trigger("DO_SEARCH",{search:keyword});
         }
       },
-      "keyup; .big .search-input": function(event){
-        var view = this;
-        var $this = $(event.currentTarget);
-          view.$el.find(".searchField .search-input").val($this.val());
-          view.$el.trigger("SEARCH_QUERY_CHANGE");
-      },
       "keyup; .searchField .search-input": function(event){
         var view = this;
         if(event.keyCode != 13){

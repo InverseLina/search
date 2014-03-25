@@ -1211,7 +1211,7 @@ public class SearchDao {
     
     /**
      * Get condition for Search logic 
-     * @param searchValue the value typed in big search box 
+     * @param searchValue the value typed in search box 
      * @param searchValues all other search parameters
      * @param values 
      * @param orderCon
@@ -1328,7 +1328,7 @@ public class SearchDao {
     }
     
     /**
-     * boolean search handler for big search box
+     * boolean search handler for search box
      * @param searchValue
      * @param type
      * @param values
