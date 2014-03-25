@@ -594,7 +594,7 @@
     var colName;
     var columns = app.preference.columns();
     var colLen = columns.length;
-    var tableWidth = view.$el.find(".tableContainer").width() - 20;
+    var tableWidth = view.$el.find(".tableContainer").width();
       var excludes = ["id", "CreatedDate","title","email", "resume"];
     if ($.inArray("id", columns) >= 0) {
       tableWidth = tableWidth - 80;
@@ -609,11 +609,10 @@
         colLen--;
       }
     //checkbox
-    var applyContactCheckboxWidth = 15;
+    var applyContactCheckboxWidth = 19;
     if(!view.labelDisable){
 	    tableWidth = tableWidth - 32;
     }
-    
     if (colLen != 0) {
       colWidth = tableWidth / colLen;
     } else {
@@ -628,31 +627,16 @@
     $head.find("th").each(function(idx, item) {
       var $item  = $(item);
       colName = $item.attr("data-column");
-      if (colName == "id") {
-        realWidth = 80;
-        if (idx == tlen) {
-          realWidth = colWidth + 80;
-        }
-      } else if (colName == "CreatedDate") {
-        realWidth = 110;
-        if (idx == tlen) {
-          realWidth = colWidth + 110;
-        }
-      } else if ($item.hasClass("checkboxCol")) {
-        realWidth = 30;
-      } else if ($item.hasClass("applyContact")) {
-        realWidth = applyContactCheckboxWidth;
-      } else if ($item.hasClass("favLabel")) {
+      if ($item.hasClass("favLabel")) {
         if(!view.labelDisable){
 	    	realWidth = 32;
 	    }else{
 	    	realWidth = 0;
 	    }
-      } else if (colName=="resume") {
-        realWidth = 95;
       } else {
         realWidth = colWidth;
       }
+      
       if(idx == 0){
       	$item.css({
           width : 0,
@@ -660,28 +644,36 @@
           "min-width" : 0
         });
         $body.find("tr td:nth-child("+(idx+1)+")").css({
-	      width : realWidth,
-	      "max-width" : realWidth,
-	      "min-width" : realWidth
+	      width : 0,
+	      "max-width" : 0,
+	      "min-width" : 0
 	    });
-      }else if(idx == 2){
+      }else if(idx == 1){
       	$item.css({
           width : realWidth,
           "max-width" : realWidth,
           "min-width" : realWidth
         });
+        
         $body.find("tr td:nth-child("+(idx+1)+")").css({
-	      width : realWidth - 15,
-	      "max-width" : realWidth - 15,
-	      "min-width" : realWidth
+	      width : applyContactCheckboxWidth,
+	      "max-width" : applyContactCheckboxWidth,
+	      "min-width" : applyContactCheckboxWidth
 	    });
+	    
+        $body.find("tr td:nth-child("+(idx+2)+")").css({
+	      width : realWidth - applyContactCheckboxWidth,
+	      "max-width" : realWidth - applyContactCheckboxWidth,
+	      "min-width" : realWidth - applyContactCheckboxWidth
+	    });
+        
       }else if(idx == tlen){
       	$item.css({
           width : realWidth + 50,
           "max-width" : realWidth + 50,
           "min-width" : realWidth
         });
-        $body.find("tr td:nth-child("+(idx+1)+")").css({
+        $body.find("tr td:nth-child("+(idx+2)+")").css({
 	      width : realWidth,
 	      "max-width" : realWidth,
 	      "min-width" : realWidth
@@ -692,52 +684,16 @@
           "max-width" : realWidth,
           "min-width" : realWidth
         });
-        $body.find("tr td:nth-child("+(idx+1)+")").css({
+        $body.find("tr td:nth-child("+(idx+2)+")").css({
 	      width : realWidth,
 	      "max-width" : realWidth,
 	      "min-width" : realWidth
+	    }).find(" > span").css({
+	      width : realWidth-4
 	    });
       }
       
-      if (idx == tlen) {
-        
-      } else {
-      	if(idx != 0){
-      		
-      	 $item.css({
-          width : realWidth,
-          "max-width" : realWidth,
-          "min-width" : realWidth
-        });
-        
-        if(idx == 2){
-        	realWidth = realWidth - 19;
-        }
-        $body.find("tr td:nth-child("+(idx+1)+")").css({
-	      width : realWidth,
-	      "max-width" : realWidth,
-	      "min-width" : realWidth
-	    });
-	    
-      	}else{
-      	$item.css({
-          width : 0,
-          "max-width" : 0,
-          "min-width" : 0
-        });
-        
-      }
       
-        
-        
-      }
-      
-      
-      
-        //fix for ie
-        $body.find("td[data-column='" + colName + "'] > span").css({
-            width : Math.floor(realWidth - 4),
-        });
         //hide filter
         if($.inArray(colName, excludes) >= 0){
             $item.find(".addFilter").hide();
