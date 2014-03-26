@@ -139,6 +139,14 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         <artifactId>metrics-core</artifactId>
         <version>3.0.2</version>
     </dependency>
+    
+    <!-- http -->
+    <dependency>
+	    <groupId>org.apache.httpcomponents</groupId>
+	    <artifactId>httpclient</artifactId>
+	    <version>4.3.3</version>
+	</dependency>
+    <!-- /http -->
   </dependencies>
   <repositories>
     <repository>
