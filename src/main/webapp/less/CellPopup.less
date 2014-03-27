@@ -1,59 +1,57 @@
 @import "utils";
 // --------- CellPopup--------- //
 .CellPopup {
-  position: absolute;
-  width: 208px;
-  border-radius: 5px;
-  border: solid 1px #999;
-  background: white;
-  .box-shadow(2px 2px 4px rgba(102, 102,102, 0.5));
-  .title {
-  padding-top: 5px;
-  height: 60px;
-  background: #d6d6d6;
-
-    .columnName {
-      font-size: 20px;
-      font-weight: normal;
-      color: #888;
-      letter-spacing: 0.1em;
-      margin-left: 8px;
-    }
-    .contactName {
-      font-size: 12px;
-      font-weight: bold;
-      margin-left: 8px;
-      letter-spacing: 0.05em;
-    }
-  }
+	position: absolute;
+	width: 208px;
+	border-radius: 5px;
+	border: solid 1px #999;
+	background: white;
+	.box-shadow(2px 2px 4px rgba(102, 102,102, 0.5));
+	.title {
+		padding-top: 5px;
+		height: 60px;
+		background: #d6d6d6;
+		.columnName {
+			font-size: 20px;
+			font-weight: normal;
+			color: #888;
+			letter-spacing: 0.1em;
+			margin-left: 8px;
+		}
+		.contactName {
+			font-size: 12px;
+			font-weight: bold;
+			margin-left: 8px;
+			letter-spacing: 0.05em;
+		}
+	}
 }
 
 .CellPopup ul {
-    padding: 0;
-    margin: 0;
-    height:200px;
-    margin-bottom: 20px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    li {
-        list-style: none;
-        font-size: 16px;
-        height:28px;
-        line-height: 28px;
-        text-align: center;
-        cursor: pointer;
-      &.filter {
-          background: #D5FEFF;
-        }
-       span {
-         text-overflow: ellipsis;
-         white-space: nowrap;
-         overflow: hidden;
-         max-width: 170px;
-         text-align: center;
-         display: inline-block;
-       }
-    }
-
+	padding: 0;
+	margin: 0;
+	height: 200px;
+	margin-bottom: 20px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	li {
+		list-style: none;
+		font-size: 16px;
+		height: 28px;
+		line-height: 28px;
+		text-align: center;
+		cursor: pointer;
+		&.filter {
+			background: #D5FEFF;
+		}
+		span {
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+			max-width: 170px;
+			text-align: center;
+			display: inline-block;
+		}
+	}
 }
 // --------- /CellPopup--------- //

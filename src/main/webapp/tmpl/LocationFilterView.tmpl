@@ -1,31 +1,31 @@
 <script id="LocationFilterView" type="text/html">
-  <div class="LocationFilterView  rootFilterContainer">
-	<div class="selectedItems location">
-            <span class="add separateLine" style="display:none"></span>
-        	<span class="show autoCompleteContainer">
-        		<input type="text" class="autoComplete" data-type="location" placeholder="Enter a Location"/>
-        		<label class="clear"><i></i></label>
-        	</span>
-        </div>
-        <div class="content location" sytle="display:none;">
-            <div class="locationRow sliderRow clearfix">
-                <span class="labelText">min radius:</span>
-                <div class="sliderBarContainer">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-info" style="width: 20%"></div>
-                    </div>
-                    <div class="switch-icon">7</div>
-                </div>
-            </div>
-    		<div class="autoCompleteList">
-    			<div class="center">loading...</div>
-        		{{#each locations}}
-        		<div class="locationRow"><span class="contentText" data-name="{{name}}">
-        		  <span class="itemName">{{name}}</span>
-        		  <span class="count">({{count}})</span></span>
-        		</div>
-        		{{/each}}
-        	 </div>
-        </div>
-   </div>
+	<div class="LocationFilterView  rootFilterContainer">
+		<div class="selectedItems location">
+			<span class="add separateLine" style="display:none"></span>
+			<span class="show autoCompleteContainer">
+				<input type="text" class="autoComplete" data-type="location" placeholder="Enter a Location"/>
+				<label class="clear"><i></i></label>
+			</span>
+		</div>
+		<div class="content location" sytle="display:none;">
+			<div class="locationRow sliderRow clearfix">
+				<span class="labelText">min radius:</span>
+				<div class="sliderBarContainer">
+					<div class="progress">
+						<div class="progress-bar progress-bar-info" style="width: 20%"></div>
+					</div>
+					<div class="switch-icon">7</div>
+				</div>
+			</div>
+			<div class="autoCompleteList">
+				<div class="center">loading...</div>
+				{{#each locations}}
+					<div class="locationRow"><span class="contentText" data-name="{{name}}">
+						<span class="itemName">{{name}}</span>
+						<span class="count">({{count}})</span></span>
+					</div>
+				{{/each}}
+			</div>
+		</div>
+	</div>
 </script>

@@ -1,41 +1,41 @@
 // Core variables and mixins
 @import "utils";
 
-
 .border-right-radius(@radius) {
-  border-bottom-right-radius: @radius;
-  border-top-right-radius: @radius;
+	border-bottom-right-radius: @radius;
+	border-top-right-radius: @radius;
 }
 
 // --------- Pagination --------- //
-.Pagination{
-    ul {
-      margin: 0;
-      float: right;
-      li a {cursor: pointer}
-      li select{
-        width: 60px;
-        margin: 5px;
-
-      }
-      li.nextPage  {
-        a {
-          .border-right-radius(4px);
-        }
-      }
-      li.active{
-      	a{
-	      background-color:#f5f5f5;
-	      color:#999999;
-	      border-color:#dddddd;
-        }
-      	a:hover{
-	      background-color:#f5f5f5;
-	      color:#999999;
-	      border-color: #dddddd;
-        }
-      }
-    .box-shadow(~"none");
-    }
+.Pagination {
+	ul {
+		margin: 0;
+		float: right;
+		li a {
+			cursor: pointer;
+		}
+		li select {
+			width: 60px;
+			margin: 5px;
+		}
+		li.nextPage {
+			a {
+				.border-right-radius(4px);
+			}
+		}
+		li.active {
+			a{
+				background-color: #f5f5f5;
+				color: #999999;
+				border-color: #dddddd;
+			}
+			a:hover {
+				background-color: #f5f5f5;
+				color: #999999;
+				border-color: #dddddd;
+			}
+		}
+		.box-shadow(~"none");
+	}
 }
 // --------- /Pagination --------- //

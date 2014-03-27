@@ -1,23 +1,25 @@
 <script id="SavedSearches" type="text/html">
-    <div class="SavedSearches">
-        <div class="control-group">
-            <input name="searchName" type="text" placeholder="Search name" maxlength="64"/>
-            <i class="glyphicon glyphicon-chevron-down drawdown"></i>
-            <div class="search-list" style="display:none"></div>
-        </div>
-        <button class="btn btn-primary disabled">Save</button>
-    </div>
+	<div class="SavedSearches">
+		<div class="control-group">
+			<input name="searchName" type="text" placeholder="Search name" maxlength="64"/>
+			<i class="glyphicon glyphicon-chevron-down drawdown"></i>
+			<div class="search-list" style="display:none"></div>
+		</div>
+		<button class="btn btn-primary disabled">Save</button>
+	</div>
 </script>
 <script id="SavedSearches-list" type="text/html">
-        <ul>
-            {{#each result}}
-                <li data-objId="{{id}}"><span  class="searchName">{{name}}</span><span class="remove"><i class="glyphicon glyphicon-remove"></i></span></li>
-            {{/each}}
-            <li class="createNew">Save as new search</li>
-        </ul>
+	<ul>
+		{{#each result}}
+			<li data-objId="{{id}}"><span  class="searchName">{{name}}</span><span class="remove"><i class="glyphicon glyphicon-remove"></i></span></li>
+		{{/each}}
+		<li class="createNew">Save as new search</li>
+	</ul>
 </script>
 <script id="SavedSearches-list-line" type="text/html">
-      <li data-objId="{{id}}"><span class="searchName">{{name}}</span> <span class="remove"><i class="glyphicon glyphicon-remove"></i></span></li>
+	<li data-objId="{{id}}">
+		<span class="searchName">{{name}}</span>
+		<span class="remove"><i class="glyphicon glyphicon-remove"></i></span>
+	</li>
 </script>
-
 

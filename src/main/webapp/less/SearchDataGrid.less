@@ -6,7 +6,7 @@
 	.fitparent();
 	.input-wrapper {
 		position: relative;
-		display:inline-block;
+		display: inline-block;
 		height: 26px;
 		input {
 			width: 100%;
@@ -21,6 +21,7 @@
 			margin-right: 10px;
 			font-size: 14px;
 		}
+		
 		i.glyphicon-search {
 			position: absolute;
 			top: 6px;
@@ -31,9 +32,9 @@
 			cursor: pointer;
 		}
 	}
-	
-	.jfactorImg{
-		background-image:url(images/jfactor.png);
+
+	.jfactorImg {
+		background-image: url(images/jfactor.png);
 		width: 200px;
 		height: 120px;
 		display: inline-block;
@@ -51,48 +52,50 @@
 			border: 1px solid #a1c5c8;
 			float: left;
 			margin-left: 10px;
-			cursor:pointer;
+			cursor: pointer;
 			&.selectAll{
-				margin-left:0px;
-				background:#92c7cb;
+				margin-left: 0px;
+				background: #92c7cb;
 				text-align: center;
 				i.glyphicon-ok{
-					color:#fff;
-					font-size:17px;
-					top:4px;
+					color: #fff;
+					font-size: 17px;
+					top: 4px;
 				}
 			}
-			&.deselect{
-				margin-right:10px;
+			&.deselect {
+				margin-right: 10px;
 			}
 		}
-		.searchField{
-			float:left;
+		
+		.searchField {
+			float: left;
 		}
-		.toolbar-ctn{
-			float:left;
-			margin-left:4px;
-			margin-bottom:5px;
+		
+		.toolbar-ctn {
+			float: left;
+			margin-left: 4px;
+			margin-bottom: 5px;
 		}
 	
 		.resultTime {
-			float:left;
+			float: left;
 			color: #ced0cf;
 			margin-left: 12px;
 			margin-top: 4px;
-			margin-bottom:12px;
+			margin-bottom: 12px;
 		}
+		
 		.resultCount {
-			float:right;
+			float: right;
 			font-weight: bold;
 			color: #666;
 			margin-right: 12px;
 			margin-top: 4px;
 		}
-
 		
 		.pagination-ctn {
-			float:right;
+			float: right;
 			margin-top: -4px;
 		}
 	
@@ -114,7 +117,7 @@
 				line-height: 32px;
 				font-size: 32px;
 				padding-left: 10px;
-                padding-top: 0px;
+				padding-top: 0px;
 			}
 		}
 	
@@ -133,7 +136,7 @@
 			padding-left: 3px;
 			box-sizing: border-box;
 		}
-		
+	
 		.tableContainer {
 			.fitparent();
 			.holderSpace {
@@ -147,7 +150,7 @@
 						.indicator{
 							color: #ddd;
 							background: #fff;
-							border-color:#ccc;
+							border-color: #ccc;
 							.value{
 								color: #ccc;
 							}
@@ -184,9 +187,9 @@
 					display: block;
 					position: relative;
 					.order {
-						position:absolute;
-						top:5px;
-						right:10px;
+						position: absolute;
+						top: 5px;
+						right: 10px;
 					}
 					th {
 						font-weight: bold;
@@ -203,7 +206,7 @@
 						&.applyContact {
 							padding-left: 0;
 							.headerTh {
-								background:none;
+								background: none;
 								padding-left: 0;
 							}
 						}
@@ -213,28 +216,28 @@
 							position: relative;
 							background: #000000;
 							.indicators{
-								overflow:hidden;
+								overflow: hidden;
 								.indicator{
-									display:inline-block;
-									color:#4b4b4b;
-									font-size:12px;
-									padding:3px 3px;
+									display: inline-block;
+									color: #4b4b4b;
+									font-size: 12px;
+									padding: 3px 3px;
 									font-weight: normal;
 									.value{
-										color:#fff;
-										margin-left:5px;
+										color: #fff;
+										margin-left: 5px;
 									}
 								}
 							}
-							.selectedItems{
+							.selectedItems {
 								position: absolute;
 								bottom: 5px;
 								left: 10px;
 								right: 5px;
 								max-height: 65px;
 								font-size: 12px;
-								vertical-align: bottom;.item,
-								.addFilter{
+								vertical-align: bottom;
+								.item,.addFilter{
 									padding: 2px;
 									margin: 1px;
 									line-height: 12px;
@@ -248,17 +251,17 @@
 									cursor: pointer;
 									font-weight: normal;
 								}
-					
+								
 								.item {
 									max-width: 200px;
 								}
-					
+								
 								.selectedItems {
 									cursor: pointer;
 									font-weight: normal;
 								}
 							}
-					
+			
 							.columnName {
 								display: inline-block;
 								font-weight: normal;
@@ -266,7 +269,7 @@
 								width: 87%;
 							}
 						}
-					
+			
 						.idTh {
 							background: #ccc;
 						}
@@ -326,17 +329,15 @@
 					}
 					th.favFilter {
 						height: 32px !important;
-						
 						.selectedItems, .asc, .desc {
 							display: none
 						}
 						.headerTh {
-							height: 32px
+							height: 32px;
 						}
 					}
-				
 				}
-				
+			
 				tbody {
 					.fitparent();
 					overflow-x:hidden;
@@ -347,13 +348,14 @@
 						top: 38px;
 					}
 					tr {
-						padding:2px 0;
+						padding: 2px 0;
 					}
-					tr.select td:not(.applyContact), tr.applySelect:not(.full) td:not(.applyContact), tr:not(.full):hover td:not(.applyContact) {
+					tr.select td:not(.applyContact), tr.applySelect:not(.full)
+					td:not(.applyContact), tr:not(.full):hover td:not(.applyContact) {
 						background: #D5FEFF !important;
 					}
-					
-					tr:nth-of-type(even) td:not(.applyContact){
+				
+					tr:nth-of-type(even) td:not(.applyContact) {
 						background: #ECECEC;
 					}
 					td {
@@ -381,8 +383,7 @@
 					}
 					td[data-column='skill'], td[data-column='company'], td[data-column='education'] {
 						>span {
-							cursor: pointer;
-							&:empty {
+							cursor: pointer;&:empty {
 								cursor: default;
 							}
 						}
@@ -397,18 +398,17 @@
 						width: 15px;
 						position: relative;
 						.selectCheckbox{
-							cursor:pointer;
-							position:absolute;
-							left:4px;
-							top:0px;
-							right:4px;
-							bottom:0px;
-							border:1px solid #a1c5c8;
+							cursor: pointer;
+							position: absolute;
+							left: 4px;
+							top: 0px;
+							right: 4px;
+							bottom: 0px;
+							border: 1px solid #a1c5c8;
 							&.selected{
-								background:#92c7cb;
+								background: #92c7cb;
 							}
 						}
-						
 					}
 					td.favLabel {
 						width: 32px;
@@ -420,30 +420,27 @@
 							color: #ccc;
 							cursor: pointer;
 							padding-left: 5px;
-						}
+							}
 						&.hasLabel {
 							i{
-								color: #fed43b;
+							color: #fed43b;
 							}
-						
 						}
 					}
 				}
 			}
 			
-						
 			table.scrollTable tbody tr {
 				display: block;
 			}
-
+			
 			table.scrollTable tbody tr td[data-column="contact"] .resume-ico {
-				cursor: pointer;	
-				float:right;
-				top:-15px;
-				right:30px;
+				cursor: pointer;
+				float: right;
+				top: -15px;
+				right: 30px;
 			}
-
-						
+			
 			table  tr.full {
 				.fitparent();
 				top: 30px;
@@ -478,7 +475,7 @@
 						text-align: center;
 						padding-top: 35px;
 					}
-					
+				
 					.alert-error, .alert-info {
 						position: absolute;
 						top: 70px;
@@ -488,16 +485,13 @@
 					}
 				}
 			}
-
-		}
-	
+		}	
 	}
-
 }
-@media (max-width: 1120px){
+@media (max-width: 1120px) {
 	.SearchDataGrid {
 		.search-result{
-			top:73px;
+			top: 73px;
 		}
 	}
 }

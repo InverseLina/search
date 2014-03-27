@@ -1,29 +1,32 @@
 <script id="SkillFilterView" type="text/html">
-  <div class="SkillFilterView  rootFilterContainer">
-	<div class="selectedItems skill">
-            <span class="add separateLine" style="display:none"></span>
-        	<span class="show autoCompleteContainer">
-        		<input type="text" class="autoComplete" data-type="skill" placeholder="Enter a Skill"/>
-        		<label class="clear"><i></i></label>
-        	</span>
-        </div>
-        <div class="content skill" >
-        	<div class="skillRow sliderRow"><span class="labelText">min rating:</span>
-	        	     <div class="sliderBarContainer">
-	        	       <div class="progress">
-						  <div class="progress-bar progress-bar-info" style="width: 20%"></div>
-						</div>
-						 <div class="switch-icon">7</div>
+	<div class="SkillFilterView  rootFilterContainer">
+		<div class="selectedItems skill">
+			<span class="add separateLine" style="display:none"></span>
+			<span class="show autoCompleteContainer">
+				<input type="text" class="autoComplete" data-type="skill" placeholder="Enter a Skill"/>
+				<label class="clear"><i></i></label>
+			</span>
+		</div>
+		<div class="content skill" >
+			<div class="skillRow sliderRow"><span class="labelText">min rating:</span>
+				<div class="sliderBarContainer">
+					<div class="progress">
+						<div class="progress-bar progress-bar-info" style="width: 20%"></div>
 					</div>
-        	     </div>
-        	     <div class="autoCompleteList">
-        	     	<div class="center">loading...</div>
-	        	     {{#each skills}}
-	        	     <div class="skillRow"><span class="contentText" data-name="{{name}}">
-						<span class="itemName">{{name}}</span>
-						<span class="count">({{count}})</span></span></div>
-	        	     {{/each}}
-        	     </div>
-        </div>
-   </div>
+					<div class="switch-icon">7</div>
+				</div>
+			</div>
+			<div class="autoCompleteList">
+				<div class="center">loading...</div>
+				{{#each skills}}
+					<div class="skillRow">
+						<span class="contentText" data-name="{{name}}">
+							<span class="itemName">{{name}}</span>
+							<span class="count">({{count}})</span>
+						</span>
+					</div>
+				{{/each}}
+			</div>
+		</div>
+	</div>
 </script>

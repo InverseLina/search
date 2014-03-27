@@ -5,21 +5,23 @@
  *
  *
  */
-(function ($) {
-    brite.registerView("OAuthInfo", {emptyParent: true},
-        {
-            create: function (data, config) {
-                return render("OAuthInfo", data);
-            },
+(function($) {
+	brite.registerView("OAuthInfo", {
+		emptyParent : true
+	}, {
+		create : function(data, config) {
+			return render("OAuthInfo", data);
+		},
 
-            postDisplay: function (data) {
+		postDisplay : function(data) {
 
-            },
-            events: {
-                "btap; .home": function(){
-                    window.location.href = contextPath + "/";
-                }
-            },
-            docEvents: {}
-        });
+		},
+		events : {
+			"btap; .home" : function() {
+				window.location.href = contextPath + "/";
+			}
+
+		},
+		docEvents : {}
+	});
 })(jQuery);

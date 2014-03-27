@@ -1,154 +1,154 @@
 <script id="search-items" type="text/html">
-    <table class="scrollTable">
-        {{{colHeader "search-items-header" labelAssigned }}}
-        <tbody class="{{#if  labelAssigned}}favFilter{{/if}}">
-            {{#each items}}
-            <tr data-entity="Contact" data-entity-id="{{names.id}}" data-objId="{{names.id}}" data-contractName="{{names.name}}" data-sfid="{{names.sfid}}">
-                <td class="favLabel  {{#if hasLabel}}hasLabel{{/if}} " title = {{labelName}}><div>
-                    {{#if isFav}}
-                        <i class="glyphicon glyphicon-star"></i>
-                    {{else}}
-                        <i class="glyphicon glyphicon-stop"></i>
-                    {{/if}}
-
-                </div></td>
-                <td class="applyContact">
-                    <div class="selectCheckbox" data-name="{{applyId}}" data-value="{{names.id}}"></div>
-                </td>
-                <!--<td class="checkboxCol"><input type="checkbox" checked="true"/></td>-->
-                {{#each row}}
-                    {{{renderCell this}}}
-                {{/each}}
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
+	<table class="scrollTable">
+		{{{colHeader "search-items-header" labelAssigned }}}
+			<tbody class="{{#if  labelAssigned}}favFilter{{/if}}">
+		{{#each items}}
+			<tr data-entity="Contact" data-entity-id="{{names.id}}" data-objId="{{names.id}}" data-contractName="{{names.name}}" data-sfid="{{names.sfid}}">
+				<td class="favLabel  {{#if hasLabel}}hasLabel{{/if}} " title = {{labelName}}>
+					<div>
+						{{#if isFav}}
+							<i class="glyphicon glyphicon-star"></i>
+						{{else}}
+							<i class="glyphicon glyphicon-stop"></i>
+						{{/if}}
+				
+					</div>
+				</td>
+				<td class="applyContact">
+					<div class="selectCheckbox" data-name="{{applyId}}" data-value="{{names.id}}"></div>
+				</td>
+				<!--<td class="checkboxCol"><input type="checkbox" checked="true"/></td>-->
+				{{#each row}}
+					{{{renderCell this}}}
+				{{/each}}
+			</tr>
+		{{/each}}
+		</tbody>
+	</table>
 </script>
 
 <script id="search-items-header" type="text/html">
-    <thead>
-         <tr>
-             <th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
-             {{#each displayColumns}}
-                 <th style="width:{{../colWidth}}%" data-column="{{name}}" {{#check @index "==" 0}}colspan="2"{{/check}} {{#if ../labelAssigned}} class="favFilter"{{/if}}>
-	                 {{{renderHeader this}}}
-                 </th>
-             {{/each}}
-         </tr>
-    </thead>
+	<thead>
+		<tr>
+			<th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
+				{{#each displayColumns}}
+					<th style="width:{{../colWidth}}%" data-column="{{name}}" {{#check @index "===" 0}}colspan="2"{{/check}} {{#if ../labelAssigned}} class="favFilter"{{/if}}>
+				{{{renderHeader this}}}
+			</th>
+				{{/each}}
+		</tr>
+	</thead>
 </script>
 
 <script id="search-items-header-with-body" type="text/html">
-    <table  class="scrollTable">
-        <thead>
-             <tr>
-                 <!--<th class="favLabel"><div class="headerTh"></div></th>-->
-    <th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
-    {{#each displayColumns}}
-    <th style="width:{{../colWidth}}%" data-column="{{name}}" {{#check @index "==" 0}}colspan="2"{{/check}} {{#if ../labelAssigned}} class="favFilter"{{/if}}>
-                            {{{renderHeader this}}}
-					 </th>
-     {{/each}}
-             </tr>
-        </thead>
-        <tbody>
-        <tr class="full">
-            <td colspan="{{colsLen}}">
-                {{{decode block}}}
-            </td>
-        </tr>
-        </tbody>
-    </table>
+	<table  class="scrollTable">
+		<thead>
+			<tr>
+				<!--<th class="favLabel"><div class="headerTh"></div></th>-->
+				<th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
+					{{#each displayColumns}}
+				<th style="width:{{../colWidth}}%" data-column="{{name}}" {{#check @index "===" 0}}colspan="2"{{/check}} {{#if ../labelAssigned}} class="favFilter"{{/if}}>
+					{{{renderHeader this}}}
+				</th>
+					{{/each}}
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="full">
+				<td colspan="{{colsLen}}">
+					{{{decode block}}}
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </script>
 
 <script id="search-query-notfound" type="text/html">
-    {{#colBody 'search-items-header-with-body'}}
-        {{#if labelAssigned}}
-        {{else}}
-            <div class="alert alert-block alert-info fade in">
-                <strong>Nothing found,</strong> please change search criteria and retry
-            </div>
-        {{/if}}
+	{{#colBody 'search-items-header-with-body'}}
+		{{#if labelAssigned}}
+		{{else}}
+		<div class="alert alert-block alert-info fade in">
+			<strong>Nothing found,</strong> please change search criteria and retry
+		</div>
+		{{/if}}
 
-    {{/colBody}}
+	{{/colBody}}
 </script>
 
 <script id="search-query-less-words" type="text/html">
-    {{#colBody 'search-items-header-with-body'}}
-        {{#if labelAssigned}}
-        {{else}}
-            <div class="alert alert-block alert-info fade in">
-                please enter more than 3 character and retry
-            </div>
-        {{/if}}
+	{{#colBody 'search-items-header-with-body'}}
+		{{#if labelAssigned}}
+		{{else}}
+			<div class="alert alert-block alert-info fade in">
+				please enter more than 3 character and retry
+			</div>
+		{{/if}}
 
-    {{/colBody}}
+	{{/colBody}}
 </script>
 
 <script id="search-loading" type="text/html">
-    {{#colBody 'search-items-header-with-body'}}
-        <span class="loading badge badge-info">Loading...</span>
-    {{/colBody}}
+	{{#colBody 'search-items-header-with-body'}}
+		<span class="loading badge badge-info">Loading...</span>
+	{{/colBody}}
 </script>
 
-
 <script id="search-empty" type="text/html">
-    {{#colBody 'search-items-header-with-body'}}
-        <div class="empty-search">
-            <div class="jfactorImg"></div>
-        </div>
-    {{/colBody}}
+	{{#colBody 'search-items-header-with-body'}}
+		<div class="empty-search">
+			<div class="jfactorImg"></div>
+		</div>
+	{{/colBody}}
 </script>
 
 <script id="search-query-error" type="text/html">
-    {{#colBody 'search-items-header-with-body'}}
-        <div class="alert alert-block alert-error alert-danger fade in">
-            <strong>{{title}}:</strong> {{detail}}
-        </div>
-    {{/colBody}}
+	{{#colBody 'search-items-header-with-body'}}
+		<div class="alert alert-block alert-error alert-danger fade in">
+			<strong>{{title}}:</strong> {{detail}}
+		</div>
+	{{/colBody}}
 </script>
 
 <script id="search-items-header-add-item" type="text/html">
-    <span class="item" data-name="{{name}}">{{display}}</span>
+	<span class="item" data-name="{{name}}">{{display}}</span>
 </script>
-
 
 <script id="search-query-generic-render-header" type="text/html">
-    <div class="headerTh customTh {{name}}Th">
-        <span class="columnName">{{title}}</span>
-        <div class="selectedItems">
-            <span class="addFilter">+&nbsp;jFactor</span>
-        </div>
-        <span class="order desc">&darr;</span><span class="order asc">&uarr;</span>
-    </div>
+	<div class="headerTh customTh {{name}}Th">
+		<span class="columnName">{{title}}</span>
+			<div class="selectedItems">
+				<span class="addFilter">+&nbsp;jFactor</span>
+			</div>
+		<span class="order desc">&darr;</span><span class="order asc">&uarr;</span>
+	</div>
 </script>
 
-
 <script id="search-query-generic-filter-render-header" type="text/html">
-    <div class="headerTh {{name}}Th">
-        <span class="columnName">{{title}}</span>
-        <div class="selectedItems">
-            <span class="addFilter">+&nbsp;jFactor</span>
-        </div>
-        <span class="order desc">&darr;</span><span class="order asc">&uarr;</span>
-    </div>
+	<div class="headerTh {{name}}Th">
+		<span class="columnName">{{title}}</span>
+			<div class="selectedItems">
+				<span class="addFilter">+&nbsp;jFactor</span>
+			</div>
+		<span class="order desc">&darr;</span><span class="order asc">&uarr;</span>
+	</div>
 </script>
 
 <script id="search-query-contact-filter-render-header" type="text/html">
-    <div class="headerTh {{name}}Th">
-        <span class="columnName">{{title}}</span>
-        <div class="indicators">
+	<div class="headerTh {{name}}Th">
+		<span class="columnName">{{title}}</span>
+		<div class="indicators">
 			<span class="indicator type">Type:<span class="value">{{objectType}}</span></span>
 			<span class="indicator status">Status:<span class="value">{{status}}</span></span>
 		</div>
-        <div class="selectedItems">
-            <span class="addFilter">+&nbsp;jFactor</span>
-        </div>
-        <span class="order desc">&darr;</span><span class="order asc">&uarr;</span>
-    </div>
+		<div class="selectedItems">
+			<span class="addFilter">+&nbsp;jFactor</span>
+		</div>
+		<span class="order desc">&darr;</span><span class="order asc">&uarr;</span>
+	</div>
 </script>
 
 <script id="search-query-generic-render-cell" type="text/html">
-    <td data-column="{{name}}" data-value="{{realValue}}"
-            ><span>{{rmComma value}}</span></td>
+	<td data-column="{{name}}" data-value="{{realValue}}">
+		<span>{{rmComma value}}</span>
+	</td>
 </script>

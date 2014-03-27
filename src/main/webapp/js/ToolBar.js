@@ -19,8 +19,8 @@
 			var view = this;
 		},
 		// --------- /Implement Interface--------- //
-		events:{
-			"click; .btnApply": function(event) {
+		events : {
+			"click; .btnApply" : function(event) {
 				var view = this;
 				var list = [];
 				$(".search-result").find("tr.applySelect").each(function(idx, tr) {
@@ -30,42 +30,44 @@
 						sfid : $tr.attr("data-sfid")
 					});
 				});
-//                console.log(list);
+				//                console.log(list);
 				view.$el.trigger("APPLY_PRESS", {
 					selectedContactList : list
 				});
 			},
-			"click; .btnAddToShotList": function(event) {
+			"click; .btnAddToShotList" : function(event) {
 				var view = this;
 				var list = [];
-                $(".search-result").find("tr.applySelect").each(function(idx, tr) {
+				$(".search-result").find("tr.applySelect").each(function(idx, tr) {
 					var $tr = $(tr);
 					list.push({
 						id : $tr.attr("data-entity-id"),
 						sfid : $tr.attr("data-sfid")
 					});
 				});
-//                console.log(list);
+				//                console.log(list);
 				view.$el.trigger("SHORTLIST_PRESS", {
 					selectedContactList : list
 				});
 			},
-			"click; .btnClearSearch": function(event) {
+			"click; .btnClearSearch" : function(event) {
 				var view = this;
 				view.$el.trigger("CLEAR_SEARCH_QUERY")
 			},
+
 		},
-		docEvents:{
-			"DO_TOOLBAR_ACTIVE_BUTTONS":function(){
+		docEvents : {
+			"DO_TOOLBAR_ACTIVE_BUTTONS" : function() {
 				var view = this;
 				var $e = view.$el;
 				$e.find(".action-button").removeClass("disabled");
 			},
-			"DO_TOOLBAR_DEACTIVE_BUTTONS":function(){
+			"DO_TOOLBAR_DEACTIVE_BUTTONS" : function() {
 				var view = this;
 				var $e = view.$el;
 				$e.find(".action-button").addClass("disabled");
 			},
+
 		}
 	});
 

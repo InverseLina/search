@@ -1,20 +1,20 @@
 <script id="CellPopup" type="text/html">
-    <div class="CellPopup">
+	<div class="CellPopup">
 
-    </div>
+	</div>
 </script>
 
 <script id="CellPopup-inner" type="text/html">
-    <div class="inner">
-        <div class="title">
-            <div class="columnName">{{title}}</div>
-            <div class="contactName">{{contactName}}</div>
-        </div>
+	<div class="inner">
+		<div class="title">
+			<div class="columnName">{{title}}</div>
+			<div class="contactName">{{contactName}}</div>
+		</div>
 
-        <ul>
-            {{#each names}}
-                <li {{#if isFilter}}class="filter"{{/if}}><span>{{name}}<span></li>
-            {{/each}}
-        </ul>
-    </div>
+		<ul>
+			{{#each names}}
+				<li {{#if isFilter}}class="filter"{{/if}}><span>{{name}}<span></li>
+			{{/each}}
+		</ul>
+	</div>
 </script>

@@ -5,9 +5,9 @@
 	 */
 	Handlebars.registerHelper('gte', function(a,b,options) {
 		  if(a >= b) {
-		    return options.fn(this);
+			return options.fn(this);
 		  } else {
-		    return options.inverse(this);
+			return options.inverse(this);
 		  }
 	});
 	
@@ -17,9 +17,9 @@
 	 */
 	Handlebars.registerHelper('gt', function(a,b,options) {
 		  if(a > b) {
-		    return options.fn(this);
+			return options.fn(this);
 		  } else {
-		    return options.inverse(this);
+			return options.inverse(this);
 		  }
 	});
 	
@@ -29,9 +29,9 @@
 	 */
 	Handlebars.registerHelper('lte', function(a,b,options) {
 		  if(a <= b) {
-		    return options.fn(this);
+			return options.fn(this);
 		  } else {
-		    return options.inverse(this);
+			return options.inverse(this);
 		  }
 	});
 	
@@ -61,10 +61,10 @@
 	
 	/**
 	 * we can use like this {{#notEqual 1 2}}true{{else}}false{{/notEqual}}
-	 * means if 1 != 2, will show true, else show false;
+	 * means if 1 !== 2, will show true, else show false;
 	 */
 	Handlebars.registerHelper('notEqual', function(a,b,options) {
-		if(a != b) {
+		if(a !== b) {
 			return options.fn(this);
 		} else {
 			return options.inverse(this);
@@ -84,7 +84,7 @@
 				}else{
 					str += items[i];
 				}
-				if(i != items.length-1){
+				if(i !== items.length-1){
 					str += ",";
 				}
 			}
@@ -96,9 +96,9 @@
 	
 	Handlebars.registerHelper('gtt', function(a,b,c,options) {
 		  if(a - b - c > 0) {
-		    return options.fn(this);
+			return options.fn(this);
 		  } else {
-		    return options.inverse(this);
+			return options.inverse(this);
 		  }
 	});
 	
@@ -119,87 +119,87 @@
 	
 	Handlebars.registerHelper('check', function (lvalue, operator, rvalue, options) {
 
-        var operators, result;
+		var operators, result;
 
-        if (arguments.length < 3) {
-            throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
-        }
+		if (arguments.length < 3) {
+			throw new Error("Handlerbars Helper 'compare' needs 2 parameters");
+		}
 
-        if (options === undefined) {
-            options = rvalue;
-            rvalue = operator;
-            operator = "===";
-        }
+		if (options === undefined) {
+			options = rvalue;
+			rvalue = operator;
+			operator = "===";
+		}
 
-        operators = {
-            '==': function (l, r) { return l == r; },
-            '===': function (l, r) { return l === r; },
-            '!=': function (l, r) { return l != r; },
-            '!==': function (l, r) { return l !== r; },
-            '<': function (l, r) { return l < r; },
-            '>': function (l, r) { return l > r; },
-            '<=': function (l, r) { return l <= r; },
-            '>=': function (l, r) { return l >= r; },
-            'typeof': function (l, r) { return typeof l == r; }
-        };
+		operators = {
+			'===': function (l, r) { return l === r; },
+			'===': function (l, r) { return l === r; },
+			'!==': function (l, r) { return l !== r; },
+			'!==': function (l, r) { return l !== r; },
+			'<': function (l, r) { return l < r; },
+			'>': function (l, r) { return l > r; },
+			'<=': function (l, r) { return l <= r; },
+			'>=': function (l, r) { return l >= r; },
+			'typeof': function (l, r) { return typeof l == r; }
+		};
 
-        if (!operators[operator]) {
-            throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
-        }
+		if (!operators[operator]) {
+			throw new Error("Handlerbars Helper 'compare' doesn't know the operator " + operator);
+		}
 
-        result = operators[operator](lvalue, rvalue);
+		result = operators[operator](lvalue, rvalue);
 
-        if (result) {
-            return options.fn(this);
-        } else {
-            return options.inverse(this);
-        }
+		if (result) {
+			return options.fn(this);
+		} else {
+			return options.inverse(this);
+		}
 
-    });
+	});
 
-    function htmlDecode(str) {
-        var s = "";
-        if (str.length == 0)    return    "";
-        s = str.replace(/&gt;/g, "&");
-        s = s.replace(/&lt;/g, "<");
-        s = s.replace(/&gt;/g, ">");
-        s = s.replace(/&nbsp;/g, "    ");
-        s = s.replace(/'/g, "\'");
-        s = s.replace(/&quot;/g, "\"");
-        s = s.replace(/<br>/g, "\n");
-        return    s;
-    }
+	function htmlDecode(str) {
+		var s = "";
+		if (str.length == 0)    return    "";
+		s = str.replace(/&gt;/g, "&");
+		s = s.replace(/&lt;/g, "<");
+		s = s.replace(/&gt;/g, ">");
+		s = s.replace(/&nbsp;/g, "    ");
+		s = s.replace(/'/g, "\'");
+		s = s.replace(/&quot;/g, "\"");
+		s = s.replace(/<br>/g, "\n");
+		return    s;
+	}
 
-    Handlebars.registerHelper("decode", function(data){
-        //return $('<textarea />').html(data).val();
-        return htmlDecode(data);
-    });
+	Handlebars.registerHelper("decode", function(data){
+		//return $('<textarea />').html(data).val();
+		return htmlDecode(data);
+	});
 
 
 
-    Handlebars.registerHelper("each_with_index", function(array, options) {
-        var buffer = "";
-        for (var i = 0, j = array.length; i < j; i++) {
-            var item = array[i];
+	Handlebars.registerHelper("each_with_index", function(array, options) {
+		var buffer = "";
+		for (var i = 0, j = array.length; i < j; i++) {
+			var item = array[i];
 
-            // if item is already an object just add the index property
-            if (typeof (item) == 'object') {
-                item['index'] = i;
-            } else { // make an object and add the index property
-                item = {
-                    value: item,
-                    index: i
-                };
-            }
+			// if item is already an object just add the index property
+			if (typeof (item) == 'object') {
+				item['index'] = i;
+			} else { // make an object and add the index property
+				item = {
+					value: item,
+					index: i
+				};
+			}
 
-            // show the inside of the block
-            buffer += options.fn(item);
-        }
+			// show the inside of the block
+			buffer += options.fn(item);
+		}
 
-        // return the finished buffer
-        return buffer;
+		// return the finished buffer
+		return buffer;
 
-    });
+	});
 	
 	
 })(jQuery);

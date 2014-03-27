@@ -1,6 +1,6 @@
-(function($){
+(function($) {
 	var searchDao = app.SearchDaoHandler;
-	
+
 	brite.registerView("MainView", {
 		parent : "body"
 	}, {
@@ -8,11 +8,11 @@
 		create : function(data) {
 			data = data || {};
 			var uiFlags = data.uiFlags = data.uiFlags || {};
-			if ( typeof uiFlags.showHeader == "undefined") {
+			if ( typeof uiFlags.showHeader === "undefined") {
 				uiFlags.showHeader = true;
 			}
 			return render("MainView", {
-				jssVersion: jssVersion,
+				jssVersion : jssVersion,
 				contextPath : contextPath,
 				showHeader : uiFlags.showHeader
 			});
@@ -41,7 +41,7 @@
 					view.$el.trigger("ERROR_PROCESS", app.startError);
 				}, 100);
 			} else {
-				if (data && data.type == "admin") {
+				if (data && data.type === "admin") {
 					brite.display("AdminMainView");
 				} else {
 					brite.display("ContentView", this.$el.find(".contentview-ctn")).done(function(contentView) {
@@ -76,11 +76,6 @@
 				var $target = $(event.currentTarget);
 				$target.val($.trim($target.val()));
 			},
-			"click;.config" : function(event) {
-				window.location.href = contextPath + "/admin/";
-				event.preventDefault();
-				event.stopPropagation();
-			},
 			"click;.clear-all" : function(event) {
 				clearSearch.call(this);
 			},
@@ -100,6 +95,7 @@
 					view.$el.find(".btnClearSearch").prop("disabled", true).addClass("disabled");
 				}
 			}
+
 		},
 		// --------- /Events--------- //
 
@@ -112,7 +108,7 @@
 					colStr = extra.columns.join(",");
 					$.each(columns, function(idx, column) {
 						if (colStr.indexOf(column) < 0) {
-							app.ParamsControl.remove(column == "contact" ? "Contact" : column);
+							app.ParamsControl.remove(column === "contact" ? "Contact" : column);
 						}
 					});
 					app.preference.columns(extra.columns);
@@ -130,14 +126,14 @@
 				var view = this;
 				clearSearch.call(view);
 			},
-			"ERROR_PROCESS" : function(event,data) {
+			"ERROR_PROCESS" : function(event, data) {
 				var view = this;
-				if(data.errorCode == "NO_PASSCODE"){
-					if ($("body").bFindComponents("PassCodeModal").length == 0) {
+				if (data.errorCode === "NO_PASSCODE") {
+					if ($("body").bFindComponents("PassCodeModal").length === 0) {
 						brite.display("PassCodeModal");
 					}
-				}else if (data.errorCode == "NO_ADMIN_ACCESS") {
-					if ($("body").bFindComponents("LoginModal").length == 0) {
+				} else if (data.errorCode === "NO_ADMIN_ACCESS") {
+					if ($("body").bFindComponents("LoginModal").length === 0) {
 						brite.display("LoginModal");
 					}
 				} else {
@@ -148,6 +144,7 @@
 				delete app.startError;
 
 			}
+
 		}
 		// --------- /Document Events--------- //
 	});
@@ -198,7 +195,6 @@
 		});
 	}
 
-    
-    // --------- /Private Methods--------- //
-	
+	// --------- /Private Methods--------- //
+
 })(jQuery);

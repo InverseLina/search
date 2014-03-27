@@ -3,46 +3,40 @@
 
 // --------- Slider--------- //
 .Slider {
-  position: relative;
-  display: inline-block;
-  margin-left: 15px;
-  background: #b7e1e1;
-
-  &.zero{
-     background: #ccc;
-  }
-
-  .bar {
-    width: 0;
-    height: 0;
-    border-width: 10px 268px 0px 0px;
-    border-style: solid solid none none;
-
-    border-color: #ffffff rgba(255, 255, 255, 0) rgba(255, 0, 0, 0);
-
-  }
-
-
-  .slider {
-    position: absolute;
-    height: 28px;
-    top: -5px;
-//    font-weight: bold;
-    padding: 2px !important;
-    min-width: 28px;
-    width:28px;
-    text-align: center;
-    cursor: pointer;
-    left: -11px;
-    color:#447777;
-    background: white; /* for non-css3 browsers */
-
-    border: 1px solid #447777;
-    border-radius: 14px;
-    &.zero {
-       color: #ccc;
-       border-color: #ccc;
-     }
-  }
+	position: relative;
+	display: inline-block;
+	margin-left: 15px;
+	background: #b7e1e1;
+	&.zero{
+		background: #ccc;
+	}
+	
+	.bar {
+		width: 0;
+		height: 0;
+		border-width: 10px 268px 0px 0px;
+		border-style: solid solid none none;
+		border-color: #ffffff rgba(255, 255, 255, 0) rgba(255, 0, 0, 0);
+	}
+	
+	.slider {
+		position: absolute;
+		height: 28px;
+		top: -5px;
+		padding: 2px !important;
+		min-width: 28px;
+		width: 28px;
+		text-align: center;
+		cursor: pointer;
+		left: -11px;
+		color: #447777;
+		background: white;
+		border: 1px solid #447777;
+		border-radius: 14px;
+		&.zero {
+			color: #ccc;
+			border-color: #ccc;
+		}
+	}
 }
 // --------- /Slider--------- //

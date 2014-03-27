@@ -5,68 +5,77 @@
  *
  *
  */
-(function ($) {
+(function($) {
 
-  brite.registerView("ResumeView", {
-    emptyParent : false,
-    parent : "body"
-  }, {
-    // --------- View Interface Implement--------- //
-    create : function(data, config) {
-      $("#resumeModal").bRemove();
-      data = data || {};
+	brite.registerView("ResumeView", {
+		emptyParent : false,
+		parent : "body"
+	}, {
+		// --------- View Interface Implement--------- //
+		create : function(data, config) {
+			$("#resumeModal").bRemove();
+			data = data || {};
 
-      return render("ResumeView", {name : data.name});
-    },
+			return render("ResumeView", {
+				name : data.name
+			});
+		},
 
-    postDisplay : function(data) {
-      showView.call(this,data);
+		postDisplay : function(data) {
+			showView.call(this, data);
 
-    },
-    // --------- /View Interface Implement--------- //
+		},
+		// --------- /View Interface Implement--------- //
 
-    // --------- Events--------- //
-    events : {
-      "click; .btn-primary, .close" : function() {
-        var view = this;
-        view.$el.bRemove();
-      }
-    // --------- /Events--------- //
+		// --------- Events--------- //
+		events : {
+			"click; .btn-primary, .close" : function() {
+				var view = this;
+				view.$el.bRemove();
+			}
 
-    },
-    docEvents : {}
-  }); 
-  
-  
-  // --------- Private Methods--------- //
-  function showView(data){
-      var $content, view = this;
-      var $e = view.$el;
-      var $body = $e.find(".modal-body");
-      app.getJsonData("getResume", {cid: data.id}).done(function (result) {
-          if (result.length > 0) {
-        	  var resume = result[0]["ts2__text_resume__c"];
-        	  var keyWord = app.ParamsControl.getQuery();
-        	  var keyWordsSplited ;
-        	  if(/^\s*\".+\"\s*$/.test(keyWord)){
-        		  keyWordsSplited = [keyWord.replace(/^\s*\"(.+)\"\s*$/,"$1")];
-        	  }else{
-        		  keyWordsSplited = keyWord.split(/\s+/);
-        	  }
-        	  for(var k in keyWordsSplited){
-	        	  var reg = new RegExp("("+keyWordsSplited[k]+")","gi");
-	        	  console.log(keyWordsSplited[k]);
-	        	  resume = resume.replace(reg,"<span class=\"highlight\">$1</span>");
-        	  }
-              $content = $(render("ResumeView-content", {resume: resume}));
-              $body.html("<pre>"+resume+"</pre>");
-          } else {
-              $content = $(render("ResumeView-content", {resume: "not resume"}));
-              $body.append($content);
-          }
+			// --------- /Events--------- //
 
-      });
-  }
- // --------- /Private Methods--------- //
+		},
+		docEvents : {}
+	});
+
+	// --------- Private Methods--------- //
+	function showView(data) {
+		var $content, view = this;
+		var $e = view.$el;
+		var $body = $e.find(".modal-body");
+		app.getJsonData("getResume", {
+			cid : data.id
+		}).done(function(result) {
+			if (result.length > 0) {
+				var resume = result[0]["ts2__text_resume__c"];
+				var keyWord = app.ParamsControl.getQuery();
+				var keyWordsSplited;
+				if (/^\s*\".+\"\s*$/.test(keyWord)) {
+					keyWordsSplited = [keyWord.replace(/^\s*\"(.+)\"\s*$/, "$1")];
+				} else {
+					keyWordsSplited = keyWord.split(/\s+/);
+				}
+				for (var k in keyWordsSplited) {
+					var reg = new RegExp("(" + keyWordsSplited[k] + ")", "gi");
+					console.log(keyWordsSplited[k]);
+					resume = resume.replace(reg, "<span class=\"highlight\">$1</span>");
+				}
+				$content = $(render("ResumeView-content", {
+					resume : resume
+				}));
+				$body.html("<pre>" + resume + "</pre>");
+			} else {
+				$content = $(render("ResumeView-content", {
+					resume : "not resume"
+				}));
+				$body.append($content);
+			}
+
+		});
+	}
+
+	// --------- /Private Methods--------- //
 
 })(jQuery);

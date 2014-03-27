@@ -1,110 +1,107 @@
 // --------- ContactFilterView --------- //
 .ContactFilterView {
-  margin-top: -8px;
-  .selectedItems {
-    display:none;
-    margin-top: 8px;
-	border-bottom:1px solid #BDB8B8 !important;
-    .clear i {
-      color: #d4c761 !important;
-    }
-  }
-  .contact .item {
-    background: #d4c761;
-    cursor: pointer;
-  }
-  .contactRow {
-    margin-top: 10px;
-    position: relative;
-    padding-left: 0px;
-    .clear {
-      display:none;
-      right:10px !important;
-      margin-right: 10px;
-      i {
-        color: white !important;
-      }
-    }
-    span {
-      width:80px !important;
-      text-align: right;
-      font-size: 12px;
-      font-weight: bold !important;
-      color:#666;
-    }
-    input[type="text"]  {
-      width: 278px !important;
-      margin-left: 16px;
-
-    }
-  }
-
-  .contactRow.active .clear {
-    display:block;
-
-  }
-  .selectedItems  .item {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    word-break: normal;
-    max-width: 100px;
-  }
-  .contact-btn-group{
-	margin-right: 13px;
-	.filterLabels{
-		width:60px;
-		text-align:right;
-		font-weight: normal;
-    	color:#4b4b4b;
-    	vertical-align:middle;
-    	margin-right:5px;
-    	height: 30px;
-		vertical-align: middle;
-		line-height: 48px;
+	margin-top: -8px;
+	.selectedItems {
+		display: none;
+		margin-top: 8px;
+		border-bottom: 1px solid #BDB8B8 !important;
+		.clear i {
+			color: #d4c761 !important;
+		}
 	}
-    .btn-group{
-    	margin-top: 15px;
-    	.active.btn{
-    		background: #aea156!important;
-    		-webkit-box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.125);
-			box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.125);
-			border-right: 0px;
-    	}
-    	.btn{
-    		width: 100px;
-    		color:#4b4b4b;
-    		border: 1px solid #b9ab62;
-		    background:#d3c74d;
-		    margin-left:1px;
-		    border:none;
-		    &.active, &:hover{
-			    margin-left:1px;
-		    }
-		    &:first-child{
-			    margin-left:0px;
-		    }
-    	}
-    }
-    .btnSearchForPerson{
-    	background:#d1cd41;
-    	margin:15px 0 0 100px;
-    	color:#ffffff;
-    	padding:7px 10px 7px 25px;
-    	i{
-    		margin-left:7px;
-    		color:#ebebeb;
-    	}
-    	&.active{
-    		background:#aea157;
-    	}
-    }
-  }
-  
-  .personFields{
-  	display:none;
-  	margin-top:25px;
-  }
+	.contact .item {
+		background: #d4c761;
+		cursor: pointer;
+	}
+	.contactRow {
+		margin-top: 10px;
+		position: relative;
+		padding-left: 0px;
+		.clear {
+			display: none;
+			right: 10px !important;
+			margin-right: 10px;
+			i {
+				color: white !important;
+			}
+		}
+		span {
+			width: 80px !important;
+			text-align: right;
+			font-size: 12px;
+			font-weight: bold !important;
+			color: #666;
+		}
+		input[type="text"] {
+			width: 278px !important;
+			margin-left: 16px;
+		}
+	}
+	
+	.contactRow.active .clear {
+		display: block;
+	}
+	.selectedItems  .item {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		word-break: normal;
+		max-width: 100px;
+	}
+	.contact-btn-group {
+		margin-right: 13px;
+		.filterLabels{
+			width: 60px;
+			text-align: right;
+			font-weight: normal;
+			color: #4b4b4b;
+			vertical-align: middle;
+			margin-right: 5px;
+			height: 30px;
+			vertical-align: middle;
+			line-height: 48px;
+		}
+		.btn-group {
+			margin-top: 15px;.active.btn{
+				background: #aea156 !important;
+				-webkit-box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.125);
+				box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.125);
+				border-right: 0px;
+			}
+			.btn {
+				width: 100px;
+				color: #4b4b4b;
+				border: 1px solid #b9ab62;
+				background: #d3c74d;
+				margin-left: 1px;
+				border: none;
+				&.active, &:hover{
+					margin-left: 1px;
+				}
+				&:first-child {
+					margin-left: 0px;
+				}
+			}
+		}
+		.btnSearchForPerson {
+			background: #d1cd41;
+			margin: 15px 0 0 100px;
+			color: #ffffff;
+			padding: 7px 10px 7px 25px;
+			i{
+				margin-left: 7px;
+				color: #ebebeb;
+			}
+			&.active {
+				background: #aea157;
+			}
+		}
+	}
+	
+	.personFields {
+		display: none;
+		margin-top: 25px;
+	}
 }
 // --------- /ContactFilterView --------- //
 
