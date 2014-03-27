@@ -1,263 +1,300 @@
 <script id="OrganizationInfo" type="text/html">
-    <div class="OrganizationInfo">
-        <div class="tab-content">
-
-        </div>
-    </div>
+	<div class="OrganizationInfo">
+		<div class="tab-content">
+	
+		</div>
+	</div>
 </script>
 
 <script id="OrganizationInfo-content" type="text/html">
-        <div class="OrganizationInfo-content">
-            <h3>Schema Check</h3>
-            <div class="check-status">
-                <div class="alert schema_info"></div>
-            </div>
-            <div class="check-status">
-                <div class="alert ts2_table_info"></div>
-            </div>
-            <div class="check-status">
-                <div class="alert jss_table_info"></div>
-            </div>
-            <div class="fix-btn">
-                <button class="btn btn-primary fix-missing-columns hide">Fix the missing columns</button>
-            </div>
-        <h3 class="title">Setup</h3>
-        <div class="notice hide">Must set the right schema name</div>
-        <div class="opts-btns">
-            <button class="btn btn-primary org-setup">Setup</button>            
-            <button class="btn btn-primary org-pause">Pause</button>            
-            <button class="btn btn-danger org-reset">Reset</button>            
-        </div>
-        <div class="setup-content">
-            <table class="content-table">
-                <!--<tr><td class="left"><span>Import base data and tables: </span></td><td class="right"><button class="btn btn-primary save import">Import</button></td>
-                </tr>-->
-                <tr class="btn_tr">
-                    <td class="right">
-                       <span>Jss Tables:</span>
-                   </td>
-                 	<td class="alert-td"><div class="alert create_extra_table_info "></div></td>
-                </tr>
-                <tr class="btn_tr">
-                   <td class="right">
-                       <span>Resume Copy:</span>
-                   </td>
-                   <td class="alert-td">
-                        <div class="progress resume_status_bar">
-                            <div class="progress-bar progress-bar-success"></div>
-                            <span class="percentage"></span>
-                            <span class="count-info"></span>
-                        </div>
-                   </td>
-                </tr>
-                <tr class="btn_tr">
-                    <td class="right">
-                       <span>Sfid Copy:</span>
-                   </td>
-                   <td class="alert-td">
-                        <div class="progress sfid_status_bar">
-                            <div class="progress-bar progress-bar-success"></div>
-                            <span class="percentage"></span>
-                            <span class="count-info"></span>
-                        </div>
-                   </td>
-                </tr>
-                <tr class="btn_tr">
-                    <td class="right">
-                       <span>Contact_tsv Copy:</span>
-                   </td>
-                   <td class="alert-td">
-                        <div class="progress tsv_status_bar">
-                            <div class="progress-bar progress-bar-success"></div>
-                            <span class="percentage"></span>
-                            <span class="count-info"></span>
-                        </div>
-                   </td>
-                </tr>
-                <tr class="btn_tr">
-                    <td class="right">
-                       <span>Indexes:</span>
-                   </td>
-                   <td class="alert-td">
-                        <div class="progress indexes_status_bar">
-                            <div class="progress-bar progress-bar-success"></div>
-                            <span class="percentage"></span>
-                            <span class="count-info"></span>
-                        </div>
-                   </td>
-                </tr>
-             </table>
-         </div>
-         
-        <h3 class="title">Organization Info</h3>
-        <div class="baseInfo-content">
-            <table class="content-table">
-                <tr><td class="left"><span>Name : </span></td><td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="Name" autofocus="autofocus"/></td><td><div class="alert alert-error hide msg name">Please type name value.</div></td>
-                </tr>
-                <tr><td class="left"><span>Schema Name : </span></td><td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="Schema Name" /></td><td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
-                </tr>
-                <tr><td class="left"><span>SFID : </span></td><td class="right"><input type="text" name="sfid" value="{{data.sfid}}" class="text" placeholder="SFID" /></td><td></td>
-                </tr>
-                <tr><td class="left"><span>Instance Url : </span></td><td class="right"><input type="text" name="instance_url" value="{{data.instance_url}}" class="text" placeholder="Instance Url" /></td><td></td>
-                </tr>
-                <!-- <tr><td class="left"><span>Force Login Url : </span></td><td class="right"><input type="text" name="force_login_url" value="{{data.force_login_url}}" class="text" placeholder="Force Login Url" /></td><td></td>
-                </tr> -->
-                <tr><td class="left"><span>Apex Resume URL : </span></td><td class="right"><input type="text" name="apex_resume_url" value="{{data.apex_resume_url}}" class="text" placeholder="Apex Resume URL" /></td><td></td>
-                </tr>
-                <tr><td class="left"><span>Canvas App Secret : </span></td><td class="right"><input type="text" name="canvasapp_secret" value="{{data.canvasapp_secret}}" class="text" placeholder="Canvas App Secret" /></td><td></td>
-                <!-- <tr><td class="left"><span>SF Session Timeout: </span></td><td class="right"><input type="text" name="sf_session_timeout" value="{{data.sf_session_timeout}}" class="text" placeholder="SF Session Timeout" />min</td><td></td> -->
-            </table>
-        </div>
-        <div class="btns">
-            <button class="btn btn-primary save">Save</button>
-            <button class="btn cancel">Cancel</button>
-            <span class="alert hide fade"></span>
-        </div>
+	<div class="OrganizationInfo-content">
+		<h3>Schema Check</h3>
+		<div class="check-status">
+			<div class="alert schema_info"></div>
+		</div>
+		<div class="check-status">
+			<div class="alert ts2_table_info"></div>
+		</div>
+		<div class="check-status">
+			<div class="alert jss_table_info"></div>
+		</div>
+		<div class="fix-btn">
+			<button class="btn btn-primary fix-missing-columns hide">Fix the missing columns</button>
+		</div>
+		
+		<h3 class="title">Setup</h3>
+		<div class="notice hide">Must set the right schema name</div>
+		<div class="opts-btns">
+			<button class="btn btn-primary org-setup">Setup</button>
+			<button class="btn btn-primary org-pause">Pause</button>
+			<button class="btn btn-danger org-reset">Reset</button>
+		</div>
+		<div class="setup-content">
+			<table class="content-table">
+				<!--<tr><td class="left"><span>Import base data and tables: </span></td><td class="right"><button class="btn btn-primary save import">Import</button></td>
+				</tr>-->
+				<tr class="btn_tr">
+					<td class="right"><span>Jss Tables:</span></td>
+					<td class="alert-td"><div class="alert create_extra_table_info "></div></td>
+				</tr>
+				<tr class="btn_tr">
+					<td class="right"><span>Resume Copy:</span></td>
+					<td class="alert-td">
+						<div class="progress resume_status_bar">
+							<div class="progress-bar progress-bar-success"></div>
+							<span class="percentage"></span>
+							<span class="count-info"></span>
+						</div>
+					</td>
+				</tr>
+				<tr class="btn_tr">
+					<td class="right"><span>Sfid Copy:</span></td>
+					<td class="alert-td">
+						<div class="progress sfid_status_bar">
+							<div class="progress-bar progress-bar-success"></div>
+							<span class="percentage"></span>
+							<span class="count-info"></span>
+						</div>
+					</td>
+				</tr>
+				<tr class="btn_tr">
+					<td class="right"><span>Contact_tsv Copy:</span></td>
+					<td class="alert-td">
+						<div class="progress tsv_status_bar">
+							<div class="progress-bar progress-bar-success"></div>
+							<span class="percentage"></span>
+							<span class="count-info"></span>
+						</div>
+					</td>
+				</tr>
+				<tr class="btn_tr">
+					<td class="right"><span>Indexes:</span></td>
+					<td class="alert-td">
+						<div class="progress indexes_status_bar">
+							<div class="progress-bar progress-bar-success"></div>
+							<span class="percentage"></span>
+							<span class="count-info"></span>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
 
-        <h3 class="title">Organization Search Config Info</h3>
-        <div class="baseInfo-content ">
-            <textarea class="form-control search-content" rows="7" style="width:50%" name="searchConfig">
+		<h3 class="title">Organization Info</h3>
+		<div class="baseInfo-content">
+			<table class="content-table">
+				<tr>
+					<td class="left"><span>Name : </span></td>
+					<td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="Name" autofocus="autofocus"/></td>
+					<td><div class="alert alert-error hide msg name">Please type name value.</div></td>
+				</tr>
+				<tr>
+					<td class="left"><span>Schema Name : </span></td>
+					<td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="Schema Name" /></td>
+					<td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
+				</tr>
+				<tr>
+					<td class="left"><span>SFID : </span></td>
+					<td class="right"><input type="text" name="sfid" value="{{data.sfid}}" class="text" placeholder="SFID" /></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td class="left"><span>Instance Url : </span></td>
+					<td class="right"><input type="text" name="instance_url" value="{{data.instance_url}}" class="text" placeholder="Instance Url" /></td>
+					<td></td>
+				</tr>
+				<!-- 
+				<tr>
+					<td class="left"><span>Force Login Url : </span></td>
+					<td class="right"><input type="text" name="force_login_url" value="{{data.force_login_url}}" class="text" placeholder="Force Login Url" /></td>
+					<td></td>
+				</tr>
+				-->
+				<tr>
+					<td class="left"><span>Apex Resume URL : </span></td>
+					<td class="right"><input type="text" name="apex_resume_url" value="{{data.apex_resume_url}}" class="text" placeholder="Apex Resume URL" /></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td class="left"><span>Canvas App Secret : </span></td>
+					<td class="right"><input type="text" name="canvasapp_secret" value="{{data.canvasapp_secret}}" class="text" placeholder="Canvas App Secret" /></td>
+					<td></td>
+				</tr>
+				<!-- 
+				<tr>
+					<td class="left"><span>SF Session Timeout: </span></td>
+					<td class="right"><input type="text" name="sf_session_timeout" value="{{data.sf_session_timeout}}" class="text" placeholder="SF Session Timeout" />min</td>
+					<td></td> 
+				</tr>
+				-->
+			</table>
+		</div>
+		
+		<div class="btns">
+			<button class="btn btn-primary save">Save</button>
+			<button class="btn cancel">Cancel</button>
+			<span class="alert hide fade"></span>
+		</div>
 
-            </textarea>
-        </div>
-        <div class="btns">
-            <button class="saveSearchConfig btn btn-primary">Save</button>
-            <button class="resetSearchConfig btn">Reset</button>
-            <span class="alert hide search-config-alert fade"></span>
-        </div>
-        <h3 class="title">Other Info</h3>
-        <div class="locals">
-            <div class="header">
-                <span>Locals</span>
-                <div class="line"></div>
-            </div>
-            <div class="setting form-inline">
-              <table class="content-table">
-                <tr><td class="left"><span>Distance in: </span></td><td class="right"><select name="local_distance">
-                     <option value="k">Kilometers</option>
-                     <option value="m">Meters</option>
-                </select></td>
-                </tr>
-            </table>
-            </div>
-            <div class="setting form-inline">
-            <table class="content-table">
-           <tr>
-                <td class="left"><span>Date format: </span></td>
-                <td class="right"><select name="local_date">
-                     <option>YYYY-MM-DD</option>
-                     <option>MM/DD/YYYY</option>
-                     <option>YYYYMMDD</option>
-                  </select></td>
-           </tr>     
-          </table>
-            </div>
-        </div>
+		<h3 class="title">Organization Search Config Info</h3>
+		<div class="baseInfo-content ">
+			<textarea class="form-control search-content" rows="7" style="width:50%" name="searchConfig"></textarea>
+		</div>
+		
+		<div class="btns">
+			<button class="saveSearchConfig btn btn-primary">Save</button>
+			<button class="resetSearchConfig btn">Reset</button>
+			<span class="alert hide search-config-alert fade"></span>
+		</div>
+		
+		<h3 class="title">Other Info</h3>
+		<div class="locals">
+			<div class="header">
+				<span>Locals</span>
+				<div class="line"></div>
+			</div>
+			<div class="setting form-inline">
+				<table class="content-table">
+					<tr>
+						<td class="left"><span>Distance in: </span></td>
+						<td class="right">
+							<select name="local_distance">
+								<option value="k">Kilometers</option>
+								<option value="m">Meters</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="setting form-inline">
+				<table class="content-table">
+					<tr>
+						<td class="left"><span>Date format: </span></td>
+						<td class="right">
+							<select name="local_date">
+								<option>YYYY-MM-DD</option>
+								<option>MM/DD/YYYY</option>
+								<option>YYYYMMDD</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
 
-        <div class="actions">
-            <div class="header">
-                <span>Actions</span>
-                <div class="line"></div>
-            </div>
-            <div class="setting form-inline">
-            <table class="content-table">
-           <tr>
-                <td class="left"><span>Show Actions: </span></td>
-                <td class="right"><label>
-                    <input type="checkbox" name="action_add_to_sourcing"/>
-                    <span>"Add To Source Project"</span>
-                </label></td>
-               <td><label>
-                    <input type="checkbox" name="action_favorite"/>
-                    <span>"Save As Favorites"(Not implement yet.)</span>
-                </label></td>
-            </tr>    
-            <tr>
-              <td class="left"></td>
-               <td>
-                 <label>
-                    <input type="checkbox" name="skill_assessment_rating"/>
-                    <span>"Skill Assessment Rating"</span>
-                 </label>
-               </td>
-               <td>
-                 <label>
-                    <input type="checkbox" name="advanced_auto_complete"/>
-                    <span>"advancedAutoComplete"</span>
-                 </label>
-               </td>
-            </tr> 
-          </table>
-            </div>
-        </div>
+		<div class="actions">
+			<div class="header">
+				<span>Actions</span>
+				<div class="line"></div>
+			</div>
+			<div class="setting form-inline">
+				<table class="content-table">
+					<tr>
+						<td class="left"><span>Show Actions: </span></td>
+						<td class="right">
+							<label>
+								<input type="checkbox" name="action_add_to_sourcing"/>
+								<span>"Add To Source Project"</span>
+							</label>
+						</td>
+						<td>
+							<label>
+								<input type="checkbox" name="action_favorite"/>
+								<span>"Save As Favorites"(Not implement yet.)</span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="left"></td>
+						<td>
+							<label>
+								<input type="checkbox" name="skill_assessment_rating"/>
+								<span>"Skill Assessment Rating"</span>
+							</label>
+						</td>
+						<td>
+							<label>
+								<input type="checkbox" name="advanced_auto_complete"/>
+								<span>"advancedAutoComplete"</span>
+							</label>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
 
-        <div class="btns">
-            <button class="btn btn-primary save">Save</button>
-            <button class="btn cancel">Cancel</button>
-            <span class="alert hide fade"></span>
-        </div>
-        
-        <div class="disable-btns">
-          <button class="btn btn-primary disable-indexes">Disable Indexes</button>
-        </div>
-         
-        <div><button class="btn btn-primary multiply">Multiply Data</button></div>
-       
-       <div class="control-group">
-            <div class="input-div">
-               <input name="time" type="text" placeholder="Times" value="1" maxlength="2" readOnly>
-            </div>
-            <i class="glyphicon glyphicon-chevron-down drawdown"></i>
-            <div class="time-list" style="">
-               <ul>
-                <li data-time="1"><span>1<span></li>
-                <li data-time="2"><span>2<span></li>
-                <li data-time="3"><span>3<span></li>
-                <li data-time="4"><span>4<span></li>
-                <li data-time="5"><span>5<span></li>
-                <li data-time="6"><span>6<span></li>
-                <li data-time="7"><span>7<span></li>
-                <li data-time="8"><span>8<span></li>
-                <li data-time="9"><span>9<span></li>
-                <li data-time="10"><span>10<span></li>
-              </ul>
-           </div>
-        </div>
-        
-         <div class="control-group">
-            <div class="input-div">
-               <input name="tableName" type="text" placeholder="tableName" value="contact" maxlength="2" readOnly>
-            </div>
-            <i class="glyphicon glyphicon-chevron-down drawdown"></i>
-            <div class="table-list" style="">
-               <ul>
-                <li data-table="contact"><span>contact<span></li>
-                <li data-table="ts2__employment_history__c"><span>ts2__employment_history__c<span></li>
-                <li data-table="ts2__skill__c"><span>ts2__skill__c<span></li>
-                <li data-table="ts2__education_history__c"><span>ts2__education_history__c<span></li>
-              </ul>
-           </div>
-        </div>
-        <div class="multiply-info">
-          Times:<span class="time"></span>
-          <span class="perform"></span>
-          /<span class="total"></span>
-        </div>
-        <div class="db-info">
-         
-        </div>
-         <div class="enable-btns">
-          <button class="btn btn-primary enable-indexes">Enable Indexes</button>
-          <span class="alert alert-info">Please use Create Indexes Buttons to recreate the indexes.</span>
-        </div>
-        <div class="drop-btns">
-          <button class="btn btn-primary drop-ex">Drop jss_grouped_xxx Tables</button>
-          <span class="alert alert-info">jss_grouped_xxx Tables have been dropped successfully.Use dev setup to recreate them.</span>
-        </div>
+		<div class="btns">
+			<button class="btn btn-primary save">Save</button>
+			<button class="btn cancel">Cancel</button>
+			<span class="alert hide fade"></span>
+		</div>
+
+		<div class="disable-btns">
+		<button class="btn btn-primary disable-indexes">Disable Indexes</button>
+		</div>
+
+		<div><button class="btn btn-primary multiply">Multiply Data</button></div>
+
+		<div class="control-group">
+			<div class="input-div">
+				<input name="time" type="text" placeholder="Times" value="1" maxlength="2" readOnly>
+			</div>
+			<i class="glyphicon glyphicon-chevron-down drawdown"></i>
+			<div class="time-list" style="">
+				<ul>
+					<li data-time="1"><span>1<span></li>
+					<li data-time="2"><span>2<span></li>
+					<li data-time="3"><span>3<span></li>
+					<li data-time="4"><span>4<span></li>
+					<li data-time="5"><span>5<span></li>
+					<li data-time="6"><span>6<span></li>
+					<li data-time="7"><span>7<span></li>
+					<li data-time="8"><span>8<span></li>
+					<li data-time="9"><span>9<span></li>
+					<li data-time="10"><span>10<span></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="control-group">
+			<div class="input-div">
+				<input name="tableName" type="text" placeholder="tableName" value="contact" maxlength="2" readOnly>
+			</div>
+			<i class="glyphicon glyphicon-chevron-down drawdown"></i>
+			<div class="table-list" style="">
+				<ul>
+					<li data-table="contact"><span>contact<span></li>
+					<li data-table="ts2__employment_history__c"><span>ts2__employment_history__c<span></li>
+					<li data-table="ts2__skill__c"><span>ts2__skill__c<span></li>
+					<li data-table="ts2__education_history__c"><span>ts2__education_history__c<span></li>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="multiply-info">
+			Times:<span class="time"></span>
+			<span class="perform"></span>
+			/<span class="total"></span>
+		</div>
+		
+		<div class="db-info">
+	
+		</div>
+		
+		<div class="enable-btns">
+			<button class="btn btn-primary enable-indexes">Enable Indexes</button>
+			<span class="alert alert-info">Please use Create Indexes Buttons to recreate the indexes.</span>
+		</div>
+		
+		<div class="drop-btns">
+			<button class="btn btn-primary drop-ex">Drop jss_grouped_xxx Tables</button>
+			<span class="alert alert-info">jss_grouped_xxx Tables have been dropped successfully.Use dev setup to recreate them.</span>
+		</div>
+	</div>
 </script>
 
 <script id="OrganizationInfo-li" type="text/html">
-    <li class="OrganizationInfo active"><a href="{{url}}">{{type}}</a></li>
+	<li class="OrganizationInfo active"><a href="{{url}}">{{type}}</a></li>
 </script>
 
 <script id ="OrganizationInfo-empty-item" type="text/html">

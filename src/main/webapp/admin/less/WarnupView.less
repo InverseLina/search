@@ -1,99 +1,116 @@
 // --------- WarmupView --------- //
-.WarmupView{ max-width:1060px; overflow:auto;margin-top:15px;margin-bottom:15px;}
-
-.WarmupView .warmup-body {
-  margin-left: 35px;
-  overflow:hidden;
-  .goall {
-  	min-width:700px;
-    input, span {padding-top: 1px; padding-bottom: 1px; width: 30px}
-    input {height: 30px};
-  }
-}
-
-.WarmupView .warmup-search {
-  line-height: 30px;
-  margin-left: 1px;
-}
-
-.WarmupView .warmup-search input {
-  box-sizing: content-box;
-  padding-left: 5px;
-  color:#777;
-  width:142px
-}
-
-.WarmupView .warmup-search label {
-  font-weight: normal;
-}
-
-.WarmupView .warmup-values label,.label {
-  text-align: right;
-  width: 120px;
-  vertical-align:top;
-  display:inline-block
-}
-
-.WarmupView .btn {
-  min-width: 100px;
-  height: 30px;
-  line-height: 10px;
-  border: 0px;
-  margin-left: 10px;
-  vertical-align:top
-}
-
-.WarmupView .atuo {
-  width: 1000px;
-  display: inline-block;
-  float: left;
-}
-
-.WarmupView .running {
-  background-color: #797979;
-}
-
-.WarmupView .all {
-  margin-left: 5px;
-}
-
-.WarmupView .warmup-results {
-  color: #1670ba;
-}
-
-.WarmupView .warmup-results .warmup-results-item {
-  display: inline-block;
-  width: 110px;
-}
-
-.text{
-	background-color: #FFFFFF;
-    border: 1px solid #CCCCCC;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
-    transition: border 0.2s linear 0s, box-shadow 0.2s linear 0s;
-	 border-radius: 3px;
-    color: #555555;
-    display: inline-block;
-    font-size: 14px;
-    height: 20px;
-    line-height: 20px;
-    padding: 4px 6px;
-    vertical-align: middle;
+.WarmupView {
+	max-width: 1060px;
+	overflow: auto;
+	margin-top: 15px;
+	margin-bottom: 15px;
+	.warmup-body {
+		margin-left: 35px;
+		overflow: hidden;
+		.goall {
+			min-width: 700px;
+			input, span {
+				padding-top: 1px;
+				padding-bottom: 1px;
+				width: 30px
+			}
+			
+			input {
+				height: 30px
+			}
+		}
 	}
-h3{ margin-top:25px}
-
-.warmup-item .col-md-6:first-of-type,.warmup-item .col-sm-6:first-of-type{
-	border-right:1px solid #cdcdcd}
+	.warmup-search {
+		line-height: 30px;
+		margin-left: 1px;
+		input {
+			box-sizing: content-box;
+			padding-left: 5px;
+			color: #777;
+			width: 142px
+		}
+		
+		label {
+			font-weight: normal;
+		}
+	}
 	
-.warmup-item .col-md-6:last-of-type,.warmup-item .col-sm-6:last-of-type{
-	border-left:1px solid #d3d3d3}
-
-.WarmupView .col-lg-2{
-	float: left;
+	.warmup-values label, .warmup-values .label {
+		text-align: right;
+		width: 120px;
+		vertical-align: top;
+		display: inline-block
+	}
+	
+	.btn {
+		min-width: 100px;
+		height: 30px;
+		line-height: 10px;
+		border: 0px;
+		margin-left: 10px;
+		vertical-align: top
+	}
+	
+	.atuo {
+		width: 1000px;
+		display: inline-block;
+		float: left;
+	}
+	
+	.running {
+		background-color: #797979;
+	}
+	
+	.all {
+		margin-left: 5px;
+	}
+	
+	.warmup-results {
+		color: #1670ba;
+	}
+	
+	.warmup-results .warmup-results-item {
+		display: inline-block;
+		width: 110px;
+	}
+	
+	.text {
+		background-color: #FFFFFF;
+		border: 1px solid #CCCCCC;
+		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+		transition: border 0.2s linear 0s, box-shadow 0.2s linear 0s;
+		border-radius: 3px;
+		color: #555555;
+		display: inline-block;
+		font-size: 14px;
+		height: 20px;
+		line-height: 20px;
+		padding: 4px 6px;
+		vertical-align: middle;
+	}
+	
+	h3 {
+		margin-top: 25px
+	}
+	
+	.warmup-item .col-md-6:first-of-type, .warmup-item .col-sm-6:first-of-type {
+		border-right: 1px solid #cdcdcd
+	}
+	
+	.warmup-item .col-md-6:last-of-type, .warmup-item .col-sm-6:last-of-type {
+		border-left: 1px solid #d3d3d3
+	}
+	
+	.col-lg-2 {
+		float: left;
+	}
+	
+	.break-btn {
+		margin-left: 124px;
+		margin-top: 5px;
+	}
 }
 
-.WarmupView .break-btn{
-	margin-left:124px;
-	margin-top:5px;
-}
+
+
 // --------- WarmupView --------- //

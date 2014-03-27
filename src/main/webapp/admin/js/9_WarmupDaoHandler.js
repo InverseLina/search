@@ -14,5 +14,4 @@ var app = app || {};
 	app.WarmupDaoHandler.checkStatus = function() {
 		return app.getJsonData(contextPath + "/warmup/checkStatus");
 	}
-
 })(jQuery);

@@ -1,298 +1,310 @@
 // --------- OrganizationInfo--------- //
 .OrganizationInfo{
 
-  .tab-content .table tr th{
-    box-sizing: content-box;
-  }
-  .opts-btns{
-  	margin: 5px 0px 10px 182px;
-  }
-  .tab-content .table tr td{
-    height:36px;
-  }
-  .btn_tr .right{
-  	padding-top: 10px;
-  	min-width:147px;
-	padding-bottom: 10px;
-	padding-right:30px;
-  }
-  .content-table .left{
-     width:120px;
-     algin-text:left;
-     line-height:35px;
-  }
+	.tab-content .table tr th{
+		box-sizing: content-box;
+	}
+	
+	.opts-btns{
+		margin: 5px 0px 10px 182px;
+	}
+	
+	.tab-content .table tr td{
+		height:36px;
+	}
+	
+	.btn_tr .right{
+		padding-top: 10px;
+		min-width:147px;
+		padding-bottom: 10px;
+		padding-right:30px;
+	}
+	
+	.content-table .left{
+		 width:120px;
+		 line-height:35px;
+	}
 
-  .content-table .right{
+	.btns .alert{
+		margin-left: 10px;
+	}
+	
+	.content-table .text{
+		width:250px;
+		padding-left: 8px;
+		box-sizing: content-box;
+	}
 
-  }
+	.content-table .msg{
+		padding-top:5px;
+		padding-bottom:5px;
+		margin-bottom:2px;
+	}
 
-  .btns .alert{
-  	margin-left: 10px;
-  }
-  .content-table .text{
-    width:250px;
-    padding-left: 8px;
-    box-sizing: content-box;
-  }
+	.info{
+		vertical-align: bottom;
+		margin-left: 10px;
+		font-size:10px;
+		color:#444444;
+		display: inherit;
+	}
+	
+	.alert-td{
+		.alert{
+			margin:0;
+			display: inline-block;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			width:400px;
+			overflow: hidden;
+		}
+	}
+	
+	button.status{
+		width:100px;
+	}
+	
+	.btns{
+		margin-left: 200px;
+		margin-top: 25px;
+		margin-bottom: 50px;
+	}
 
-  .content-table .msg{
-    padding-top:5px;
-    padding-bottom:5px;
-    margin-bottom:2px;
-  }
+	.OrganizationInfo-content{
+		.header{
+			margin-top: 30px;
+			margin-bottom: 20px;
+			span{
+				font-size: 20px;
+				color: #909090;
+			}
+			.line{
+				width: 600px;
+				border-top: 1px solid #ccc;
+				margin-left: 5px;
+				display: inline-block;
+				height: 5px;
+			}
+		}
 
-  .info{
-  	vertical-align: bottom;
-	margin-left: 10px;
-	font-size:10px;
-	color:#444444;
-	display: inherit;
-  }
-  .alert-td{
-  	.alert{
-  		margin:0;
-  		display: inline-block;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		width:400px;
-		overflow: hidden;
-  	}
-  }
-  button.status{
-  	width:100px;
-  }
-  .btns{
-    margin-left: 200px;
-    margin-top: 25px;
-    margin-bottom: 50px;
-  }
+		.setup-content{
+			margin-left:35px;
+			.content-table .left{
+				 width:20px;
+				 float: none;
+			}
+			
+			.btn{
+				width:auto;
+			}
+	
+		}
+	
+		.baseInfo-content{
+			margin-left:35px;
+			.content-table .left{
+				 width:200px;
+				 float: none;
+			}
+			
+			.btn{
+				width:80px;
+			}
+		}
+		
+		.locals{
+			padding-left: 35px;
+			.setting{
+				margin-bottom: 15px;
+				padding-left: 25px;
+				color: #848484;
+				span{
+					width: 150px;
+					display: inline-block;
+				}
+			}
+	
+			.text{
+				width:250px;
+				padding-left: 8px;
+			}
+		}
 
-.OrganizationInfo-content{
-  .header{
-    margin-top: 30px;
-    margin-bottom: 20px;
-    span{
-      font-size: 20px;
-      color: #909090;
-    }
-    .line{
-      width: 600px;
-      border-top: 1px solid #ccc;
-      margin-left: 5px;
-      display: inline-block;
-      height: 5px;
-    }
-  }
+		.actions{
+			padding-left: 35px;
+			color: #848484;
+			.subTitle{
+				float:left;
+				margin-left:25px;
+			}
+			
+			.setting{
+				display:inline-block;
+			}
+	
+			input[type="checkbox"]{
+				margin:0;
+				margin-left:10px;
+			}
+		}
+	}
+	
+	.multiply{
+		float:left;
+	}
+	
+	.control-group {
+		float: left;
+		position: relative;
+		input {
+			width: 106px;
+			height: 24px;
+			line-height: 24px;
+			padding-right: 25px;
+			padding-left: 5px;
+			border-radius: 3px;
+			border: #ccc solid 1px;
+			font-size: 12px;
+		}
+		.drawdown {
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			right: 10px;
+			top:11px;
+			font-size: 12px;
+			color:#ccc;
+			cursor: pointer;
+			&:hover {
+				color: #666;
+			}
+		}
+		
+		.time-list{
+			display:none;
+		}
+		
+		.table-list{
+			display:none;
+			ul{
+				width:190px;      
+			}
+		}
+		.input-div{
+			line-height:35px;
+			margin-left: 20px;
+		}
+		
+		ul {
+			position: absolute;
+			z-index: 999;
+			bottom: 20px;
+			background: #ffffff;
+			border: 1px solid #ccc;
+			margin: 2px 5px 5px 0;
+			padding: 5px 5px 5px 5px;
+			width:160px;
+			li{
+				width: 100%;
+				padding: 2px 18px 2px 2px;
+				position: relative;
+				list-style: none;
+				cursor: pointer;
+				font-size: 12px;
+				.searchName {
+					display: inline-block;
+					width:100%;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					overflow: hidden;
+				}
 
-  .setup-content{
-    margin-left:35px;
-    .content-table .left{
-       width:20px;
-       float: none;
-      }
-      .btn{
-     	width:auto;
-      }
+				i {
+					position: absolute;
+					right: 2px;
+					top:50%;
+					margin-top: -8px;
+					color: #ccc;
+					cursor: pointer;
+					&:hover {
+						color: #666;
+					}
+				}
+			
+				&:hover {
+					background: #eee;
+				}
+			}
+		}
+	}
 
-  }
-  .baseInfo-content{
-    margin-left:35px;
-    .content-table .left{
-       width:200px;
-       float: none;
-      }
-      .btn{
-     width:80px;
-      }
-
-  }
-  .locals{
-    padding-left: 35px;
-    .setting{
-      margin-bottom: 15px;
-      padding-left: 25px;
-      color: #848484;
-      span{
-        width: 150px;
-        display: inline-block;
-      }
-    }
-
-    .text{
-        width:250px;
-        padding-left: 8px;
-      }
-  }
-
-  .actions{
-    padding-left: 35px;
-    color: #848484;
-    .subTitle{
-      margin-left:25px;
-    }
-    .setting{
-      display:inline-block;
-    }
-    .subTitle{
-      float:left;
-    }
-
-    input[type="checkbox"]{
-      margin:0;
-      margin-left:10px;
-    }
-  }
-
-
-  }
-  .multiply{
-    float:left;
-  }
-  .control-group {
-     float: left;
-     position: relative;
-     input {
-        width: 106px;
-        height: 24px;
-        line-height: 24px;
-        padding-right: 25px;
-        padding-left: 5px;
-        border-radius: 3px;
-        border: #ccc solid 1px;
-        font-size: 12px;
-      }
-    .drawdown {
-      width: 10px;
-      height: 10px;
-      position: absolute;
-      right: 10px;
-      top:11px;
-      font-size: 12px;
-      color:#ccc;
-      cursor: pointer;
-      &:hover {
-        color: #666;
-      }
-    }
-    .time-list{
-      display:none;
-    }
-    .table-list{
-      display:none;
-      ul{
-        width:190px;      
-      }
-    }
-     .input-div{
-        line-height:35px;
-        margin-left: 20px;
-      }
-     ul {
-    position: absolute;
-    z-index: 999;
-    bottom: 20px;
-    background: #ffffff;
-    border: 1px solid #ccc;
-    margin: 2px 5px 5px 0;
-    padding: 5px 5px 5px 5px;
-    width:160px;
-    li{
-      width: 100%;
-      padding: 2px 18px 2px 2px;
-      position: relative;
-      list-style: none;
-      cursor: pointer;
-      font-size: 12px;
-      .searchName {
-        display: inline-block;
-        width:100%;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-      }
-
-      i {
-        position: absolute;
-        right: 2px;
-        top:50%;
-        margin-top: -8px;
-        color: #ccc;
-        cursor: pointer;
-        &:hover {
-          color: #666;
-        }
-      }
-      &:hover {
-        background: #eee;
-      }
-    }
-  }
-   }
-
-  .disable-btns{
-    padding: 10px 0px;
-  }
-  
-  .enable-btns{
-     padding: 10px 0px;
-     float: left;
-     width: 100%; 
-     .alert{
-       display:none;
-       margin: 0;
-     }
-  }
-  
-   .drop-btns{
-     padding: 0 0 10px 0px;
-     float: left;
-     width: 100%; 
-      .alert{
-       display:none;
-       margin: 0;
-     }
-  }
-  
-  .multiply-info,.db-info{
-    display:none;
-    line-height:38px;
-    margin-left: 20px;
-    float: left;
-    
-  }
-  .fix-btns{
-  	float:left;
-  }
-  
-  .check-status{
-	margin-top: 30px;
-	margin-bottom: -30px;
-  	div{
-  		margin-left:0px;
-  		overflow: hidden;
-		height: 52px;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		display: inline-block;
-		width:auto;
-		max-width:100%;
-  	}
-  	.hide{
-  		display: none;
-  	}
-  }
-  .fix-btn{
-  	margin-top:31px;
-  }
+	.disable-btns{
+		padding: 10px 0px;
+	}
+	
+	.enable-btns{
+		 padding: 10px 0px;
+		 float: left;
+		 width: 100%; 
+		 .alert{
+			 display:none;
+			 margin: 0;
+		 }
+	}
+	
+	.drop-btns{
+		 padding: 0 0 10px 0px;
+		 float: left;
+		 width: 100%; 
+			.alert{
+			 display:none;
+			 margin: 0;
+		 }
+	}
+	
+	.multiply-info,.db-info{
+		display:none;
+		line-height:38px;
+		margin-left: 20px;
+		float: left;
+	}
+	
+	.fix-btns{
+		float:left;
+	}
+	
+	.check-status{
+		margin-top: 30px;
+		margin-bottom: -30px;
+		div{
+			margin-left:0px;
+			overflow: hidden;
+			height: 52px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			display: inline-block;
+			width:auto;
+			max-width:100%;
+		}
+		
+		.hide{
+			display: none;
+		}
+	}
+	
+	.fix-btn{
+		margin-top:31px;
+	}
  
- .notice{
- 	color: #F51414;
-	font-size: 16px;
-	margin-left: 58px;
- } 
- .OrganizationInfo-empty-item{
- 	margin:100px;
- }
+	.notice{
+		color: #F51414;
+		font-size: 16px;
+		margin-left: 58px;
+	}
+	
+	.OrganizationInfo-empty-item{
+		margin:100px;
+	}
 }
 
 
