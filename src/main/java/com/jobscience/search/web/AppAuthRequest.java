@@ -182,7 +182,7 @@ public class AppAuthRequest implements AuthRequest {
         AuthToken authToken = null;
         String path = rc.getPathInfo();
         String contextPath = rc.getContextPath();
-        if(path.equals("/admin")){
+        if(path.equals("/admin/")){
             String atoken = rc.getCookie(COOKIE_ADMIN_TOKEN);
             if(!Strings.isNullOrEmpty(atoken) && atoken.equals(sha1(configPassword))){
                 Map adminUser = new HashMap();
