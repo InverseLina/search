@@ -68,13 +68,12 @@ public class SearchDao {
      * @param orderCon
      * @return
      */
-    public SearchResult search(String searchColumns,Map<String, String> searchValues,
-    		Integer pageIdx, Integer pageSize,String orderCon,String searchValuesString,String token,OrgContext org) {
+    public SearchResult search(SearchRequest searchRequest,String token,OrgContext org) {
 
 		SearchResult searchResult = null;
 		//builder statements
 		SearchStatements statementAndValues =
-				buildSearchStatements(searchColumns,searchValues, pageIdx, pageSize,orderCon,org);
+				buildSearchStatements(searchRequest,org);
 
 		//excute query and caculate times
 		searchResult = executeSearch(statementAndValues);
@@ -88,11 +87,11 @@ public class SearchDao {
 			userId=Long.parseLong(user.get("id").toString());
 		}
 
-		searchLogDao.addSearchLog(searchValuesString, searchResult.getCountDuration(), searchResult.getSelectDuration(), userId,org);
+		searchLogDao.addSearchLog(searchRequest.toString(), searchResult.getCountDuration(), searchResult.getSelectDuration(), userId,org);
 
 		if (searchResult != null){
-			searchResult.setPageIdx(pageIdx);
-			searchResult.setPageSize(pageSize);
+			searchResult.setPageIdx(searchRequest.getPageIndex());
+			searchResult.setPageSize(searchRequest.getPageSize());
 		}
 
         return searchResult;
@@ -132,7 +131,7 @@ public class SearchDao {
      * @throws SQLException
      */
     public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
-        String advancedAutoCompleteStr = configManager.getConfig("advanced_auto_complete", (Integer)org.getOrgMap().get("id"));
+        String advancedAutoCompleteStr = configManager.getConfig("advanced_auto_complete", (Integer) org.getOrgMap().get("id"));
         Boolean advancedAutoComplete  = false;
         if(advancedAutoCompleteStr!=null){
             advancedAutoComplete= "true".equals(advancedAutoCompleteStr);
@@ -143,6 +142,7 @@ public class SearchDao {
         return advancedAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum,org);
     }
     
+    @SuppressWarnings("unused")
     public SearchResult advancedAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
         StringBuilder querySql = new StringBuilder();
         StringBuilder groupBy = new StringBuilder();
@@ -194,7 +194,8 @@ public class SearchDao {
         }
         //-------- /get the skill_assessment_rating config for current org ---------//
         
-        querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable,org)[0]);
+        //Need to DO refactor here
+        //querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable,org)[0]);
         
         //if has min year or min raidus or min rating,need do filter for this
         if(min!=null&&!"0".equals(min)){
@@ -293,618 +294,7 @@ public class SearchDao {
         searchResult.setSelectDuration(searchResult.getDuration());
         return searchResult;
     }
-    
-    /**
-     * Render condition for auto complete and search
-     * @param searchValues
-     * @param type available value is advanced or search
-     * @param baseTable
-     * @param baseTableIns
-     * @param values
-     * @param appendJoinTable
-     * @return
-     */
-    protected String[] renderSearchCondition(Map<String, String> searchValues,String type,
-            String baseTable,String baseTableIns,List values,  String appendJoinTable ,OrgContext org){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        StringBuilder joinTables = new StringBuilder();
-        StringBuilder searchConditions = new StringBuilder();
-        StringBuilder querySql = new StringBuilder();
-    	StringBuilder conditions = new StringBuilder();
-    	List subValues = new ArrayList();
-    	boolean advanced = "advanced".equals(type);
-    	boolean hasCondition = false;
-    	String schemaname = (String)org.getOrgMap().get("schemaname");
-    	StringBuilder contactQuery = new StringBuilder();
-    	StringBuilder contactExQuery = new StringBuilder();
-    	StringBuilder prefixSql = new StringBuilder("");
-    	String contactQueryCondition="",contactExQueryCondition="";
-    	boolean hasSearchValue = false;//to check if the search box has value or not
-    	StringBuilder labelSql = new StringBuilder();
-    	StringBuilder locationSql = new StringBuilder();
-    	
-    	boolean needJoinRecordtype = false;
-    	 
-    	if(baseTable==null){
-    		baseTable = "";
-    	}
-    	if(baseTableIns==null){
-    		baseTableIns = "";
-    	}
-	    if (searchValues != null) {
-           // for all search mode, we preform the same condition
-           String search = searchValues.get("search");
-           if (!Strings.isNullOrEmpty(search)) {
-        	   if(advanced){
-        		   if(baseTableIns.indexOf("z")>-1){//if joined zipcode_us table
-       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns );
-       					joinTables.append(" on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
-       				}else{
-       					joinTables.append(" inner join "+baseTable+ " "+ baseTableIns);
-       					joinTables.append(" on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
-       				}
-        		   baseTable =  schemaname+".contact " ;
-                   baseTableIns = "a";
-                   searchConditions.append(getSearchValueJoinTable(search, values,"a",org));
-                   hasCondition = true;
-        	   }else{
-        	       if(search.length()>=3){
-        	           contactQuery.append(getSearchValueJoinTable(search, values,"contact",org));
-        	           if(search.matches("^\\s*\"[^\"]+\"\\s*$")){
-        	               conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '"+search.replaceAll("\\\"", "%")+"'");
-        	           }
-        	           hasSearchValue = true;
-            	       hasCondition = true;
-        	       }
-        	   }
-        	 
-           }
-           
-       	   //Get the contacts parameters and render them
-            String contactVal = searchValues.get("contacts");
-            if (contactVal != null) {
-                JSONArray contacts = JSONArray.fromObject(contactVal);
-                if (contacts.size() > 0) {//First add 1!=1,cause for all contacts,would do with "OR"
-                    conditions.append(" AND (1!=1 ");
-                }
 
-                for (int i = 0, j = contacts.size(); i < j; i++) {
-                    JSONObject contact = JSONObject.fromObject(contacts.get(i));
-                    conditions.append(" OR (1=1 ");//for single contact,would do with "AND"
-                    String value;
-                    //handle for first name
-                    if (contact.containsKey("firstName") && !"".equals(contact.getString("firstName"))) {
-                        value = contact.getString("firstName");
-                        if (advanced) {
-                            if (baseTable.indexOf("contact") == -1) {
-                                if (baseTableIns.indexOf("z") > -1) {
-                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
-                                    joinTables.append(" on " + baseTableIns + ".\"zip\" = a.\"mailingpostalcode\" ");
-                                } else {
-                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
-                                    joinTables.append(" on " + baseTableIns + ".\"ts2__contact__c\" = a.\"sfid\" ");
-                                }
-                                baseTable = schemaname + ".contact ";
-                                baseTableIns = "a";
-                            }
-                            conditions.append(" and a.\"firstname\" ilike ? ");
-                            if (!value.contains("%")) {
-                                value = value + "%";
-                            }
-                            values.add(value);
-                        } else {
-                            conditions.append("  and " + sc.getContactField("firstname").toString("contact") + " ilike ? ");
-                            if (!value.contains("%")) {
-                                value = value + "%";
-                            }
-                            subValues.add(value);
-                        }
-                        hasCondition = true;
-                    }
-
-                    //handle for last name
-                    if (contact.containsKey("lastName") && !"".equals(contact.getString("lastName"))) {
-                        value = contact.getString("lastName");
-                        if (advanced) {
-                            if (baseTable.indexOf("contact") == -1) {
-                                if (baseTableIns.indexOf("z") > -1) {
-                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
-                                    joinTables.append(" on " + baseTableIns + ".\"zip\" = a.\"mailingpostalcode\" ");
-                                } else {
-                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
-                                    joinTables.append(" on " + baseTableIns + ".\"ts2__contact__c\" = a.\"sfid\" ");
-                                }
-                                baseTable = schemaname + ".contact ";
-                                baseTableIns = "a";
-                            }
-                            conditions.append(" and a.\"lastname\" ilike ? ");
-                            if (!value.contains("%")) {
-                                value = value + "%";
-                            }
-                            values.add(value);
-                        } else {
-                            conditions.append("  and " + sc.getContactField("lastname").toString("contact") + " ilike ? ");
-                            if (!value.contains("%")) {
-                                value = value + "%";
-                            }
-                            subValues.add(value);
-                        }
-                        hasCondition = true;
-                    }
-
-                    //handle for email
-                    if (contact.containsKey("email") && !"".equals(contact.getString("email"))) {
-                        value = contact.getString("email");
-                        if (advanced) {
-                            if (baseTable.indexOf("contact") == -1) {
-                                if (baseTableIns.indexOf("z") > -1) {
-                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
-                                    joinTables.append(" on " + baseTableIns + ".\"zip\" = a.\"mailingpostalcode\" ");
-                                } else {
-                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
-                                    joinTables.append(" on " + baseTableIns + ".\"ts2__contact__c\" = a.\"sfid\" ");
-                                }
-                                baseTable = schemaname + ".contact ";
-                                baseTableIns = "a";
-                            }
-                            conditions.append(" and a.\"email\" ilike ? ");
-                            if (!value.contains("%")) {
-                                value = value + "%";
-                            }
-                            values.add(value);
-                        } else {
-                            conditions.append("  and " + sc.getContactField("email").toString("contact") + " ilike ? ");
-                            if (!value.contains("%")) {
-                                value = value + "%";
-                            }
-                            subValues.add(value);
-                        }
-                        hasCondition = true;
-                    }
-
-                    //handle the title
-                    if (contact.containsKey("title") && !"".equals(contact.getString("title"))) {
-                        value = contact.getString("title");
-                        if (advanced) {
-                            if (baseTable.indexOf("contact") == -1) {
-                                if (baseTableIns.indexOf("z") > -1) {
-                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
-                                    joinTables.append(" on " + baseTableIns + ".\"zip\" = a.\"mailingpostalcode\" ");
-                                } else {
-                                    joinTables.append(" inner join " + baseTable + " " + baseTableIns);
-                                    joinTables.append(" on " + baseTableIns + ".\"ts2__contact__c\" = a.\"sfid\" ");
-                                }
-                                baseTable = schemaname + ".contact ";
-                                baseTableIns = "a";
-                            }
-                            conditions.append(" and a.\"title\" ilike ? ");
-                            if (!value.contains("%")) {
-                                value = value + "%";
-                            }
-                            values.add(value);
-                        } else {
-                            conditions.append("  and " + sc.getContactField("title").toString("contact") + " ilike ? ");
-                            if (!value.contains("%")) {
-                                value = value + "%";
-                            }
-                            subValues.add(value);
-                        }
-                        hasCondition = true;
-                    }
-
-
-                    conditions.append(" ) ");
-                }
-
-                if (contacts.size() > 0) {
-                    conditions.append(" ) ");
-                }
-            }
-            
-            //handle the ojectType
-            if (searchValues.get("objectType") != null && !"".equals(searchValues.get("objectType"))) {
-                String value = searchValues.get("objectType");
-                if (!advanced) {
-                    if ("Contact".equals(value)) {
-                        conditions.append("  and contact.\"recordtypeid\" = ?");
-                        subValues.add(org.getSfid());
-                    }else if("Candidate".equals(value)){
-                        conditions.append("  and contact.\"recordtypeid\" != ?");
-                        subValues.add(org.getSfid());
-                    }
-
-                }
-            }
-
-            //handle the status
-            if (searchValues.get("status") != null && !"".equals(searchValues.get("status"))) {
-                String value = searchValues.get("status");
-                if (!advanced) {
-                    if ("Active".equals(value)) {
-                        conditions.append("  and contact.\"ts2__people_status__c\" in('',null, 'Active') ");
-                    } else if ("Inactive".equals(value)){
-                        conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
-                    }
-                }
-            }
-            // add the 'educations' filter, and join ts2__education_history__c table
-           if (searchValues.get("educations") != null && !"".equals(searchValues.get("educations"))) {
-        	   String value = searchValues.get("educations");
-        	   JSONArray educationValues = JSONArray.fromObject(value);
-        	   if(educationValues!=null){
-        		   if(advanced){
-                       if(baseTable.indexOf("ts2__education_history__c") == -1 && joinTables.indexOf("ts2__education_history__c") == -1){
-                    	   joinTables.append( " inner join    "+schemaname+".ts2__education_history__c d on " );
-                           joinTables.append("a.\"sfid\" = d.\"ts2__contact__c\" ");
-                       }
-                       conditions.append(getConditionForThirdNames(educationValues, "education",false));
-            	   }else{
-            	       if(prefixSql.length()==0){
-                           prefixSql.append(" with ");
-                       }else{
-                           prefixSql.append(",");
-                       }
-            	       FilterField f = sc.getFilter(FilterType.EDUCATION).getFilterField();
-            	       prefixSql.append( " ed1 as (select "+f.toJoinToString("ed")+" as \"ts2__contact__c\" ")
-            	                .append(" from  "+schemaname+"."+f.getTable()+" ed where (1!=1 " );
-            		   for(int i=0,j=educationValues.size();i<j;i++){
-            			   JSONObject educationValue = JSONObject.fromObject(educationValues.get(i));
-            			   prefixSql.append(" OR ( "+f.toString("ed")+" = ")
-            			   		   .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
-            			   if(educationValue.containsKey("minYears")){
-            				   Integer minYears = educationValue.getInt("minYears");
-            				   if(!minYears.equals(0)){
-            				       prefixSql.append(" AND EXTRACT(year from age(now(),ed.\"ts2__graduationdate__c\"))>="+minYears);
-            				   }
-            			   }
-            			   prefixSql.append(" ) ");		   
-            		   }
-            		   prefixSql.append(") ) ");
-            		   if(hasSearchValue){
-            		       contactQuery.append(" inner join  ed1 on "+f.toJoinFromString("con")+" = ed1.\"ts2__contact__c\" ");
-            		   }else{
-            		       contactQuery.append(" inner join  ed1 on "+f.toJoinFromString("contact")+" = ed1.\"ts2__contact__c\" ");
-            		   }
-            	   }
-                   hasCondition = true;
-        	   }
-           }
-           // add the 'companies' filter, and join ts2__employment_history__c table
-           if (searchValues.get("companies") != null && !"".equals(searchValues.get("companies"))) {
-               String value = searchValues.get("companies");
-        	   JSONArray companyValues = JSONArray.fromObject(value);
-        	   if (companyValues!=null){
-            		   if(advanced){
-	            		   if(baseTable.indexOf("ts2__employment_history__c") == -1 && joinTables.indexOf("ts2__employment_history__c") == -1){
-	                           joinTables.append( " inner join  "+schemaname+".ts2__employment_history__c c on a.\"sfid\" =c.\"ts2__contact__c\" " );
-	                       }
-	            		  conditions.append(getConditionForThirdNames(companyValues, "company",false));
-	            	   }else{
-	            	       if(prefixSql.length()==0){
-                               prefixSql.append(" with ");
-                           }else{
-                               prefixSql.append(",");
-                           }
-	            	       FilterField f = sc.getFilter(FilterType.COMPANY).getFilterField();
-	            	       prefixSql.append( " em1 as (select "+f.toJoinToString("em")+" as ts2__contact__c "
-	            	                               + " from   "+schemaname+"."+f.getTable()+" em where (1!=1  " );
-	            		   for(int i=0,j=companyValues.size();i<j;i++){
-	            			   JSONObject educationValue = JSONObject.fromObject(companyValues.get(i));
-	            			   prefixSql.append(" OR ( "+f.toString("em")+" = ")
-	            			   		   .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
-	            			   if(educationValue.containsKey("minYears")){
-	            				   Integer minYears = educationValue.getInt("minYears");
-	            				   if(!minYears.equals(0)){
-	            				       prefixSql.append(" AND EXTRACT(year from age(em.\"ts2__employment_end_date__c\",em.\"ts2__employment_start_date__c\"))>="+minYears);
-	            				   }
-	            			   }
-	            			   prefixSql.append(" ) ");		   
-	            		   }
-	            		   prefixSql.append(" ) ) ");
-            		       if(hasSearchValue){
-            		           contactQuery.append(" join em1 on "+f.toJoinFromString("con")+" = em1.\"ts2__contact__c\"");
-                           }else{
-                               contactQuery.append(" join em1 on "+f.toJoinFromString("contact")+" = em1.\"ts2__contact__c\"");
-                           }
-	            	   }
-            		   hasCondition = true;
-        	   }
-           }
-           
-           // add the 'skillNames' filter, and join ts2__skill__c table
-           if (searchValues.get("skills") != null && !"".equals(searchValues.get("skills"))) {
-        	   
-        	   //Get the skill_assessment_rating for current org,if true,will join with ts2__assessment__c
-        	   String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.getOrgMap().get("id"));
-         	   boolean skill_assessment_rating = false;
-         	   if(!"true".equals(skillAssessmentRatingStr)){
-         		   skill_assessment_rating = false;
-         	   }else{
-         		   skill_assessment_rating = true;
-         	   }
-         	   
-        	   String value = searchValues.get("skills");
-        	   JSONArray skillValues = JSONArray.fromObject(value);
-        	   if(skillValues!=null){
-            	   if(advanced){
-            		   if(baseTable.indexOf("ts2__skill__c") == -1 && joinTables.indexOf("ts2__skill__c") == -1){
-            			   joinTables.append( " inner join  "+schemaname+".ts2__skill__c b on " );
-            			   joinTables.append("a.\"sfid\" = b.\"ts2__contact__c\" ");
-                       }
-            		   if(skill_assessment_rating){
-            			   joinTables.append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
-            		   }
-            		   conditions.append(getConditionForThirdNames(skillValues, "skill",skill_assessment_rating));
-            	   }else{
-            	       FilterField f = sc.getFilter(FilterType.SKILL).getFilterField();
-            		   if(skill_assessment_rating){//join with the ts2__assessment__c
-            		       if(prefixSql.length()==0){
-            		           prefixSql.append(" with ");
-            		       }else{
-            		           prefixSql.append(",");
-            		       }
-            		       prefixSql.append( "  sk1 as (select "+f.toJoinToString("sk")+" as ts2__contact__c from   "+schemaname+"."+f.getTable()+" sk " );
-            			   		   
-	            		   if(value.contains("minYears")){
-	            		       prefixSql.append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=sk.\"sfid\" ");
-	            		   }
-	            		   
-	            		   prefixSql.append("  where (1!=1  ");
-            			   for(int i=0,j=skillValues.size();i<j;i++){
-	            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
-	            			   prefixSql.append(" OR ( "+f.toString("sk")+" = ")
-	            			   		   .append("'"+skillValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
-	            			   if(skillValue.containsKey("minYears")){
-	            				   Integer minYears = skillValue.getInt("minYears");
-	            				   if(!minYears.equals(0)){
-	            				       prefixSql.append(" AND ass.\"ts2__rating__c\" >="+minYears);
-	            				   }
-	            			   }
-	            			   prefixSql.append(" ) ");		   
-	            		   }
-            			   prefixSql.append(" ))  ");
-        			       if(hasSearchValue){
-        			           contactQuery.append(" join sk1 on "+f.toJoinFromString("con")+" = sk1.\"ts2__contact__c\"");
-                           }else{
-                               contactQuery.append(" join sk1 on "+f.toJoinFromString("contact")+" = sk1.\"ts2__contact__c\"");
-                           }
-            		   }else{// just join with the ts2__skill__c
-            		       if(prefixSql.length()==0){
-                               prefixSql.append(" with ");
-                           }else{
-                               prefixSql.append(",");
-                           }
-            		       prefixSql.append( " sk1 as (select "+ f.toJoinToString("sk") +" as ts2__contact__c  from   "+schemaname+"."+f.getTable()+" sk where (1!=1  " );
-	            		   for(int i=0,j=skillValues.size();i<j;i++){
-	            			   JSONObject skillValue = JSONObject.fromObject(skillValues.get(i));
-	            			   prefixSql.append(" OR ( "+f.toString("sk")+" = ")
-	            			   		   .append("'"+skillValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
-	            			   if(skillValue.containsKey("minYears")){
-	            				   Integer minYears = skillValue.getInt("minYears");
-	            				   if(!minYears.equals(0)){
-	            				       prefixSql.append(" AND sk.\"ts2__rating__c\" >="+minYears);
-	            				   }
-	            			   }
-	            			   prefixSql.append(" ) ");		   
-	            		   }
-	            		   prefixSql.append(" )) ");
-	            		   if(hasSearchValue){
-                               contactQuery.append(" join sk1 on "+f.toJoinFromString("con")+" = sk1.\"ts2__contact__c\"");
-                           }else{
-                               contactQuery.append(" join sk1 on "+f.toJoinFromString("contact")+" = sk1.\"ts2__contact__c\"");
-                           }
-            		   }
-            	   }
-            	   hasCondition = true;
-        	   }
-           }
-           
-           //add the 'radius' filter
-           if (searchValues.get("locations") != null && !"".equals(searchValues.get("locations"))) {
-               Field f = sc.getContactField(ContactFieldType.MAILINGPOSTALCODE);
-        	   String value = searchValues.get("locations");
-        	   JSONArray locationValues = JSONArray.fromObject(value);
-         	   if(locationValues!=null){
-	         	    if(advanced){
-                        if(baseTable.indexOf("zipcode_us") == -1 && joinTables.indexOf("zipcode_us") == -1){
-                    	    joinTables.append("  join jss_sys.zipcode_us z on ");
-                            joinTables.append(f.toString("a")+" =z.\"zip\"");
-                        }
-                        JSONObject ol;
-                        conditions.append(" AND (1!=1  ");
-                        for (Object location : locationValues) {
-                            ol = (JSONObject) location;
-                            String name = (String) ol.get("name");
-                            
-                            conditions.append(" OR ( z.\"city\"='").append(name).append("'");
-                             if(ol.containsKey("minRadius")){
-            				   double minRadius = ol.getDouble("minRadius");
-                               if(minRadius >0) {
-            				   conditions.append(" AND  earth_distance(ll_to_earth(z.\"latitude\",z.\"longitude\"),ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("a")
-            				       +","+sc.getContactField("ts2__longitude__c").toString("a")+"))<=").append(minRadius*1000);
-                               }
-                             }
-                             conditions.append(")");
-                        }
-                        conditions.append(" ) ");
-            	   }else{
-            	       StringBuilder joinZip = new StringBuilder();
-            	       StringBuilder joinCity = new StringBuilder();
-            	       StringBuilder cities = new StringBuilder();
-            		   JSONObject ol;
-            		   Map<String,Double> citiesWithRadius = new HashMap<String,Double>();
-                       for (Object location : locationValues) {
-                           ol = (JSONObject) location;
-                           String name = (String) ol.get("name");
-                           if(ol.containsKey("minRadius")){
-                               double minRadius = ol.getDouble("minRadius");
-//                               joinCity.append(" OR (city.name='"+name+"' ")
-//                                       .append(" AND  earth_distance(ll_to_earth(city.\"latitude\",city.\"longitude\")," )
-//                                       .append(" ll_to_earth("+sc.getContactField("ts2__latitude__c").toString("contact")
-//                                       +","+sc.getContactField("ts2__longitude__c").toString("contact")+"))<=")
-//                                       .append(minRadius*1000)
-//                                       .append(") ");
-                               citiesWithRadius.put(name, minRadius);
-                               cities.append("'"+name+"',");
-                               joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
-                           }else{
-                               joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
-                           }
-                       }
-                       
-                       if(cities.length()!=0){
-                           Runner runner = datasourceManager.newSysRunner();
-                           List<Map> c = runner.executeQuery("select * from city where name in("+cities+"'#')");
-                           for(Map city:c){//minLat,minLng,maxLat,maxLng
-                               double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
-                                                          Double.valueOf(city.get("longitude").toString()),
-                                                          citiesWithRadius.get(city.get("name"))*1000);
-                               joinCity.append(" OR (").append("contact.ts2__latitude__c>="+range[0])
-                                         .append(" AND contact.ts2__latitude__c<="+range[2])
-                                         .append(" AND contact.ts2__longitude__c>="+range[1])
-                                         .append(" AND contact.ts2__longitude__c<="+range[3])
-                                         .append(") ");
-                           }
-                           runner.close();
-                       }
-                       if(joinZip.length()>0){
-                           if(joinCity.length()>0){
-                               locationSql.append(" left ");
-                           }
-                           locationSql.append(" join  jss_sys.zipcode_us z on (")
-                                      .append(f.toString("contact")+" =z.\"zip\" AND (1!=1 ")
-                                      .append(joinZip)
-                                      .append(")) ");
-                           conditions.append(" AND (1!=1 ").append(joinCity).append(" OR z.city is not null ").append(") ");
-                       }else{
-                           if(joinCity.length()>0){
-                               conditions.append(" AND (1!=1 ").append(joinCity).append(") ");
-                               locationSql.append(" ");
-                           }
-                       }
-                       hasCondition = true;
-            	   }
-    	      }
-           } 
-       }
-	   String contactTable = sc.getContact().getTable();
-	   //at last,combine all part to complete sql
-	   if(advanced){
-		   if(joinTables.indexOf(" contact ")==-1&&!baseTable.contains("contact")){
-			   if(joinTables.indexOf(baseTable)==-1){
-					if(baseTableIns.indexOf("z")>-1){
-						joinTables.append(" inner join "+baseTable+ " "+ baseTableIns );
-						joinTables.append(" on "+ baseTableIns+".\"zip\" = a.\"mailingpostalcode\" ");
-					}else{
-						joinTables.append(" inner join "+baseTable+ " "+ baseTableIns);
-						joinTables.append(" on "+ baseTableIns+".\"ts2__contact__c\" = a.\"sfid\" ");
-					}
-			   }
-	           baseTable =   schemaname+".contact " ;
-	           baseTableIns = "a";
-           }
-		   
-    	   querySql.append(baseTable);
-           querySql.append(baseTableIns);
-           querySql.append(searchConditions);
-           querySql.append(joinTables);
-           if(appendJoinTable!=null){
-        	   querySql.append(appendJoinTable);
-           }
-           querySql.append("  where 1=1 ");
-           querySql.append(conditions);
-	   }else{
-	       
-	       for(String name:searchValues.keySet()){
-	           if(isNativeSearchParam(name)){
-	               continue;
-	           }
-	           String filterName = name.substring(0, name.length()-1);//remove the s at last, example filters-->filter
-	           Filter filter = sc.getFilterByName(filterName);
-               if (filter == null) {
-                   continue;
-               }
-               FilterField ff = filter.getFilterField();
-	           if(!contactTable.equals(ff.getTable())){
-	               JSONArray extraValues = JSONArray.fromObject(searchValues.get(name));
-	               if(hasSearchValue){
-                       contactQuery.append(" join "+schemaname+".\""+ff.getTable()+"\" on "+ff.toJoinToString("con")+" = "+ff.toJoinFromString("\""+ff.getTable()+"\""));
-                   }else{
-                       contactQuery.append(" join "+schemaname+".\""+ff.getTable()+"\" on "+ff.toJoinToString("contact")+" = "+ff.toJoinFromString("\""+ff.getTable()+"\""));
-                   }
-	               if(extraValues.size()>0){
-	                   contactQuery.append(" AND (1!=1 ");
-	               }
-                   for(int i=0,j=extraValues.size();i<j;i++){
-                       JSONObject v = JSONObject.fromObject(extraValues.get(i));
-                       contactQuery.append(" OR \"").append(ff.getTable()).append("\".")
-                                   .append(ff.getColumn()).append("= '").append(v.get("name")).append("' ");
-                      // values.add(v.get("name"));
-                   }
-                   if(extraValues.size()>0){
-                       contactQuery.append(" ) ");
-                   }
-                   hasCondition = true;
-	           }
-	          
-	       }
-	       
-	       if(contactExQuery.length()>0){
-	           querySql.append(contactExQuery)
-               .append(contactExQueryCondition)
-               .append(" UNION ");
-	       }
-	       querySql.append(contactQuery)
-	               .append(contactQueryCondition);
-		   values.addAll(subValues);
-	   }
-	 
-	 
-	   
-
-	   for(String name:searchValues.keySet()){
-	       if(isNativeSearchParam(name)){
-	           continue;
-	       }
-	       String filterName = name.substring(0, name.length()-1);
-	       Filter filter = sc.getFilterByName(filterName);
-           if (filter == null) {
-               continue;
-           }
-           FilterField ff = filter.getFilterField();
-	       if(contactTable.equals(ff.getTable())){
-    	       JSONArray extraValues = JSONArray.fromObject(searchValues.get(name));
-    	       if(extraValues.size()>0){
-    	           conditions.append(" AND (1!=1 ");
-    	           for(int i=0,j=extraValues.size();i<j;i++){
-    	               JSONObject value = JSONObject.fromObject(extraValues.get(i));
-    	               conditions.append(" OR ").append(filterName).append("= ? ");
-    	               values.add(value.get("name"));
-    	           }
-    	           conditions.append(" ) ");
-    	           hasCondition = true;
-    	       }
-	       }
-	   }
-	   
-	   //if there has no condition,just append 1!=1
-       if(!hasCondition&&!advanced){
-           conditions.append(" and 1!=1 ");
-       }
-       
-       
-       if(!advanced){
-           if(hasSearchValue){
-               querySql=new StringBuilder(" join (").append(querySql);
-           }
-       }
-       String recordType = "";
-       if(needJoinRecordtype){
-           recordType = (" inner join  "+schemaname+".recordtype rt on contact.\"recordtypeid\" = rt.\"sfid\" ");
-       }
-	   return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),labelSql.toString(),locationSql.toString(),recordType};
-    }
-    
     /**
      * Get the query column and add group by or join table if needed
      * @param orginalName
@@ -1069,14 +459,10 @@ public class SearchDao {
      * @param searchValues
      * @return SearchStatements
      */
-    protected SearchStatements buildSearchStatements(String searchColumns, Map<String, String> searchValues,
-                                                   Integer pageIdx, Integer pageSize,String orderCon,OrgContext org) {
+    protected SearchStatements buildSearchStatements(SearchRequest searchRequest,OrgContext org) {
         SearchStatements ss = new SearchStatements();
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        if(pageIdx < 1){
-            pageIdx = 1;
-        }
-        int offset = (pageIdx -1) * pageSize;
+        int offset = (searchRequest.getPageIndex() -1) * searchRequest.getPageSize();
         String schemaname = (String)org.getOrgMap().get("schemaname");
         
         //the select query  that will query data
@@ -1091,18 +477,18 @@ public class SearchDao {
         StringBuilder conditions = new StringBuilder();
         // the part of query that build group by sql
         StringBuilder groupBy= new StringBuilder("a.\"id\"");
-        String search = searchValues.get("search");
+        String search = searchRequest.getKeyword();
         // the params will be put in sql
         List values = new ArrayList();
         String cteSql = "";
         
         
         querySql.append("select ");
-        querySql.append(getSearchColumnsForOuter(searchColumns,org));
+        querySql.append(getSearchColumnsForOuter(searchRequest.getColumns(),org));
         querySql.append(" from ( ");
         querySql.append(QUERY_SELECT);
         countSql.append(QUERY_COUNT);
-        querySql.append(getSearchColumns(searchColumns,columnJoinTables,groupBy,org));
+        querySql.append(getSearchColumns(searchRequest.getColumns(),columnJoinTables,groupBy,org));
         
         
         //---------------------- add select columns ----------------------//
@@ -1127,17 +513,17 @@ public class SearchDao {
         //---------------------- /add select columns----------------------//
         
         
-        if(orderCon.contains("title")){
+        if(searchRequest.getOrder().contains("title")){
         	querySql.append(",case   when ")
         	        .append(sc.getContactField(ContactFieldType.TITLE).toString("contact"))
         	        .append(" is null then ''  else lower(")
         	        .append(sc.getContactField(ContactFieldType.TITLE).toString("contact"))
         	        .append(") END \"ltitle\" ");
-        }else if(orderCon.contains("name")){
+        }else if(searchRequest.getOrder().contains("name")){
         	querySql.append(",lower(")
         	        .append(sc.getContactField(ContactFieldType.NAME).toString("contact")) 
         	        .append(") as \"lname\" ");
-        }else if(orderCon.contains("email")){
+        }else if(searchRequest.getOrder().contains("email")){
         	querySql.append(",lower(")
                     .append(sc.getContactField(ContactFieldType.EMAIL).toString("contact")) 
                     .append(") as \"lemail\" ");
@@ -1147,13 +533,12 @@ public class SearchDao {
                 .append(sc.getContact().getTable())
                 .append(" contact  " );
         
-        String value = searchValues.get("locations");
-        JSONArray locationValues = JSONArray.fromObject(value);
+        JSONArray locationValues = searchRequest.getLocations();
         boolean hasContactsCondition = false;
-        if(searchValues.get("contacts")!=null){
-            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
+        if(searchRequest.getContacts()!=null){
+            hasContactsCondition = searchRequest.getContacts().size()>0;
         }
-        if(hasExtraSearchColumn(searchValues)||hasContactsCondition||(Strings.isNullOrEmpty(search)||search.length()<3)||(value!=null&&locationValues!=null)){
+        if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||(Strings.isNullOrEmpty(search)||search.length()<3)||(locationValues!=null)){
             countSql.append( " from ( select ")
                     .append(sc.toContactFieldsString("contact"))
                     .append(" from  "+schemaname+".")
@@ -1162,14 +547,12 @@ public class SearchDao {
         }
        
         
-        if(searchValues!=null){
            
-            // for all search mode, we preform the same condition
-            String[] sqls = getCondtion(search, searchValues,values,orderCon,offset,pageSize,org);
-            querySql.append(sqls[0]);
-            countSql.append(sqls[1]);
-            cteSql=sqls[2];
-        }
+        // for all search mode, we preform the same condition
+        String[] sqls = getCondtion(searchRequest,values,org);
+        querySql.append(sqls[0]);
+        countSql.append(sqls[1]);
+        cteSql=sqls[2];
         
         querySql.append(joinTables);
         countSql.append(joinTables);
@@ -1187,11 +570,11 @@ public class SearchDao {
         }
         
         querySql.append(") b ");
-    	if(orderCon!=null&&!"".equals(orderCon)){
-    		querySql.append(" order by "+orderCon);
+    	if(!Strings.isNullOrEmpty(searchRequest.getOrder())){
+    		querySql.append(" order by "+searchRequest.getOrder());
     	}
-    	if(Pattern.matches("^.*(Company|Skill|Education|location)+.*$", orderCon)){
-        	querySql.append(" offset ").append(offset).append(" limit ").append(pageSize);
+    	if(Pattern.matches("^.*(Company|Skill|Education|location)+.*$", searchRequest.getOrder())){
+        	querySql.append(" offset ").append(offset).append(" limit ").append(searchRequest.getPageSize());
         }
         if(log.isDebugEnabled()){
             log.debug(querySql.toString());
@@ -1200,13 +583,105 @@ public class SearchDao {
         
         queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
         queryLogger.debug(LoggerType.SEARCH_COUNT_SQL, countSql);
-        queryLogger.debug(LoggerType.PARAMS, searchValues);
+        queryLogger.debug(LoggerType.PARAMS, searchRequest.getSearchMap());
         // build the statement
         ss.querySql = cteSql+" "+querySql.toString();
         ss.countSql =cteSql+" "+countSql.toString();
         ss.cteSql =   cteSql;
         ss.values = values.toArray();
         return ss;
+    }
+    
+    
+    /**
+     * @param searchValues
+     * @param values
+     * @param org
+     * @return
+     */
+    protected String[] renderSearchCondition(SearchRequest searchRequest, List values, OrgContext org){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+        StringBuilder querySql = new StringBuilder();
+        StringBuilder conditions = new StringBuilder();
+        List subValues = new ArrayList();
+        boolean hasCondition = false;
+        String schemaname = (String)org.getOrgMap().get("schemaname");
+        StringBuilder prefixSql = new StringBuilder("");
+        boolean hasSearchValue = false;//to check if the search box has value or not
+        StringBuilder locationSql = new StringBuilder();
+        
+        if (searchRequest != null) {
+            
+           // for all search mode, we preform the same condition
+           String search = searchRequest.getKeyword();
+           if (!Strings.isNullOrEmpty(search)) {
+               if(search.length()>=3){
+                   querySql.append(getSearchValueJoinTable(search, values, "contact", org));
+                   if(search.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
+                       conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
+                                 .append(search.replaceAll("\\\"", "%"))
+                                 .append("'");
+                   }
+                   hasSearchValue = true;
+                   hasCondition = true;
+               }
+           }
+           
+            //Get the contacts parameters and render them
+            hasCondition = renderContactConditions(conditions,subValues,sc,searchRequest.getContacts())||hasCondition;
+            
+            //handle the objectType
+            if (!Strings.isNullOrEmpty(searchRequest.getObjectType())) {
+                String value = searchRequest.getObjectType();
+                if ("Contact".equals(value)) {
+                    conditions.append("  and contact.\"recordtypeid\" = ?");
+                    subValues.add(org.getSfid());
+                }else if("Candidate".equals(value)){
+                    conditions.append("  and contact.\"recordtypeid\" != ?");
+                    subValues.add(org.getSfid());
+                }
+            }
+
+            //handle the status
+            if (!Strings.isNullOrEmpty(searchRequest.getStatus())) {
+                String value = searchRequest.getStatus();
+                if ("Active".equals(value)) {
+                    conditions.append("  and contact.\"ts2__people_status__c\" in('',null, 'Active') ");
+                } else if ("Inactive".equals(value)){
+                    conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
+                }
+            }
+            // add the 'educations' filter, and join ts2__education_history__c table
+            hasCondition = renderFilterCondition( searchRequest.getEducations(),
+                    prefixSql, querySql, schemaname, sc,FilterType.EDUCATION,org)||hasCondition;
+           // add the 'companies' filter, and join ts2__employment_history__c table
+           hasCondition = renderFilterCondition( searchRequest.getCompanies(),
+                   prefixSql, querySql, schemaname, sc,FilterType.COMPANY,org)||hasCondition;
+           
+           // add the 'skillNames' filter, and join ts2__skill__c table
+           hasCondition = renderFilterCondition(searchRequest.getSkills(),
+                   prefixSql, querySql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
+           
+           //add the 'radius' filter
+           hasCondition = renderLocationCondition(searchRequest.getLocations(), locationSql,
+                   conditions, schemaname,sc)||hasCondition;
+       }
+       //at last,combine all part to complete sql
+        
+       values.addAll(subValues);
+       
+       hasCondition = renderCustomFilters(searchRequest.getCustomFilters(), querySql, conditions,values,schemaname, sc)
+                      ||hasCondition;
+       
+       //if there has no condition,just append 1!=1
+       if(!hasCondition){
+           conditions.append(" and 1!=1 ");
+       }
+       
+       if(hasSearchValue){
+           querySql=new StringBuilder(" join (").append(querySql);
+       }
+       return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),locationSql.toString()};
     }
     
     /**
@@ -1219,63 +694,68 @@ public class SearchDao {
      * @param pageSize
      * @return first for query sql,second for query sql
      */
-    private String[] getCondtion(String searchValue, Map<String, String> searchValues, List values,String orderCon,
-    		Integer offset,Integer pageSize,OrgContext org){
+    private String[] getCondtion(SearchRequest searchRequest,List values,OrgContext org){
     	StringBuilder joinSql = new StringBuilder();
     	StringBuilder countSql = new StringBuilder();
     	String prefixSql = "";
-        if(searchValues!=null){
-            String[] sqls = renderSearchCondition(searchValues,"search",null,null,values,null,org);
-            String condition = sqls[2];
-	        boolean hasContactsCondition = false;
-	        String locationSql = sqls[4];
-	        joinSql = new StringBuilder(sqls[0]);
-	        prefixSql = sqls[1];
-	        String labelSql = sqls[3];
-	        countSql = new StringBuilder(joinSql.toString());
-	        String recordTypeSql = sqls[5];
-	        String labelAssigned = searchValues.get("labelAssigned");
-	        if(searchValues.get("contacts")!=null){
-	            hasContactsCondition = JSONArray.fromObject(searchValues.get("contacts")).size()>0;
-	        }
-	        if(!Strings.isNullOrEmpty(searchValue)&&searchValue.length()>=3){
-	            if(!hasContactsCondition&&!"true".equals(labelAssigned)&&locationSql.length()==0&&!hasExtraSearchColumn(searchValues)){
-	                joinSql.append(" offset "+offset+" limit "+pageSize);
-	            }
-    	        joinSql.append(") subcontact on contact.id=subcontact.id ").append(String.format(labelSql,"subcontact"));
-    	       if(locationSql.length()==0&&!hasContactsCondition&&!hasExtraSearchColumn(searchValues)){
-    	           countSql.replace(0, 6," from ");
-    	           countSql.append(" ) a  ");
-    	       }else{
-    	           countSql.append(" ) subcontact on contact.id=subcontact.id ");
-    	       }
-	        }
-	        joinSql.append(locationSql);
-	        countSql.append(locationSql);
-	        joinSql.append(recordTypeSql);
-	        countSql.append(recordTypeSql);
-	        
-	        joinSql.append(" where 1=1 ").append(condition);
-	        countSql.append(" where 1=1 ").append(condition);
-	        if(!Pattern.matches("^.*(Company|Skill|Education|location)+.*$", orderCon)){
-	        	if(orderCon.contains("resume")){
-	    			orderCon = orderCon.replace("resume", "id");
-	    		}
-	        	if(orderCon!=null&&!"".equals(orderCon)){
-	        		joinSql.append(" order by "+orderCon);
-	        	}
-	        	if(hasContactsCondition||"true".equals(labelAssigned)||locationSql.length()>0){
-                    joinSql.append(" offset "+offset);
-                }else{
-                    joinSql.append(" offset  "+offset);
-                }
-	        	joinSql.append(" limit ").append(pageSize);
-	        }
-	       
-	        joinSql.append(") a ");
-	        if(hasExtraSearchColumn(searchValues)||hasContactsCondition||locationSql.length()>0||Strings.isNullOrEmpty(searchValue)||searchValue.length()<3){
-	            countSql.append(") a ");
-	        }
+        SearchBuilder sb = new SearchBuilder(org);
+        sb.addKeyWord(searchRequest.getKeyword()).addContactFilter(searchRequest.getContacts())
+          .addCompany(searchRequest.getCompanies()).addEducation(searchRequest.getEducations())
+          .addSkill(searchRequest.getSkills()).addLocation(searchRequest.getLocations())
+          .addCustomFilter(searchRequest.getCustomFilters()).addObjectType(searchRequest.getObjectType())
+          .addStatus(searchRequest.getStatus());
+        values.addAll(sb.getValues());
+       
+        
+        String condition = sb.getConditions();
+        boolean hasContactsCondition = false;
+        String locationSql = sb.getLocationSql();
+        joinSql = new StringBuilder(sb.getSearchSql());
+        
+        
+        
+        prefixSql = sb.getPrefixSql();
+        countSql = new StringBuilder(joinSql.toString());
+        if(searchRequest.getContacts()!=null){
+            hasContactsCondition = searchRequest.getContacts().size()>0;
+        }
+        if(!Strings.isNullOrEmpty(searchRequest.getKeyword())&&searchRequest.getKeyword().length()>=3){
+            if(!hasContactsCondition&&locationSql.length()==0&&!hasExtraSearchColumn(searchRequest)){
+                joinSql.append(" offset "+searchRequest.getOffest()+" limit "+searchRequest.getPageSize());
+            }
+	        joinSql.append(") subcontact on contact.id=subcontact.id ");
+	       if(locationSql.length()==0&&!hasContactsCondition&&hasExtraSearchColumn(searchRequest)){
+	           countSql.replace(0, 6," from ");
+	           countSql.append(" ) a  ");
+	       }else{
+	           countSql.append(" ) subcontact on contact.id=subcontact.id ");
+	       }
+        }
+        joinSql.append(locationSql);
+        countSql.append(locationSql);
+        
+        joinSql.append(" where 1=1 ").append(condition);
+        countSql.append(" where 1=1 ").append(condition);
+        String orderCon = searchRequest.getOrder();
+        if(!Pattern.matches("^.*(Company|Skill|Education|location)+.*$", orderCon)){
+        	if(orderCon.contains("resume")){
+    			orderCon = orderCon.replace("resume", "id");
+    		}
+        	if(orderCon!=null&&!"".equals(orderCon)){
+        		joinSql.append(" order by "+orderCon);
+        	}
+        	if(hasContactsCondition||locationSql.length()>0){
+                joinSql.append(" offset "+searchRequest.getOffest());
+            }else{
+                joinSql.append(" offset  "+searchRequest.getOffest());
+            }
+        	joinSql.append(" limit ").append(searchRequest.getPageSize());
+        }
+       
+        joinSql.append(") a ");
+        if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||locationSql.length()>0||
+                Strings.isNullOrEmpty(searchRequest.getKeyword())||searchRequest.getKeyword().length()<3){
+            countSql.append(") a ");
         }
         return new String[]{joinSql.toString(),countSql.toString(),prefixSql};
     }
@@ -1320,9 +800,9 @@ public class SearchDao {
             joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
             return joinSql.toString();
         }else{
-            joinSql.append(" select  distinct con.id,con.sfid  from (");
+            joinSql.append(" select  distinct contact.id,contact.sfid  from (");
     	    joinSql.append(booleanSearchHandler(searchValue, null, values,org,false));
-    	    joinSql.append(")  con ");
+    	    joinSql.append(")  contact ");
     	    return joinSql.toString();
 	    }
     }
@@ -1544,112 +1024,403 @@ public class SearchDao {
         }
         return table;
     }
+    
+    private boolean hasExtraSearchColumn(SearchRequest searchRequest){
+        return (searchRequest.getCustomFilters().keySet().size()>0);
+    }
+    
+    private String addPercentageIfNecessary(String src){
+        if (!src.contains("%")) {
+            return src + "%";
+        }
+        return src;
+    }
+
+    private boolean renderContactPropertyCondition(StringBuilder conditionSql,List values,
+            SearchConfiguration sc,JSONObject contact,String propertyName){
+        if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
+            conditionSql.append("  and ")
+                      .append(sc.getContactField(propertyName.toLowerCase()).toString("contact"))
+                      .append(" ilike ? ");
+            values.add(addPercentageIfNecessary(contact.getString(propertyName)));
+            return true;
+        }
+        return false;
+    }
+
     /**
-     * used for generate the condition for type of getting auto complete data
+     *
+     * @param conditionSql
      * @param values
-     * @param type
-     * @param skill_assessment_rating
+     * @param sc
+     * @param contactParamsString
      * @return
      */
-    private String getConditionForThirdNames(JSONArray values, String type,boolean skill_assessment_rating){
-        StringBuilder conditions = new StringBuilder();
-        String instance = getTableInstance(type);
-        String nameExpr = getNameExpr(type);
-        conditions.append(" AND (1!=1 ");
-        for(int i=0,j=values.size();i<j;i++){
-			   JSONObject educationValue = JSONObject.fromObject(values.get(i));
-			   conditions.append(" OR ( "+instance+"."+nameExpr+" = ")
-			   		     .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"' ");
-			   if(educationValue.containsKey("minYears")){
-				   Integer minYears = educationValue.getInt("minYears");
-				   if(!minYears.equals(0)){
-					   if(type.equals("education")){
-						   conditions.append(" AND EXTRACT(year from age(now(),"+instance+".\"ts2__graduationdate__c\"))>="+minYears);
-					   }else if(type.equals("company")){
-						   conditions.append(" AND EXTRACT(year from age("+instance+".\"ts2__employment_end_date__c\","+instance+".\"ts2__employment_start_date__c\"))>="+minYears);
-					   }else if(type.equals("skill")){
-						   if(skill_assessment_rating){
-							   conditions.append(" AND ass.\"ts2__rating__c\">="+minYears);
-						   }else{
-							   conditions.append(" AND "+instance+".\"ts2__rating__c\">="+minYears);
-						   }
-					   }
-				   }
-			   }
-			   conditions.append(" ) ");		   
-		   }
-        conditions.append(" ) "); 
-        return conditions.toString();
-    }
-    /**
-     * get the table alias name by type
-     * @param type
-     * @return
-     */
-    private String getTableInstance(String type){
-        String instance = null;
-        if(type.equals("company")){
-            instance = "c";
-        }else if(type.equals("education")){
-            instance = "d";
-        }else if(type.equals("skill")){
-            instance = "b";
-        }else if(type.equals("location")){
-            instance = "z";
-        }
-        return instance;
-    }
-    
-    private boolean hasExtraSearchColumn( Map<String, String> searchValues){
-        for(String key:searchValues.keySet()){
-            if(!isNativeSearchParam(key)){
-                return true;
+    private boolean renderContactConditions(StringBuilder conditionSql,List values,
+            SearchConfiguration sc,JSONArray contacts){
+        boolean hasContactCondition = false;
+        if (contacts!=null) {
+            if (contacts.size() > 0) {//First add 1!=1,cause for all contacts,would do with "OR"
+                conditionSql.append(" AND (1!=1 ");
+            }
+
+            for (Object contactString : contacts) {
+                JSONObject contact = JSONObject.fromObject(contactString);
+                conditionSql.append(" OR (1=1 ");//for single contact,would do with "AND"
+                //handle for first name
+                hasContactCondition=
+                        renderContactPropertyCondition(conditionSql,values,sc,contact,"firstName")
+                        ||hasContactCondition;
+                //handle for last name
+                hasContactCondition= 
+                        renderContactPropertyCondition(conditionSql,values,sc,contact,"lastName")
+                        ||hasContactCondition;
+                //handle for email
+                hasContactCondition= 
+                        renderContactPropertyCondition(conditionSql,values,sc,contact,"email")
+                        ||hasContactCondition;
+                //handle for title
+                hasContactCondition=
+                        renderContactPropertyCondition(conditionSql,values,sc,contact,"title")
+                        ||hasContactCondition;
+
+                conditionSql.append(" ) ");
+            }
+
+            if (contacts.size() > 0) {
+                conditionSql.append(" ) ");
             }
         }
-        return false;
+        return hasContactCondition;
     }
-    private boolean isNativeSearchParam(String name){
-        List<String> searchParams = new ArrayList<String>();
-        searchParams.add("search");
-        searchParams.add("label");
-        searchParams.add("labelAssigned");
-        searchParams.add("contacts");
-        searchParams.add("skills");
-        searchParams.add("companies");
-        searchParams.add("educations");
-        searchParams.add("locations");
-        
-        for(String s:searchParams){
-            if(s.equals(name)){
-                return true;
+
+
+    private boolean renderFilterCondition(JSONArray educationValues,StringBuilder prefixSql,
+                                       StringBuilder filterSql,String schemaname,
+                                       SearchConfiguration sc,FilterType filterType,OrgContext org){
+        {
+            boolean hasCondition = false;
+            boolean temp = false;
+            if(educationValues!=null){
+                if(prefixSql.length()==0){
+                    prefixSql.append(" with ");
+                }else{
+                    prefixSql.append(",");
+                }
+                FilterField f = sc.getFilter(filterType).getFilterField();
+                
+                prefixSql.append(filterType)
+                         .append( "_ect  as (select "+f.toJoinToString(filterType+"_ect_inner")+" as \"ts2__contact__c\" ")
+                         .append(" from  "+schemaname+"."+f.getTable()+" "+filterType+"_ect_inner" );
+                
+                //when for skill,need join the ts2__assessment__c
+                if(filterType==FilterType.SKILL&&educationValues.contains("minYears")){
+                    //Get the skill_assessment_rating for current org,if true,will join with ts2__assessment__c
+                    String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.getOrgMap().get("id"));
+                    if(!"true".equals(skillAssessmentRatingStr)){
+                        temp = false;
+                    }else{
+                        prefixSql.append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"="+filterType+"_ect_inner"+".\"sfid\" ");
+                        temp = true;
+                    }
+                }
+                
+                prefixSql.append("  where (1!=1 ");
+               
+                for(int i=0,j=educationValues.size();i<j;i++){
+                    JSONObject educationValue = JSONObject.fromObject(educationValues.get(i));
+                    prefixSql.append(" OR ( "+f.toString(filterType+"_ect_inner")+" = ")
+                             .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
+                    if(educationValue.containsKey("minYears")){
+                        Integer minYears = educationValue.getInt("minYears");
+                        if(!minYears.equals(0)){
+                            if(FilterType.COMPANY==filterType){
+                                prefixSql.append(" AND EXTRACT(year from age("+filterType+"_ect_inner.\"ts2__employment_end_date__c\","+filterType+"_ect_inner.\"ts2__employment_start_date__c\"))>="+minYears);
+                            }else if(FilterType.EDUCATION==filterType){
+                                prefixSql.append(" AND EXTRACT(year from age(now(),"+filterType+"_ect_inner.\"ts2__graduationdate__c\"))>="+minYears);
+                            }else if(FilterType.SKILL==filterType){
+                                if(temp){
+                                    prefixSql.append(" AND ass.\"ts2__rating__c\" >="+minYears);
+                                }else{
+                                    prefixSql.append(" AND "+filterType+"_ect_inner.\"ts2__rating__c\" >="+minYears);
+                                }
+                            }
+                           
+                        }
+                    }
+                    prefixSql.append(" ) ");
+                }
+                prefixSql.append(") ) ");
+                filterSql.append(" inner join  "+filterType+"_ect on " + f.toJoinFromString("contact") + " =  "+filterType+"_ect.\"ts2__contact__c\" ");
+                hasCondition = true;
             }
+            return hasCondition;
         }
-        return false;
     }
     
-    public static double[] getAround(double lat,double lon,double raidus){  
+    private boolean renderLocationCondition(JSONArray locationValues,StringBuilder locationSql,
+            StringBuilder conditions,String schemaname,
+            SearchConfiguration sc){
+        boolean hasCondition = false;
+        Field f = sc.getContactField(ContactFieldType.MAILINGPOSTALCODE);
+        if(locationValues!=null){
+            StringBuilder joinZip = new StringBuilder();
+            StringBuilder joinCity = new StringBuilder();
+            StringBuilder cities = new StringBuilder();
+            JSONObject ol;
+            Map<String,Double> citiesWithRadius = new HashMap<String,Double>();
+            for (Object location : locationValues) {
+                ol = (JSONObject) location;
+                String name = (String) ol.get("name");
+                if(ol.containsKey("minRadius")){
+                    double minRadius = ol.getDouble("minRadius");
+                    citiesWithRadius.put(name, minRadius);
+                    cities.append("'"+name+"',");
+                    joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
+                }else{
+                    joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
+                }
+            }
+            
+            if(cities.length()!=0){
+                Runner runner = datasourceManager.newSysRunner();
+                List<Map> c = runner.executeQuery("select * from city where name in("+cities+"'#')");
+                for(Map city:c){//minLat,minLng,maxLat,maxLng
+                    double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
+                                               Double.valueOf(city.get("longitude").toString()),
+                                               citiesWithRadius.get(city.get("name"))*1000);
+                    joinCity.append(" OR (").append("contact.ts2__latitude__c>="+range[0])
+                              .append(" AND contact.ts2__latitude__c<="+range[2])
+                              .append(" AND contact.ts2__longitude__c>="+range[1])
+                              .append(" AND contact.ts2__longitude__c<="+range[3])
+                              .append(") ");
+                }
+                runner.close();
+            }
+            if(joinZip.length()>0){
+                if(joinCity.length()>0){
+                    locationSql.append(" left ");
+                }
+                locationSql.append(" join  jss_sys.zipcode_us z on (")
+                           .append(f.toString("contact")+" =z.\"zip\" AND (1!=1 ")
+                           .append(joinZip)
+                           .append(")) ");
+                conditions.append(" AND (1!=1 ").append(joinCity).append(" OR z.city is not null ").append(") ");
+            }else{
+                if(joinCity.length()>0){
+                    conditions.append(" AND (1!=1 ").append(joinCity).append(") ");
+                    locationSql.append(" ");
+                }
+            }
+            hasCondition = true;
+       }
+        return hasCondition;
+    }
+    
+    
+    private boolean renderCustomFilters(Map<String, JSONArray> searchValues,StringBuilder filterSql,
+            StringBuilder conditions,List values,String schemaname,SearchConfiguration sc){
+        boolean hasCondition = false;
+        String contactTable = sc.getContact().getTable();
+        for(String name:searchValues.keySet()){
+            String filterName = name.substring(0, name.length()-1);//remove the s at last, example filters-->filter
+            Filter filter = sc.getFilterByName(filterName);
+            if (filter == null) {
+                continue;
+            }
+            FilterField ff = filter.getFilterField();
+            if(!contactTable.equals(ff.getTable())){
+                JSONArray extraValues = searchValues.get(name);
+                filterSql.append(" join ")
+                         .append( schemaname)
+                         .append( ".\"")
+                         .append( ff.getTable())
+                         .append( "\" on ")
+                         .append(ff.toJoinToString("contact"))
+                         .append(" = ")
+                         .append( ff.toJoinFromString("\"" + ff.getTable() + "\""));
+                if(extraValues.size()>0){
+                    filterSql.append(" AND (1!=1 ");
+                }
+                for(int i=0,j=extraValues.size();i<j;i++){
+                    JSONObject v = JSONObject.fromObject(extraValues.get(i));
+                    filterSql.append(" OR \"").append(ff.getTable()).append("\".")
+                                .append(ff.getColumn()).append("= '").append(v.get("name")).append("' ");
+                }
+                if(extraValues.size()>0){
+                    filterSql.append(" ) ");
+                }
+                hasCondition = true;
+            }else{//for the contact table filter
+                JSONArray extraValues =searchValues.get(name);;
+                if(extraValues.size()>0){
+                    conditions.append(" AND (1!=1 ");
+                    for(int i=0,j=extraValues.size();i<j;i++){
+                        JSONObject value = JSONObject.fromObject(extraValues.get(i));
+                        conditions.append(" OR ").append(filterName).append("= ? ");
+                        values.add(value.get("name"));
+                    }
+                    conditions.append(" ) ");
+                    hasCondition = true;
+                }
+            
+            }
+        }
+        return hasCondition;
+    }
+    
+    
+    private  double[] getAround(double lat,double lon,double raidus){  
         
-        Double latitude = lat;  
-        Double longitude = lon;  
+        double latitude = lat;  
+        double longitude = lon;  
           
-        Double degree = (24901*1609)/360.0;  
+        double degree = (24901*1609)/360.0;  
         double raidusMile = raidus;  
           
-        Double dpmLat = 1/degree;  
-        Double radiusLat = dpmLat*raidusMile;  
-        Double minLat = latitude - radiusLat;  
-        Double maxLat = latitude + radiusLat;  
+        double dpmLat = 1/degree;  
+        double radiusLat = dpmLat*raidusMile;  
+        double minLat = latitude - radiusLat;  
+        double maxLat = latitude + radiusLat;  
           
-        Double mpdLng = degree*Math.cos(latitude * (Math.PI/180));  
-        Double dpmLng = 1 / mpdLng;  
-        Double radiusLng = dpmLng*raidusMile;  
-        Double minLng = longitude - radiusLng;  
-        Double maxLng = longitude + radiusLng;  
+        double mpdLng = degree*Math.cos(latitude * (Math.PI/180));  
+        double dpmLng = 1 / mpdLng;  
+        double radiusLng = dpmLng*raidusMile;  
+        double minLng = longitude - radiusLng;  
+        double maxLng = longitude + radiusLng;  
         return new double[]{minLat,minLng,maxLat,maxLng};  
     }  
 
 
-
+    class SearchBuilder {
+        StringBuilder searchSql = new StringBuilder();
+        StringBuilder countSql = new StringBuilder();
+        StringBuilder cteSql = new StringBuilder();
+        
+        
+        StringBuilder keyWordSql = new StringBuilder();
+        List values = new ArrayList();
+        private StringBuilder conditions = new StringBuilder();
+        private OrgContext org;
+        private SearchConfiguration sc;
+        
+        private StringBuilder prefixSql = new StringBuilder("");
+        private StringBuilder filterSql = new StringBuilder("");
+        private StringBuilder locationSql = new StringBuilder("");
+        private String schemaname;
+        
+        private boolean hasSearchValue = false,hasCondition = false;
+        public SearchBuilder(OrgContext org){
+            this.org = org;
+            this.sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+            this.schemaname =(String)org.getOrgMap().get("schemaname");
+        }
+        
+        public SearchBuilder addKeyWord(String keyword){
+            if(!Strings.isNullOrEmpty(keyword)&&keyword.length()>=3){
+                hasSearchValue = true;
+                hasCondition = true;
+                keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org));
+                if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
+                    conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
+                              .append(keyword.replaceAll("\\\"", "%"))
+                              .append("'");
+                }
+            }
+            return this;
+        }
+        
+        public SearchBuilder addEducation(JSONArray educations){
+            hasCondition = renderFilterCondition( educations,
+                    prefixSql, filterSql, schemaname, sc,FilterType.EDUCATION,org)||hasCondition;
+            return this;
+        }
+        
+        
+        public SearchBuilder addCompany(JSONArray companies){
+            hasCondition = renderFilterCondition( companies,
+                    prefixSql, filterSql, schemaname, sc,FilterType.COMPANY,org)||hasCondition;
+            return this;
+        }
+      
+       
+        public SearchBuilder addSkill(JSONArray skills){
+            hasCondition = renderFilterCondition( skills,
+                    prefixSql, filterSql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
+            return this;
+        }
+        
+        public SearchBuilder addLocation(JSONArray locations){
+            hasCondition = renderLocationCondition( locations,
+                    locationSql, conditions, schemaname, sc)||hasCondition;
+            return this;
+        }
+              
+        public SearchBuilder addObjectType(String objectType){
+            if(Strings.isNullOrEmpty(objectType)){
+                return this;
+            }
+            if ("Contact".equals(objectType)) {
+                conditions.append("  and contact.\"recordtypeid\" = ?");
+                values.add(org.getSfid());
+            }else if("Candidate".equals(objectType)){
+                conditions.append("  and contact.\"recordtypeid\" != ?");
+                values.add(org.getSfid());
+            }
+            hasCondition = true;
+            return this;
+        }
+        
+        public SearchBuilder addStatus(String status){
+            if(Strings.isNullOrEmpty(status)){
+                return this;
+            }
+            if ("Active".equals(status)) {
+                conditions.append("  and contact.\"ts2__people_status__c\" in('',null, 'Active') ");
+            } else if ("Inactive".equals(status)){
+                conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
+            }
+            hasCondition = true;
+            return this;
+        }
+        
+        public SearchBuilder addContactFilter(JSONArray contacts){
+            renderContactConditions(conditions,values,sc,contacts);
+            return this;
+        }
+       
+        public SearchBuilder addCustomFilter(Map searchValues){
+            renderCustomFilters(searchValues, filterSql, conditions,values,schemaname, sc);
+            return this;
+        }
+        
+        public String getSearchSql(){
+            if(hasSearchValue){
+                return " join ( "+keyWordSql+filterSql;
+            }
+            return keyWordSql.toString()+filterSql;
+        }
+        
+        public String getPrefixSql(){
+            return prefixSql.toString();
+        }
+        
+        public String getLocationSql(){
+            return locationSql.toString();
+        }
+        
+        public String getConditions(){
+            if(!hasCondition){
+                return conditions+" and 1!=1 ";
+            }else{
+                return conditions.toString();
+            }
+        }
+        
+        public List getValues(){
+            return values;
+        }
+    }
 }
 
 class SearchStatements {
@@ -1660,3 +1431,5 @@ class SearchStatements {
     Object[]          values;
 
 }
+
+
