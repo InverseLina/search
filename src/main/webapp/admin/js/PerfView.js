@@ -48,15 +48,15 @@
 		var html = view.$refresh.html();
 		view.$refresh.html("..........");
 		app.getJsonData("perf-get-all").done(function(response) {
-
+			console.log(response);
 			view.$tbodyMethods.html(render("PerfView-tbody", {
-				perfs : response.methodsPerf
+				perfs : response.methodPerfSortValues
 			}));
 			view.$tbodyRequests.html(render("PerfView-tbody", {
-				perfs : response.requestsPerf
+				perfs : response.requestPerfSortValues
 			}));
-			view.$javaInfo.html(render("PerfView-javaInfo", response.javaInfo));
-			view.$poolInfo.html(render("PerfView-poolInfo", response.poolInfo));
+			view.$javaInfo.html(render("PerfView-javaInfo", response.appPerf.javaInfo));
+			view.$poolInfo.html(render("PerfView-poolInfo", response.appPerf.poolInfo));
 
 			view.$refresh.html(html);
 

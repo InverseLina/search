@@ -55,11 +55,11 @@
 <script id="PerfView-tbody" type="text/html">
 {{#each perfs}}
 	<tr>
-		<td>{{@key}}</td>
-		<td>{{count}}</td>
-		<td>{{min}}</td>
-		<td>{{mean}}</td>
-		<td>{{max}}</td>
+		<td>{{name}}</td>
+		<td>{{value.count}}</td>
+		<td>{{value.min}}</td>
+		<td>{{value.mean}}</td>
+		<td>{{value.max}}</td>
 	</tr>
 {{/each}}
 </script>
