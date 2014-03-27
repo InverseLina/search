@@ -18,6 +18,7 @@ import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.SearchDao;
+import com.jobscience.search.dao.SearchRequest;
 import com.jobscience.search.dao.SearchResult;
 import com.jobscience.search.organization.OrgContextManager;
 
@@ -50,17 +51,17 @@ public class WarmupWebHandlers {
     @RequireAdmin
     public WebResponse search(@WebParam("searchValues") String searchValues,
                             @WebParam("searchColumns") String searchColumns,@WebParam("org") String org) {
-        String orderCon = "";
-        JSONObject jo = JSONObject.fromObject(searchValues);
-        Map<String, String> searchMap = new HashMap<String, String>();
-        // resolve the search parameters,cause all parameters begin with "q_"
-        for (Object key : jo.keySet()) {
-            searchMap.put(key.toString().substring(2), jo.get(key).toString());
-        }
-
-        // for contact,use id,name,title,email,CreatedDate instead
-        searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate");
-        SearchResult searchResult = searchDao.search(searchColumns, searchMap, 0, 30, orderCon, searchValues, "-1", orgContextManager.getOrgContext(org));
+        Map searchMap = new HashMap();
+        searchMap.put("columns", searchColumns);
+        searchMap.put("pageIndex", 0);
+        searchMap.put("orderBy", "name");
+        searchMap.put("pageSize", 30);
+        searchMap.put("searchValues", searchValues);
+        searchMap.put("orderType", "true");
+        
+        
+        SearchResult searchResult = searchDao.search(new SearchRequest(searchMap),"-1",
+                orgContextManager.getOrgContext(org));
         Map<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", searchResult.getCount());
         resultMap.put("duration", searchResult.getSelectDuration());

@@ -13,6 +13,7 @@ import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.jobscience.search.dao.SearchDao;
+import com.jobscience.search.dao.SearchRequest;
 import com.jobscience.search.dao.SearchResult;
 import com.jobscience.search.organization.OrgContextManager;
 
@@ -48,33 +49,15 @@ public class SearchWebHandlers {
         if(pageSize == null ){
             pageSize = 30;
         }
-        String orderCon = "";
-        searchValues = searchValues.replaceFirst("#", "").replaceAll("\\\\\"", "#");
-        JSONObject jo = JSONObject.fromObject(searchValues);
         Map searchMap = new HashMap();
+        searchMap.put("columns", searchColumns);
+        searchMap.put("pageIndex", pageIndex);
+        searchMap.put("orderBy", orderBy);
+        searchMap.put("pageSize", pageSize);
+        searchMap.put("searchValues", searchValues);
+        searchMap.put("orderType", orderType);
         
-        // resolve the search parameters,cause all parameters begin with "q_"
-        for(Object key:jo.keySet()){
-        	searchMap.put(key.toString().substring(2),jo.get(key).toString().replaceAll("#", "\\\""));
-        }
-        
-        if(orderBy!=null){
-        	if(searchColumns.contains(orderBy)){
-        		if(orderType==null){
-        			orderType = true;
-        		}
-        		if(orderBy.equals("contact")){
-        			orderBy = "name";
-        		}
-        		orderCon = " \""+getOrderColumn(orderBy)+ "\" " +(orderType?"asc":"desc");
-        	}
-        }else{
-            orderCon = " \"id\" asc";
-        }
-        //for contact,use id,name,title,email,CreatedDate instead
-        searchColumns = searchColumns.replaceAll("contact", "id,name,title,email,CreatedDate,resume");
-        SearchResult searchResult = searchDao.search(searchColumns,searchMap, pageIndex, pageSize,orderCon,searchValues,(String)token.get("ctoken"),orgHolder.getCurrentOrg());
-        //WebResponse wr = WebResponse.success(searchResult);
+        SearchResult searchResult = searchDao.search(new SearchRequest(searchMap),(String)token.get("ctoken"),orgHolder.getCurrentOrg());
         return webResponseBuilder.success(searchResult);
     }
     
@@ -122,25 +105,5 @@ public class SearchWebHandlers {
         return wr;
     }
 
-    /**
-     * get the order column name by original column
-     * @param originalName
-     * @return
-     */
-    private String getOrderColumn(String originalName){
-		if("name".equalsIgnoreCase(originalName)||
-		   "title".equalsIgnoreCase(originalName)||
-		   "company".equalsIgnoreCase(originalName)||
-		   "skill".equalsIgnoreCase(originalName)||
-		   "education".equalsIgnoreCase(originalName)||
-		   "email".equalsIgnoreCase(originalName)){
-			return "l"+originalName;
-		}else if("createddate".equalsIgnoreCase(originalName)){
-			return "createddate";
-		}else if( "location".equalsIgnoreCase(originalName)){
-			return "location";
-		}
-		return originalName;
-    }
     
 }
