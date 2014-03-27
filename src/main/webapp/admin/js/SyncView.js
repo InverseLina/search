@@ -14,21 +14,21 @@
 
             postDisplay: function (data) {
                 var view = this;
-                app.getJsonData("syncsf/downloadStatus").done(function(result){
+                app.getJsonData("/syncsf/downloadStatus").done(function(result){
                     updateStatus.call(view, result);
                 })
             },
             events: {
                 "btap; button.download": function(event) {
                     var view = this;
-                    app.getJsonData("syncsf/downloadStatus").done(function(result){
+                    app.getJsonData("/syncsf/downloadStatus").done(function(result){
                         if(result === true){
-                            app.getJsonData("syncsf/stopDownload");
+                            app.getJsonData("/syncsf/stopDownload");
                             setTimeout(function(){
                                 checkStatus.call(view);
                             }, 300);
                         }else{
-                            app.getJsonData("syncsf/startDownload");
+                            app.getJsonData("/syncsf/startDownload");
                             setTimeout(function(){
                                 checkStatus.call(view);
                             }, 300);
@@ -52,7 +52,7 @@
     function checkStatus(){
        var view = this;
        var getStatus = function(){
-           app.getJsonData("syncsf/downloadStatus").done(function(result){
+           app.getJsonData("/syncsf/downloadStatus").done(function(result){
                if(result === false){
                    updateStatus.call(view, result);
                }else{

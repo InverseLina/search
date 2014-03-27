@@ -77,7 +77,7 @@
 				$target.val($.trim($target.val()));
 			},
 			"click;.config" : function(event) {
-				window.location.href = contextPath + "/admin";
+				window.location.href = contextPath + "/admin/";
 				event.preventDefault();
 				event.stopPropagation();
 			},

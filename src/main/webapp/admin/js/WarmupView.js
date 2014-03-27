@@ -8,7 +8,7 @@
         // --------- View Interface Implement--------- //
         create : function(data) {
             var dfd = $.Deferred()
-            app.getJsonData("test/getOrgs").done(function(result){
+            app.getJsonData(contextPath+"/test/getOrgs").done(function(result){
                 var html = render("WarmupView", {orgs: result});
                 dfd.resolve(html);
             })

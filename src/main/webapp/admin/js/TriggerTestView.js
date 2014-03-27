@@ -10,7 +10,7 @@
         {
             create: function (data, config) {
                 var dfd = $.Deferred()
-                app.getJsonData("test/getOrgs").done(function(result){
+                app.getJsonData("/test/getOrgs").done(function(result){
                     var html = render("TriggerTestView", {orgs: result});
                     dfd.resolve(html);
                 })
@@ -30,7 +30,7 @@
                         res[obj.name] = $(obj).val();
                     })
 //                    console.log(res)
-                    app.getJsonData("test/saveContact",res,"Post").done(function(){
+                    app.getJsonData("/test/saveContact",res,"Post").done(function(){
                         $("form :input", view.$el).val("");
                     })
 

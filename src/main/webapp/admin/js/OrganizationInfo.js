@@ -65,7 +65,7 @@
 			window.location.href=contextPath + "/";
 			},
 			"click;.cancel":function(event){
-				window.location.href=contextPath + "/admin#org";
+				window.location.href=contextPath + "/admin/#org";
 			},
 			"change;:checkbox,select":function(event){
 			var view = this;

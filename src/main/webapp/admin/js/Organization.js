@@ -34,7 +34,7 @@
         var view = this;
         var html = render("Organization-content",{data:null});
         view.$tabContent.html(html);
-        window.location.href=contextPath + "/admin#org/add";
+        window.location.href=contextPath + "/admin/#org/add";
       },
       "click; .del": function(event){
         var view = this;

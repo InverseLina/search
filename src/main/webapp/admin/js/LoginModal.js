@@ -34,7 +34,7 @@
                 		}
                 	}).done(function(data){
                 		if(data.success){
-                			window.location.href=contextPath + "/admin";
+                			window.location.href=contextPath + "/admin/";
                 		}else{
                 			view.$el.find(".alert").show();
                 		}

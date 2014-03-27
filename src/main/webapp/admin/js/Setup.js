@@ -34,14 +34,6 @@
       	var view = this;
       	view.$el.trigger("START");
       },
-      "click;.setupResume:not([disabled])":function(event){
-      	var view = this;
-      	view.$el.trigger("START");
-      },
-      "click;.setupPause:not([disabled])":function(event){
-      	var view = this;
-      	view.$el.trigger("PAUSE");
-      },
       "click;.setupReset:not([disabled])":function(event){
       	var view = this;
       	view.$el.trigger("RESET");
@@ -51,13 +43,6 @@
     	  app.getJsonData("/admin-sys-start",{},{type:"Post"}).done(function(data){
     	  	view.$el.trigger("STATUS_CHANGE", data);
     	  	startTimer.call(view);
-    	  });
-      },
-      "PAUSE":function(event){
-    	  var view = this;
-    	  app.getJsonData("/admin-sys-pause",{},{type:"Post"}).done(function(data){
-    	  	view.$el.trigger("STATUS_CHANGE", data);
-    	  	stopTimer.call(view);
     	  });
       },
       "RESET":function(event){
