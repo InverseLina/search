@@ -17,7 +17,10 @@
     
 -- SCRIPTS
 	CREATE OR REPLACE FUNCTION update_context_ex_resume() RETURNS trigger AS $Body$
+	declare schema_name varchar; 
 	BEGIN
+	schema_name := '"'||TG_TABLE_SCHEMA||'"';
+	EXECUTE   'set search_path to '||schema_name;
 	IF( TG_OP='INSERT' ) THEN
 	    insert into jss_contact(id,resume_tsv,contact_tsv,sfid) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ),to_tsvector('english',new."firstname"||' '||new."lastname"||' '||new."title"),new.sfid||' ');
 	ELSIF (TG_OP = 'UPDATE') THEN
@@ -78,7 +81,10 @@ CREATE TABLE if not exists jss_searchlog
 -- SCRIPTS
 CREATE OR REPLACE FUNCTION update_ex_group_skills() RETURNS trigger AS $BODY$ 
   DECLARE  c integer; 
-    BEGIN 
+  declare schema_name varchar; 
+  BEGIN
+  schema_name := '"'||TG_TABLE_SCHEMA||'"';
+  EXECUTE   'set search_path to '||schema_name;
         IF(TG_OP = 'UPDATE') THEN
           
             c:=(select "count" from jss_grouped_skills where name = OLD.ts2__skill_name__c);
@@ -117,7 +123,10 @@ CREATE OR REPLACE FUNCTION update_ex_group_skills() RETURNS trigger AS $BODY$
 -- SCRIPTS
 CREATE OR REPLACE FUNCTION update_ex_group_educations() RETURNS trigger AS $BODY$ 
   DECLARE  c integer; 
-    BEGIN 
+  declare schema_name varchar; 
+  BEGIN
+  schema_name := '"'||TG_TABLE_SCHEMA||'"';
+  EXECUTE   'set search_path to '||schema_name;
         IF(TG_OP = 'UPDATE') THEN
           
             c:=(select "count" from jss_grouped_educations where name = OLD.ts2__name__c);
@@ -156,7 +165,10 @@ CREATE OR REPLACE FUNCTION update_ex_group_educations() RETURNS trigger AS $BODY
 -- SCRIPTS
 CREATE OR REPLACE FUNCTION update_ex_group_employers() RETURNS trigger AS $BODY$  
   DECLARE  c integer; 
-    BEGIN 
+  declare schema_name varchar; 
+  BEGIN
+  schema_name := '"'||TG_TABLE_SCHEMA||'"';
+  EXECUTE   'set search_path to '||schema_name;
         IF(TG_OP = 'UPDATE') THEN
           
             c:=(select "count" from jss_grouped_employers where name = OLD.ts2__name__c);
