@@ -125,7 +125,7 @@
 			position: absolute;
 			width: 40px;
 			right: -45px;
-			top: 6px;
+			top: 11px;
 			font-size: 60px;
 			background: #e0e0e0;
 			border: none;
@@ -175,6 +175,8 @@
 				height: 100%;
 				overflow: hidden;
 				font-size: 14px;
+				border-collapse: separate;
+				border-spacing: 0px 2px;
 				tr {
 					vertical-align: top;
 					td, th {
@@ -347,9 +349,6 @@
 					&.favFilter {
 						top: 38px;
 					}
-					tr {
-						padding: 2px 0;
-					}
 					tr.select td:not(.applyContact), tr.applySelect:not(.full)
 					td:not(.applyContact), tr:not(.full):hover td:not(.applyContact) {
 						background: #D5FEFF !important;
@@ -397,16 +396,12 @@
 					td.applyContact {
 						width: 15px;
 						position: relative;
+						padding:0px;
 						.selectCheckbox{
 							width:11px;
-							height:74px;
-							margin:1px 0px;
+							min-height:76px;
+							margin:0px 0 0 4px;
 							cursor: pointer;
-							position: absolute;
-							left: 4px;
-							top: 0px;
-							right: 4px;
-							bottom: 0px;
 							border: 1px solid #a1c5c8;
 							&.selected{
 								background: #92c7cb;
