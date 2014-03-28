@@ -720,9 +720,9 @@ public class SearchDao {
             hasContactsCondition = searchRequest.getContacts().size()>0;
         }
         if(!Strings.isNullOrEmpty(searchRequest.getKeyword())&&searchRequest.getKeyword().length()>=3){
-            if(!hasContactsCondition&&locationSql.length()==0&&!hasExtraSearchColumn(searchRequest)){
-                joinSql.append(" offset "+searchRequest.getOffest()+" limit "+searchRequest.getPageSize());
-            }
+//            if(!hasContactsCondition&&locationSql.length()==0&&!hasExtraSearchColumn(searchRequest)){
+//                joinSql.append(" offset "+searchRequest.getOffest()+" limit "+searchRequest.getPageSize());
+//            }
 	        joinSql.append(") subcontact on contact.id=subcontact.id ");
 	       if(locationSql.length()==0&&!hasContactsCondition&&hasExtraSearchColumn(searchRequest)){
 	           countSql.replace(0, 6," from ");
