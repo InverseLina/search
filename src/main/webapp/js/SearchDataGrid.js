@@ -193,7 +193,7 @@
 
 				$table.find("thead tr").append($th.clone());
 				var index = $th.index();
-				$e.find(".scrollTable tbody tr td:nth-child(" + (index + 1) + ")").each(function() {
+				$e.find(".scrollTable tbody tr td:nth-child(" + (index + 2) + ")").each(function() {
 					var $td = $(this);
 					$table.find("tbody").append("<tr></tr>");
 					$table.find("tbody tr:last").append($td.clone());
