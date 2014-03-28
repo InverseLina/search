@@ -59,7 +59,6 @@
 				}
 				for (var k in keyWordsSplited) {
 					var reg = new RegExp("(" + keyWordsSplited[k] + ")", "gi");
-					console.log(keyWordsSplited[k]);
 					resume = resume.replace(reg, "<span class=\"highlight\">$1</span>");
 				}
 				$content = $(render("ResumeView-content", {
