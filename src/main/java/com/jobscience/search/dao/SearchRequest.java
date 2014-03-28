@@ -41,14 +41,19 @@ public class SearchRequest {
         columns = columns.replaceAll("contact", "id,name,title,email,CreatedDate,resume");
         
         String orderBy = (String)searchParams.get("orderBy");
-        boolean asc = Boolean.valueOf((String)searchParams.get("orderType"));
+        boolean asc = searchParams.get("orderType") instanceof Boolean?
+                (Boolean)searchParams.get("orderType"):
+                Boolean.valueOf((String)searchParams.get("orderType"));
         if(orderBy!=null){
-            if(columns.contains(orderBy)){
-                if(orderBy.equals("contact")){
-                    orderBy = "name";
-                }
+            if(orderBy.equals("contact")){
+                orderBy = "name";
                 order = " \""+getOrderColumn(orderBy)+ "\" " +(asc?"asc":"desc");
+            }else if(columns.contains(orderBy)){
+                order = " \""+getOrderColumn(orderBy)+ "\" " +(asc?"asc":"desc");
+            }else{
+                order = " \"id\" asc";
             }
+            
         }else{
             order = " \"id\" asc";
         }
