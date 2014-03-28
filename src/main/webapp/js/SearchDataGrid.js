@@ -694,6 +694,8 @@
 					width : realWidth - applyContactCheckboxWidth,
 					"max-width" : realWidth - applyContactCheckboxWidth,
 					"min-width" : realWidth - applyContactCheckboxWidth
+				}).find(" > span").css({
+					width : realWidth - 4
 				});
 
 			} else if (idx === tlen) {
@@ -706,6 +708,8 @@
 					width : realWidth,
 					"max-width" : realWidth,
 					"min-width" : realWidth
+				}).find(" > span").css({
+					width : realWidth - 4
 				});
 			} else {
 				$item.css({
