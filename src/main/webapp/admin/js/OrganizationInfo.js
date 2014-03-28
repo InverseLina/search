@@ -456,6 +456,21 @@
 					refresh.call(view);
 					$(".alert", $disableBtn.closest("div")).show();
 				});
+			},
+			"click;.recreate-trigger" : function(event) {
+				var view = this;
+				var $recreateBtn = $(event.currentTarget);
+				app.getJsonData("/recreateTriggers", {
+					orgName : view.orgName
+				}, {
+					type : 'Post'
+				}).done(function(result) {
+					view.$el.trigger("DO_SHOW_MSG", {
+						selector : ".trigger-alert",
+						msg : "Triggers have been recreated.",
+						type : "success"
+					});
+				});
 			}
 		}
 

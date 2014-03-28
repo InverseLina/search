@@ -558,7 +558,7 @@ public class DBSetupManager {
      * @throws SQLException
      */
     public boolean createExtraTables(String orgName) throws Exception {
-        if (!orgSetupStatus.get(orgName).booleanValue()) {
+        if (orgSetupStatus.get(orgName)!=null&&!orgSetupStatus.get(orgName).booleanValue()) {
             return false;
         }
         boolean result = true;
@@ -577,7 +577,7 @@ public class DBSetupManager {
             runner.startTransaction();
             for (String sql : allSqls) {
                 // when stop the org setup,should jump out
-                if (!orgSetupStatus.get(orgName).booleanValue()) {
+                if (orgSetupStatus.get(orgName)!=null&&!orgSetupStatus.get(orgName).booleanValue()) {
                     runner.commit();
                     return false;
                 }
@@ -679,6 +679,10 @@ public class DBSetupManager {
         return "";
     }
 
+    public boolean recreateTriggers(String orgName) throws Exception{
+        return createExtraTables(orgName);
+    }
+    
     public String removeWrongIndex(String orgName) throws Exception {
         if (!orgSetupStatus.get(orgName).booleanValue()) {
             return "";

@@ -130,4 +130,17 @@ public class DBSetupWebHanlder {
         }
     }
     
+    @WebPost("/recreateTriggers")
+    @RequireAdmin
+    public WebResponse recreateTriggers(@WebParam("orgName")String orgName){
+        try {
+            return webResponseBuilder.success(dbSetupManager.recreateTriggers(orgName));
+        } catch (SQLException e) {
+            return webResponseBuilder.success(new JSSSqlException(e));
+        }catch (Exception e) {
+            e.printStackTrace();
+            return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
+    }
+    
 }
