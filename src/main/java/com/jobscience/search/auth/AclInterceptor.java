@@ -55,7 +55,7 @@ public class AclInterceptor implements MethodInterceptor {
             if(!isLoginMethod){
                 //should not only throw no password exception
                 //cause if we remove the ctoken manually, the cavas does not need passcode to relogin
-                if(user.get("ctoken") == null){
+                if(user == null || user.get("ctoken") == null){
                     throw new AuthException(AuthCode.NO_ORG_CTOKEN);
                 }else{
                     throw new AuthException(AuthCode.NO_PASSCODE);

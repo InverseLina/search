@@ -72,7 +72,7 @@ public class UserDao {
     }
 
    public void updateCToken(String sfid, String ctoken, long sfTimeout, String rtoken) {
-       daoHelper.executeUpdate(orgHolder.getOrgName(), updateSql, ctoken, sfTimeout,sfid,rtoken);
+       daoHelper.executeUpdate(orgHolder.getOrgName(), updateSql, ctoken, sfTimeout, rtoken, sfid);
    }
    
    public Map insertUser(String sfid, String ctoken, long sfTimeout, String rtoken) {
