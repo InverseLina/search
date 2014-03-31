@@ -13,16 +13,10 @@ var app = app || {};
 	 * @Param pageSize, Int, the page size
 	 */
 	SearchDaoHandler.prototype.search = function(qParams) {
-		//		var data = $.extend({},qParams);
-		//		data.searchMode = mode;
-		//		data.pageIdx = pageIdx;
-		//		data.pageSize = pageSize;
-		//        data.searchColumns = searchColumns;
-
 		return app.getJsonData("search", qParams).pipe(function(result) {
 			return result;
 		});
-	}
+	};
 
 	/**
 	 * do search get group values
@@ -34,7 +28,7 @@ var app = app || {};
 		return app.getJsonData("getAutoCompleteData", data).pipe(function(val) {
 			return val;
 		});
-	}
+	};
 
 	//-------- /Search Dao handler ---------//
 

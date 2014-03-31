@@ -121,7 +121,7 @@
 						}
 					};
 					if (name === "company") {
-						data.title = "Company"
+						data.title = "Company";
 					} else if (name === "skill") {
 						data.title = "Skill";
 					} else if (name === "education") {
@@ -214,7 +214,7 @@
 				var pos = {
 					left : ppos.left + e.bextra.deltaX,
 					top : 0
-				}
+				};
 				$dragTable.css(pos);
 
 				$e.find(".scrollTable tr").each(function() {
@@ -310,7 +310,8 @@
 				var item;
 				data = result[key];
 				if (data && data.length > 0) {
-					$.each(data, function(index, val) {
+					for(var index = 0; index < data.length; index++){
+						var val = data[index];
 						item = {
 							name : val.name
 						};
@@ -331,7 +332,8 @@
 						$html = $(render("search-items-header-add-item", item));
 
 						$th.find(".addFilter").before($html);
-					});
+					}
+
 					$th.find(".addFilter").hide();
 				}
 			}
@@ -371,14 +373,7 @@
 					});
 				}
 			},
-			// "ERROR_PROCESS": function (event, extra) {
-			// var view = this;
-			// view.$el.find(".search-info").empty();
-			// view.$el.find("input").attr("disabled", true);
-			// view.$el.find(".TabView").hide();
-			// view.$el.find(".gridControls").hide();
-			// brite.display("MessagePanel", ".search-result", {message: extra.errorMessage})
-			// } ,
+
 			"CHANGE_TO_FAV_VIEW" : function(event, extra) {
 				var view = this;
 				view.$el.find(".tableContainer th").addClass("favFilter");
@@ -816,7 +811,7 @@
 		$.each(filter, function(index, e) {
 			if (value.indexOf(e.name + ",") !== -1) {
 				value.replace(e.name + ",", "");
-				matched += "<strong>" + e.name + "</strong>,"
+				matched += "<strong>" + e.name + "</strong>,";
 			}
 		});
 		value = matched + value;

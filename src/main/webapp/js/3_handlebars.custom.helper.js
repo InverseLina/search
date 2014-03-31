@@ -21,17 +21,13 @@
 		}
 
 		var displays = [];
-		/*        $.each(app.preference.displayColumns(), function(idx, item){
-		 if(IsContain(columns, item.name)){
-		 displays.push(item);
-		 }
-		 });*/
+		
 		$.each(columns, function(idx, colName) {
 			$.each(app.preference.displayColumns(), function(didx, item) {
 				if (item.name === colName) {
 					displays.push(item);
 				}
-			})
+			});
 
 		});
 		return displays;
@@ -47,7 +43,7 @@
 		if (options.data) {
 			data = Handlebars.createFrame(options.data);
 		}
-		var nums = new Array();
+		var nums = [];
 		for ( i = start; i <= end; i++) {
 			if (currentPage === i) {
 				nums.push({
@@ -82,7 +78,7 @@
 			data = Handlebars.createFrame(options.data);
 
 		}
-		var nums = new Array();
+		var nums = [];
 		for ( i = start; i <= end; i++) {
 			nums.push({
 				num : i,
@@ -141,9 +137,7 @@
 	});
 
 	Handlebars.registerHelper('colBody', function(template, options) {
-		//        var columns = app.preference.columns();
 		var displays = getDisplayOrders();
-		//        console.log(displays)
 		var buffer = options.fn(this);
 		var html = Handlebars.templates[template]({
 			displayColumns : displays,

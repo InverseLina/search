@@ -41,8 +41,8 @@ var app = app || {};
 
 				});
 
-				var data = app.ParamsControl.get(view.type);
-				if (data && data.length > 0) {
+				var controlData = app.ParamsControl.get(view.type);
+				if (controlData && controlData.length > 0) {
 					showSPline.call(view, true);
 				}
 
@@ -145,13 +145,13 @@ var app = app || {};
 					var type = $input.attr("data-type");
 
 					var listName = (type === "company" ? "companies" : (type + "s"));
-					var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
-					delete params["q_" + listName];
+					var paramsObj = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
+					delete paramsObj["q_" + listName];
 					var keyword = $.trim($input.val());
 					var orderByCount = $.trim(keyword) === "" ? true : false;
 
 					var searchCond = {
-						"searchValues" : JSON.stringify(params),
+						"searchValues" : JSON.stringify(paramsObj),
 						"type" : type,
 						queryString : keyword,
 						orderByCount : true
@@ -218,7 +218,7 @@ var app = app || {};
 				}
 
 			}
-		}
+		};
 
 		// --------- Private Methods--------- //
 		function close() {
@@ -335,9 +335,7 @@ var app = app || {};
 			var $activeItem, view = this;
 			var $input = view.$el.find("input.autoComplete:first");
 			var type = $input.attr("data-type");
-			//      var resultType = (type==="company")?"companies":(type+"s");
 			var val = $input.val();
-			//      var searchData;
 			event.stopPropagation();
 			if (!/^\s*$/.test(val)) {
 				$input.closest("span.autoCompleteContainer").addClass("active");
@@ -355,7 +353,7 @@ var app = app || {};
 						}
 						setTimeout(function() {
 							$input.focus();
-						}, 200)
+						}, 200);
 						event.preventDefault();
 					}
 					break;
@@ -374,16 +372,6 @@ var app = app || {};
 						prevItem.call(view);
 					}
 					break;
-				/*          case borderKey.RIGHT:
-				 if(event.ctrlKey && view.slider){
-				 view.slider.inc();
-				 }
-				 break
-				 case borderKey.LEFT:
-				 if(event.ctrlKey && view.slider){
-				 view.slider.dec();
-				 }
-				 break;*/
 				default:
 					if (!keydown) {
 						view.$el.trigger("SHOWSEARCHRESULT");
@@ -402,7 +390,7 @@ var app = app || {};
 			}
 		}
 
-	}
+	};
 
 	// --------- /Private Methods--------- //
 	app.mixin = function(mixinObj, component, options) {
@@ -418,13 +406,13 @@ var app = app || {};
 					});
 
 				} else {
-					obj[key] = $.extend(obj[key] || {}, val)
+					obj[key] = $.extend(obj[key] || {}, val);
 				}
 			} else {
 				obj[key] = val;
 			}
 		});
 		return obj;
-	}
+	};
 
 })(jQuery);

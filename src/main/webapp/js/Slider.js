@@ -59,11 +59,6 @@
 
 				setPosition.call(view, position, true);
 			},
-			/*                "bdragstart; .slider":function(){
-			 var view = this;
-			 view.$el.find(".bar, .slider").css("cursor", "pointer");
-			 view.$el.css("cursor", "pointer")
-			 },*/
 			"bdragend; .slider" : function(e) {
 				e.stopPropagation();
 				e.preventDefault();

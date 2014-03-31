@@ -40,7 +40,7 @@ var app = app || {};
 			cache = getConfig();
 			return cache;
 		}
-	}
+	};
 
 	var filters = {
 		contact : {
@@ -103,7 +103,7 @@ var app = app || {};
 			}
 		}
 
-	}
+	};
 	//for generic not default filter render
 	var genericRender = {
 		headerRenderer : function(filterInfo) {
@@ -125,7 +125,7 @@ var app = app || {};
 			return render("search-query-generic-render-cell", cellInfo);
 		}
 
-	}
+	};
 
 	function getRender(field, renderName) {
 		var renderer = filters[field];
@@ -134,7 +134,7 @@ var app = app || {};
 			renderer = genericRender;
 		} else {
 			if (!renderer[renderName]) {
-				renderer = genericRender
+				renderer = genericRender;
 			}
 		}
 		return renderer[renderName];
@@ -143,16 +143,16 @@ var app = app || {};
 
 	app.getFilterRender = function(field) {
 		return getRender(field, "filterRenderer");
-	}
+	};
 
 
 	app.getHeaderRender = function(field) {
 		return getRender(field, "headerRenderer");
-	}
+	};
 
 
 	app.getCellRender = function(field) {
 		return getRender(field, "cellRenderer");
-	}
+	};
 
 })(jQuery);

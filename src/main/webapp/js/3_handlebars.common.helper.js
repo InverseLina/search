@@ -4,11 +4,11 @@
 	 * means if 1 >=2, will show true, else show false;
 	 */
 	Handlebars.registerHelper('gte', function(a,b,options) {
-		  if(a >= b) {
+		if(a >= b) {
 			return options.fn(this);
-		  } else {
+		} else {
 			return options.inverse(this);
-		  }
+		}
 	});
 	
 	/**
@@ -16,11 +16,11 @@
 	 * means if 1 > 2, will show true, else show false;
 	 */
 	Handlebars.registerHelper('gt', function(a,b,options) {
-		  if(a > b) {
+		if(a > b) {
 			return options.fn(this);
-		  } else {
+		} else {
 			return options.inverse(this);
-		  }
+		}
 	});
 	
 	/**
@@ -28,11 +28,11 @@
 	 * means if 1 <= 2, will show true, else show false;
 	 */
 	Handlebars.registerHelper('lte', function(a,b,options) {
-		  if(a <= b) {
+		if(a <= b) {
 			return options.fn(this);
-		  } else {
+		} else {
 			return options.inverse(this);
-		  }
+		}
 	});
 	
 	/**
@@ -95,11 +95,11 @@
 	});
 	
 	Handlebars.registerHelper('gtt', function(a,b,c,options) {
-		  if(a - b - c > 0) {
+		if(a - b - c > 0) {
 			return options.fn(this);
-		  } else {
+		} else {
 			return options.inverse(this);
-		  }
+		}
 	});
 	
 	/**
@@ -133,8 +133,6 @@
 
 		operators = {
 			'===': function (l, r) { return l === r; },
-			'===': function (l, r) { return l === r; },
-			'!==': function (l, r) { return l !== r; },
 			'!==': function (l, r) { return l !== r; },
 			'<': function (l, r) { return l < r; },
 			'>': function (l, r) { return l > r; },
@@ -159,7 +157,7 @@
 
 	function htmlDecode(str) {
 		var s = "";
-		if (str.length == 0)    return    "";
+		if (str.length === 0)    return    "";
 		s = str.replace(/&gt;/g, "&");
 		s = s.replace(/&lt;/g, "<");
 		s = s.replace(/&gt;/g, ">");

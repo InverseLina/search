@@ -26,15 +26,13 @@
 		// --------- Events--------- //
 		events : {
 			"btap;.cancel,.close" : function() {
-				//var view = this;
-				//view.$el.bRemove();
 			},
 			"validate" : function(event) {
 				var view = this;
 				var passcode = view.$el.find("input[name='passcode']").val();
 				var fail = function() {
 					view.$el.find(".alert").show();
-				}
+				};
 
 
 				app.getJsonData(contextPath + "/passcode", {

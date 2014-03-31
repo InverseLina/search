@@ -14,12 +14,9 @@
 		// --------- View Interface Implement--------- //
 		create : function(data, config) {
 			var dfd = $.Deferred();
-			var item, data = [];
+			var item= [];
+			data =[];
 			var $e = $(render("SavedSearches"));
-			/*                app.SavedSearchesDaoHandler.list({offset:0, limit:6}).done(function (result) {
-			 showDetail(result, $e);
-			 dfd.resolve($e);
-			 });*/
 			dfd.resolve($e);
 			return dfd.promise();
 		},
@@ -34,7 +31,6 @@
 					pos = $ul.offset();
 					if (event.pageX > pos.left && event.pageY < pos.left + width && event.pageY > pos.top && event.pageY < pos.top + height) {
 						//do nothing
-						//view.$el.off("mouseleave");
 					} else {
 						$ul.hide();
 					}
@@ -96,7 +92,7 @@
 					$input.val(newName).select().focus();
 					$input.trigger("SEARCH_QUERY_CHANGE");
 					view.$el.find(".search-list").hide();
-				})
+				});
 
 			},
 			"click; li .remove i" : function(event) {
@@ -126,11 +122,6 @@
 						//todo should restore params
 						var search = JSON.parse(result.search);
 						contentView.$el.find(".search-form .search-input").val(search.query || "");
-						/*                            console.log("remove");
-						 contentView.$el.find(".tableContainer thead .selectedItems .item").remove();
-						 if(search.filters){
-						 contentView.restoreSearchParam(search.filters);
-						 }*/
 						app.ParamsControl.setFilterParams(search.filters);
 						$input.trigger("DO_SEARCH");
 					}
@@ -172,7 +163,6 @@
 
 	function getSearchQuery(view) {
 		var contentView = $(".ContentView").bView();
-		;
 		return $.trim(contentView.$el.find(".search-form .search-input").val());
 	}
 
@@ -235,7 +225,7 @@
 							enableBtn(view, true);
 						}
 					}
-				})
+				});
 
 			} else {
 				enableBtn(view, false);

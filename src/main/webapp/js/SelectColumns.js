@@ -20,11 +20,11 @@
 				$.each(columns, function(idx, item) {
 					if (item.name === name) {
 						colOrders.push(item);
-						ids.push(idx)
+						ids.push(idx);
 					}
-				})
+				});
 
-			})
+			});
 
 			for ( i = 0; i < columns.length; i++) {
 				if ($.inArray(i, ids) < 0) {
@@ -60,7 +60,7 @@
 			});
 			view.$el.on("mouseleave", function() {
 				view.$el.bRemove();
-			})
+			});
 
 		},
 		// --------- /View Interface Implement--------- //
@@ -120,7 +120,7 @@
 				var pos = {
 					top : ppos.top + e.bextra.deltaY,
 					left : 10
-				}
+				};
 				$clone.css(pos);
 
 				var $holder = $e.find(".holderSpace");

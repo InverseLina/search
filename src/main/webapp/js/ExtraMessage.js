@@ -9,7 +9,7 @@
 	}, {
 		// --------- View Interface Implement--------- //
 		create : function(data, config) {
-			var data = data || {};
+			data = data || {};
 			var $e = $(render("ExtraMessage", {
 				title : data.title,
 				message : data.message

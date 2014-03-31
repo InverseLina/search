@@ -16,7 +16,7 @@
 
 		postDisplay : function(data) {
 			var item, html, displayName, view = this;
-			var data = (data || {}).data || [];
+			data = (data || {}).data || [];
 			$.each(data, function(idx, val) {
 				item = {
 					name : val.name
@@ -190,9 +190,7 @@
 		var $activeItem, view = this;
 		var $input = view.$el.find("input.autoComplete:first");
 		var type = $input.attr("data-type");
-		//      var resultType = (type==="company")?"companies":(type+"s");
 		var val = $input.val();
-		//      var searchData;
 		event.stopPropagation();
 		if (!/^\s*$/.test(val)) {
 			$input.closest("span.autoCompleteContainer").addClass("active");
@@ -210,7 +208,7 @@
 					}
 					setTimeout(function() {
 						$input.focus();
-					}, 200)
+					}, 200);
 
 				}
 				break;
@@ -229,16 +227,6 @@
 					prevItem.call(view);
 				}
 				break;
-			/*          case borderKey.RIGHT:
-			 if(event.ctrlKey && view.slider){
-			 view.slider.inc();
-			 }
-			 break
-			 case borderKey.LEFT:
-			 if(event.ctrlKey && view.slider){
-			 view.slider.dec();
-			 }
-			 break;*/
 			default:
 				if (!keydown) {
 					view.$el.trigger("SHOWSEARCHRESULT");

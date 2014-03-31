@@ -30,7 +30,6 @@
 						sfid : $tr.attr("data-sfid")
 					});
 				});
-				//                console.log(list);
 				view.$el.trigger("APPLY_PRESS", {
 					selectedContactList : list
 				});
@@ -45,14 +44,13 @@
 						sfid : $tr.attr("data-sfid")
 					});
 				});
-				//                console.log(list);
 				view.$el.trigger("SHORTLIST_PRESS", {
 					selectedContactList : list
 				});
 			},
 			"click; .btnClearSearch" : function(event) {
 				var view = this;
-				view.$el.trigger("CLEAR_SEARCH_QUERY")
+				view.$el.trigger("CLEAR_SEARCH_QUERY");
 			},
 
 		},

@@ -17,12 +17,12 @@
 			//set max length
 
 			app.getJsonData("/config/getByName/local_distance").done(function(result) {
-				var label = "Radius(miles)"
+				var label = "Radius(miles)";
 				if (result && result.value === "k") {
 					label = "Radius(km)";
 				}
 				view.$el.find(".labelText").html(label);
-			})
+			});
 
 		}
 

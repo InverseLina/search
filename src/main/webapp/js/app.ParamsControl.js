@@ -18,7 +18,7 @@ var app = app || {};
 			result.searchColumns = app.preference.columns().join(",");
 			if (contentSearchValues.sort) {
 				result.orderBy = contentSearchValues.sort.column;
-				result.orderType = !!(contentSearchValues.sort.order === "asc");
+				result.orderType = contentSearchValues.sort.order === "asc";
 			}
 			if (!/^\s*$/.test(queryKey)) {
 				searchData.q_search = queryKey;
@@ -27,13 +27,15 @@ var app = app || {};
 			for (key in _storeValue) {
 				newKey = key.substring(0, 1).toLocaleLowerCase() + key.substring(1);
 				data = [];
-				$.each(_storeValue[key], function(idx, item) {
+				for(var idx = 0; idx < _storeValue[key].length; idx++){
+					var item = _storeValue[key][idx];
 					if (newKey === "contact") {
 						data.push(item.value.value);
 					} else {
 						data.push(item.value);
 					}
-				});
+				}
+
 				if (data.length > 0) {
 					if (newKey === "company") {
 						searchData["q_companies"] = data;
@@ -48,7 +50,6 @@ var app = app || {};
 			result.searchValues = JSON.stringify(searchData);
 			result.pageIndex = view.contentView.dataGridView.pageIdx || 1;
 			result.pageSize = view.contentView.dataGridView.pageSize || 15;
-			//         console.log(result);
 			return result;
 		},
 		/**
@@ -71,9 +72,6 @@ var app = app || {};
 				name : data.name,
 				value : data
 			});
-			/*if(data.minVal){
-			 store.minVal = data.minVal;
-			 }*/
 		},
 		/**
 		 * remove data format {type:xxx, name: xxx}
@@ -103,7 +101,7 @@ var app = app || {};
 				}
 			} else {
 				if (data) {
-					delete _storeValue[data]
+					delete _storeValue[data];
 				}
 			}
 		},
@@ -134,6 +132,6 @@ var app = app || {};
 			_storeValue = {};
 		}
 
-	}
+	};
 
 })(jQuery); 

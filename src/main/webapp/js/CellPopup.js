@@ -30,18 +30,13 @@
 					if (app.ParamsControl.get(data.type, name)) {
 						value.isFilter = true;
 					}
-					data.names.push(value)
-				})
+					data.names.push(value);
+				});
 
 			}
-			//                console.log(data);
-
 			var html = render("CellPopup-inner", data);
 			view.$el.html(html);
 
-			//                console.log(data.pos);
-			//                console.log(view.$el.height());
-			//                console.log($(window).height());
 			if (data.pos.y + view.$el.outerHeight() > $(window).height()) {
 
 				data.pos.y = $(window).height() - view.$el.outerHeight();
@@ -70,8 +65,6 @@
 				var $li = $(event.currentTarget).closest("li");
 				name = $li.text();
 				if ($li.hasClass("filter")) {
-
-					//                        app.ParamsControl.remove({type: view.type, name: name})
 					$li.removeClass("filter");
 					$li.trigger("REMOVE_FILTER", {
 						type : view.type,

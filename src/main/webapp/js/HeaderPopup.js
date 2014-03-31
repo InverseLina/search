@@ -16,7 +16,7 @@
 		},
 
 		postDisplay : function(data) {
-			var arrowPos, deltaX, deltaX, view = this;
+			var arrowPos, deltaX, view = this;
 			var $e = view.$el;
 			view.$content = $e.find(".popover-content");
 			if (data.$target) {

@@ -9,12 +9,12 @@ var app = app || {};
 		var filters = app.getSearchUiConfig();
 		var displays = $.grep(filters, function(item, idx) {
 			return item.show;
-		})
+		});
 
 		return $.map(displays, function(item) {
 			return item.type;
-		}).join(",")
-	}
+		}).join(",");
+	};
 	
 	app.getFilterOrders = function(update) {
 		if (update) {
@@ -41,11 +41,11 @@ var app = app || {};
 			});
 			return filterOrders;
 		}
-	}
+	};
 
 	app.getSearchFilter = function(name) {
 		return cache[name];
-	}
+	};
 
 	app.preference = {
 		store : function(key, value) {
@@ -71,7 +71,7 @@ var app = app || {};
 		displayColumns : function() {
 			return app.getSearchUiConfig();
 		}
-	}
+	};
 
 	app.cookie = function(name, value, options) {
 		if ( typeof value !== 'undefined') {
