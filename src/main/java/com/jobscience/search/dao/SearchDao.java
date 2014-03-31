@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -60,6 +61,10 @@ public class SearchDao {
     @Inject
     CurrentRequestContextHolder crch;
        
+    private ConcurrentHashMap<String, String> booleanSqlCache = new ConcurrentHashMap<String, String>();
+    
+    private ConcurrentHashMap<SearchRequest,SearchStatements> statementCache = 
+            new ConcurrentHashMap<SearchRequest, SearchStatements>();
     /**
      * @param searchColumns
      * @param searchValues
@@ -71,10 +76,15 @@ public class SearchDao {
     public SearchResult search(SearchRequest searchRequest,String token,OrgContext org) {
 
 		SearchResult searchResult = null;
-		//builder statements
-		SearchStatements statementAndValues =
-				buildSearchStatements(searchRequest,org);
-
+		SearchStatements statementAndValues;
+		if(statementCache.containsKey(searchRequest)){
+		    statementAndValues = statementCache.get(searchRequest);
+		}else{
+		    statementAndValues = buildSearchStatements(searchRequest,org);
+		    statementCache.put(searchRequest, statementAndValues);
+		}
+		
+		
 		//excute query and caculate times
 		searchResult = executeSearch(statementAndValues);
 
@@ -796,17 +806,20 @@ public class SearchDao {
         StringBuilder joinSql = new StringBuilder();
         if("a".equals(alias)){
             joinSql.append(" right join (");
-            joinSql.append(booleanSearchHandler(searchValue, null, values,org,false));
+            joinSql.append(booleanSearchHandler(searchValue, null, org,false));
             joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
             return joinSql.toString();
         }else{
             joinSql.append(" select  distinct contact.id,contact.sfid  from (");
-    	    joinSql.append(booleanSearchHandler(searchValue, null, values,org,false));
+    	    joinSql.append(booleanSearchHandler(searchValue, null, org,false));
     	    joinSql.append(")  contact ");
     	    return joinSql.toString();
 	    }
     }
     
+    private String asKey(String searchValue,String type,OrgContext org,boolean exact){
+       return searchValue+"_"+type+"_"+org.getOrgMap().get("name")+"_"+exact;
+    }
     /**
      * boolean search handler for search box
      * @param searchValue
@@ -814,8 +827,12 @@ public class SearchDao {
      * @param values
      * @return
      */
-    public  String booleanSearchHandler(String searchValue,String type, List values,OrgContext org,boolean exact){
-    	String schemaname = (String)org.getOrgMap().get("schemaname");
+    public  String booleanSearchHandler(String searchValue,String type,OrgContext org,boolean exact){
+        String cacheKey = asKey(searchValue,type,org,exact);
+    	if(booleanSqlCache.containsKey(cacheKey)){
+    	    return booleanSqlCache.get(cacheKey);
+    	}
+        String schemaname = (String)org.getOrgMap().get("schemaname");
     	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
     	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
@@ -847,7 +864,7 @@ public class SearchDao {
 	    	for(int i=0;i<orConditions.length;i++){
 	    		String orCondition = orConditions[i];
 	    		sb.append("select a_extr"+i+".id,a_extr"+i+".sfid from (");
-	    		sb.append(booleanSearchHandler(orCondition, "AND",values,org,exact));
+	    		sb.append(booleanSearchHandler(orCondition, "AND",org,exact));
 	    		sb.append(" a_extr"+i+" union ");
 	    		hasSearch = true;
 	    	}
@@ -863,7 +880,7 @@ public class SearchDao {
     			if(i==0){
     				sb.append(" select n_ext0.id as id,n_ext0.sfid as sfid from ");
     			}
-	    		sb.append(booleanSearchHandler(andCondition, "NOT",values,org,exact)+(i));
+	    		sb.append(booleanSearchHandler(andCondition, "NOT",org,exact)+(i));
 	    		if(i>0){
 	    			sb.append(" on n_ext"+i+".id=n_ext"+(i-1)+".id");
 	    		}
@@ -883,7 +900,7 @@ public class SearchDao {
     		temp = notConditions[0].trim();
 
 			sb.append(" select ex.id,ex.sfid from   "+schemaname
-			    +".jss_contact ex where "+renderKeywordSearch(values,temp,org,exact)  );
+			    +".jss_contact ex where "+renderKeywordSearch(temp,org,exact)  );
     		
 			if(notConditions.length==1){
     			sb.append(") n_ext");
@@ -891,27 +908,23 @@ public class SearchDao {
     			sb.append(") n_ext");
     		}
     		
-    		//values.add(temp);
-    		//values.add(temp);
     		boolean hasNot = false;
 	    	for(int i=1;i<notConditions.length;i++){
 	    		hasNot = true;
 	    		temp = notConditions[i].trim();
 	    		sb.append(" except ");
                         
-	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".jss_contact ex where "+renderKeywordSearch(values,temp,org,exact) + " ) ");
-	    		//values.add(temp);
-	    		//values.add(temp);
+	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".jss_contact ex where "+renderKeywordSearch(temp,org,exact) + " ) ");
 	    	}
 	    	if(hasNot){
 	    		sb.append(")n_ext");
 	    	}
     	}
-    	
+    	booleanSqlCache.put(cacheKey, sb.toString());
     	return sb.toString();
     }
     
-    private String renderKeywordSearch(List values,String param,OrgContext org,boolean exact){
+    private String renderKeywordSearch(String param,OrgContext org,boolean exact){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
         String exactFilter = "";
@@ -920,8 +933,10 @@ public class SearchDao {
             exactFilter=" ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
         }
         for(Field f:sc.getKeyword().getFields()){
-            sb.append("OR ").append(f.toString("ex")).append("@@ plainto_tsquery(?)");
-            values.add(param);
+            sb.append("OR ").append(f.toString("ex")).append("@@ plainto_tsquery(")
+              .append("'")
+              .append(param)
+              .append("')");
         }
         return exactFilter+sb.delete(0, 2).toString()+(exact?")":"");
     }
