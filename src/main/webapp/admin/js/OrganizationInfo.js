@@ -364,15 +364,17 @@
 							case "part":
 								addClass = "alert-danger";
 								removeClass = "alert-success";
+								break;
 							case "error":
 								addClass = "alert-danger";
 								removeClass = "alert-success";
+								break;
 							case "notstarted":
 								addClass = "alert-danger";
 								removeClass = "alert-success";
 						}
 						if (setup.progress || setup.progress === 0) {
-							fillProgressBar.call(view, setup)
+							fillProgressBar.call(view, setup);
 						} else {
 							view.$el.find("." + setup.name + "_info").addClass(addClass).removeClass(removeClass).removeClass("hide").html(setup.msg);
 						}
@@ -487,7 +489,9 @@
 		var view = this;
 		var name = setup.name, all = setup.progress.perform + setup.progress.remaining, perform = setup.progress.perform, percentage = perform / all * 100 + "";
 		if (setup.progress === 0) {
-			all = 0, perform = 0, percentage = "0";
+			all = 0;
+			perform = 0;
+			percentage = "0";
 		}
 		if (percentage.indexOf(".") !== -1) {
 			percentage = percentage.substring(0, percentage.indexOf("."));

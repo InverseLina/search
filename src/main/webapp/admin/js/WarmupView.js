@@ -7,13 +7,13 @@
 	}, {
 		// --------- View Interface Implement--------- //
 		create : function(data) {
-			var dfd = $.Deferred()
+			var dfd = $.Deferred();
 			app.getJsonData(contextPath + "/test/getOrgs").done(function(result) {
 				var html = render("WarmupView", {
 					orgs : result
 				});
 				dfd.resolve(html);
-			})
+			});
 			return dfd.promise();
 		},
 		postDisplay : function(data) {
@@ -25,11 +25,6 @@
 			view.$navTabs.find("li.active").removeClass("active");
 
 			view.$navTabs.find("a[href='#warmup']").closest("li").addClass("active");
-			/*            warmupSearchDao.checkStatus().done(function(result){
-			 if(!result){
-			 view.$el.find('button').attr("disabled", true);
-			 }
-			 });*/
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -177,7 +172,7 @@
 
 		brite.whenEach($buttons, function(btn, index) {
 			// we create another deferred, because we need to wait the delay
-			var $btn = $(btn)
+			var $btn = $(btn);
 			var dfd = $.Deferred();
 			doSearch.call(view, $btn, $buttons).done(function() {
 				$btn.removeAttr("disabled").removeClass("running").html("GO");

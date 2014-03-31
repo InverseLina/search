@@ -18,7 +18,7 @@
 			var view = this;
 			app.getJsonData("/syncsf/downloadStatus").done(function(result) {
 				updateStatus.call(view, result);
-			})
+			});
 		},
 		events : {
 			"btap; button.download" : function(event) {
@@ -45,7 +45,7 @@
 		var view = this;
 		var btn = view.$el.find("button.download");
 		if (status === true) {
-			btn.html("Stop")
+			btn.html("Stop");
 		} else {
 			btn.html("Start");
 		}
@@ -60,12 +60,12 @@
 				} else {
 					if (view) {
 						setTimeout(getStatus, 10 * 1000);
-						updateStatus.call(view, true)
+						updateStatus.call(view, true);
 					}
 
 				}
-			})
-		}
+			});
+		};
 		getStatus();
 
 	}

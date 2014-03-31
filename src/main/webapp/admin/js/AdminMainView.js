@@ -69,7 +69,7 @@
 	// --------- Private Methods --------- //
 	function changeView(pathInfo) {
 		var view = this;
-		view.$el.find(".nav-tabs li.OrganizationInfo").remove()
+		view.$el.find(".nav-tabs li.OrganizationInfo").remove();
 		pathInfo = pathInfo || defaultPathInfo;
 		var viewName = pathInfo.paths[0];
 		if (viewName === "org") {
