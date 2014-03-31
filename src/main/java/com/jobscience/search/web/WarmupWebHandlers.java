@@ -138,8 +138,8 @@ public class WarmupWebHandlers {
         }
     }
 
+    //EndUser use this
     @WebPost("/perf/save-user-pref")
-    @RequireAdmin
     public WebResponse saveUserPref (@WebUser Map user, @WebParam("value") String value, RequestContext rc) throws SQLException {
         if (user != null && value.trim().length() > 0) {
             try {
