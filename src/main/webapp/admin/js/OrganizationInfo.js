@@ -80,6 +80,20 @@
 
 		// --------- Events--------- //
 		events : {
+			"btap;.clearCache" : function(event) {
+				var view = this;
+				var $btn = $(event.currentTarget);
+				$btn.html("Clearing...").prop("disabled", true);
+				app.getJsonData("/cache-refresh", {
+					orgName:view.orgName
+				}, {
+					type : "get"
+				}).done(function(data) {
+					setTimeout(function(){
+						$btn.html("Clear Cache").prop("disabled", false);
+					}, 300);
+				});
+			},
 			"btap;.home" : function(event) {
 				window.location.href = contextPath + "/";
 			},
