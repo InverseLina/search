@@ -159,7 +159,6 @@ public class DBSetupManager {
 
     public Map orgStatus(String orgName) throws SQLException {
         Map status = new HashMap();
-
         String totalStatus = DONE;
         List<Map> setups = new ArrayList<Map>();
         List<Map> orgs = orgConfigDao.getOrgByName(orgName);
@@ -196,12 +195,15 @@ public class DBSetupManager {
         for (Map m : jssTables) {
             missingTables.append(", ").append(m.get("tablename"));
         }
+        boolean triggerValid = checkTriggerContent(orgName);
         setups.add(mapIt("name", "create_extra_table", "status",
-                missingTables.length() > 0 ? NOTSTARTED : DONE, "msg",
+                missingTables.length() > 0 ? NOTSTARTED : (triggerValid?DONE:NOTSTARTED), "msg",
                 missingTables.length() > 0 ? "Missing Tables:" + missingTables.delete(0, 1)
-                        : "Jss tables created"));
+                        : (triggerValid?"Jss tables created":"Some triggers not valid")));
+        if(totalStatus.equals(DONE)&&(missingTables.length()>0||!triggerValid)){
+            totalStatus = PART;
+        }
         setups.add(mapIt("pgtrgm", this.checkExtension("pg_trgm") > 0 ? DONE : NOTSTARTED));
-
         if (missingTables.indexOf("jss_contact") == -1) {
             if (checkColumn("contact_tsv", "jss_contact", schemaname)) {
                 IndexerStatus tsvIs = contactTsvManager.getStatus(orgName, false);
@@ -1372,12 +1374,16 @@ public class DBSetupManager {
     }
 
     private Map<String, JSONArray> loadJsonFile(String name) {
-        if (jsonMap.containsKey(name)) {
-            return jsonMap.get(name);
+        return loadJsonFile(name,"tabledef");
+    }
+    
+    private Map<String, JSONArray> loadJsonFile(String name,String parentFolder) {
+        if (jsonMap.containsKey(parentFolder+"_"+name)) {
+            return jsonMap.get(parentFolder+"_"+name);
         }
-
+        
         StringBuilder path = new StringBuilder(webAppFolder.getAbsolutePath());
-        path.append("/WEB-INF/tabledef");
+        path.append("/WEB-INF/"+parentFolder);
         File orgFolder = new File(path.toString());
         File[] sqlFiles = orgFolder.listFiles();
         String indexes = "";
@@ -1392,7 +1398,7 @@ public class DBSetupManager {
         for (Object tableName : indexesObj.keySet()) {
             m.put(tableName.toString(), JSONArray.fromObject(indexesObj.get(tableName)));
         }
-        jsonMap.put(name, m);
+        jsonMap.put(parentFolder+"_"+name, m);
         return m;
     }
 
@@ -1517,5 +1523,36 @@ public class DBSetupManager {
             daoHelper.executeUpdate(datasourceManager.newRunner(),"Drop SCHEMA " + sysSchema + " CASCADE ", new Object[0]);
         }
         datasourceManager.updateDB(null);
+    }
+    
+    private boolean checkTriggerContent(String orgName){
+        boolean valid = false;
+        Map<String,JSONArray> m = loadJsonFile("triggers.json","sql/org");
+        StringBuilder sb = new StringBuilder();
+        for(String key:m.keySet()){
+            sb.append(",'").append(key).append("'");
+        }
+        if(sb.length()==0){
+            return true;
+        }
+        List<Map> triggers = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName), "select t.trigger_name,p.prosrc"
+                + " from information_schema.triggers t join pg_proc p"
+                + " on p.proname||'()' = regexp_replace(t.action_statement,'execute\\s+procedure\\s+(\\\".*\\\"\\.)?','','i')"
+                + " and t.trigger_schema=current_schema"
+                + " and t.trigger_name in("
+                + sb.delete(0, 1)
+                + ")");
+        
+        String databaseContent,fileContent;
+        for(Map trigger:triggers){
+            fileContent = (String) JSONObject.fromObject(m.get(trigger.get("trigger_name")).get(0)).get("content");
+            databaseContent = (String) trigger.get("prosrc");
+             if(!fileContent.replaceAll("\\s+", "").equalsIgnoreCase(databaseContent.replaceAll("\\s+", ""))){
+                 valid = false;
+                 return valid;
+             }
+        }
+        valid = true;
+        return valid;
     }
 }    
