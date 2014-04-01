@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -59,12 +58,8 @@ public class SearchDao {
     private SearchConfigurationManager searchConfigurationManager;
     
     @Inject
-    CurrentRequestContextHolder crch;
-       
-    private ConcurrentHashMap<String, String> booleanSqlCache = new ConcurrentHashMap<String, String>();
-    
-    private ConcurrentHashMap<SearchRequest,SearchStatements> statementCache = 
-            new ConcurrentHashMap<SearchRequest, SearchStatements>();
+    CurrentRequestContextHolder crch;  
+   
     /**
      * @param searchColumns
      * @param searchValues
@@ -76,15 +71,7 @@ public class SearchDao {
     public SearchResult search(SearchRequest searchRequest,String token,OrgContext org) {
 
 		SearchResult searchResult = null;
-		SearchStatements statementAndValues;
-		if(statementCache.containsKey(searchRequest)){
-		    statementAndValues = statementCache.get(searchRequest);
-		}else{
-		    statementAndValues = buildSearchStatements(searchRequest,org);
-		    statementCache.put(searchRequest, statementAndValues);
-		}
-		
-		
+		SearchStatements statementAndValues = buildSearchStatements(searchRequest,org);
 		//excute query and caculate times
 		searchResult = executeSearch(statementAndValues);
 
@@ -816,10 +803,6 @@ public class SearchDao {
     	    return joinSql.toString();
 	    }
     }
-    
-    private String asKey(String searchValue,String type,OrgContext org,boolean exact){
-       return searchValue+"_"+type+"_"+org.getOrgMap().get("name")+"_"+exact;
-    }
     /**
      * boolean search handler for search box
      * @param searchValue
@@ -828,10 +811,6 @@ public class SearchDao {
      * @return
      */
     public  String booleanSearchHandler(String searchValue,String type,OrgContext org,boolean exact){
-        String cacheKey = asKey(searchValue,type,org,exact);
-    	if(booleanSqlCache.containsKey(cacheKey)){
-    	    return booleanSqlCache.get(cacheKey);
-    	}
         String schemaname = (String)org.getOrgMap().get("schemaname");
     	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
     	StringBuilder sb = new StringBuilder();
@@ -920,7 +899,6 @@ public class SearchDao {
 	    		sb.append(")n_ext");
 	    	}
     	}
-    	booleanSqlCache.put(cacheKey, sb.toString());
     	return sb.toString();
     }
     

@@ -23,7 +23,6 @@ public class SearchRequest {
     private Map<String,JSONArray> customFilters = new HashMap<String, JSONArray>();
     private String searchValues;
     
-    private int hashCode = 0;
     public SearchRequest(Map searchParams){
         
         searchValues = (String)searchParams.get("searchValues");
@@ -189,25 +188,6 @@ public class SearchRequest {
         return searchValues;
     }
     
-    @Override
-    public int hashCode(){
-        if(hashCode==0){
-            int result = 17;
-            result=(result<<5)-result+columns.hashCode();
-            result=(result<<5)-result+pageIndex;
-            result=(result<<5)-result+order.hashCode();
-            result=(result<<5)-result+pageSize;
-            result=(result<<5)-result+searchValues.hashCode();
-            hashCode = result;
-        }
-        return hashCode;
-    }
-    
-    
-    @Override
-    public boolean equals(Object o){
-        return hashCode()==o.hashCode();
-    }
     /**
      * get the order column name by original column
      * @param originalName
