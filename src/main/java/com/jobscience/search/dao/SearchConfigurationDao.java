@@ -1,10 +1,11 @@
 package com.jobscience.search.dao;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import java.util.List;
 import java.util.Map;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.jobscience.search.searchconfig.SearchConfigurationManager;
 
 @Singleton
 public class SearchConfigurationDao {
@@ -14,6 +15,8 @@ public class SearchConfigurationDao {
     private DaoHelper daoHelper;
     @Inject
     private DatasourceManager datasourceManager;
+    @Inject
+    private SearchConfigurationManager searchConfigurationManager;
 
     public List getSearchConfig() {
         List<Map> result = daoHelper.executeQuery(datasourceManager.newSysRunner(),
@@ -24,6 +27,7 @@ public class SearchConfigurationDao {
     public void resetSearchConfig() {
         daoHelper.executeUpdate(datasourceManager.newSysRunner(),
                 "delete  from config where name = ? and org_id is null", COL_NAME);
+        searchConfigurationManager.updateCache(null);
     }
 
     public void saveSearchConfig(String content) {
@@ -36,11 +40,13 @@ public class SearchConfigurationDao {
             daoHelper.executeUpdate(datasourceManager.newSysRunner(),
                     "update config set val_text = ?  where name = ? and org_id is null", content, COL_NAME);
         }
+        searchConfigurationManager.updateCache(null);
     }
 
     public void resetOrgSearchConfig(String orgName) {
         daoHelper.executeUpdate(datasourceManager.newSysRunner(),
                 "delete  from config where name = ? and org_id in (select id from org where name = ?)", COL_NAME, orgName);
+        searchConfigurationManager.updateCache(orgName);
     }
 
     public void saveOrgSearchConfig(String orgName, String content) {
@@ -55,5 +61,6 @@ public class SearchConfigurationDao {
                     "update config set val_text = ? where  name = ? and org_id in " +
                             "(select id from org where name = ?)", content, COL_NAME, orgName);
         }
+        searchConfigurationManager.updateCache(orgName);
     }
 }

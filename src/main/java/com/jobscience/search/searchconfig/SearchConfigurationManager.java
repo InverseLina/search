@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -24,6 +26,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.DaoHelper;
@@ -43,16 +48,31 @@ public class SearchConfigurationManager {
     private DatasourceManager datasourceManager;
     private volatile Document sysDocument;
     
+    private volatile LoadingCache<String, SearchConfiguration> searchuiconfigCache;
+    
+    public SearchConfigurationManager() {
+        searchuiconfigCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build(new CacheLoader<String, SearchConfiguration>() {
+            @Override
+            public SearchConfiguration load(String orgName){
+                return loadSearchConfiguration(orgName);
+            }
+        });
+    }
     
     public SearchConfiguration getSearchConfiguration(String orgName){
-        try{
-            JAXBContext jc = JAXBContext.newInstance(SearchConfiguration.class);
-            Unmarshaller ums =  jc.createUnmarshaller();
-            return (SearchConfiguration) ums.unmarshal(getMergedNode(orgName));
-        }catch(Exception e){
-            //
+        try {
+            return searchuiconfigCache.get(orgName);
+        } catch (ExecutionException e) {
         }
-        return new SearchConfiguration();
+        return null;
+    }
+    
+    public void updateCache(String orgName){
+        if(orgName == null){
+            searchuiconfigCache.invalidateAll();
+        }else{
+            searchuiconfigCache.invalidate(orgName);
+        }
     }
     
     public List<Map> getFilters(String orgName){
@@ -103,6 +123,17 @@ public class SearchConfigurationManager {
         }else{
             return "<searchconfig></searchconfig>";
         }
+    }
+
+    protected SearchConfiguration loadSearchConfiguration(String orgName){
+        try{
+            JAXBContext jc = JAXBContext.newInstance(SearchConfiguration.class);
+            Unmarshaller ums =  jc.createUnmarshaller();
+            return (SearchConfiguration) ums.unmarshal(getMergedNode(orgName));
+        }catch(Exception e){
+            //
+        }
+        return new SearchConfiguration();
     }
     
     private Document getSysDocument() throws Exception{
