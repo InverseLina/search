@@ -127,6 +127,7 @@
 
 		var $valve = $e.find(".slider");
 		$valve.css("left", (pos - $valve.width() / 2) + "px");
+		$valve.text(view.opts.value);
 		if (view.position !== pos && !force) {
 			view.position = pos;
 			view.$el.trigger("SLIDER_VALUE_CHANGE");
