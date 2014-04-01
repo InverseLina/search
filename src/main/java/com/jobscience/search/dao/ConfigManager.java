@@ -11,7 +11,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -29,6 +34,18 @@ public class ConfigManager {
     private static final String[] orgInfoKeysArray = new String[]{"apex_resume_url","local_distance","local_date","instance_url"};
     private static final Set<String> orgInfoKeys = new HashSet<String>(Arrays.asList(orgInfoKeysArray));
     
+    private volatile LoadingCache<Integer, Map<String, Object>> configCache;
+    
+    public ConfigManager() {
+        configCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build(new CacheLoader<Integer, Map<String, Object>>() {
+            @Override
+            public Map<String, Object> load(Integer orgId){
+                return loadConfigMap(orgId);
+            }
+        });
+    }
+    
+    
     /**
      * Get org configs,will always get the global configs
      * @param name
@@ -36,47 +53,45 @@ public class ConfigManager {
      * @return
      */
     public String getConfig(String name, Integer orgId){
-        List params = new ArrayList();
-        Integer id = orgId;
-        String sql = "select * from config where name = ?";
-        params.add(name);
-        
-        if (id == null) {
-            id = -1;
-        }
-        
-        if(id == -1){
-            sql += " and org_id= -1 ";
-        }else{
-            sql += " and ( org_id = ? or org_id = -1 )";
-            params.add(orgId);
-        }
-        
-        List valueList = daoHelper.executeQuery(datasourceManager.newSysRunner(), sql, params.toArray());
-        String value = getConfigValueFromValueList(valueList, orgId);
-        
-        // if null, we try to get it from the sys database (which we already have)
-        if (value == null) {
-            value = getConfigValueFromValueList(valueList, -1);
-        }
-        
-        // if still null, and it is a snowPropertiesInherited, we get it from the properties.
-        if (value == null && snowPropertiesInherited.contains(name)) {
-            value = getValueFromProperties(name);
-        }
-        
-        return value;
+        return (String) getConfigMap(orgId).get(name);
     }
     
+    public Map<String, Object> getOrgInfo(Integer orgId){
+        Map map = getConfigMap(orgId);
+        Map orgInfo = new HashMap();
+        for(Iterator i = orgInfoKeys.iterator(); i.hasNext();){
+            String key = (String) i.next();
+            orgInfo.put(key, map.get(key));
+        }
+        return orgInfo;
+    }
+
     public Map<String, Object> getConfigMap(Integer orgId){
+        if (orgId == null) {
+            orgId = -1;
+        }
+        
+        try {
+            Map<String, Object> cacheConfigMap = configCache.get(orgId);
+            return cacheConfigMap;
+        } catch (ExecutionException e) {
+        }
+        return null;
+    }
+    
+    public void updateCache(Integer orgId){
+        if(orgId == null || orgId == -1){
+            configCache.invalidateAll();
+        }else{
+            configCache.invalidate(orgId);
+        }
+    }
+    
+    protected Map<String, Object> loadConfigMap(Integer orgId){
         
         List params = new ArrayList();
         Integer id = orgId;
         String sql = "select * from config where 1=1 ";
-        
-        if (id == null) {
-            id = -1;
-        }
         
         if(id == -1){
             sql += " and org_id= -1 ";
@@ -102,17 +117,6 @@ public class ConfigManager {
         return m;
     }
     
-    public Map<String, Object> getOrgInfo(Integer orgId){
-        Map map = getConfigMap(orgId);
-        Map orgInfo = new HashMap();
-        for(Iterator i = orgInfoKeys.iterator(); i.hasNext();){
-            String key = (String) i.next();
-            orgInfo.put(key, map.get(key));
-        }
-        return orgInfo;
-    }
-    
-
     /**
      * Save or Update org config
      * @param params 
@@ -131,21 +135,9 @@ public class ConfigManager {
         sql.deleteCharAt(sql.length() - 1);
         daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("delete from config where org_id = %s and  name in %s", orgId, names));
         daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("insert into  config(org_id, name,value) values %s ", sql));
-    }
-
-    private String getConfigValueFromValueList(List<Map> valueList, Integer orgId) {
-        String value = null;
-        for (Map valMap : valueList) {
-            Integer valOrgId = (Integer) valMap.get("org_id");
-            if (orgId.equals(valOrgId)) {
-                value = (String) valMap.get("value");
-                if (value == null) {
-                    value = (String) valMap.get("val_text");
-                }
-                break;
-            }
-        }
-        return value;
+        
+        //clear cache
+        updateCache(orgId);
     }
     
     private Map getConfigValuesFromValueList(List<Map> valueList, Integer orgId) {
