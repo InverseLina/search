@@ -690,7 +690,7 @@
 					"max-width" : realWidth - applyContactCheckboxWidth,
 					"min-width" : realWidth - applyContactCheckboxWidth
 				}).find(" > span").css({
-					width : realWidth - 4
+					width : realWidth - applyContactCheckboxWidth - 4
 				});
 
 			} else if (idx === tlen) {
