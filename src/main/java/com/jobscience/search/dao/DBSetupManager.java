@@ -1105,10 +1105,28 @@ public class DBSetupManager {
         return sqlList;
     }
 
+    private int getDataCount(String table,Runner runner){
+        try{
+            int tableCount = runner.executeCount("select count(*) as count from information_schema.tables " 
+                                + " where table_schema= current_schema "
+                                +" and table_type='BASE TABLE' " + "and table_name =?",table);
+            if(tableCount>0){
+                return runner.executeCount("select count(*) from "+table);
+            }else {
+                return 0;
+            }
+        }finally{
+            runner.close();
+        }
+    }
     
     private boolean createExtraGroup(String orgName, String tableName) throws Exception {
         if (!orgSetupStatus.get(orgName).booleanValue()) {
             return false;
+        }
+        //when there already has data
+        if(getDataCount("jss_grouped_"+tableName,datasourceManager.newOrgRunner(orgName))>0){
+            return true;
         }
         boolean result = true;
         File orgFolder = new File(getRootSqlFolderPath() + "/org");
