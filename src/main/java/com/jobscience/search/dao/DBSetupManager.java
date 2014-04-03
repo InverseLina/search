@@ -30,6 +30,7 @@ import org.jasql.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.britesnow.snow.web.binding.WebAppFolder;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -68,7 +69,8 @@ public class DBSetupManager {
     private SearchConfigurationManager scm;
     
     private volatile ConcurrentMap<String,JSONArray> indexesMap;
-    
+    @Inject
+    private CurrentRequestContextHolder currentRequestContextHolder;
     @Inject
     @Named("jss.db.user")
     private String user;
@@ -103,17 +105,41 @@ public class DBSetupManager {
     
     private String DONE="done",RUNNING="running",NOTSTARTED="notstarted",ERROR="error",PART="part",
             INCOMPLETE="incomplete";
-     
+    private String webPath;
     private volatile Thread sysThread;
     private volatile boolean sysReseting = false;
     private volatile HttpGet zipCodeConnection = null;
     private volatile HttpGet cityConnection = null;
     private boolean firstSetup = true;
     private String step = null;
-    
+    private ConcurrentHashMap<String,Thread> orgThreads =new ConcurrentHashMap<String, Thread>();
     // ---------- organization setup interfaces ----------//
    
-    public void orgSetup(String orgName) throws Exception {
+    public void orgSetup(final String orgName){
+        if(webPath==null){
+            webPath = currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/");
+        }
+        Thread orgThread = orgThreads.get(orgName);
+        if(orgThread==null){
+            orgThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        doOrgSetup(orgName);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.error(e.getMessage());
+                    }
+                }
+            });
+            orgThreads.put(orgName, orgThread);
+            orgThread.setName(orgName);
+            orgThread.start();
+        }
+    }
+    
+    
+    private void doOrgSetup(String orgName) throws Exception {
         if (orgSetupStatus.get(orgName) != null && orgSetupStatus.get(orgName)) {
             return;
         }
@@ -127,10 +153,10 @@ public class DBSetupManager {
         createExtraGroup(orgName, "locations");
 
         fixMissingColumns(orgName, false);
-
-        indexerManager.run(orgName);
-        sfidManager.run(orgName);
-        contactTsvManager.run(orgName);
+        
+        indexerManager.run(orgName,webPath);
+        sfidManager.run(orgName,webPath);
+        contactTsvManager.run(orgName,webPath);
 
         createIndexColumns(orgName, true);
         createIndexColumns(orgName, false);
@@ -151,6 +177,11 @@ public class DBSetupManager {
     }
 
     public void stopOrgSetup(String orgName) {
+        Thread orgThread = orgThreads.get(orgName);
+        if(orgThread!=null){
+            orgThread = null;
+            orgThreads.remove(orgName);
+        }
         orgSetupStatus.put(orgName, false);
         indexerManager.stop();
         sfidManager.stop();

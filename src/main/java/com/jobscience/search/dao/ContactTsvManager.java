@@ -9,7 +9,6 @@ import java.util.Map;
 import org.jasql.PQuery;
 import org.jasql.Runner;
 
-import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -23,21 +22,18 @@ public class ContactTsvManager {
 	 @Inject
 	 private DaoHelper daoHelper;
 	 @Inject
-	 private CurrentRequestContextHolder currentRequestContextHolder;
-	 @Inject
      private OrgConfigDao orgConfigDao;
 	 private IndexerStatus indexerStatus ;
 	 @Inject
      private DatasourceManager datasourceManager;
 	 
-	 public synchronized void run(String orgName) throws Exception{
+	 public synchronized void run(String orgName,String webPath) throws Exception{
 		if(on){
 			return ;
 		}
 	    this.on = true;
-    	StringBuilder path = new StringBuilder(currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/"));
-        path.append("/WEB-INF/sql");
-	  	File orgFolder = new File(path + "/org");
+        webPath+="/WEB-INF/sql";
+	  	File orgFolder = new File(webPath + "/org");
 	    File[] sqlFiles = orgFolder.listFiles();
 	    String insertSql="" ,addColumnSql = "";
 	    try{
@@ -67,14 +63,18 @@ public class ContactTsvManager {
 	    
 	    Runner runner = datasourceManager.newOrgRunner(orgName);
         PQuery pq = runner.newPQuery(insertSql);
-	    while(indexerStatus.getRemaining()>0&&on){
-	        pq.executeUpdate(new Object[0]);
-	    	int perform = getContactExCount(orgName);
-	    	indexerStatus = new IndexerStatus(indexerStatus.getPerform()+indexerStatus.getRemaining()-perform, perform);
-	    }
-	    if(indexerStatus.getRemaining()==0){
-	    	this.on = false;
-	    }
+        try{
+    	    while(indexerStatus.getRemaining()>0&&on){
+    	        pq.executeUpdate(new Object[0]);
+    	    	int perform = getContactExCount(orgName);
+    	    	indexerStatus = new IndexerStatus(indexerStatus.getPerform()+indexerStatus.getRemaining()-perform, perform);
+    	    }
+        }catch(Exception e){
+            on = false;
+        }
+        if(indexerStatus!=null&&indexerStatus.getRemaining()==0){
+            this.on = false;
+        }
 	    pq.close();
         runner.close();
 	 }
