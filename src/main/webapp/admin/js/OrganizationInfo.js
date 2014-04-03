@@ -51,7 +51,6 @@
 						url : "#" + app.pathInfo.paths[0] + "/" + app.pathInfo.paths[1]
 					});
 					view.$navTabs.find('li:last').before(li);
-					view.$el.trigger("WRONGINDEXES");
 					app.getJsonData("getOrgSearchConfig", {
 						orgName : view.orgName
 					}).done(function(result) {
@@ -167,36 +166,6 @@
 						}
 					}
 				});
-			},
-			"WRONGINDEXES" : function() {
-				var view = this;
-				app.getJsonData("/getWrongIndexes", {
-					orgName : view.currentOrgName
-				}).done(function(data) {
-					if (data.length > 0) {
-						view.$el.find(".remove-wrong-index").prop("disabled", false);
-						view.$el.find(".remove-wrong-index").closest("tr").find(".alert").removeClass("transparent").html(data);
-					} else {
-						view.$el.find(".remove-wrong-index").prop("disabled", true);
-					}
-				});
-			},
-			"click;.remove-wrong-index" : function(event) {
-				var view = this;
-				var $btn = $(event.target);
-				$btn.html("Removing...").prop("disabled", true);
-				app.getJsonData("/removeWrongIndexes", {
-					orgName : view.currentOrgName
-				}, {
-					type : 'Post'
-				}).done(function(data) {
-					view.$el.find(".remove-wrong-index").closest("tr").find(".alert").addClass("transparent").html("");
-					$btn.html("Remove Wrong Indexes").prop("disabled", true);
-				});
-			},
-			"click;.status" : function(event) {
-				var view = this;
-				refresh.call(view);
 			},
 			"click;.multiply" : function(event) {
 				var view = this;
@@ -585,12 +554,6 @@
 		} else {
 			view.validation = true;
 		}
-	}
-
-	function disableAllBtns() {
-		var view = this;
-		var $e = view.$el;
-		$e.find(".content-table .btn").prop("disabled", true);
 	}
 
 	// --------- /Private Methods--------- //

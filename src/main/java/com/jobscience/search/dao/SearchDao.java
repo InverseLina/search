@@ -94,28 +94,7 @@ public class SearchDao {
         return searchResult;
     }
 
-	protected SearchResult executeSearch(SearchStatements statementAndValues){
-		Runner runner = datasourceManager.newRunner();
-		SearchResult searchResult = null;
-		try{
-			long start = System.currentTimeMillis();
-			List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
-			long mid = System.currentTimeMillis();
-			int count =  runner.executeCount(statementAndValues.countSql, statementAndValues.values);
-			long end = System.currentTimeMillis();
-
-			searchResult = new SearchResult(result, count)
-					.setDuration(end - start)
-					.setSelectDuration(mid - start)
-					.setCountDuration(end - mid);
-		}finally{
-			runner.close();
-		}
-
-		return searchResult;
-	}
-    
-    /**
+	/**
      * Get the auto complete data
      * @param searchValues the search parameters
      * @param type  the available value is  company,education,skill and location
@@ -237,6 +216,184 @@ public class SearchDao {
         return searchResult;
     }
     
+    /**
+     * boolean search handler for search box
+     * @param searchValue
+     * @param type
+     * @param values
+     * @return
+     */
+    public  String booleanSearchHandler(String searchValue,String type,OrgContext org,boolean exact){
+        String schemaname = (String)org.getOrgMap().get("schemaname");
+    	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+    	StringBuilder sb = new StringBuilder();
+    	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
+    	if(!exact){
+        	if(!searchValue.contains("NOT ")&&
+        	   !searchValue.contains("AND ")&&
+        	   !searchValue.contains("NOT ")){
+            	if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
+            	    searchValue = searchValue.replaceAll("\\s+", " OR ");
+            	    exact = false;
+            	}else{
+            	    exact = true;
+                    searchValue = searchValue.replaceAll("\\\"", "");//.replaceAll("\\s+", " AND ");
+            	}
+        	}else{
+        	    if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
+                    searchValue = searchValue.replaceAll("\\\"", "");
+                }
+        	}
+    	}
+    	//if no search value,just return sql with 1!=1
+    	if(searchValue.equals("")){
+    		return  " select id,sfid from "+schemaname+"."+sc.getContact().getTable()+" where 1!=1 ";
+    	}
+    	String temp = "";
+    	if(type==null||"OR".equals(type)){//if params split with space or "OR",we do in OR logic
+        	String[] orConditions = searchValue.trim().split("\\s+OR\\s+");
+        	boolean hasSearch = false;
+        	for(int i=0;i<orConditions.length;i++){
+        		String orCondition = orConditions[i];
+        		sb.append("select a_extr"+i+".id,a_extr"+i+".sfid from (");
+        		sb.append(booleanSearchHandler(orCondition, "AND",org,exact));
+        		sb.append(" a_extr"+i+" union ");
+        		hasSearch = true;
+        	}
+        	if(hasSearch){
+        	    sb.delete(sb.length()-6, sb.length());
+        	}
+    	}else if("AND".equals(type)){//if params split with AND,we do in AND logic
+    		String[] andConditions = searchValue.trim().split("\\s+AND\\s+");
+    		boolean hasSearch = false;
+        	for(int i=0;i<andConditions.length;i++){
+        	    hasSearch = true;
+        		String andCondition = andConditions[i];
+    			if(i==0){
+    				sb.append(" select n_ext0.id as id,n_ext0.sfid as sfid from ");
+    			}
+        		sb.append(booleanSearchHandler(andCondition, "NOT",org,exact)+(i));
+        		if(i>0){
+        			sb.append(" on n_ext"+i+".id=n_ext"+(i-1)+".id");
+        		}
+        		sb.append(" join ");
+        	}
+        	if(hasSearch){
+                sb.delete(sb.length()-5, sb.length()).append(" ) ");
+            }
+    	}else if("NOT".equals(type)){//if params split with NOT,we do in NOT logic
+    		String[] notConditions = searchValue.trim().split("\\s+NOT\\s+");
+    		if(notConditions.length==1){
+    			sb.append("(");
+    		}else{
+    			sb.append(" (select n_ext.id,n_ext.sfid from (");
+    		}
+    		
+    		temp = notConditions[0].trim();
+    
+    		sb.append(" select ex.id,ex.sfid from   "+schemaname
+    		    +".jss_contact ex where "+renderKeywordSearch(temp,org,exact)  );
+    		
+    		if(notConditions.length==1){
+    			sb.append(") n_ext");
+    		}else{
+    			sb.append(") n_ext");
+    		}
+    		
+    		boolean hasNot = false;
+        	for(int i=1;i<notConditions.length;i++){
+        		hasNot = true;
+        		temp = notConditions[i].trim();
+        		sb.append(" except ");
+                        
+        		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".jss_contact ex where "+renderKeywordSearch(temp,org,exact) + " ) ");
+        	}
+        	if(hasNot){
+        		sb.append(")n_ext");
+        	}
+    	}
+    	return sb.toString();
+    }
+
+    /**
+     * Get auto complete data just for name not for count
+     * Now use {@link #getGroupValuesForAdvanced(Map, String, String, Boolean, String, Integer, Integer)}
+     * instead
+     * @param offset
+     * @param size
+     * @param type
+     * @param keyword
+     * @param min
+     * @return
+     * @throws SQLException
+     */
+    @Deprecated
+    public List getTopAdvancedType(Integer offset,Integer size,String type,String keyword,String min,Map org) throws SQLException {
+        if(size == null||size<8){
+            size = 7;
+        }
+        offset = offset < 0 ? 0 : offset;
+        Runner runner = datasourceManager.newOrgRunner((String)org.get("name"));
+        String name = getNameExpr(type);
+        String table = getTable(type,org);
+        StringBuilder querySql =new StringBuilder();
+        if("location".equals(type)){
+        	querySql.append("select city as name from jss_sys.zipcode_us  ");
+        	if(keyword!=null&&!"".equals(keyword)){
+            	querySql.append(" where city ilike '"+keyword+ (keyword.length()>2?"%":"")+"' ");
+            }
+    	    querySql.append(" group by city order by city offset ").append( offset)
+    	            .append( " limit ") 
+    	            .append( size); 
+        }else{
+            querySql.append(" select a.name, count(a.contact) from ( ")
+                    .append( " select e."+name+" as name, e.\"ts2__contact__c\" as contact ")
+                    .append( " from "+table+" e  ")
+                    .append( " where e."+name+" !='' ");
+            if(min!=null&&!"".equals(min)){
+            	if("company".equals(type)){
+            	    querySql.append(" AND EXTRACT(year from age(e.\"ts2__employment_end_date__c\",e.\"ts2__employment_start_date__c\"))>="+min);
+            	}else if("education".equals("type")){
+            		querySql.append(" AND EXTRACT(year from age(now(),e.\"ts2__graduationdate__c\"))>="+min);
+            	}else if("skill".equals("type")){
+            		querySql.append(" AND e.\"ts2__rating__c\" >=  "+min);
+            	}
+            }
+            if(keyword!=null&&!"".equals(keyword)){
+            	querySql.append(" AND e."+name+" ilike '"+keyword+(keyword.length()>2?"%":"")+ "' ");
+            }
+            querySql.append(" group by e.\"ts2__contact__c\", e."+name+") a  ").
+    				 append(" group by a.name order by a.name offset " ).
+                     append(offset).
+                     append(" limit ").
+                     append(size);
+        }
+        List<Map> result =runner.executeQuery(querySql.toString());
+        runner.close();
+        return result;
+    }
+
+    protected SearchResult executeSearch(SearchStatements statementAndValues){
+    	Runner runner = datasourceManager.newRunner();
+    	SearchResult searchResult = null;
+    	try{
+    		long start = System.currentTimeMillis();
+    		List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+    		long mid = System.currentTimeMillis();
+    		int count =  runner.executeCount(statementAndValues.countSql, statementAndValues.values);
+    		long end = System.currentTimeMillis();
+    
+    		searchResult = new SearchResult(result, count)
+    				.setDuration(end - start)
+    				.setSelectDuration(mid - start)
+    				.setCountDuration(end - mid);
+    	}finally{
+    		runner.close();
+    	}
+    
+    	return searchResult;
+    }
+
     protected SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         Filter filter = sc.getFilterByName(type);
@@ -290,6 +447,234 @@ public class SearchDao {
         searchResult.setDuration(end - start);
         searchResult.setSelectDuration(searchResult.getDuration());
         return searchResult;
+    }
+
+    /**
+     * @param searchValues
+     * @return SearchStatements
+     */
+    protected SearchStatements buildSearchStatements(SearchRequest searchRequest,OrgContext org) {
+        SearchStatements ss = new SearchStatements();
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+        int offset = (searchRequest.getPageIndex() -1) * searchRequest.getPageSize();
+        String schemaname = (String)org.getOrgMap().get("schemaname");
+        
+        //the select query  that will query data
+        StringBuilder querySql = new StringBuilder();
+        //the count query sql that will query the count of data
+        StringBuilder countSql = new StringBuilder();
+        // the part of query that build join tables sql
+        StringBuilder joinTables = new StringBuilder();
+        // the part of query that build join tables sql
+        List<String> columnJoinTables = new ArrayList<String>();
+        // the part of query that build conditions sql
+        StringBuilder conditions = new StringBuilder();
+        // the part of query that build group by sql
+        StringBuilder groupBy= new StringBuilder("a.\"id\"");
+        String search = searchRequest.getKeyword();
+        // the params will be put in sql
+        List values = new ArrayList();
+        String cteSql = "";
+        
+        
+        querySql.append("select ");
+        querySql.append(getSearchColumnsForOuter(searchRequest.getColumns(),org));
+        querySql.append(" from ( ");
+        querySql.append(QUERY_SELECT);
+        countSql.append(QUERY_COUNT);
+        querySql.append(getSearchColumns(searchRequest.getColumns(),columnJoinTables,groupBy,org));
+        
+        
+        //---------------------- add select columns ----------------------//
+        String contactString = sc.toContactFieldsString("contact");
+        String contactTable = sc.getContact().getTable();
+        querySql.append(" from ( select  distinct ")
+                .append(contactString);
+        for(Filter f:sc.getFilters()){
+            if(f.getFilterType()==null&&contactString.indexOf(f.getFilterField().toString("contact"))==-1){
+                if(contactTable.equals(f.getFilterField().getTable())){
+                    querySql.append(",").append(f.getFilterField().toString("contact"));
+                    groupBy.append(",").append(f.getFilterField().toString("a"));
+                }
+            }
+        }
+        querySql.append(",case  when ")
+                .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
+                .append(" is null  or " )
+                .append("char_length(")
+                .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
+                .append(") = 0 then -1  else contact.id end as resume ");
+        //---------------------- /add select columns----------------------//
+        
+        
+        if(searchRequest.getOrder().contains("title")){
+        	querySql.append(",case   when ")
+        	        .append(sc.getContactField(ContactFieldType.TITLE).toString("contact"))
+        	        .append(" is null then ''  else lower(")
+        	        .append(sc.getContactField(ContactFieldType.TITLE).toString("contact"))
+        	        .append(") END \"ltitle\" ");
+        }else if(searchRequest.getOrder().contains("name")){
+        	querySql.append(",lower(")
+        	        .append(sc.getContactField(ContactFieldType.NAME).toString("contact")) 
+        	        .append(") as \"lname\" ");
+        }else if(searchRequest.getOrder().contains("email")){
+        	querySql.append(",lower(")
+                    .append(sc.getContactField(ContactFieldType.EMAIL).toString("contact")) 
+                    .append(") as \"lemail\" ");
+        }
+        
+        querySql.append( " from  "+schemaname+".")
+                .append(sc.getContact().getTable())
+                .append(" contact  " );
+        
+        JSONArray locationValues = searchRequest.getLocations();
+        boolean hasContactsCondition = false;
+        if(searchRequest.getContacts()!=null){
+            hasContactsCondition = searchRequest.getContacts().size()>0;
+        }
+        if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||(Strings.isNullOrEmpty(search)||search.length()<3)||(locationValues!=null)){
+            countSql.append( " from ( select ")
+                    .append(sc.toContactFieldsString("contact"))
+                    .append(" from  "+schemaname+".")
+                    .append(sc.getContact().getTable())
+                    .append(" contact   " );
+        }
+    
+        
+           
+        // for all search mode, we preform the same condition
+        String[] sqls = getCondtion(searchRequest,values,org);
+        querySql.append(sqls[0]);
+        countSql.append(sqls[1]);
+        cteSql=sqls[2];
+        
+        querySql.append(joinTables);
+        countSql.append(joinTables);
+        for(String join:columnJoinTables){
+        	if(!join.equals("No Join")){
+            	querySql.append(join);
+            	//countSql.append(join);
+        	}
+        }
+        
+        querySql.append(conditions);
+        countSql.append(conditions);
+        if(!"".equals(groupBy.toString())){
+            querySql.append(" group by "+groupBy);
+        }
+        
+        querySql.append(") b ");
+    	if(!Strings.isNullOrEmpty(searchRequest.getOrder())){
+    		querySql.append(" order by "+searchRequest.getOrder());
+    	}
+    	if(Pattern.matches("^.*(Company|Skill|Education|location)+.*$", searchRequest.getOrder())){
+        	querySql.append(" offset ").append(offset).append(" limit ").append(searchRequest.getPageSize());
+        }
+        if(log.isDebugEnabled()){
+            log.debug(querySql.toString());
+            log.debug(countSql.toString());
+        }
+        
+        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
+        queryLogger.debug(LoggerType.SEARCH_COUNT_SQL, countSql);
+        queryLogger.debug(LoggerType.PARAMS, searchRequest.getSearchMap());
+        // build the statement
+        ss.querySql = cteSql+" "+querySql.toString();
+        ss.countSql =cteSql+" "+countSql.toString();
+        ss.cteSql =   cteSql;
+        ss.values = values.toArray();
+        return ss;
+    }
+
+    /**
+     * @param searchValues
+     * @param values
+     * @param org
+     * @return
+     */
+    protected String[] renderSearchCondition(SearchRequest searchRequest, List values, OrgContext org){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+        StringBuilder querySql = new StringBuilder();
+        StringBuilder conditions = new StringBuilder();
+        List subValues = new ArrayList();
+        boolean hasCondition = false;
+        String schemaname = (String)org.getOrgMap().get("schemaname");
+        StringBuilder prefixSql = new StringBuilder("");
+        boolean hasSearchValue = false;//to check if the search box has value or not
+        StringBuilder locationSql = new StringBuilder();
+        
+        if (searchRequest != null) {
+            
+           // for all search mode, we preform the same condition
+           String search = searchRequest.getKeyword();
+           if (!Strings.isNullOrEmpty(search)) {
+               if(search.length()>=3){
+                   querySql.append(getSearchValueJoinTable(search, values, "contact", org));
+                   if(search.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
+                       conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
+                                 .append(search.replaceAll("\\\"", "%"))
+                                 .append("'");
+                   }
+                   hasSearchValue = true;
+                   hasCondition = true;
+               }
+           }
+           
+            //Get the contacts parameters and render them
+            hasCondition = renderContactConditions(conditions,subValues,sc,searchRequest.getContacts())||hasCondition;
+            
+            //handle the objectType
+            if (!Strings.isNullOrEmpty(searchRequest.getObjectType())) {
+                String value = searchRequest.getObjectType();
+                if ("Contact".equals(value)) {
+                    conditions.append("  and contact.\"recordtypeid\" = ?");
+                    subValues.add(org.getSfid());
+                }else if("Candidate".equals(value)){
+                    conditions.append("  and contact.\"recordtypeid\" != ?");
+                    subValues.add(org.getSfid());
+                }
+            }
+    
+            //handle the status
+            if (!Strings.isNullOrEmpty(searchRequest.getStatus())) {
+                String value = searchRequest.getStatus();
+                if ("Active".equals(value)) {
+                    conditions.append("  and contact.\"ts2__people_status__c\" in('',null, 'Active') ");
+                } else if ("Inactive".equals(value)){
+                    conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
+                }
+            }
+            // add the 'educations' filter, and join ts2__education_history__c table
+            hasCondition = renderFilterCondition( searchRequest.getEducations(),
+                    prefixSql, querySql, schemaname, sc,FilterType.EDUCATION,org)||hasCondition;
+           // add the 'companies' filter, and join ts2__employment_history__c table
+           hasCondition = renderFilterCondition( searchRequest.getCompanies(),
+                   prefixSql, querySql, schemaname, sc,FilterType.COMPANY,org)||hasCondition;
+           
+           // add the 'skillNames' filter, and join ts2__skill__c table
+           hasCondition = renderFilterCondition(searchRequest.getSkills(),
+                   prefixSql, querySql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
+           
+           //add the 'radius' filter
+           hasCondition = renderLocationCondition(searchRequest.getLocations(), locationSql,
+                   conditions, schemaname,sc)||hasCondition;
+       }
+       //at last,combine all part to complete sql
+        
+       values.addAll(subValues);
+    
+       hasCondition = renderCustomFilters(searchRequest.getCustomFilters(), querySql, conditions,values,schemaname, sc)
+                      ||hasCondition;
+    
+       //if there has no condition,just append 1!=1
+       if(!hasCondition){
+           conditions.append(" and 1!=1 ");
+       }
+    
+       if(hasSearchValue){
+           querySql=new StringBuilder(" join (").append(querySql);
+       }
+       return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),locationSql.toString()};
     }
 
     /**
@@ -453,235 +838,6 @@ public class SearchDao {
     }
     
     /**
-     * @param searchValues
-     * @return SearchStatements
-     */
-    protected SearchStatements buildSearchStatements(SearchRequest searchRequest,OrgContext org) {
-        SearchStatements ss = new SearchStatements();
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        int offset = (searchRequest.getPageIndex() -1) * searchRequest.getPageSize();
-        String schemaname = (String)org.getOrgMap().get("schemaname");
-        
-        //the select query  that will query data
-        StringBuilder querySql = new StringBuilder();
-        //the count query sql that will query the count of data
-        StringBuilder countSql = new StringBuilder();
-        // the part of query that build join tables sql
-        StringBuilder joinTables = new StringBuilder();
-        // the part of query that build join tables sql
-        List<String> columnJoinTables = new ArrayList<String>();
-        // the part of query that build conditions sql
-        StringBuilder conditions = new StringBuilder();
-        // the part of query that build group by sql
-        StringBuilder groupBy= new StringBuilder("a.\"id\"");
-        String search = searchRequest.getKeyword();
-        // the params will be put in sql
-        List values = new ArrayList();
-        String cteSql = "";
-        
-        
-        querySql.append("select ");
-        querySql.append(getSearchColumnsForOuter(searchRequest.getColumns(),org));
-        querySql.append(" from ( ");
-        querySql.append(QUERY_SELECT);
-        countSql.append(QUERY_COUNT);
-        querySql.append(getSearchColumns(searchRequest.getColumns(),columnJoinTables,groupBy,org));
-        
-        
-        //---------------------- add select columns ----------------------//
-        String contactString = sc.toContactFieldsString("contact");
-        String contactTable = sc.getContact().getTable();
-        querySql.append(" from ( select  distinct ")
-	            .append(contactString);
-        for(Filter f:sc.getFilters()){
-            if(f.getFilterType()==null&&contactString.indexOf(f.getFilterField().toString("contact"))==-1){
-                if(contactTable.equals(f.getFilterField().getTable())){
-                    querySql.append(",").append(f.getFilterField().toString("contact"));
-                    groupBy.append(",").append(f.getFilterField().toString("a"));
-                }
-            }
-        }
-        querySql.append(",case  when ")
-                .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
-                .append(" is null  or " )
-                .append("char_length(")
-                .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
-                .append(") = 0 then -1  else contact.id end as resume ");
-        //---------------------- /add select columns----------------------//
-        
-        
-        if(searchRequest.getOrder().contains("title")){
-        	querySql.append(",case   when ")
-        	        .append(sc.getContactField(ContactFieldType.TITLE).toString("contact"))
-        	        .append(" is null then ''  else lower(")
-        	        .append(sc.getContactField(ContactFieldType.TITLE).toString("contact"))
-        	        .append(") END \"ltitle\" ");
-        }else if(searchRequest.getOrder().contains("name")){
-        	querySql.append(",lower(")
-        	        .append(sc.getContactField(ContactFieldType.NAME).toString("contact")) 
-        	        .append(") as \"lname\" ");
-        }else if(searchRequest.getOrder().contains("email")){
-        	querySql.append(",lower(")
-                    .append(sc.getContactField(ContactFieldType.EMAIL).toString("contact")) 
-                    .append(") as \"lemail\" ");
-        }
-        
-        querySql.append( " from  "+schemaname+".")
-                .append(sc.getContact().getTable())
-                .append(" contact  " );
-        
-        JSONArray locationValues = searchRequest.getLocations();
-        boolean hasContactsCondition = false;
-        if(searchRequest.getContacts()!=null){
-            hasContactsCondition = searchRequest.getContacts().size()>0;
-        }
-        if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||(Strings.isNullOrEmpty(search)||search.length()<3)||(locationValues!=null)){
-            countSql.append( " from ( select ")
-                    .append(sc.toContactFieldsString("contact"))
-                    .append(" from  "+schemaname+".")
-                    .append(sc.getContact().getTable())
-                    .append(" contact   " );
-        }
-       
-        
-           
-        // for all search mode, we preform the same condition
-        String[] sqls = getCondtion(searchRequest,values,org);
-        querySql.append(sqls[0]);
-        countSql.append(sqls[1]);
-        cteSql=sqls[2];
-        
-        querySql.append(joinTables);
-        countSql.append(joinTables);
-        for(String join:columnJoinTables){
-        	if(!join.equals("No Join")){
-	        	querySql.append(join);
-	        	//countSql.append(join);
-        	}
-        }
-        
-        querySql.append(conditions);
-        countSql.append(conditions);
-        if(!"".equals(groupBy.toString())){
-	        querySql.append(" group by "+groupBy);
-        }
-        
-        querySql.append(") b ");
-    	if(!Strings.isNullOrEmpty(searchRequest.getOrder())){
-    		querySql.append(" order by "+searchRequest.getOrder());
-    	}
-    	if(Pattern.matches("^.*(Company|Skill|Education|location)+.*$", searchRequest.getOrder())){
-        	querySql.append(" offset ").append(offset).append(" limit ").append(searchRequest.getPageSize());
-        }
-        if(log.isDebugEnabled()){
-            log.debug(querySql.toString());
-            log.debug(countSql.toString());
-        }
-        
-        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
-        queryLogger.debug(LoggerType.SEARCH_COUNT_SQL, countSql);
-        queryLogger.debug(LoggerType.PARAMS, searchRequest.getSearchMap());
-        // build the statement
-        ss.querySql = cteSql+" "+querySql.toString();
-        ss.countSql =cteSql+" "+countSql.toString();
-        ss.cteSql =   cteSql;
-        ss.values = values.toArray();
-        return ss;
-    }
-    
-    
-    /**
-     * @param searchValues
-     * @param values
-     * @param org
-     * @return
-     */
-    protected String[] renderSearchCondition(SearchRequest searchRequest, List values, OrgContext org){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        StringBuilder querySql = new StringBuilder();
-        StringBuilder conditions = new StringBuilder();
-        List subValues = new ArrayList();
-        boolean hasCondition = false;
-        String schemaname = (String)org.getOrgMap().get("schemaname");
-        StringBuilder prefixSql = new StringBuilder("");
-        boolean hasSearchValue = false;//to check if the search box has value or not
-        StringBuilder locationSql = new StringBuilder();
-        
-        if (searchRequest != null) {
-            
-           // for all search mode, we preform the same condition
-           String search = searchRequest.getKeyword();
-           if (!Strings.isNullOrEmpty(search)) {
-               if(search.length()>=3){
-                   querySql.append(getSearchValueJoinTable(search, values, "contact", org));
-                   if(search.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
-                       conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
-                                 .append(search.replaceAll("\\\"", "%"))
-                                 .append("'");
-                   }
-                   hasSearchValue = true;
-                   hasCondition = true;
-               }
-           }
-           
-            //Get the contacts parameters and render them
-            hasCondition = renderContactConditions(conditions,subValues,sc,searchRequest.getContacts())||hasCondition;
-            
-            //handle the objectType
-            if (!Strings.isNullOrEmpty(searchRequest.getObjectType())) {
-                String value = searchRequest.getObjectType();
-                if ("Contact".equals(value)) {
-                    conditions.append("  and contact.\"recordtypeid\" = ?");
-                    subValues.add(org.getSfid());
-                }else if("Candidate".equals(value)){
-                    conditions.append("  and contact.\"recordtypeid\" != ?");
-                    subValues.add(org.getSfid());
-                }
-            }
-
-            //handle the status
-            if (!Strings.isNullOrEmpty(searchRequest.getStatus())) {
-                String value = searchRequest.getStatus();
-                if ("Active".equals(value)) {
-                    conditions.append("  and contact.\"ts2__people_status__c\" in('',null, 'Active') ");
-                } else if ("Inactive".equals(value)){
-                    conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
-                }
-            }
-            // add the 'educations' filter, and join ts2__education_history__c table
-            hasCondition = renderFilterCondition( searchRequest.getEducations(),
-                    prefixSql, querySql, schemaname, sc,FilterType.EDUCATION,org)||hasCondition;
-           // add the 'companies' filter, and join ts2__employment_history__c table
-           hasCondition = renderFilterCondition( searchRequest.getCompanies(),
-                   prefixSql, querySql, schemaname, sc,FilterType.COMPANY,org)||hasCondition;
-           
-           // add the 'skillNames' filter, and join ts2__skill__c table
-           hasCondition = renderFilterCondition(searchRequest.getSkills(),
-                   prefixSql, querySql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
-           
-           //add the 'radius' filter
-           hasCondition = renderLocationCondition(searchRequest.getLocations(), locationSql,
-                   conditions, schemaname,sc)||hasCondition;
-       }
-       //at last,combine all part to complete sql
-        
-       values.addAll(subValues);
-       
-       hasCondition = renderCustomFilters(searchRequest.getCustomFilters(), querySql, conditions,values,schemaname, sc)
-                      ||hasCondition;
-       
-       //if there has no condition,just append 1!=1
-       if(!hasCondition){
-           conditions.append(" and 1!=1 ");
-       }
-       
-       if(hasSearchValue){
-           querySql=new StringBuilder(" join (").append(querySql);
-       }
-       return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),locationSql.toString()};
-    }
-    
-    /**
      * Get condition for Search logic 
      * @param searchValue the value typed in search box 
      * @param searchValues all other search parameters
@@ -803,105 +959,6 @@ public class SearchDao {
     	    return joinSql.toString();
 	    }
     }
-    /**
-     * boolean search handler for search box
-     * @param searchValue
-     * @param type
-     * @param values
-     * @return
-     */
-    public  String booleanSearchHandler(String searchValue,String type,OrgContext org,boolean exact){
-        String schemaname = (String)org.getOrgMap().get("schemaname");
-    	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-    	StringBuilder sb = new StringBuilder();
-    	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
-    	if(!exact){
-        	if(!searchValue.contains("NOT ")&&
-        	   !searchValue.contains("AND ")&&
-        	   !searchValue.contains("NOT ")){
-            	if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
-            	    searchValue = searchValue.replaceAll("\\s+", " OR ");
-            	    exact = false;
-            	}else{
-            	    exact = true;
-                    searchValue = searchValue.replaceAll("\\\"", "");//.replaceAll("\\s+", " AND ");
-            	}
-        	}else{
-        	    if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
-                    searchValue = searchValue.replaceAll("\\\"", "");
-                }
-        	}
-    	}
-    	//if no search value,just return sql with 1!=1
-    	if(searchValue.equals("")){
-    		return  " select id,sfid from "+schemaname+"."+sc.getContact().getTable()+" where 1!=1 ";
-    	}
-    	String temp = "";
-    	if(type==null||"OR".equals(type)){//if params split with space or "OR",we do in OR logic
-	    	String[] orConditions = searchValue.trim().split("\\s+OR\\s+");
-	    	boolean hasSearch = false;
-	    	for(int i=0;i<orConditions.length;i++){
-	    		String orCondition = orConditions[i];
-	    		sb.append("select a_extr"+i+".id,a_extr"+i+".sfid from (");
-	    		sb.append(booleanSearchHandler(orCondition, "AND",org,exact));
-	    		sb.append(" a_extr"+i+" union ");
-	    		hasSearch = true;
-	    	}
-	    	if(hasSearch){
-	    	    sb.delete(sb.length()-6, sb.length());
-	    	}
-    	}else if("AND".equals(type)){//if params split with AND,we do in AND logic
-    		String[] andConditions = searchValue.trim().split("\\s+AND\\s+");
-    		boolean hasSearch = false;
-	    	for(int i=0;i<andConditions.length;i++){
-	    	    hasSearch = true;
-	    		String andCondition = andConditions[i];
-    			if(i==0){
-    				sb.append(" select n_ext0.id as id,n_ext0.sfid as sfid from ");
-    			}
-	    		sb.append(booleanSearchHandler(andCondition, "NOT",org,exact)+(i));
-	    		if(i>0){
-	    			sb.append(" on n_ext"+i+".id=n_ext"+(i-1)+".id");
-	    		}
-	    		sb.append(" join ");
-	    	}
-	    	if(hasSearch){
-                sb.delete(sb.length()-5, sb.length()).append(" ) ");
-            }
-    	}else if("NOT".equals(type)){//if params split with NOT,we do in NOT logic
-    		String[] notConditions = searchValue.trim().split("\\s+NOT\\s+");
-    		if(notConditions.length==1){
-    			sb.append("(");
-    		}else{
-    			sb.append(" (select n_ext.id,n_ext.sfid from (");
-    		}
-    		
-    		temp = notConditions[0].trim();
-
-			sb.append(" select ex.id,ex.sfid from   "+schemaname
-			    +".jss_contact ex where "+renderKeywordSearch(temp,org,exact)  );
-    		
-			if(notConditions.length==1){
-    			sb.append(") n_ext");
-    		}else{
-    			sb.append(") n_ext");
-    		}
-    		
-    		boolean hasNot = false;
-	    	for(int i=1;i<notConditions.length;i++){
-	    		hasNot = true;
-	    		temp = notConditions[i].trim();
-	    		sb.append(" except ");
-                        
-	    		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".jss_contact ex where "+renderKeywordSearch(temp,org,exact) + " ) ");
-	    	}
-	    	if(hasNot){
-	    		sb.append(")n_ext");
-	    	}
-    	}
-    	return sb.toString();
-    }
-    
     private String renderKeywordSearch(String param,OrgContext org,boolean exact){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
@@ -918,64 +975,6 @@ public class SearchDao {
         }
         return exactFilter+sb.delete(0, 2).toString()+(exact?")":"");
     }
-    /**
-     * Get auto complete data just for name not for count
-     * Now use {@link #getGroupValuesForAdvanced(Map, String, String, Boolean, String, Integer, Integer)}
-     * instead
-     * @param offset
-     * @param size
-     * @param type
-     * @param keyword
-     * @param min
-     * @return
-     * @throws SQLException
-     */
-    @Deprecated
-    public List getTopAdvancedType(Integer offset,Integer size,String type,String keyword,String min,Map org) throws SQLException {
-        if(size == null||size<8){
-            size = 7;
-        }
-        offset = offset < 0 ? 0 : offset;
-        Runner runner = datasourceManager.newOrgRunner((String)org.get("name"));
-        String name = getNameExpr(type);
-        String table = getTable(type,org);
-        StringBuilder querySql =new StringBuilder();
-        if("location".equals(type)){
-        	querySql.append("select city as name from jss_sys.zipcode_us  ");
-        	if(keyword!=null&&!"".equals(keyword)){
-	        	querySql.append(" where city ilike '"+keyword+ (keyword.length()>2?"%":"")+"' ");
-	        }
-		    querySql.append(" group by city order by city offset ").append( offset)
-		            .append( " limit ") 
-		            .append( size); 
-        }else{
-	        querySql.append(" select a.name, count(a.contact) from ( ")
-                    .append( " select e."+name+" as name, e.\"ts2__contact__c\" as contact ")
-                    .append( " from "+table+" e  ")
-                    .append( " where e."+name+" !='' ");
-	        if(min!=null&&!"".equals(min)){
-	        	if("company".equals(type)){
-	        	    querySql.append(" AND EXTRACT(year from age(e.\"ts2__employment_end_date__c\",e.\"ts2__employment_start_date__c\"))>="+min);
-	        	}else if("education".equals("type")){
-	        		querySql.append(" AND EXTRACT(year from age(now(),e.\"ts2__graduationdate__c\"))>="+min);
-	        	}else if("skill".equals("type")){
-	        		querySql.append(" AND e.\"ts2__rating__c\" >=  "+min);
-	        	}
-	        }
-	        if(keyword!=null&&!"".equals(keyword)){
-	        	querySql.append(" AND e."+name+" ilike '"+keyword+(keyword.length()>2?"%":"")+ "' ");
-	        }
-	        querySql.append(" group by e.\"ts2__contact__c\", e."+name+") a  ").
-					 append(" group by a.name order by a.name offset " ).
-	                 append(offset).
-	                 append(" limit ").
-	                 append(size);
-        }
-        List<Map> result =runner.executeQuery(querySql.toString());
-        runner.close();
-        return result;
-    }
-    
     /**
      * Get the column name for type 
      * @param type

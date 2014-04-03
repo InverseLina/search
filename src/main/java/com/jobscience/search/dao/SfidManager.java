@@ -104,7 +104,11 @@ public class SfidManager {
 	     return indexerStatus;
 	 }
 	 
-	 private int getContactsCount(String orgName){
+	 public boolean isOn() {
+    	return on;
+    }
+
+    private int getContactsCount(String orgName){
     	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact");
     	if(list.size()==1){
     		return Integer.parseInt(list.get(0).get("count").toString());
@@ -128,10 +132,6 @@ public class SfidManager {
 		return 0;
 	 }
 
-	public boolean isOn() {
-		return on;
-	}
-	
 	private boolean checkColumn(String columnName,String table,String schemaName) {
         boolean result = false;
         

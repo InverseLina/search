@@ -9,8 +9,6 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import com.britesnow.snow.web.hook.AppPhase;
-import com.britesnow.snow.web.hook.annotation.WebApplicationHook;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.oauth.api.ForceDotComApi;
@@ -23,10 +21,8 @@ public class ForceAuthService {
     @Inject
     OrgContextManager            orgHolder;
     
-    @WebApplicationHook(phase = AppPhase.INIT)
-    public void init() {
-    }
-
+    public static final String UPDATE_TOKEN_URL = "https://login.salesforce.com/services/oauth2/token";
+    
     public String getAuthorizationUrl() {
         return getOAuthService().getAuthorizationUrl(EMPTY_TOKEN);
     }
@@ -37,13 +33,12 @@ public class ForceAuthService {
         return accessToken;
     }
 
-    public static final String UPDATE_TOKEN_URL = "https://login.salesforce.com/services/oauth2/token";
-
     public Token updateToken(String rtoken){
+        //the format is like:
+        //grant_type=refresh_token&client_id=3MVG9lKcPoNINVBIPJjdw1J9LLM82HnFVVX19KY1uA5mu0
+        //QqEWhqKpoW3svG3XHrXDiCQjK1mdgAvhCscA9GE&client_secret=1955279925675241571
+        //&refresh_token=your token here
         OAuthRequest request = new OAuthRequest(Verb.POST, UPDATE_TOKEN_URL);
-//        grant_type=refresh_token&client_id=3MVG9lKcPoNINVBIPJjdw1J9LLM82HnFVVX19KY1uA5mu0
-//        QqEWhqKpoW3svG3XHrXDiCQjK1mdgAvhCscA9GE&client_secret=1955279925675241571
-//                &refresh_token=your token here
         request.addBodyParameter("grant_type", "refresh_token");
         request.addBodyParameter("client_id", helper.getApiKey());
         request.addBodyParameter("client_secret", helper.getApiSecret());

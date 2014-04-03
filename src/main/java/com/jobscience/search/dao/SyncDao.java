@@ -84,7 +84,4 @@ public class SyncDao {
         }
         return "\'"+value.toString().replaceAll("\'", "\'\'")+"'";
     }
-    public static void main(String[] args) {
-        System.out.println("ss"+null);
-    }
 }

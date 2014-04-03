@@ -8,8 +8,6 @@ public class OrgContext {
     
     private String sfid;
     
-    private Map orgConfig;
-
     public Map getOrgMap() {
         return orgMap;
     }
@@ -26,15 +24,5 @@ public class OrgContext {
     public void setSfid(String sfid) {
         this.sfid = sfid;
     }
-
-    public Map getOrgConfig() {
-        return orgConfig;
-    }
-
-    public void setOrgConfig(Map orgConfig) {
-        this.orgConfig = orgConfig;
-    }
-    
-    
     
 }

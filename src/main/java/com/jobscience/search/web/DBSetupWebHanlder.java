@@ -1,6 +1,5 @@
 package com.jobscience.search.web;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 import com.britesnow.snow.web.param.annotation.WebParam;
@@ -83,14 +82,6 @@ public class DBSetupWebHanlder {
         return webResponseBuilder.success(status);
     }
     
-    @WebPost("/admin-sys-pause")
-    @RequireAdmin
-    public WebResponse pause(){
-        dbSetupManager.stopSystemSetup();
-        Map status = dbSetupManager.getSystemSetupStatus();
-        return webResponseBuilder.success(status);
-    }
-    
     @WebPost("/admin-sys-reset")
     @RequireAdmin
     public WebResponse reset(){
@@ -110,37 +101,6 @@ public class DBSetupWebHanlder {
     public WebResponse dropExTables(@WebParam("orgName")String orgName){
         dbSetupManager.dropExTables(orgName);
         return webResponseBuilder.success();
-    }
-    
-    @WebGet("/getWrongIndexes")
-    @RequireAdmin
-    public WebResponse getWrongIndexes(@WebParam("orgName")String orgName){
-        return webResponseBuilder.success(dbSetupManager.getWrongIndex(orgName));
-    }
-    
-    @WebPost("/removeWrongIndexes")
-    @RequireAdmin
-    public WebResponse removeWrongIndex(@WebParam("orgName")String orgName){
-        try {
-            return webResponseBuilder.success(dbSetupManager.removeWrongIndex(orgName));
-        } catch (SQLException e) {
-            return webResponseBuilder.success(new JSSSqlException(e));
-        }catch (Exception e) {
-            return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
-        }
-    }
-    
-    @WebPost("/recreateTriggers")
-    @RequireAdmin
-    public WebResponse recreateTriggers(@WebParam("orgName")String orgName){
-        try {
-            return webResponseBuilder.success(dbSetupManager.recreateTriggers(orgName));
-        } catch (SQLException e) {
-            return webResponseBuilder.success(new JSSSqlException(e));
-        }catch (Exception e) {
-            e.printStackTrace();
-            return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
-        }
     }
     
 }

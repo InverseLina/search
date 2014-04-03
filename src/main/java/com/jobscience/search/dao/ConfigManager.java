@@ -87,6 +87,29 @@ public class ConfigManager {
         }
     }
     
+    /**
+     * Save or Update org config
+     * @param params 
+     * @param orgId if <code>null</code>,use current org id,else use the orgId
+     * @throws SQLException
+     */
+    public void saveOrUpdateConfig(Map<String, String> params,Integer orgId) throws SQLException {
+        StringBuilder names = new StringBuilder("(");
+        StringBuilder sql = new StringBuilder();
+        for (String key : params.keySet()) {
+            names.append("'" + key + "'");
+            names.append(",");
+            sql.append(format("(%s, '%s', '%s'),", orgId, key, params.get(key)));
+        }
+        names.append("'-1')");
+        sql.deleteCharAt(sql.length() - 1);
+        daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("delete from config where org_id = %s and  name in %s", orgId, names));
+        daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("insert into  config(org_id, name,value) values %s ", sql));
+        
+        //clear cache
+        updateCache(orgId);
+    }
+    
     protected Map<String, Object> loadConfigMap(Integer orgId){
         
         List params = new ArrayList();
@@ -116,30 +139,8 @@ public class ConfigManager {
         
         return m;
     }
-    
-    /**
-     * Save or Update org config
-     * @param params 
-     * @param orgId if <code>null</code>,use current org id,else use the orgId
-     * @throws SQLException
-     */
-    public void saveOrUpdateConfig(Map<String, String> params,Integer orgId) throws SQLException {
-        StringBuilder names = new StringBuilder("(");
-        StringBuilder sql = new StringBuilder();
-        for (String key : params.keySet()) {
-            names.append("'" + key + "'");
-            names.append(",");
-            sql.append(format("(%s, '%s', '%s'),", orgId, key, params.get(key)));
-        }
-        names.append("'-1')");
-        sql.deleteCharAt(sql.length() - 1);
-        daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("delete from config where org_id = %s and  name in %s", orgId, names));
-        daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("insert into  config(org_id, name,value) values %s ", sql));
-        
-        //clear cache
-        updateCache(orgId);
-    }
-    
+
+
     private Map getConfigValuesFromValueList(List<Map> valueList, Integer orgId) {
         Map result = new HashMap();
         for (Map valMap : valueList) {

@@ -2,7 +2,6 @@ package com.jobscience.search.web;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -10,13 +9,9 @@ import javax.inject.Singleton;
 
 import net.sf.json.JSONObject;
 
-import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.param.annotation.WebParam;
-import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
-import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.jobscience.search.auth.RequireAdmin;
-import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchRequest;
 import com.jobscience.search.dao.SearchResult;
@@ -32,14 +27,8 @@ public class WarmupWebHandlers {
     private OrgContextManager orgHolder;
 
     @Inject
-    private DaoHelper daoHelper;
-
-    @Inject
     private WebResponseBuilder webResponseBuilder;
 
-    @Inject
-    private OrgContextManager orgContextManager;
-    
     /**
      * api for main search
      * 
@@ -61,7 +50,7 @@ public class WarmupWebHandlers {
         
         
         SearchResult searchResult = searchDao.search(new SearchRequest(searchMap),"-1",
-                orgContextManager.getOrgContext(org));
+            orgHolder.getOrgContext(org));
         Map<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", searchResult.getCount());
         resultMap.put("duration", searchResult.getSelectDuration());
@@ -105,7 +94,7 @@ public class WarmupWebHandlers {
         if (pageNum == null || pageNum < 1) {
             pageNum = 1;
         }
-        SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum,orgContextManager.getOrgContext(org));
+        SearchResult sResult = searchDao.getGroupValuesForAdvanced(searchMap, type, queryString, orderByCount, min, 30, pageNum, orgHolder.getOrgContext(org));
 
         HashMap<String, Number> resultMap = new HashMap<String, Number>();
         resultMap.put("count", sResult.getCount());
@@ -122,43 +111,5 @@ public class WarmupWebHandlers {
         } catch (Exception e) {
             return webResponseBuilder.success(false);
         }
-    }
-
-    @WebGet("/perf/get-user-pref")
-    public WebResponse getUserPref (@WebUser Map user) throws SQLException {
-        try {
-            List<Map> prefs = daoHelper.executeQuery(orgHolder.getOrgName(), "select * from pref where name = ? and user_id = ?", "filter_order", user.get("id"));
-            if (prefs.size() == 1) {
-                return webResponseBuilder.success(prefs.get(0));
-            } else {
-                return webResponseBuilder.success(false);
-            }
-        } catch (Exception e) {
-            return webResponseBuilder.success(false);
-        }
-    }
-
-    //EndUser use this
-    @WebPost("/perf/save-user-pref")
-    public WebResponse saveUserPref (@WebUser Map user, @WebParam("value") String value, RequestContext rc) throws SQLException {
-        if (user != null && value.trim().length() > 0) {
-            try {
-                List<Map> prefs = daoHelper.executeQuery(orgHolder.getOrgName(),
-                        "select * from pref where name = ? and user_id = ?", "filter_order", user.get("id"));
-                if (prefs.size() == 0) {
-                    daoHelper.executeUpdate(orgHolder.getOrgName(),
-                            "insert into pref (user_id, name, val_text) values(?,?,?)",user.get("id"),"filter_order", value);
-                } else {
-                    daoHelper.executeUpdate(orgHolder.getOrgName(),
-                            "update pref set val_text = ? where id = ?",value, prefs.get(0).get("id") );
-                }
-                return webResponseBuilder.success(true);
-            } catch (Exception e) {
-                return webResponseBuilder.success(false);
-            }
-        }else{
-            return webResponseBuilder.fail();
-        }
-
     }
 }
