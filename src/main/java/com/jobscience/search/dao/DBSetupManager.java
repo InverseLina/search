@@ -1541,7 +1541,7 @@ public class DBSetupManager {
                 + " and t.trigger_schema=current_schema"
                 + " and t.trigger_name in("
                 + sb.delete(0, 1)
-                + ")");
+                + ") join pg_namespace pn on p.pronamespace=pn.oid and pn.nspname = current_schema ");
         
         String databaseContent,fileContent;
         for(Map trigger:triggers){
