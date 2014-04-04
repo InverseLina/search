@@ -48,7 +48,6 @@
 		var html = view.$refresh.html();
 		view.$refresh.html("..........");
 		app.getJsonData("perf-get-all").done(function(response) {
-			console.log(response);
 			view.$tbodyMethods.html(render("PerfView-tbody", {
 				perfs : response.methodPerfSortValues
 			}));

@@ -47,7 +47,6 @@
 			},
 			"DO_SHOW_MSG" : function(event, opts) {
 				var $place = $(opts.selector);
-				console.log($place);
 				if (opts.type === "success") {
 					$place.addClass("alert-success").removeClass("alert-danger").removeClass("hide").removeClass("out").addClass("in").html(opts.msg);
 					setTimeout(function() {

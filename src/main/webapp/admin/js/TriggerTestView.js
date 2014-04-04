@@ -33,7 +33,6 @@
 				$("form :input", view.$el).each(function(i, obj) {
 					res[obj.name] = $(obj).val();
 				});
-				//                    console.log(res)
 				app.getJsonData("/test/saveContact", res, "Post").done(function() {
 					$("form :input", view.$el).val("");
 				});

@@ -394,7 +394,6 @@
 				view.$el.find(".toolBarContainer ").hide();
 				view.$el.find(".empty-search").hide();
 				//          view.$el.find(".page").hide();
-				//          console.log(extra);
 			},
 			"RESTORE_SEARCH_VIEW" : function(event) {
 				var view = this;
