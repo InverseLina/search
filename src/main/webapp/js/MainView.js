@@ -91,6 +91,8 @@
 				} else {
 					view.$el.find(".btnClearSearch").prop("disabled", true).addClass("disabled");
 				}
+				view.$el.find(".btnAddToShotList").prop("disabled", true).addClass("disabled");
+				view.$el.find(".btnApply").prop("disabled", true).addClass("disabled");
 			}
 
 		},

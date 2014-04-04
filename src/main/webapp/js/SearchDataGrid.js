@@ -77,11 +77,16 @@
 				event.stopPropagation();
 				var view = this;
 				var $th = $(event.currentTarget);
-				view.$el.trigger("POPUP_CLOSE");
-				brite.display("HeaderPopup", ".SearchDataGrid", {
-					$target : $th
-				});
-
+				var contentName = $(event.currentTarget).attr("data-column").toLowerCase();
+				var popupName = String($($(".HeaderPopup .popover-content").find("div").get(0)).attr("class")).toLowerCase();
+				if(popupName.indexOf(contentName) >=0){
+					view.$el.trigger("POPUP_CLOSE");
+				}else{
+		            view.$el.trigger("POPUP_CLOSE");
+					brite.display("HeaderPopup", ".SearchDataGrid", {
+						$target : $th
+					});
+				}
 			},
 			"click; div.btnPopupColumns" : function(event) {
 				brite.display("SelectColumns");
@@ -155,6 +160,8 @@
 
 				if ($this.hasClass("selectAll")) {
 					$e.find(".tableContainer tr").addClass("applySelect").find(".selectCheckbox").addClass("selected");
+					view.$el.find(".btnAddToShotList").prop("disabled", false).removeClass("disabled");
+					view.$el.find(".btnApply").prop("disabled", false).removeClass("disabled");
 				} else {
 					$e.find(".tableContainer tr").removeClass("applySelect").find(".selectCheckbox").removeClass("selected");
 				}
