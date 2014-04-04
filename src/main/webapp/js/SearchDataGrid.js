@@ -216,6 +216,9 @@
 				var $e = view.$el;
 				e.stopPropagation();
 				e.preventDefault();
+				
+				$e.trigger("POPUP_CLOSE");
+				
 				var $dragTable = view.$el.find("#dragTable");
 				var ppos = $dragTable.position();
 				var pos = {
