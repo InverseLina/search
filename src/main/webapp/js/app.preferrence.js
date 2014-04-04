@@ -49,7 +49,7 @@ var app = app || {};
 
 	app.preference = {
 		store : function(key, value) {
-			document.cookie = key + "=" + value + "; expires=0";
+			app.cookie(key,value);
 		},
 		get : function(key, defaultVal) {
 			return getCookie(key, defaultVal);
@@ -75,7 +75,7 @@ var app = app || {};
 
 	app.cookie = function(name, value, options) {
 		if ( typeof value !== 'undefined') {
-			options = options || {};
+			options = options || {expires:365};
 			if (value === null) {
 				value = '';
 				options = $.extend({}, options);
