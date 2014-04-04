@@ -162,7 +162,7 @@ public class OrgContextManager {
             orgCacheByToken.put(ctoken, orgContext);
         }
         if (crh.getCurrentRequestContext() != null) {
-            crh.getCurrentRequestContext().setCookie("ctoken", ctoken);
+            crh.getCurrentRequestContext().setCookie("ctoken", ctoken,true);
         }
     }
 

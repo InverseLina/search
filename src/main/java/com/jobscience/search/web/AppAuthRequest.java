@@ -89,7 +89,7 @@ public class AppAuthRequest implements AuthRequest {
             case WEB_TEMPLATE:
                 String orgName = rc.getParam("org");
                 if (orgName != null) {
-                  rc.setCookie(COOKIE_ORG, orgName);
+                  rc.setCookie(COOKIE_ORG, orgName,true);
                 }
                 return authWebRequest(rc);
             // static files and generated files (.less, webbundle) we do not need to auth.
@@ -103,7 +103,7 @@ public class AppAuthRequest implements AuthRequest {
     public WebResponse passcode(@WebParam("passcode") String code ,RequestContext rc) {
         if (passCode != null && passCode.length() > 0 && passCode.equals(code)) {
             String codeSha1 = sha1(code);
-            rc.setCookie(COOKIE_PASSCODE, codeSha1);
+            rc.setCookie(COOKIE_PASSCODE, codeSha1, true);
             return webResponseBuilder.success(true);
         }else{
             rc.removeCookie(COOKIE_PASSCODE);
@@ -116,7 +116,7 @@ public class AppAuthRequest implements AuthRequest {
                             @WebParam("password") String password) throws SQLException {
         if (configPassword.equals(password)) {
             String passwordSha1 = sha1(password);
-            rc.setCookie(COOKIE_ADMIN_TOKEN, passwordSha1);
+            rc.setCookie(COOKIE_ADMIN_TOKEN, passwordSha1,true);
             return webResponseBuilder.success();
         } else {
             rc.removeCookie(COOKIE_ADMIN_TOKEN);
@@ -288,7 +288,7 @@ public class AppAuthRequest implements AuthRequest {
             if(user == null){
                 String ctoken = userDao.buildCToken(null);
                 userDao.insertUser(null, ctoken, 0l, null);
-                rc.setCookie(COOKIE_ORG_USER_TOKEN, ctoken);
+                rc.setCookie(COOKIE_ORG_USER_TOKEN, ctoken,true);
                 user = userDao.getUserByToken(ctoken);
                 updateCache(user);
             }
