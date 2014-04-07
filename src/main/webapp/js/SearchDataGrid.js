@@ -112,9 +112,6 @@
 				var $this = $(event.currentTarget);
 				var name = $this.attr("data-column");
 				var value = $this.closest("td").attr("data-value") || $this.find("span").text();
-				$this.closest("tbody").find("tr").removeClass("select");
-				$this.closest("tr").addClass("select");
-				this.selectId = $this.closest("tr").attr("data-objId");
 				if (value !== "") {
 					var data = {
 						type : name,
@@ -302,9 +299,6 @@
 		},
 		restoreSearchParam : function(filters) {
 			var key, dataName, data, displayName, $html, $th, view = this;
-			if (view.selectId) {
-				view.$el.find("tbody tr[data-objId='" + view.selectId + "']").addClass("select");
-			}
 			if (view.$el.find("table th .selectedItems .item").length > 0) {
 				return;
 			}
