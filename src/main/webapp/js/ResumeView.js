@@ -58,8 +58,10 @@
 					keyWordsSplited = keyWord.split(/\s+/);
 				}
 				for (var k in keyWordsSplited) {
-					var reg = new RegExp("(" + keyWordsSplited[k] + ")", "gi");
-					resume = resume.replace(reg, "<span class=\"highlight\">$1</span>");
+					if (keyWordsSplited[k] != "AND" && keyWordsSplited[k] !== "OR" && keyWordsSplited[k] !== "NOT"){
+						var reg = new RegExp("(" + keyWordsSplited[k] + ")", "gi");
+						resume = resume.replace(reg, "<span class=\"highlight\">$1</span>");
+					}
 				}
 				$content = $(render("ResumeView-content", {
 					resume : resume
