@@ -435,38 +435,10 @@
 							if (view.tableOrderColumn && view.tableOrderType) {
 								$e.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
 							}
-							fixColWidth.call(view);
-
-							brite.display("Pagination", view.$el.find(".pagination-ctn"), {
-								pageIdx : result.pageIdx,
-								pageSize : result.pageSize,
-								totalCount : result.count,
-								callback : function(pageIdx, pageSize) {
-									view.pageIdx = pageIdx;
-									view.pageSize = pageSize;
-									view.$el.trigger("DO_SEARCH", {
-										pageIdx : pageIdx
-									});
-								}
-
-							}).done(function() {
-								var $pagination = view.$el.find(".pagination-ctn");
-								var pagination = view.$el.find(".Pagination").bComponent();
-								if (labelAssigned) {
-									$e.trigger("CHANGE_TO_FAV_VIEW");
-									pagination.hide();
-								} else {
-									$e.trigger("RESTORE_SEARCH_VIEW");
-									pagination.show();
-								}
-
-								$e.find(".resultCount").html("{0} match{1}".format(result.count, result.count > 1 ? "es" : ""));
-							});
 
 							//restore input values
 							$e.find(".search-input").val(app.ParamsControl.getQuery());
 
-							view.restoreSearchParam();
 						});
 
 					} else {
@@ -475,16 +447,36 @@
 							labelAssigned : app.buildPathInfo().labelAssigned
 						}));
 						view.$searchResult.find(".page").empty();
-						fixColWidth.call(view);
-						$e.find(".resultCount").html("{0} match{1}".format(result.count, result.count > 1 ? "es" : ""));
-						view.restoreSearchParam();
-						if (labelAssigned) {
-							$e.trigger("CHANGE_TO_FAV_VIEW");
-						} else {
-							$e.trigger("RESTORE_SEARCH_VIEW");
-						}
 
 					}
+					
+					fixColWidth.call(view);
+					view.restoreSearchParam();
+					brite.display("Pagination", view.$el.find(".pagination-ctn"), {
+						pageIdx : result.pageIdx,
+						pageSize : result.pageSize,
+						totalCount : result.count,
+						callback : function(pageIdx, pageSize) {
+							view.pageIdx = pageIdx;
+							view.pageSize = pageSize;
+							view.$el.trigger("DO_SEARCH", {
+								pageIdx : pageIdx
+							});
+						}
+					}).done(function() {
+						var $pagination = view.$el.find(".pagination-ctn");
+						var pagination = view.$el.find(".Pagination").bComponent();
+						if (labelAssigned) {
+							$e.trigger("CHANGE_TO_FAV_VIEW");
+							pagination.hide();
+						} else {
+							$e.trigger("RESTORE_SEARCH_VIEW");
+							pagination.show();
+						}
+
+						$e.find(".resultCount").html("{0} match{1}".format(result.count, result.count > 1 ? "es" : ""));
+					}); 
+
 
 				}
 
