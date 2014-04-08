@@ -1353,10 +1353,10 @@ public class SearchDao {
                 return this;
             }
             if ("Contact".equals(objectType)) {
-                conditions.append("  and contact.\"recordtypeid\" = ?");
+                conditions.append("  and contact.\"recordtypeid\" != ?");
                 values.add(org.getSfid());
             }else if("Candidate".equals(objectType)){
-                conditions.append("  and contact.\"recordtypeid\" != ?");
+                conditions.append("  and contact.\"recordtypeid\" = ?");
                 values.add(org.getSfid());
             }
             hasCondition = true;
