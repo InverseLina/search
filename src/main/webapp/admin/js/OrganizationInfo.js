@@ -47,7 +47,7 @@
 				getData.call(view, view.orgId).done(function(orgName) {
 					view.orgName = orgName;
 					var li = render("OrganizationInfo-li", {
-						type : "Organization: " + orgName,
+						type : orgName,
 						url : "#" + app.pathInfo.paths[0] + "/" + app.pathInfo.paths[1]
 					});
 					view.$navTabs.find('li:last').before(li);
