@@ -627,10 +627,10 @@ public class SearchDao {
             if (!Strings.isNullOrEmpty(searchRequest.getObjectType())) {
                 String value = searchRequest.getObjectType();
                 if ("Contact".equals(value)) {
-                    conditions.append("  and contact.\"recordtypeid\" = ?");
+                    conditions.append("  and contact.\"recordtypeid\" != ?");
                     subValues.add(org.getSfid());
                 }else if("Candidate".equals(value)){
-                    conditions.append("  and contact.\"recordtypeid\" != ?");
+                    conditions.append("  and contact.\"recordtypeid\" = ?");
                     subValues.add(org.getSfid());
                 }
             }
