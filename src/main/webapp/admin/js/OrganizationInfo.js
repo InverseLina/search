@@ -47,7 +47,7 @@
 				getData.call(view, view.orgId).done(function(orgName) {
 					view.orgName = orgName;
 					var li = render("OrganizationInfo-li", {
-						type : "Organization: " + orgName,
+						type : orgName,
 						url : "#" + app.pathInfo.paths[0] + "/" + app.pathInfo.paths[1]
 					});
 					view.$navTabs.find('li:last').before(li);
@@ -274,8 +274,10 @@
 				var view = this;
 				var orgName = view.currentOrgName;
 				var $btn = $(event.currentTarget);
+				var $e = view.$el;
 				var $resetBtn = view.$el.find(".org-reset");
 				$btn.prop("disabled", true).html("Setup...");
+				$e.find(".opts-btns .error").addClass("hide");
 				$resetBtn.prop("disabled", true);
 				app.getJsonData("/admin-org-setup", {
 					org : orgName
@@ -289,11 +291,13 @@
 					refresh.call(view);
 				}, 3000);
 			},
-			"STATUS_CHANGE" : function(event, init) {
+			"STATUS_CHANGE" : function(event, times) {
 				var view = this;
+				times = times || 0;
 				var orgName = view.currentOrgName;
 				var addClass = "alert-success", removeClass = "alert-danger";
 				var $setupBtn = view.$el.find(".org-setup"), $pasueBtn = view.$el.find(".org-pause"), $resetBtn = view.$el.find(".org-reset");
+				times++;
 				app.getJsonData("/admin-org-status", {
 					org : orgName
 				}, {
@@ -362,6 +366,12 @@
 							view.$el.find("." + setup.name + "_info").addClass(addClass).removeClass(removeClass).removeClass("hide").html(setup.msg);
 						}
 					});
+				}).fail(function(){
+					if(times < 3){
+						view.$el.trigger("STATUS_CHANGE",times);
+					}else{
+						showStatusError.call(view);
+					}
 				});
 			},
 			"click; button.saveSearchConfig" : function(event) {
@@ -452,6 +462,14 @@
 		var view = this;
 		view.$el.trigger("STATUS_CHANGE");
 	}
+	
+	function showStatusError(){
+		var view = this;
+		var $e = view.$el;
+		var $setupBtn = $e.find(".opts-btns .org-setup");
+		$setupBtn.prop("disabled", false).html("Resume");
+		$e.find(".opts-btns .error").removeClass("hide");
+	}
 
 	function fillProgressBar(setup) {
 		var view = this;
@@ -514,7 +532,7 @@
 				});
 				view.$tabContent.bEmpty();
 				view.$tabContent.html(html);
-				view.$el.trigger("STATUS_CHANGE", false);
+				view.$el.trigger("STATUS_CHANGE");
 				dfd.resolve(data[0].name);
 				app.getJsonData("/config/get/", {
 					orgId : view.orgId

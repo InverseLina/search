@@ -76,6 +76,9 @@
 			"click;.clear-all" : function(event) {
 				clearSearch.call(this);
 			},
+			"click;.reSearch" : function(event) {
+				$(document).trigger("DO_SEARCH",{retry:true});
+			},
 			"CHECK_CLEAR_BTN" : function() {
 				var view = this;
 				var filters = app.ParamsControl.getFilterParams();
@@ -167,17 +170,35 @@
 			}
 			return;
 		}
-
-		view.contentView.dataGridView.showContentMessage("loading");
+		if(opts.retry){
+			view.contentView.dataGridView.showContentMessage("retrying");
+		}else{
+			view.contentView.dataGridView.showContentMessage("loading");
+		}
 		view.contentView.dataGridView.restoreSearchParam();
 
 		searchParameter.pageIndex = opts.pageIdx || 1;
+		var searchTimes = 0;
+		doSearchRequest.call(view, searchParameter, searchTimes);
 
-		searchDao.search(searchParameter).always(function(result) {
+	}
+	
+	function doSearchRequest(searchParameter, searchTimes){
+		var view = this;
+		searchTimes++ ;
+		searchDao.search(searchParameter).done(function(result) {
 			view.$el.trigger("CHECK_CLEAR_BTN");
 			view.$el.trigger("SEARCH_RESULT_CHANGE", result);
+		}).fail(function(result){
+			if (searchTimes < 3) {
+				doSearchRequest.call(view, searchParameter, searchTimes);
+			} else {
+				view.contentView.dataGridView.showContentMessage("error", {
+					title : "Search Error",
+					detail : "Server unavailable for the moment. <span class='reSearch btn btn-link'>Retry search</span>"
+				});
+			}
 		});
-
 	}
 
 	function clearSearch() {

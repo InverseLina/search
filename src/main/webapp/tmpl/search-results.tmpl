@@ -93,6 +93,12 @@
 	{{/colBody}}
 </script>
 
+<script id="search-retrying" type="text/html">
+	{{#colBody 'search-items-header-with-body'}}
+		<span class="retrying badge badge-info">Retrying...</span>
+	{{/colBody}}
+</script>
+
 <script id="search-empty" type="text/html">
 	{{#colBody 'search-items-header-with-body'}}
 		<div class="empty-search">
@@ -104,7 +110,7 @@
 <script id="search-query-error" type="text/html">
 	{{#colBody 'search-items-header-with-body'}}
 		<div class="alert alert-block alert-error alert-danger fade in">
-			<strong>{{title}}:</strong> {{detail}}
+			<strong>{{title}}:</strong> {{{detail}}}
 		</div>
 	{{/colBody}}
 </script>

@@ -278,6 +278,8 @@
 				}));
 			} else if (cmd === "loading") {
 				$tabContainer.html(render("search-loading"));
+			} else if (cmd === "retrying") {
+				$tabContainer.html(render("search-retrying"));
 			} else if (cmd === "lessword") {
 				$tabContainer.html(render("search-query-less-words", {
 					colWidth : getColWidth.call(view),
@@ -291,9 +293,6 @@
 					colWidth : getColWidth.call(view)
 				});
 				$tabContainer.html(html);
-				brite.display("MessagePanel", ".search-result", {
-					message : "No Organization selected"
-				});
 			}
 			view.$searchResult.find(".page").empty();
 			fixColWidth.call(view);
@@ -375,6 +374,9 @@
 					view.showContentMessage("error", {
 						title : title,
 						detail : detail
+					});
+					brite.display("MessagePanel", ".search-result", {
+						message : "No Organization selected"
 					});
 				}
 			},
