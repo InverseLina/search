@@ -277,6 +277,8 @@
 				}));
 			} else if (cmd === "loading") {
 				$tabContainer.html(render("search-loading"));
+			} else if (cmd === "retrying") {
+				$tabContainer.html(render("search-retrying"));
 			} else if (cmd === "lessword") {
 				$tabContainer.html(render("search-query-less-words", {
 					colWidth : getColWidth.call(view),
