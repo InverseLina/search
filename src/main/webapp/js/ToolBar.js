@@ -59,6 +59,8 @@
 				var view = this;
 				var $e = view.$el;
 				$e.find(".action-button").removeClass("disabled");
+				view.$el.find(".btnAddToShotList").prop("disabled", false).removeClass("disabled");
+				view.$el.find(".btnApply").prop("disabled", false).removeClass("disabled");
 			},
 			"DO_TOOLBAR_DEACTIVE_BUTTONS" : function() {
 				var view = this;
