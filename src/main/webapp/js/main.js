@@ -121,11 +121,12 @@ app.defaultMenuSize = 5;
 				if (jxhr.responseText) {
 					console.log(" WARNING: json not well formatted, falling back to JS eval");
 					var data = eval.call(window,"(" + jxhr.responseText + ")");
-					dfd.resolve(data);
+					dfd.reject(data);
 				} else {
 					throw " EXCEPTION: Cannot get content for " + url;
 				}
 			} catch (ex) {
+				dfd.reject(jxhr.responseText);
 				console.log(" ERROR: " + ex + " Fail parsing JSON for url: " + url + "\nContent received:\n" + jxhr.responseText);
 			}
 		});

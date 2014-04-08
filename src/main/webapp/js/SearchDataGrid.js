@@ -290,9 +290,6 @@
 					colWidth : getColWidth.call(view)
 				});
 				$tabContainer.html(html);
-				brite.display("MessagePanel", ".search-result", {
-					message : "No Organization selected"
-				});
 			}
 			view.$searchResult.find(".page").empty();
 			fixColWidth.call(view);
@@ -374,6 +371,9 @@
 					view.showContentMessage("error", {
 						title : title,
 						detail : detail
+					});
+					brite.display("MessagePanel", ".search-result", {
+						message : "No Organization selected"
 					});
 				}
 			},
