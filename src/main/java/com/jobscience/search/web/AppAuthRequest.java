@@ -179,6 +179,7 @@ public class AppAuthRequest implements AuthRequest {
     }
     
     private AuthToken authWebRequest(RequestContext rc){
+    	rc.getRes().setHeader("P3P", "CP=\"IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA\"");
         AuthToken authToken = null;
         String path = rc.getPathInfo();
         String contextPath = rc.getContextPath();

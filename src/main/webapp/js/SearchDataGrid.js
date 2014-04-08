@@ -29,6 +29,7 @@
 				var $this = $(event.currentTarget);
 				var keyword = $this.val();
 				if (event.which === 13) {
+					event.preventDefault();
 					view.$el.trigger("DO_SEARCH", {
 						search : keyword
 					});
