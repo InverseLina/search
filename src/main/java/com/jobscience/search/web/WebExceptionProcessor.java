@@ -47,7 +47,7 @@ public class WebExceptionProcessor {
             rc.getWebModel().put("errorMessage", "You have no passcode");
         }else if(e.getErrorCode() == AuthCode.NO_ORG_CTOKEN){
             rc.getWebModel().put("errorCode", AuthCode.NO_ORG_CTOKEN.toString());
-            rc.getWebModel().put("errorMessage", "You do not login, please relogin to app");
+            rc.getWebModel().put("errorMessage", "Your Salesforce session has expired. Please re-login to continue working");
         }
         rc.getWebModel().put("success", "false");
 		logger.warn("AUTH_ERROR "+e.getErrorCode());
