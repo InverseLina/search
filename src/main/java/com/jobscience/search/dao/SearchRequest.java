@@ -52,11 +52,11 @@ public class SearchRequest {
             }else if(columns.contains(orderBy)){
                 order = " \""+getOrderColumn(orderBy)+ "\" " +(asc?"asc":"desc");
             }else{
-                order = " \"id\" asc";
+                order = " \"id\" desc";
             }
             
         }else{
-            order = " \"id\" asc";
+            order = " \"id\" desc";
         }
         
         

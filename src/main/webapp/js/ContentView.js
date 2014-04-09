@@ -14,6 +14,7 @@
 
 			brite.display("SearchDataGrid").done(function(searchDataGrid) {
 				view.dataGridView = searchDataGrid;
+				view.$el.trigger("CHECK_CLEAR_BTN");
 			});
 		}
 
