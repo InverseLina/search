@@ -51,12 +51,16 @@
 			if (result.length > 0) {
 				var resume = result[0]["ts2__text_resume__c"];
 				var keyWord = app.ParamsControl.getQuery();
-				var keyWordsSplited;
-				if (/^\s*\".+\"\s*$/.test(keyWord)) {
-					keyWordsSplited = [keyWord.replace(/^\s*\"(.+)\"\s*$/, "$1")];
-				} else {
-					keyWordsSplited = keyWord.split(/\s+/);
+				var keyWordsSplited = keyWord;
+				var pattern = /^\s*\".+\"\s*$/g;
+				if (pattern.test(keyWord)) {
+					keyWordsSplited = keyWordsSplited.replace(pattern, "");
 				}
+				pattern = /[^A-z0-9 ]/g;
+				if (pattern.test(keyWord)) {
+					keyWordsSplited = keyWordsSplited.replace(pattern, "");
+				}
+				keyWordsSplited = keyWordsSplited.split(/\s+/);
 				for (var k in keyWordsSplited) {
 					if (keyWordsSplited[k] != "AND" && keyWordsSplited[k] !== "OR" && keyWordsSplited[k] !== "NOT"){
 						var reg = new RegExp("(" + keyWordsSplited[k] + ")", "gi");
