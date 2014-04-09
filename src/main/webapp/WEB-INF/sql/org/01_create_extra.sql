@@ -22,9 +22,9 @@
 	schema_name := '"'||TG_TABLE_SCHEMA||'"';
 	EXECUTE   'set search_path to '||schema_name;
 	IF( TG_OP='INSERT' ) THEN
-	    insert into jss_contact(id,resume_tsv,contact_tsv,sfid) values(new.id,to_tsvector('english', new."ts2__text_resume__c" ),to_tsvector('english',new."firstname"||' '||new."lastname"||' '||new."title"),new.sfid||' ');
+	    insert into jss_contact(id,resume_tsv,contact_tsv,sfid) values(new.id,to_tsvector('english', coalesce(new."ts2__text_resume__c",' ')),to_tsvector('english',coalesce(new."firstname",' ')||coalesce(new."lastname",' ')||coalesce(new."title",' ')),to_tsvector('english',coalesce(new."sfid",' ')));
 	ELSIF (TG_OP = 'UPDATE') THEN
-	    UPDATE jss_contact SET resume_tsv=to_tsvector('english', new."ts2__text_resume__c" ),contact_tsv= to_tsvector('english',new."firstname"||' '||new."lastname"||' '||new."title")  where id = new.id;
+	    UPDATE jss_contact SET resume_tsv=to_tsvector('english', coalesce("ts2__text_resume__c",' ')),contact_tsv= to_tsvector('english',coalesce("firstname",' ')||coalesce("lastname",' ')||coalesce("title",' '))  where id = new.id;
 	END IF;
 	RETURN NEW;
 	END;
@@ -35,7 +35,7 @@
 	DROP TRIGGER if exists contact_trg_resume_tsv ON contact  CASCADE;
 -- SCRIPTS
 CREATE TRIGGER contact_trg_resume_tsv
-  AFTER INSERT OR UPDATE OF "ts2__text_resume__c","firstname","lastname","sfid"
+  AFTER INSERT OR UPDATE OF "ts2__text_resume__c","firstname","lastname","title","sfid"
   ON contact
   FOR EACH ROW
   EXECUTE PROCEDURE update_context_ex_resume();
