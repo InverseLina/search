@@ -309,7 +309,6 @@
 			//restore input values
 			$e.find(".search-input").val(app.ParamsControl.getQuery()); 
 
-			
 		},
 		showContentMessage : function(cmd, extra) {
 			var view = this;
@@ -338,7 +337,7 @@
 				$tabContainer.html(html);
 			}
 			
-			view.$searchResult.find(".page").empty();
+			view.$el.find(".pagination-ctn").empty();
 			view.restoreSearchParam();
 			fixColWidth.call(view);
 		},
@@ -473,7 +472,6 @@
 							colWidth : getColWidth.call(view),
 							labelAssigned : app.buildPathInfo().labelAssigned
 						}));
-						view.$searchResult.find(".page").empty();
 
 					}
 					

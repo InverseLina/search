@@ -155,29 +155,33 @@
 		var $e = view.$el;
 		opts = opts || {};
 		var search = opts.search;
-		var searchParameter = app.ParamsControl.getParamsForSearch({
-			search : search
-		});
-		var searchKey = app.ParamsControl.getQuery();
-		var filters = app.ParamsControl.getFilterParams();
-		if ($.trim(searchKey).length > 0 && $.trim(searchKey).length < 3) {
-			view.contentView.dataGridView.showContentMessage("lessword");
-			var labelAssigned = app.buildPathInfo().labelAssigned;
-			if (labelAssigned) {
-				view.$el.trigger("CHANGE_TO_FAV_VIEW");
+		if(!app.ParamsControl.isEmptySearch()){
+			var searchParameter = app.ParamsControl.getParamsForSearch({
+				search : search
+			});
+			var searchKey = app.ParamsControl.getQuery();
+			var filters = app.ParamsControl.getFilterParams();
+			if ($.trim(searchKey).length > 0 && $.trim(searchKey).length < 3) {
+				view.contentView.dataGridView.showContentMessage("lessword");
+				var labelAssigned = app.buildPathInfo().labelAssigned;
+				if (labelAssigned) {
+					view.$el.trigger("CHANGE_TO_FAV_VIEW");
+				}
+				return;
 			}
-			return;
-		}
-		if(opts.retry){
-			view.contentView.dataGridView.showContentMessage("retrying");
+			if(opts.retry){
+				view.contentView.dataGridView.showContentMessage("retrying");
+			}else{
+				view.contentView.dataGridView.showContentMessage("loading");
+			}
+			view.contentView.dataGridView.restoreSearchParam();
+	
+			searchParameter.pageIndex = opts.pageIdx || 1;
+			var searchTimes = 0;
+			doSearchRequest.call(view, searchParameter, searchTimes);
 		}else{
-			view.contentView.dataGridView.showContentMessage("loading");
+			view.contentView.dataGridView.showContentMessage("empty");
 		}
-		view.contentView.dataGridView.restoreSearchParam();
-
-		searchParameter.pageIndex = opts.pageIdx || 1;
-		var searchTimes = 0;
-		doSearchRequest.call(view, searchParameter, searchTimes);
 
 	}
 	
