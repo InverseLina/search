@@ -30,9 +30,11 @@
 				var keyword = $this.val();
 				if (event.which === 13) {
 					event.preventDefault();
-					view.$el.trigger("DO_SEARCH", {
-						search : keyword
-					});
+					if(!app.ParamsControl.isEmptySearch()){
+						view.$el.trigger("DO_SEARCH", {
+							search : keyword
+						});
+					}
 				}
 			},
 			"keyup; .searchField .search-input" : function(event) {
@@ -184,6 +186,12 @@
 				var $th = $(event.currentTarget);
 				var view = this;
 				var $e = view.$el;
+				
+				view._dragable = !app.ParamsControl.isEmptySearch();
+				if(!view._dragable){
+					return;
+				}
+				
 				var $table = $("<table id='dragTable'><thead><tr></tr></thead><tbody></tbody></table>");
 				var pos = $th.position();
 				$table.css({
@@ -212,10 +220,15 @@
 			"bdragmove; th[data-column]" : function(e) {
 				var view = this;
 				var $e = view.$el;
+				
 				e.stopPropagation();
 				e.preventDefault();
 				
 				$e.trigger("POPUP_CLOSE");
+				
+				if(!view._dragable){
+					return;
+				}
 				
 				var $dragTable = view.$el.find("#dragTable");
 				var ppos = $dragTable.position();
@@ -246,6 +259,10 @@
 				e.preventDefault();
 				var view = this;
 				var $e = view.$el;
+				
+				if(!view._dragable){
+					return;
+				}
 
 				var columns = [];
 				$e.find(".scrollTable th[data-column]").each(function(idx, th) {
@@ -268,6 +285,32 @@
 		// --------- /Events--------- //
 
 		// --------- Public Methods--------- //
+		refreshColumns : function(resultData, labelAssigned) {
+			labelAssigned = labelAssigned || app.buildPathInfo().labelAssigned;
+			resultData = resultData || [];
+			var view = this;
+			var $e = view.$el;
+			var html = render("search-items", {
+				items : resultData,
+				colWidth : getColWidth.call(view),
+				labelAssigned : labelAssigned
+			});
+			view.$searchResult.find(".tableContainer").html(html);
+			
+			if(resultData.length == 0){
+				view.showContentMessage("empty");
+			}
+
+			//show desc/asc
+			if (view.tableOrderColumn && view.tableOrderType) {
+				$e.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
+			}
+
+			//restore input values
+			$e.find(".search-input").val(app.ParamsControl.getQuery()); 
+
+			
+		},
 		showContentMessage : function(cmd, extra) {
 			var view = this;
 			view.$el.find(".search-info").empty();
@@ -294,7 +337,9 @@
 				});
 				$tabContainer.html(html);
 			}
+			
 			view.$searchResult.find(".page").empty();
+			view.restoreSearchParam();
 			fixColWidth.call(view);
 		},
 		restoreSearchParam : function(filters) {
@@ -420,22 +465,7 @@
 
 					if (result.count > 0) {
 						buildResult.call(view, result.result).done(function(data) {
-
-							html = render("search-items", {
-								items : data,
-								colWidth : getColWidth.call(view),
-								labelAssigned : labelAssigned
-							});
-							view.$searchResult.find(".tableContainer").html(html);
-
-							//show desc/asc
-							if (view.tableOrderColumn && view.tableOrderType) {
-								$e.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
-							}
-
-							//restore input values
-							$e.find(".search-input").val(app.ParamsControl.getQuery());
-
+							view.refreshColumns(data, labelAssigned);
 						});
 
 					} else {

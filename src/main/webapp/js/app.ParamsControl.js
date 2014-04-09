@@ -130,6 +130,41 @@ var app = app || {};
 		},
 		clear : function() {
 			_storeValue = {};
+		},
+		isEmptySearch:function(){
+			var searchParams = this.getParamsForSearch() || {};
+			if(searchParams.searchValues){
+				var searchValues = JSON.parse(searchParams.searchValues);
+				if(searchValues.q_search){
+					return false;
+				}
+				
+				if(searchValues.q_objectType && searchValues.q_objectType != "All"){
+					return false;
+				}
+				
+				if(searchValues.q_status && searchValues.q_status != "All"){
+					return false;
+				}
+				
+				if(searchValues.q_skills && searchValues.q_skills.length > 0){
+					return false;
+				}
+				
+				if(searchValues.q_educations && searchValues.q_educations.length > 0){
+					return false;
+				}
+				
+				if(searchValues.q_companies && searchValues.q_companies.length > 0){
+					return false;
+				}
+				
+				if(searchValues.q_locations && searchValues.q_locations.length > 0){
+					return false;
+				}
+				
+			}
+			return true;
 		}
 
 	};

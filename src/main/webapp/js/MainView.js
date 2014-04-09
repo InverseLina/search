@@ -62,10 +62,11 @@
 					var $input = $this.closest(".input-wrapper").find("input[type='text']");
 					search = $input.val();
 				}
-
-				view.$el.trigger("DO_SEARCH", {
-					search : search
-				});
+				if(!app.ParamsControl.isEmptySearch()){
+					view.$el.trigger("DO_SEARCH", {
+						search : search
+					});
+				}
 
 			},
 			//should trim the search value when focus out
@@ -81,15 +82,8 @@
 			},
 			"CHECK_CLEAR_BTN" : function() {
 				var view = this;
-				var filters = app.ParamsControl.getFilterParams();
-				var hasFilter = false;
-				for (var key in filters) {
-					if (filters[key].length > 0) {
-						hasFilter = true;
-						break;
-					}
-				}
-				if ($.trim(view.contentView.dataGridView.$el.find(".gridControls .search-input").val()) || hasFilter) {
+				var isEmptySearch = app.ParamsControl.isEmptySearch();
+				if (!isEmptySearch) {
 					view.$el.find(".btnClearSearch").prop("disabled", false).removeClass("disabled");
 				} else {
 					view.$el.find(".btnClearSearch").prop("disabled", true).addClass("disabled");
@@ -114,7 +108,11 @@
 						}
 					});
 					app.preference.columns(extra.columns);
-					view.$el.trigger("DO_SEARCH");
+					if(app.ParamsControl.isEmptySearch()){
+						view.contentView.dataGridView.refreshColumns();
+					}else{
+						view.$el.trigger("DO_SEARCH");
+					}
 				}
 			},
 			"DO_SEARCH" : function(event, opts) {
