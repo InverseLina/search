@@ -181,6 +181,7 @@
 			doSearchRequest.call(view, searchParameter, searchTimes);
 		}else{
 			view.contentView.dataGridView.showContentMessage("empty");
+			view.$el.trigger("CHECK_CLEAR_BTN");
 		}
 
 	}

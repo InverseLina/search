@@ -147,6 +147,10 @@ var app = app || {};
 					return false;
 				}
 				
+				if(searchValues.q_contacts && searchValues.q_contacts.length > 0){
+					return false;
+				}
+				
 				if(searchValues.q_skills && searchValues.q_skills.length > 0){
 					return false;
 				}
