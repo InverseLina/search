@@ -17,8 +17,10 @@ var app = app || {};
 			queryKey = $.trim(params.search || contentSearchValues.search);
 			result.searchColumns = app.preference.columns().join(",");
 			if (contentSearchValues.sort) {
-				result.orderBy = contentSearchValues.sort.column;
-				result.orderType = contentSearchValues.sort.order === "asc";
+				if(new RegExp(contentSearchValues.sort.column,"i").test(app.preference.columns())){//only the sort header shown 
+					result.orderBy = contentSearchValues.sort.column;
+					result.orderType = contentSearchValues.sort.order === "asc";
+				}
 			}
 			if (!/^\s*$/.test(queryKey)) {
 				searchData.q_search = queryKey;
