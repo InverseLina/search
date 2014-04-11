@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.jobscience.search.AppConfig;
 import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ import com.google.common.hash.Hashing;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import com.jobscience.search.AppConfig;
 import com.jobscience.search.auth.AuthCode;
 import com.jobscience.search.auth.AuthException;
 import com.jobscience.search.canvas.SignedRequest;
@@ -211,7 +211,9 @@ public class AppAuthRequest implements AuthRequest {
                     try {
                         String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, canvasappSecretStr);
                         rc.getWebModel().put("signedRequestJson", signedRequestJson);
-                        updateCache(userDao.checkAndUpdateUser(2, signedRequestJson, null, 0, null));
+                        Map userMap = userDao.checkAndUpdateUser(2, signedRequestJson, null, 0, null);
+                        rc.setCookie(COOKIE_ORG_USER_TOKEN, userMap.get("ctoken"),true);
+                        updateCache(userMap);
                         String sfid = (String)orgHolder.getCurrentOrg().getOrgMap().get("sfid");
                         if(!Strings.isNullOrEmpty(sfid)&&!userDao.getSFIDbySF2(signedRequestJson).startsWith(sfid)){
                             rc.getWebModel().put("errorCode", "CANVAS_AUTH_ERROR");

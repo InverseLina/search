@@ -95,13 +95,20 @@ public class UserDao {
        }else {
            sfid = getSFIDbySF2(content);
        }
+       
+       List<Map> users = getUserMap(sfid);
+       
        if(type == 1){
            ctoken = token;
        }else{
-           ctoken = buildCToken(sfid);
+           //Not genreate new token for canvas way
+           if (users.size() > 0) {
+               ctoken = (String) users.get(0).get("ctoken");
+           }else{
+               ctoken = buildCToken(sfid);
+           }
        }
        orgHolder.setOrg(ctoken, sfid);
-       List<Map> users = getUserMap(sfid);
        if (users.size() > 0) {
            Map user = users.get(0);
            user.put("sfid",sfid);
