@@ -187,11 +187,6 @@
 				var view = this;
 				var $e = view.$el;
 				
-				view._dragable = !app.ParamsControl.isEmptySearch();
-				if(!view._dragable){
-					return;
-				}
-				
 				var $table = $("<table id='dragTable'><thead><tr></tr></thead><tbody></tbody></table>");
 				var pos = $th.position();
 				$table.css({
@@ -226,10 +221,6 @@
 				
 				$e.trigger("POPUP_CLOSE");
 				
-				if(!view._dragable){
-					return;
-				}
-				
 				var $dragTable = view.$el.find("#dragTable");
 				var ppos = $dragTable.position();
 				var pos = {
@@ -260,10 +251,6 @@
 				var view = this;
 				var $e = view.$el;
 				
-				if(!view._dragable){
-					return;
-				}
-
 				var columns = [];
 				$e.find(".scrollTable th[data-column]").each(function(idx, th) {
 					var $th = $(th);
