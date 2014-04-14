@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.http.Cookie;
+
 import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.britesnow.snow.util.ObjectUtil;
 import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.WebRequestType;
 import com.britesnow.snow.web.auth.AuthRequest;
@@ -65,6 +68,8 @@ public class AppAuthRequest implements AuthRequest {
     static private final String COOKIE_ORG = "org";
     static private final String COOKIE_ADMIN_TOKEN = "atoken";
     static private final String COOKIE_PASSCODE = "pcode";
+    
+    static private final String SESSION_EXPIRE_DURATION = "sessionExpireDuration";
 
     private final Cache<String, Map> userCache;
 
@@ -116,7 +121,9 @@ public class AppAuthRequest implements AuthRequest {
                             @WebParam("password") String password) throws SQLException {
         if (configPassword.equals(password)) {
             String passwordSha1 = sha1(password);
-            rc.setCookie(COOKIE_ADMIN_TOKEN, passwordSha1,true);
+            
+            setCookie(rc, COOKIE_ADMIN_TOKEN, passwordSha1, 30f);
+            
             return webResponseBuilder.success();
         } else {
             rc.removeCookie(COOKIE_ADMIN_TOKEN);
@@ -212,7 +219,10 @@ public class AppAuthRequest implements AuthRequest {
                         String signedRequestJson = SignedRequest.verifyAndDecodeAsJson(signedRequest, canvasappSecretStr);
                         rc.getWebModel().put("signedRequestJson", signedRequestJson);
                         Map userMap = userDao.checkAndUpdateUser(2, signedRequestJson, null, 0, null);
-                        rc.setCookie(COOKIE_ORG_USER_TOKEN, userMap.get("ctoken"),true);
+                        
+                        float expiration = ObjectUtil.getValue(configManager.getConfig(SESSION_EXPIRE_DURATION, orgHolder.getId()),Float.class,120f);
+                        setCookie(rc, COOKIE_ORG_USER_TOKEN, (String)userMap.get("ctoken"), expiration);
+                        
                         updateCache(userMap);
                         String sfid = (String)orgHolder.getCurrentOrg().getOrgMap().get("sfid");
                         if(!Strings.isNullOrEmpty(sfid)&&!userDao.getSFIDbySF2(signedRequestJson).startsWith(sfid)){
@@ -266,6 +276,8 @@ public class AppAuthRequest implements AuthRequest {
                         user = new HashMap();
                     }
                     user.put("isAdmin", true);
+                    
+                    setCookie(rc, COOKIE_ADMIN_TOKEN, atoken, 30f);
                 }else{
                     rc.removeCookie(COOKIE_ADMIN_TOKEN);
                 }
@@ -291,7 +303,10 @@ public class AppAuthRequest implements AuthRequest {
             if(user == null){
                 String ctoken = userDao.buildCToken(null);
                 userDao.insertUser(null, ctoken, 0l, null);
-                rc.setCookie(COOKIE_ORG_USER_TOKEN, ctoken,true);
+                
+                float expiration = ObjectUtil.getValue(configManager.getConfig(SESSION_EXPIRE_DURATION, orgHolder.getId()),Float.class,120f);
+                setCookie(rc, COOKIE_ORG_USER_TOKEN, ctoken, expiration);
+                
                 user = userDao.getUserByToken(ctoken);
                 updateCache(user);
             }
@@ -312,22 +327,27 @@ public class AppAuthRequest implements AuthRequest {
         
         if (ctoken != null) {
             user = userCache.getIfPresent(ctoken);
-        }
-        
-        if (user == null) {
-            String orgName = null;
-            try{
-                orgName = orgHolder.getOrgName();
-                if (orgName != null) {
-                    dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
+
+            if (user == null) {
+                String orgName = null;
+                try {
+                    orgName = orgHolder.getOrgName();
+                    if (orgName != null) {
+                        dbSetupManager.checkOrgExtra(orgHolder.getOrgName()).contains("jss_user");
+                    }
+                    user = userDao.getUserByToken(ctoken);
+                } catch (Exception e) {
+                    rc.getWebModel().put("errorCode", "NO_ORG");
+                    rc.getWebModel().put("errorMessage", "Organization is not correct, Please enter correct organization");
+                    rc.getWebModel().put("success", "false");
                 }
-                user = userDao.getUserByToken(ctoken);
-            }catch(Exception e){
-                rc.getWebModel().put("errorCode", "NO_ORG");
-                rc.getWebModel().put("errorMessage", "Organization is not correct, Please enter correct organization");
-                rc.getWebModel().put("success", "false");
             }
             
+        }
+        
+        if(user != null){
+            float expiration = ObjectUtil.getValue(configManager.getConfig(SESSION_EXPIRE_DURATION, orgHolder.getId()),Float.class,120f);
+            setCookie(rc, COOKIE_ORG_USER_TOKEN, ctoken, expiration);
         }
         
         return user;
@@ -351,6 +371,17 @@ public class AppAuthRequest implements AuthRequest {
 
     public void updateCache(Map user){
         userCache.put((String)user.get(COOKIE_ORG_USER_TOKEN), user);
+    }
+    
+    private void setCookie(RequestContext rc, String name, String value, float expire){
+        Cookie cookie = new Cookie(name,value);
+        cookie.setPath("/");
+        if(expire > 0) {
+            cookie.setMaxAge((int)(expire * 60));
+        }else{
+            cookie.setMaxAge(120 * 60);
+        }
+        rc.getRes().addCookie(cookie);
     }
     
     static String sha1(String txt){

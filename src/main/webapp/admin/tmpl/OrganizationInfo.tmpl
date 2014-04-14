@@ -92,12 +92,12 @@
 				<tr>
 					<td class="left"><span>Name : </span></td>
 					<td class="right"><input type="hidden" name="id" value="{{data.id}}"/><input type="text" name="name" value="{{data.name}}" class="text" placeholder="Name" /></td>
-					<td><div class="alert alert-error hide msg name">Please type name value.</div></td>
+					<td><div class="alert alert-danger alert-error hide msg name">Please enter name value.</div></td>
 				</tr>
 				<tr>
 					<td class="left"><span>Schema Name : </span></td>
 					<td class="right"><input type="text" name="schemaname" value="{{data.schemaname}}" class="text" placeholder="Schema Name" /></td>
-					<td><div class="alert alert-error hide msg schemaname">Please type schemaname value.</div></td>
+					<td><div class="alert alert-danger alert-error hide msg schemaname">Please enter schemaname value.</div></td>
 				</tr>
 				<tr>
 					<td class="left"><span>SFID : </span></td>
@@ -108,6 +108,11 @@
 					<td class="left"><span>Instance Url : </span></td>
 					<td class="right"><input type="text" name="instance_url" value="{{data.instance_url}}" class="text" placeholder="Instance Url" /></td>
 					<td></td>
+				</tr>
+				<tr>
+					<td class="left"><span>Session Timeout : </span></td>
+					<td class="right"><input type="text" name="sessionExpireDuration" value="{{data.sessionExpireDuration}}" class="text" placeholder="Session expire timeout" /> mins</td>
+					<td><div class="alert alert-danger alert-error hide sessionTimeout msg">Please enter a valid value</div</td>
 				</tr>
 				<!-- 
 				<tr>

@@ -123,11 +123,7 @@
 					configs["force_login_url"] = view.$el.find("[name='force_login_url']").val();
 					configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();
 					configs["canvasapp_secret"] = view.$el.find("[name='canvasapp_secret']").val();
-					var sfTimeout = $.trim(view.$el.find("[name='sf_session_timeout']").val());
-
-					if (/^\d+$/.test(sfTimeout)) {
-						configs["sf_session_timeout"] = sfTimeout;
-					}
+					configs["sessionExpireDuration"] = view.$el.find("[name='sessionExpireDuration']").val();
 
 					values.configsJson = JSON.stringify(configs);
 					app.getJsonData("/config/save", values, "Post").done(function(data) {
@@ -553,6 +549,7 @@
 		var view = this;
 		var $nameMsg = view.$el.find(".alert-error.name");
 		var $schemanameMsg = view.$el.find(".alert-error.schemaname");
+		var $sessionTimeout = view.$el.find(".alert-error.sessionTimeout");
 
 		if (view.$el.find("[name='name']").val() === '') {
 			$nameMsg.removeClass("hide");
@@ -564,6 +561,13 @@
 			$schemanameMsg.removeClass("hide");
 		} else {
 			$schemanameMsg.addClass("hide");
+		}
+
+		var timeout = view.$el.find("[name='sessionExpireDuration']").val();
+		if (timeout != "" && (isNaN(timeout * 1) || timeout * 1 <= 0)) {
+			$sessionTimeout.removeClass("hide");
+		} else {
+			$sessionTimeout.addClass("hide");
 		}
 
 		if (view.$el.find(".alert-error:not(.hide)").length > 0) {
