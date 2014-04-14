@@ -196,10 +196,12 @@
 			if (searchTimes < 3) {
 				doSearchRequest.call(view, searchParameter, searchTimes);
 			} else {
-				view.contentView.dataGridView.showContentMessage("error", {
-					title : "Search Error",
-					detail : "Server unavailable for the moment. <span class='reSearch btn btn-link'>Retry search</span>"
-				});
+				if(view.$el.find(".SearchDataGrid").size() > 0){
+					view.contentView.dataGridView.showContentMessage("error", {
+						title : "Search Error",
+						detail : "Server unavailable for the moment. <span class='reSearch btn btn-link'>Retry search</span>"
+					});
+				}
 			}
 		});
 	}
