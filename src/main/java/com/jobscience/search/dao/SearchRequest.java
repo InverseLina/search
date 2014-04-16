@@ -22,6 +22,7 @@ public class SearchRequest {
     private JSONArray companies;
     private Map<String,JSONArray> customFilters = new HashMap<String, JSONArray>();
     private String searchValues;
+    private boolean isOnlyKeyWord = true;
     
     public SearchRequest(Map searchParams){
         
@@ -31,6 +32,9 @@ public class SearchRequest {
             JSONObject jo = JSONObject.fromObject(searchValues);
             // resolve the search parameters,cause all parameters begin with "q_"
             for(Object key:jo.keySet()){
+            	if(!"q_search".equals(key)&&!"q_objectType".equals(key)&&!"q_status".equals(key)){
+            		isOnlyKeyWord = false;
+            	}
                 searchMap.put(key.toString().substring(2),jo.get(key).toString().replaceAll("#", "\\\""));
             }
         }
@@ -184,7 +188,11 @@ public class SearchRequest {
         return searchMap.get("search");
     }
     
-    public String toString(){
+    public boolean isOnlyKeyWord() {
+		return isOnlyKeyWord;
+	}
+
+	public String toString(){
         return searchValues;
     }
     

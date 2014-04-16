@@ -237,11 +237,11 @@ public class SearchDao {
             	    exact = false;
             	}else{
             	    exact = true;
-                    searchValue = searchValue.replaceAll("\\\"", "");//.replaceAll("\\s+", " AND ");
+                    searchValue = searchValue.replaceAll("\"", "");//.replaceAll("\\s+", " AND ");
             	}
         	}else{
         	    if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
-                    searchValue = searchValue.replaceAll("\\\"", "");
+                    searchValue = searchValue.replaceAll("\"", "");
                 }
         	}
     	}
@@ -290,7 +290,6 @@ public class SearchDao {
     		}
     		
     		temp = notConditions[0].trim();
-    
     		sb.append(" select ex.id,ex.sfid from   "+schemaname
     		    +".jss_contact ex where "+renderKeywordSearch(temp,org,exact)  );
     		
@@ -852,7 +851,7 @@ public class SearchDao {
     	StringBuilder countSql = new StringBuilder();
     	String prefixSql = "";
         SearchBuilder sb = new SearchBuilder(org);
-        sb.addKeyWord(searchRequest.getKeyword()).addContactFilter(searchRequest.getContacts())
+        sb.addKeyWord(searchRequest.getKeyword(),searchRequest).addContactFilter(searchRequest.getContacts())
           .addCompany(searchRequest.getCompanies()).addEducation(searchRequest.getEducations())
           .addSkill(searchRequest.getSkills()).addLocation(searchRequest.getLocations())
           .addCustomFilter(searchRequest.getCustomFilters()).addObjectType(searchRequest.getObjectType())
@@ -868,7 +867,7 @@ public class SearchDao {
         
         
         prefixSql = sb.getPrefixSql();
-        countSql = new StringBuilder(joinSql.toString());
+        countSql = new StringBuilder(sb.getCountSql());
         if(searchRequest.getContacts()!=null){
             hasContactsCondition = searchRequest.getContacts().size()>0;
         }
@@ -897,10 +896,10 @@ public class SearchDao {
         	if(orderCon!=null&&!"".equals(orderCon)){
         		joinSql.append(" order by "+orderCon);
         	}
-        	if(hasContactsCondition||locationSql.length()>0){
-                joinSql.append(" offset "+searchRequest.getOffest());
+        	if(orderCon.trim().startsWith("\"id\"")&&searchRequest.isOnlyKeyWord()){
+                joinSql.append(" offset  0 ");
             }else{
-                joinSql.append(" offset  "+searchRequest.getOffest());
+            	joinSql.append(" offset "+searchRequest.getOffest());
             }
         	joinSql.append(" limit ").append(searchRequest.getPageSize());
         }
@@ -945,16 +944,16 @@ public class SearchDao {
      * @param alias
      * @return
      */
-    private String getSearchValueJoinTable(String searchValue, List values,String alias,OrgContext org){
+    private String getSearchValueJoinTable(String keyword, List values,String alias,OrgContext org){
         StringBuilder joinSql = new StringBuilder();
         if("a".equals(alias)){
             joinSql.append(" right join (");
-            joinSql.append(booleanSearchHandler(searchValue, null, org,false));
+            joinSql.append(booleanSearchHandler(keyword, null, org,false));
             joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
             return joinSql.toString();
         }else{
             joinSql.append(" select  distinct contact.id,contact.sfid  from (");
-    	    joinSql.append(booleanSearchHandler(searchValue, null, org,false));
+    	    joinSql.append(booleanSearchHandler(keyword, null, org,false));
     	    joinSql.append(")  contact ");
     	    return joinSql.toString();
 	    }
@@ -963,7 +962,7 @@ public class SearchDao {
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
         String exactFilter = "";
-        exact = false;
+        //exact = false;
         if(exact){
             exactFilter=" ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
         }
@@ -1291,6 +1290,7 @@ public class SearchDao {
         
         
         StringBuilder keyWordSql = new StringBuilder();
+        StringBuilder keyWordCountSql = new StringBuilder();
         List values = new ArrayList();
         private StringBuilder conditions = new StringBuilder();
         private OrgContext org;
@@ -1308,15 +1308,22 @@ public class SearchDao {
             this.schemaname =(String)org.getOrgMap().get("schemaname");
         }
         
-        public SearchBuilder addKeyWord(String keyword){
+        public SearchBuilder addKeyWord(String keyword,SearchRequest searchRequest){
             if(!Strings.isNullOrEmpty(keyword)&&keyword.length()>=3){
                 hasSearchValue = true;
                 hasCondition = true;
                 keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org));
+                keyWordCountSql.append(keyWordSql.toString());
+                if (searchRequest.getOrder().trim().startsWith("\"id\"")&& searchRequest.isOnlyKeyWord()) {
+                	keyWordSql.append(" order by ").append(searchRequest.getOrder())
+    						.append(" offset ")
+    						.append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+    						.append(" limit ").append(searchRequest.getPageSize());
+    			}
                 if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
-                    conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
-                              .append(keyword.replaceAll("\\\"", "%"))
-                              .append("'");
+//                    conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
+//                              .append(keyword.replaceAll("\\\"", "%"))
+//                              .append("'");
                 }
             }
             return this;
@@ -1391,6 +1398,13 @@ public class SearchDao {
                 return " join ( "+keyWordSql+filterSql;
             }
             return keyWordSql.toString()+filterSql;
+        }
+        
+        public String getCountSql(){
+        	  if(hasSearchValue){
+                  return " join ( "+keyWordCountSql+filterSql;
+              }
+              return keyWordCountSql.toString()+filterSql;
         }
         
         public String getPrefixSql(){
