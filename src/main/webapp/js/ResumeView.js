@@ -54,7 +54,8 @@
 				var keyWordsSplited = keyWord;
 				var pattern = /^\s*\".+\"\s*$/g;
 				if (pattern.test(keyWord)) {
-					keyWordsSplited = keyWordsSplited.replace(pattern, "");
+					var reg = new RegExp("\"", "g");
+					keyWordsSplited = keyWordsSplited.replace(reg, "");
 				}
 				pattern = /[^A-z0-9 ]/g;
 				if (pattern.test(keyWord)) {
