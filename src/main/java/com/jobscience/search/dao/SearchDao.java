@@ -962,7 +962,7 @@ public class SearchDao {
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
         String exactFilter = "";
-        //exact = false;
+        exact = false;
         if(exact){
             exactFilter=" ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
         }
@@ -1321,9 +1321,9 @@ public class SearchDao {
     						.append(" limit ").append(searchRequest.getPageSize());
     			}
                 if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
-//                    conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
-//                              .append(keyword.replaceAll("\\\"", "%"))
-//                              .append("'");
+                    conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
+                              .append(keyword.replaceAll("\\\"", "%"))
+                              .append("'");
                 }
             }
             return this;
