@@ -291,7 +291,7 @@ public class SearchDao {
     		
     		temp = notConditions[0].trim();
     		sb.append(" select ex.id,ex.sfid from   "+schemaname
-    		    +".jss_contact ex where "+renderKeywordSearch(temp,org,exact)  );
+    		    +".jss_contact ex where "+renderKeywordSearch(temp,org,exact,"ex")  );
     		
     		if(notConditions.length==1){
     			sb.append(") n_ext");
@@ -305,7 +305,7 @@ public class SearchDao {
         		temp = notConditions[i].trim();
         		sb.append(" except ");
                         
-        		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".jss_contact ex where "+renderKeywordSearch(temp,org,exact) + " ) ");
+        		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".jss_contact ex where "+renderKeywordSearch(temp,org,exact,"ex") + " ) ");
         	}
         	if(hasNot){
         		sb.append(")n_ext");
@@ -608,7 +608,7 @@ public class SearchDao {
            String search = searchRequest.getKeyword();
            if (!Strings.isNullOrEmpty(search)) {
                if(search.length()>=3){
-                   querySql.append(getSearchValueJoinTable(search, values, "contact", org));
+                   querySql.append(getSearchValueJoinTable(search, values, "contact", org,searchRequest));
                    if(search.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
                        conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
                                  .append(search.replaceAll("\\\"", "%"))
@@ -944,7 +944,7 @@ public class SearchDao {
      * @param alias
      * @return
      */
-    private String getSearchValueJoinTable(String keyword, List values,String alias,OrgContext org){
+    private String getSearchValueJoinTable(String keyword, List values,String alias,OrgContext org,SearchRequest searchRequest){
         StringBuilder joinSql = new StringBuilder();
         if("a".equals(alias)){
             joinSql.append(" right join (");
@@ -953,12 +953,28 @@ public class SearchDao {
             return joinSql.toString();
         }else{
             joinSql.append(" select  distinct contact.id,contact.sfid  from (");
-    	    joinSql.append(booleanSearchHandler(keyword, null, org,false));
+            if(!keyword.contains("NOT ")&&
+         	   !keyword.contains("AND ")&&
+        	   !keyword.contains("NOT ")
+        	   ){
+            	boolean exact = false;
+            	if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){
+            	    exact = true;
+            		keyword = keyword.replaceAll("\"", "");
+            	}
+            	return "  select contact.id,contact.sfid from  "+
+            		   org.getOrgMap().get("schemaname")+
+            	       ".jss_contact contact where "+
+            			renderKeywordSearch(keyword.trim().replaceAll("\\s+", "|"),org,exact,"contact") + "  ";
+   
+            }else{
+            	joinSql.append(booleanSearchHandler(keyword, null, org,false));
+            }
     	    joinSql.append(")  contact ");
     	    return joinSql.toString();
 	    }
     }
-    private String renderKeywordSearch(String param,OrgContext org,boolean exact){
+    private String renderKeywordSearch(String param,OrgContext org,boolean exact,String alias){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
         String exactFilter = "";
@@ -967,7 +983,7 @@ public class SearchDao {
             exactFilter=" ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
         }
         for(Field f:sc.getKeyword().getFields()){
-            sb.append("OR ").append(f.toString("ex")).append("@@ plainto_tsquery(")
+            sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(")
               .append("'")
               .append(param)
               .append("')");
@@ -1312,7 +1328,7 @@ public class SearchDao {
             if(!Strings.isNullOrEmpty(keyword)&&keyword.length()>=3){
                 hasSearchValue = true;
                 hasCondition = true;
-                keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org));
+                keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org,searchRequest));
                 keyWordCountSql.append(keyWordSql.toString());
                 if (searchRequest.getOrder().trim().startsWith("\"id\"")&& searchRequest.isOnlyKeyWord()) {
                 	keyWordSql.append(" order by ").append(searchRequest.getOrder())
@@ -1321,7 +1337,7 @@ public class SearchDao {
     						.append(" limit ").append(searchRequest.getPageSize());
     			}
                 if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
-                    conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
+                    conditions.append(" AND contact.\"ts2__text_resume__c\" like '")
                               .append(keyword.replaceAll("\\\"", "%"))
                               .append("'");
                 }
