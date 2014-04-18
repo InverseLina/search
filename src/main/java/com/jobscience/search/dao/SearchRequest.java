@@ -32,7 +32,7 @@ public class SearchRequest {
             JSONObject jo = JSONObject.fromObject(searchValues);
             // resolve the search parameters,cause all parameters begin with "q_"
             for(Object key:jo.keySet()){
-            	if(!"q_search".equals(key)&&!"q_objectType".equals(key)&&!"q_status".equals(key)){
+            	if(!"q_search".equals(key)){
             		isOnlyKeyWord = false;
             	}
                 searchMap.put(key.toString().substring(2),jo.get(key).toString().replaceAll("#", "\\\""));

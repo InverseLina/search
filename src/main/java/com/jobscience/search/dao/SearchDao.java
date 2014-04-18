@@ -952,14 +952,15 @@ public class SearchDao {
             joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
             return joinSql.toString();
         }else{
+        	boolean exact = keyword.matches("^\\s*\"[^\"]+\"\\s*$");
             joinSql.append(" select  distinct contact.id,contact.sfid  from (");
-            if(!keyword.contains("NOT ")&&
+            if((!keyword.contains("NOT ")&&
          	   !keyword.contains("AND ")&&
-        	   !keyword.contains("NOT ")
+        	   !keyword.contains("NOT ")&&
+        	   searchRequest.isOnlyKeyWord())||exact
         	   ){
-            	boolean exact = false;
-            	if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){
-            	    exact = true;
+            	
+            	if(exact){
             		keyword = keyword.replaceAll("\"", "");
             	}
             	return "  select contact.id,contact.sfid from  "+
@@ -1330,7 +1331,9 @@ public class SearchDao {
                 hasCondition = true;
                 keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org,searchRequest));
                 keyWordCountSql.append(keyWordSql.toString());
-                if (searchRequest.getOrder().trim().startsWith("\"id\"")&& searchRequest.isOnlyKeyWord()) {
+                if (searchRequest.getOrder().trim().startsWith("\"id\"")&&
+                	searchRequest.isOnlyKeyWord()&&
+                	!keyword.matches("^\\s*\"[^\"]+\"\\s*$")) {
                 	keyWordSql.append(" order by ").append(searchRequest.getOrder())
     						.append(" offset ")
     						.append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())

@@ -53,15 +53,21 @@
 				var keyWord = app.ParamsControl.getQuery();
 				var keyWordsSplited = keyWord;
 				var pattern = /^\s*\".+\"\s*$/g;
+				var exact = false;
 				if (pattern.test(keyWord)) {
 					var reg = new RegExp("\"", "g");
 					keyWordsSplited = keyWordsSplited.replace(reg, "");
+					exact = true;
 				}
 				pattern = /[^A-z0-9 ]/g;
 				if (pattern.test(keyWord)) {
 					keyWordsSplited = keyWordsSplited.replace(pattern, "");
 				}
-				keyWordsSplited = keyWordsSplited.split(/\s+/);
+				if(exact){
+					keyWordsSplited = [keyWordsSplited];
+				}else{
+					keyWordsSplited = keyWordsSplited.split(/\s+/);
+				}
 				for (var k in keyWordsSplited) {
 					if (keyWordsSplited[k] != "AND" && keyWordsSplited[k] !== "OR" && keyWordsSplited[k] !== "NOT"){
 						var reg = new RegExp("(" + keyWordsSplited[k] + ")", "gi");
