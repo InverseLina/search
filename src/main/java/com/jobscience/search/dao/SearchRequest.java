@@ -31,11 +31,20 @@ public class SearchRequest {
             searchValues = searchValues.replaceFirst("#", "").replaceAll("\\\\\"", "#");
             JSONObject jo = JSONObject.fromObject(searchValues);
             // resolve the search parameters,cause all parameters begin with "q_"
+            String temp ;
             for(Object key:jo.keySet()){
-            	if(!"q_search".equals(key)){
+            	temp = jo.get(key).toString().replaceAll("#", "\\\"");
+            	if("q_search".equals(key)){
+            		temp = temp.replaceAll("\'", "");
+            	}
+                searchMap.put(key.toString().substring(2),temp);
+                if("q_search".equals(key)||
+                   ("q_status".equals(key)&&"All".equals(temp))||
+                   ("q_objectType".equals(key)&&"All".equals(temp))){
+            		continue;
+            	}else{
             		isOnlyKeyWord = false;
             	}
-                searchMap.put(key.toString().substring(2),jo.get(key).toString().replaceAll("#", "\\\""));
             }
         }
         

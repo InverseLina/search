@@ -959,14 +959,18 @@ public class SearchDao {
         	   !keyword.contains("NOT ")&&
         	   searchRequest.isOnlyKeyWord())||exact
         	   ){
-            	
             	if(exact){
             		keyword = keyword.replaceAll("\"", "");
-            	}
+            		joinSql.append("  select ex.id,ex.sfid from  "+
+                 		   org.getOrgMap().get("schemaname")+
+                	       ".jss_contact ex where "+
+                			renderKeywordSearch(keyword.trim().replaceAll("\\s+", "|"),org,exact,"ex") + "  ");
+            	}else{
             	return "  select contact.id,contact.sfid from  "+
             		   org.getOrgMap().get("schemaname")+
             	       ".jss_contact contact where "+
             			renderKeywordSearch(keyword.trim().replaceAll("\\s+", "|"),org,exact,"contact") + "  ";
+            	}
    
             }else{
             	joinSql.append(booleanSearchHandler(keyword, null, org,false));
@@ -1335,9 +1339,9 @@ public class SearchDao {
                 	searchRequest.isOnlyKeyWord()&&
                 	!keyword.matches("^\\s*\"[^\"]+\"\\s*$")) {
                 	keyWordSql.append(" order by ").append(searchRequest.getOrder())
-    						.append(" offset ")
-    						.append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-    						.append(" limit ").append(searchRequest.getPageSize());
+    						  .append(" offset ")
+    						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+    						  .append(" limit ").append(searchRequest.getPageSize());
     			}
                 if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
                     conditions.append(" AND contact.\"ts2__text_resume__c\" like '")
