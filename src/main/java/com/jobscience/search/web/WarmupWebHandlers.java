@@ -43,10 +43,8 @@ public class WarmupWebHandlers {
         Map searchMap = new HashMap();
         searchMap.put("columns", searchColumns);
         searchMap.put("pageIndex", 0);
-        searchMap.put("orderBy", "name");
-        searchMap.put("pageSize", 30);
+        searchMap.put("pageSize", 15);
         searchMap.put("searchValues", searchValues);
-        searchMap.put("orderType", "true");
         
         
         SearchResult searchResult = searchDao.search(new SearchRequest(searchMap),"-1",
