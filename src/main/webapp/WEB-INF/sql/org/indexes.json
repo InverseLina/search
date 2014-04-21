@@ -57,6 +57,13 @@
                 "column":"sfid",
                 "operator":" ",
                 "unique":"unique"
+               },
+               {
+                "name":"contact_text_resume",
+                "type":"gin",
+                "column":"ts2__text_resume__c",
+                "operator":"gin_trgm_ops",
+                "unique":""
                }
               ],
  "ts2__skill__c":[
