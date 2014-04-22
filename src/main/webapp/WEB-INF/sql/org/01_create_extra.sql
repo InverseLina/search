@@ -218,16 +218,20 @@ CREATE TABLE if not exists jss_pref
 );
 
 -- SCRIPTS
--- CREATE TABLE if not exists jss_recordtype
---(
---  sobjecttype character varying(40),
---  id serial not null,
---  sfid character varying(18),
---  isactive          boolean,                      
--- lastmodifieddate  timestamp without time zone , 
--- namespaceprefix   character varying(15) ,      
--- _c5_source        character varying(18) ,       
--- name              character varying(80) ,
---  CONSTRAINT recordtype_pkey PRIMARY KEY (id)
---);       
-
+	CREATE OR REPLACE FUNCTION count_estimate(query text) RETURNS integer AS
+	$func$
+	DECLARE
+	    rec   record;
+	    rows  integer;
+	BEGIN
+	    FOR rec IN EXECUTE 'EXPLAIN ' || query LOOP
+	        rows := substring(rec."QUERY PLAN" FROM ' rows=([[:digit:]]+)');
+	        EXIT WHEN rows IS NOT NULL;
+	    END LOOP;
+	
+	    IF(rows<1500) THEN
+	      EXECUTE ' select count(*) from ('||query||') c ' into rows;
+	    END IF;
+	    RETURN rows;
+	END
+	$func$ LANGUAGE plpgsql;

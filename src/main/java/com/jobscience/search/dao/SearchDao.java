@@ -35,7 +35,7 @@ public class SearchDao {
 
     static private String QUERY_SELECT = "select distinct ";
 
-    static private String QUERY_COUNT  = "select count (distinct a.id) ";
+    static private String QUERY_COUNT  = "select count_estimate(  ";
 
     private Logger log = LoggerFactory.getLogger(SearchDao.class);
     
@@ -73,7 +73,7 @@ public class SearchDao {
 		SearchResult searchResult = null;
 		SearchStatements statementAndValues = buildSearchStatements(searchRequest,org);
 		//excute query and caculate times
-		searchResult = executeSearch(statementAndValues);
+		searchResult = executeSearch(statementAndValues,org);
 
 		queryLogger.debug(LoggerType.SEARCH_PERF,searchResult.getSelectDuration());
 		queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,searchResult.getCountDuration());
@@ -372,14 +372,20 @@ public class SearchDao {
         return result;
     }
 
-    protected SearchResult executeSearch(SearchStatements statementAndValues){
-    	Runner runner = datasourceManager.newRunner();
+    protected SearchResult executeSearch(SearchStatements statementAndValues,OrgContext org){
+    	Runner runner = datasourceManager.newOrgRunner(org.getOrgMap().get("name").toString());
     	SearchResult searchResult = null;
     	try{
     		long start = System.currentTimeMillis();
     		List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
     		long mid = System.currentTimeMillis();
-    		int count =  runner.executeCount(statementAndValues.countSql, statementAndValues.values);
+    		int count =  runner.executeCount(QUERY_COUNT
+    										+ "' "
+											+statementAndValues.cteSql.replaceAll("\'", "''")
+    										+" select  a.id  "
+    										+statementAndValues.countSql.replaceAll("\'", "''")
+    										+"'::text)",
+    				statementAndValues.values);
     		long end = System.currentTimeMillis();
     
     		searchResult = new SearchResult(result, count)
@@ -480,7 +486,6 @@ public class SearchDao {
         querySql.append(getSearchColumnsForOuter(searchRequest.getColumns(),org));
         querySql.append(" from ( ");
         querySql.append(QUERY_SELECT);
-        countSql.append(QUERY_COUNT);
         querySql.append(getSearchColumns(searchRequest.getColumns(),columnJoinTables,groupBy,org));
         
         
@@ -578,8 +583,8 @@ public class SearchDao {
         queryLogger.debug(LoggerType.SEARCH_COUNT_SQL, countSql);
         queryLogger.debug(LoggerType.PARAMS, searchRequest.getSearchMap());
         // build the statement
-        ss.querySql = cteSql+" "+querySql.toString();
-        ss.countSql =cteSql+" "+countSql.toString();
+        ss.querySql =cteSql+" "+querySql.toString();
+        ss.countSql =countSql.toString();
         ss.cteSql =   cteSql;
         ss.values = values.toArray();
         return ss;
@@ -626,11 +631,9 @@ public class SearchDao {
             if (!Strings.isNullOrEmpty(searchRequest.getObjectType())) {
                 String value = searchRequest.getObjectType();
                 if ("Contact".equals(value)) {
-                    conditions.append("  and contact.\"recordtypeid\" != ?");
-                    subValues.add(org.getSfid());
+                    conditions.append("  and contact.\"recordtypeid\" != '").append(org.getSfid()).append("'");
                 }else if("Candidate".equals(value)){
-                    conditions.append("  and contact.\"recordtypeid\" = ?");
-                    subValues.add(org.getSfid());
+                    conditions.append("  and contact.\"recordtypeid\" = '").append(org.getSfid()).append("'");
                 }
             }
     
@@ -1053,8 +1056,8 @@ public class SearchDao {
         if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
             conditionSql.append("  and ")
                       .append(sc.getContactField(propertyName.toLowerCase()).toString("contact"))
-                      .append(" ilike ? ");
-            values.add(addPercentageIfNecessary(contact.getString(propertyName)));
+                      .append(" ilike '").append(addPercentageIfNecessary(contact.getString(propertyName)))
+                      .append("' ");
             return true;
         }
         return false;
@@ -1269,8 +1272,7 @@ public class SearchDao {
                     conditions.append(" AND (1!=1 ");
                     for(int i=0,j=extraValues.size();i<j;i++){
                         JSONObject value = JSONObject.fromObject(extraValues.get(i));
-                        conditions.append(" OR ").append(filterName).append("= ? ");
-                        values.add(value.get("name"));
+                        conditions.append(" OR ").append(filterName).append("= '").append(value.get("name")).append("'");
                     }
                     conditions.append(" ) ");
                     hasCondition = true;
@@ -1383,11 +1385,9 @@ public class SearchDao {
                 return this;
             }
             if ("Contact".equals(objectType)) {
-                conditions.append("  and contact.\"recordtypeid\" != ?");
-                values.add(org.getSfid());
+                conditions.append("  and contact.\"recordtypeid\" != '").append(org.getSfid()).append("'");
             }else if("Candidate".equals(objectType)){
-                conditions.append("  and contact.\"recordtypeid\" = ?");
-                values.add(org.getSfid());
+                conditions.append("  and contact.\"recordtypeid\" = '").append(org.getSfid()).append("'");
             }
             hasCondition = true;
             return this;

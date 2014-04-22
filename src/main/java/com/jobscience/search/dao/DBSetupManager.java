@@ -227,11 +227,15 @@ public class DBSetupManager {
             missingTables.append(", ").append(m.get("tablename"));
         }
         boolean triggerValid = checkTriggerContent(orgName);
-        setups.add(mapIt("name", "create_extra_table", "status",
-                missingTables.length() > 0 ? NOTSTARTED : (triggerValid?DONE:NOTSTARTED), "msg",
+        boolean functionValid = checkFunction(orgName,"count_estimate");
+        setups.add(mapIt("name", "create_extra_table", 
+        		"status",
+                missingTables.length() == 0&&triggerValid&&functionValid ? DONE :NOTSTARTED,
+                "msg",
                 missingTables.length() > 0 ? "Missing Tables:" + missingTables.delete(0, 1)
-                        : (triggerValid?"Jss tables created":"Some triggers not valid")));
-        if(totalStatus.equals(DONE)&&(missingTables.length()>0||!triggerValid)){
+                        : (triggerValid?(functionValid?"Jss tables created":"Some functions not valid")
+                        :"Some triggers not valid")));
+        if(totalStatus.equals(DONE)&&(missingTables.length()>0||!triggerValid||!functionValid)){
             totalStatus = PART;
         }
         setups.add(mapIt("pgtrgm", this.checkExtension("pg_trgm") > 0 ? DONE : NOTSTARTED));
@@ -1603,5 +1607,19 @@ public class DBSetupManager {
         }
         valid = true;
         return valid;
+    }
+    
+    private boolean checkFunction(String orgName,String functionName){
+    	List<Map> list = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),
+                "SELECT  count(*) as count "
+                + "    	FROM    pg_catalog.pg_namespace n"
+                + "    	JOIN    pg_catalog.pg_proc p"
+                + "    	ON      pronamespace = n.oid"
+                + "    	WHERE   nspname = current_schema and proname=?",functionName);
+        if (list.size() == 1) {
+            Integer count = Integer.valueOf(list.get(0).get("count").toString());
+            return count > 0;
+        }
+    	return false;
     }
 }    
