@@ -967,7 +967,7 @@ public class SearchDao {
             		joinSql.append("  select ex.id,ex.sfid from  "+
                  		   org.getOrgMap().get("schemaname")+
                 	       ".jss_contact ex where "+
-                			renderKeywordSearch(keyword.trim().replaceAll("\\s+", "|"),org,exact,"ex") + "  ");
+                			renderKeywordSearch(keyword.trim().replaceAll("\\s+", "&"),org,exact,"ex") + "  ");
             	}else{
             	return "  select contact.id,contact.sfid from  "+
             		   org.getOrgMap().get("schemaname")+
@@ -1398,7 +1398,8 @@ public class SearchDao {
                 return this;
             }
             if ("Active".equals(status)) {
-                conditions.append("  and contact.\"ts2__people_status__c\" in('',null, 'Active') ");
+                conditions.append("  and (contact.\"ts2__people_status__c\" in('', 'Active') ")
+                		  .append(" OR contact.\"ts2__people_status__c\" is null )");
             } else if ("Inactive".equals(status)){
                 conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
             }

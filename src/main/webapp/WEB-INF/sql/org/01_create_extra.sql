@@ -229,7 +229,7 @@ CREATE TABLE if not exists jss_pref
 	        EXIT WHEN rows IS NOT NULL;
 	    END LOOP;
 	
-	    IF(rows<1500) THEN
+	    IF(rows<1000) THEN
 	      EXECUTE ' select count(*) from ('||query||') c ' into rows;
 	    END IF;
 	    RETURN rows;
