@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import org.jasql.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.britesnow.snow.util.ObjectUtil;
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.google.common.base.Strings;
 import com.jobscience.search.log.LoggerType;
@@ -34,8 +36,6 @@ import com.jobscience.search.searchconfig.SearchConfigurationManager;
 public class SearchDao {
 
     static private String QUERY_SELECT = "select distinct ";
-
-    static private String QUERY_COUNT  = "select count_estimate(  ";
 
     private Logger log = LoggerFactory.getLogger(SearchDao.class);
     
@@ -60,6 +60,10 @@ public class SearchDao {
     @Inject
     CurrentRequestContextHolder crch;  
    
+    private static Pattern pattern = Pattern.compile("\\srows=(\\d*)\\s",Pattern.CASE_INSENSITIVE);
+
+    private static int FAST_COUNT_TRESHOLD = 2000;
+    private static int COUNT_TIMEOUT = 500;//ms
     /**
      * @param searchColumns
      * @param searchValues
@@ -379,20 +383,43 @@ public class SearchDao {
     		long start = System.currentTimeMillis();
     		List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
     		long mid = System.currentTimeMillis();
-    		int count =  runner.executeCount(QUERY_COUNT
-    										+ "' "
-											+statementAndValues.cteSql.replaceAll("\'", "''")
-    										+" select  a.id  "
-    										+statementAndValues.countSql.replaceAll("\'", "''")
-    										+"'::text)",
-    				statementAndValues.values);
+    		
+    		/********** Get the estimate count **********/
+    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
+					 									+" select  distinct(a.id)  "
+					 									+statementAndValues.countSql,
+					 									statementAndValues.values);
+    		int count = 0;
+    		boolean exactCount = false;
+    		if(explainPlans.size()>0){
+    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
+    		}
+    		/********** /Get the estimate count **********/
+    		
+    		/********** Get the exact count **********/
+    		if(count<=FAST_COUNT_TRESHOLD){
+    			try{
+    				runner.executeUpdate("SET statement_timeout TO "+COUNT_TIMEOUT+";");
+    				int exact= runner.executeCount(statementAndValues.cteSql
+							+" select  count(distinct a.id) as count  "
+							+statementAndValues.countSql);
+    				count = exact;
+    				exactCount = true;
+    			}catch(Exception e){
+    				log.debug("The count search timeout,use the estimate count");
+    			}
+    		}
+    		/********** /Get the exact count **********/
+    		
     		long end = System.currentTimeMillis();
     
     		searchResult = new SearchResult(result, count)
     				.setDuration(end - start)
     				.setSelectDuration(mid - start)
-    				.setCountDuration(end - mid);
+    				.setCountDuration(end - mid)
+    				.setExactCount(exactCount);
     	}finally{
+    		runner.executeUpdate("RESET statement_timeout; ");
     		runner.close();
     	}
     
@@ -1450,6 +1477,19 @@ public class SearchDao {
         public List getValues(){
             return values;
         }
+    }
+    
+    private static Integer getCountFromExplainPlan(String explainPlan){
+        String value = null;
+        if(explainPlan == null){
+            return null;
+        }
+        Matcher matcher = pattern.matcher(explainPlan);
+        if(matcher.find()){
+            String rowsResult = matcher.group(1).trim();
+            value = rowsResult.substring(rowsResult.indexOf("=") + 1, rowsResult.length());
+        }
+        return ObjectUtil.getValue(value, Integer.class, 0);
     }
 }
 

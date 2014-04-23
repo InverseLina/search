@@ -15,6 +15,7 @@ public class SearchResult {
     private int count;
     private int pageIdx;
     private int pageSize;
+    private boolean exactCount;
     
     public SearchResult(List<Map> result, int count){
         this.result = result;
@@ -71,4 +72,13 @@ public class SearchResult {
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
+
+	public boolean isExactCount() {
+		return exactCount;
+	}
+
+	public SearchResult setExactCount(boolean exactCount) {
+		this.exactCount = exactCount;
+		return this;
+	}
 }
