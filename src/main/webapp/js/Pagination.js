@@ -93,7 +93,7 @@
 
 			if (page.start >= page.pageCount - 4) {
 				page.start = page.pageCount - 4;
-				page.end = page.pageCount - 1;
+				page.end = page.pageCount ;
 			} else {
 				page.endEllipsis = true;
 			}

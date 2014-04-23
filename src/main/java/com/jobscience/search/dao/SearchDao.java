@@ -63,7 +63,7 @@ public class SearchDao {
     private static Pattern pattern = Pattern.compile("\\srows=(\\d*)\\s",Pattern.CASE_INSENSITIVE);
 
     private static int FAST_COUNT_TRESHOLD = 2000;
-    private static int COUNT_TIMEOUT = 500;//ms
+    private static int EXACT_COUNT_TIMEOUT = 1000;//ms
     /**
      * @param searchColumns
      * @param searchValues
@@ -399,7 +399,7 @@ public class SearchDao {
     		/********** Get the exact count **********/
     		if(count<=FAST_COUNT_TRESHOLD){
     			try{
-    				runner.executeUpdate("SET statement_timeout TO "+COUNT_TIMEOUT+";");
+    				runner.executeUpdate("SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
     				int exact= runner.executeCount(statementAndValues.cteSql
 							+" select  count(distinct a.id) as count  "
 							+statementAndValues.countSql);
@@ -597,10 +597,10 @@ public class SearchDao {
         querySql.append(") b ");
     	if(!Strings.isNullOrEmpty(searchRequest.getOrder())){
     		querySql.append(" order by "+searchRequest.getOrder());
+    		if(!searchRequest.getOrder().trim().startsWith("\"id\"")){
+    			querySql.append(" offset ").append(offset).append(" limit ").append(searchRequest.getPageSize());
+    		}
     	}
-    	if(Pattern.matches("^.*(Company|Skill|Education|location)+.*$", searchRequest.getOrder())){
-        	querySql.append(" offset ").append(offset).append(" limit ").append(searchRequest.getPageSize());
-        }
         if(log.isDebugEnabled()){
             log.debug(querySql.toString());
             log.debug(countSql.toString());
@@ -901,38 +901,16 @@ public class SearchDao {
         if(searchRequest.getContacts()!=null){
             hasContactsCondition = searchRequest.getContacts().size()>0;
         }
-        if(!Strings.isNullOrEmpty(searchRequest.getKeyword())&&searchRequest.getKeyword().length()>=3){
-//            if(!hasContactsCondition&&locationSql.length()==0&&!hasExtraSearchColumn(searchRequest)){
-//                joinSql.append(" offset "+searchRequest.getOffest()+" limit "+searchRequest.getPageSize());
-//            }
-	        joinSql.append(") subcontact on contact.id=subcontact.id ");
-	       if(locationSql.length()==0&&!hasContactsCondition&&hasExtraSearchColumn(searchRequest)){
-	           countSql.replace(0, 6," from ");
-	           countSql.append(" ) a  ");
-	       }else{
-	           countSql.append(" ) subcontact on contact.id=subcontact.id ");
-	       }
-        }
+        
+        joinSql.append(" ) subcontact on contact.id=subcontact.id ");
+        countSql.append(" ) subcontact on contact.id=subcontact.id ");
+        
         joinSql.append(locationSql);
         countSql.append(locationSql);
         
-        joinSql.append(" where 1=1 ").append(condition);
+        joinSql.append(" where 1=1 ").append(condition).append(sb.getExactSearchOrderSql());
         countSql.append(" where 1=1 ").append(condition);
-        String orderCon = searchRequest.getOrder();
-        if(!Pattern.matches("^.*(Company|Skill|Education|location)+.*$", orderCon)){
-        	if(orderCon.contains("resume")){
-    			orderCon = orderCon.replace("resume", "id");
-    		}
-        	if(orderCon!=null&&!"".equals(orderCon)){
-        		joinSql.append(" order by "+orderCon);
-        	}
-        	if(orderCon.trim().startsWith("\"id\"")&&searchRequest.isOnlyKeyWord()){
-                joinSql.append(" offset  0 ");
-            }else{
-            	joinSql.append(" offset "+searchRequest.getOffest());
-            }
-        	joinSql.append(" limit ").append(searchRequest.getPageSize());
-        }
+       
        
         joinSql.append(") a ");
         if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||locationSql.length()>0||
@@ -1334,10 +1312,9 @@ public class SearchDao {
 
 
     class SearchBuilder {
-        StringBuilder searchSql = new StringBuilder();
-        StringBuilder countSql = new StringBuilder();
-        StringBuilder cteSql = new StringBuilder();
-        
+ 
+    	private StringBuilder orderSql = new StringBuilder();
+    	private StringBuilder exactSearchOrderSql = new StringBuilder();
         
         StringBuilder keyWordSql = new StringBuilder();
         StringBuilder keyWordCountSql = new StringBuilder();
@@ -1350,8 +1327,10 @@ public class SearchDao {
         private StringBuilder filterSql = new StringBuilder("");
         private StringBuilder locationSql = new StringBuilder("");
         private String schemaname;
+        private SearchRequest searchRequest;
         
-        private boolean hasSearchValue = false,hasCondition = false;
+        private boolean hasCondition = false;
+        private boolean hasContactCondition = false;
         public SearchBuilder(OrgContext org){
             this.org = org;
             this.sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
@@ -1359,24 +1338,42 @@ public class SearchDao {
         }
         
         public SearchBuilder addKeyWord(String keyword,SearchRequest searchRequest){
+        	this.searchRequest =searchRequest;
             if(!Strings.isNullOrEmpty(keyword)&&keyword.length()>=3){
-                hasSearchValue = true;
                 hasCondition = true;
                 keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org,searchRequest));
                 keyWordCountSql.append(keyWordSql.toString());
-                if (searchRequest.getOrder().trim().startsWith("\"id\"")&&
-                	searchRequest.isOnlyKeyWord()&&
-                	!keyword.matches("^\\s*\"[^\"]+\"\\s*$")) {
-                	keyWordSql.append(" order by ").append(searchRequest.getOrder())
-    						  .append(" offset ")
-    						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-    						  .append(" limit ").append(searchRequest.getPageSize());
-    			}
                 if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
                     conditions.append(" AND contact.\"ts2__text_resume__c\" like '")
                               .append(keyword.replaceAll("\\\"", "%"))
                               .append("'");
+                    exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
+					  				   .append(" offset ")
+					  				   .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+					  				   .append(" limit ").append(searchRequest.getPageSize());
+                }else{
+                	   if (searchRequest.getOrder().trim().startsWith("\"id\"")&&
+                           	searchRequest.isOnlyKeyWord()) {
+                           	keyWordSql.append(" order by ").append(searchRequest.getOrder())
+               						  .append(" offset ")
+               						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+               						  .append(" limit ").append(searchRequest.getPageSize());
+               			}else{
+               				orderSql.append(" order by ").append(searchRequest.getOrder())
+			      					.append(" offset ")
+			      					.append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+			      					.append(" limit ").append(searchRequest.getPageSize());
+               			}
                 }
+            }else{
+            	keyWordSql.append(" select distinct contact.id from contact ");
+            	keyWordCountSql.append(" select distinct contact.id from contact ");
+            	if (searchRequest.getOrder().trim().startsWith("\"id\"")) {
+            		orderSql.append(" order by ").append(searchRequest.getOrder())
+     						  .append(" offset ")
+     						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+     						  .append(" limit ").append(searchRequest.getPageSize());
+            	}
             }
             return this;
         }
@@ -1413,8 +1410,10 @@ public class SearchDao {
             }
             if ("Contact".equals(objectType)) {
                 conditions.append("  and contact.\"recordtypeid\" != '").append(org.getSfid()).append("'");
+                hasContactCondition = true;
             }else if("Candidate".equals(objectType)){
                 conditions.append("  and contact.\"recordtypeid\" = '").append(org.getSfid()).append("'");
+                hasContactCondition = true;
             }
             hasCondition = true;
             return this;
@@ -1427,15 +1426,17 @@ public class SearchDao {
             if ("Active".equals(status)) {
                 conditions.append("  and (contact.\"ts2__people_status__c\" in('', 'Active') ")
                 		  .append(" OR contact.\"ts2__people_status__c\" is null )");
+                hasContactCondition = true;
             } else if ("Inactive".equals(status)){
                 conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
+                hasContactCondition = true;
             }
             hasCondition = true;
             return this;
         }
         
         public SearchBuilder addContactFilter(JSONArray contacts){
-            renderContactConditions(conditions,values,sc,contacts);
+        	hasContactCondition = renderContactConditions(conditions,values,sc,contacts)||hasContactCondition;
             return this;
         }
        
@@ -1445,17 +1446,18 @@ public class SearchDao {
         }
         
         public String getSearchSql(){
-            if(hasSearchValue){
-                return " join ( "+keyWordSql+filterSql;
-            }
-            return keyWordSql.toString()+filterSql;
+        	if(locationSql.length()>0||
+        			(searchRequest.getOrder().trim().startsWith("\"id\"")&&searchRequest.isOnlyKeyWord())||
+        			hasContactCondition||!searchRequest.getOrder().trim().startsWith("\"id\"")){
+        		  return " join ( "+keyWordSql+filterSql;
+        	}else{
+        		  return " join ( "+keyWordSql+filterSql+orderSql;
+        	}
+          
         }
         
         public String getCountSql(){
-        	  if(hasSearchValue){
-                  return " join ( "+keyWordCountSql+filterSql;
-              }
-              return keyWordCountSql.toString()+filterSql;
+              return " join ( "+keyWordCountSql+filterSql;
         }
         
         public String getPrefixSql(){
@@ -1472,6 +1474,18 @@ public class SearchDao {
             }else{
                 return conditions.toString();
             }
+        }
+        
+        public String getExactSearchOrderSql(){
+        	if(hasContactCondition&&searchRequest.getOrder().trim().startsWith("\"id\"")){
+        		if(exactSearchOrderSql.length()==0)
+            		exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
+     						  .append(" offset ")
+     						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+     						  .append(" limit ").append(searchRequest.getPageSize());
+        	}
+        			
+        	return exactSearchOrderSql.toString();
         }
         
         public List getValues(){
