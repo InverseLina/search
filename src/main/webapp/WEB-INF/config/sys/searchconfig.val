@@ -1,6 +1,5 @@
 <searchconfig>
   <keyword>
-     <field table="jss_contact" name="contactInfoTsv" column="contact_tsv" />
      <field table="jss_contact" name="contactResumeTsv" column="resume_tsv" />
   </keyword>
   <filter name="skill" title="Skill" filtertype="skill">
