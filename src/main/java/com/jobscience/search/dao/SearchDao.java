@@ -77,7 +77,7 @@ public class SearchDao {
 		SearchResult searchResult = null;
 		SearchStatements statementAndValues = buildSearchStatements(searchRequest,org);
 		//excute query and caculate times
-		searchResult = executeSearch(statementAndValues,org);
+		searchResult = executeSearch(statementAndValues,searchRequest,org);
 
 		queryLogger.debug(LoggerType.SEARCH_PERF,searchResult.getSelectDuration());
 		queryLogger.debug(LoggerType.SEARCH_COUNT_PERF,searchResult.getCountDuration());
@@ -376,7 +376,7 @@ public class SearchDao {
         return result;
     }
 
-    protected SearchResult executeSearch(SearchStatements statementAndValues,OrgContext org){
+    protected SearchResult executeSearch(SearchStatements statementAndValues,SearchRequest searchRequest,OrgContext org){
     	Runner runner = datasourceManager.newOrgRunner(org.getOrgMap().get("name").toString());
     	SearchResult searchResult = null;
     	try{
@@ -409,7 +409,12 @@ public class SearchDao {
     				log.debug("The count search timeout,use the estimate count");
     			}
     		}
+    		
     		/********** /Get the exact count **********/
+    		
+    		if(result.size()<searchRequest.getPageSize()&&count>(searchRequest.getOffest()+result.size())){
+    			count = searchRequest.getOffest()+result.size();
+    		}
     		
     		long end = System.currentTimeMillis();
     
