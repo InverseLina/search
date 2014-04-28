@@ -9,7 +9,7 @@
     END IF;
     END$$;  
 -- SCRIPTS
-  update jss_contact  set contact_tsv = to_tsvector('english',con."name"||' '||con."title") 
+  update jss_contact  set contact_tsv = to_tsvector(con."name"||' '||con."title") 
   from (select case when c.name is null then '' else c.name end as name ,
   case when c.title is null then '' else c.title end as title,c.id
   from jss_contact ex join contact c on ex.id=c.id and ex.contact_tsv is null limit 1000) con
