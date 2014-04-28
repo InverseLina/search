@@ -157,7 +157,7 @@ public class DBSetupManager {
         indexerManager.run(orgName,webPath);
         sfidManager.run(orgName,webPath);
         contactTsvManager.run(orgName,webPath);
-
+        dropInvalidIndexes(orgName);
         createIndexColumns(orgName, true);
         createIndexColumns(orgName, false);
         removeWrongIndex(orgName);
@@ -227,15 +227,13 @@ public class DBSetupManager {
             missingTables.append(", ").append(m.get("tablename"));
         }
         boolean triggerValid = checkTriggerContent(orgName);
-        boolean functionValid = checkFunction(orgName,"count_estimate");
         setups.add(mapIt("name", "create_extra_table", 
         		"status",
-                missingTables.length() == 0&&triggerValid&&functionValid ? DONE :NOTSTARTED,
+                missingTables.length() == 0&&triggerValid ? DONE :NOTSTARTED,
                 "msg",
                 missingTables.length() > 0 ? "Missing Tables:" + missingTables.delete(0, 1)
-                        : (triggerValid?(functionValid?"Jss tables created":"Some functions not valid")
-                        :"Some triggers not valid")));
-        if(totalStatus.equals(DONE)&&(missingTables.length()>0||!triggerValid||!functionValid)){
+                        : (triggerValid?"Jss tables created":"Some triggers not valid")));
+        if(totalStatus.equals(DONE)&&(missingTables.length()>0||!triggerValid)){
             totalStatus = PART;
         }
         setups.add(mapIt("pgtrgm", this.checkExtension("pg_trgm") > 0 ? DONE : NOTSTARTED));
@@ -636,6 +634,36 @@ public class DBSetupManager {
         return result;
     }
 
+    private void dropInvalidIndexes(String orgName){
+    	Runner runner = datasourceManager.newOrgRunner(orgName);
+	    	try{
+	    	StringBuilder sql = new StringBuilder();
+	        sql.append("select indexname,tablename,indexdef from pg_indexes ").append("where indexname in (")
+	                .append(getIndexesNamesAndTables()[0]).append(getOrgCustomFilterIndex(orgName))
+	                .append(") and schemaname=current_schema ");
+	        
+	        List<Map> list =runner.executeQuery(sql.toString());
+	        Map<String, JSONArray> indexsDef = getIndexMapFromJsonFile();
+	        
+	        //check the index content
+	        for(Map m:list){
+	            JSONArray ja = indexsDef.get(m.get("tablename"));
+	            for (int i = 0; i < ja.size(); i++) {
+	                JSONObject jo = JSONObject.fromObject(ja.get(i));
+	                if(jo.get("name").equals(m.get("indexname"))){
+	                	if(!generateIndexDef(m.get("tablename").toString(), jo)
+	                			.replaceAll("\\s", "").equalsIgnoreCase(
+	                					m.get("indexdef").toString().replaceAll("\\s", ""))){
+	                		runner.executeUpdate("drop index if exists " + jo.getString("name"));
+	                	}
+	                }
+	            }
+	        }
+    	}finally{
+    		runner.close();
+    	}
+    }
+    
     /**
      * create index for contact and jss_contact
      * 
@@ -1020,7 +1048,9 @@ public class DBSetupManager {
                 .append("        JOIN   pg_namespace n ON n.oid = c.relnamespace")
                 .append("        WHERE  c.relname = '").append(jo.get("name"))
                 .append("'        AND    n.nspname =   current_schema").append("        ) THEN")
-                .append("       CREATE INDEX ").append(jo.get("name")).append("  ON ")
+                .append("       CREATE ")
+                .append(jo.get("unique"))
+                .append(" INDEX ").append(jo.get("name")).append("  ON ")
                 .append(tabelName).append(" USING ").append(jo.get("type")).append(" ( ")
                 .append(jo.get("column")).append(" ").append(jo.get("operator"))
                 .append(");    END IF;").append("    END$$;");
@@ -1028,6 +1058,19 @@ public class DBSetupManager {
         return sb.toString();
     }
 
+    
+    private String generateIndexDef(String tabelName, JSONObject jo) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CREATE ")
+        .append(jo.get("unique"))
+        .append(" INDEX ").append(jo.get("name")).append("  ON ")
+        .append(tabelName).append(" USING ").append(jo.get("type")).append(" ( ")
+        .append(jo.get("column")).append(" ").append(jo.get("operator"))
+        .append(")");
+
+        return sb.toString();
+    }
+    
     /**
      * Get the count for index count for contact and jss_contact
      * 
@@ -1038,15 +1081,30 @@ public class DBSetupManager {
     private Integer getIndexStatus(String orgName) {
         StringBuilder sql = new StringBuilder();
 
-        sql.append("select count(*) as count from pg_indexes ").append("where indexname in (")
+        sql.append("select indexname,tablename,indexdef from pg_indexes ").append("where indexname in (")
                 .append(getIndexesNamesAndTables()[0]).append(getOrgCustomFilterIndex(orgName))
                 .append(") and schemaname=current_schema ");
-        List<Map> list = daoHelper
-                .executeQuery(datasourceManager.newOrgRunner(orgName), sql.toString());
-        if (list.size() == 1) {
-            return Integer.parseInt(list.get(0).get("count").toString());
+        
+        List<Map> list =daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),sql.toString());
+        Map<String, JSONArray> indexsDef = getIndexMapFromJsonFile();
+        
+        //check the index content
+        int count = 0;
+        for(Map m:list){
+            JSONArray ja = indexsDef.get(m.get("tablename"));
+            for (int i = 0; i < ja.size(); i++) {
+                JSONObject jo = JSONObject.fromObject(ja.get(i));
+                if(jo.get("name").equals(m.get("indexname"))){
+                	if(generateIndexDef(m.get("tablename").toString(), jo)
+                			.replaceAll("\\s", "").equalsIgnoreCase(
+                					m.get("indexdef").toString().replaceAll("\\s", ""))){
+                		count++;
+                	}
+                }
+            }
         }
-        return 0;
+       
+        return count;
     }
 
     /**
@@ -1609,17 +1667,4 @@ public class DBSetupManager {
         return valid;
     }
     
-    private boolean checkFunction(String orgName,String functionName){
-    	List<Map> list = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),
-                "SELECT  count(*) as count "
-                + "    	FROM    pg_catalog.pg_namespace n"
-                + "    	JOIN    pg_catalog.pg_proc p"
-                + "    	ON      pronamespace = n.oid"
-                + "    	WHERE   nspname = current_schema and proname=?",functionName);
-        if (list.size() == 1) {
-            Integer count = Integer.valueOf(list.get(0).get("count").toString());
-            return count > 0;
-        }
-    	return false;
-    }
 }    

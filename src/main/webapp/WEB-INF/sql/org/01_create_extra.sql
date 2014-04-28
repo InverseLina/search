@@ -216,22 +216,3 @@ CREATE TABLE if not exists jss_pref
   val_text text,
   CONSTRAINT pref_pkey PRIMARY KEY (id)
 );
-
--- SCRIPTS
-	CREATE OR REPLACE FUNCTION count_estimate(query text) RETURNS integer AS
-	$func$
-	DECLARE
-	    rec   record;
-	    rows  integer;
-	BEGIN
-	    FOR rec IN EXECUTE 'EXPLAIN ' || query LOOP
-	        rows := substring(rec."QUERY PLAN" FROM ' rows=([[:digit:]]+)');
-	        EXIT WHEN rows IS NOT NULL;
-	    END LOOP;
-	
-	    IF(rows<1000) THEN
-	      EXECUTE ' select count(*) from ('||query||') c ' into rows;
-	    END IF;
-	    RETURN rows;
-	END
-	$func$ LANGUAGE plpgsql;
