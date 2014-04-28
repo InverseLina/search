@@ -383,39 +383,44 @@ public class SearchDao {
     		long start = System.currentTimeMillis();
     		List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
     		long mid = System.currentTimeMillis();
-    		
-    		/********** Get the estimate count **********/
-    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
-					 									+" select  distinct(a.id)  "
-					 									+statementAndValues.countSql,
-					 									statementAndValues.values);
     		int count = 0;
     		boolean exactCount = false;
-    		if(explainPlans.size()>0){
-    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
-    		}
-    		/********** /Get the estimate count **********/
     		
-    		/********** Get the exact count **********/
-    		if(count<=FAST_COUNT_TRESHOLD){
-    			try{
-    				runner.executeUpdate("SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
-    				int exact= runner.executeCount(statementAndValues.cteSql
-							+" select  count(distinct a.id) as count  "
-							+statementAndValues.countSql);
-    				count = exact;
-    				exactCount = true;
-    			}catch(Exception e){
-    				log.debug("The count search timeout,use the estimate count");
-    			}
-    		}
-    		
-    		/********** /Get the exact count **********/
-    		
-    		if(result.size()<searchRequest.getPageSize()&&count>(searchRequest.getOffest()+result.size())){
+    		//when the search result less than page size,this would be the last page,we just calculate the count
+    		if(result.size()<searchRequest.getPageSize()){
     			count = searchRequest.getOffest()+result.size();
+    			exactCount = true;
     		}
     		
+    		//only this page is not the last page,we do calculating count
+    		if(count==0){
+	    		/********** Get the estimate count **********/
+	    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
+						 									+" select  distinct(a.id)  "
+						 									+statementAndValues.countSql,
+						 									statementAndValues.values);
+	    		if(explainPlans.size()>0){
+	    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
+	    		}
+	    		/********** /Get the estimate count **********/
+	    		
+	    		/********** Get the exact count **********/
+	    		if(count<=FAST_COUNT_TRESHOLD){
+	    			try{
+	    				runner.executeUpdate("SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
+	    				int exact= runner.executeCount(statementAndValues.cteSql
+								+" select  count(distinct a.id) as count  "
+								+statementAndValues.countSql);
+	    				count = exact;
+	    				exactCount = true;
+	    			}catch(Exception e){
+	    				log.debug("The count search timeout,use the estimate count");
+	    			}
+	    		}
+	    		
+	    		/********** /Get the exact count **********/
+	    		
+    		}
     		long end = System.currentTimeMillis();
     
     		searchResult = new SearchResult(result, count)
