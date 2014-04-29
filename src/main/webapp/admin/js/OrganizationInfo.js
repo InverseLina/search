@@ -307,31 +307,31 @@
 							$setupBtn.prop("disabled", true).html("Setup");
 							$pasueBtn.prop("disabled", true);
 							$resetBtn.prop("disabled", false);
-							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.enable-indexes,.drop-ex").removeClass("disabled");
+							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").removeClass("disabled");
 							break;
 						case  "part"      :
 							$setupBtn.prop("disabled", false).html("Resume");
 							$pasueBtn.prop("disabled", true);
 							$resetBtn.prop("disabled", false);
-							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.enable-indexes,.drop-ex").removeClass("disabled");
+							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").removeClass("disabled");
 							break;
 						case  "error"     :
 							$setupBtn.prop("disabled", true).html("Setup");
 							$pasueBtn.prop("disabled", true);
 							$resetBtn.prop("disabled", false);
-							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.enable-indexes,.drop-ex").removeClass("disabled");
+							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").removeClass("disabled");
 							break;
 						case  "notstarted":
 							$setupBtn.prop("disabled", false).html("Setup");
 							$pasueBtn.prop("disabled", true);
 							$resetBtn.prop("disabled", false);
-							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.enable-indexes,.drop-ex").removeClass("disabled");
+							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").removeClass("disabled");
 							break;
 						case  "running"   :
 							$setupBtn.prop("disabled", true).html("Setup...");
 							$pasueBtn.prop("disabled", false);
 							$resetBtn.prop("disabled", true);
-							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.enable-indexes,.drop-ex").addClass("disabled");
+							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").addClass("disabled");
 							setTimeout(function() {
 								refresh.call(view);
 							}, 3000);
@@ -446,6 +446,18 @@
 				}).done(function(result) {
 					refresh.call(view);
 					$(".alert", $disableBtn.closest("div")).show();
+				});
+			},
+			"click;.rebuild-resume":function(event){
+				var view = this;
+				var $rebuildBtn = $(event.currentTarget);
+				app.getJsonData("/rebuildResume",{
+					orgName : view.orgName
+				}, {
+					type : 'Post'
+				}).done(function(result) {
+					refresh.call(view);
+					$(".alert", $rebuildBtn.closest("div")).removeClass("hide");
 				});
 			}
 		}

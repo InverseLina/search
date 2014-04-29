@@ -250,12 +250,16 @@ public class DBSetupManager {
                 setups.add(mapIt("name", "tsv", "status", NOTSTARTED, "progress", 0));
             }
 
-            IndexerStatus is = indexerManager.getStatus(orgName, false);
-            String indexStatus = indexerManager.isOn() ? RUNNING : (is.getRemaining() > 0 ? PART
-                    : DONE);
-            setups.add(mapIt("name", "resume", "status", indexStatus, "progress", is));
-            if (is.getRemaining() > 0 && totalStatus.equals(DONE)) {
-                totalStatus = PART;
+            if(checkColumn("resume_tsv", "jss_contact", schemaname)){
+	            IndexerStatus is = indexerManager.getStatus(orgName, false);
+	            String indexStatus = indexerManager.isOn() ? RUNNING : (is.getRemaining() > 0 ? PART
+	                    : DONE);
+	            setups.add(mapIt("name", "resume", "status", indexStatus, "progress", is));
+	            if (is.getRemaining() > 0 && totalStatus.equals(DONE)) {
+	                totalStatus = PART;
+	            }
+            }else{
+            	setups.add(mapIt("name", "resume", "status",PART, "progress", 0));
             }
 
             IndexerStatus sfIs = sfidManager.getStatus(orgName, false);
@@ -832,6 +836,11 @@ public class DBSetupManager {
                         + "drop table if exists jss_grouped_employers;"
                         + "drop table if exists jss_grouped_educations;"
                         + "drop table if exists jss_grouped_skills");
+    }
+    
+    public void rebuildResume(String orgName) {
+    	daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
+    			"ALTER TABLE jss_contact DROP COLUMN IF EXISTS \"resume_tsv\" CASCADE");
     }
     
     public void computeCity() throws Exception {

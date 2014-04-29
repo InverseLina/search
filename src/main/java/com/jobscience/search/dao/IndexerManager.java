@@ -35,6 +35,7 @@ public class IndexerManager {
 	  	File orgFolder = new File(webPath + "/org");
 	    File[] sqlFiles = orgFolder.listFiles();
 	    String insertSql="" ;
+	    String updateSql = "";
 	    try{
 		    for(File file : sqlFiles){
 		    	StringBuilder temp = new StringBuilder();
@@ -49,6 +50,9 @@ public class IndexerManager {
 	                if(insertSql.endsWith(";")){
 	                	insertSql=insertSql.substring(0,insertSql.length()-1);
 	                }
+	                if(getJssContactCount(orgName)==getContactsCount(orgName)){//should do update
+	                	updateSql = temp.toString().split("-- SCRIPTS")[2].trim();
+	                }
 	        	}
 	        }
 	    }catch (Exception e) {
@@ -58,21 +62,29 @@ public class IndexerManager {
 	    indexerStatus = getStatus(orgName, false);
 	    
 	    Runner runner = datasourceManager.newOrgRunner(orgName);
-	    PQuery pq = runner.newPQuery(insertSql+" limit ?");
+	    PQuery pq = runner.newPQuery(insertSql + " limit ?");
+	    PQuery updatePq = runner.newPQuery(updateSql);
 	    try{
-    	    while(indexerStatus.getRemaining()>0&&on){
-    	        pq.executeUpdate(new Object[]{1000});
-    	    	int perform = getContactExCount(orgName);
-    	    	indexerStatus = new IndexerStatus(indexerStatus.getPerform()+indexerStatus.getRemaining()-perform, perform);
-    	    }
-	    }catch(Exception e){
-            on = false;
-        }
+		    while(getJssContactCount(orgName)!=getContactsCount(orgName)&&on){//insert
+		        pq.executeUpdate(new Object[]{1000});
+		    }
+		    indexerStatus = getStatus(orgName, false);
+		    while(indexerStatus.getRemaining()>0&&on){//update
+		    	updatePq.executeUpdate();
+		    	indexerStatus = getStatus(orgName, false);
+		    }
+	    }finally{
+	    	on = false;
+	    	pq.close();
+	    	updatePq.close();
+	    	runner.close();
+	    }
+	   
 	    if(indexerStatus!=null&&indexerStatus.getRemaining()==0){
             this.on = false;
         }
-	    pq.close();
-	    runner.close();
+	   
+	   
 	 }
 	 
 	 public void stop(){
@@ -84,6 +96,7 @@ public class IndexerManager {
 	    if(quick){
             return getQuickStatus(orgName);
         }
+
 		int all = getContactsCount(orgName);
     	int perform = getContactExCount(orgName);
     	indexerStatus = new IndexerStatus(all-perform, perform);
@@ -108,8 +121,16 @@ public class IndexerManager {
 		return 0;
 	 }
 	    
+	 private int getJssContactCount(String orgName){
+	    	List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact ");
+	    	if(list.size()==1){
+	    		return Integer.parseInt(list.get(0).get("count").toString());
+	    	}
+			return 0;
+	 }
+	 
 	 private int getContactExCount(String orgName){
-    	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from jss_contact");
+    	List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact where resume_tsv is not null");
     	if(list.size()==1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}

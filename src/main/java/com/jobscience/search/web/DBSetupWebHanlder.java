@@ -103,4 +103,11 @@ public class DBSetupWebHanlder {
         return webResponseBuilder.success();
     }
     
+    @WebPost("/rebuildResume")
+    @RequireAdmin
+    public WebResponse rebuildResume(@WebParam("orgName")String orgName){
+        dbSetupManager.rebuildResume(orgName);
+        return webResponseBuilder.success();
+    }
+    
 }
