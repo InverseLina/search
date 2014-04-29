@@ -978,11 +978,20 @@ public class SearchDao {
         	   searchRequest.isOnlyKeyWord())||exact
         	   ){
             	if(exact){
-            		keyword = keyword.replaceAll("\"", "");
-            		joinSql.append("  select ex.id,ex.sfid from  "+
-                 		   org.getOrgMap().get("schemaname")+
-                	       ".jss_contact ex where "+
-                			renderKeywordSearch(keyword.trim().replaceAll("\\s+", "&"),org,exact,"ex") + "  ");
+            		if(searchRequest.isOnlyKeyWord()){
+            			joinSql = new StringBuilder();
+            		}
+            		
+            		joinSql.append("  select contact.id,contact.sfid from  ")
+                 		   .append(org.getOrgMap().get("schemaname"))
+                	       .append(".contact  where ")
+                	       .append(" contact.\"ts2__text_resume__c\" like '")
+                           .append(keyword.replaceAll("\\\"", "%"))
+                           .append("' ");
+            		if(!searchRequest.isOnlyKeyWord()){
+            			 joinSql.append(")  contact ");
+            		}
+            		return joinSql.toString();
             	}else{
             	return "  select contact.id,contact.sfid from  "+
             		   org.getOrgMap().get("schemaname")+
@@ -1354,13 +1363,22 @@ public class SearchDao {
                 keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org,searchRequest));
                 keyWordCountSql.append(keyWordSql.toString());
                 if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
-                    conditions.append(" AND contact.\"ts2__text_resume__c\" like '")
-                              .append(keyword.replaceAll("\\\"", "%"))
-                              .append("'");
-                    exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
-					  				   .append(" offset ")
-					  				   .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-					  				   .append(" limit ").append(searchRequest.getPageSize());
+                	if(searchRequest.getOrder().trim().startsWith("\"id\"")&&
+                           	searchRequest.isOnlyKeyWord()){
+                		keyWordSql.append(" order by ").append(searchRequest.getOrder())
+				  				  .append(" offset ")
+				  				  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+				  				  .append(" limit ").append(searchRequest.getPageSize());
+                	}
+                	if(!searchRequest.isOnlyKeyWord()){
+//                		 conditions.append(" AND lower(contact.\"ts2__text_resume__c\") like '")
+//			                       .append(keyword.replaceAll("\\\"", "%").toLowerCase())
+//			                       .append("'");
+                		 exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
+				  				   .append(" offset ")
+				  				   .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+				  				   .append(" limit ").append(searchRequest.getPageSize());
+                	}
                 }else{
                 	   if (searchRequest.getOrder().trim().startsWith("\"id\"")&&
                            	searchRequest.isOnlyKeyWord()) {
