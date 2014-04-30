@@ -24,9 +24,22 @@ public class ResumeWebHandlers {
     private WebResponseBuilder webResponseBuilder;
     
     @WebGet("/getResume")
-    public WebResponse search(@WebParam("cid") Long cid) {
-    	String sql = "select \"name\", \"ts2__text_resume__c\" from  contact where id = ?";
-    	List<Map> map = daoHelper.executeQuery(orgHolder.getOrgName(), sql, cid);
+    public WebResponse search(@WebParam("cid") Long cid, @WebParam("keyword") String keyword) {
+        boolean exact = keyword.matches("^\\s*\"[^\"]+\"\\s*$");
+        List<Map> result = null;
+        Map map = null;
+        if (!exact) {
+            String query = keyword.trim().replaceAll("\\s+", "|").replaceAll(" [NOT|OR|AND] ", "|");
+            String sql = "select \"name\", ts_headline(\"ts2__text_resume__c\", to_tsquery(?), \'StartSel=\"<span class=\"\"highlight\"\">\", StopSel=\"</span>\", HighlightAll=true\') as resume from  contact where id = ?";
+            result = daoHelper.executeQuery(orgHolder.getOrgName(), sql, query, cid);
+        } else {
+            String sql = "select \"name\", \"ts2__text_resume__c\" as resume from  contact where id = ?";
+            result = daoHelper.executeQuery(orgHolder.getOrgName(), sql, cid);
+        }
+        if(result.size() > 0){
+            map = result.get(0);
+            map.put("exact", exact);
+        }
         return webResponseBuilder.success(map);
     }
 }
