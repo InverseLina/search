@@ -390,10 +390,7 @@ public class SearchDao {
     		if(result.size()<searchRequest.getPageSize()){
     			count = searchRequest.getOffest()+result.size();
     			exactCount = true;
-    		}
-    		
-    		//only this page is not the last page,we do calculating count
-    		if(count==0){
+    		}else{//only this page is not the last page,we do calculating count
 	    		/********** Get the estimate count **********/
 	    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
 						 									+" select  distinct(a.id)  "
@@ -401,6 +398,7 @@ public class SearchDao {
 						 									statementAndValues.values);
 	    		if(explainPlans.size()>0){
 	    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
+	    			exactCount = false;
 	    		}
 	    		/********** /Get the estimate count **********/
 	    		
@@ -417,10 +415,10 @@ public class SearchDao {
 	    				log.debug("The count search timeout,use the estimate count");
 	    			}
 	    		}
-	    		
 	    		/********** /Get the exact count **********/
-	    		
+    		
     		}
+    		
     		long end = System.currentTimeMillis();
     
     		searchResult = new SearchResult(result, count)
