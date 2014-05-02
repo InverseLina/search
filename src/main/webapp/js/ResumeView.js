@@ -56,25 +56,16 @@
 				if(exact){
 					var keyWord = query;
 					var keyWordsSplited = keyWord;
-					var pattern = /^\s*\".+\"\s*$/g;
-					var exact = false;
-					if (pattern.test(keyWord)) {
-						var reg = new RegExp("\"", "g");
-						keyWordsSplited = keyWordsSplited.replace(reg, "");
-						exact = true;
-					}
-					pattern = /[^A-z0-9 ]/g;
+					var reg = new RegExp("\"", "g");
+					keyWordsSplited = keyWordsSplited.replace(reg, "");
+					var pattern = /[^A-z0-9 ]/g;
 					if (pattern.test(keyWord)) {
 						keyWordsSplited = keyWordsSplited.replace(pattern, "");
 					}
-					if(exact){
-						keyWordsSplited = [keyWordsSplited];
-					}else{
-						keyWordsSplited = keyWordsSplited.split(/\s+/);
-					}
+					keyWordsSplited = [keyWordsSplited];
 					for (var k in keyWordsSplited) {
 						if (keyWordsSplited[k] != "AND" && keyWordsSplited[k] !== "OR" && keyWordsSplited[k] !== "NOT"){
-							var reg = new RegExp("(" + keyWordsSplited[k] + ")", "gi");
+							var reg = new RegExp("(" + keyWordsSplited[k] + ")", "g");
 							resume = resume.replace(reg, "<span class=\"highlight\">$1</span>");
 						}
 					}
