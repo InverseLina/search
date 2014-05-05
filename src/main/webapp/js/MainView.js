@@ -189,10 +189,18 @@
 	function doSearchRequest(searchParameter, searchTimes){
 		var view = this;
 		searchTimes++ ;
-		searchDao.search(searchParameter).done(function(result) {
+		app.currentDeferred = searchDao.search(searchParameter);
+		
+		app.currentDeferred.done(function(result) {
+			if(this !== app.currentDeferred){
+				return ;
+			}
 			view.$el.trigger("CHECK_CLEAR_BTN");
 			view.$el.trigger("SEARCH_RESULT_CHANGE", result);
 		}).fail(function(result){
+			if(this !== app.currentDeferred){
+				return ;
+			}
 			if (searchTimes < 3) {
 				doSearchRequest.call(view, searchParameter, searchTimes);
 			} else {
