@@ -441,6 +441,12 @@
 		parentEvents : {
 
 			MainView : {
+				"DO_CLEAR_ORDER" : function(event){
+					var view = this;
+					view.tableOrderColumn = null;
+					view.tableOrderType = null;
+				},
+				
 				"SEARCH_RESULT_CHANGE" : function(event, result) {
 					var labelAssigned = app.buildPathInfo().labelAssigned;
 					var view = this;

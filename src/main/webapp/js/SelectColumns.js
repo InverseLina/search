@@ -74,6 +74,14 @@
 				view.$el.find("input[type='checkbox']:checked").each(function() {
 					columns.push($(this).val());
 				});
+				
+				if($checkbox.val() == 'contact' || $checkbox.val() == 'location'){
+					var checked = $checkbox.prop("checked");
+					if(!checked){
+						view.$el.trigger("DO_CLEAR_ORDER");
+					}
+				}
+				
 				if (columns.length > 0) {
 					view.$el.trigger("DO_SET_COLUMNS", {
 						columns : columns
