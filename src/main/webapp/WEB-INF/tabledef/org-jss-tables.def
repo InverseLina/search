@@ -25,7 +25,7 @@
 				  [
 				    {
 				      "name":"id",
-				      "type":"bigint NOT NULL"
+				      "type":"serial NOT NULL"
 				    },
 				    {
 				      "name":"count",
@@ -40,7 +40,7 @@
                  [
                     {
 				      "name":"id",
-				      "type":"bigint NOT NULL"
+				      "type":"serial NOT NULL"
 				    },
 				    {
 				      "name":"count",
@@ -55,7 +55,7 @@
                  [
                     {
 				      "name":"id",
-				      "type":"bigint NOT NULL"
+				      "type":"serial NOT NULL"
 				    },
 				    {
 				      "name":"count",
@@ -70,7 +70,7 @@
                  [
                     {
 				      "name":"id",
-				      "type":"bigint NOT NULL"
+				      "type":"serial NOT NULL"
 				    },
 				    {
 				      "name":"count",
@@ -84,7 +84,7 @@
     "jss_pref":  [
     				{
 				      "name":"id",
-				      "type":"bigint NOT NULL"
+				      "type":"serial NOT NULL"
 				    },
 				    {
 				      "name":"user_id",
@@ -107,7 +107,7 @@
     			  [
     			    {
 				      "name":"id",
-				      "type":"bigint NOT NULL"
+				      "type":"serial NOT NULL"
 				    },
 				    {
 				      "name":"user_id",
@@ -134,7 +134,7 @@
                   [
                     {
 				      "name":"id",
-				      "type":"bigint NOT NULL"
+				      "type":"serial NOT NULL"
 				    },
 				    {
 				      "name":"user_id",
@@ -160,7 +160,7 @@
     "jss_user":   [
     				{
 				      "name":"id",
-				      "type":"bigint NOT NULL"
+				      "type":"serial NOT NULL"
 				    },
 				    {
 				      "name":"sfid",
@@ -177,6 +177,56 @@
 				    {
 				      "name":"rtoken",
 				      "type":"character varying(255)"
+				    }
+    			  ],
+    "jss_contact_jss_groupby_skills":   [
+    				{
+				      "name":"id",
+				      "type":"serial  NOT NULL"
+				    },
+				    {
+				      "name":"jss_groupby_skills_id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"jss_contact_id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"rating",
+				      "type":"double precision"
+				    }
+    			  ],
+    "jss_contact_jss_groupby_educations":   [
+    				{
+				      "name":"id",
+				      "type":"serial  NOT NULL"
+				    },
+				    {
+				      "name":"jss_groupby_educations_id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"jss_contact_id",
+				      "type":"bigint NOT NULL"
+				    }
+    			  ],
+    "jss_contact_jss_groupby_employers":   [
+    				{
+				      "name":"id",
+				      "type":"serial  NOT NULL"
+				    },
+				    {
+				      "name":"jss_groupby_employers_id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"jss_contact_id",
+				      "type":"bigint NOT NULL"
+				    },
+				    {
+				      "name":"year",
+				      "type":"double precision"
 				    }
     			  ]
 }

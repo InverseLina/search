@@ -151,7 +151,9 @@ public class DBSetupManager {
         createExtraGroup(orgName, "educations");
         createExtraGroup(orgName, "employers");
         createExtraGroup(orgName, "locations");
-
+        renderManyToMany(orgName,"jss_contact_jss_groupby_skills");
+        renderManyToMany(orgName,"jss_contact_jss_groupby_educations");
+        renderManyToMany(orgName,"jss_contact_jss_groupby_employers");
         fixMissingColumns(orgName, false);
         
         indexerManager.run(orgName,webPath);
@@ -164,6 +166,25 @@ public class DBSetupManager {
         stopOrgSetup(orgName);
     }
    
+    private void renderManyToMany(String orgName,String table){
+    	 File orgFolder = new File(getRootSqlFolderPath() + "/org");
+         File[] sqlFiles = orgFolder.listFiles();
+         String sqlString = "";
+         for (File file : sqlFiles) {
+             if (file.getName().contains(table)) {
+                 List<String> subSqlList = loadSQLFile(file);
+                 sqlString = subSqlList.get(1);
+                 break;
+             }
+         }
+         Runner runner = datasourceManager.newOrgRunner(orgName);
+         
+         if(getDataCount(table,runner)==0){
+        	 daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName), sqlString);
+         }
+         runner.close();
+    }
+    
     public void resetOrgSetup(String orgName) {
         dropIndexes(orgName);
 
@@ -283,6 +304,14 @@ public class DBSetupManager {
         int totalIndexCount = getTotalIndexCount(orgName);
         setups.add(mapIt("name", "indexes", "status", totalIndexCount > indexCount ? PART : DONE,
                 "progress", new IndexerStatus(totalIndexCount - indexCount, indexCount)));
+        
+
+		int MtmtablesCount = getMtmTableseStatus(orgName);
+		int totalMtmtablesCount = 3;
+		setups.add(mapIt("name", "mtmtables", "status",
+				totalMtmtablesCount > MtmtablesCount ? PART : DONE, "progress",
+				new IndexerStatus(totalMtmtablesCount - MtmtablesCount, MtmtablesCount)));
+		
         if ((totalIndexCount > indexCount) && totalStatus.equals(DONE)) {
             totalStatus = PART;
         }
@@ -826,6 +855,24 @@ public class DBSetupManager {
         return false;
     }
 
+    
+    public int getMtmTableseStatus(String orgName) {
+    	int count = 0;
+    	String[] mtmtables = new String[]{"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
+    	Runner runner = datasourceManager.newOrgRunner(orgName);
+        try{
+        	for(int i =0 ; i <mtmtables.length ; i++){
+        		int flag = getDataCount(mtmtables[i],runner);
+        		if(flag > 0){
+        			count++;
+        		}
+        	}
+        }finally{
+        	runner.close();
+        }
+        return count;
+    }
+    
     public List<String> getSqlCommandForOrg(String fileName) {
         return loadSQLFile(new File(getRootSqlFolderPath() + "/org/" + fileName));
     }
@@ -1116,6 +1163,8 @@ public class DBSetupManager {
         return count;
     }
 
+  
+    
     /**
      * get the indexes for custom filter which defined in org search config
      * 
@@ -1151,7 +1200,7 @@ public class DBSetupManager {
         }
         return count;
     }
-
+    
     private String getRootSqlFolderPath() {
         StringBuilder path = new StringBuilder(webAppFolder.getAbsolutePath());
         path.append("/WEB-INF/sql");
@@ -1177,70 +1226,66 @@ public class DBSetupManager {
     }
 
     private int getDataCount(String table,Runner runner){
-        try{
-            int tableCount = runner.executeCount("select count(*) as count from information_schema.tables " 
-                                + " where table_schema= current_schema "
-                                +" and table_type='BASE TABLE' " + "and table_name =?",table);
-            if(tableCount>0){
-                return runner.executeCount("select count(*) from "+table);
-            }else {
-                return 0;
-            }
-        }finally{
-            runner.close();
+        int tableCount = runner.executeCount("select count(*) as count from information_schema.tables " 
+                            + " where table_schema= current_schema "
+                            +" and table_type='BASE TABLE' " + "and table_name =?",table);
+        if(tableCount>0){
+            return runner.executeCount("select count(*) from "+table);
+        }else {
+            return 0;
         }
     }
     
-    private boolean createExtraGroup(String orgName, String tableName) throws Exception {
-        if (!orgSetupStatus.get(orgName).booleanValue()) {
-            return false;
-        }
-        //when there already has data
-        if(getDataCount("jss_grouped_"+tableName,datasourceManager.newOrgRunner(orgName))>0){
-            return true;
-        }
-        boolean result = true;
-        File orgFolder = new File(getRootSqlFolderPath() + "/org");
-        File[] sqlFiles = orgFolder.listFiles();
-        List<String> allSqls = new ArrayList();
-        String filePrexName = "";
-        if (tableName.contains("skills")) {
-            filePrexName = "06_";
-        } else if (tableName.contains("educations")) {
-            filePrexName = "07_";
-        } else if (tableName.contains("employers")) {
-            filePrexName = "08_";
-        } else {
-            filePrexName = "09_";
-        }
-        for (File file : sqlFiles) {
-            if (file.getName().startsWith(filePrexName)) {
-                List<String> subSqlList = loadSQLFile(file);
-                allSqls.addAll(subSqlList);
-            }
-        }
-        Runner runner = datasourceManager.newOrgRunner(orgName);
-        try {
-            runner.startTransaction();
-            for (String sql : allSqls) {
-                runner.executeUpdate(sql.replaceAll("#", ";"));
-            }
-            runner.commit();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            result = false;
-            try {
-                runner.roolback();
-            } catch (Exception e1) {
-                log.error(e1.getMessage());
-            }
-            throw e;
-        } finally {
-            runner.close();
-        }
-        return result;
-    }
-
+	private boolean createExtraGroup(String orgName, String tableName)
+			throws Exception {
+		Runner runner = datasourceManager.newOrgRunner(orgName);
+		boolean result = true;
+		try {
+			if (!orgSetupStatus.get(orgName).booleanValue()) {
+				return false;
+			}
+			// when there already has data
+			if (getDataCount("jss_grouped_" + tableName, runner) > 0) {
+				return true;
+			}
+			File orgFolder = new File(getRootSqlFolderPath() + "/org");
+			File[] sqlFiles = orgFolder.listFiles();
+			List<String> allSqls = new ArrayList();
+			String filePrexName = "";
+			if (tableName.contains("skills")) {
+				filePrexName = "06_";
+			} else if (tableName.contains("educations")) {
+				filePrexName = "07_";
+			} else if (tableName.contains("employers")) {
+				filePrexName = "08_";
+			} else {
+				filePrexName = "09_";
+			}
+			for (File file : sqlFiles) {
+				if (file.getName().startsWith(filePrexName)) {
+					List<String> subSqlList = loadSQLFile(file);
+					allSqls.addAll(subSqlList);
+				}
+			}
+			runner.startTransaction();
+			for (String sql : allSqls) {
+				runner.executeUpdate(sql.replaceAll("#", ";"));
+			}
+			runner.commit();
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			result = false;
+			try {
+				runner.roolback();
+			} catch (Exception e1) {
+				log.error(e1.getMessage());
+			}
+			throw e;
+		} finally {
+			runner.close();
+		}
+		return result;
+	}
 
     private boolean checkCity() {
         boolean done = false;
