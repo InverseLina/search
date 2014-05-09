@@ -1709,6 +1709,13 @@ public class DBSetupManager {
                 + ") join pg_namespace pn on p.pronamespace=pn.oid and pn.nspname = current_schema ");
         
         String databaseContent,fileContent;
+        
+        System.out.println(m.keySet().size()+"========="+triggers.size());
+        
+        if(2*m.keySet().size()!=triggers.size()){
+        	return false;
+        }
+        
         for(Map trigger:triggers){
             fileContent = (String) JSONObject.fromObject(m.get(trigger.get("trigger_name")).get(0)).get("content");
             databaseContent = (String) trigger.get("prosrc");
