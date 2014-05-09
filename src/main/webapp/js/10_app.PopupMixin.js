@@ -177,8 +177,14 @@ var app = app || {};
 				},
 				"click; div.content .autoCompleteList  div[class$='Row'][class!='contactRow']" : function(event) {
 					var view = this;
-					var data = $.trim($(event.currentTarget).find(".contentText").attr("data-name"));
-					addItem.call(view, data);
+					var $contentText = $(event.currentTarget).find(".contentText");
+					var itemData = {
+						name : $contentText.attr("data-name"),
+					}; 
+					if ($contentText.attr("data-groupedId") != "") {
+						itemData.groupedId = $contentText.attr("data-groupedId") * 1;
+					}
+					addItem.call(view, itemData);
 					view.$el.find("input").focus();
 
 				},
@@ -285,7 +291,7 @@ var app = app || {};
 
 		function addItem(data) {
 			var item, minValue = 0, view = this;
-			var $dataItem = view.$el.find(".selectedItems .item[data-name='" + data + "']");
+			var $dataItem = view.$el.find(".selectedItems .item[data-name='" + data.name + "']");
 			var len = $dataItem.length;
 			if (view.slider) {
 				minValue = view.slider.getValue();
@@ -293,8 +299,11 @@ var app = app || {};
 			if (len === 0) {
 				item = {
 					type : view.type,
-					name : data
+					name : data.name
 				};
+				if(data.groupedId){
+					item.groupedId = data.groupedId;
+				}
 				if (minValue > 0) {
 					if (view.type === "location") {
 						item['minRadius'] = minValue;
@@ -304,14 +313,14 @@ var app = app || {};
 					view.slider.reset();
 				}
 				view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {
-					name : data,
+					name : data.name,
 					min : minValue || ""
 				}));
 				view.$el.trigger("ADD_FILTER", item);
 				view.$el.find("input").val("").focus().change();
 				showSPline.call(view, true);
 			} else {
-				var obj = app.ParamsControl.get(view.type, data);
+				var obj = app.ParamsControl.get(view.type, data.name);
 				var oldMinValue = obj.value.minRadius || obj.value.minYears || 0;
 				if (oldMinValue !== minValue) {
 					if (view.type === "location") {
@@ -320,7 +329,7 @@ var app = app || {};
 						obj.value['minYears'] = minValue;
 					}
 					var html = render("filterPanel-selectedItem-add", {
-						name : data,
+						name : data.name,
 						min : minValue > 0 ? minValue : ""
 					});
 					$dataItem.html($(html).html());
@@ -349,7 +358,13 @@ var app = app || {};
 					if (keydown) {
 						$activeItem = view.$el.find(".contentText.active");
 						if ($activeItem.length === 1) {
-							addItem.call(view, $activeItem.attr("data-name"));
+							var itemData = {
+								name: $activeItem.attr("data-name"),
+							};
+							if($activeItem.attr("data-groupedId") != ""){
+								itemData.groupedId = $activeItem.attr("data-groupedId") * 1;
+							}
+							addItem.call(view, itemData);
 						}
 						setTimeout(function() {
 							$input.focus();
