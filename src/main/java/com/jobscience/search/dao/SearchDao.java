@@ -466,7 +466,7 @@ public class SearchDao {
                     .append(" AND "+ff.getColumn()).append(" is not null   group by "+ff.getColumn());
             
         }else{
-             querySql = new StringBuilder(" select count,name from " + baseTable + " where 1=1 ");
+             querySql = new StringBuilder(" select count,name,id as groupedid from " + baseTable + " where 1=1 ");
             if(queryString!=null&&queryString.trim().length()>0){
                 querySql.append(" AND name ilike '"+ queryString+"%'");
             }
@@ -1131,68 +1131,49 @@ public class SearchDao {
         return hasContactCondition;
     }
 
+    private Map<FilterType,String> manyToManyTables = new HashMap<FilterType, String>(){{
+    	put(FilterType.COMPANY, "employers");
+    	put(FilterType.EDUCATION, "educations");
+    	put(FilterType.SKILL, "skills");
+    }};
+    
 
-    private boolean renderFilterCondition(JSONArray educationValues,StringBuilder prefixSql,
+    private boolean renderFilterCondition(JSONArray values,StringBuilder prefixSql,
                                        StringBuilder filterSql,String schemaname,
                                        SearchConfiguration sc,FilterType filterType,OrgContext org){
-        {
             boolean hasCondition = false;
-            boolean temp = false;
-            if(educationValues!=null){
-                if(prefixSql.length()==0){
-                    prefixSql.append(" with ");
-                }else{
-                    prefixSql.append(",");
-                }
-                FilterField f = sc.getFilter(filterType).getFilterField();
-                
-                prefixSql.append(filterType)
-                         .append( "_ect  as (select "+f.toJoinToString(filterType+"_ect_inner")+" as \"ts2__contact__c\" ")
-                         .append(" from  "+schemaname+"."+f.getTable()+" "+filterType+"_ect_inner" );
-                
-                //when for skill,need join the ts2__assessment__c
-                if(filterType==FilterType.SKILL&&educationValues.contains("minYears")){
-                    //Get the skill_assessment_rating for current org,if true,will join with ts2__assessment__c
-                    String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.getOrgMap().get("id"));
-                    if(!"true".equals(skillAssessmentRatingStr)){
-                        temp = false;
-                    }else{
-                        prefixSql.append(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"="+filterType+"_ect_inner"+".\"sfid\" ");
-                        temp = true;
+            if(values!=null){
+                StringBuilder condition = new StringBuilder();
+                for(int i=0,j=values.size();i<j;i++){
+                    JSONObject value = JSONObject.fromObject(values.get(i));
+                    Object groupedId = value.get("groupedId");
+                    if(groupedId!=null){
+                    	if(condition.length()==0){
+                    		condition.append(" AND (1!=1 ");
+                    	}
+					condition.append(" OR ").append(filterType)
+							 .append(".jss_groupby_")
+							 .append(manyToManyTables.get(filterType))
+							 .append("_id=")
+                    		 .append(groupedId);
+                    	if(value.containsKey("minYears")){
+                    		if(FilterType.COMPANY.equals(filterType)){
+                    			condition.append(" AND ").append(filterType).append(".year>=").append(value.getInt("minYears"));
+                    		}else if(FilterType.SKILL.equals(filterType)){
+                    			condition.append(" AND ").append(filterType).append(".rating>=").append(value.getInt("minYears"));
+                    		}
+                    		
+                    	}
                     }
                 }
-                
-                prefixSql.append("  where (1!=1 ");
-               
-                for(int i=0,j=educationValues.size();i<j;i++){
-                    JSONObject educationValue = JSONObject.fromObject(educationValues.get(i));
-                    prefixSql.append(" OR ( "+f.toString(filterType+"_ect_inner")+" = ")
-                             .append("'"+educationValue.get("name").toString().replaceAll("\'", "\'\'")+"'");
-                    if(educationValue.containsKey("minYears")){
-                        Integer minYears = educationValue.getInt("minYears");
-                        if(!minYears.equals(0)){
-                            if(FilterType.COMPANY==filterType){
-                                prefixSql.append(" AND EXTRACT(year from age("+filterType+"_ect_inner.\"ts2__employment_end_date__c\","+filterType+"_ect_inner.\"ts2__employment_start_date__c\"))>="+minYears);
-                            }else if(FilterType.EDUCATION==filterType){
-                                prefixSql.append(" AND EXTRACT(year from age(now(),"+filterType+"_ect_inner.\"ts2__graduationdate__c\"))>="+minYears);
-                            }else if(FilterType.SKILL==filterType){
-                                if(temp){
-                                    prefixSql.append(" AND ass.\"ts2__rating__c\" >="+minYears);
-                                }else{
-                                    prefixSql.append(" AND "+filterType+"_ect_inner.\"ts2__rating__c\" >="+minYears);
-                                }
-                            }
-                           
-                        }
-                    }
-                    prefixSql.append(" ) ");
-                }
-                prefixSql.append(") ) ");
-                filterSql.append(" inner join  "+filterType+"_ect on " + f.toJoinFromString("contact") + " =  "+filterType+"_ect.\"ts2__contact__c\" ");
+                if(condition.length()>0) condition.append(")");
+                filterSql.append(" inner join  jss_contact_jss_groupby_") 
+                	     .append(manyToManyTables.get(filterType)).append(" ").append(filterType)
+                	     .append(" ON contact.id=").append(filterType).append(".jss_contact_id ")
+                	     .append(condition);
                 hasCondition = true;
             }
             return hasCondition;
-        }
     }
     
     private boolean renderLocationCondition(JSONArray locationValues,StringBuilder locationSql,
