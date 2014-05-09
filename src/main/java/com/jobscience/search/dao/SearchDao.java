@@ -919,12 +919,12 @@ public class SearchDao {
         joinSql.append(" where 1=1 ").append(condition).append(sb.getExactSearchOrderSql());
         countSql.append(" where 1=1 ").append(condition);
        
-       
         joinSql.append(") a ");
         if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||locationSql.length()>0||
                 Strings.isNullOrEmpty(searchRequest.getKeyword())||searchRequest.getKeyword().length()<3){
             countSql.append(") a ");
         }
+       
         return new String[]{joinSql.toString(),countSql.toString(),prefixSql};
     }
     
@@ -1484,7 +1484,7 @@ public class SearchDao {
         }
         
         public String getExactSearchOrderSql(){
-        	if(hasContactCondition&&searchRequest.getOrder().trim().startsWith("\"id\"")){
+        	if((locationSql.length()>0||hasContactCondition)&&searchRequest.getOrder().trim().startsWith("\"id\"")){
         		if(exactSearchOrderSql.length()==0)
             		exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
      						  .append(" offset ")
