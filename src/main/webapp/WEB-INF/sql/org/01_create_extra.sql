@@ -243,3 +243,123 @@ CREATE TABLE if not exists jss_contact_jss_groupby_employers
   year double precision,
   CONSTRAINT jss_contact_jss_groupby_employers_pkey PRIMARY KEY (jss_groupby_employers_id,jss_contact_id)
 );
+
+
+
+
+-- SCRIPTS
+CREATE OR REPLACE FUNCTION update_jss_contact_groupby_skills() RETURNS trigger AS $BODY$ 
+  declare schema_name varchar; 
+  BEGIN
+  schema_name := '"'||TG_TABLE_SCHEMA||'"';
+  EXECUTE   'set search_path to '||schema_name;
+
+        IF(TG_OP = 'UPDATE') THEN
+          delete from jss_contact_jss_groupby_skills t
+            where t.jss_contact_id = (select id from contact where sfid = OLD.ts2__contact__c) 
+            and t.jss_groupby_skills_id = (select id from jss_grouped_skills where name = OLD.ts2__skill_name__c);
+        END IF;
+
+        insert into jss_contact_jss_groupby_skills (jss_contact_id,jss_groupby_skills_id,rating)
+        select  c.id as jss_contact_id, gskill.id as jss_groupby_skills_id, max(skill.ts2__rating__c) from ts2__skill__c skill 
+        inner join contact c on skill.ts2__contact__c = c.sfid 
+        inner join jss_grouped_skills gskill on gskill.name = skill.ts2__skill_name__c
+        where skill.ts2__skill_name__c = NEW.ts2__skill_name__c and skill.ts2__contact__c = NEW.ts2__contact__c 
+        group by c.id, gskill.id;
+
+        RETURN NEW;
+      END;  
+   $BODY$
+    LANGUAGE plpgsql;
+
+-- SCRIPTS
+  DROP trigger if exists skill_trigger_group on ts2__skill__c;
+ 
+ 
+ 
+ 
+-- SCRIPTS
+CREATE  TRIGGER skill_trigger_group
+    AFTER INSERT OR UPDATE OF ts2__skill_name__c,ts2__contact__c
+    ON ts2__skill__c
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_jss_contact_groupby_skills();
+
+
+
+-- SCRIPTS
+CREATE OR REPLACE FUNCTION update_jss_contact_groupby_educations() RETURNS trigger AS $BODY$ 
+  declare schema_name varchar; 
+  BEGIN
+  schema_name := '"'||TG_TABLE_SCHEMA||'"';
+  EXECUTE   'set search_path to '||schema_name;
+
+        IF(TG_OP = 'UPDATE') THEN
+          delete from jss_contact_jss_groupby_educations t
+            where t.jss_contact_id = (select id from contact where sfid = OLD.ts2__contact__c) 
+            and t.jss_groupby_educations_id = (select id from jss_grouped_educations where name = OLD.ts2__name__c);
+        END IF;
+
+        insert into jss_contact_jss_groupby_educations (jss_contact_id,jss_groupby_educations_id)
+        select  c.id as jss_contact_id, geducation.id as jss_groupby_educations_id from ts2__education_history__c education 
+        inner join contact c on education.ts2__contact__c = c.sfid 
+        inner join jss_grouped_educations geducation on geducation.name = education.ts2__name__c
+        where education.ts2__name__c = NEW.ts2__name__c and education.ts2__contact__c = NEW.ts2__contact__c 
+        group by c.id, geducation.id;
+
+        RETURN NEW;
+      END;  
+   $BODY$
+    LANGUAGE plpgsql;
+
+
+-- SCRIPTS
+  DROP trigger if exists education_trigger_group on ts2__education_history__c;
+  
+  
+-- SCRIPTS
+CREATE  TRIGGER education_trigger_group
+    AFTER INSERT OR UPDATE OF ts2__name__c,ts2__contact__c
+    ON ts2__education_history__c
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_jss_contact_groupby_educations();
+    
+    
+-- SCRIPTS
+CREATE OR REPLACE FUNCTION update_jss_contact_groupby_employers() RETURNS trigger AS $BODY$ 
+  declare schema_name varchar; 
+  BEGIN
+  schema_name := '"'||TG_TABLE_SCHEMA||'"';
+  EXECUTE   'set search_path to '||schema_name;
+
+        IF(TG_OP = 'UPDATE') THEN
+          delete from jss_contact_jss_groupby_employers t
+            where t.jss_contact_id = (select id from contact where sfid = OLD.ts2__contact__c) 
+            and t.jss_groupby_employers_id = (select id from jss_grouped_employers where name = OLD.ts2__name__c);
+        END IF;
+
+        insert into jss_contact_jss_groupby_employers (jss_contact_id,jss_groupby_employers_id,year) 
+        select  c.id as jss_contact_id, gemployer.id as jss_groupby_employers_id, max(EXTRACT(year from age(employer.ts2__employment_end_date__c,employer.ts2__employment_start_date__c))) 
+        from ts2__employment_history__c employer 
+        inner join contact c on employer.ts2__contact__c = c.sfid 
+        inner join jss_grouped_employers gemployer on gemployer.name = employer.ts2__name__c 
+        where employer.ts2__name__c = NEW.ts2__name__c and employer.ts2__contact__c = NEW.ts2__contact__c 
+        group by c.id, gemployer.id;
+
+        RETURN NEW;
+      END;  
+   $BODY$
+    LANGUAGE plpgsql;
+
+-- SCRIPTS
+  DROP trigger if exists employer_trigger_group on ts2__employment_history__c;
+  
+  
+-- SCRIPTS
+CREATE  TRIGGER employer_trigger_group
+    AFTER INSERT OR UPDATE OF ts2__name__c,ts2__contact__c
+    ON ts2__employment_history__c
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_jss_contact_groupby_employers();
+
+
