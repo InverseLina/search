@@ -102,6 +102,7 @@ public class DBSetupManager {
 	}});
     
     private Map<String, Boolean> orgSetupStatus = new ConcurrentHashMap<String, Boolean>();
+    private volatile ConcurrentMap<String,Map> orgGroupTableCountMap = new ConcurrentHashMap<String, Map>();
     
     private String DONE="done",RUNNING="running",NOTSTARTED="notstarted",ERROR="error",PART="part",
             INCOMPLETE="incomplete";
@@ -167,22 +168,33 @@ public class DBSetupManager {
     }
    
     private void renderManyToMany(String orgName,String table){
-    	 File orgFolder = new File(getRootSqlFolderPath() + "/org");
-         File[] sqlFiles = orgFolder.listFiles();
-         String sqlString = "";
-         for (File file : sqlFiles) {
-             if (file.getName().contains(table)) {
-                 List<String> subSqlList = loadSQLFile(file);
-                 sqlString = subSqlList.get(1);
-                 break;
-             }
-         }
-         Runner runner = datasourceManager.newOrgRunner(orgName);
-         
-         if(getDataCount(table,runner)==0){
-        	 daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName), sqlString);
-         }
-         runner.close();
+    	File orgFolder = new File(getRootSqlFolderPath() + "/org");
+        File[] sqlFiles = orgFolder.listFiles();
+        String sqlString = "";
+        for (File file : sqlFiles) {
+            if (file.getName().contains(table)) {
+                List<String> subSqlList = loadSQLFile(file);
+                sqlString = subSqlList.get(1);
+                break;
+            }
+        }
+        Map<String,Integer> groupTableCount = orgGroupTableCountMap.get(orgName);
+        if(groupTableCount==null){
+        	groupTableCount = getGroupTableCountMap(orgName);
+        }
+        int total = groupTableCount.get(table);
+        int offset = 0;
+        sqlString = sqlString + " offset ? limit 10000 ;";
+		while (offset < total) {
+	        Runner runner = datasourceManager.newOrgRunner(orgName);
+	        offset = getDataCount(table, runner);
+			if (offset < total) {
+				runner.execute(sqlString , offset);
+			}else{
+				break;
+			}
+	        runner.close();
+		}
     }
     
     public void resetOrgSetup(String orgName) {
@@ -305,14 +317,29 @@ public class DBSetupManager {
         setups.add(mapIt("name", "indexes", "status", totalIndexCount > indexCount ? PART : DONE,
                 "progress", new IndexerStatus(totalIndexCount - indexCount, indexCount)));
         
+        Map<String,Integer> groupTableCount = orgGroupTableCountMap.get(orgName);
+        if(groupTableCount == null){
+        	groupTableCount = getGroupTableCountMap(orgName);
+        }
+		int totalSkilltablesCount = groupTableCount.get("jss_contact_jss_groupby_skills");
+		int SkilltablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_skills");
+		setups.add(mapIt("name", "skill", "status",
+				totalSkilltablesCount > SkilltablesCount ? PART : DONE, "progress",
+				totalSkilltablesCount > SkilltablesCount ? new IndexerStatus(totalSkilltablesCount - (SkilltablesCount/1000)*1000, (SkilltablesCount/1000)*1000):new IndexerStatus(totalSkilltablesCount - SkilltablesCount, SkilltablesCount)));
 
-		int MtmtablesCount = getMtmTableseStatus(orgName);
-		int totalMtmtablesCount = 3;
-		setups.add(mapIt("name", "mtmtables", "status",
-				totalMtmtablesCount > MtmtablesCount ? PART : DONE, "progress",
-				new IndexerStatus(totalMtmtablesCount - MtmtablesCount, MtmtablesCount)));
-		
-        if ((totalIndexCount > indexCount) && totalStatus.equals(DONE)) {
+		int totalEducationtablesCount = groupTableCount.get("jss_contact_jss_groupby_educations");
+		int EducationtablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_educations");
+		setups.add(mapIt("name", "education", "status",
+				totalEducationtablesCount > EducationtablesCount ? PART : DONE, "progress",
+				totalEducationtablesCount > EducationtablesCount ? new IndexerStatus(totalEducationtablesCount - (EducationtablesCount/1000)*1000, (EducationtablesCount/1000)*1000): new IndexerStatus(totalEducationtablesCount - EducationtablesCount, EducationtablesCount)));
+
+		int totalEmployertablesCount = groupTableCount.get("jss_contact_jss_groupby_employers");
+		int EmployertablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_employers");
+		setups.add(mapIt("name", "employer", "status",
+				totalEmployertablesCount > EmployertablesCount ? PART : DONE, "progress",
+				totalEmployertablesCount > EmployertablesCount ? new IndexerStatus(totalEmployertablesCount - (EmployertablesCount/1000)*1000, (EmployertablesCount/1000)*1000):new IndexerStatus(totalEmployertablesCount - EmployertablesCount, EmployertablesCount)));
+			
+        if (((totalSkilltablesCount > SkilltablesCount)||(totalEducationtablesCount > EducationtablesCount)||(totalEmployertablesCount > EmployertablesCount)||(totalIndexCount > indexCount)) && totalStatus.equals(DONE)) {
             totalStatus = PART;
         }
 
@@ -856,23 +883,17 @@ public class DBSetupManager {
     }
 
     
-    public int getMtmTableseStatus(String orgName) {
+    public int getMtmTableseStatus(String orgName,String tableName) {
     	int count = 0;
-    	String[] mtmtables = new String[]{"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
     	Runner runner = datasourceManager.newOrgRunner(orgName);
         try{
-        	for(int i =0 ; i <mtmtables.length ; i++){
-        		int flag = getDataCount(mtmtables[i],runner);
-        		if(flag > 0){
-        			count++;
-        		}
-        	}
+        	count = getDataCount(tableName,runner);
         }finally{
         	runner.close();
         }
         return count;
     }
-    
+
     public List<String> getSqlCommandForOrg(String fileName) {
         return loadSQLFile(new File(getRootSqlFolderPath() + "/org/" + fileName));
     }
@@ -1580,6 +1601,35 @@ public class DBSetupManager {
         return columnsStringMap;
     }
 
+    private Map<String, Integer> getGroupTableCountMap(String orgName){
+    	if(orgGroupTableCountMap.get(orgName)!=null)
+    		orgGroupTableCountMap.remove(orgName);
+    	String[] tables = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
+    	Map<String, Integer> groupTableCountMap = new HashMap<String, Integer>();
+    	for(String table:tables){
+    		Integer count = getGroupTableCount(orgName, table);
+    		groupTableCountMap.put(table, count);
+    	}
+    	orgGroupTableCountMap.put(orgName, groupTableCountMap);
+    	return groupTableCountMap;
+    }
+    
+    private int getGroupTableCount(String orgName,String table){
+    	File orgFolder = new File(getRootSqlFolderPath() + "/org");
+        File[] sqlFiles = orgFolder.listFiles();
+        String sqlString = "";
+        for (File file : sqlFiles) {
+            if (file.getName().contains(table)) {
+                List<String> subSqlList = loadSQLFile(file);
+                sqlString = subSqlList.get(2);
+                break;
+            }
+        }
+       	List<Map> results = daoHelper.executeQuery(orgName, sqlString);
+       	long count= (Long)results.get(0).get("count");
+        return (int)count;
+    }
+    
     private StringBuilder checkMissingColumns(StringBuilder sb, JSONArray array,
             String columnsString, String tableName, boolean jssTable) {
         columnsString += ",";
@@ -1710,8 +1760,6 @@ public class DBSetupManager {
         
         String databaseContent,fileContent;
         
-        System.out.println(m.keySet().size()+"========="+triggers.size());
-        
         if(2*m.keySet().size()!=triggers.size()){
         	return false;
         }
@@ -1727,5 +1775,4 @@ public class DBSetupManager {
         valid = true;
         return valid;
     }
-    
-}    
+}
