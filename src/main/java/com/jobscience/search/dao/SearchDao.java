@@ -246,7 +246,7 @@ public class SearchDao {
         	}else{
         	    if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
                     searchValue = searchValue.replaceAll("\"", "");
-                }
+        	    }
         	}
     	}
     	//if no search value,just return sql with 1!=1
@@ -960,50 +960,108 @@ public class SearchDao {
      * @param alias
      * @return
      */
-    private String getSearchValueJoinTable(String keyword, List values,String alias,OrgContext org,SearchRequest searchRequest){
-        StringBuilder joinSql = new StringBuilder();
-        if("a".equals(alias)){
-            joinSql.append(" right join (");
-            joinSql.append(booleanSearchHandler(keyword, null, org,false));
-            joinSql.append(")  a_ext on a_ext.id = "+alias+".id ");
-            return joinSql.toString();
-        }else{
-        	boolean exact = keyword.matches("^\\s*\"[^\"]+\"\\s*$");
-            joinSql.append(" select  distinct contact.id,contact.sfid  from (");
-            if((!keyword.contains("NOT ")&&
-         	   !keyword.contains("AND ")&&
-        	   !keyword.contains("NOT ")&&
-        	   searchRequest.isOnlyKeyWord())||exact
-        	   ){
-            	if(exact){
-            		if(searchRequest.isOnlyKeyWord()){
-            			joinSql = new StringBuilder();
-            		}
-            		
-            		joinSql.append("  select contact.id,contact.sfid from  ")
-                 		   .append(org.getOrgMap().get("schemaname"))
-                	       .append(".contact  where ")
-                	       .append(" contact.\"ts2__text_resume__c\" like '")
-                           .append(keyword.replaceAll("\\\"", "%"))
-                           .append("' ");
-            		if(!searchRequest.isOnlyKeyWord()){
-            			 joinSql.append(")  contact ");
-            		}
-            		return joinSql.toString();
-            	}else{
-            	return "  select contact.id,contact.sfid from  "+
-            		   org.getOrgMap().get("schemaname")+
-            	       ".jss_contact contact where "+
-            			renderKeywordSearch(keyword.trim().replaceAll("\\s+", "|"),org,exact,"contact") + "  ";
-            	}
-   
-            }else{
-            	joinSql.append(booleanSearchHandler(keyword, null, org,false));
-            }
-    	    joinSql.append(")  contact ");
-    	    return joinSql.toString();
-	    }
-    }
+	private String getSearchValueJoinTable(String keyword, List values,
+			String alias, OrgContext org, SearchRequest searchRequest) {
+		StringBuilder joinSql = new StringBuilder();
+		if ("a".equals(alias)) {
+			joinSql.append(" right join (");
+			joinSql.append(booleanSearchHandler(keyword, null, org, false));
+			joinSql.append(")  a_ext on a_ext.id = " + alias + ".id ");
+			return joinSql.toString();
+		} else {
+			boolean exact = keyword.matches("^\\s*\".+\"\\s*$");
+			joinSql.append(" select  distinct contact.id,contact.sfid  from (");
+			if (exact) {
+				if (searchRequest.isOnlyKeyWord()) {
+					joinSql = new StringBuilder();
+				}
+				ArrayList<String> keys = new ArrayList<String>();
+				Map<Integer, String> operators = new HashMap<Integer, String>();
+				//spilt keywords
+				spiltKeywords(keyword,keys,operators);
+				//exactkeywordSql
+				joinSql.append(exactkeywordSql(org ,keys , operators , searchRequest));
+				return joinSql.toString();
+			} else {
+				if (searchRequest.isOnlyKeyWord()) {
+					if (keyword.contains("NOT ") || keyword.contains("AND ")
+							|| keyword.contains("NOT ")) {
+						joinSql.append(booleanSearchHandler(keyword, null, org,
+								false));
+					} else {
+						return "  select contact.id,contact.sfid from  "
+								+ org.getOrgMap().get("schemaname")
+								+ ".jss_contact contact where "
+								+ renderKeywordSearch(keyword.trim()
+										.replaceAll("\\s+", "|"), org, exact,
+										"contact") + "  ";
+					}
+				} else {
+					joinSql.append(booleanSearchHandler(keyword, null, org,
+							false));
+				}
+			}
+			joinSql.append(")  contact ");
+			return joinSql.toString();
+		}
+	}
+	private void spiltKeywords(String keyword,ArrayList<String> keys,Map<Integer, String> operators){
+		int flag = 0;
+		while (keyword.length() > 0) {
+			if (keyword.startsWith("\"")) {
+				flag++;
+				int next = keyword.indexOf("\"", 1);
+				keys.add(keyword.substring(1, next).trim());
+				keyword = keyword.substring(next + 1);
+			} else {
+				int start = keyword.indexOf("\"", 1);
+				operators.put(flag, keyword.substring(0, start).trim());
+				keyword = keyword.substring(start);
+			}
+		}
+	}
+	
+	private String exactkeywordSql(OrgContext org , ArrayList<String> keys , Map<Integer, String> operators , SearchRequest searchRequest) {
+		StringBuilder joinSql = new StringBuilder();
+		joinSql.append("  select contact.id,contact.sfid from  ")
+				.append(org.getOrgMap().get("schemaname"))
+				.append(".contact  where (");
+		boolean like = true;
+		boolean lastOne = false;
+		for (int i = 0; i < keys.size(); i++) {
+			String key = keys.get(i);
+			if (like) {
+				if (lastOne) {
+					joinSql.append(" and ");
+					lastOne = false;
+				}
+				joinSql.append(" contact.\"ts2__text_resume__c\" like '")
+						.append("%" + key.trim() + "%").append("' ");
+			} else {
+				joinSql.append(" contact.\"ts2__text_resume__c\" not like '")
+						.append("%" + key.trim() + "%").append("' ");
+			}
+			String operator = operators.get(i + 1);
+			if (operator != null) {
+				if (operator.trim().equals("NOT")) {
+					like = false;
+					joinSql.append(" and ");
+				} else if (operator.trim().equals("AND")
+						|| operator.trim().equals("OR")) {
+					joinSql.append(" " + operator.toLowerCase().trim() + " ");
+				} else {
+					joinSql.append(" or ");
+				}
+			} else {
+				lastOne = true;
+			}
+		}
+		joinSql.append(")");
+		if (!searchRequest.isOnlyKeyWord()) {
+			joinSql.append(")  contact ");
+		}
+		return joinSql.toString();
+	}
     private String renderKeywordSearch(String param,OrgContext org,boolean exact,String alias){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
