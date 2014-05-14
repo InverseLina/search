@@ -102,6 +102,7 @@ public class DBSetupManager {
 	}});
     
     private Map<String, Boolean> orgSetupStatus = new ConcurrentHashMap<String, Boolean>();
+    private Map<String, Map<String,String>> orgSetupStatusMsg = new ConcurrentHashMap<String, Map<String,String>>();
     private volatile ConcurrentMap<String,Map> orgGroupTableCountMap = new ConcurrentHashMap<String, Map>();
     
     private String DONE="done",RUNNING="running",NOTSTARTED="notstarted",ERROR="error",PART="part",
@@ -117,6 +118,9 @@ public class DBSetupManager {
     // ---------- organization setup interfaces ----------//
    
     public void orgSetup(final String orgName){
+    	if(orgSetupStatusMsg.get(orgName) != null){
+    		orgSetupStatusMsg.get(orgName).clear();
+    	}
         if(webPath==null){
             webPath = currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/");
         }
@@ -316,7 +320,10 @@ public class DBSetupManager {
         int totalIndexCount = getTotalIndexCount(orgName);
         setups.add(mapIt("name", "indexes", "status", totalIndexCount > indexCount ? PART : DONE,
                 "progress", new IndexerStatus(totalIndexCount - indexCount, indexCount)));
-        
+        if(orgSetupStatusMsg.get(orgName) != null && orgSetupStatusMsg.get(orgName).get("createIndex") != null){
+        	setups.add(mapIt("name", "indexes", "status", ERROR,
+        			"msg",  orgSetupStatusMsg.get(orgName).get("createIndex")));
+        }
         Map<String,Integer> groupTableCount = orgGroupTableCountMap.get(orgName);
         if(groupTableCount == null){
         	groupTableCount = getGroupTableCountMap(orgName);
@@ -782,6 +789,19 @@ public class DBSetupManager {
             } catch (Exception e1) {
                 log.error(e1.getMessage());
             }
+            Map<String,String> exceptionMsg = orgSetupStatusMsg.get(orgName);
+            if(exceptionMsg != null){
+            	if(exceptionMsg.get("createIndex") != null){
+            		exceptionMsg.remove("createIndex");
+            	}
+            	exceptionMsg.put("createIndex", e.getMessage());
+            }else{
+                Map<String,String> exceptionMsgs = new HashMap<String,String>();
+                exceptionMsgs.put("createIndex", e.getMessage());
+                orgSetupStatusMsg.put(orgName, exceptionMsgs);
+            }
+            //stop setup thread
+            stopOrgSetup(orgName);
             throw e;
         } finally {
             runner.close();
