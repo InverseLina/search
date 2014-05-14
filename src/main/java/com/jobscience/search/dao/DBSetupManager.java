@@ -192,16 +192,19 @@ public class DBSetupManager {
         int total = groupTableCount.get(table);
         int offset = 0;
         sqlString = sqlString + " offset ? limit 10000 ;";
-		while (offset < total) {
-	        Runner runner = datasourceManager.newOrgRunner(orgName);
-	        offset = getDataCount(table, runner);
-			if (offset < total) {
-				runner.execute(sqlString , offset);
-			}else{
-				break;
+        Runner runner = datasourceManager.newOrgRunner(orgName);
+        try{
+			while (offset < total) {
+		        offset = getDataCount(table, runner);
+				if (offset < total) {
+					runner.execute(sqlString , offset);
+				}else{
+					break;
+				}
 			}
-	        runner.close();
-		}
+        }finally{
+        	runner.close();
+        }
     }
     
     public void resetOrgSetup(String orgName) {
