@@ -115,6 +115,9 @@ public class DBSetupManager {
     private boolean firstSetup = true;
     private String step = null;
     private ConcurrentHashMap<String,Thread> orgThreads =new ConcurrentHashMap<String, Thread>();
+    private ConcurrentHashMap<String, CurrentOrgSetupStatus>  currentOrgSetupStatus = 
+    		new ConcurrentHashMap<String, DBSetupManager.CurrentOrgSetupStatus>();
+    
     // ---------- organization setup interfaces ----------//
    
     public void orgSetup(final String orgName){
@@ -320,6 +323,10 @@ public class DBSetupManager {
         int totalIndexCount = getTotalIndexCount(orgName);
         setups.add(mapIt("name", "indexes", "status", totalIndexCount > indexCount ? PART : DONE,
                 "progress", new IndexerStatus(totalIndexCount - indexCount, indexCount)));
+        if(currentOrgSetupStatus.get(orgName)!=null){
+        	setups.add(mapIt("name", "current_index", "value",currentOrgSetupStatus.get(orgName).getCurrentIndex(),
+        			"status",indexCount==totalIndexCount?DONE:PART));
+        }        
         if(orgSetupStatusMsg.get(orgName) != null && orgSetupStatusMsg.get(orgName).get("createIndex") != null){
         	setups.add(mapIt("name", "indexes", "status", ERROR,
         			"msg",  orgSetupStatusMsg.get(orgName).get("createIndex")));
@@ -753,20 +760,26 @@ public class DBSetupManager {
                         return false;
                     }
                     JSONObject jo = JSONObject.fromObject(ja.get(i));
-                    runner.executeUpdate(generateIndexSql("jss_contact", jo));
+                    runner.executeUpdate(generateIndexSql("jss_contact", jo,orgName));
                 }
             } else {
                 for (String key : m.keySet()) {
                     if (!key.equals("jss_contact")) {
                         JSONArray ja = m.get(key);
                         for (int i = 0; i < ja.size(); i++) {
+                        	if (!orgSetupStatus.get(orgName).booleanValue()) {
+                                return false;
+                            }
                             JSONObject jo = JSONObject.fromObject(ja.get(i));
-                            runner.executeUpdate(generateIndexSql(key, jo));
+                            runner.executeUpdate(generateIndexSql(key, jo,orgName));
                         }
                     }
                 }
                 SearchConfiguration sc = scm.getSearchConfiguration(orgName);
                 for (Filter f : sc.getFilters()) {
+                	if (!orgSetupStatus.get(orgName).booleanValue()) {
+                        return false;
+                    }
                     if (f.getFilterType() == null) {
                         FilterField ff = f.getFilterField();
                         JSONObject jo = new JSONObject();
@@ -776,7 +789,7 @@ public class DBSetupManager {
                         jo.accumulate("operator", "");
                         jo.accumulate("unique", "");
                         jo.accumulate("type", "btree");
-                        runner.executeUpdate(generateIndexSql(ff.getTable(), jo));
+                        runner.executeUpdate(generateIndexSql(ff.getTable(), jo,orgName));
                     }
                 }
             }
@@ -1030,6 +1043,8 @@ public class DBSetupManager {
                 indexesCount++;
             }
         }
+        
+        currentOrgSetupStatus.remove(orgName);
         return indexesCount;
     }
     // ---------- /public methods ----------//
@@ -1136,10 +1151,21 @@ public class DBSetupManager {
      * 
      * @param tabelName
      * @param jo
+     * @param orgName
      * @return
      */
-    private String generateIndexSql(String tabelName, JSONObject jo) {
+    private String generateIndexSql(String tabelName, JSONObject jo,String orgName) {
         StringBuilder sb = new StringBuilder();
+        
+        /******** set the current index ********/
+        CurrentOrgSetupStatus coss = currentOrgSetupStatus.get(orgName);
+        if(coss==null){
+        	coss = new CurrentOrgSetupStatus();
+        	currentOrgSetupStatus.put(orgName, coss);
+        }
+        coss.setCurrentIndex(jo.get("name").toString());
+        /********  /set the current index ********/
+        
         sb.append(" DO $$  ").append("  BEGIN").append("    IF NOT EXISTS (")
                 .append("        SELECT 1").append("        FROM   pg_class c")
                 .append("        JOIN   pg_namespace n ON n.oid = c.relnamespace")
@@ -1794,5 +1820,26 @@ public class DBSetupManager {
         }
         valid = true;
         return valid;
+    }
+    
+    class CurrentOrgSetupStatus{
+    	private String orgName;
+    	private String currentIndex;
+    	
+    	public void setOrgName(String orgName) {
+			this.orgName = orgName;
+		}
+    	
+    	public String getOrgName() {
+			return orgName;
+		}
+    	
+    	public void setCurrentIndex(String currentIndex) {
+			this.currentIndex = currentIndex;
+		}
+    	
+    	public String getCurrentIndex() {
+			return currentIndex;
+		}
     }
 }
