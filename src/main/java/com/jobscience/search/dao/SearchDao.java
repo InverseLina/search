@@ -690,7 +690,7 @@ public class SearchDao {
                    prefixSql, querySql, schemaname, sc,FilterType.COMPANY,org)||hasCondition;
            
            // add the 'skillNames' filter, and join ts2__skill__c table
-           hasCondition = renderFilterCondition(searchRequest.getSkills(),
+           hasCondition = renderSkillCondition(searchRequest.getSkills(),
                    prefixSql, querySql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
            
            //add the 'radius' filter
@@ -1235,6 +1235,117 @@ public class SearchDao {
             return hasCondition;
     }
     
+	private boolean renderSkillCondition(JSONArray values,StringBuilder prefixSql,
+			                    StringBuilder filterSql,String schemaname, 
+			                    SearchConfiguration sc, FilterType filterType,OrgContext org) {
+		boolean hasCondition = false;
+		if (values != null) {
+			List<JSONObject> any = new ArrayList<JSONObject>();
+			List<JSONObject> all = new ArrayList<JSONObject>();
+			List<JSONObject> not = new ArrayList<JSONObject>();
+			for (int i = 0, j = values.size(); i < j; i++) {
+				JSONObject value = JSONObject.fromObject(values.get(i));
+				Object type = value.get("operator").toString();
+				if (type.equals("O")) {
+					any.add(value);
+				} else if (type.equals("R")) {
+					all.add(value);
+				} else if (type.equals("N")) {
+					not.add(value);
+				}
+			}
+			StringBuilder condition = new StringBuilder();
+			if (any.size() + all.size() + not.size() > 0) {
+				if (condition.length() == 0) {
+					condition.append(" AND (1!=1 ");
+				}
+				if (all.size() + not.size() == 0) {
+					if (any.size() > 0) {
+						condition.append(" or ").append(
+								setSkillCondition("or", filterType, any));
+					}
+				} else {
+					if (all.size() > 0) {
+						condition.append(" or ").append(
+								setSkillCondition("and", filterType, all));
+					}
+					if (not.size() > 0) {
+						if(all.size()==0){
+							condition.append(" or ");
+						}else{
+							condition.append(" and ");
+						}
+						condition.append(setSkillCondition("not", filterType, not));
+					}
+				}
+				condition.append(" )");
+			}
+			filterSql.append(" inner join  jss_contact_jss_groupby_")
+					.append(manyToManyTables.get(filterType)).append(" ")
+					.append(filterType).append(" ON contact.id=")
+					.append(filterType).append(".jss_contact_id ")
+					.append(condition);
+			hasCondition = true;
+		}
+		return hasCondition;
+	}
+
+	private String setSkillCondition(String logic, FilterType filterType,
+			List<JSONObject> list) {
+		StringBuilder condition = new StringBuilder();
+		condition.append("( ");
+		if (logic.equals("or")) {
+			for (int i = 0, j = list.size(); i < j; i++) {
+				JSONObject value = list.get(i);
+				Object groupedId = value.get("groupedId");
+				if (i != 0) {
+					condition.append(" OR ");
+				}
+				condition.append("( ").append(filterType)
+						.append(".jss_groupby_")
+						.append(manyToManyTables.get(filterType))
+						.append("_id=").append(groupedId);
+				if (value.containsKey("minYears")) {
+					condition.append(" AND ").append(filterType)
+							.append(".rating>=")
+							.append(value.getInt("minYears"));
+				}
+				condition.append(" )");
+			}
+		} else if (logic.equals("and")) {
+			for (int i = 0, j = list.size(); i < j; i++) {
+				JSONObject value = list.get(i);
+				Object groupedId = value.get("groupedId");
+				if (i != 0) {
+					condition.append(" AND ");
+				}
+				condition.append("( ").append(filterType)
+						.append(".jss_groupby_")
+						.append(manyToManyTables.get(filterType))
+						.append("_id=").append(groupedId);
+				if (value.containsKey("minYears")) {
+					condition.append(" AND ").append(filterType)
+							.append(".rating>=")
+							.append(value.getInt("minYears"));
+				}
+				condition.append(" )");
+			}
+		} else if (logic.equals("not")) {
+			for (int i = 0, j = list.size(); i < j; i++) {
+				JSONObject value = list.get(i);
+				Object groupedId = value.get("groupedId");
+				if (i != 0) {
+					condition.append(" AND ");
+				}
+				condition.append(filterType).append(".jss_groupby_")
+						.append(manyToManyTables.get(filterType))
+						.append("_id != ").append(groupedId);
+			}
+		}
+		condition.append(" )");
+		return condition.toString();
+	}
+
     private boolean renderLocationCondition(JSONArray locationValues,StringBuilder locationSql,
             StringBuilder conditions,String schemaname,
             SearchConfiguration sc){
@@ -1459,7 +1570,7 @@ public class SearchDao {
       
        
         public SearchBuilder addSkill(JSONArray skills){
-            hasCondition = renderFilterCondition( skills,
+            hasCondition = renderSkillCondition( skills,
                     prefixSql, filterSql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
             return this;
         }
