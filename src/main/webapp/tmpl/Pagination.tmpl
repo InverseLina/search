@@ -6,61 +6,24 @@
 
 <script id="Pagination-detail" type="text/html">
 	<div>
+		<div class="pageSelect">
+			<div class="value" data-value="15">15</div>
+			<i class="glyphicon glyphicon-chevron-down"></i>
+			<div class="options">
+				<div class="option" data-value="15">15</div>
+				<div class="option" data-value="30">30</div>
+				<div class="option" data-value="50">50</div>
+				<div class="option" data-value="100">100</div>
+				<div class="option" data-value="300">300</div>
+				<div class="option" data-value="500">500</div>
+			</div>
+		</div>
 		<ul class="pagination">
-			{{#equal 1 pageIdx}}
-				<li class="disabled"><a>&laquo;</a></li>
-				<li class="active"><a data-page="1">1</a></li>
-			{{else}}
-				<li ><a class="prev" href="#">&laquo;</a></li>
-				<li><a data-page="1">1</a></li>
-			{{/equal}}
-		
-			{{#if startEllipsis}}
-				<li class="disabled"><a>&hellip;</a></li>
-			{{/if}}
-		
-			{{#fromTo start end pageIdx}}
-				{{#equal pageIdx num}}
-					<li class="active"><a href="#">{{num}}</a></li>
-				{{else}}
-					<li class=""><a data-page={{num}}>{{num}}</a></li>
-				{{/equal}}
-			{{/fromTo}}
-		
-			{{#if endEllipsis}}
-				<li class="disabled"><a>&hellip;</a></li>
-			{{/if}}
-		
-			<!--{{#if end_1}}
-				<li class=""><a data-page={{end_1}}>{{end_1}}</a></li>
-			{{/if}} 
-		
-			{{#gt pageCount 7}}
-				{{#equal pageIdx pageCount}}
-					<li  class="active"><a data-page="{{pageCount}}">{{pageCount}}</a></li>
-				{{else}}
-					<li><a data-page="{{pageCount}}">{{pageCount}}</a></li>
-				{{/equal}}
-			{{/gt}}-->
-		
-			{{#equal pageIdx pageCount}}
-				<li class="nextPage disabled"><a>&raquo;</a></li>
-			{{else}}
-				<li class="nextPage"><a class="next">&raquo;</a></li>
-			{{/equal}}
-		
-			<li>
-				<select>
-					<option value="15">15</option>
-					<option value="30">30</option>
-					<option value="50">50</option>
-					<option value="100">100</option>
-					<option value="300">300</option>
-					<option value="600">600</option>
-					<option value="900">900</option>
-				</select>
-			</li>
+			<li class="firstPage {{#equal 1 pageIdx}}disabled{{/equal}}"><a class="first">&iota;&lt;</a></li>
+			<li class="prevPage {{#equal 1 pageIdx}}disabled{{/equal}}"><a class="prev">&lt;</a></li>
+			<li class="nextPage {{#equal pageIdx pageCount}}disabled{{/equal}}"><a class="next">&gt;</a></li>
+			<li class="lastPage {{#equal pageIdx pageCount}}disabled{{/equal}}"><a class="last">&gt;&iota;</a></li>
 		</ul>
-
+		
 	</div>
 </script>

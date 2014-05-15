@@ -8,34 +8,85 @@
 
 // --------- Pagination --------- //
 .Pagination {
+	width:245px;
 	ul {
 		margin: 0;
-		float: right;
-		li a {
-			cursor: pointer;
-		}
-		li select {
-			width: 60px;
-			margin: 5px;
-		}
-		li.nextPage {
-			a {
-				.border-right-radius(4px);
-			}
-		}
-		li.active {
-			a{
-				background-color: #f5f5f5;
-				color: #999999;
-				border-color: #dddddd;
-			}
-			a:hover {
-				background-color: #f5f5f5;
-				color: #999999;
-				border-color: #dddddd;
-			}
-		}
 		.box-shadow(~"none");
+		float: right;
+		li{
+			a {
+				cursor: pointer;
+				color:#ffffff;
+				background-color: #92C7CB;	
+				border: 1px solid #fff;
+				&:hover{
+					background-color: #92C7CB;	
+					border: 1px solid #fff;
+					color:#333;
+				}
+			}
+			&.disabled{
+				opacity:.5;
+				a{
+					background-color: #92C7CB;	
+					border: 1px solid #fff;
+					color:#ffffff;
+					&:hover{
+						background-color: #92C7CB;	
+						border: 1px solid #fff;
+						color:#ffffff;
+					}
+				}
+				
+			}
+			&.lastPage {
+				a {
+					.border-right-radius(4px);
+				}
+			}
+			
+		}
 	}
+		
+	.pageSelect {
+		margin:4px 10px 0 20px;
+		position: relative;
+		float: right;
+		width:70px;
+		color:#fff;
+		.value{
+			background-color:#92C7CB;
+			border:1px solid #97c7c9;
+			border-radius:2px;
+			padding-left: 6px;
+			&:hover{
+				color:#333;
+			}
+		}
+		.glyphicon-chevron-down{
+			position: absolute;
+			right: 5px;
+			top: 5px;
+		}
+		.options {
+			display:none;
+			border:1px solid #97c7c9;
+			position: absolute;
+			z-index:2;
+			top: 22px;
+			left: 0px;
+			color:#333;
+			width:70px;
+			background-color:#fff;
+			.option{
+				cursor:pointer;
+				padding:2px 6px;
+				&:hover{
+					background-color:#92C7CB;
+				}
+			}
+		}
+	}
+
 }
 // --------- /Pagination --------- //
