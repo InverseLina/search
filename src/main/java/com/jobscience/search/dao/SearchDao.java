@@ -390,22 +390,24 @@ public class SearchDao {
     		if(result.size()<searchRequest.getPageSize()){
     			count = searchRequest.getOffest()+result.size();
     			exactCount = true;
-    		}else{//only this page is not the last page,we do calculating count
-	    		/********** Get the estimate count **********/
-	    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
-						 									+" select  distinct(a.id)  "
-						 									+statementAndValues.countSql,
-						 									statementAndValues.values);
-	    		if(explainPlans.size()>0){
-	    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
-	    			exactCount = false;
-	    		}
-	    		/********** /Get the estimate count **********/
-	    		
-	    		/********** Get the exact count **********/
-	    		if(count<=FAST_COUNT_TRESHOLD){
+    		}else{
+    			if(searchRequest.isEstimateSearch()){
+        			//only this page is not the last page,we do calculating count
+    	    		/********** Get the estimate count **********/
+    	    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
+    						 									+" select  distinct(a.id)  "
+    						 									+statementAndValues.countSql,
+    						 									statementAndValues.values);
+    	    		if(explainPlans.size()>0){
+    	    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
+    	    			exactCount = false;
+    	    		}else{
+    	    			count = 0;
+    	    		}
+    	    		/********** /Get the estimate count **********/
+    			}else{
+    	    		/********** Get the exact count **********/
 	    			try{
-	    				runner.executeUpdate("SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
 	    				int exact= runner.executeCount(statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
 								+statementAndValues.countSql);
@@ -414,9 +416,8 @@ public class SearchDao {
 	    			}catch(Exception e){
 	    				log.debug("The count search timeout,use the estimate count");
 	    			}
-	    		}
-	    		/********** /Get the exact count **********/
-    		
+    	    		/********** /Get the exact count **********/
+    			}
     		}
     		
     		long end = System.currentTimeMillis();

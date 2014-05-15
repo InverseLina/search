@@ -23,6 +23,7 @@ public class SearchRequest {
     private Map<String,JSONArray> customFilters = new HashMap<String, JSONArray>();
     private String searchValues;
     private boolean isOnlyKeyWord = true;
+    private boolean estimateSearch = true;
     
     public SearchRequest(Map searchParams){
         
@@ -74,7 +75,14 @@ public class SearchRequest {
         
         
         pageIndex = (Integer)searchParams.get("pageIndex");
-        pageSize = (Integer)(searchParams.get("pageSize"));
+        pageSize = (Integer)searchParams.get("pageSize");
+        if(searchParams.get("searchMode")  != null){
+        	if(searchParams.get("searchMode").toString().toLowerCase().equals("verify")){
+        		estimateSearch = false;
+        	}else{
+        		estimateSearch = true;
+        	}
+        }
         
         setContacts();
         setSkills();
@@ -199,6 +207,10 @@ public class SearchRequest {
     
     public boolean isOnlyKeyWord() {
 		return isOnlyKeyWord;
+	}
+    
+    public boolean isEstimateSearch() {
+		return estimateSearch;
 	}
 
 	public String toString(){

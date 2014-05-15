@@ -42,7 +42,7 @@ public class SearchWebHandlers {
     public WebResponse search(@WebParam("searchValues") String searchValues,
                               @WebParam("pageIndex") Integer pageIndex, @WebParam("pageSize") Integer pageSize,
                               @WebParam("orderBy")String orderBy,@WebParam("orderType")Boolean orderType,
-                              @WebParam("searchColumns")String searchColumns,@WebUser Map token ){
+                              @WebParam("searchColumns")String searchColumns,@WebUser Map token,@WebParam("searchMode")String searchMode ){
         if(pageIndex == null ){
         	pageIndex = 0;
         }
@@ -56,6 +56,7 @@ public class SearchWebHandlers {
         searchMap.put("pageSize", pageSize);
         searchMap.put("searchValues", searchValues);
         searchMap.put("orderType", orderType);
+        searchMap.put("searchMode", searchMode);
         
         SearchResult searchResult = searchDao.search(new SearchRequest(searchMap),(String)token.get("ctoken"),orgHolder.getCurrentOrg());
         return webResponseBuilder.success(searchResult);
