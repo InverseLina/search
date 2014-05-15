@@ -1,5 +1,7 @@
 <script id="filterPanel-selectedItem-add" type="text/html">
-    <span class="item" data-name="{{name}}" {{#if groupedId}}data-groupedId="{{groupedId}}{{/if}}>{{name}}{{#if min}}&nbsp;&nbsp;&nbsp;({{min}}){{/if}}
+    <span class="item" data-name="{{name}}" {{#if groupedId}}data-groupedId="{{groupedId}}"{{/if}}>
+    	{{#if operator}}<span class="operator">{{operator}}</span>{{/if}}
+    	<span class="text">{{name}}{{#if min}}&nbsp;&nbsp;&nbsp;({{min}}){{/if}}</span>
         <span class="clear"><i></i> </span>
     </span>
 </script>

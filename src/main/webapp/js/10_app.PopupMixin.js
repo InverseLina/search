@@ -36,6 +36,8 @@ var app = app || {};
 					if (val.minYears || val.minRadius) {
 						item.min = val.minYears || val.minRadius;
 					}
+					item.operator = val.operator;
+					item.groupedId = val.groupedId;
 					var html = render("filterPanel-selectedItem-add", item);
 					view.$el.find("span.add").before(html);
 
@@ -184,6 +186,7 @@ var app = app || {};
 					if ($contentText.attr("data-groupedId") != "") {
 						itemData.groupedId = $contentText.attr("data-groupedId") * 1;
 					}
+					
 					addItem.call(view, itemData);
 					view.$el.find("input").focus();
 
@@ -290,12 +293,17 @@ var app = app || {};
 		}
 
 		function addItem(data) {
-			var item, minValue = 0, view = this;
+			var item, minValue = 0, operator, view = this;
 			var $dataItem = view.$el.find(".selectedItems .item[data-name='" + data.name + "']");
 			var len = $dataItem.length;
 			if (view.slider) {
 				minValue = view.slider.getValue();
 			}
+			
+			if(view.type === "skill"){
+				operator = view.$el.find(".skill-btn-group .btn.active").attr("data-value");
+			}
+			
 			if (len === 0) {
 				item = {
 					type : view.type,
@@ -303,6 +311,9 @@ var app = app || {};
 				};
 				if(data.groupedId){
 					item.groupedId = data.groupedId;
+				}
+				if(operator){
+					item.operator = operator;
 				}
 				if (minValue > 0) {
 					if (view.type === "location") {
@@ -313,6 +324,8 @@ var app = app || {};
 					view.slider.reset();
 				}
 				view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {
+					groupedId : data.groupedId,
+					operator : operator,
 					name : data.name,
 					min : minValue || ""
 				}));
@@ -322,13 +335,21 @@ var app = app || {};
 			} else {
 				var obj = app.ParamsControl.get(view.type, data.name);
 				var oldMinValue = obj.value.minRadius || obj.value.minYears || 0;
-				if (oldMinValue !== minValue) {
-					if (view.type === "location") {
-						obj.value['minRadius'] = minValue;
-					} else {
-						obj.value['minYears'] = minValue;
+				var oldOperator = obj.value.operator;
+
+				if (oldMinValue !== minValue || oldOperator != operator) {
+					if(oldMinValue !== minValue){
+						if (view.type === "location") {
+							obj.value['minRadius'] = minValue;
+						} else {
+							obj.value['minYears'] = minValue;
+						}
 					}
+					
+					obj.value.operator = operator;
 					var html = render("filterPanel-selectedItem-add", {
+						groupedId : data.groupedId,
+						operator : operator,
 						name : data.name,
 						min : minValue > 0 ? minValue : ""
 					});
