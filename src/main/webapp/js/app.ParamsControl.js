@@ -50,6 +50,7 @@ var app = app || {};
 			searchData["q_objectType"] = app.preference.get("contact_filter_objectType", "All");
 			searchData["q_status"] = app.preference.get("contact_filter_status", "All");
 			result.searchValues = JSON.stringify(searchData);
+			result.searchMode = app.preference.get("searchMode", "power");
 			result.pageIndex = view.contentView.dataGridView.pageIdx || 1;
 			result.pageSize = view.contentView.dataGridView.pageSize || 15;
 			return result;

@@ -43,6 +43,13 @@
 					view.$el.trigger("SEARCH_QUERY_CHANGE");
 				}
 			},
+			"click; .searchMode .btn" : function(event) {
+				var view = this;
+				var $btn = $(event.currentTarget);
+				view.$el.find(".searchMode .btn").removeClass("active");
+				$btn.addClass("active");
+				app.preference.store("searchMode", $btn.attr("data-mode"));
+			},
 			"click; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
 				var view = this;
 				var $th = $(event.currentTarget).closest("th");
