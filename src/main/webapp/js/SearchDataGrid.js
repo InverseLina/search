@@ -332,6 +332,7 @@
 			}
 			
 			view.$el.find(".pagination-ctn").empty();
+			view.$el.find(".estimateBar-ctn").empty();
 			view.restoreSearchParam();
 			fixColWidth.call(view);
 		},
