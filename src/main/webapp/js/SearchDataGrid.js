@@ -477,6 +477,9 @@
 					
 					fixColWidth.call(view);
 					view.restoreSearchParam();
+					
+					brite.display("EstimateBar",$e.find(".estimateBar-ctn"), {label:result.count});
+					
 					brite.display("Pagination", view.$el.find(".pagination-ctn"), {
 						pageIdx : result.pageIdx,
 						pageSize : result.pageSize,
