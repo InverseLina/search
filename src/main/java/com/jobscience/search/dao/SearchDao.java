@@ -405,6 +405,7 @@ public class SearchDao {
     	    			count = 0;
     	    		}
     	    		/********** /Get the estimate count **********/
+    	    		count = RoundCount(count);
     			}else{
     	    		/********** Get the exact count **********/
 	    			try{
@@ -419,9 +420,7 @@ public class SearchDao {
     	    		/********** /Get the exact count **********/
     			}
     		}
-    		count = RoundCount(count);
     		long end = System.currentTimeMillis();
-    
     		searchResult = new SearchResult(result, count)
     				.setDuration(end - start)
     				.setSelectDuration(mid - start)
@@ -1328,34 +1327,38 @@ public class SearchDao {
 				condition.append(" )");
 			}
 		} else if (logic.equals("and")) {
+			String table = " jss_contact_jss_groupby_skills ";
+			StringBuilder builders = new StringBuilder();
+			builders.append("( select distinct skill.jss_contact_id from jss_contact_jss_groupby_skills skill");
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
 				Object groupedId = value.get("groupedId");
-				if (i != 0) {
-					condition.append(" AND ");
-				}
-				condition.append("( ").append(filterType)
-						.append(".jss_groupby_")
-						.append(manyToManyTables.get(filterType))
-						.append("_id=").append(groupedId);
+				builders.append(" join ").append(table).append("sa"+(i+1)).append(" on ").append("skill.jss_contact_id = ")
+				.append("sa"+(i+1)).append(".jss_contact_id").append(" and ").append("sa"+(i+1)).append(".jss_groupby_skills_id = ")
+				.append(groupedId);
 				if (value.containsKey("minYears")) {
-					condition.append(" AND ").append(filterType)
+					builders.append(" AND ").append(filterType)
 							.append(".rating>=")
 							.append(value.getInt("minYears"));
 				}
-				condition.append(" )");
 			}
+			builders.append(") ");
+			condition.append("SKILL.jss_contact_id in ").append(builders);
 		} else if (logic.equals("not")) {
+			StringBuilder builders = new StringBuilder();
+			builders.append("( select contact.id  from contact  inner join  jss_contact_jss_groupby_skills SKILL ON contact.id=SKILL.jss_contact_id AND");
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
 				Object groupedId = value.get("groupedId");
-				if (i != 0) {
-					condition.append(" AND ");
+				if(i == 0){
+					builders.append(" ( ");
+				}else{
+					builders.append(" or ");
 				}
-				condition.append(filterType).append(".jss_groupby_")
-						.append(manyToManyTables.get(filterType))
-						.append("_id != ").append(groupedId);
+				builders.append("SKILL.jss_groupby_skills_id = ").append(groupedId);
 			}
+			builders.append(" ) ) ");
+			condition.append("contact.id not in ").append(builders);
 		}
 		condition.append(" )");
 		return condition.toString();
