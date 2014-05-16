@@ -124,6 +124,7 @@
 					configs["apex_resume_url"] = view.$el.find("[name='apex_resume_url']").val();
 					configs["canvasapp_secret"] = view.$el.find("[name='canvasapp_secret']").val();
 					configs["sessionExpireDuration"] = view.$el.find("[name='sessionExpireDuration']").val();
+					configs["location_mode"] = view.$el.find("[name='location_mode']").val();
 
 					values.configsJson = JSON.stringify(configs);
 					app.getJsonData("/config/save", values, "Post").done(function(data) {
