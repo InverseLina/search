@@ -11,6 +11,7 @@
 
 		postDisplay : function() {
 			var view = this;
+			var $e = view.$el;
 			view.$searchInput = view.$el.find(".search-input");
 			view.$searchResult = view.$el.find(".search-result");
 			view.tableOrderColumn = null;
@@ -19,6 +20,10 @@
 			view.showContentMessage("empty");
 			brite.display("ToolBar");
 			$(":text").placeholder();
+			
+			var searchMode = app.preference.get("searchMode","power");
+			$e.find(".searchMode .btn").removeClass("active");
+			$e.find(".searchMode .btn[data-mode='"+searchMode+"']").addClass("active");
 		},
 		// --------- /View Interface Implement--------- //
 
