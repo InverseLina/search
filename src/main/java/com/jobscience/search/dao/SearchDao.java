@@ -62,8 +62,6 @@ public class SearchDao {
    
     private static Pattern pattern = Pattern.compile("\\srows=(\\d*)\\s",Pattern.CASE_INSENSITIVE);
 
-    private static int FAST_COUNT_TRESHOLD = 2000;
-    private static int EXACT_COUNT_TIMEOUT = 1000;//ms
     /**
      * @param searchColumns
      * @param searchValues
@@ -709,7 +707,7 @@ public class SearchDao {
            
            //add the 'radius' filter
            hasCondition = renderLocationCondition(searchRequest.getLocations(), locationSql,
-                   conditions, schemaname,sc)||hasCondition;
+                   conditions, schemaname,sc,org)||hasCondition;
        }
        //at last,combine all part to complete sql
         
@@ -1371,7 +1369,7 @@ public class SearchDao {
 
     private boolean renderLocationCondition(JSONArray locationValues,StringBuilder locationSql,
             StringBuilder conditions,String schemaname,
-            SearchConfiguration sc){
+            SearchConfiguration sc,OrgContext org){
         boolean hasCondition = false;
         Field f = sc.getContactField(ContactFieldType.MAILINGPOSTALCODE);
         if(locationValues!=null){
@@ -1395,11 +1393,24 @@ public class SearchDao {
             
             if(cities.length()!=0){
                 Runner runner = datasourceManager.newSysRunner();
-                List<Map> c = runner.executeQuery("select * from city where name in("+cities+"'#')");
+                StringBuilder locationSqlBilder = new StringBuilder();
+                locationSqlBilder.append("select * from city_world where city in("+cities+"'#')");
+                Map orgMap = org.getOrgMap();
+                int orgId = 0;
+                if(orgMap.get("id") != null){
+                    orgId = Integer.parseInt(orgMap.get("id")+"");
+                }
+                String  locationMode = configManager.getConfig("location_mode", orgId);
+                if(locationMode != null){
+                	locationSqlBilder.append(" AND country = '" + locationMode+"' ");
+                }else{
+                	locationSqlBilder.append(" AND country = 'US' ");
+                }
+                List<Map> c = runner.executeQuery(locationSqlBilder.toString());
                 for(Map city:c){//minLat,minLng,maxLat,maxLng
                     double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
                                                Double.valueOf(city.get("longitude").toString()),
-                                               citiesWithRadius.get(city.get("name"))*1000);
+                                               citiesWithRadius.get(city.get("city"))*1000);
                     joinCity.append(" OR (").append("contact.ts2__latitude__c>="+range[0])
                               .append(" AND contact.ts2__latitude__c<="+range[2])
                               .append(" AND contact.ts2__longitude__c>="+range[1])
@@ -1409,7 +1420,7 @@ public class SearchDao {
                 runner.close();
             }
             if(joinZip.length()>0){
-                if(joinCity.length()>0){
+            	if(joinCity.length()>0){
                     locationSql.append(" left ");
                 }
                 locationSql.append(" join  jss_sys.zipcode_us z on (")
@@ -1600,7 +1611,7 @@ public class SearchDao {
         
         public SearchBuilder addLocation(JSONArray locations){
             hasCondition = renderLocationCondition( locations,
-                    locationSql, conditions, schemaname, sc)||hasCondition;
+                    locationSql, conditions, schemaname, sc,org)||hasCondition;
             return this;
         }
               
