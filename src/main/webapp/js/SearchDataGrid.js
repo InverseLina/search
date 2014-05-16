@@ -122,11 +122,18 @@
 				var $this = $(event.currentTarget);
 				var name = $this.attr("data-column");
 				var value = $this.closest("td").attr("data-value") || $this.find("span").text();
+				var ids = $this.closest("td").attr("data-groupedids");
+				if(!ids || ids === ""){
+					ids = [];
+				}else{
+					ids = ids.split(",");
+				}
 				if (value !== "") {
 					var data = {
 						type : name,
 						contactName : $this.closest("tr").attr("data-contractName"),
 						names : value.split(","),
+						ids : ids,
 						pos : {
 							x : event.clientX,
 							y : event.clientY
@@ -579,6 +586,7 @@
 					item.push({
 						name : columns[j],
 						value : translate(reSortData(items[i][columns[j]], "skill")),
+						groupedIds : items[i]["skillGroupedids"],
 						realValue : items[i][columns[j]],
 						notLast : colLen - j > 1
 					});
@@ -587,6 +595,7 @@
 					item.push({
 						name : columns[j],
 						value : reSortData(items[i][columns[j]], "education"),
+						groupedIds : items[i]["educationGroupedids"],
 						realValue : items[i][columns[j]],
 						notLast : colLen - j > 1
 					});
@@ -594,6 +603,7 @@
 					item.push({
 						name : columns[j],
 						value : reSortData(items[i][columns[j]], "company"),
+						groupedIds : items[i]["companyGroupedids"],
 						realValue : items[i][columns[j]],
 						notLast : colLen - j > 1
 					});

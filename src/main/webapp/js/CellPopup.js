@@ -30,6 +30,9 @@
 					if (app.ParamsControl.get(data.type, name)) {
 						value.isFilter = true;
 					}
+					if(data.ids  && data.ids.length > 0){
+						value.id = data.ids[idx];
+					}
 					data.names.push(value);
 				});
 
@@ -62,6 +65,7 @@
 		events : {
 			"click; li" : function(event) {
 				var name, view = this;
+				var $e = view.$el;
 				var $li = $(event.currentTarget).closest("li");
 				name = $li.text();
 				if ($li.hasClass("filter")) {
@@ -72,12 +76,28 @@
 					});
 				} else {
 					$li.addClass("filter");
-					$li.trigger("ADD_FILTER", {
+					var item = {
 						type : view.type,
 						name : name
-					});
+					};
+					if($e.find(".operator-btn-group").size() > 0){
+						var operator = $e.find(".operator-btn-group .btn.active").attr("data-value");
+						item.operator = operator;
+					}
+					if($li.attr("data-id") != ""){
+						var groupedId = $li.attr("data-id");
+						item.groupedId = groupedId;
+					}
+					$li.trigger("ADD_FILTER", item);
 				}
 
+			},
+			"click;.operator-btn-group .btn-group .btn" : function(event) {
+				var view = this;
+				var $e = view.$el;
+				var $btn = $(event.currentTarget);
+				$btn.closest(".btn-group").find(".btn").removeClass("active");
+				$btn.addClass("active");
 			}
 
 		}
