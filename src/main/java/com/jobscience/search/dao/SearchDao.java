@@ -776,7 +776,8 @@ public class SearchDao {
     				"from "+schemaname+".ts2__employment_history__c c where  a.\"sfid\" = c.\"ts2__contact__c\" ) as company ";
     	}else if(orginalName.toLowerCase().equals("skill")){
     	    return " (select  string_agg(distinct b.\"ts2__skill_name__c\",',') " +
-    	    		"from "+schemaname+".ts2__skill__c b where a.\"sfid\" = b.\"ts2__contact__c\"  ) as skill";
+    	    		"from "+schemaname+".ts2__skill__c b where a.\"sfid\" = b.\"ts2__contact__c\"  ) as skill, (select string_agg(skills.\"jss_groupby_skills_id\"||'',',') "+
+    	    		" from "+schemaname+".jss_contact_jss_groupby_skills skills where a.\"id\" = skills.\"jss_contact_id\" ) as skillgroupedids";
     	}else if(orginalName.toLowerCase().equals("education")){
     	    return " (select  string_agg(distinct d.\"ts2__name__c\",',') " +
     	    		"from "+schemaname+".ts2__education_history__c d  where a.\"sfid\" = d.\"ts2__contact__c\"   ) as education ";
@@ -830,7 +831,7 @@ public class SearchDao {
 		    	}else if(column.toLowerCase().equals("company")){
 		    		sb.append("company,lower(company) as \"lcompany\",");
 		    	}else if(column.toLowerCase().equals("skill")){
-		    		sb.append("skill,lower(skill) as \"lskill\",");
+		    		sb.append("skill,lower(skill) as \"lskill\", skillgroupedids,");
 		    	}else if(column.toLowerCase().equals("education")){
 		    		sb.append("education,lower(education) as \"leducation\",");
 		    	}else if(column.toLowerCase().equals("resume")){
@@ -1259,14 +1260,18 @@ public class SearchDao {
 			List<JSONObject> not = new ArrayList<JSONObject>();
 			for (int i = 0, j = values.size(); i < j; i++) {
 				JSONObject value = JSONObject.fromObject(values.get(i));
-				Object type = value.get("operator").toString();
-				if (type.equals("O")) {
+				if(value.get("groupedId") != null && value.get("operator") != null ){
+					Object type = value.get("operator").toString();
+					if (type.equals("R")) {
+						all.add(value);
+					} else if (type.equals("N")) {
+						not.add(value);
+					}else {
+						any.add(value);
+					} 
+				}else if(value.get("groupedId") != null ){
 					any.add(value);
-				} else if (type.equals("R")) {
-					all.add(value);
-				} else if (type.equals("N")) {
-					not.add(value);
-				}
+				} 
 			}
 			StringBuilder condition = new StringBuilder();
 			if (any.size() + all.size() + not.size() > 0) {
