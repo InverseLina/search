@@ -419,7 +419,7 @@ public class SearchDao {
     	    		/********** /Get the exact count **********/
     			}
     		}
-    		
+    		count = RoundCount(count);
     		long end = System.currentTimeMillis();
     
     		searchResult = new SearchResult(result, count)
@@ -435,6 +435,21 @@ public class SearchDao {
     	return searchResult;
     }
 
+    private int RoundCount(int count){
+       	if(count < 10){
+       		
+       	}else if(count < 100){
+       		count = (count/10)*10;
+       	}else if(count < 1000){
+       		count = (count/100)*100;
+       	}else if(count < 10000){
+       		count = (count/1000)*1000;
+       	}else{
+       		count = (count/10000)*10000;
+       	}
+       	return count;
+    }
+    
     protected SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         Filter filter = sc.getFilterByName(type);
