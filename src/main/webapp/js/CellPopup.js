@@ -85,8 +85,8 @@
 						item.operator = operator;
 					}
 					if($li.attr("data-id") != ""){
-						var groupedId = $li.attr("data-id");
-						item.groupedId = groupedId;
+						var groupedid = $li.attr("data-id");
+						item.groupedid = groupedid;
 					}
 					$li.trigger("ADD_FILTER", item);
 				}

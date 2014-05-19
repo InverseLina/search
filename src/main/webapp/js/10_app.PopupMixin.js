@@ -37,7 +37,7 @@ var app = app || {};
 						item.min = val.minYears || val.minRadius;
 					}
 					item.operator = val.operator;
-					item.groupedId = val.groupedId;
+					item.groupedid = val.groupedid;
 					var html = render("filterPanel-selectedItem-add", item);
 					view.$el.find("span.add").before(html);
 
@@ -183,8 +183,8 @@ var app = app || {};
 					var itemData = {
 						name : $contentText.attr("data-name"),
 					}; 
-					if ($contentText.attr("data-groupedId") != "") {
-						itemData.groupedId = $contentText.attr("data-groupedId") * 1;
+					if ($contentText.attr("data-groupedid") != "") {
+						itemData.groupedid = $contentText.attr("data-groupedid") * 1;
 					}
 					
 					addItem.call(view, itemData);
@@ -309,8 +309,8 @@ var app = app || {};
 					type : view.type,
 					name : data.name
 				};
-				if(data.groupedId){
-					item.groupedId = data.groupedId;
+				if(data.groupedid){
+					item.groupedid = data.groupedid;
 				}
 				if(operator){
 					item.operator = operator;
@@ -324,7 +324,7 @@ var app = app || {};
 					view.slider.reset();
 				}
 				view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {
-					groupedId : data.groupedId,
+					groupedid : data.groupedid,
 					operator : operator,
 					name : data.name,
 					min : minValue || ""
@@ -348,7 +348,7 @@ var app = app || {};
 					
 					obj.value.operator = operator;
 					var html = render("filterPanel-selectedItem-add", {
-						groupedId : data.groupedId,
+						groupedid : data.groupedid,
 						operator : operator,
 						name : data.name,
 						min : minValue > 0 ? minValue : ""
@@ -382,8 +382,8 @@ var app = app || {};
 							var itemData = {
 								name: $activeItem.attr("data-name"),
 							};
-							if($activeItem.attr("data-groupedId") != ""){
-								itemData.groupedId = $activeItem.attr("data-groupedId") * 1;
+							if($activeItem.attr("data-groupedid") != ""){
+								itemData.groupedid = $activeItem.attr("data-groupedid") * 1;
 							}
 							addItem.call(view, itemData);
 						}

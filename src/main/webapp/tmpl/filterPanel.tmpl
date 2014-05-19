@@ -1,5 +1,5 @@
 <script id="filterPanel-selectedItem-add" type="text/html">
-    <span class="item" data-name="{{name}}" {{#if groupedId}}data-groupedId="{{groupedId}}"{{/if}}>
+    <span class="item" data-name="{{name}}" {{#if groupedid}}data-groupedid="{{groupedid}}"{{/if}}>
     	{{#if operator}}<span class="operator">{{operator}}</span>{{/if}}
     	<span class="text">{{name}}{{#if min}}&nbsp;&nbsp;&nbsp;({{min}}){{/if}}</span>
         <span class="clear"><i></i> </span>
@@ -7,7 +7,7 @@
 </script>
 <script id="filterPanel-autoComplete-list" type="text/html">
 	{{#each results}}
-	  <div class="{{../type}}Row"><span class="contentText" data-name="{{name}}" {{#if groupedid}}data-groupedId="{{groupedid}}"{{/if}}>
+	  <div class="{{../type}}Row"><span class="contentText" data-name="{{name}}" {{#if groupedid}}data-groupedid="{{groupedid}}"{{/if}}>
 	  	<span class="itemName">{{name}}</span>
   		<span class="count">{{#ifExist count}}({{count}}){{else}}(...){{/ifExist}}</span></span>
 	  </div>
