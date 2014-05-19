@@ -531,6 +531,7 @@
 			resize : function(event) {
 				var view = this;
 				fixColWidth.call(view);
+				resizeGridControls.call(view);
 			}
 
 		},
@@ -809,6 +810,15 @@
 		$e.find(".btnPopupColumns").css("height", height + "px");
 		$e.find(".btnPopupColumns").css("line-height", (height - 6) + "px");
 		$e.find(".tableContainer tbody").css("top", (height + 15) + "px");
+	}
+	
+	function resizeGridControls(){
+		var view = this;
+		var $e = view.$el;
+		var $gridControl = $e.find(".gridControls");
+		var height = $gridControl.height();
+		var $seachResult = $e.find(".search-result");
+		$seachResult.css("top",(height+9)+"px");
 	}
 
 	function translate(value) {

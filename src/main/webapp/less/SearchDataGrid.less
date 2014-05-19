@@ -93,35 +93,38 @@
 			color: #666;
 		}
 		
-		.pagination-ctn {
-			float: right;
-			margin-top: -4px;
-		}
-		
-		.searchMode-ctn {
-			float: right;
-			margin: -2px 5px;
-			.searchMode{
-				.btn{
-					padding: 3px 7px;
-					margin: 0 1px 0 0;
-					background-color: #8cc7ca;
-					border: 1px solid #87c4c7;
-					font-family:"Muli Regular";
-					font-size: 14px;
-					color:#444444;
-				}
-				.btn.active{
-					background-color: #669598;
-					border: 1px solid #5c8e91;
+		.right-ctn{
+			float:right;
+			.pagination-ctn {
+				float: right;
+				margin-top: -4px;
+			}
+			
+			.searchMode-ctn {
+				float: right;
+				margin: 1px 5px;
+				.searchMode{
+					.btn{
+						padding: 3px 7px;
+						margin: 0 1px 0 0;
+						background-color: #8cc7ca;
+						border: 1px solid #87c4c7;
+						font-family:"Muli Regular";
+						font-size: 14px;
+						color:#444444;
+					}
+					.btn.active{
+						background-color: #669598;
+						border: 1px solid #5c8e91;
+					}
 				}
 			}
-		}
-		
-		.estimateBar-ctn {
-			float: right;
-			margin-top:-15px;
-			margin-right:10px;
+			
+			.estimateBar-ctn {
+				float: right;
+				margin-top:-9px;
+				margin-right:10px;
+			}
 		}
 	
 	}
@@ -517,11 +520,5 @@
 		}	
 	}
 }
-@media (max-width: 1120px) {
-	.SearchDataGrid {
-		.search-result{
-			top: 73px;
-		}
-	}
-}
+
 // --------- /SearchDataGrid --------- //
