@@ -19,12 +19,28 @@
 		postDisplay : function(data) {
 			var view = this;
 			var $e = this.$el;
-			var label = data.label||"";
+			data = data || {};
+			
+			var maxValue = 5000;
+			var minValue = 0;
+			
+			var count = data.count || 1;
+			var exact = data.exact || false;
+			
+			var label = count;
+			if(!exact){
+				label = count + "+";
+			}
+			
+			var left = count / (maxValue - minValue) * 100;
+			if(count > maxValue){
+				left = 100;
+			}
 			
 			var $label = $e.find(".EstimateBar-label");
 			$label.text(label);
 			$label.css("marginLeft","-"+$label.width()/2+"px");
-			$label.css("left","10px");
+			$label.css("left", left + "%");
 
 		}
 		// --------- /View Interface Implement--------- //

@@ -491,7 +491,7 @@
 					fixColWidth.call(view);
 					view.restoreSearchParam();
 					
-					brite.display("EstimateBar",$e.find(".estimateBar-ctn"), {label:result.count});
+					brite.display("EstimateBar",$e.find(".estimateBar-ctn"), {count:result.count,exact: result.exactCount});
 					
 					brite.display("Pagination", view.$el.find(".pagination-ctn"), {
 						pageIdx : result.pageIdx,
@@ -514,12 +514,6 @@
 							$e.trigger("RESTORE_SEARCH_VIEW");
 							pagination.show();
 						}
-						if (result.exactCount){
-							result.count = result.count;
-						}else{
-							result.count = "~ " + result.count;
-						}
-						$e.find(".resultCount").html("{0} match{1}".format(result.count, result.count > 1 ? "es" : ""));
 					}); 
 
 
