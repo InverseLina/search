@@ -586,7 +586,7 @@
 					item.push({
 						name : columns[j],
 						value : translate(reSortData(items[i][columns[j]], "skill")),
-						groupedids : items[i]["skillGroupedids"],
+						groupedids : items[i]["skillgroupedids"],
 						realValue : items[i][columns[j]],
 						notLast : colLen - j > 1
 					});
@@ -595,7 +595,7 @@
 					item.push({
 						name : columns[j],
 						value : reSortData(items[i][columns[j]], "education"),
-						groupedids : items[i]["educationGroupedids"],
+						groupedids : items[i]["educationgroupedids"],
 						realValue : items[i][columns[j]],
 						notLast : colLen - j > 1
 					});
@@ -603,7 +603,7 @@
 					item.push({
 						name : columns[j],
 						value : reSortData(items[i][columns[j]], "company"),
-						groupedids : items[i]["companyGroupedids"],
+						groupedids : items[i]["companygroupedids"],
 						realValue : items[i][columns[j]],
 						notLast : colLen - j > 1
 					});

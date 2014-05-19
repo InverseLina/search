@@ -1218,7 +1218,7 @@ public class SearchDao {
                 StringBuilder condition = new StringBuilder();
                 for(int i=0,j=values.size();i<j;i++){
                     JSONObject value = JSONObject.fromObject(values.get(i));
-                    Object groupedId = value.get("groupedId");
+                    Object groupedId = value.get("groupedid");
                     if(groupedId!=null){
                     	if(condition.length()==0){
                     		condition.append(" AND (1!=1 ");
@@ -1258,7 +1258,7 @@ public class SearchDao {
 			List<JSONObject> not = new ArrayList<JSONObject>();
 			for (int i = 0, j = values.size(); i < j; i++) {
 				JSONObject value = JSONObject.fromObject(values.get(i));
-				if(value.get("groupedId") != null && value.get("operator") != null ){
+				if(value.get("groupedid") != null && value.get("operator") != null ){
 					Object type = value.get("operator").toString();
 					if (type.equals("R")) {
 						all.add(value);
@@ -1267,7 +1267,7 @@ public class SearchDao {
 					}else {
 						any.add(value);
 					} 
-				}else if(value.get("groupedId") != null ){
+				}else if(value.get("groupedid") != null ){
 					any.add(value);
 				} 
 			}
@@ -1314,7 +1314,7 @@ public class SearchDao {
 		if (logic.equals("or")) {
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
-				Object groupedId = value.get("groupedId");
+				Object groupedId = value.get("groupedid");
 				if (i != 0) {
 					condition.append(" OR ");
 				}
@@ -1335,7 +1335,7 @@ public class SearchDao {
 			builders.append("( select distinct skill.jss_contact_id from jss_contact_jss_groupby_skills skill");
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
-				Object groupedId = value.get("groupedId");
+				Object groupedId = value.get("groupedid");
 				builders.append(" join ").append(table).append("sa"+(i+1)).append(" on ").append("skill.jss_contact_id = ")
 				.append("sa"+(i+1)).append(".jss_contact_id").append(" and ").append("sa"+(i+1)).append(".jss_groupby_skills_id = ")
 				.append(groupedId);
@@ -1352,7 +1352,7 @@ public class SearchDao {
 			builders.append("( select contact.id  from contact  inner join  jss_contact_jss_groupby_skills SKILL ON contact.id=SKILL.jss_contact_id AND");
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
-				Object groupedId = value.get("groupedId");
+				Object groupedId = value.get("groupedid");
 				if(i == 0){
 					builders.append(" ( ");
 				}else{
