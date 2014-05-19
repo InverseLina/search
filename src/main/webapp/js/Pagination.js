@@ -52,13 +52,13 @@
 				var newpageIdx = $(event.currentTarget).attr("data-page");
 				view.page.callback(newpageIdx, view.page.pageSize);
 			},
-			"click; a.first" : function(event) {
+			"click; li:not(.disabled) a.first" : function(event) {
 				event.stopPropagation();
 				var view = this;
 				var page = view.page;
 				view.page.callback(1, view.page.pageSize);
 			},
-			"click; a.next" : function(event) {
+			"click; li:not(.disabled) a.next" : function(event) {
 				event.stopPropagation();
 				var view = this;
 				var page = view.page;
@@ -66,14 +66,14 @@
 					view.page.callback(page.pageIdx + 1, view.page.pageSize);
 				}	
 			},
-			"click; a.prev" : function(event) {
+			"click; li:not(.disabled) a.prev" : function(event) {
 				event.stopPropagation();
 				var view = this;
 				var page = view.page;
 				if(page.pageIdx > 1){}
 				view.page.callback(page.pageIdx - 1, view.page.pageSize);
 			},
-			"click; a.last" : function(event) {
+			"click; li:not(.disabled) a.last" : function(event) {
 				event.stopPropagation();
 				var view = this;
 				var page = view.page;
