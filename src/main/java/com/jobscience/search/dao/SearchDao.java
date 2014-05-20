@@ -771,14 +771,16 @@ public class SearchDao {
     		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
     	}else if(orginalName.toLowerCase().equals("company")){
     		return "(select  string_agg(distinct c.\"ts2__name__c\",',') " +
-    				"from "+schemaname+".ts2__employment_history__c c where  a.\"sfid\" = c.\"ts2__contact__c\" ) as company ";
+    				"from "+schemaname+".ts2__employment_history__c c where  a.\"sfid\" = c.\"ts2__contact__c\" ) as company, (select string_agg(employers.\"jss_groupby_employers_id\"||'',',') "+
+                    " from "+schemaname+".jss_contact_jss_groupby_employers employers where a.\"id\" = employers.\"jss_contact_id\" ) as companygroupedids ";
     	}else if(orginalName.toLowerCase().equals("skill")){
     	    return " (select  string_agg(distinct b.\"ts2__skill_name__c\",',') " +
     	    		"from "+schemaname+".ts2__skill__c b where a.\"sfid\" = b.\"ts2__contact__c\"  ) as skill, (select string_agg(skills.\"jss_groupby_skills_id\"||'',',') "+
     	    		" from "+schemaname+".jss_contact_jss_groupby_skills skills where a.\"id\" = skills.\"jss_contact_id\" ) as skillgroupedids";
     	}else if(orginalName.toLowerCase().equals("education")){
     	    return " (select  string_agg(distinct d.\"ts2__name__c\",',') " +
-    	    		"from "+schemaname+".ts2__education_history__c d  where a.\"sfid\" = d.\"ts2__contact__c\"   ) as education ";
+    	    		"from "+schemaname+".ts2__education_history__c d  where a.\"sfid\" = d.\"ts2__contact__c\"   ) as education, (select string_agg(educations.\"jss_groupby_educations_id\"||'',',') "+
+                    " from "+schemaname+".jss_contact_jss_groupby_educations educations where a.\"id\" = educations.\"jss_contact_id\" ) as educationgroupedids  ";
     	}else if(orginalName.toLowerCase().equals("location")){
     		columnJoinTables.add(getAdvancedJoinTable("location",org));
     		 if(groupBy.length()>0){
@@ -827,11 +829,11 @@ public class SearchDao {
 		    	}else if(column.toLowerCase().equals("createddate")){
 		    		sb.append("createddate as \"createddate\",");
 		    	}else if(column.toLowerCase().equals("company")){
-		    		sb.append("company,lower(company) as \"lcompany\",");
+		    		sb.append("company,lower(company) as \"lcompany\", companygroupedids,");
 		    	}else if(column.toLowerCase().equals("skill")){
 		    		sb.append("skill,lower(skill) as \"lskill\", skillgroupedids,");
 		    	}else if(column.toLowerCase().equals("education")){
-		    		sb.append("education,lower(education) as \"leducation\",");
+		    		sb.append("education,lower(education) as \"leducation\", educationgroupedids,");
 		    	}else if(column.toLowerCase().equals("resume")){
 		    		sb.append("resume,");
 		    	}else if(column.toLowerCase().equals("location")){
