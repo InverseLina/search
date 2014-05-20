@@ -368,21 +368,26 @@
 					for(var index = 0; index < data.length; index++){
 						var val = data[index];
 						item = {
-							name : val.name
+							name : val.name,
+							display: val.name
 						};
 
 						val = val.value;
+						if(val.suffix){
+							item.display = item.display + " ("+val.suffix+")";
+						}
+						
 						if (val.minYears || val.minRadius) {
 							item.min = val.minYears || val.minRadius;
 						}
 						if (item.min) {
-							item.display = val.name + " (" + item.min + ")";
-						} else {
-							item.display = val.name;
+							item.display = item.display + " (" + item.min + ")";
 						}
+						
 						if (data.length > 1 && index !== data.length - 1) {
 							item.display = item.display + ",";
 						}
+						
 
 						$html = $(render("search-items-header-add-item", item));
 

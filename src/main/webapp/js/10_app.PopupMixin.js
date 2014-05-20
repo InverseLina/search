@@ -38,6 +38,7 @@ var app = app || {};
 					}
 					item.operator = val.operator;
 					item.groupedid = val.groupedid;
+					item.suffix = val.suffix;
 					var html = render("filterPanel-selectedItem-add", item);
 					view.$el.find("span.add").before(html);
 
@@ -182,11 +183,15 @@ var app = app || {};
 					var $contentText = $(event.currentTarget).find(".contentText");
 					var itemData = {
 						name : $contentText.attr("data-name"),
-					}; 
+					};
+					
 					if ($contentText.attr("data-groupedid") != "") {
 						itemData.groupedid = $contentText.attr("data-groupedid") * 1;
 					}
 					
+					if($contentText.attr("data-suffix") != ""){
+						itemData.suffix = $contentText.attr("data-suffix");
+					}
 					addItem.call(view, itemData);
 					view.$el.find("input").focus();
 
@@ -315,6 +320,9 @@ var app = app || {};
 				if(operator){
 					item.operator = operator;
 				}
+				if(data.suffix){
+					item.suffix = data.suffix;
+				}
 				if (minValue > 0) {
 					if (view.type === "location") {
 						item['minRadius'] = minValue;
@@ -327,6 +335,7 @@ var app = app || {};
 					groupedid : data.groupedid,
 					operator : operator,
 					name : data.name,
+					suffix : data.suffix,
 					min : minValue || ""
 				}));
 				view.$el.trigger("ADD_FILTER", item);
@@ -351,6 +360,7 @@ var app = app || {};
 						groupedid : data.groupedid,
 						operator : operator,
 						name : data.name,
+						suffix : data.suffix,
 						min : minValue > 0 ? minValue : ""
 					});
 					$dataItem.html($(html).html());
@@ -384,6 +394,9 @@ var app = app || {};
 							};
 							if($activeItem.attr("data-groupedid") != ""){
 								itemData.groupedid = $activeItem.attr("data-groupedid") * 1;
+							}
+							if($activeItem.attr("data-suffix") != ""){
+								itemData.suffix = $activeItem.attr("data-suffix");
 							}
 							addItem.call(view, itemData);
 						}
