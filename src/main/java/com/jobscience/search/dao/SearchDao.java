@@ -770,17 +770,32 @@ public class SearchDao {
     		groupBy.append("a.\"createddate\"");
     		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
     	}else if(orginalName.toLowerCase().equals("company")){
-    		return "(select  string_agg(distinct c.\"ts2__name__c\",',') " +
-    				"from "+schemaname+".ts2__employment_history__c c where  a.\"sfid\" = c.\"ts2__contact__c\" ) as company, (select string_agg(employers.\"jss_groupby_employers_id\"||'',',') "+
-                    " from "+schemaname+".jss_contact_jss_groupby_employers employers where a.\"id\" = employers.\"jss_contact_id\" ) as companygroupedids ";
+    	    return " (select  string_agg(c.\"name\",',' order by c.id) "
+    	                            + "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
+    	                            + "on groupby_employers.jss_groupby_employers_id = c.id  "
+    	                            + "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as company, "
+    	                            +" (select  string_agg(c.\"id\"::varchar,',' order by c.id) "
+    	                            + "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
+    	                            + "on groupby_employers.jss_groupby_employers_id = c.id  "
+    	                            + "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as companygroupedids ";
     	}else if(orginalName.toLowerCase().equals("skill")){
-    	    return " (select  string_agg(distinct b.\"ts2__skill_name__c\",',') " +
-    	    		"from "+schemaname+".ts2__skill__c b where a.\"sfid\" = b.\"ts2__contact__c\"  ) as skill, (select string_agg(skills.\"jss_groupby_skills_id\"||'',',') "+
-    	    		" from "+schemaname+".jss_contact_jss_groupby_skills skills where a.\"id\" = skills.\"jss_contact_id\" ) as skillgroupedids";
+    	    return " (select  string_agg(b.\"name\",',' order by b.id) "
+    	                            + "from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
+    	                            + "on groupby_skills.jss_groupby_skills_id = b.id  "
+    	                            + "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skill, "
+    	                            +" (select  string_agg(b.\"id\"::varchar,',' order by b.id) "
+    	                            + "from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
+    	                            + "on groupby_skills.jss_groupby_skills_id = b.id  "
+    	                            + "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skillgroupedids ";
     	}else if(orginalName.toLowerCase().equals("education")){
-    	    return " (select  string_agg(distinct d.\"ts2__name__c\",',') " +
-    	    		"from "+schemaname+".ts2__education_history__c d  where a.\"sfid\" = d.\"ts2__contact__c\"   ) as education, (select string_agg(educations.\"jss_groupby_educations_id\"||'',',') "+
-                    " from "+schemaname+".jss_contact_jss_groupby_educations educations where a.\"id\" = educations.\"jss_contact_id\" ) as educationgroupedids  ";
+    	    return " (select  string_agg(d.\"name\",',' order by d.id) "
+                                    + "from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
+                                    + "on groupby_educations.jss_groupby_educations_id = d.id  "
+                                    + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as education, "
+                                    +" (select  string_agg(d.\"id\"::varchar,',' order by d.id) "
+                                    + "from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
+                                    + "on groupby_educations.jss_groupby_educations_id = d.id  "
+                                    + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as educationgroupedids ";
     	}else if(orginalName.toLowerCase().equals("location")){
     		columnJoinTables.add(getAdvancedJoinTable("location",org));
     		 if(groupBy.length()>0){
