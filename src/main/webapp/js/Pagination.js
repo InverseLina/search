@@ -15,11 +15,13 @@
 			var dfd = $.Deferred();
 			var $el = $(render("Pagination"));
 			var view = this;
+			view.exactCount = data.exactCount || false;
 			var page = view.page = {
 				pageIdx : data.pageIdx || 1,
 				pageSize : data.pageSize || 15,
 				totalCount : data.totalCount || 0,
-				callback : data.callback || function(){}
+				callback : data.callback || function(){},
+				hasNextPage: data.hasNextPage || false
 			};
 			calc(view.page);
 			var html = render("Pagination-detail", page);
@@ -61,22 +63,25 @@
 				event.stopPropagation();
 				var view = this;
 				var page = view.page;
-				if(page.pageIdx < page.pageCount){
-					view.page.callback(page.pageIdx + 1, view.page.pageSize);
-				}	
+				view.page.callback(page.pageIdx + 1, view.page.pageSize);
 			},
 			"click; li:not(.disabled) a.prev" : function(event) {
 				event.stopPropagation();
 				var view = this;
 				var page = view.page;
-				if(page.pageIdx > 1){}
-				view.page.callback(page.pageIdx - 1, view.page.pageSize);
+				if(page.pageIdx > 1){
+					view.page.callback(page.pageIdx - 1, view.page.pageSize);
+				}
 			},
 			"click; li:not(.disabled) a.last" : function(event) {
 				event.stopPropagation();
 				var view = this;
 				var page = view.page;
-				view.page.callback(page.pageCount, view.page.pageSize);
+				if(view.exactCount){
+					view.page.callback(page.pageCount, view.page.pageSize);
+				}else{
+					view.page.callback(page.pageIdx + 1, view.page.pageSize);
+				}
 			},			
 			"click; .pageSelect .option" : function(event) {
 				event.stopPropagation();
@@ -118,23 +123,6 @@
 		page.pageCount = parseInt(page.totalCount / page.pageSize);
 		if (page.totalCount % page.pageSize !== 0) {
 			page.pageCount += 1;
-		}
-	}
-
-	//redender and show page info
-	function renderPage(pageIdx, pageSize, totalCount, callback) {
-		var view = this;
-		if (view.$el) {
-			var page = view.page = {
-				pageIdx : pageIdx,
-				pageSize : pageSize,
-				totalCount : totalCount,
-				callback : callback
-			};
-			calc(view.page);
-			var html = render("Pagination-detail", page);
-			view.$el.empty().append(html);
-			view.$el.find("select").val(page.pageSize);
 		}
 	}
 

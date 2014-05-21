@@ -21,8 +21,8 @@
 		<ul class="pagination">
 			<li class="firstPage {{#equal 1 pageIdx}}disabled{{/equal}}"><a class="first">&iota;&lt;</a></li>
 			<li class="prevPage {{#equal 1 pageIdx}}disabled{{/equal}}"><a class="prev">&lt;</a></li>
-			<li class="nextPage {{#gte pageIdx pageCount}}disabled{{/gte}}"><a class="next">&gt;</a></li>
-			<li class="lastPage {{#gte pageIdx pageCount}}disabled{{/gte}}"><a class="last">&gt;&iota;</a></li>
+			<li class="nextPage {{#unless hasNextPage}}disabled{{/unless}}"><a class="next">&gt;</a></li>
+			<li class="lastPage {{#unless hasNextPage}}disabled{{/unless}}"><a class="last">&gt;&iota;</a></li>
 		</ul>
 		
 	</div>

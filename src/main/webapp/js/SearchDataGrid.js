@@ -502,6 +502,8 @@
 						pageIdx : result.pageIdx,
 						pageSize : result.pageSize,
 						totalCount : result.count,
+						hasNextPage : result.hasNextPage,
+						exactCount : result.exactCount,
 						callback : function(pageIdx, pageSize) {
 							view.pageIdx = pageIdx;
 							view.pageSize = pageSize;

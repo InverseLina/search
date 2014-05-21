@@ -383,9 +383,15 @@ public class SearchDao {
     		long mid = System.currentTimeMillis();
     		int count = 0;
     		boolean exactCount = false;
+    		boolean hasNextPage = false;
+    		
+    		if(result.size() == searchRequest.getPageSize() + 1){
+    		    result = result.subList(0, searchRequest.getPageSize());
+    		    hasNextPage = true;
+    		}
     		
     		//when the search result less than page size,this would be the last page,we just calculate the count
-    		if(result.size()<searchRequest.getPageSize()){
+    		if(result.size() < searchRequest.getPageSize()){
     			count = searchRequest.getOffest()+result.size();
     			exactCount = true;
     		}else{
@@ -404,6 +410,9 @@ public class SearchDao {
     	    		}
     	    		/********** /Get the estimate count **********/
     	    		count = RoundCount(count);
+    	    		if(count < searchRequest.getOffest()+result.size()){
+    	    		    count = searchRequest.getOffest()+result.size();
+    	    		}
     			}else{
     	    		/********** Get the exact count **********/
 	    			try{
@@ -423,7 +432,8 @@ public class SearchDao {
     				.setDuration(end - start)
     				.setSelectDuration(mid - start)
     				.setCountDuration(end - mid)
-    				.setExactCount(exactCount);
+    				.setExactCount(exactCount)
+    		        .setHasNextPage(hasNextPage);
     	}finally{
     		runner.executeUpdate("RESET statement_timeout; ");
     		runner.close();
@@ -619,7 +629,7 @@ public class SearchDao {
     	if(!Strings.isNullOrEmpty(searchRequest.getOrder())){
     		querySql.append(" order by "+searchRequest.getOrder());
     		if(!searchRequest.getOrder().trim().startsWith("\"id\"")){
-    			querySql.append(" offset ").append(offset).append(" limit ").append(searchRequest.getPageSize());
+    			querySql.append(" offset ").append(offset).append(" limit ").append(searchRequest.getPageSize() + 1);
     		}
     	}
         if(log.isDebugEnabled()){
@@ -1568,7 +1578,7 @@ public class SearchDao {
                 		keyWordSql.append(" order by ").append(searchRequest.getOrder())
 				  				  .append(" offset ")
 				  				  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-				  				  .append(" limit ").append(searchRequest.getPageSize());
+				  				  .append(" limit ").append(searchRequest.getPageSize() + 1);
                 	}
                 	if(!searchRequest.isOnlyKeyWord()){
 //                		 conditions.append(" AND lower(contact.\"ts2__text_resume__c\") like '")
@@ -1577,7 +1587,7 @@ public class SearchDao {
                 		 exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
 				  				   .append(" offset ")
 				  				   .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-				  				   .append(" limit ").append(searchRequest.getPageSize());
+				  				   .append(" limit ").append(searchRequest.getPageSize() + 1);
                 	}
                 }else{
                 	   if (searchRequest.getOrder().trim().startsWith("\"id\"")&&
@@ -1585,12 +1595,12 @@ public class SearchDao {
                            	keyWordSql.append(" order by ").append(searchRequest.getOrder())
                						  .append(" offset ")
                						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-               						  .append(" limit ").append(searchRequest.getPageSize());
+               						  .append(" limit ").append(searchRequest.getPageSize() + 1);
                			}else{
                				orderSql.append(" order by ").append(searchRequest.getOrder())
 			      					.append(" offset ")
 			      					.append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-			      					.append(" limit ").append(searchRequest.getPageSize());
+			      					.append(" limit ").append(searchRequest.getPageSize() + 1);
                			}
                 }
             }else{
@@ -1600,7 +1610,7 @@ public class SearchDao {
             		orderSql.append(" order by ").append(searchRequest.getOrder())
      						  .append(" offset ")
      						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-     						  .append(" limit ").append(searchRequest.getPageSize());
+     						  .append(" limit ").append(searchRequest.getPageSize() + 1);
             	}
             }
             return this;
@@ -1710,7 +1720,7 @@ public class SearchDao {
             		exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
      						  .append(" offset ")
      						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-     						  .append(" limit ").append(searchRequest.getPageSize());
+     						  .append(" limit ").append(searchRequest.getPageSize() + 1);
         	}
         			
         	return exactSearchOrderSql.toString();

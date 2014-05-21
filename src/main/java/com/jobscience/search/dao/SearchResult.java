@@ -16,6 +16,7 @@ public class SearchResult {
     private int pageIdx;
     private int pageSize;
     private boolean exactCount;
+    private boolean hasNextPage;
     
     public SearchResult(List<Map> result, int count){
         this.result = result;
@@ -81,4 +82,14 @@ public class SearchResult {
 		this.exactCount = exactCount;
 		return this;
 	}
+
+    public boolean isHasNextPage() {
+        return hasNextPage;
+    }
+
+    public SearchResult setHasNextPage(boolean hasNextPage) {
+        this.hasNextPage = hasNextPage;
+        return this;
+    }
+	
 }
