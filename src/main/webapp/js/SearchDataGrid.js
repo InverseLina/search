@@ -19,9 +19,9 @@
 			view.labelDisable = true;
 			view.showContentMessage("empty");
 			brite.display("ToolBar");
+			brite.display("Pagination", view.$el.find(".pagination-ctn"));
+			brite.display("EstimateBar",$e.find(".estimateBar-ctn"));
 			$(":text").placeholder();
-			brite.display("Pagination", view.$el.find(".pagination-ctn"),{});
-			brite.display("EstimateBar",$e.find(".estimateBar-ctn"), {count:0,exact: true});
 			
 			var searchMode = app.preference.get("searchMode","power");
 			$e.find(".searchMode .btn").removeClass("active");
@@ -496,9 +496,8 @@
 					fixColWidth.call(view);
 					view.restoreSearchParam();
 					
-					brite.display("EstimateBar",$e.find(".estimateBar-ctn"), {count:result.count,exact: result.exactCount});
-					
-					brite.display("Pagination", view.$el.find(".pagination-ctn"), {
+					$e.trigger("REFRESH_ESTIMATE_COUNT", {count:result.count,exact: result.exactCount});
+					$e.trigger("REFRESH_PAGINATION", {
 						pageIdx : result.pageIdx,
 						pageSize : result.pageSize,
 						totalCount : result.count,
@@ -511,17 +510,14 @@
 								pageIdx : pageIdx
 							});
 						}
-					}).done(function() {
-						var $pagination = view.$el.find(".pagination-ctn");
-						var pagination = view.$el.find(".Pagination").bComponent();
-						if (labelAssigned) {
-							$e.trigger("CHANGE_TO_FAV_VIEW");
-							pagination.hide();
-						} else {
-							$e.trigger("RESTORE_SEARCH_VIEW");
-							pagination.show();
-						}
-					}); 
+					});
+					
+					var pagination = view.$el.find(".Pagination").bComponent();
+					if (labelAssigned) {
+						$e.trigger("CHANGE_TO_FAV_VIEW");
+					} else {
+						$e.trigger("RESTORE_SEARCH_VIEW");
+					}
 
 
 				}

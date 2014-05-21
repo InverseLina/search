@@ -12,36 +12,17 @@
 	}, {
 		// --------- View Interface Implement--------- //
 		create : function(data, config) {
-			var dfd = $.Deferred();
-			var $el = $(render("Pagination"));
-			var view = this;
-			view.exactCount = data.exactCount || false;
-			var page = view.page = {
-				pageIdx : data.pageIdx || 1,
-				pageSize : data.pageSize || 15,
-				totalCount : data.totalCount || 0,
-				callback : data.callback || function(){},
-				hasNextPage: data.hasNextPage || false
-			};
-			calc(view.page);
-			var html = render("Pagination-detail", page);
-			$el.empty().append(html);
-			$el.find("select").val(page.pageSize); 
-
-			return dfd.resolve($el).promise();
+			return $(render("Pagination"));
 		},
 		postDisplay:function(){
 			var view = this;
+			
+			refresh.call(view);
+			
 			if(view.page){
 				var pageSize =  view.page.pageSize;
 				setSelectValue.call(view, pageSize);
 			}
-		},
-		show : function() {
-			this.$el.show();
-		},
-		hide : function() {
-			this.$el.hide();
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -112,12 +93,36 @@
 			"click":function(){
 				var view = this;
 				view.$el.find(".pageSelect .options").hide();
+			},
+			"REFRESH_PAGINATION":function(view,extra){
+				var view = this;
+				refresh.call(view, extra);
 			}
 		}
 		// --------- /Events--------- //
 	});
 
 	// --------- Private Methods--------- //
+	
+	function refresh(data){
+		var view = this;
+		var $e = view.$el;
+		data = data || {};
+		view.exactCount = data.exactCount || false;
+		var page = view.page = {
+			pageIdx : data.pageIdx || 1,
+			pageSize : data.pageSize || 15,
+			totalCount : data.totalCount || 0,
+			callback : data.callback || function() {},
+			hasNextPage : data.hasNextPage || false
+		};
+		calc(view.page);
+		var html = render("Pagination-detail", page);
+		$e.empty().append(html);
+		$e.find("select").val(page.pageSize);
+
+	}
+	
 	// process the page info
 	function calc(page) {
 		page.pageCount = parseInt(page.totalCount / page.pageSize);
@@ -135,6 +140,7 @@
 		$e.find(".pageSelect .value").html(pageSize).attr("data-value",pageSize);
 		$e.find(".pageSelect .options").hide();
 	}
+	
 	// --------- /Private Methods--------- //
 
 })(jQuery);

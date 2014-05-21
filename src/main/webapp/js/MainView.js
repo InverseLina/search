@@ -156,6 +156,7 @@
 		opts = opts || {};
 		var search = opts.search;
 		if(!app.ParamsControl.isEmptySearch()){
+			$e.trigger("DO_ESTIMATE_BAR_WAITING");
 			var searchParameter = app.ParamsControl.getParamsForSearch({
 				search : search
 			});
