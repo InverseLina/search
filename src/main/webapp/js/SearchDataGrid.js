@@ -20,6 +20,8 @@
 			view.showContentMessage("empty");
 			brite.display("ToolBar");
 			$(":text").placeholder();
+			brite.display("Pagination", view.$el.find(".pagination-ctn"),{});
+			brite.display("EstimateBar",$e.find(".estimateBar-ctn"), {count:0,exact: true});
 			
 			var searchMode = app.preference.get("searchMode","power");
 			$e.find(".searchMode .btn").removeClass("active");
@@ -343,8 +345,6 @@
 				$tabContainer.html(html);
 			}
 			
-			view.$el.find(".pagination-ctn").empty();
-			view.$el.find(".estimateBar-ctn").empty();
 			view.restoreSearchParam();
 			fixColWidth.call(view);
 		},

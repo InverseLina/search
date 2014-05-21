@@ -14,19 +14,18 @@
 		create : function(data, config) {
 			var dfd = $.Deferred();
 			var $el = $(render("Pagination"));
-			if (data.totalCount > 0) {
-				var view = this;
-				var page = view.page = {
-					pageIdx : data.pageIdx || 1,
-					pageSize : data.pageSize || 15,
-					totalCount : data.totalCount,
-					callback : data.callback
-				};
-				calc(view.page);
-				var html = render("Pagination-detail", page);
-				$el.empty().append(html);
-				$el.find("select").val(page.pageSize);
-			}
+			var view = this;
+			var page = view.page = {
+				pageIdx : data.pageIdx || 1,
+				pageSize : data.pageSize || 15,
+				totalCount : data.totalCount || 0,
+				callback : data.callback || function(){}
+			};
+			calc(view.page);
+			var html = render("Pagination-detail", page);
+			$el.empty().append(html);
+			$el.find("select").val(page.pageSize); 
+
 			return dfd.resolve($el).promise();
 		},
 		postDisplay:function(){
@@ -89,6 +88,8 @@
 				if (pageSize >= -1) {
 					page.pageSize = pageSize;
 				}
+				setSelectValue.call(view, page.pageSize);
+				
 				view.page.callback(1, view.page.pageSize);
 			},
 			"click; .pageSelect" : function(event) {
@@ -144,6 +145,7 @@
 			pageSize = $e.find(".pageSelect .option:first").attr("data-value");
 		}
 		$e.find(".pageSelect .value").html(pageSize).attr("data-value",pageSize);
+		$e.find(".pageSelect .options").hide();
 	}
 	// --------- /Private Methods--------- //
 

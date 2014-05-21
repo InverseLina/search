@@ -24,7 +24,7 @@
 			var maxValue = 5000;
 			var minValue = 0;
 			
-			var count = data.count || 1;
+			var count = data.count || 0;
 			var exact = data.exact || false;
 			
 			var label = count;
