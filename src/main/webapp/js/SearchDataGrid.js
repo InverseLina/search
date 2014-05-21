@@ -50,12 +50,13 @@
 					view.$el.trigger("SEARCH_QUERY_CHANGE");
 				}
 			},
-			"click; .searchMode .btn" : function(event) {
+			"click; .searchMode .btn:not(.active)" : function(event) {
 				var view = this;
 				var $btn = $(event.currentTarget);
 				view.$el.find(".searchMode .btn").removeClass("active");
 				$btn.addClass("active");
 				app.preference.store("searchMode", $btn.attr("data-mode"));
+				view.$el.trigger("DO_SEARCH",{searchModeChange:true});
 			},
 			"click; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
 				var view = this;
@@ -476,25 +477,29 @@
 					var labelAssigned = app.buildPathInfo().labelAssigned;
 					var view = this;
 					var $e = view.$el;
-
-					var html;
-					$e.find(".resultTime").html("(c:{0}ms, s:{1}ms)".format(result.countDuration, result.selectDuration));
-
-					if (result.count > 0) {
-						buildResult.call(view, result.result).done(function(data) {
-							view.refreshColumns(data, labelAssigned);
-						});
-
-					} else {
-						view.$searchResult.find(".tableContainer").html(render("search-query-notfound", {
-							colWidth : getColWidth.call(view),
-							labelAssigned : app.buildPathInfo().labelAssigned
-						}));
-
-					}
 					
-					fixColWidth.call(view);
-					view.restoreSearchParam();
+					if(!result.searchModeChange){
+						var html;
+						$e.find(".resultTime").html("(c:{0}ms, s:{1}ms)".format(result.countDuration, result.selectDuration));
+	
+						if (result.count > 0) {
+							buildResult.call(view, result.result).done(function(data) {
+								view.refreshColumns(data, labelAssigned);
+							});
+	
+						} else {
+							view.$searchResult.find(".tableContainer").html(render("search-query-notfound", {
+								colWidth : getColWidth.call(view),
+								labelAssigned : app.buildPathInfo().labelAssigned
+							}));
+	
+						}
+						
+						fixColWidth.call(view);
+						view.restoreSearchParam();
+					}
+
+					
 					
 					$e.trigger("REFRESH_ESTIMATE_COUNT", {count:result.count,exact: result.exactCount});
 					$e.trigger("REFRESH_PAGINATION", {

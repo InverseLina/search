@@ -154,6 +154,7 @@
 		var view = this;
 		var $e = view.$el;
 		opts = opts || {};
+		opts.searchModeChange = opts.searchModeChange || false;
 		var search = opts.search;
 		if(!app.ParamsControl.isEmptySearch()){
 			$e.trigger("DO_ESTIMATE_BAR_WAITING");
@@ -170,16 +171,19 @@
 				}
 				return;
 			}
-			if(opts.retry){
-				view.contentView.dataGridView.showContentMessage("retrying");
-			}else{
-				view.contentView.dataGridView.showContentMessage("loading");
+			if(!opts.searchModeChange){
+				if(opts.retry){
+					view.contentView.dataGridView.showContentMessage("retrying");
+				}else{
+					view.contentView.dataGridView.showContentMessage("loading");
+				}
 			}
+			
 			view.contentView.dataGridView.restoreSearchParam();
 	
 			searchParameter.pageIndex = opts.pageIdx || 1;
 			var searchTimes = 0;
-			doSearchRequest.call(view, searchParameter, searchTimes);
+			doSearchRequest.call(view, searchParameter, searchTimes, opts.searchModeChange);
 		}else{
 			view.contentView.dataGridView.showContentMessage("empty");
 			view.$el.trigger("CHECK_CLEAR_BTN");
@@ -187,8 +191,9 @@
 
 	}
 	
-	function doSearchRequest(searchParameter, searchTimes){
+	function doSearchRequest(searchParameter, searchTimes,searchModeChange){
 		var view = this;
+		searchModeChange = searchModeChange || false;
 		searchTimes++ ;
 		app.currentDeferred = searchDao.search(searchParameter);
 		
@@ -197,13 +202,14 @@
 				return ;
 			}
 			view.$el.trigger("CHECK_CLEAR_BTN");
+			result.searchModeChange = searchModeChange;
 			view.$el.trigger("SEARCH_RESULT_CHANGE", result);
 		}).fail(function(result){
 			if(this !== app.currentDeferred){
 				return ;
 			}
 			if (searchTimes < 3) {
-				doSearchRequest.call(view, searchParameter, searchTimes);
+				doSearchRequest.call(view, searchParameter, searchTimes, searchModeChange);
 			} else {
 				if(view.$el.find(".SearchDataGrid").size() > 0){
 					view.contentView.dataGridView.showContentMessage("error", {
