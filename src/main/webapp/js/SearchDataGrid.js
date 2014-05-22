@@ -321,12 +321,15 @@
 		},
 		showContentMessage : function(cmd, extra) {
 			var view = this;
+			var $e = view.$el;
 			view.$el.find(".search-info").empty();
 			var $tabContainer = view.$searchResult.find(".tableContainer");
 			if (cmd === "empty") {
 				$tabContainer.html(render("search-empty", {
 					colWidth : getColWidth.call(view)
 				}));
+				$e.trigger("REFRESH_ESTIMATE_COUNT",{count:0, exact:true});
+				$e.trigger("REFRESH_PAGINATION");
 			} else if (cmd === "loading") {
 				$tabContainer.html(render("search-loading"));
 			} else if (cmd === "retrying") {
