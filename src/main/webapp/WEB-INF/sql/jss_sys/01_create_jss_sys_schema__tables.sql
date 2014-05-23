@@ -27,4 +27,18 @@ CREATE TABLE if not exists city
   latitude  double precision,
   CONSTRAINT city_pkey PRIMARY KEY (id)
 );
+-- SCRIPTS
+CREATE TABLE if not exists city_world
+(
+  id bigserial NOT NULL,
+  country character varying,
+  region character varying,
+  city character varying,
+  postal_code character varying,
+  latitude character varying,
+  longitude character varying,
+  metro_code character varying,
+  area_code character varying,
+  CONSTRAINT city_world_pkey PRIMARY KEY (id)
+);
 

@@ -80,6 +80,7 @@
 				var $alertImportZipcode = $e.find(".import .alert").removeClass("alert-warning alert-success alert-error alert-info");
 				var $alertCreatePgTrgm = $e.find(".create_pg_trgm .alert").removeClass("alert-warning alert-success alert-error alert-info");
 				var $alertImportCity = $e.find(".import-city .alert").removeClass("alert-warning alert-success alert-error alert-info");
+				var $alertImportCityWorld = $e.find(".import-city-world .alert").removeClass("alert-warning alert-success alert-error alert-info");
 				var $alertCheckColumns = $e.find(".check-columns .alert").removeClass("alert-warning alert-success alert-error alert-info");
 				if (!statusData) {
 					return;
@@ -114,6 +115,14 @@
 					$alertImportCity.addClass("alert-warning").html("Incomplete");
 				} else {
 					$alertImportCity.addClass("alert-info").html(statusData.import_city.status);
+				}
+
+				if (statusData.import_city_world.status === "done") {
+					$alertImportCityWorld.addClass("alert-success").html("Done");
+				} else if (statusData.import_city_world.status === "incomplete") {
+					$alertImportCityWorld.addClass("alert-warning").html("Incomplete");
+				} else {
+					$alertImportCityWorld.addClass("alert-info").html(statusData.import_city_world.status);
 				}
 
 				if (statusData.check_missing_columns.status === "done") {

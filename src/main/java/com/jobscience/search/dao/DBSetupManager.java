@@ -58,6 +58,9 @@ public class DBSetupManager {
     @Named("city.path")
     @Inject
     private String cityPath;
+    @Named("city_world.path")
+    @Inject
+    private String cityWorldPath;
     @Inject
     private OrgConfigDao orgConfigDao;
     @Inject
@@ -116,6 +119,7 @@ public class DBSetupManager {
     private volatile boolean sysReseting = false;
     private volatile HttpGet zipCodeConnection = null;
     private volatile HttpGet cityConnection = null;
+    private volatile HttpGet cityWorldConnection = null;
     private boolean firstSetup = true;
     private String step = null;
     private ConcurrentHashMap<String,Thread> orgThreads =new ConcurrentHashMap<String, Thread>();
@@ -491,6 +495,10 @@ public class DBSetupManager {
                 cityConnection.abort();
                 cityConnection = null;
             }
+            if(cityWorldConnection != null){
+                cityWorldConnection.abort();
+                cityWorldConnection = null;
+            }
             if(zipCodeConnection != null){
                 zipCodeConnection.abort();
                 zipCodeConnection = null;
@@ -547,6 +555,10 @@ public class DBSetupManager {
         initMap = new HashMap();
         initMap.put(statusKey, NOTSTARTED);
         status.put("import_city", initMap);
+        
+        initMap = new HashMap();
+        initMap.put(statusKey, NOTSTARTED);
+        status.put("import_city_world", initMap);
 
         int steps = 0;
         try {
@@ -566,9 +578,9 @@ public class DBSetupManager {
 
             Map<String, Boolean> tables = (Map) result.get("tables");
             Map stepCreateSysSchema = (Map) status.get("create_sys_schema");
-            if (tables.get("org") || tables.get("config") || tables.get("city")
+            if (tables.get("org") || tables.get("config") || tables.get("city") || tables.get("city_world")
                     || tables.get("zipcode_us")) {
-                if (tables.get("org") && tables.get("config") && tables.get("city")
+                if (tables.get("org") && tables.get("config") && tables.get("city") && tables.get("city_world")
                         && tables.get("zipcode_us")) {
                     stepCreateSysSchema.put(statusKey, DONE);
                     steps++;
@@ -628,6 +640,20 @@ public class DBSetupManager {
                 }
                 status.put(statusKey, INCOMPLETE);
             }
+            
+            Map stepImportCityWorld = (Map) status.get("import_city_world");
+            boolean importCityWorld = (Boolean) result.get("city_world");
+            if (importCityWorld) {
+                stepImportCityWorld.put(statusKey, DONE);
+                steps++;
+            } else {
+                if (!firstSetup) {
+                    stepImportCityWorld.put(statusKey, INCOMPLETE);
+                } else {
+                    stepImportCityWorld.put(statusKey, NOTSTARTED);
+                }
+                status.put(statusKey, INCOMPLETE);
+            }
 
             Map stepCheckMissingColumns = (Map) status.get("check_missing_columns");
             String missingsColumns = (String) result.get("jssTables");
@@ -644,7 +670,7 @@ public class DBSetupManager {
                 status.put(statusKey, INCOMPLETE);
             }
 
-            if (steps == 5) {
+            if (steps == status.size() - 1) {
                 status.put(statusKey, DONE);
             } else {
                 if (isSystemSetupRunning()) {
@@ -737,7 +763,7 @@ public class DBSetupManager {
                 .executeQuery(
                         datasourceManager.newRunner(),
                         "select string_agg(table_name,',') as names from information_schema.tables"
-                                + " where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config','city')");
+                                + " where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config','city','city_world')");
         if (list.size() == 1) {
             String names = (String) list.get(0).get("names");
             if (names == null) {
@@ -1084,6 +1110,51 @@ public class DBSetupManager {
     			"ALTER TABLE jss_contact DROP COLUMN IF EXISTS \"resume_tsv\" CASCADE");
     }
     
+    public void computeCityWorld() throws Exception {
+        String extraSysTables = checkSysTables();
+        if (!extraSysTables.contains("city_world")) {
+            excuteSqlUnderSys("01_");
+        }
+    }
+    
+    public void importCityWorld() throws Exception {
+        String extraSysTables = checkSysTables();
+        if (!extraSysTables.contains("city_world")) {
+            excuteSqlUnderSys("01_");
+        }
+        try {
+
+            CloseableHttpClient httpclient = HttpClients.createDefault();
+            cityWorldConnection = new HttpGet(cityWorldPath);
+            HttpResponse httpResponse = httpclient.execute(cityWorldConnection);
+            ZipInputStream in = new ZipInputStream(httpResponse.getEntity().getContent());
+            in.getNextEntry();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String line = br.readLine();
+            Runner runner = datasourceManager.newSysRunner();
+            try {
+                runner.startTransaction();
+                while (line != null) {
+                    runner.executeUpdate(line);
+                    line = br.readLine();
+                }
+                runner.commit();
+            } catch (Exception e) {
+                try {
+                    runner.roolback();
+                } catch (Exception e1) {
+                    e.printStackTrace();
+                }
+                throw e;
+            } finally {
+                runner.close();
+            }
+            in.close();
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+    
     public void computeCity() throws Exception {
         String extraSysTables = checkSysTables();
         if (!extraSysTables.contains("city")) {
@@ -1095,7 +1166,7 @@ public class DBSetupManager {
                 new Object[0]);
         runner.close();
     }
-
+    
     public void importCity() throws Exception {
         String extraSysTables = checkSysTables();
         if (!extraSysTables.contains("city")) {
@@ -1265,9 +1336,11 @@ public class DBSetupManager {
         tableMap.put("config", sysTableNames.contains("config"));
         tableMap.put("zipcode_us", sysTableNames.contains("zipcode_us"));
         tableMap.put("city", sysTableNames.contains("city"));
+        tableMap.put("city_world", sysTableNames.contains("city_world"));
         status.put("tables", tableMap);
 
         status.put("city", checkCity());
+        status.put("city_world", checkCityWorld());
         if (sysTableNames.contains("zipcode_us")) {
             status.put("zipcode_import", this.checkZipcodeImported());
         } else {
@@ -1575,6 +1648,26 @@ public class DBSetupManager {
         }
         List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
                 "select count(*) from city");
+        if (list.size() == 1) {
+            if (!"0".equals(list.get(0).get("count").toString())) {
+                done = true;
+            } else {
+                done = false;
+            }
+        }
+        return done;
+    }
+    
+    private boolean checkCityWorld() {
+        boolean done = false;
+        String extraSysTables = checkSysTables();
+        if (extraSysTables.contains("city_world")) {
+            done = true;
+        } else {
+            return done;
+        }
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
+                "select count(*) from city_world");
         if (list.size() == 1) {
             if (!"0".equals(list.get(0).get("count").toString())) {
                 done = true;
@@ -1992,6 +2085,13 @@ public class DBSetupManager {
         if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE) || statusStr.equals(ERROR)) {
             step = "import_city";
             importCity();
+        }
+        
+        Map stepImportCityWorld = (Map) status.get("import_city_world");
+        statusStr = (String) stepImportCityWorld.get("status");
+        if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE) || statusStr.equals(ERROR)) {
+            step = "import_city_world";
+            importCityWorld();
         }
 
         Map stepCheckMissingColumns = (Map) status.get("check_missing_columns");
