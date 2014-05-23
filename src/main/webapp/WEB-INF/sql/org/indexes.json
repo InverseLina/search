@@ -64,6 +64,13 @@
                 "column":"ts2__text_resume__c",
                 "operator":"gin_trgm_ops",
                 "unique":""
+               },
+               {
+                "name":"contact_earth_distance_idx",
+                "type":"gist",
+                "column":"ll_to_earth(ts2__latitude__c ,ts2__longitude__c)",
+                "operator":"",
+                "unique":""
                }
               ],
  "ts2__skill__c":[
