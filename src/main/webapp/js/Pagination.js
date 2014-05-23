@@ -119,8 +119,7 @@
 		calc(view.page);
 		var html = render("Pagination-detail", page);
 		$e.empty().append(html);
-		$e.find("select").val(page.pageSize);
-
+		setSelectValue.call(view,page.pageSize);
 	}
 	
 	// process the page info
