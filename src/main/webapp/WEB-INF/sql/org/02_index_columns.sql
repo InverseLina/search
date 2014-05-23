@@ -150,4 +150,3 @@
 	  CREATE INDEX ts2__education_history__c_name_c  ON ts2__education_history__c  USING btree ("ts2__name__c" COLLATE pg_catalog."default");
 	END IF;
 	END$$;
-	

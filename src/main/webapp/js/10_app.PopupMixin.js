@@ -38,6 +38,7 @@ var app = app || {};
 					}
 					item.operator = val.operator;
 					item.groupedid = val.groupedid;
+					item.locationid = val.locationid;
 					item.suffix = val.suffix;
 					var html = render("filterPanel-selectedItem-add", item);
 					view.$el.find("span.add").before(html);
@@ -58,6 +59,7 @@ var app = app || {};
 					};
 					if (view.type === "location") {
 						opts.max = 100;
+						opts.min = 10;
 					} else if (view.type === "skill") {
 						opts.max = 10;
 					}
@@ -189,6 +191,10 @@ var app = app || {};
 						itemData.groupedid = $contentText.attr("data-groupedid") * 1;
 					}
 					
+					if ($contentText.attr("data-locationid") != "") {
+						itemData.locationid = $contentText.attr("data-locationid") * 1;
+					}
+					
 					if($contentText.attr("data-suffix") != ""){
 						itemData.suffix = $contentText.attr("data-suffix");
 					}
@@ -317,6 +323,9 @@ var app = app || {};
 				if(data.groupedid){
 					item.groupedid = data.groupedid;
 				}
+				if(data.locationid){
+					item.locationid = data.locationid;
+				}
 				if(operator){
 					item.operator = operator;
 				}
@@ -333,6 +342,7 @@ var app = app || {};
 				}
 				view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {
 					groupedid : data.groupedid,
+					locationid : data.locationid,
 					operator : operator,
 					name : data.name,
 					suffix : data.suffix,
@@ -358,6 +368,7 @@ var app = app || {};
 					obj.value.operator = operator;
 					var html = render("filterPanel-selectedItem-add", {
 						groupedid : data.groupedid,
+						locationid : data.locationid,
 						operator : operator,
 						name : data.name,
 						suffix : data.suffix,
@@ -394,6 +405,9 @@ var app = app || {};
 							};
 							if($activeItem.attr("data-groupedid") != ""){
 								itemData.groupedid = $activeItem.attr("data-groupedid") * 1;
+							}
+							if($activeItem.attr("data-locationid") != ""){
+								itemData.locationid = $activeItem.attr("data-locationid") * 1;
 							}
 							if($activeItem.attr("data-suffix") != ""){
 								itemData.suffix = $activeItem.attr("data-suffix");

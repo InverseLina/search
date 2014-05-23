@@ -91,7 +91,7 @@ public class DBSetupManager {
     private String[][] newTableNameChanges = {{"contact_ex","jss_contact"},
                                               {"ex_grouped_educations","jss_grouped_educations"},
                                               {"ex_grouped_employers","jss_grouped_employers"},
-                                              {"ex_grouped_locations","jss_grouped_locations"},
+                                              {"ex_city_score","city_score"},
                                               {"ex_grouped_skills","jss_grouped_skills"},
                                               {"pref","jss_pref"},
                                               {"searchlog","jss_searchlog"},
@@ -163,10 +163,10 @@ public class DBSetupManager {
         fixJssTableNames(orgName);
 
         createExtraTables(orgName);
-        createExtraGroup(orgName, "skills");
-        createExtraGroup(orgName, "educations");
-        createExtraGroup(orgName, "employers");
-        createExtraGroup(orgName, "locations");
+        createExtraGroup(orgName, "jss_grouped_skills");
+        createExtraGroup(orgName, "jss_grouped_educations");
+        createExtraGroup(orgName, "jss_grouped_employers");
+        createExtraGroupCity(orgName, "city_score");
         fixMissingColumns(orgName, false);
 
         indexerManager.run(orgName,webPath);
@@ -1099,7 +1099,7 @@ public class DBSetupManager {
 
     public void dropExTables(String orgName) {
         daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
-                "drop table if exists jss_grouped_locations;"
+                "drop table if exists city_score;"
                         + "drop table if exists jss_grouped_employers;"
                         + "drop table if exists jss_grouped_educations;"
                         + "drop table if exists jss_grouped_skills");
@@ -1150,6 +1150,12 @@ public class DBSetupManager {
                 runner.close();
             }
             in.close();
+            
+            //FIXME CREATE index here now
+            runner = datasourceManager.newSysRunner();
+            runner.executeUpdate("CREATE INDEX city_world_earth_distance_idx on city_world USING gist(ll_to_earth(latitude ,longitude));",new Object[0]);
+            runner.close();
+            
         } catch (IOException e) {
             throw e;
         }
@@ -1595,8 +1601,9 @@ public class DBSetupManager {
 			if (!orgSetupStatus.get(orgName).booleanValue()) {
 				return false;
 			}
+			
 			// when there already has data
-			if (getDataCount("jss_grouped_" + tableName, runner) > 0) {
+			if (getDataCount(tableName, runner) > 0) {
 				return true;
 			}
 			File orgFolder = new File(getRootSqlFolderPath() + "/org");
@@ -1609,8 +1616,6 @@ public class DBSetupManager {
 				filePrexName = "07_";
 			} else if (tableName.contains("employers")) {
 				filePrexName = "08_";
-			} else {
-				filePrexName = "09_";
 			}
 			for (File file : sqlFiles) {
 				if (file.getName().startsWith(filePrexName)) {
@@ -1637,6 +1642,38 @@ public class DBSetupManager {
 		}
 		return result;
 	}
+	
+	private boolean createExtraGroupCity(String orgName, String tableName){
+        boolean result = true;
+        Runner runner = datasourceManager.newOrgRunner(orgName);
+        File orgFolder = new File(getRootSqlFolderPath() + "/org");
+        File[] sqlFiles = orgFolder.listFiles();
+        List<String> subSqlList = null;
+        for (File file : sqlFiles) {
+            if (file.getName().startsWith("09_")) {
+                subSqlList = loadSQLFile(file);
+            }
+        }
+        try{
+            runner.executeUpdate(subSqlList.get(0));
+            runner.executeUpdate(subSqlList.get(1));
+            runner.executeUpdate(subSqlList.get(2));
+            //FIXME: need to split
+//            int total = runner.executeCount(subSqlList.get(3));
+//            int offset;
+//            for(offset = 0; offset < total; ){
+//                runner.executeUpdate(subSqlList.get(4),offset,offset+10000);
+//                offset+=10000;
+//            }
+            runner.executeUpdate(subSqlList.get(4));
+            runner.executeUpdate(subSqlList.get(5));
+        }catch (Exception e) {
+            log.error(e.getMessage());
+        } finally {
+            runner.close();
+        }       
+        return result;
+    }
 
     private boolean checkCity() {
         boolean done = false;
@@ -2093,7 +2130,7 @@ public class DBSetupManager {
             step = "import_city_world";
             importCityWorld();
         }
-
+        
         Map stepCheckMissingColumns = (Map) status.get("check_missing_columns");
         statusStr = (String) stepCheckMissingColumns.get("status");
         if (statusStr.equals(NOTSTARTED) || statusStr.equals(INCOMPLETE) || statusStr.equals(ERROR)) {

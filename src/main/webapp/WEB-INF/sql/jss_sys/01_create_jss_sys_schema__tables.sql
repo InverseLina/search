@@ -36,6 +36,6 @@ CREATE TABLE if not exists city_world
   city character varying,
   latitude double precision,
   longitude double precision,
+  country_full_name character varying,
   CONSTRAINT city_world_pkey PRIMARY KEY (id)
 );
-

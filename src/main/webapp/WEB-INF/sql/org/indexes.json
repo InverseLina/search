@@ -162,15 +162,6 @@
                 "unique":""
                }
               ],
- "jss_grouped_locations":[
-              {
-                "name":"jss_grouped_locations_name",
-                "type":"btree",
-                "column":"name",
-                "operator":"",
-                "unique":""
-               }
-              ],
 "jss_contact_jss_groupby_skills":[
              {
                 "tablename":"jss_contact_jss_groupby_skills",

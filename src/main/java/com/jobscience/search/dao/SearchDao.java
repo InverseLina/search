@@ -43,9 +43,6 @@ public class SearchDao {
     private DatasourceManager datasourceManager;
 
     @Inject
-    private ConfigManager configManager;
-    
-    @Inject
     private UserDao userDao;
     
     @Inject
@@ -109,114 +106,106 @@ public class SearchDao {
      * @throws SQLException
      */
     public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
-        String advancedAutoCompleteStr = configManager.getConfig("advanced_auto_complete", (Integer) org.getOrgMap().get("id"));
-        Boolean advancedAutoComplete  = false;
-        if(advancedAutoCompleteStr!=null){
-            advancedAutoComplete= "true".equals(advancedAutoCompleteStr);
-        }
-        if(!advancedAutoComplete){
-            return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum,org);
-        }
-        return advancedAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum,org);
+        return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum,org);
     }
     
-    @SuppressWarnings("unused")
-    public SearchResult advancedAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
-        StringBuilder querySql = new StringBuilder();
-        StringBuilder groupBy = new StringBuilder();
-        String column = null;
-        String baseTableIns = null;
-        querySql.append("select result.name, count(*) as count from ( select ");
-        String baseTable = new String();
-        List values = new ArrayList();
-        String schemaname = (String)org.getOrgMap().get("schemaname");
-        
-        if(type.equals("company")){
-            baseTable = schemaname+".ts2__employment_history__c ";
-            baseTableIns = "c";
-            column = " c.\"ts2__contact__c\" as id, c.\"ts2__name__c\" as name";
-            groupBy.append(" group by c.\"ts2__contact__c\", c.\"ts2__name__c\" ");
-        }else if(type.equals("education")){
-            baseTableIns = "d";
-            baseTable = schemaname+".ts2__education_history__c ";
-            groupBy.append(" group by d.\"ts2__contact__c\", d.\"ts2__name__c\" ");
-            column = " d.\"ts2__contact__c\" as id, d.\"ts2__name__c\" as name";
-        }else if(type.equals("skill")){
-            baseTableIns = "b";
-            baseTable = schemaname+".ts2__skill__c ";
-            groupBy.append(" group by b.\"ts2__contact__c\", b.\"ts2__skill_name__c\" ");
-            column = " b.\"ts2__contact__c\" as id, b.\"ts2__skill_name__c\" as name";
-        }else if(type.equals("location")){
-            baseTableIns = "z";
-            baseTable = " jss_sys.zipcode_us ";
-            column = " z.\"city\" as name ";
-        }
-        
-        querySql.append(column);
-        querySql.append(" from ");
-            
-        String appendJoinTable = "";
-        
-        //this flag is used to check if need join with ts2__assessment__c
-        boolean skill_assessment_rating = false;
-        
-        //------- get the skill_assessment_rating config for current org ----------//
-        if(min!=null&&!"0".equals(min)&&type.equals("skill")){
-           String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.getOrgMap().get("id"));
-            if (!"true".equals(skillAssessmentRatingStr)) {
-                skill_assessment_rating = false;
-            } else {
-                skill_assessment_rating = true;
-            }
-            appendJoinTable=(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
-        }
-        //-------- /get the skill_assessment_rating config for current org ---------//
-        
-        //Need to DO refactor here
-        //querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable,org)[0]);
-        
-        //if has min year or min raidus or min rating,need do filter for this
-        if(min!=null&&!"0".equals(min)){
-                if(type.equals("company")){
-                         querySql.append("  AND EXTRACT(year from age(c.\"ts2__employment_end_date__c\",c.\"ts2__employment_start_date__c\"))>="+min);
-                }else if(type.equals("education")){
-                         querySql.append("  AND EXTRACT(year from age(now(),d.\"ts2__graduationdate__c\"))>="+min);
-                }else if(type.equals("skill")){
-                           if(skill_assessment_rating){
-                                   querySql.append("  AND ass.\"ts2__rating__c\" >="+min);
-                           }else{
-                                   querySql.append("  AND b.\"ts2__rating__c\" >="+min);
-                           }
-                }else if(type.equals("location")){
-                         querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))/1000<="+min);
-                }
-        }
-        //add group by statement
-        if(!"".equals(groupBy.toString())){
-            querySql.append(groupBy);
-        }
-
-        if(orderByCount){//order by count
-            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
-        }else{//order by name
-            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
-        }
-        if(log.isDebugEnabled()){
-            log.debug(querySql.toString());
-        }
-        Long start = System.currentTimeMillis();
-        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
-        List<Map> result =runner.executeQuery(querySql.toString(),values.toArray());
-        runner.close();
-        Long end = System.currentTimeMillis();
-
-        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
-        queryLogger.debug(LoggerType.AUTO_PERF, end-start);
-        SearchResult searchResult = new SearchResult(result, result.size());
-        searchResult.setDuration(end - start);
-        searchResult.setSelectDuration(searchResult.getDuration());
-        return searchResult;
-    }
+//    @SuppressWarnings("unused")
+//    public SearchResult advancedAutoComplete1(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
+//        StringBuilder querySql = new StringBuilder();
+//        StringBuilder groupBy = new StringBuilder();
+//        String column = null;
+//        String baseTableIns = null;
+//        querySql.append("select result.name, count(*) as count from ( select ");
+//        String baseTable = new String();
+//        List values = new ArrayList();
+//        String schemaname = (String)org.getOrgMap().get("schemaname");
+//        
+//        if(type.equals("company")){
+//            baseTable = schemaname+".ts2__employment_history__c ";
+//            baseTableIns = "c";
+//            column = " c.\"ts2__contact__c\" as id, c.\"ts2__name__c\" as name";
+//            groupBy.append(" group by c.\"ts2__contact__c\", c.\"ts2__name__c\" ");
+//        }else if(type.equals("education")){
+//            baseTableIns = "d";
+//            baseTable = schemaname+".ts2__education_history__c ";
+//            groupBy.append(" group by d.\"ts2__contact__c\", d.\"ts2__name__c\" ");
+//            column = " d.\"ts2__contact__c\" as id, d.\"ts2__name__c\" as name";
+//        }else if(type.equals("skill")){
+//            baseTableIns = "b";
+//            baseTable = schemaname+".ts2__skill__c ";
+//            groupBy.append(" group by b.\"ts2__contact__c\", b.\"ts2__skill_name__c\" ");
+//            column = " b.\"ts2__contact__c\" as id, b.\"ts2__skill_name__c\" as name";
+//        }else if(type.equals("location")){
+//            baseTableIns = "z";
+//            baseTable = " jss_sys.zipcode_us ";
+//            column = " z.\"city\" as name ";
+//        }
+//        
+//        querySql.append(column);
+//        querySql.append(" from ");
+//            
+//        String appendJoinTable = "";
+//        
+//        //this flag is used to check if need join with ts2__assessment__c
+//        boolean skill_assessment_rating = false;
+//        
+//        //------- get the skill_assessment_rating config for current org ----------//
+//        if(min!=null&&!"0".equals(min)&&type.equals("skill")){
+//           String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.getOrgMap().get("id"));
+//            if (!"true".equals(skillAssessmentRatingStr)) {
+//                skill_assessment_rating = false;
+//            } else {
+//                skill_assessment_rating = true;
+//            }
+//            appendJoinTable=(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
+//        }
+//        //-------- /get the skill_assessment_rating config for current org ---------//
+//        
+//        //Need to DO refactor here
+//        //querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable,org)[0]);
+//        
+//        //if has min year or min raidus or min rating,need do filter for this
+//        if(min!=null&&!"0".equals(min)){
+//                if(type.equals("company")){
+//                         querySql.append("  AND EXTRACT(year from age(c.\"ts2__employment_end_date__c\",c.\"ts2__employment_start_date__c\"))>="+min);
+//                }else if(type.equals("education")){
+//                         querySql.append("  AND EXTRACT(year from age(now(),d.\"ts2__graduationdate__c\"))>="+min);
+//                }else if(type.equals("skill")){
+//                           if(skill_assessment_rating){
+//                                   querySql.append("  AND ass.\"ts2__rating__c\" >="+min);
+//                           }else{
+//                                   querySql.append("  AND b.\"ts2__rating__c\" >="+min);
+//                           }
+//                }else if(type.equals("location")){
+//                         querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))/1000<="+min);
+//                }
+//        }
+//        //add group by statement
+//        if(!"".equals(groupBy.toString())){
+//            querySql.append(groupBy);
+//        }
+//
+//        if(orderByCount){//order by count
+//            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
+//        }else{//order by name
+//            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
+//        }
+//        if(log.isDebugEnabled()){
+//            log.debug(querySql.toString());
+//        }
+//        Long start = System.currentTimeMillis();
+//        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
+//        List<Map> result =runner.executeQuery(querySql.toString(),values.toArray());
+//        runner.close();
+//        Long end = System.currentTimeMillis();
+//
+//        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
+//        queryLogger.debug(LoggerType.AUTO_PERF, end-start);
+//        SearchResult searchResult = new SearchResult(result, result.size());
+//        searchResult.setDuration(end - start);
+//        searchResult.setSelectDuration(searchResult.getDuration());
+//        return searchResult;
+//    }
     
     /**
      * boolean search handler for search box
@@ -328,51 +317,51 @@ public class SearchDao {
      * @return
      * @throws SQLException
      */
-    @Deprecated
-    public List getTopAdvancedType(Integer offset,Integer size,String type,String keyword,String min,Map org) throws SQLException {
-        if(size == null||size<8){
-            size = 7;
-        }
-        offset = offset < 0 ? 0 : offset;
-        Runner runner = datasourceManager.newOrgRunner((String)org.get("name"));
-        String name = getNameExpr(type);
-        String table = getTable(type,org);
-        StringBuilder querySql =new StringBuilder();
-        if("location".equals(type)){
-        	querySql.append("select city as name from jss_sys.zipcode_us  ");
-        	if(keyword!=null&&!"".equals(keyword)){
-            	querySql.append(" where city ilike '"+keyword+ (keyword.length()>2?"%":"")+"' ");
-            }
-    	    querySql.append(" group by city order by city offset ").append( offset)
-    	            .append( " limit ") 
-    	            .append( size); 
-        }else{
-            querySql.append(" select a.name, count(a.contact) from ( ")
-                    .append( " select e."+name+" as name, e.\"ts2__contact__c\" as contact ")
-                    .append( " from "+table+" e  ")
-                    .append( " where e."+name+" !='' ");
-            if(min!=null&&!"".equals(min)){
-            	if("company".equals(type)){
-            	    querySql.append(" AND EXTRACT(year from age(e.\"ts2__employment_end_date__c\",e.\"ts2__employment_start_date__c\"))>="+min);
-            	}else if("education".equals("type")){
-            		querySql.append(" AND EXTRACT(year from age(now(),e.\"ts2__graduationdate__c\"))>="+min);
-            	}else if("skill".equals("type")){
-            		querySql.append(" AND e.\"ts2__rating__c\" >=  "+min);
-            	}
-            }
-            if(keyword!=null&&!"".equals(keyword)){
-            	querySql.append(" AND e."+name+" ilike '"+keyword+(keyword.length()>2?"%":"")+ "' ");
-            }
-            querySql.append(" group by e.\"ts2__contact__c\", e."+name+") a  ").
-    				 append(" group by a.name order by a.name offset " ).
-                     append(offset).
-                     append(" limit ").
-                     append(size);
-        }
-        List<Map> result =runner.executeQuery(querySql.toString());
-        runner.close();
-        return result;
-    }
+//    @Deprecated
+//    public List getTopAdvancedType(Integer offset,Integer size,String type,String keyword,String min,Map org) throws SQLException {
+//        if(size == null||size<8){
+//            size = 7;
+//        }
+//        offset = offset < 0 ? 0 : offset;
+//        Runner runner = datasourceManager.newOrgRunner((String)org.get("name"));
+//        String name = getNameExpr(type);
+//        String table = getTable(type,org);
+//        StringBuilder querySql =new StringBuilder();
+//        if("location".equals(type)){
+//        	querySql.append("select city as name from jss_sys.zipcode_us  ");
+//        	if(keyword!=null&&!"".equals(keyword)){
+//            	querySql.append(" where city ilike '"+keyword+ (keyword.length()>2?"%":"")+"' ");
+//            }
+//    	    querySql.append(" group by city order by city offset ").append( offset)
+//    	            .append( " limit ") 
+//    	            .append( size); 
+//        }else{
+//            querySql.append(" select a.name, count(a.contact) from ( ")
+//                    .append( " select e."+name+" as name, e.\"ts2__contact__c\" as contact ")
+//                    .append( " from "+table+" e  ")
+//                    .append( " where e."+name+" !='' ");
+//            if(min!=null&&!"".equals(min)){
+//            	if("company".equals(type)){
+//            	    querySql.append(" AND EXTRACT(year from age(e.\"ts2__employment_end_date__c\",e.\"ts2__employment_start_date__c\"))>="+min);
+//            	}else if("education".equals("type")){
+//            		querySql.append(" AND EXTRACT(year from age(now(),e.\"ts2__graduationdate__c\"))>="+min);
+//            	}else if("skill".equals("type")){
+//            		querySql.append(" AND e.\"ts2__rating__c\" >=  "+min);
+//            	}
+//            }
+//            if(keyword!=null&&!"".equals(keyword)){
+//            	querySql.append(" AND e."+name+" ilike '"+keyword+(keyword.length()>2?"%":"")+ "' ");
+//            }
+//            querySql.append(" group by e.\"ts2__contact__c\", e."+name+") a  ").
+//    				 append(" group by a.name order by a.name offset " ).
+//                     append(offset).
+//                     append(" limit ").
+//                     append(size);
+//        }
+//        List<Map> result =runner.executeQuery(querySql.toString());
+//        runner.close();
+//        return result;
+//    }
 
     protected SearchResult executeSearch(SearchStatements statementAndValues,SearchRequest searchRequest,OrgContext org){
     	Runner runner = datasourceManager.newOrgRunner(org.getOrgMap().get("name").toString());
@@ -474,7 +463,7 @@ public class SearchDao {
         }else if(f.equals(FilterType.SKILL)){
             baseTable =  "jss_grouped_skills ";
         }else if(f.equals(FilterType.LOCATION)){
-            baseTable =  "jss_grouped_locations ";
+            baseTable =  "city_score ";
         }
         
         StringBuilder querySql;
@@ -487,14 +476,36 @@ public class SearchDao {
             querySql.append(" AND ("+ff.getColumn()+"||'')!='' ")
                     .append(" AND ("+ff.getColumn()+"||'')!='null' ")
                     .append(" AND "+ff.getColumn()).append(" is not null   group by "+ff.getColumn());
-            
         }else{
-             querySql = new StringBuilder(" select count,name,id as groupedid from " + baseTable + " where 1=1 ");
+            
+            String suffixColumn = "";
+            String groupedidColumn = ", a.id as groupedid ";
+            String countColumn = "a.count";
+            String nameColumn = ",a.name";
+            if(type.equals("location")){
+                suffixColumn = ", case when a.country = 'US' or a.country = 'CA' then a.region else a.country end as suffix, a.city_world_id as locationid ";
+                groupedidColumn = "";
+                countColumn = "a.score as count";
+                nameColumn = ", a.city as name";
+            }
+            querySql = new StringBuilder(" select "+countColumn+nameColumn+groupedidColumn+suffixColumn+" from " + baseTable +" a " + " where 1=1 ");
             if(queryString!=null&&queryString.trim().length()>0){
-                querySql.append(" AND name ilike '"+ queryString+"%'");
+                if(type.equals("location")){
+                    String[] values = queryString.split(",");
+                    String firstQuery = values[0].trim();
+                    if(values.length > 1){
+                        querySql.append(" AND a.region ilike '"+ values[1].trim()+"%'");
+                    }
+                    querySql.append(" AND (a.city ilike '"+ firstQuery+"%' OR a.region ilike '"+ firstQuery+"%' OR a.country ilike '"+ firstQuery+"%' )");
+                    
+                }else{
+                    querySql.append(" AND a.name ilike '"+ queryString+"%'");
+                }
+                
             }
         }
         querySql.append(" order by count desc limit 7 ");
+        
         
         Long start = System.currentTimeMillis();
         Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
@@ -807,12 +818,20 @@ public class SearchDao {
                                     + "on groupby_educations.jss_groupby_educations_id = d.id  "
                                     + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as educationgroupedids ";
     	}else if(orginalName.toLowerCase().equals("location")){
-    		columnJoinTables.add(getAdvancedJoinTable("location",org));
-    		 if(groupBy.length()>0){
-                 groupBy.append(",");
-             }
-             groupBy.append("z.\"city\"");
-    		return "  z.\"city\" as location ";
+//    		columnJoinTables.add(getAdvancedJoinTable("location",org));
+//    		 if(groupBy.length()>0){
+//                 groupBy.append(",");
+//             }
+//             groupBy.append("z.\"city\"");
+//    		return "  z.\"city\" as location ";
+    	    
+    	    if(groupBy.length()>0){
+                groupBy.append(",");
+    	    }
+    	    groupBy.append("a.\"ts2__latitude__c\", a.\"ts2__longitude__c\"");
+    	    String distanceColumn = "earth_distance(ll_to_earth(cw.latitude ,cw.longitude), ll_to_earth(a.ts2__latitude__c ,a.ts2__longitude__c)) / 1609.344";
+    	    return " (select name from (select cw.city as name, "+distanceColumn+" as distance from jss_sys.city_world cw "
+            + "where "+distanceColumn+" <= 10 and earth_box(ll_to_earth(a.ts2__latitude__c ,a.ts2__longitude__c), 10 * 1609.344) @> ll_to_earth(cw.latitude, cw.longitude)  order by distance limit 1 ) city) as location";
     	}
         
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
@@ -969,30 +988,30 @@ public class SearchDao {
         return new String[]{joinSql.toString(),countSql.toString(),prefixSql};
     }
     
-    /**
-     * get the table joined for auto complete by type
-     * @param type available value : company,education,skill and location
-     * @return
-     */
-    private String getAdvancedJoinTable(String type,OrgContext org){
-        StringBuilder joinSql = new StringBuilder();
-        String schemaname = (String)org.getOrgMap().get("schemaname");
-        
-        if(type.equals("company")){
-            joinSql.append( " left join  "+schemaname+".ts2__employment_history__c c ");
-            joinSql.append(" on a.\"sfid\" = c.\"ts2__contact__c\" and c.\"ts2__name__c\"!='' ");
-        }else if(type.equals("education")){
-            joinSql.append( " left join  "+schemaname+".ts2__education_history__c d " );
-            joinSql.append(" on a.\"sfid\" = d.\"ts2__contact__c\" and d.\"ts2__name__c\"!='' ");
-        }else if(type.equals("skill")){
-            joinSql.append( " left join  "+schemaname+".ts2__skill__c b " );
-            joinSql.append(" on a.\"sfid\" = b.\"ts2__contact__c\" and b.\"ts2__skill_name__c\"!='' ");
-        }else if(type.equals("location")){
-            joinSql.append(" left join jss_sys.zipcode_us z ");
-            joinSql.append(" on a.\"mailingpostalcode\" = z.\"zip\" ");
-        }
-        return joinSql.toString();
-    }
+//    /**
+//     * get the table joined for auto complete by type
+//     * @param type available value : company,education,skill and location
+//     * @return
+//     */
+//    private String getAdvancedJoinTable(String type,OrgContext org){
+//        StringBuilder joinSql = new StringBuilder();
+//        String schemaname = (String)org.getOrgMap().get("schemaname");
+//        
+//        if(type.equals("company")){
+//            joinSql.append( " left join  "+schemaname+".ts2__employment_history__c c ");
+//            joinSql.append(" on a.\"sfid\" = c.\"ts2__contact__c\" and c.\"ts2__name__c\"!='' ");
+//        }else if(type.equals("education")){
+//            joinSql.append( " left join  "+schemaname+".ts2__education_history__c d " );
+//            joinSql.append(" on a.\"sfid\" = d.\"ts2__contact__c\" and d.\"ts2__name__c\"!='' ");
+//        }else if(type.equals("skill")){
+//            joinSql.append( " left join  "+schemaname+".ts2__skill__c b " );
+//            joinSql.append(" on a.\"sfid\" = b.\"ts2__contact__c\" and b.\"ts2__skill_name__c\"!='' ");
+//        }else if(type.equals("location")){
+//            joinSql.append(" left join jss_sys.zipcode_us z ");
+//            joinSql.append(" on a.\"mailingpostalcode\" = z.\"zip\" ");
+//        }
+//        return joinSql.toString();
+//    }
     
     /**
      * handle the table joined for boolean search,mainly for contact table
@@ -1124,42 +1143,43 @@ public class SearchDao {
      * @param type
      * @return
      */
-    private String getNameExpr(String type){
-        StringBuilder sql = new StringBuilder();
-        if(type.equals("company")){
-            sql.append("\"ts2__name__c\"");
-        }else if(type.equals("education")){
-            sql.append("\"ts2__name__c\"");
-        }else if(type.equals("skill")){
-            sql.append("\"ts2__skill_name__c\"");
-        }else if(type.equals("location")){
-            sql.append("\"zip\"");
-        }
-        return sql.toString();
-    }
+//    private String getNameExpr(String type){
+//        StringBuilder sql = new StringBuilder();
+//        if(type.equals("company")){
+//            sql.append("\"ts2__name__c\"");
+//        }else if(type.equals("education")){
+//            sql.append("\"ts2__name__c\"");
+//        }else if(type.equals("skill")){
+//            sql.append("\"ts2__skill_name__c\"");
+//        }else if(type.equals("location")){
+//            sql.append("\"zip\"");
+//        }
+//        return sql.toString();
+//    }
     
     /**
      * Get the table name for type
      * @param type
      * @return
      */
-    private String getTable(String type,Map org){
-        String table = null;
-        String schemaname = (String)org.get("schemaname");
-        if(type.equals("company")){
-            table =  schemaname+".ts2__employment_history__c";
-        }else if(type.equals("education")){
-            table = schemaname+".ts2__education_history__c";
-        }else if(type.equals("skill")){
-            table = "ts2__skill__c";
-        }else if(type.equals("location")){
-        	table = "jss.zipcode_us";
-        }
-        if (table.equals("zipcode_us")) {
-            table = "jss_sys." + table;
-        }
-        return table;
-    }
+//    @Deprecated
+//    private String getTable(String type,Map org){
+//        String table = null;
+//        String schemaname = (String)org.get("schemaname");
+//        if(type.equals("company")){
+//            table =  schemaname+".ts2__employment_history__c";
+//        }else if(type.equals("education")){
+//            table = schemaname+".ts2__education_history__c";
+//        }else if(type.equals("skill")){
+//            table = "ts2__skill__c";
+//        }else if(type.equals("location")){
+//        	table = "jss.zipcode_us";
+//        }
+//        if (table.equals("zipcode_us")) {
+//            table = "jss_sys." + table;
+//        }
+//        return table;
+//    }
     
     private boolean hasExtraSearchColumn(SearchRequest searchRequest){
         return (searchRequest.getCustomFilters().keySet().size()>0);
@@ -1398,46 +1418,31 @@ public class SearchDao {
             StringBuilder conditions,String schemaname,
             SearchConfiguration sc,OrgContext org){
         boolean hasCondition = false;
-        Field f = sc.getContactField(ContactFieldType.MAILINGPOSTALCODE);
         if(locationValues!=null){
-            StringBuilder joinZip = new StringBuilder();
             StringBuilder joinCity = new StringBuilder();
             StringBuilder cities = new StringBuilder();
             JSONObject ol;
             Map<String,Double> citiesWithRadius = new HashMap<String,Double>();
             for (Object location : locationValues) {
                 ol = (JSONObject) location;
-                String name = (String) ol.get("name");
+                Integer locationid = (Integer) ol.get("locationid");
+                double minRadius = 10;
                 if(ol.containsKey("minRadius")){
-                    double minRadius = ol.getDouble("minRadius");
-                    citiesWithRadius.put(name, minRadius);
-                    cities.append("'"+name+"',");
-                    joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
-                }else{
-                    joinZip.append(" OR  z.\"city\"='").append(name).append("' ");
+                    minRadius = ol.getDouble("minRadius");
                 }
+                citiesWithRadius.put(locationid.toString(), minRadius);
+                cities.append(""+locationid+",");
             }
             
             if(cities.length()!=0){
                 Runner runner = datasourceManager.newSysRunner();
                 StringBuilder locationSqlBilder = new StringBuilder();
-                locationSqlBilder.append("select * from city_world where city in("+cities+"'#')");
-                Map orgMap = org.getOrgMap();
-                int orgId = 0;
-                if(orgMap.get("id") != null){
-                    orgId = Integer.parseInt(orgMap.get("id")+"");
-                }
-                String  locationMode = configManager.getConfig("location_mode", orgId);
-                if(locationMode != null){
-                	locationSqlBilder.append(" AND country = '" + locationMode+"' ");
-                }else{
-                	locationSqlBilder.append(" AND country = 'US' ");
-                }
+                locationSqlBilder.append("select * from city_world where id in("+cities.substring(0, cities.length() - 1)+")");
                 List<Map> c = runner.executeQuery(locationSqlBilder.toString());
                 for(Map city:c){//minLat,minLng,maxLat,maxLng
                     double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
                                                Double.valueOf(city.get("longitude").toString()),
-                                               citiesWithRadius.get(city.get("city"))*1000);
+                                               citiesWithRadius.get(city.get("id").toString()) * 1609);
                     joinCity.append(" OR (").append("contact.ts2__latitude__c>="+range[0])
                               .append(" AND contact.ts2__latitude__c<="+range[2])
                               .append(" AND contact.ts2__longitude__c>="+range[1])
@@ -1446,20 +1451,10 @@ public class SearchDao {
                 }
                 runner.close();
             }
-            if(joinZip.length()>0){
-            	if(joinCity.length()>0){
-                    locationSql.append(" left ");
-                }
-                locationSql.append(" join  jss_sys.zipcode_us z on (")
-                           .append(f.toString("contact")+" =z.\"zip\" AND (1!=1 ")
-                           .append(joinZip)
-                           .append(")) ");
-                conditions.append(" AND (1!=1 ").append(joinCity).append(" OR z.city is not null ").append(") ");
-            }else{
-                if(joinCity.length()>0){
-                    conditions.append(" AND (1!=1 ").append(joinCity).append(") ");
-                    locationSql.append(" ");
-                }
+            
+            if (joinCity.length() > 0) {
+                conditions.append(" AND (1!=1 ").append(joinCity).append(") ");
+                locationSql.append(" ");
             }
             hasCondition = true;
        }

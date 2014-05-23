@@ -51,21 +51,6 @@
 				      "type":"character varying(150)"
 				    }
                  ],
-   "jss_grouped_locations":
-                 [
-                    {
-				      "name":"id",
-				      "type":"serial NOT NULL"
-				    },
-				    {
-				      "name":"count",
-				      "type":"bigint"
-				    },
-				    {
-				      "name":"name",
-				      "type":"character varying(150)"
-				    }
-                 ],
    "jss_grouped_skills":
                  [
                     {

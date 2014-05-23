@@ -17,7 +17,7 @@
   </filter>   
 
   <filter name="location" title="Location" filtertype="location" show="false">
-     <field table="jss_grouped_locations" column="name" />
+     <field table="city_score" column="city" />
   </filter> 
   
   <contact table="contact" title="Contact">
@@ -29,6 +29,8 @@
      <field name="createddate" column="createddate"/>
      <field name="resume" column="ts2__text_resume__c"/>
      <field name="mailingpostalcode" column="mailingpostalcode"/>
+     <field name="ts2__latitude__c" column="ts2__latitude__c"/>
+     <field name="ts2__longitude__c" column="ts2__longitude__c"/>
   </contact>
   
 </searchconfig>
