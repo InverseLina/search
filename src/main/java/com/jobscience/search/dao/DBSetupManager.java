@@ -26,6 +26,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jasql.PQuery;
+import org.jasql.RSQLException;
 import org.jasql.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +94,7 @@ public class DBSetupManager {
                                               {"searchlog","jss_searchlog"},
                                               {"user","jss_user"},
                                               {"savedsearches","jss_savedsearches"}};
+    private String[] manyTomanyTable = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
     
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
@@ -103,7 +105,9 @@ public class DBSetupManager {
     
     private Map<String, Boolean> orgSetupStatus = new ConcurrentHashMap<String, Boolean>();
     private Map<String, Map<String,String>> orgSetupStatusMsg = new ConcurrentHashMap<String, Map<String,String>>();
-    private volatile ConcurrentMap<String,Map> orgGroupTableCountMap = new ConcurrentHashMap<String, Map>();
+    private volatile ConcurrentMap<String,Map<String,Integer>> orgGroupTableCountMap = new ConcurrentHashMap<String, Map<String,Integer>>();
+    private volatile ConcurrentMap<String,Map<String,Boolean>> orgGroupTableInsertStatusMap = new ConcurrentHashMap<String, Map<String,Boolean>>();
+    private volatile ConcurrentMap<String,Map<String,Integer>> orgGroupTableInsertScheduleMap = new ConcurrentHashMap<String, Map<String,Integer>>();
     
     private String DONE="done",RUNNING="running",NOTSTARTED="notstarted",ERROR="error",PART="part",
             INCOMPLETE="incomplete";
@@ -159,11 +163,8 @@ public class DBSetupManager {
         createExtraGroup(orgName, "educations");
         createExtraGroup(orgName, "employers");
         createExtraGroup(orgName, "locations");
-        renderManyToMany(orgName,"jss_contact_jss_groupby_skills");
-        renderManyToMany(orgName,"jss_contact_jss_groupby_educations");
-        renderManyToMany(orgName,"jss_contact_jss_groupby_employers");
         fixMissingColumns(orgName, false);
-        
+
         indexerManager.run(orgName,webPath);
         sfidManager.run(orgName,webPath);
         contactTsvManager.run(orgName,webPath);
@@ -171,10 +172,41 @@ public class DBSetupManager {
         createIndexColumns(orgName, true);
         createIndexColumns(orgName, false);
         removeWrongIndex(orgName);
+        Map<String,Boolean> GroupTableInsertStatus = orgGroupTableInsertStatusMap.get(orgName);
+        if(GroupTableInsertStatus != null && GroupTableInsertStatus.get("jss_contact_jss_groupby_skills") != null && !GroupTableInsertStatus.get("jss_contact_jss_groupby_skills")){
+            renderManyToMany(orgName,"jss_contact_jss_groupby_skills");
+        }
+        if(GroupTableInsertStatus != null && GroupTableInsertStatus.get("jss_contact_jss_groupby_educations") != null && !GroupTableInsertStatus.get("jss_contact_jss_groupby_educations")){
+            renderManyToMany(orgName,"jss_contact_jss_groupby_educations");
+        }
+        if(GroupTableInsertStatus != null && GroupTableInsertStatus.get("jss_contact_jss_groupby_employers") != null && !GroupTableInsertStatus.get("jss_contact_jss_groupby_employers")){
+            renderManyToMany(orgName,"jss_contact_jss_groupby_employers");
+        }
+        createPKOfmanyTManyTable(orgName);
         stopOrgSetup(orgName);
     }
    
-    private void renderManyToMany(String orgName,String table){
+    private Boolean renderManyToMany(String orgName,String table){
+    	Map<String,Boolean> groupTableStatus = orgGroupTableInsertStatusMap.get(orgName);
+    	if(groupTableStatus == null){
+    		groupTableStatus = getGroupTableStatusMap(orgName);
+        }else if(groupTableStatus.get(table)){
+        	return true;
+    	}
+    	Runner runner = datasourceManager.newOrgRunner(orgName);       
+        Map<String,Integer> insertSchedule = orgGroupTableInsertScheduleMap.get(orgName);
+        if(insertSchedule == null){
+        	insertSchedule = getGroupTableInsertStatusMap(orgName);
+        }
+        int offset = 1;
+        if(insertSchedule.get(table) != null){
+        	offset = insertSchedule.get(table);;
+        }
+        if(offset == 1){
+        	runner.execute("delete from "+table);
+        	dropPkOfmanyTomanyTable(orgName,table,table+"_pkey");
+        }
+        //get insert sql
     	File orgFolder = new File(getRootSqlFolderPath() + "/org");
         File[] sqlFiles = orgFolder.listFiles();
         String sqlString = "";
@@ -185,38 +217,58 @@ public class DBSetupManager {
                 break;
             }
         }
-        Map<String,Integer> groupTableCount = orgGroupTableCountMap.get(orgName);
-        if(groupTableCount==null){
-        	groupTableCount = getGroupTableCountMap(orgName);
+        int contactTotal = getDataCount("contact",runner);
+        if(insertSchedule.get(table) != null){
+        	offset = insertSchedule.get(table);;
         }
-        int total = groupTableCount.get(table);
-        int offset = 0;
-        sqlString = sqlString + " offset ? limit 10000 ;";
-        Runner runner = datasourceManager.newOrgRunner(orgName);
         try{
-			while (offset < total) {
-		        offset = getDataCount(table, runner);
-				if (offset < total) {
-					runner.execute(sqlString , offset);
+			while (offset < contactTotal) {
+				if(contactTotal - offset < 100){
+					runner.execute(sqlString , offset,contactTotal);
+					insertSchedule.put(table, contactTotal);
+					groupTableStatus.put(table, true);
 				}else{
-					break;
+					runner.execute(sqlString , offset,offset+99);
+					insertSchedule.put(table, offset);
 				}
+		        offset += 100;
 			}
+        }catch (RSQLException e){
+        	groupTableStatus.put(table, true);
         }finally{
         	runner.close();
         }
+        return true;
     }
     
     public void resetOrgSetup(String orgName) {
         dropIndexes(orgName);
-
+        dropAllPkOfmanyTomanyTable(orgName);
         StringBuilder sb = new StringBuilder();
         for (String[] tables : newTableNameChanges) {
             sb.append(",").append(tables[1]);
         }
-
+        for (String table : manyTomanyTable) {
+            sb.append(",").append(table);
+        }
         daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
                 "drop table if exists " + sb.delete(0, 1));
+        //reset status
+        if(orgGroupTableCountMap.get(orgName) != null){
+        	orgGroupTableCountMap.remove(orgName);
+        	Map<String, Integer> groupTableCountMap = getGroupTableCountMap(orgName);
+        	orgGroupTableCountMap.put(orgName,groupTableCountMap);
+        }
+        if(orgGroupTableInsertStatusMap.get(orgName) != null){
+        	orgGroupTableInsertStatusMap.remove(orgName);
+        	Map<String, Boolean> groupTableInsertStatusMap = getGroupTableStatusMap(orgName);
+        	orgGroupTableInsertStatusMap.put(orgName,groupTableInsertStatusMap);
+        }
+        if(orgGroupTableInsertScheduleMap.get(orgName) != null){
+        	orgGroupTableInsertScheduleMap.remove(orgName);
+        	Map<String, Integer> groupTableInsertScheduleMap = getGroupTableInsertStatusMap(orgName);
+        	orgGroupTableInsertScheduleMap.put(orgName,groupTableInsertScheduleMap);
+        }
     }
 
     public void stopOrgSetup(String orgName) {
@@ -338,20 +390,51 @@ public class DBSetupManager {
         if(groupTableCount == null){
         	groupTableCount = getGroupTableCountMap(orgName);
         }
+        Map<String,Boolean> groupedTableInsertStatus = orgGroupTableInsertStatusMap.get(orgName);
+        if(groupedTableInsertStatus==null){
+         	groupedTableInsertStatus = getGroupTableStatusMap(orgName);
+        }
+        if(groupTableCount.get("jss_contact_jss_groupby_skills")==0){
+        	groupTableCount = getGroupTableCountMap(orgName);
+        }
 		int totalSkilltablesCount = groupTableCount.get("jss_contact_jss_groupby_skills");
-		int SkilltablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_skills");
+		int SkilltablesCount = 0;
+		if(groupedTableInsertStatus.get("jss_contact_jss_groupby_skills") != null && groupedTableInsertStatus.get("jss_contact_jss_groupby_skills")){
+			 SkilltablesCount = totalSkilltablesCount;
+		}
+		if(SkilltablesCount==0){
+			 SkilltablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_skills");
+		}
 		setups.add(mapIt("name", "skill", "status",
 				totalSkilltablesCount > SkilltablesCount ? PART : DONE, "progress",
 				totalSkilltablesCount > SkilltablesCount ? new IndexerStatus(totalSkilltablesCount - (SkilltablesCount/1000)*1000, (SkilltablesCount/1000)*1000):new IndexerStatus(totalSkilltablesCount - SkilltablesCount, SkilltablesCount)));
 
+		if(groupTableCount.get("jss_contact_jss_groupby_educations")==0){
+        	groupTableCount = getGroupTableCountMap(orgName);
+        }
 		int totalEducationtablesCount = groupTableCount.get("jss_contact_jss_groupby_educations");
-		int EducationtablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_educations");
+		int EducationtablesCount = 0;
+		if(groupedTableInsertStatus.get("jss_contact_jss_groupby_educations") != null && groupedTableInsertStatus.get("jss_contact_jss_groupby_educations")){
+			EducationtablesCount = totalEducationtablesCount;
+		}
+        if(EducationtablesCount==0){
+			EducationtablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_educations");
+		}
 		setups.add(mapIt("name", "education", "status",
 				totalEducationtablesCount > EducationtablesCount ? PART : DONE, "progress",
 				totalEducationtablesCount > EducationtablesCount ? new IndexerStatus(totalEducationtablesCount - (EducationtablesCount/1000)*1000, (EducationtablesCount/1000)*1000): new IndexerStatus(totalEducationtablesCount - EducationtablesCount, EducationtablesCount)));
 
+		if(groupTableCount.get("jss_contact_jss_groupby_employers")==0){
+        	groupTableCount = getGroupTableCountMap(orgName);
+        }
 		int totalEmployertablesCount = groupTableCount.get("jss_contact_jss_groupby_employers");
-		int EmployertablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_employers");
+		int EmployertablesCount = 0;
+		if(groupedTableInsertStatus.get("jss_contact_jss_groupby_employers") != null && groupedTableInsertStatus.get("jss_contact_jss_groupby_employers")){
+			EmployertablesCount = totalEmployertablesCount;
+		}
+		if(EmployertablesCount==0){
+			EmployertablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_employers");
+		}
 		setups.add(mapIt("name", "employer", "status",
 				totalEmployertablesCount > EmployertablesCount ? PART : DONE, "progress",
 				totalEmployertablesCount > EmployertablesCount ? new IndexerStatus(totalEmployertablesCount - (EmployertablesCount/1000)*1000, (EmployertablesCount/1000)*1000):new IndexerStatus(totalEmployertablesCount - EmployertablesCount, EmployertablesCount)));
@@ -567,6 +650,10 @@ public class DBSetupManager {
                 if (isSystemSetupRunning()) {
                     status.put(statusKey, RUNNING);
                     Map runningMap = (Map) status.get(step);
+                    if(runningMap == null){
+                     	runningMap = new HashMap();
+                     	status.put(step, runningMap);
+                     }
                     runningMap.put(statusKey, RUNNING);
                 }
             }
@@ -727,7 +814,7 @@ public class DBSetupManager {
 	            JSONArray ja = indexsDef.get(m.get("tablename"));
 	            for (int i = 0; i < ja.size(); i++) {
 	                JSONObject jo = JSONObject.fromObject(ja.get(i));
-	                if(jo.get("name").equals(m.get("indexname"))){
+	                if(!jo.get("type").equals("pk")&&jo.get("name").equals(m.get("indexname"))){
 	                	if(!generateIndexDef(m.get("tablename").toString(), jo)
 	                			.replaceAll("\\s", "").equalsIgnoreCase(
 	                					m.get("indexdef").toString().replaceAll("\\s", ""))){
@@ -774,7 +861,9 @@ public class DBSetupManager {
                                 return false;
                             }
                             JSONObject jo = JSONObject.fromObject(ja.get(i));
-                            runner.executeUpdate(generateIndexSql(key, jo,orgName));
+                            if(!jo.get("type").equals("pk")){
+                                runner.executeUpdate(generateIndexSql(key, jo,orgName));
+                            }
                         }
                     }
                 }
@@ -792,6 +881,7 @@ public class DBSetupManager {
                         jo.accumulate("operator", "");
                         jo.accumulate("unique", "");
                         jo.accumulate("type", "btree");
+                        if(jo.get("name") != null)
                         runner.executeUpdate(generateIndexSql(ff.getTable(), jo,orgName));
                     }
                 }
@@ -824,7 +914,54 @@ public class DBSetupManager {
         }
         return result;
     }
+
+    /**
+     * create pk for jss_contact_jss_groupby_skills and jss_contact_jss_groupby_educations
+     *               and jss_contact_jss_groupby_employers
+     * 
+     * @param orgName
+     * @return
+     * @throws SQLException
+     */
+    public boolean createPKOfmanyTManyTable(String orgName) throws Exception {
+    	dropAllPkOfmanyTomanyTable(orgName);
+    	boolean result = true;
+    	Runner runner = datasourceManager.newOrgRunner(orgName);
+    	Map<String, JSONArray> m = getIndexMapFromJsonFile();
+    	try{
+    		for (String key : m.keySet()) {
+                    JSONArray ja = m.get(key);
+                    for (int i = 0; i < ja.size(); i++) {
+                        JSONObject jo = JSONObject.fromObject(ja.get(i));
+                        if(jo.get("type").equals("pk")){
+                        	
+                        	/******** set the current index ********/
+                            CurrentOrgSetupStatus coss = currentOrgSetupStatus.get(orgName);
+                            if(coss==null){
+                            	coss = new CurrentOrgSetupStatus();
+                            	currentOrgSetupStatus.put(orgName, coss);
+                            }
+                            coss.setCurrentIndex(jo.get("pkname").toString());
+                            /********  /set the current index ********/
+                            
+                            if(checkPkexist(orgName,jo.get("tablename").toString(),jo.get("pkname").toString())){
+                            	dropPkOfmanyTomanyTable(orgName,jo.get("tablename").toString(),jo.get("pkname").toString());
+    	                	}else{
+        	                	String sql = "ALTER TABLE "+jo.get("tablename")+" ADD CONSTRAINT "
+   	                			     +jo.get("pkname")+" PRIMARY KEY("
+   	                			     +jo.get("column")+")";
+        	                	runner.executeUpdate(sql);
+    	                	}
+    	                }
+                    }
+            }
+    	} finally {
+    		runner.close();
+    	}
+    	return result;
+    }
     
+   
     public String getWrongIndex(String orgName) {
         StringBuilder sql = new StringBuilder();
         sql.append("select string_agg(tablename||'.'||indexname,', ') as indexes from pg_indexes ")
@@ -1030,9 +1167,11 @@ public class DBSetupManager {
             JSONArray ja = indexesInfo.get(key);
             for (int i = 0; i < ja.size(); i++) {
                 JSONObject jo = JSONObject.fromObject(ja.get(i));
-                daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
-                        "drop index if exists " + jo.getString("name"));
-                indexesCount++;
+                if(!jo.get("type").equals("pk")){
+                    daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
+                            "drop index if exists " + jo.getString("name"));
+                    indexesCount++;
+                }
             }
         }
 
@@ -1049,6 +1188,64 @@ public class DBSetupManager {
         
         currentOrgSetupStatus.remove(orgName);
         return indexesCount;
+    }
+
+    /**
+     * drop the pk of manyTomanyTable by jss
+     * 
+     * @param orgName
+     */
+    public void dropAllPkOfmanyTomanyTable(String orgName) {
+    	Map<String, JSONArray> m = getIndexMapFromJsonFile();
+		for (String key : m.keySet()) {
+                JSONArray ja = m.get(key);
+                for (int i = 0; i < ja.size(); i++) {
+                    JSONObject jo = JSONObject.fromObject(ja.get(i));
+                    if(jo.get("type").equals("pk")){
+                    	 dropPkOfmanyTomanyTable(orgName,jo.get("tablename").toString(),jo.get("pkname").toString());
+	                }
+                }
+        }
+    }
+    
+    /**
+     * drop the pk of manyTomanyTable
+     * 
+     * @param orgName
+     */
+    public void dropPkOfmanyTomanyTable(String orgName,String table,String pk) {
+    	Runner runner = datasourceManager.newOrgRunner(orgName);
+    	Map<String, JSONArray> m = getIndexMapFromJsonFile();
+    	try{
+    		for (String key : m.keySet()) {
+                    JSONArray ja = m.get(key);
+                    for (int i = 0; i < ja.size(); i++) {
+                        JSONObject jo = JSONObject.fromObject(ja.get(i));
+                        if(jo.get("type").equals("pk")){
+                        	if(checkTableExist(orgName, jo.get("tablename").toString())){
+        	                	String sql = "ALTER TABLE "+table+" DROP CONSTRAINT IF EXISTS "
+   	                			     +pk+";";
+   	                	        runner.executeUpdate(sql);
+                        	}
+    	                }
+                    }
+            }
+    	} finally {
+    		runner.close();
+    	}
+    }
+    
+    public boolean checkTableExist(String orgName,String table){
+    	String sql = "SELECT *  FROM information_schema.tables WHERE table_schema = '"
+    	             +orgName+"' AND "
+    	             +" table_name = '"
+    	             +table+"';";
+    	List<Map> results = daoHelper.executeQuery(orgName, sql);
+    	if(results.size()==1){
+    		return true;
+    	}else{
+    		return false;
+    	}
     }
     // ---------- /public methods ----------//
     
@@ -1229,7 +1426,18 @@ public class DBSetupManager {
                 }
             }
         }
-       
+       //check the primarykey in manyTomanyTable
+		for (String key : indexsDef.keySet()) {
+                JSONArray ja = indexsDef.get(key);
+                for (int i = 0; i < ja.size(); i++) {
+                    JSONObject jo = JSONObject.fromObject(ja.get(i));
+                    if(jo.get("type").equals("pk")){
+                    	if(checkPkexist(orgName,jo.get("tablename").toString(),jo.get("pkname").toString())){
+	                		count++;
+	                	}
+	                }
+                }
+        }
         return count;
     }
 
@@ -1650,6 +1858,21 @@ public class DBSetupManager {
         return columnsStringMap;
     }
 
+    private Map<String, Boolean> getGroupTableStatusMap(String orgName){
+    	if(orgGroupTableInsertStatusMap.get(orgName)!=null)
+    	   orgGroupTableInsertStatusMap.remove(orgName);
+    	String[] tables = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
+    	Map<String, Boolean> groupTableInsertStatusMap = new HashMap<String, Boolean>();
+    	for(String table:tables){
+    		/*if(checkPkexist(orgName,table,table+"_pkey")){
+    			groupTableInsertStatusMap.put(table, true);
+        	}*/
+    		groupTableInsertStatusMap.put(table, false);
+    	}
+    	orgGroupTableInsertStatusMap.put(orgName, groupTableInsertStatusMap);
+    	return groupTableInsertStatusMap;
+    }
+    
     private Map<String, Integer> getGroupTableCountMap(String orgName){
     	if(orgGroupTableCountMap.get(orgName)!=null)
     		orgGroupTableCountMap.remove(orgName);
@@ -1661,6 +1884,19 @@ public class DBSetupManager {
     	}
     	orgGroupTableCountMap.put(orgName, groupTableCountMap);
     	return groupTableCountMap;
+    }
+
+    private Map<String, Integer> getGroupTableInsertStatusMap(String orgName){
+    	if(orgGroupTableInsertScheduleMap.get(orgName)!=null){
+    		return orgGroupTableInsertScheduleMap.get(orgName);
+    	}
+    	String[] tables = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
+    	Map<String, Integer> groupTableInsertScheduleMap = new HashMap<String, Integer>();
+    	for(String table:tables){
+    		groupTableInsertScheduleMap.put(table, 0);
+    	}
+    	orgGroupTableInsertScheduleMap.put(orgName, groupTableInsertScheduleMap);
+    	return groupTableInsertScheduleMap;
     }
     
     private int getGroupTableCount(String orgName,String table){
@@ -1674,8 +1910,13 @@ public class DBSetupManager {
                 break;
             }
         }
-       	List<Map> results = daoHelper.executeQuery(orgName, sqlString);
-       	long count= (Long)results.get(0).get("count");
+        long count = 0;
+        try{
+           	List<Map> results = daoHelper.executeQuery(orgName, sqlString);
+           	count= (Long)results.get(0).get("count");
+        } catch (Exception e){
+        	
+        } 
         return (int)count;
     }
     
@@ -1794,7 +2035,7 @@ public class DBSetupManager {
         Map<String,JSONArray> m = loadJsonFile("triggers.json","sql/org");
         StringBuilder sb = new StringBuilder();
         for(String key:m.keySet()){
-            sb.append(",'").append(key).append("'");
+        	sb.append(",'").append(key).append("'");
         }
         if(sb.length()==0){
             return true;
@@ -1823,6 +2064,19 @@ public class DBSetupManager {
         }
         valid = true;
         return valid;
+    }
+    
+    private boolean checkPkexist(String orgName,String table,String pkName){
+    	String querySql = "select count(*) as count from information_schema.table_constraints a "
+                +"where a.constraint_type = 'PRIMARY KEY' and a.table_name = '"
+		          +table+"' and a.constraint_name = '"
+                +pkName+"';";
+		List<Map> lists = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),querySql);
+		if(Integer.parseInt(lists.get(0).get("count")+"")==1){
+			return true;
+		}else{
+			return false;
+		}
     }
     
     class CurrentOrgSetupStatus{

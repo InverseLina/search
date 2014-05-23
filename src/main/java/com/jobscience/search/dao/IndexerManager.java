@@ -50,9 +50,7 @@ public class IndexerManager {
 	                if(insertSql.endsWith(";")){
 	                	insertSql=insertSql.substring(0,insertSql.length()-1);
 	                }
-	                if(getJssContactCount(orgName)==getContactsCount(orgName)){//should do update
-	                	updateSql = temp.toString().split("-- SCRIPTS")[2].trim();
-	                }
+	                updateSql = temp.toString().split("-- SCRIPTS")[2].trim();
 	        	}
 	        }
 	    }catch (Exception e) {
@@ -67,6 +65,9 @@ public class IndexerManager {
 	    try{
 		    while(getJssContactCount(orgName)!=getContactsCount(orgName)&&on){//insert
 		        pq.executeUpdate(new Object[]{1000});
+		        if(getContactExCount(orgName) < getContactsCount(orgName)){
+		        	updatePq.executeUpdate();
+		        }
 		    }
 		    indexerStatus = getStatus(orgName, false);
 		    while(indexerStatus.getRemaining()>0&&on){//update

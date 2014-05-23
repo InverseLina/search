@@ -170,5 +170,35 @@
                 "operator":"",
                 "unique":""
                }
-              ]                                 
+              ],
+"jss_contact_jss_groupby_skills":[
+             {
+                "tablename":"jss_contact_jss_groupby_skills",
+                "pkname":"jss_contact_jss_groupby_skills_pkey",
+                "type":"pk",
+                "column":"jss_groupby_skills_id,jss_contact_id",
+                "operator":"",
+                "unique":""
+              }
+             ],
+ "jss_contact_jss_groupby_educations":[
+              {
+                "tablename":"jss_contact_jss_groupby_educations",
+                "pkname":"jss_contact_jss_groupby_educations_pkey",
+                "type":"pk",
+                "column":"jss_groupby_educations_id,jss_contact_id",
+                "operator":"",
+                "unique":""
+              }
+             ],
+  "jss_contact_jss_groupby_employers":[
+               {
+                "tablename":"jss_contact_jss_groupby_employers",
+                "pkname":"jss_contact_jss_groupby_employers_pkey",
+                "type":"pk",
+                "column":"jss_groupby_employers_id,jss_contact_id",
+                "operator":"",
+                "unique":""
+              }
+             ]                                           
 }

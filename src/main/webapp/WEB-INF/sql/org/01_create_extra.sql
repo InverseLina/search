@@ -223,16 +223,14 @@ CREATE TABLE if not exists jss_contact_jss_groupby_skills
   id serial NOT NULL,
   jss_groupby_skills_id bigint NOT NULL,
   jss_contact_id bigint NOT NULL,
-  rating double precision,
-  CONSTRAINT jss_contact_jss_groupby_skills_pkey PRIMARY KEY (jss_groupby_skills_id,jss_contact_id)
+  rating double precision
 );
 -- SCRIPTS
 CREATE TABLE if not exists jss_contact_jss_groupby_educations
 (
   id serial NOT NULL,
   jss_groupby_educations_id bigint NOT NULL,
-  jss_contact_id bigint NOT NULL,
-  CONSTRAINT jss_contact_jss_groupby_educations_pkey PRIMARY KEY (jss_groupby_educations_id,jss_contact_id)
+  jss_contact_id bigint NOT NULL
 );
 -- SCRIPTS
 CREATE TABLE if not exists jss_contact_jss_groupby_employers
@@ -240,11 +238,8 @@ CREATE TABLE if not exists jss_contact_jss_groupby_employers
   id serial NOT NULL,
   jss_groupby_employers_id bigint NOT NULL,
   jss_contact_id bigint NOT NULL,
-  year double precision,
-  CONSTRAINT jss_contact_jss_groupby_employers_pkey PRIMARY KEY (jss_groupby_employers_id,jss_contact_id)
+  year double precision
 );
-
-
 
 
 -- SCRIPTS
