@@ -223,10 +223,13 @@ public class DBSetupManager {
         }
         int contactTotal = getDataCount("contact",runner);
         if(insertSchedule.get(table) != null){
-        	offset = insertSchedule.get(table);;
+        	offset = insertSchedule.get(table);
         }
         try{
 			while (offset < contactTotal) {
+				/*if (!orgSetupStatus.get(orgName).booleanValue()) {
+					return false;
+				}*/
 				if(contactTotal - offset < 100){
 					runner.execute(sqlString , offset,contactTotal);
 					insertSchedule.put(table, contactTotal);
@@ -336,6 +339,17 @@ public class DBSetupManager {
             totalStatus = PART;
         }
         setups.add(mapIt("pgtrgm", this.checkExtension("pg_trgm") > 0 ? DONE : NOTSTARTED));
+        IndexerStatus cityscoreStatus = checkCityScoreStatus(orgName);
+        String csStatus = "notstarted";
+        if(cityscoreStatus.getPerform() == -1){
+        	setups.add(mapIt("name", "cityscore", "status", csStatus, "progress", 0));
+        }else{
+        	setups.add(mapIt("name", "cityscore", "status", cityscoreStatus.getRemaining() > 0 ? PART : DONE, "progress", cityscoreStatus));
+        }
+        setups.add(mapIt("name", "tsv", "status", csStatus, "progress", cityscoreStatus));
+        if (cityscoreStatus.getRemaining() > 0 && totalStatus.equals(DONE)) {
+            totalStatus = PART;
+        }
         if (missingTables.indexOf("jss_contact") == -1) {
             if (checkColumn("contact_tsv", "jss_contact", schemaname)) {
                 IndexerStatus tsvIs = contactTsvManager.getStatus(orgName, false);
@@ -1313,8 +1327,8 @@ public class DBSetupManager {
     }
     
     public boolean checkTableExist(String orgName,String table){
-    	String sql = "SELECT *  FROM information_schema.tables WHERE table_schema = '"
-    	             +orgName+"' AND "
+    	String sql = "SELECT *  FROM information_schema.tables WHERE table_schema = current_schema"
+    	             +" AND "
     	             +" table_name = '"
     	             +table+"';";
     	List<Map> results = daoHelper.executeQuery(orgName, sql);
@@ -1646,27 +1660,49 @@ public class DBSetupManager {
 	private boolean createExtraGroupCity(String orgName, String tableName){
         boolean result = true;
         Runner runner = datasourceManager.newOrgRunner(orgName);
-        File orgFolder = new File(getRootSqlFolderPath() + "/org");
-        File[] sqlFiles = orgFolder.listFiles();
-        List<String> subSqlList = null;
-        for (File file : sqlFiles) {
-            if (file.getName().startsWith("09_")) {
-                subSqlList = loadSQLFile(file);
-            }
-        }
         try{
-            runner.executeUpdate(subSqlList.get(0));
-            runner.executeUpdate(subSqlList.get(1));
-            runner.executeUpdate(subSqlList.get(2));
-            //FIXME: need to split
-//            int total = runner.executeCount(subSqlList.get(3));
-//            int offset;
-//            for(offset = 0; offset < total; ){
-//                runner.executeUpdate(subSqlList.get(4),offset,offset+10000);
-//                offset+=10000;
-//            }
-            runner.executeUpdate(subSqlList.get(4));
-            runner.executeUpdate(subSqlList.get(5));
+        	if (!orgSetupStatus.get(orgName).booleanValue()) {
+				return false;
+			}
+        	// when the data already has been updated
+        	IndexerStatus status = checkCityScoreStatus(orgName);
+			if (status.getPerform() != -1 && status.getRemaining() == 0 ) {
+				return true;
+			}
+	        File orgFolder = new File(getRootSqlFolderPath() + "/org");
+	        File[] sqlFiles = orgFolder.listFiles();
+	        List<String> subSqlList = null;
+	        for (File file : sqlFiles) {
+	            if (file.getName().startsWith("09_")) {
+	                subSqlList = loadSQLFile(file);
+	            }
+	        }
+	        if(!checkTableExist(orgName,"city_score")){
+		        runner.executeUpdate(subSqlList.get(0));
+	        }
+	        if(getDataCount("city_score",datasourceManager.newOrgRunner(orgName)) == 0){
+		        runner.executeUpdate(subSqlList.get(1));
+	        }
+	        if(!checkIndexexist(orgName,"contact_earth_distance_idx")){
+	            runner.executeUpdate(subSqlList.get(2));
+	        }
+	        if(!checkIndexexist(orgName,"city_score_earth_distance_idx")){
+	            runner.executeUpdate(subSqlList.get(3));
+	        }
+	        //FIXME: need to split
+	        int total = runner.executeCount(subSqlList.get(4));
+	        int offset = 1;
+	        if(status.getPerform() > 0){
+	        	offset += status.getPerform();
+	        }
+	        for(; offset < total; ){
+	        	if (!orgSetupStatus.get(orgName).booleanValue()) {
+					return false;
+				}
+	            runner.executeUpdate(subSqlList.get(5),offset,offset+9999);
+	            offset+=10000;
+	        }
+	        runner.executeUpdate(subSqlList.get(6));
         }catch (Exception e) {
             log.error(e.getMessage());
         } finally {
@@ -1908,6 +1944,27 @@ public class DBSetupManager {
         return 0;
     }
 
+    /**
+     * check the city_score table status
+     * 
+     * @return
+     */
+    private IndexerStatus checkCityScoreStatus(String orgName){
+    	if(!checkTableExist(orgName,"city_score")){
+    		return new IndexerStatus(0,-1);
+    	}
+    	int total = 0;
+    	int  perform = 0;
+    	Runner runner = datasourceManager.newOrgRunner(orgName);
+    	try{
+        	total = runner.executeCount("select count(*) as count from city_score;");
+        	perform = runner.executeCount("select count(*) as count from city_score where city_score.score is not null;");
+    	}finally{
+    		runner.close();
+    	}
+    	return new IndexerStatus(total-perform,perform);
+    }
+    
     private void fixJssTableNames(String orgName) {
         Runner runner = datasourceManager.newOrgRunner(orgName);
         runner.startTransaction();
@@ -2208,6 +2265,19 @@ public class DBSetupManager {
                 +"where a.constraint_type = 'PRIMARY KEY' and a.table_name = '"
 		          +table+"' and a.constraint_name = '"
                 +pkName+"';";
+		List<Map> lists = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),querySql);
+		if(Integer.parseInt(lists.get(0).get("count")+"")==1){
+			return true;
+		}else{
+			return false;
+		}
+    }
+    
+    private boolean checkIndexexist(String orgName,String indexName){
+    	String querySql = "SELECT count(*) as count FROM   pg_class c "
+                         +"JOIN   pg_namespace n ON n.oid = c.relnamespace "
+                         +"WHERE  c.relname = '"+indexName+"' "
+                         +"AND    n.nspname = current_schema";
 		List<Map> lists = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),querySql);
 		if(Integer.parseInt(lists.get(0).get("count")+"")==1){
 			return true;
