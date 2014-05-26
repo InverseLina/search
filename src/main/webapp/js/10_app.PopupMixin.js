@@ -55,7 +55,8 @@ var app = app || {};
 				}
 				if (view.$el.find(".sliderBarContainer").length > 0) {
 					var opts = {
-						max : 20
+						max : 20,
+						minLabel: "-"
 					};
 					if (view.type === "location") {
 						opts.max = 100;
