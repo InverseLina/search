@@ -187,6 +187,8 @@
 		}else{
 			view.contentView.dataGridView.showContentMessage("empty");
 			view.$el.trigger("CHECK_CLEAR_BTN");
+			app.currentDeferred = $.Deferred();
+			app.currentDeferred.resolve({});
 		}
 
 	}
@@ -231,6 +233,8 @@
 		brite.display("ContentView", this.$el.find(".contentview-ctn")).done(function(contentView) {
 			view.contentView = contentView;
 			view.$el.find(".clear-all").prop("disabled", true);
+			app.currentDeferred = $.Deferred();
+			app.currentDeferred.resolve({});
 		});
 	}
 
