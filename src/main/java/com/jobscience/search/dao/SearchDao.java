@@ -58,7 +58,7 @@ public class SearchDao {
     CurrentRequestContextHolder crch;  
    
     private static Pattern pattern = Pattern.compile("\\srows=(\\d*)\\s",Pattern.CASE_INSENSITIVE);
-
+    private static int COUNT_TIMEOUT = 1000;//ms
     /**
      * @param searchColumns
      * @param searchValues
@@ -384,26 +384,8 @@ public class SearchDao {
     			count = searchRequest.getOffest()+result.size();
     			exactCount = true;
     		}else{
-    			if(searchRequest.isEstimateSearch()){
-        			//only this page is not the last page,we do calculating count
-    	    		/********** Get the estimate count **********/
-    	    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
-    						 									+" select  distinct(a.id)  "
-    						 									+statementAndValues.countSql,
-    						 									statementAndValues.values);
-    	    		if(explainPlans.size()>0){
-    	    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
-    	    			exactCount = false;
-    	    		}else{
-    	    			count = 0;
-    	    		}
-    	    		/********** /Get the estimate count **********/
-    	    		count = RoundCount(count);
-    	    		if(count < searchRequest.getOffest()+result.size()){
-    	    		    count = searchRequest.getOffest()+result.size();
-    	    		}
-    			}else{
-    	    		/********** Get the exact count **********/
+    			if(!searchRequest.isEstimateSearch()){
+    				/********** Get the exact count **********/
 	    			try{
 	    				int exact= runner.executeCount(statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
@@ -414,7 +396,37 @@ public class SearchDao {
 	    				log.debug("The count search timeout,use the estimate count");
 	    			}
     	    		/********** /Get the exact count **********/
-    			}
+    			}else{
+	    			/********** Get the exact count **********/
+	    			try{
+	    				runner.executeUpdate("SET statement_timeout TO "+COUNT_TIMEOUT+";");
+	    				int exact= runner.executeCount(statementAndValues.cteSql
+								+" select  count(distinct a.id) as count  "
+								+statementAndValues.countSql);
+	    				count = exact;
+	    			}catch(Exception e){
+	    				try{
+	    					log.debug("The count search timeout,use the estimate count");
+		    				/********** Get the estimate count **********/
+		    	    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
+		    						 									+" select  distinct(a.id)  "
+		    						 									+statementAndValues.countSql,
+		    						 									statementAndValues.values);
+		    	    		if(explainPlans.size()>0){
+		    	    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
+		    	    			exactCount = false;
+		    	    		}else{
+		    	    			count = 0;
+		    	    		}
+		    	    		/********** /Get the estimate count **********/
+	    				}catch(Exception ex){
+		    				log.debug("The estimate count search timeout");
+	    				}
+	    			}
+		    		/********** /Get the exact count **********/
+    				exactCount = false;
+    	    		count = RoundCount(count);
+	    		}
     		}
     		long end = System.currentTimeMillis();
     		searchResult = new SearchResult(result, count)
