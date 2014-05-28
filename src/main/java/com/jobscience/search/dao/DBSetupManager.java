@@ -2051,10 +2051,11 @@ public class DBSetupManager {
     	String[] tables = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
     	Map<String, Boolean> groupTableInsertStatusMap = new HashMap<String, Boolean>();
     	for(String table:tables){
-    		/*if(checkPkexist(orgName,table,table+"_pkey")){
+    		if(checkPkexist(orgName,table,table+"_pkey")){
     			groupTableInsertStatusMap.put(table, true);
-        	}*/
-    		groupTableInsertStatusMap.put(table, false);
+        	}else{
+        		groupTableInsertStatusMap.put(table, false);
+        	}
     	}
     	orgGroupTableInsertStatusMap.put(orgName, groupTableInsertStatusMap);
     	return groupTableInsertStatusMap;
