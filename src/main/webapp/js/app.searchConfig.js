@@ -110,16 +110,7 @@ var app = app || {};
 			return render("search-query-generic-render-header", filterInfo);
 		},
 		filterRenderer : function($content, headerInfo) {
-
-			var type = headerInfo.attr("data-column");
-			var data = app.ParamsControl.getFilterParams()[type] || [];
-			var filterInfo = app.getSearchFilter(type);
-			brite.display("GenericFilterView", $content, {
-				data : data,
-				th : headerInfo,
-				filterInfo : filterInfo
-			});
-			// for example
+			//do nothing for now
 		},
 		cellRenderer : function(cellInfo) {
 			return render("search-query-generic-render-cell", cellInfo);
