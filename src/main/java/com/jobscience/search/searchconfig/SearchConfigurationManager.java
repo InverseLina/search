@@ -362,9 +362,6 @@ public class SearchConfigurationManager {
                                if(!checkAttribute(keywordField, "table")){
                                    errorMsg = "Missing table attribute for keyword field";
                                }
-                               if("contactInfoTsv".equals(val)){
-                                   contactTsv = true;
-                               }
                                if("contactResumeTsv".equals(val)){
                                    resumeTsv = true;
                                }
@@ -372,8 +369,6 @@ public class SearchConfigurationManager {
                         }
                         if(!contactTsv&&!resumeTsv){
                             errorMsg="Missing contactInfoTsv and contactResumeTsv keyword field.";
-                        }else if(!contactTsv){
-                            errorMsg="Missing contactInfoTsv keyword field.";
                         }else if(!resumeTsv){
                             errorMsg="Missing contactResumeTsv keyword field.";
                         }
