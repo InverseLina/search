@@ -64,9 +64,8 @@
 				var $desc = $(".desc", $th);
 				var $asc = $(".asc", $th);
 				var column = $th.attr("data-column");
-				var bPagination = view.$el.bComponent("SearchDataGrid");
-				var pageIdx = bPagination.pageIdx || 1;
-				var pageSize = bPagination.pageSize || 30;
+				var pageIdx = view.pageIdx || 1;
+				var pageSize = view.pageSize || 30;
 				if (column === "company" || column === "skill" || column === "education" || column === "resume") {
 					return false;
 				}
@@ -407,6 +406,10 @@
 
 		// --------- Document Events--------- //
 		docEvents : {
+			"PAGE_SIZE_CHANGE" : function(event, pageSize) {
+				var view = this;
+				view.pageSize = pageSize;
+			},
 			"ADD_FILTER" : function(event, extra) {
 				var view = this;
 				app.ParamsControl.save(extra);

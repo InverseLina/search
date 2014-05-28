@@ -426,6 +426,9 @@ public class SearchDao {
 		    		/********** /Get the exact count **********/
     				exactCount = false;
     	    		count = RoundCount(count);
+                    if (count < searchRequest.getPageIndex() * searchRequest.getPageSize()) {
+                        count = searchRequest.getPageIndex() * searchRequest.getPageSize();
+                    }
 	    		}
     		}
     		long end = System.currentTimeMillis();

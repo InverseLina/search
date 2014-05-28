@@ -75,7 +75,7 @@
 					page.pageSize = pageSize;
 				}
 				setSelectValue.call(view, page.pageSize);
-				
+				$e.trigger("PAGE_SIZE_CHANGE", page.pageSize);
 				view.page.callback(1, view.page.pageSize);
 			},
 			"click; .pageSelect" : function(event) {
