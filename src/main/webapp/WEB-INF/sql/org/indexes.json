@@ -177,7 +177,21 @@
                 "column":"jss_groupby_skills_id,jss_contact_id",
                 "operator":"",
                 "unique":""
-              }
+              },
+              {
+                "name":"jss_contact_jss_groupby_skills_idx_skills_id",
+                "type":"btree",
+                "column":"jss_groupby_skills_id",
+                "operator":"",
+                "unique":""
+               },
+              {
+                "name":"jss_contact_jss_groupby_skills_idx_contact_id",
+                "type":"btree",
+                "column":"jss_contact_id",
+                "operator":"",
+                "unique":""
+               }
              ],
  "jss_contact_jss_groupby_educations":[
               {
@@ -187,7 +201,21 @@
                 "column":"jss_groupby_educations_id,jss_contact_id",
                 "operator":"",
                 "unique":""
-              }
+              },
+              {
+                "name":"jss_contact_jss_groupby_educations_idx_educations_id",
+                "type":"btree",
+                "column":"jss_groupby_educations_id",
+                "operator":"",
+                "unique":""
+               },
+              {
+                "name":"jss_contact_jss_groupby_educations_idx_contact_id",
+                "type":"btree",
+                "column":"jss_contact_id",
+                "operator":"",
+                "unique":""
+               }
              ],
   "jss_contact_jss_groupby_employers":[
                {
@@ -197,6 +225,20 @@
                 "column":"jss_groupby_employers_id,jss_contact_id",
                 "operator":"",
                 "unique":""
-              }
+              },
+              {
+                "name":"jss_contact_jss_groupby_employers_idx_employers_id",
+                "type":"btree",
+                "column":"jss_groupby_employers_id",
+                "operator":"",
+                "unique":""
+               },
+              {
+                "name":"jss_contact_jss_groupby_employers_idx_contact_id",
+                "type":"btree",
+                "column":"jss_contact_id",
+                "operator":"",
+                "unique":""
+               }
              ]                                           
 }

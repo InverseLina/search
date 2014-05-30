@@ -1510,7 +1510,7 @@ public class DBSetupManager {
             JSONArray ja = indexsDef.get(m.get("tablename"));
             for (int i = 0; i < ja.size(); i++) {
                 JSONObject jo = JSONObject.fromObject(ja.get(i));
-                if(jo.get("name").equals(m.get("indexname"))){
+                if(!jo.get("type").equals("pk") && jo.get("name").equals(m.get("indexname"))){
                 	if(generateIndexDef(m.get("tablename").toString(), jo)
                 			.replaceAll("\\s", "").equalsIgnoreCase(
                 					m.get("indexdef").toString().replaceAll("\\s", ""))){
