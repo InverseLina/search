@@ -71,9 +71,14 @@
 		}
 
 		var $label = $e.find(".EstimateBar-label");
-		$label.text(label);
-		$label.css("marginLeft", "-" + $label.width() / 2 + "px"); 
-		$label.css("left", left + "%");
+		if(parseInt(count) == -1){
+			$label.text("");
+			$label.append("<i class=\"glyphicon glyphicon-warning-sign\"  title=\"Cannot get count at this time\"></i>");
+		}else{
+			$label.text(label);
+			$label.css("marginLeft", "-" + $label.width() / 2 + "px"); 
+			$label.css("left", left + "%");
+		}
 	}
 	
 	

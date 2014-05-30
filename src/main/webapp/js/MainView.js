@@ -159,7 +159,8 @@
 		if(!app.ParamsControl.isEmptySearch()){
 			$e.trigger("DO_ESTIMATE_BAR_WAITING");
 			var searchParameter = app.ParamsControl.getParamsForSearch({
-				search : search
+				search : search,
+				searchModeChange : opts.searchModeChange
 			});
 			var searchKey = app.ParamsControl.getQuery();
 			var filters = app.ParamsControl.getFilterParams();
@@ -206,6 +207,9 @@
 			view.$el.trigger("CHECK_CLEAR_BTN");
 			result.searchModeChange = searchModeChange;
 			view.$el.trigger("SEARCH_RESULT_CHANGE", result);
+			if(result.count < 0 && !searchModeChange){
+				view.$el.trigger("SEARCHMODE_DOSEARCH",new Boolean(true));
+			}
 		}).fail(function(result){
 			if(this !== app.currentDeferred){
 				return ;

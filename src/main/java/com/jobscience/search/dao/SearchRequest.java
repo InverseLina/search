@@ -24,6 +24,7 @@ public class SearchRequest {
     private String searchValues;
     private boolean isOnlyKeyWord = true;
     private boolean estimateSearch = true;
+    private boolean searchModeChange = false;
     
     public SearchRequest(Map searchParams){
         
@@ -81,6 +82,13 @@ public class SearchRequest {
         		estimateSearch = false;
         	}else{
         		estimateSearch = true;
+        	}
+        }
+        if(searchParams.get("searchModeChange")  != null){
+        	if(searchParams.get("searchModeChange").toString().toLowerCase().equals("true")){
+        		searchModeChange = true;
+        	}else{
+        		searchModeChange = false;
         	}
         }
         
@@ -211,6 +219,10 @@ public class SearchRequest {
     
     public boolean isEstimateSearch() {
 		return estimateSearch;
+	}
+    
+    public boolean searchModeChange() {
+		return searchModeChange;
 	}
 
 	public String toString(){

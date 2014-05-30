@@ -58,7 +58,8 @@ public class SearchDao {
     CurrentRequestContextHolder crch;  
    
     private static Pattern pattern = Pattern.compile("\\srows=(\\d*)\\s",Pattern.CASE_INSENSITIVE);
-    private static int COUNT_TIMEOUT = 1000;//ms
+    private static int EXACT_SELECT_TIMEOUT = 2000;//ms
+    private static int ESTIMATE_COUNT_TIMEOUT = 1000;//ms
     /**
      * @param searchColumns
      * @param searchValues
@@ -368,25 +369,29 @@ public class SearchDao {
     	SearchResult searchResult = null;
     	try{
     		long start = System.currentTimeMillis();
-    		List<Map> result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+    		List<Map> result = null;
+    		if(!searchRequest.searchModeChange()){
+        		result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+    		}
     		long mid = System.currentTimeMillis();
     		int count = 0;
     		boolean exactCount = false;
     		boolean hasNextPage = false;
     		
-    		if(result.size() == searchRequest.getPageSize() + 1){
+    		if(result !=null && result.size() == searchRequest.getPageSize() + 1){
     		    result = result.subList(0, searchRequest.getPageSize());
     		    hasNextPage = true;
     		}
     		
     		//when the search result less than page size,this would be the last page,we just calculate the count
-    		if(result.size() < searchRequest.getPageSize()){
+    		if(result !=null && result.size() < searchRequest.getPageSize()){
     			count = searchRequest.getOffest()+result.size();
     			exactCount = true;
     		}else{
     			if(!searchRequest.isEstimateSearch()){
     				/********** Get the exact count **********/
 	    			try{
+	    				runner.executeUpdate("SET statement_timeout TO "+EXACT_SELECT_TIMEOUT+";");
 	    				int exact= runner.executeCount(statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
 								+statementAndValues.countSql);
@@ -394,12 +399,14 @@ public class SearchDao {
 	    				exactCount = true;
 	    			}catch(Exception e){
 	    				log.debug("The count search timeout,use the estimate count");
+	    				exactCount = true;
+	    				count = -1;
 	    			}
     	    		/********** /Get the exact count **********/
     			}else{
 	    			/********** Get the exact count **********/
 	    			try{
-	    				runner.executeUpdate("SET statement_timeout TO "+COUNT_TIMEOUT+";");
+	    				runner.executeUpdate("SET statement_timeout TO "+ESTIMATE_COUNT_TIMEOUT+";");
 	    				int exact= runner.executeCount(statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
 								+statementAndValues.countSql);

@@ -52,11 +52,11 @@
 			},
 			"click; .searchMode .btn:not(.active)" : function(event) {
 				var view = this;
-				var $btn = $(event.currentTarget);
+				var $btna = view.$el.find(".searchMode .btn.active");
+				var $btnan = view.$el.find(".searchMode .btn:not(.active)");
 				view.$el.find(".searchMode .btn").removeClass("active");
-				$btn.addClass("active");
-				app.preference.store("searchMode", $btn.attr("data-mode"));
-				view.$el.trigger("DO_SEARCH",{searchModeChange:true});
+				$btnan.addClass("active");
+				view.$el.trigger("SEARCHMODE_DOSEARCH",new Boolean(true));
 			},
 			"click; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
 				var view = this;
@@ -410,6 +410,18 @@
 				var view = this;
 				view.pageSize = pageSize;
 			},
+			"SEARCHMODE_DOSEARCH" : function(event, modeChange) {
+				var view = this;
+				var $btn = view.$el.find(".searchMode .btn.active");
+				app.preference.store("searchMode", $btn.attr("data-mode"));
+				var searchModeChange;
+				if(modeChange){
+					searchModeChange = "true";
+				}else{
+					searchModeChange = "false";
+				}
+				view.$el.trigger("DO_SEARCH",{searchModeChange:searchModeChange});
+			},
 			"ADD_FILTER" : function(event, extra) {
 				var view = this;
 				app.ParamsControl.save(extra);
@@ -488,7 +500,7 @@
 						var html;
 						$e.find(".resultTime").html("(c:{0}ms, s:{1}ms)".format(result.countDuration, result.selectDuration));
 	
-						if (result.count > 0) {
+						if (result.count > 0 || result.result.length > 0) {
 							buildResult.call(view, result.result).done(function(data) {
 								view.refreshColumns(data, labelAssigned);
 							});
@@ -505,7 +517,6 @@
 						view.restoreSearchParam();
 					}
 
-					
 					
 					$e.trigger("REFRESH_ESTIMATE_COUNT", {count:result.count,exact: result.exactCount});
 					$e.trigger("REFRESH_PAGINATION", {
