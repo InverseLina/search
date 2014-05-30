@@ -18,7 +18,8 @@
 			this.opts = $.extend({}, {
 				min : 0,
 				max : 20,
-				value : 0
+				value : 0,
+				defaultValue : 0
 			}, data);
 			return render("Slider");
 		},
@@ -36,7 +37,7 @@
 				});
 			}
 			view.barLength = $e.find(".bar").outerWidth();
-
+			setValue.call(view);
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -144,7 +145,7 @@
 	function setValue(value) {
 		var view = this;
 		var position = 0;
-		value = value || 0;
+		value = value || view.opts.defaultValue;
 		value = Math.round(value);
 		if (value > view.opts.max) {
 			value = view.opts.max;

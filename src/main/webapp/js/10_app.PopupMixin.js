@@ -56,11 +56,13 @@ var app = app || {};
 				if (view.$el.find(".sliderBarContainer").length > 0) {
 					var opts = {
 						max : 20,
-						minLabel: "-"
+						minLabel:"-"
 					};
 					if (view.type === "location") {
 						opts.max = 100;
-						opts.min = 10;
+						opts.min = 1;
+						opts.defaultValue = 10;
+						opts.minLabel = null;
 					} else if (view.type === "skill") {
 						opts.max = 10;
 					}
