@@ -1143,7 +1143,7 @@ public class DBSetupManager {
             HttpResponse httpResponse = httpclient.execute(cityWorldConnection);
             ZipInputStream in = new ZipInputStream(httpResponse.getEntity().getContent());
             in.getNextEntry();
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             String line = br.readLine();
             Runner runner = datasourceManager.newSysRunner();
             try {
