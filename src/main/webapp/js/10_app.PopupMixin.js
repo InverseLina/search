@@ -55,15 +55,16 @@ var app = app || {};
 				}
 				if (view.$el.find(".sliderBarContainer").length > 0) {
 					var opts = {
-						max : 20
+						max : 20,
+						minLabel:"-"
 					};
 					if (view.type === "location") {
 						opts.max = 100;
 						opts.min = 1;
-						opts.value = 10;
+						opts.defaultValue = 10;
+						opts.minLabel = null;
 					} else if (view.type === "skill") {
 						opts.max = 10;
-						opts.minLabel = "-";
 					}
 					brite.display("Slider", ".sliderBarContainer", opts).done(function(slider) {
 						view.slider = slider;
