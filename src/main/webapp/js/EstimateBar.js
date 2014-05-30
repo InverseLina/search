@@ -51,6 +51,17 @@
 		
 		var label = count;
 		if (!exact) {
+			if(count < 10){
+				count = count;
+	       	}else if(count < 100){
+	       		count = parseInt((count/10))*10;
+	       	}else if(count < 1000){
+	       		count = parseInt((count/100))*100;
+	       	}else if(count < 10000){
+	       		count = parseInt((count/1000))*1000;
+	       	}else{
+	       		count = parseInt((count/10000))*10000;
+	       	}
 			label = count + "+";
 		}
 
