@@ -36,7 +36,7 @@
 				});
 			}
 			view.barLength = $e.find(".bar").outerWidth();
-
+			setValue.call(view);
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -144,7 +144,7 @@
 	function setValue(value) {
 		var view = this;
 		var position = 0;
-		value = value || 0;
+		value = value || view.opts.value;
 		value = Math.round(value);
 		if (value > view.opts.max) {
 			value = view.opts.max;
