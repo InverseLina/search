@@ -456,6 +456,9 @@ public class SearchDao {
     
     private void handleResult(List<Map> results){
     	String[] temp = new String[2];
+    	if(results==null||results.size()==0){
+    		return;
+    	}
     	for(Map contact:results){
     		if(contact.containsKey("skill")){
     			temp = contact.get("skill").toString().split("##");
