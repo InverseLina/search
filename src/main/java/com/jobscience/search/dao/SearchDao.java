@@ -372,6 +372,7 @@ public class SearchDao {
     		List<Map> result = null;
     		if(!searchRequest.searchModeChange()){
         		result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+        		result = setLoctionName(searchRequest,result,org);
     		}
     		long mid = System.currentTimeMillis();
     		int count = 0;
@@ -438,6 +439,7 @@ public class SearchDao {
 	    		}
     		}
     		long end = System.currentTimeMillis();
+    		handleResult(result);
     		searchResult = new SearchResult(result, count)
     				.setDuration(end - start)
     				.setSelectDuration(mid - start)
@@ -450,6 +452,95 @@ public class SearchDao {
     	}
     
     	return searchResult;
+    }
+    
+    private void handleResult(List<Map> results){
+    	String[] temp = new String[2];
+    	for(Map contact:results){
+    		if(contact.containsKey("skill")){
+    			temp = contact.get("skill").toString().split("##");
+    			contact.put("skill", temp[0]);
+    			contact.put("skillgroupedids", temp[1]);
+    		}
+    		if(contact.containsKey("education")){
+    			temp = contact.get("education").toString().split("##");
+    			contact.put("education", temp[0]);
+    			contact.put("educationroupedids", temp[1]);
+    		}
+    		if(contact.containsKey("company")){
+    			temp = contact.get("company").toString().split("##");
+    			contact.put("company", temp[0]);
+    			contact.put("companygroupedids", temp[1]);
+    		}
+    		
+    	}
+    }
+    
+    protected List<Map> setLoctionName(SearchRequest searchRequest,List<Map> results,OrgContext org){
+    	List<Map> result = results;
+    	JSONArray locations = searchRequest.getLocations();
+    	String cityName = "",suffix="";
+    	double minradius = -1;
+    	double latitude = -1;
+    	double longitude = -1;
+    	for(Map contact:results){
+    		if(locations==null){
+    			contact.put("location", "");
+    			continue;
+    		}
+    		boolean hasCityName = false;
+    		minradius = -1;
+    		if(contact.get("ts2__latitude__c") == null || contact.get("ts2__longitude__c") == null){
+    			continue;
+    		}
+    		latitude = Float.parseFloat(contact.get("ts2__latitude__c").toString());
+    		longitude = Float.parseFloat(contact.get("ts2__longitude__c").toString());
+    		JSONObject jo = null;
+    		String name = null;
+    		double latitudes = 0;
+    		double longituds = 0;
+    		double radius = 0;
+    		for(int x = 0,y = locations.size(); x < y; x++){
+    			 jo = JSONObject.fromObject(locations.get(x));
+    			 name = jo.get("name").toString();
+    			 latitudes = Float.parseFloat(jo.get("latitude").toString());
+    			 longituds = Float.parseFloat(jo.get("longitude").toString());
+    			 int checkradius = Integer.parseInt(jo.get("minRadius").toString());
+    			 radius = getDistance(latitude,longitude,latitudes,longituds);
+    			 if((radius < checkradius && !hasCityName)||(radius < checkradius && radius < minradius)){
+        				 hasCityName = true;
+        				 cityName = name;
+        				 suffix = jo.get("suffix").toString();
+        				 minradius = radius;
+    			 }
+    		}
+    		if(hasCityName){
+    			contact.put("location", cityName+"("+suffix+")"+(
+    									(minradius==0.0d)?"":  ("("+(int)(minradius)+")")
+    								     ));
+    		}else{
+    			contact.put("location", "");
+    		}
+    	}
+    	return result;
+    }
+    
+    public double getDistance(double lat1, double lng1, double lat2, double lng2){
+    	double EARTH_RADIUS = 6378.137;
+        double radLat1 = rad(lat1);
+	    double radLat2 = rad(lat2);
+	    double a = radLat1 - radLat2;
+	    double b = rad(lng1) - rad(lng2);
+	    double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) + 
+	    Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
+	    s = s * EARTH_RADIUS;
+	    s = Math.round(s * 10000) / 10000;
+	    return s*0.62137;
+    }
+    
+    private static double rad(double d)
+    {
+       return d * Math.PI / 180.0;
     }
     
     protected SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
@@ -595,7 +686,6 @@ public class SearchDao {
                 .append(sc.getContactField(ContactFieldType.RESUME).toString("contact"))
                 .append(") = 0 then -1  else contact.id end as resume ");
         //---------------------- /add select columns----------------------//
-        
         
         if(searchRequest.getOrder().contains("title")){
         	querySql.append(",case   when ")
@@ -808,47 +898,22 @@ public class SearchDao {
     		groupBy.append("a.\"createddate\"");
     		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
     	}else if(orginalName.toLowerCase().equals("company")){
-    	    return " (select  string_agg(c.\"name\",',' order by c.id) "
+    	    return " (select  string_agg(c.\"name\",',')||'##'||string_agg(c.\"id\"::varchar,',') "
     	                            + "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
     	                            + "on groupby_employers.jss_groupby_employers_id = c.id  "
-    	                            + "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as company, "
-    	                            +" (select  string_agg(c.\"id\"::varchar,',' order by c.id) "
-    	                            + "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
-    	                            + "on groupby_employers.jss_groupby_employers_id = c.id  "
-    	                            + "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as companygroupedids ";
+    	                            + "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as company ";
     	}else if(orginalName.toLowerCase().equals("skill")){
-    	    return " (select  string_agg(b.\"name\",',' order by b.id) "
+    	    return " (select  string_agg(b.\"name\",',')||'##'||string_agg(b.\"id\"::varchar,',' ) "
     	                            + "from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
     	                            + "on groupby_skills.jss_groupby_skills_id = b.id  "
-    	                            + "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skill, "
-    	                            +" (select  string_agg(b.\"id\"::varchar,',' order by b.id) "
-    	                            + "from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
-    	                            + "on groupby_skills.jss_groupby_skills_id = b.id  "
-    	                            + "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skillgroupedids ";
+    	                            + "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skill ";
     	}else if(orginalName.toLowerCase().equals("education")){
-    	    return " (select  string_agg(d.\"name\",',' order by d.id) "
+    	    return " (select  string_agg(d.\"name\",',' order by d.id)||'##'|| string_agg(d.\"id\"::varchar,',')"
                                     + "from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
                                     + "on groupby_educations.jss_groupby_educations_id = d.id  "
-                                    + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as education, "
-                                    +" (select  string_agg(d.\"id\"::varchar,',' order by d.id) "
-                                    + "from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
-                                    + "on groupby_educations.jss_groupby_educations_id = d.id  "
-                                    + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as educationgroupedids ";
+                                    + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as education";
     	}else if(orginalName.toLowerCase().equals("location")){
-//    		columnJoinTables.add(getAdvancedJoinTable("location",org));
-//    		 if(groupBy.length()>0){
-//                 groupBy.append(",");
-//             }
-//             groupBy.append("z.\"city\"");
-//    		return "  z.\"city\" as location ";
-    	    
-    	    if(groupBy.length()>0){
-                groupBy.append(",");
-    	    }
-    	    groupBy.append("a.\"ts2__latitude__c\", a.\"ts2__longitude__c\"");
-    	    String distanceColumn = "earth_distance(ll_to_earth(cw.latitude ,cw.longitude), ll_to_earth(a.ts2__latitude__c ,a.ts2__longitude__c)) / 1609.344";
-    	    return " (select name from (select cw.city as name, "+distanceColumn+" as distance from jss_sys.city_world cw "
-            + "where "+distanceColumn+" <= 10 and earth_box(ll_to_earth(a.ts2__latitude__c ,a.ts2__longitude__c), 10 * 1609.344) @> ll_to_earth(cw.latitude, cw.longitude)  order by distance limit 1 ) city) as location";
+    		return "";
     	}
         
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
@@ -890,15 +955,15 @@ public class SearchDao {
 		    	}else if(column.toLowerCase().equals("createddate")){
 		    		sb.append("createddate as \"createddate\",");
 		    	}else if(column.toLowerCase().equals("company")){
-		    		sb.append("company,lower(company) as \"lcompany\", companygroupedids,");
+		    		sb.append("company,lower(company) as \"lcompany\", ");
 		    	}else if(column.toLowerCase().equals("skill")){
-		    		sb.append("skill,lower(skill) as \"lskill\", skillgroupedids,");
+		    		sb.append("skill,lower(skill) as \"lskill\",");
 		    	}else if(column.toLowerCase().equals("education")){
-		    		sb.append("education,lower(education) as \"leducation\", educationgroupedids,");
+		    		sb.append("education,lower(education) as \"leducation\", ");
 		    	}else if(column.toLowerCase().equals("resume")){
 		    		sb.append("resume,");
 		    	}else if(column.toLowerCase().equals("location")){
-		    		sb.append("location as \"location\",");
+		    		//sb.append("location as \"location\",");
 		    	}else if(column.toLowerCase().equals("contact")){
 		    		sb.append("name,lower(name) as \"lname\",");
 		    		sb.append("title,lower(title) as \"ltitle\",");
@@ -915,6 +980,7 @@ public class SearchDao {
 	    	sb.append("id,name");//make id and name always return
     	}
     	sb.append(",sfid");//,phone
+    	sb.append(",ts2__latitude__c,ts2__longitude__c");//ts2__latitude__c and ts2__longitude__c
         return sb.toString();
     }
     
@@ -942,11 +1008,11 @@ public class SearchDao {
 	 	            columnsSql.append(",");
  	        	}
  	        }
- 	        columnsSql.append("a.id,a.name,a.sfid");//,a.phone,
+ 	        columnsSql.append("a.id,a.name,a.sfid,a.ts2__latitude__c,a.ts2__longitude__c ");//,a.phone,
  	        if(groupBy.length()>0){
  	        	groupBy.append(",");
  	        }
- 	        groupBy.append("a.name,a.sfid");//always return these columns ,
+ 	        groupBy.append("a.name,a.sfid,a.\"ts2__latitude__c\", a.\"ts2__longitude__c\"");//always return these columns ,
          }
     	 return columnsSql.toString();
     }
