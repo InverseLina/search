@@ -497,6 +497,7 @@ public class SearchDao {
             querySql = new StringBuilder(" select "+countColumn+nameColumn+groupedidColumn+suffixColumn+" from " + baseTable +" a " + " where 1=1 ");
             if(queryString!=null&&queryString.trim().length()>0){
                 if(type.equals("location")){
+                    querySql.append(" AND a.score > 0 ");
                     String[] values = queryString.split(",");
                     String firstQuery = values[0].trim();
                     if(values.length > 1){
