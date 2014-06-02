@@ -500,6 +500,7 @@ public class SearchDao {
     		double latitudes = 0;
     		double longituds = 0;
     		double radius = 0;
+    		double deviation = 0;
     		for(int x = 0,y = locations.size(); x < y; x++){
     			 jo = JSONObject.fromObject(locations.get(x));
     			 name = jo.get("name").toString();
@@ -507,20 +508,32 @@ public class SearchDao {
     			 longituds = Float.parseFloat(jo.get("longitude").toString());
     			 int checkradius = Integer.parseInt(jo.get("minRadius").toString());
     			 radius = getDistance(latitude,longitude,latitudes,longituds);
-    			 if((radius < checkradius && !hasCityName)||(radius < checkradius && radius < minradius)){
+    			 if(((int)radius <= checkradius && !hasCityName)||((int)radius <= checkradius && (int)radius < minradius)){
         				 hasCityName = true;
         				 cityName = name;
         				 suffix = jo.get("suffix").toString();
         				 minradius = radius;
+    			 }else{
+    				 if(deviation==0.0d){
+    					 deviation = radius-checkradius;
+    					 cityName = name;
+    					 suffix = jo.get("suffix").toString();
+    					 minradius = checkradius;
+    				 }
+    				
+    				 if(radius-checkradius<deviation){
+    					 deviation = radius-checkradius;
+    					 cityName = name;
+    					 suffix = jo.get("suffix").toString();
+    					 minradius = checkradius;
+    				 }
+    				 
     			 }
+    			 
     		}
-    		if(hasCityName){
-    			contact.put("location", cityName+"("+suffix+")"+(
-    									(minradius==0.0d)?"":  ("("+(int)(minradius)+")")
-    								     ));
-    		}else{
-    			contact.put("location", "");
-    		}
+    		contact.put("location", cityName+"("+suffix+")"+(
+					(minradius==0.0d)?"":  ("("+(int)(minradius)+")")
+				     ));
     	}
     	return result;
     }
@@ -669,7 +682,7 @@ public class SearchDao {
         //---------------------- add select columns ----------------------//
         String contactString = sc.toContactFieldsString("contact");
         String contactTable = sc.getContact().getTable();
-        querySql.append(" from ( select  distinct ")
+        querySql.append(" from ( select  ")
                 .append(contactString);
         for(Filter f:sc.getFilters()){
             if(f.getFilterType()==null&&contactString.indexOf(f.getFilterField().toString("contact"))==-1){
@@ -1113,7 +1126,7 @@ public class SearchDao {
 			return joinSql.toString();
 		} else {
 			boolean exact = keyword.matches("^\\s*\".+\"\\s*$");
-			joinSql.append(" select  distinct contact.id,contact.sfid  from (");
+			joinSql.append(" select   contact.id,contact.sfid  from (");
 			if (exact) {
 				if (searchRequest.isOnlyKeyWord()) {
 					joinSql = new StringBuilder();
@@ -1333,7 +1346,8 @@ public class SearchDao {
         return hasContactCondition;
     }
 
-    private Map<FilterType,String> manyToManyTables = new HashMap<FilterType, String>(){{
+    @SuppressWarnings("serial")
+	private Map<FilterType,String> manyToManyTables = new HashMap<FilterType, String>(){{
     	put(FilterType.COMPANY, "employers");
     	put(FilterType.EDUCATION, "educations");
     	put(FilterType.SKILL, "skills");
@@ -1595,7 +1609,7 @@ public class SearchDao {
     }
     
     
-    private  double[] getAround(double lat,double lon,double raidus){  
+    private  static double[] getAround(double lat,double lon,double raidus){  
         
         double latitude = lat;  
         double longitude = lon;  
@@ -1681,8 +1695,8 @@ public class SearchDao {
                			}
                 }
             }else{
-            	keyWordSql.append(" select distinct contact.id from contact ");
-            	keyWordCountSql.append(" select distinct contact.id from contact ");
+            	keyWordSql.append(" select contact.id from contact ");
+            	keyWordCountSql.append(" select  contact.id from contact ");
             	if (searchRequest.getOrder().trim().startsWith("\"id\"")) {
             		orderSql.append(" order by ").append(searchRequest.getOrder())
      						  .append(" offset ")
