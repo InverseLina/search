@@ -39,6 +39,8 @@ var app = app || {};
 					item.operator = val.operator;
 					item.groupedid = val.groupedid;
 					item.locationid = val.locationid;
+					item.latitude = val.latitude;
+					item.longitude = val.longitude;
 					item.suffix = val.suffix;
 					var html = render("filterPanel-selectedItem-add", item);
 					view.$el.find("span.add").before(html);
@@ -198,6 +200,14 @@ var app = app || {};
 						itemData.locationid = $contentText.attr("data-locationid") * 1;
 					}
 					
+					if ($contentText.attr("data-latitude") != "") {
+						itemData.latitude = $contentText.attr("data-latitude") * 1;
+					}
+					
+					if ($contentText.attr("data-longitude") != "") {
+						itemData.longitude = $contentText.attr("data-longitude") * 1;
+					}
+					
 					if($contentText.attr("data-suffix") != ""){
 						itemData.suffix = $contentText.attr("data-suffix");
 					}
@@ -329,6 +339,12 @@ var app = app || {};
 				if(data.locationid){
 					item.locationid = data.locationid;
 				}
+				if(data.latitude){
+					item.latitude = data.latitude;
+				}
+				if(data.longitude){
+					item.longitude = data.longitude;
+				}
 				if(operator){
 					item.operator = operator;
 				}
@@ -346,6 +362,8 @@ var app = app || {};
 				view.$el.find(".selectedItems span.add").before(render("filterPanel-selectedItem-add", {
 					groupedid : data.groupedid,
 					locationid : data.locationid,
+					longitude : data.longitude,
+					latitude : data.latitude,
 					operator : operator,
 					name : data.name,
 					suffix : data.suffix,
@@ -372,6 +390,8 @@ var app = app || {};
 					var html = render("filterPanel-selectedItem-add", {
 						groupedid : data.groupedid,
 						locationid : data.locationid,
+						latitude : data.latitude,
+						longitude : data.longitude,
 						operator : operator,
 						name : data.name,
 						suffix : data.suffix,
@@ -411,6 +431,12 @@ var app = app || {};
 							}
 							if($activeItem.attr("data-locationid") != ""){
 								itemData.locationid = $activeItem.attr("data-locationid") * 1;
+							}
+							if($activeItem.attr("data-latitude") != ""){
+								itemData.latitude = $activeItem.attr("data-latitude") * 1;
+							}
+							if($activeItem.attr("data-longitude") != ""){
+								itemData.longitude = $activeItem.attr("data-longitude") * 1;
 							}
 							if($activeItem.attr("data-suffix") != ""){
 								itemData.suffix = $activeItem.attr("data-suffix");

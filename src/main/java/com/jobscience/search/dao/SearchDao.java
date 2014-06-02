@@ -482,36 +482,46 @@ public class SearchDao {
             querySql.append(" AND ("+ff.getColumn()+"||'')!='' ")
                     .append(" AND ("+ff.getColumn()+"||'')!='null' ")
                     .append(" AND "+ff.getColumn()).append(" is not null   group by "+ff.getColumn());
+            querySql.append(" order by count desc limit 7 ");
         }else{
             
-            String suffixColumn = "";
-            String groupedidColumn = ", a.id as groupedid ";
-            String countColumn = "a.count";
-            String nameColumn = ",a.name";
-            if(type.equals("location")){
-                suffixColumn = ", case when a.country = 'US' or a.country = 'CA' then a.region else a.country end as suffix, a.city_world_id as locationid ";
-                groupedidColumn = "";
-                countColumn = "a.score as count";
-                nameColumn = ", a.city as name";
-            }
-            querySql = new StringBuilder(" select "+countColumn+nameColumn+groupedidColumn+suffixColumn+" from " + baseTable +" a " + " where 1=1 ");
-            if(queryString!=null&&queryString.trim().length()>0){
-                if(type.equals("location")){
-                    querySql.append(" AND a.score > 0 ");
+//            String suffixColumn = "";
+//            String groupedidColumn = ", a.id as groupedid ";
+//            String latColumn = "";
+//            String countColumn = "a.count";
+//            String nameColumn = ",a.name";
+//            String joinTable = "";
+//            if(type.equals("location")){
+//                suffixColumn = ", case when a.country = 'US' or a.country = 'CA' then a.region else a.country end as suffix, a.city_world_id as locationid ";
+//                groupedidColumn = "";
+//                countColumn = "a.score as count";
+//                nameColumn = ", a.city as name";
+//                latColumn = ", b.latitude as latitude, b.longitude as longitude ";
+//                joinTable = " join jss_sys.city_world b on a.city_world_id = a.id ";
+//            }
+            if (type.equals("location")) {
+                querySql = new StringBuilder(" select score as count, city as name, case when country = 'US' or country = 'CA' then region else country end as suffix, city_world_id as locationid" + " from " + baseTable + "  where 1=1 ");
+                if (queryString != null && queryString.trim().length() > 0) {
+                    querySql.append(" AND score > 0 ");
                     String[] values = queryString.split(",");
                     String firstQuery = values[0].trim();
-                    if(values.length > 1){
-                        querySql.append(" AND a.region ilike '"+ values[1].trim()+"%'");
+                    if (values.length > 1) {
+                        querySql.append(" AND region ilike '" + values[1].trim() + "%'");
                     }
-                    querySql.append(" AND (a.city ilike '"+ firstQuery+"%' OR a.region ilike '"+ firstQuery+"%' OR a.country ilike '"+ firstQuery+"%' )");
-                    
-                }else{
-                    querySql.append(" AND a.name ilike '"+ queryString+"%'");
+                    querySql.append(" AND (city ilike '" + firstQuery + "%' OR region ilike '" + firstQuery + "%' OR country ilike '" + firstQuery + "%' )");
                 }
-                
+                querySql.append(" order by count desc limit 7 ");
+                // the final sql
+                querySql = new StringBuilder("select a.*, b.latitude as latitude, b.longitude as longitude from (" + querySql + ") a left join jss_sys.city_world b on a.locationid = b.id");
+            } else {
+                querySql = new StringBuilder(" select a.count as count, a.name as name, a.id as groupedid from " + baseTable + " a where 1=1 ");
+                if (queryString != null && queryString.trim().length() > 0) {
+                    querySql.append(" AND a.name ilike '" + queryString + "%'");
+                }
+                querySql.append(" order by count desc limit 7 ");
             }
+
         }
-        querySql.append(" order by count desc limit 7 ");
         
         
         Long start = System.currentTimeMillis();
@@ -1427,29 +1437,28 @@ public class SearchDao {
         boolean hasCondition = false;
         if(locationValues!=null){
             StringBuilder joinCity = new StringBuilder();
-            StringBuilder cities = new StringBuilder();
             JSONObject ol;
-            Map<String,Double> citiesWithRadius = new HashMap<String,Double>();
+            List<Map> cities = new ArrayList<Map>();
             for (Object location : locationValues) {
+                Map city = new HashMap();
                 ol = (JSONObject) location;
-                Integer locationid = (Integer) ol.get("locationid");
                 double minRadius = 10;
                 if(ol.containsKey("minRadius")){
                     minRadius = ol.getDouble("minRadius");
                 }
-                citiesWithRadius.put(locationid.toString(), minRadius);
-                cities.append(""+locationid+",");
+                city.put("radius", minRadius);
+                city.put("locationid", ol.getInt("locationid"));
+                city.put("latitude", ol.getDouble("latitude"));
+                city.put("longitude", ol.getDouble("longitude"));
+                cities.add(city);
             }
             
-            if(cities.length()!=0){
+            if(cities.size()!=0){
                 Runner runner = datasourceManager.newSysRunner();
-                StringBuilder locationSqlBilder = new StringBuilder();
-                locationSqlBilder.append("select * from city_world where id in("+cities.substring(0, cities.length() - 1)+")");
-                List<Map> c = runner.executeQuery(locationSqlBilder.toString());
-                for(Map city:c){//minLat,minLng,maxLat,maxLng
+                for(Map city: cities){//minLat,minLng,maxLat,maxLng
                     double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
                                                Double.valueOf(city.get("longitude").toString()),
-                                               citiesWithRadius.get(city.get("id").toString()) * 1609);
+                                               Double.valueOf(city.get("radius").toString()) * 1609);
                     joinCity.append(" OR (").append("contact.ts2__latitude__c>="+range[0])
                               .append(" AND contact.ts2__latitude__c<="+range[2])
                               .append(" AND contact.ts2__longitude__c>="+range[1])
