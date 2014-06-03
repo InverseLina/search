@@ -109,13 +109,21 @@
 		var $e = view.$el;
 		data = data || {};
 		view.exactCount = data.exactCount || false;
-		var page = view.page = {
+		view.page = view.page || {};
+		var page = {
 			pageIdx : data.pageIdx || 1,
 			pageSize : data.pageSize || 15,
 			totalCount : data.totalCount || 0,
 			callback : data.callback || function() {},
-			hasNextPage : data.hasNextPage || false
 		};
+		if(typeof data.hasNextPage !== 'undefined'){
+			page.hasNextPage = data.hasNextPage;
+		}else if(typeof view.page.hasNextPage !== 'undefined'){
+			page.hasNextPage = view.page.hasNextPage;
+		}else{
+			page.hasNextPage = false;
+		}
+		view.page = page;
 		calc(view.page);
 		var html = render("Pagination-detail", page);
 		$e.empty().append(html);

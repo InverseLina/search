@@ -208,7 +208,7 @@
 			result.searchModeChange = searchModeChange;
 			view.$el.trigger("SEARCH_RESULT_CHANGE", result);
 			if(result.count < 0 && !searchModeChange){
-				view.$el.trigger("SEARCHMODE_DOSEARCH",new Boolean(true));
+				doSearchRequest.call(view, searchParameter, 0, true);
 			}
 		}).fail(function(result){
 			if(this !== app.currentDeferred){

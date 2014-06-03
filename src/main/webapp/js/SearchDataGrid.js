@@ -321,7 +321,7 @@
 		showContentMessage : function(cmd, extra) {
 			var view = this;
 			var $e = view.$el;
-			view.$el.find(".search-info").empty();
+			view.$el.find(".search-info").addClass("hide");
 			var $tabContainer = view.$searchResult.find(".tableContainer");
 			if (cmd === "empty") {
 				$tabContainer.html(render("search-empty", {
@@ -420,7 +420,7 @@
 				}else{
 					searchModeChange = "false";
 				}
-				view.$el.trigger("DO_SEARCH",{searchModeChange:searchModeChange});
+				view.$el.trigger("DO_SEARCH",{searchModeChange:searchModeChange,pageIdx:view.pageIdx});
 			},
 			"ADD_FILTER" : function(event, extra) {
 				var view = this;
@@ -496,9 +496,11 @@
 					var view = this;
 					var $e = view.$el;
 					
+					$e.find(".resultTime").removeClass("hide");
+					$e.find(".resultTime .count").html("c:{0}ms".format(result.countDuration));
 					if(!result.searchModeChange){
 						var html;
-						$e.find(".resultTime").html("(c:{0}ms, s:{1}ms)".format(result.countDuration, result.selectDuration));
+						$e.find(".resultTime .select").html("s:{0}ms".format(result.selectDuration));
 	
 						if (result.count > 0 || result.result.length > 0) {
 							buildResult.call(view, result.result).done(function(data) {
@@ -519,11 +521,10 @@
 
 					
 					$e.trigger("REFRESH_ESTIMATE_COUNT", {count:result.count,exact: result.exactCount});
-					$e.trigger("REFRESH_PAGINATION", {
+					var paginationData = {
 						pageIdx : result.pageIdx,
 						pageSize : result.pageSize,
 						totalCount : result.count,
-						hasNextPage : result.hasNextPage,
 						exactCount : result.exactCount,
 						callback : function(pageIdx, pageSize) {
 							view.pageIdx = pageIdx;
@@ -532,7 +533,11 @@
 								pageIdx : pageIdx
 							});
 						}
-					});
+					};
+					if(!result.searchModeChange){
+						paginationData.hasNextPage = result.hasNextPage;
+					}
+					$e.trigger("REFRESH_PAGINATION", paginationData);
 					
 					var pagination = view.$el.find(".Pagination").bComponent();
 					if (labelAssigned) {
