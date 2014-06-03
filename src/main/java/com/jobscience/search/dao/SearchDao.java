@@ -58,7 +58,7 @@ public class SearchDao {
     CurrentRequestContextHolder crch;  
    
     private static Pattern pattern = Pattern.compile("\\srows=(\\d*)\\s",Pattern.CASE_INSENSITIVE);
-    private static int EXACT_SELECT_TIMEOUT = 2000;//ms
+    private static int EXACT_COUNT_TIMEOUT = 2000;//ms
     private static int ESTIMATE_COUNT_TIMEOUT = 1000;//ms
     /**
      * @param searchColumns
@@ -392,7 +392,7 @@ public class SearchDao {
     			if(!searchRequest.isEstimateSearch()){
     				/********** Get the exact count **********/
 	    			try{
-	    				runner.executeUpdate("SET statement_timeout TO "+EXACT_SELECT_TIMEOUT+";");
+	    				runner.executeUpdate("SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
 	    				int exact= runner.executeCount(statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
 								+statementAndValues.countSql);
@@ -1698,8 +1698,8 @@ public class SearchDao {
                			}
                 }
             }else{
-            	keyWordSql.append(" select contact.id from contact ");
-            	keyWordCountSql.append(" select  contact.id from contact ");
+            	keyWordSql.append(" select distinct contact.id from contact ");
+            	keyWordCountSql.append(" select  distinct contact.id from contact ");
             	if (searchRequest.getOrder().trim().startsWith("\"id\"")) {
             		orderSql.append(" order by ").append(searchRequest.getOrder())
      						  .append(" offset ")
