@@ -1069,14 +1069,30 @@ public class SearchDao {
             hasContactsCondition = searchRequest.getContacts().size()>0;
         }
         
-        joinSql.append(" ) subcontact on contact.id=subcontact.id ");
-        countSql.append(" ) subcontact on contact.id=subcontact.id ");
-        
-        joinSql.append(locationSql);
-        countSql.append(locationSql);
-        
-        joinSql.append(" where 1=1 ").append(condition).append(sb.getExactSearchOrderSql());
-        countSql.append(" where 1=1 ").append(condition);
+        if(searchRequest.getLocations() != null && (Strings.isNullOrEmpty(searchRequest.getKeyword()) || searchRequest.getKeyword().length() < 3) && !searchRequest.getOrder().contains("location")){
+
+        	joinSql.append(" where ").append(condition.subSequence(4, condition.length()))
+        	       .append(locationSql)
+        	       .append(sb.getExactSearchOrderSql());
+        	countSql.append(" where ").append(condition.subSequence(3, condition.length()))
+ 	                .append(locationSql)
+ 	                .append(sb.getExactSearchOrderSql());
+        	
+        	joinSql.append(" ) subcontact on contact.id=subcontact.id ");
+            countSql.append(" ) subcontact on contact.id=subcontact.id ");
+        	
+        	joinSql.append(" where 1=1 ");
+            countSql.append(" where 1=1 ");
+        }else{        
+            joinSql.append(" ) subcontact on contact.id=subcontact.id ");
+            countSql.append(" ) subcontact on contact.id=subcontact.id ");
+            
+            joinSql.append(locationSql);
+            countSql.append(locationSql);
+            
+            joinSql.append(" where 1=1 ").append(condition).append(sb.getExactSearchOrderSql());
+            countSql.append(" where 1=1 ").append(condition);
+        }
        
         joinSql.append(") a ");
         if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||locationSql.length()>0||
