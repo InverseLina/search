@@ -370,8 +370,8 @@ public class SearchDao {
     	try{
     		long start = System.currentTimeMillis();
     		List<Map> result = null;
-    		if(!searchRequest.searchModeChange()){
-        		result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+            result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+    		if(result != null && !searchRequest.isEstimateSearch()){
         		result = setLoctionName(searchRequest,result,org);
     		}
     		long mid = System.currentTimeMillis();

@@ -542,6 +542,7 @@
 						pageSize : result.pageSize,
 						totalCount : result.count,
 						exactCount : result.exactCount,
+						hasNextPage : result.hasNextPage,
 						callback : function(pageIdx, pageSize) {
 							view.pageIdx = pageIdx;
 							view.pageSize = pageSize;
@@ -550,9 +551,6 @@
 							});
 						}
 					};
-					if(!result.searchModeChange){
-						paginationData.hasNextPage = result.hasNextPage;
-					}
 					$e.trigger("REFRESH_PAGINATION", paginationData);
 					
 					var pagination = view.$el.find(".Pagination").bComponent();
