@@ -64,9 +64,9 @@ public class SearchRequest {
             if(orderBy.equals("contact")){
                 orderBy = "name";
                 order = " \""+getOrderColumn(orderBy)+ "\" " +(asc?"asc":"desc");
-            }else if(columns.contains(orderBy)){
+            }/*else if(columns.contains(orderBy)){
                 order = " \""+getOrderColumn(orderBy)+ "\" " +(asc?"asc":"desc");
-            }else{
+            }*/else{
                 order = " \"id\" desc";
             }
             
