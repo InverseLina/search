@@ -60,7 +60,9 @@ var app = app || {};
 			}
 		},
 		company : {
-			headerRenderer : genericHeaderFilterRenderer,
+			headerRenderer : function(filterInfo) {
+				return render("search-query-filter-operator-render-header", filterInfo);
+			},
 			filterRenderer : function($content, headerInfo) {
 				var data = app.ParamsControl.getFilterParams()['company'] || [];
 				brite.display("CompanyFilterView", $content, {
@@ -71,7 +73,9 @@ var app = app || {};
 
 		},
 		skill : {
-			headerRenderer : genericHeaderFilterRenderer,
+			headerRenderer : function(filterInfo) {
+				return render("search-query-filter-operator-render-header", filterInfo);
+			},
 			filterRenderer : function($content, headerInfo) {
 				var data = app.ParamsControl.getFilterParams()['skill'] || [];
 				brite.display("SkillFilterView", $content, {

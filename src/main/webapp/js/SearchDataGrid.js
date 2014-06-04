@@ -50,12 +50,10 @@
 					view.$el.trigger("SEARCH_QUERY_CHANGE");
 				}
 			},
-			"click; .searchMode .btn:not(.active)" : function(event) {
+			"click; .searchMode" : function(event) {
 				var view = this;
-				var $btna = view.$el.find(".searchMode .btn.active");
-				var $btnan = view.$el.find(".searchMode .btn:not(.active)");
-				view.$el.find(".searchMode .btn").removeClass("active");
-				$btnan.addClass("active");
+				var $searchMode = $(event.currentTarget);
+				$searchMode.find(".btn").toggleClass("active");
 				view.$el.trigger("SEARCHMODE_DOSEARCH",new Boolean(true));
 			},
 			"click; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
@@ -104,6 +102,17 @@
 						$target : $th
 					});
 				}
+			},
+			"click; table th[data-column] .operatorBtnGroups" : function(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				var view = this;
+				var $operatorBtnGroups = $(event.currentTarget);
+				$operatorBtnGroups.find(".btn").toggleClass("active");
+				var column = $operatorBtnGroups.closest("th[data-column]").attr("data-column");
+				var value = $operatorBtnGroups.find(".btn.active").attr("data-value");
+				app.preference.store(column+"Operator", value);
+				view.$el.trigger("DO_SEARCH");
 			},
 			"click; div.btnPopupColumns" : function(event) {
 				brite.display("SelectColumns");
@@ -353,18 +362,25 @@
 		},
 		restoreSearchParam : function(filters) {
 			var key, dataName, data, displayName, $html, $th, view = this;
+			
+			view.$el.find("table th[data-column='skill'] .operatorBtnGroups .btn").removeClass("active");
+			view.$el.find("table th[data-column='skill'] .operatorBtnGroups .btn[data-value='" + app.preference.get("skillOperator", "O") + "']").addClass("active");
+			view.$el.find("table th[data-column='company'] .operatorBtnGroups .btn").removeClass("active");
+			view.$el.find("table th[data-column='company'] .operatorBtnGroups .btn[data-value='" + app.preference.get("companyOperator", "O") + "']").addClass("active");
+			
 			if (view.$el.find("table th .selectedItems .item").length > 0) {
 				return;
 			}
 
 			var result = filters || app.ParamsControl.getFilterParams() || {};
-
 			for (key in result) {
 				dataName = key;
 				if (key === "Contact") {
 					dataName = "contact";
 				}
+				
 				$th = view.$el.find("table thead th[data-column='{0}']".format(dataName));
+				
 				var item;
 				data = result[key];
 				if (data && data.length > 0) {

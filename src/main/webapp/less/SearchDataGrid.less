@@ -106,16 +106,16 @@
 				.searchMode{
 					.btn{
 						padding: 3px 7px;
-						margin: 0 1px 0 0;
-						background-color: #8cc7ca;
-						border: 1px solid #87c4c7;
 						font-family:"Muli Regular";
 						font-size: 14px;
-						color:#444444;
+						background-color: #81b7c0;
+						color:#fff;
+						box-shadow:none;
+						border: 1px solid #81b7c0;
 					}
 					.btn.active{
-						background-color: #669598;
-						border: 1px solid #5c8e91;
+						background-color: #fff;
+						color:#444;
 					}
 				}
 			}
@@ -297,6 +297,42 @@
 								font-weight: normal;
 								letter-spacing: 0.1em;
 								width: 87%;
+							}
+							
+							.operatorBtnGroups{
+								padding:1px;
+								position:absolute;
+								right:8px;
+								top:8px;
+								background:#fff;
+								border-radius:4px;
+								.btn{
+									padding:0px;
+									width:38px;
+									color:#fff;
+									z-index:2;
+									&.active{
+										box-shadow:none;
+									}
+								}
+							}
+							&.skillTh .operatorBtnGroups{
+								.btn{
+									background:#e13c5e;
+									&.active{
+										color:#555;
+										background:#fff;
+									}
+								}
+							}
+							&.companyTh .operatorBtnGroups{
+								.btn{
+									background:#33aad2;
+									&.active{
+										color:#555;
+										background:#fff;
+									}
+								}
 							}
 						}
 			

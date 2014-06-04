@@ -53,6 +53,13 @@ var app = app || {};
 			result.searchValues = JSON.stringify(searchData);
 			result.searchMode = app.preference.get("searchMode", "power");
 			result.searchModeChange = searchModeChange;
+			
+			//for skill
+			result.skillOperator = app.preference.get("skillOperator", "O");
+			
+			//for company
+			result.companyOperator = app.preference.get("companyOperator", "O");
+			
 			result.pageIndex = view.contentView.dataGridView.pageIdx || 1;
 			result.pageSize = view.contentView.dataGridView.pageSize || 15;
 			return result;

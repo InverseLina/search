@@ -1,6 +1,5 @@
 <script id="filterPanel-selectedItem-add" type="text/html">
     <span class="item" data-name="{{name}}" {{#if groupedid}}data-groupedid="{{groupedid}}"{{/if}} {{#if locationid}}data-locationid="{{locationid}}"{{/if}} {{#if longitude}}data-longitude="{{longitude}}"{{/if}} {{#if latitude}}data-latitude="{{latitude}}"{{/if}} >
-    	{{#if operator}}<span class="operator">{{operator}}</span>{{/if}}
     	<span class="text">{{name}}{{#if suffix}}&nbsp;({{suffix}}){{/if}}{{#if min}}&nbsp;&nbsp;&nbsp;({{min}}){{/if}}</span>
         <span class="clear"><i></i> </span>
     </span>
