@@ -71,6 +71,20 @@
                 "column":"ll_to_earth(ts2__latitude__c ,ts2__longitude__c)",
                 "operator":"",
                 "unique":""
+               },
+               {
+                "name":"contact_latitude_idx",
+                "type":"btree",
+                "column":"ts2__latitude__c",
+                "operator":"",
+                "unique":""
+               },
+               {
+                "name":"contact_longitude_idx",
+                "type":"btree",
+                "column":"ts2__longitude__c",
+                "operator":"",
+                "unique":""
                }
               ],
  "ts2__skill__c":[
