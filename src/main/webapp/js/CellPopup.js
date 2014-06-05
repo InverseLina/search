@@ -80,10 +80,6 @@
 						type : view.type,
 						name : name
 					};
-					if($e.find(".operator-btn-group").size() > 0){
-						var operator = $e.find(".operator-btn-group .btn.active").attr("data-value");
-						item.operator = operator;
-					}
 					if($li.attr("data-id") != ""){
 						var groupedid = $li.attr("data-id");
 						item.groupedid = groupedid;
@@ -92,13 +88,6 @@
 				}
 
 			},
-			"click;.operator-btn-group .btn-group .btn" : function(event) {
-				var view = this;
-				var $e = view.$el;
-				var $btn = $(event.currentTarget);
-				$btn.closest(".btn-group").find(".btn").removeClass("active");
-				$btn.addClass("active");
-			}
 
 		}
 		// --------- /Events--------- //

@@ -43,6 +43,8 @@ public class SearchWebHandlers {
                               @WebParam("pageIndex") Integer pageIndex, @WebParam("pageSize") Integer pageSize,
                               @WebParam("orderBy")String orderBy,@WebParam("orderType")Boolean orderType,
                               @WebParam("searchColumns")String searchColumns,@WebUser Map token,@WebParam("searchMode")String searchMode,
+                              @WebParam("skillOperator")String skillOperator,
+                              @WebParam("companyOperator")String companyOperator,
                               @WebParam("searchModeChange")String searchModeChange){
         if(pageIndex == null ){
         	pageIndex = 0;
@@ -58,7 +60,8 @@ public class SearchWebHandlers {
         searchMap.put("searchValues", searchValues);
         searchMap.put("orderType", orderType);
         searchMap.put("searchMode", searchMode);
-        searchMap.put("searchModeChange", searchModeChange);
+        searchMap.put("skillOperator", skillOperator);
+        searchMap.put("companyOperator", companyOperator);
 
         SearchResult searchResult = searchDao.search(new SearchRequest(searchMap),(String)token.get("ctoken"),orgHolder.getCurrentOrg());
         return webResponseBuilder.success(searchResult);

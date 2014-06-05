@@ -370,8 +370,8 @@ public class SearchDao {
     	try{
     		long start = System.currentTimeMillis();
     		List<Map> result = null;
-    		if(!searchRequest.searchModeChange()){
-        		result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+            result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+    		if(result != null && !searchRequest.isEstimateSearch()){
         		result = setLoctionName(searchRequest,result,org);
     		}
     		long mid = System.currentTimeMillis();
@@ -842,11 +842,11 @@ public class SearchDao {
             hasCondition = renderFilterCondition( searchRequest.getEducations(),
                     prefixSql, querySql, schemaname, sc,FilterType.EDUCATION,org)||hasCondition;
            // add the 'companies' filter, and join ts2__employment_history__c table
-           hasCondition = renderFilterCondition( searchRequest.getCompanies(),
+           hasCondition = renderCompanyCondition(searchRequest.getCompanyOperator(), searchRequest.getCompanies(),
                    prefixSql, querySql, schemaname, sc,FilterType.COMPANY,org)||hasCondition;
            
            // add the 'skillNames' filter, and join ts2__skill__c table
-           hasCondition = renderSkillCondition(searchRequest.getSkills(),
+           hasCondition = renderSkillCondition(searchRequest.getSkillOperator(),searchRequest.getSkills(),
                    prefixSql, querySql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
            
            //add the 'radius' filter
@@ -1411,55 +1411,112 @@ public class SearchDao {
             return hasCondition;
     }
     
-	private boolean renderSkillCondition(JSONArray values,StringBuilder prefixSql,
+    private boolean renderSkillCondition(String operator, JSONArray values,StringBuilder prefixSql,
+                            StringBuilder filterSql,String schemaname, 
+                            SearchConfiguration sc, FilterType filterType,OrgContext org) {
+        boolean hasCondition = false;
+        if (values != null) {
+            StringBuilder condition = new StringBuilder();
+            if (condition.length() == 0) {
+                condition.append(" AND (1!=1 ");
+            }
+            
+            if(operator.equals("R")){
+                condition.append(" or ").append(setSkillCondition("and", filterType, values));
+            }else{
+                condition.append(" or ").append(setSkillCondition("or", filterType, values));
+            }
+            
+            condition.append(" )");
+            
+            filterSql.append(" inner join  jss_contact_jss_groupby_")
+            .append(manyToManyTables.get(filterType)).append(" ")
+            .append(filterType).append(" ON contact.id=")
+            .append(filterType).append(".jss_contact_id ")
+            .append(condition);
+            hasCondition = true;
+        }
+        return hasCondition;
+    }
+    
+    private String setSkillCondition(String logic, FilterType filterType,
+                            List<JSONObject> list) {
+        StringBuilder condition = new StringBuilder();
+        condition.append("( ");
+        if (logic.equals("or")) {
+            for (int i = 0, j = list.size(); i < j; i++) {
+                JSONObject value = list.get(i);
+                Object groupedId = value.get("groupedid");
+                if (i != 0) {
+                    condition.append(" OR ");
+                }
+                condition.append("( ").append(filterType)
+                .append(".jss_groupby_")
+                .append(manyToManyTables.get(filterType))
+                .append("_id=").append(groupedId);
+                if (value.containsKey("minYears")) {
+                    condition.append(" AND ").append(filterType)
+                    .append(".rating>=")
+                    .append(value.getInt("minYears"));
+                }
+                condition.append(" )");
+            }
+        } else if (logic.equals("and")) {
+            String table = " jss_contact_jss_groupby_skills ";
+            StringBuilder builders = new StringBuilder();
+            builders.append("( select distinct skill.jss_contact_id from jss_contact_jss_groupby_skills skill");
+            for (int i = 0, j = list.size(); i < j; i++) {
+                JSONObject value = list.get(i);
+                Object groupedId = value.get("groupedid");
+                builders.append(" join ").append(table).append("sa"+(i+1)).append(" on ").append("skill.jss_contact_id = ")
+                .append("sa"+(i+1)).append(".jss_contact_id").append(" and ").append("sa"+(i+1)).append(".jss_groupby_skills_id = ")
+                .append(groupedId);
+                if (value.containsKey("minYears")) {
+                    builders.append(" AND ").append(filterType)
+                    .append(".rating>=")
+                    .append(value.getInt("minYears"));
+                }
+            }
+            builders.append(") ");
+            condition.append("SKILL.jss_contact_id in ").append(builders);
+        } else if (logic.equals("not")) {
+            StringBuilder builders = new StringBuilder();
+            builders.append("( select contact.id  from contact  inner join  jss_contact_jss_groupby_skills SKILL ON contact.id=SKILL.jss_contact_id AND");
+            for (int i = 0, j = list.size(); i < j; i++) {
+                JSONObject value = list.get(i);
+                Object groupedId = value.get("groupedid");
+                if(i == 0){
+                    builders.append(" ( ");
+                }else{
+                    builders.append(" or ");
+                }
+                builders.append("SKILL.jss_groupby_skills_id = ").append(groupedId);
+            }
+            builders.append(" ) ) ");
+            condition.append("contact.id not in ").append(builders);
+        }
+        condition.append(" )");
+        return condition.toString();
+    }
+    
+	private boolean renderCompanyCondition(String operator, JSONArray values,StringBuilder prefixSql,
 			                    StringBuilder filterSql,String schemaname, 
 			                    SearchConfiguration sc, FilterType filterType,OrgContext org) {
 		boolean hasCondition = false;
 		if (values != null) {
-			List<JSONObject> any = new ArrayList<JSONObject>();
-			List<JSONObject> all = new ArrayList<JSONObject>();
-			List<JSONObject> not = new ArrayList<JSONObject>();
-			for (int i = 0, j = values.size(); i < j; i++) {
-				JSONObject value = JSONObject.fromObject(values.get(i));
-				if(value.get("groupedid") != null && value.get("operator") != null ){
-					Object type = value.get("operator").toString();
-					if (type.equals("R")) {
-						all.add(value);
-					} else if (type.equals("N")) {
-						not.add(value);
-					}else {
-						any.add(value);
-					} 
-				}else if(value.get("groupedid") != null ){
-					any.add(value);
-				} 
-			}
-			StringBuilder condition = new StringBuilder();
-			if (any.size() + all.size() + not.size() > 0) {
-				if (condition.length() == 0) {
-					condition.append(" AND (1!=1 ");
-				}
-				if (all.size() + not.size() == 0) {
-					if (any.size() > 0) {
-						condition.append(" or ").append(
-								setSkillCondition("or", filterType, any));
-					}
-				} else {
-					if (all.size() > 0) {
-						condition.append(" or ").append(
-								setSkillCondition("and", filterType, all));
-					}
-					if (not.size() > 0) {
-						if(all.size()==0){
-							condition.append(" or ");
-						}else{
-							condition.append(" and ");
-						}
-						condition.append(setSkillCondition("not", filterType, not));
-					}
-				}
-				condition.append(" )");
-			}
+		    StringBuilder condition = new StringBuilder();
+		    if (condition.length() == 0) {
+                condition.append(" AND (1!=1 ");
+            }
+		    
+		    if(operator.equals("R")){
+		        condition.append(" or ").append(setCompanyCondition("and", filterType, values));
+		    }else{
+		        condition.append(" or ").append(setCompanyCondition("or", filterType, values));
+		    }
+			
+		    condition.append(" )");
+			
 			filterSql.append(" inner join  jss_contact_jss_groupby_")
 					.append(manyToManyTables.get(filterType)).append(" ")
 					.append(filterType).append(" ON contact.id=")
@@ -1470,8 +1527,7 @@ public class SearchDao {
 		return hasCondition;
 	}
 
-	private String setSkillCondition(String logic, FilterType filterType,
-			List<JSONObject> list) {
+	private String setCompanyCondition(String logic, FilterType filterType, List<JSONObject> list) {
 		StringBuilder condition = new StringBuilder();
 		condition.append("( ");
 		if (logic.equals("or")) {
@@ -1487,32 +1543,32 @@ public class SearchDao {
 						.append("_id=").append(groupedId);
 				if (value.containsKey("minYears")) {
 					condition.append(" AND ").append(filterType)
-							.append(".rating>=")
+							.append(".year>=")
 							.append(value.getInt("minYears"));
 				}
 				condition.append(" )");
 			}
 		} else if (logic.equals("and")) {
-			String table = " jss_contact_jss_groupby_skills ";
+			String table = " jss_contact_jss_groupby_employers ";
 			StringBuilder builders = new StringBuilder();
-			builders.append("( select distinct skill.jss_contact_id from jss_contact_jss_groupby_skills skill");
+			builders.append("( select distinct employer.jss_contact_id from jss_contact_jss_groupby_employers employer");
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
 				Object groupedId = value.get("groupedid");
-				builders.append(" join ").append(table).append("sa"+(i+1)).append(" on ").append("skill.jss_contact_id = ")
-				.append("sa"+(i+1)).append(".jss_contact_id").append(" and ").append("sa"+(i+1)).append(".jss_groupby_skills_id = ")
+				builders.append(" join ").append(table).append("sa"+(i+1)).append(" on ").append("employer.jss_contact_id = ")
+				.append("sa"+(i+1)).append(".jss_contact_id").append(" and ").append("sa"+(i+1)).append(".jss_groupby_employers_id = ")
 				.append(groupedId);
 				if (value.containsKey("minYears")) {
 					builders.append(" AND ").append(filterType)
-							.append(".rating>=")
+							.append(".year>=")
 							.append(value.getInt("minYears"));
 				}
 			}
 			builders.append(") ");
-			condition.append("SKILL.jss_contact_id in ").append(builders);
+			condition.append("COMPANY.jss_contact_id in ").append(builders);
 		} else if (logic.equals("not")) {
 			StringBuilder builders = new StringBuilder();
-			builders.append("( select contact.id  from contact  inner join  jss_contact_jss_groupby_skills SKILL ON contact.id=SKILL.jss_contact_id AND");
+			builders.append("( select contact.id  from contact  inner join  jss_contact_jss_groupby_employers COMPANY ON contact.id=COMPANY.jss_contact_id AND");
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
 				Object groupedId = value.get("groupedid");
@@ -1521,7 +1577,7 @@ public class SearchDao {
 				}else{
 					builders.append(" or ");
 				}
-				builders.append("SKILL.jss_groupby_skills_id = ").append(groupedId);
+				builders.append("COMPANY.jss_groupby_employers_id = ").append(groupedId);
 			}
 			builders.append(" ) ) ");
 			condition.append("contact.id not in ").append(builders);
@@ -1734,14 +1790,14 @@ public class SearchDao {
         
         
         public SearchBuilder addCompany(JSONArray companies){
-            hasCondition = renderFilterCondition( companies,
+            hasCondition = renderCompanyCondition(searchRequest.getCompanyOperator(), companies,
                     prefixSql, filterSql, schemaname, sc,FilterType.COMPANY,org)||hasCondition;
             return this;
         }
       
        
         public SearchBuilder addSkill(JSONArray skills){
-            hasCondition = renderSkillCondition( skills,
+            hasCondition = renderSkillCondition(searchRequest.getSkillOperator(), skills,
                     prefixSql, filterSql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
             return this;
         }

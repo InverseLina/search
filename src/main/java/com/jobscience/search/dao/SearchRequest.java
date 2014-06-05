@@ -22,6 +22,8 @@ public class SearchRequest {
     private JSONArray companies;
     private Map<String,JSONArray> customFilters = new HashMap<String, JSONArray>();
     private String searchValues;
+    private String skillOperator;
+    private String companyOperator;
     private boolean isOnlyKeyWord = true;
     private boolean estimateSearch = true;
     private boolean searchModeChange = false;
@@ -84,12 +86,25 @@ public class SearchRequest {
         		estimateSearch = true;
         	}
         }
+        
         if(searchParams.get("searchModeChange")  != null){
         	if(searchParams.get("searchModeChange").toString().toLowerCase().equals("true")){
         		searchModeChange = true;
         	}else{
         		searchModeChange = false;
         	}
+        }
+        
+        if(searchParams.get("skillOperator")  != null){
+            skillOperator = searchParams.get("skillOperator").toString();
+        }else{
+            skillOperator = "O";
+        }
+        
+        if(searchParams.get("companyOperator")  != null){
+            companyOperator = searchParams.get("companyOperator").toString();
+        }else{
+            companyOperator = "O";
         }
         
         setContacts();
@@ -217,6 +232,14 @@ public class SearchRequest {
 		return isOnlyKeyWord;
 	}
     
+    public String getSkillOperator() {
+        return skillOperator;
+    }
+
+    public String getCompanyOperator() {
+        return companyOperator;
+    }
+
     public boolean isEstimateSearch() {
 		return estimateSearch;
 	}

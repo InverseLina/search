@@ -13,13 +13,6 @@
 			return html;
 		},
 		events:{
-			"click;.skill-btn-group .btn-group .btn" : function(event) {
-				var view = this;
-				var $e = view.$el;
-				var $btn = $(event.currentTarget);
-				$btn.closest(".btn-group").find(".btn").removeClass("active");
-				$btn.addClass("active");
-			}
 		}
 
 	};

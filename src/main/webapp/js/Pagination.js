@@ -114,15 +114,10 @@
 			pageIdx : data.pageIdx || 1,
 			pageSize : data.pageSize || 15,
 			totalCount : data.totalCount || 0,
+			hasNextPage : data.hasNextPage || false,
 			callback : data.callback || function() {},
 		};
-		if(typeof data.hasNextPage !== 'undefined'){
-			page.hasNextPage = data.hasNextPage;
-		}else if(typeof view.page.hasNextPage !== 'undefined'){
-			page.hasNextPage = view.page.hasNextPage;
-		}else{
-			page.hasNextPage = false;
-		}
+		
 		view.page = page;
 		calc(view.page);
 		var html = render("Pagination-detail", page);

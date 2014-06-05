@@ -36,7 +36,6 @@ var app = app || {};
 					if (val.minYears || val.minRadius) {
 						item.min = val.minYears || val.minRadius;
 					}
-					item.operator = val.operator;
 					item.groupedid = val.groupedid;
 					item.locationid = val.locationid;
 					item.latitude = val.latitude;
@@ -317,15 +316,11 @@ var app = app || {};
 		}
 
 		function addItem(data) {
-			var item, minValue = 0, operator, view = this;
+			var item, minValue = 0, view = this;
 			var $dataItem = view.$el.find(".selectedItems .item[data-name='" + data.name + "']");
 			var len = $dataItem.length;
 			if (view.slider) {
 				minValue = view.slider.getValue();
-			}
-			
-			if(view.type === "skill"){
-				operator = view.$el.find(".skill-btn-group .btn.active").attr("data-value");
 			}
 			
 			if (len === 0) {
@@ -345,9 +340,6 @@ var app = app || {};
 				if(data.longitude){
 					item.longitude = data.longitude;
 				}
-				if(operator){
-					item.operator = operator;
-				}
 				if(data.suffix){
 					item.suffix = data.suffix;
 				}
@@ -364,7 +356,6 @@ var app = app || {};
 					locationid : data.locationid,
 					longitude : data.longitude,
 					latitude : data.latitude,
-					operator : operator,
 					name : data.name,
 					suffix : data.suffix,
 					min : minValue || ""
@@ -375,31 +366,27 @@ var app = app || {};
 			} else {
 				var obj = app.ParamsControl.get(view.type, data.name);
 				var oldMinValue = obj.value.minRadius || obj.value.minYears || 0;
-				var oldOperator = obj.value.operator;
 
-				if (oldMinValue !== minValue || oldOperator != operator) {
-					if(oldMinValue !== minValue){
-						if (view.type === "location") {
-							obj.value['minRadius'] = minValue;
-						} else {
-							obj.value['minYears'] = minValue;
-						}
+				if (oldMinValue !== minValue) {
+					if (view.type === "location") {
+						obj.value['minRadius'] = minValue;
+					} else {
+						obj.value['minYears'] = minValue;
 					}
-					
-					obj.value.operator = operator;
-					var html = render("filterPanel-selectedItem-add", {
-						groupedid : data.groupedid,
-						locationid : data.locationid,
-						latitude : data.latitude,
-						longitude : data.longitude,
-						operator : operator,
-						name : data.name,
-						suffix : data.suffix,
-						min : minValue > 0 ? minValue : ""
-					});
-					$dataItem.html($(html).html());
-					view.$el.trigger("UPDATE_FILTER");
 				}
+
+				var html = render("filterPanel-selectedItem-add", {
+					groupedid : data.groupedid,
+					locationid : data.locationid,
+					latitude : data.latitude,
+					longitude : data.longitude,
+					name : data.name,
+					suffix : data.suffix,
+					min : minValue > 0 ? minValue : ""
+				});
+				$dataItem.html($(html).html());
+				view.$el.trigger("UPDATE_FILTER"); 
+
 			}
 			return false;
 		}
