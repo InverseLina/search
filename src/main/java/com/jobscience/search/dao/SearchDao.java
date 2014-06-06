@@ -1417,120 +1417,95 @@ public class SearchDao {
         boolean hasCondition = false;
         if (values != null) {
             StringBuilder condition = new StringBuilder();
-            if (condition.length() == 0) {
-                condition.append(" AND (1!=1 ");
-            }
-            
             if(operator.equals("R")){
-                condition.append(" or ").append(setSkillCondition("and", filterType, values));
+                condition.append(setSkillCondition("and", filterType, values));
             }else{
-                condition.append(" or ").append(setSkillCondition("or", filterType, values));
+                condition.append(setSkillCondition("or", filterType, values));                
             }
-            
-            condition.append(" )");
-            
-            filterSql.append(" inner join  jss_contact_jss_groupby_")
-            .append(manyToManyTables.get(filterType)).append(" ")
-            .append(filterType).append(" ON contact.id=")
-            .append(filterType).append(".jss_contact_id ")
-            .append(condition);
+            filterSql.append(condition);
             hasCondition = true;
         }
         return hasCondition;
     }
-    
-    private String setSkillCondition(String logic, FilterType filterType,
-                            List<JSONObject> list) {
-        StringBuilder condition = new StringBuilder();
-        condition.append("( ");
-        if (logic.equals("or")) {
-            for (int i = 0, j = list.size(); i < j; i++) {
-                JSONObject value = list.get(i);
-                Object groupedId = value.get("groupedid");
-                if (i != 0) {
-                    condition.append(" OR ");
-                }
-                condition.append("( ").append(filterType)
-                .append(".jss_groupby_")
-                .append(manyToManyTables.get(filterType))
-                .append("_id=").append(groupedId);
-                if (value.containsKey("minYears")) {
-                    condition.append(" AND ").append(filterType)
-                    .append(".rating>=")
-                    .append(value.getInt("minYears"));
-                }
-                condition.append(" )");
-            }
-        } else if (logic.equals("and")) {
-            String table = " jss_contact_jss_groupby_skills ";
-            StringBuilder builders = new StringBuilder();
-            builders.append("( select distinct skill.jss_contact_id from jss_contact_jss_groupby_skills skill");
-            for (int i = 0, j = list.size(); i < j; i++) {
-                JSONObject value = list.get(i);
-                Object groupedId = value.get("groupedid");
-                builders.append(" join ").append(table).append("sa"+(i+1)).append(" on ").append("skill.jss_contact_id = ")
-                .append("sa"+(i+1)).append(".jss_contact_id").append(" and ").append("sa"+(i+1)).append(".jss_groupby_skills_id = ")
-                .append(groupedId);
-                if (value.containsKey("minYears")) {
-                    builders.append(" AND ").append(filterType)
-                    .append(".rating>=")
-                    .append(value.getInt("minYears"));
-                }
-            }
-            builders.append(") ");
-            condition.append("SKILL.jss_contact_id in ").append(builders);
-        } else if (logic.equals("not")) {
-            StringBuilder builders = new StringBuilder();
-            builders.append("( select contact.id  from contact  inner join  jss_contact_jss_groupby_skills SKILL ON contact.id=SKILL.jss_contact_id AND");
-            for (int i = 0, j = list.size(); i < j; i++) {
-                JSONObject value = list.get(i);
-                Object groupedId = value.get("groupedid");
-                if(i == 0){
-                    builders.append(" ( ");
-                }else{
-                    builders.append(" or ");
-                }
-                builders.append("SKILL.jss_groupby_skills_id = ").append(groupedId);
-            }
-            builders.append(" ) ) ");
-            condition.append("contact.id not in ").append(builders);
-        }
-        condition.append(" )");
-        return condition.toString();
-    }
+
+	private String setSkillCondition(String logic, FilterType filterType,
+			List<JSONObject> list) {
+		StringBuilder condition = new StringBuilder();
+		if (logic.equals("or")) {
+			condition.append(" inner join  jss_contact_jss_groupby_")
+					.append(manyToManyTables.get(filterType)).append(" ")
+					.append(filterType).append(" ON contact.id=")
+					.append(filterType).append(".jss_contact_id ")
+					.append(" AND (1!=1 ").append("or ").append("( ");
+			for (int i = 0, j = list.size(); i < j; i++) {
+				JSONObject value = list.get(i);
+				Object groupedId = value.get("groupedid");
+				if (i != 0) {
+					condition.append(" OR ");
+				}
+				condition.append("( ").append(filterType)
+						.append(".jss_groupby_")
+						.append(manyToManyTables.get(filterType))
+						.append("_id=").append(groupedId);
+				if (value.containsKey("minYears")) {
+					condition.append(" AND ").append(filterType)
+							.append(".rating>=")
+							.append(value.getInt("minYears"));
+				}
+				condition.append(" )");
+			}
+			condition.append(" ) )");
+		} else if (logic.equals("and") && list.size() == 1) {
+			return setSkillCondition("or", filterType, list);
+		} else if (logic.equals("and") && list.size() != 1) {
+			for (int i = 0, j = list.size(); i < j; i++) {
+				JSONObject value = list.get(i);
+				Object groupedId = value.get("groupedid");
+				condition.append(" inner join  jss_contact_jss_groupby_")
+						.append(manyToManyTables.get(filterType)).append(" ")
+						.append(filterType).append(i).append(" ON contact.id=")
+						.append(filterType).append(i)
+						.append(".jss_contact_id ");
+				condition.append("AND ( ").append(filterType).append(i)
+						.append(".jss_groupby_")
+						.append(manyToManyTables.get(filterType))
+						.append("_id=").append(groupedId);
+				if (value.containsKey("minYears")) {
+					condition.append(" AND ").append(filterType).append(i)
+							.append(".rating>=")
+							.append(value.getInt("minYears"));
+				}
+				condition.append(" )");
+			}
+		}
+		return condition.toString();
+	}
     
 	private boolean renderCompanyCondition(String operator, JSONArray values,StringBuilder prefixSql,
 			                    StringBuilder filterSql,String schemaname, 
 			                    SearchConfiguration sc, FilterType filterType,OrgContext org) {
 		boolean hasCondition = false;
 		if (values != null) {
-		    StringBuilder condition = new StringBuilder();
-		    if (condition.length() == 0) {
-                condition.append(" AND (1!=1 ");
+            StringBuilder condition = new StringBuilder();
+            if(operator.equals("R")){
+                condition.append(setCompanyCondition("and", filterType, values));
+            }else{
+                condition.append(setCompanyCondition("or", filterType, values));                
             }
-		    
-		    if(operator.equals("R")){
-		        condition.append(" or ").append(setCompanyCondition("and", filterType, values));
-		    }else{
-		        condition.append(" or ").append(setCompanyCondition("or", filterType, values));
-		    }
-			
-		    condition.append(" )");
-			
-			filterSql.append(" inner join  jss_contact_jss_groupby_")
-					.append(manyToManyTables.get(filterType)).append(" ")
-					.append(filterType).append(" ON contact.id=")
-					.append(filterType).append(".jss_contact_id ")
-					.append(condition);
-			hasCondition = true;
-		}
-		return hasCondition;
+            filterSql.append(condition);
+            hasCondition = true;
+        }
+        return hasCondition;
 	}
 
 	private String setCompanyCondition(String logic, FilterType filterType, List<JSONObject> list) {
 		StringBuilder condition = new StringBuilder();
-		condition.append("( ");
 		if (logic.equals("or")) {
+			condition.append(" inner join  jss_contact_jss_groupby_")
+	         .append(manyToManyTables.get(filterType)).append(" ")
+	         .append(filterType).append(" ON contact.id=")
+             .append(filterType).append(".jss_contact_id ")
+	         .append(" AND (1!=1 ").append("or ").append("( ");
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
 				Object groupedId = value.get("groupedid");
@@ -1548,41 +1523,29 @@ public class SearchDao {
 				}
 				condition.append(" )");
 			}
-		} else if (logic.equals("and")) {
-			String table = " jss_contact_jss_groupby_employers ";
-			StringBuilder builders = new StringBuilder();
-			builders.append("( select distinct employer.jss_contact_id from jss_contact_jss_groupby_employers employer");
+			condition.append(" ) )");
+		} else if (logic.equals("and")&& list.size() == 1) {
+        	return setCompanyCondition("or", filterType, list);
+        } else if (logic.equals("and") && list.size() != 1)  {
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
 				Object groupedId = value.get("groupedid");
-				builders.append(" join ").append(table).append("sa"+(i+1)).append(" on ").append("employer.jss_contact_id = ")
-				.append("sa"+(i+1)).append(".jss_contact_id").append(" and ").append("sa"+(i+1)).append(".jss_groupby_employers_id = ")
-				.append(groupedId);
+				condition.append(" inner join  jss_contact_jss_groupby_")
+                   .append(manyToManyTables.get(filterType)).append(" ")
+                   .append(filterType).append(i).append(" ON contact.id=")
+                   .append(filterType).append(i).append(".jss_contact_id ");
+		        condition.append("AND ( ").append(filterType).append(i)
+		           .append(".jss_groupby_")
+		           .append(manyToManyTables.get(filterType))
+		           .append("_id=").append(groupedId);
 				if (value.containsKey("minYears")) {
-					builders.append(" AND ").append(filterType)
+					condition.append(" AND ").append(filterType)
 							.append(".year>=")
 							.append(value.getInt("minYears"));
 				}
+				condition.append(") ");
 			}
-			builders.append(") ");
-			condition.append("COMPANY.jss_contact_id in ").append(builders);
-		} else if (logic.equals("not")) {
-			StringBuilder builders = new StringBuilder();
-			builders.append("( select contact.id  from contact  inner join  jss_contact_jss_groupby_employers COMPANY ON contact.id=COMPANY.jss_contact_id AND");
-			for (int i = 0, j = list.size(); i < j; i++) {
-				JSONObject value = list.get(i);
-				Object groupedId = value.get("groupedid");
-				if(i == 0){
-					builders.append(" ( ");
-				}else{
-					builders.append(" or ");
-				}
-				builders.append("COMPANY.jss_groupby_employers_id = ").append(groupedId);
-			}
-			builders.append(" ) ) ");
-			condition.append("contact.id not in ").append(builders);
 		}
-		condition.append(" )");
 		return condition.toString();
 	}
 
