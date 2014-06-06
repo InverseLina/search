@@ -907,7 +907,7 @@
 		var matched = "";
 		$.each(filter, function(index, e) {
 			if (value.indexOf(e.name + ",") !== -1) {
-				value.replace(e.name + ",", "");
+				value = value.replace(e.name + ",", "");
 				matched += "<strong>" + e.name + "</strong>,";
 			}
 		});
