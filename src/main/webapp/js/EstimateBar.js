@@ -20,6 +20,10 @@
 			var view = this;
 			var $e = this.$el;
 			
+			if(brite.ua.hasCanvas()){
+				drawCurveBar.call(view);
+			}
+			
 			refresh.call(view,{count:0, exact:true});
 		},
 		docEvents:{
@@ -103,6 +107,60 @@
 			c++;
 		}, 500);
 		
+	}
+	
+	function drawCurveBar(){
+		var view = this;
+		var $e = this.$el;
+		$e.find(".elementsCon").css("opacity",0);
+		$e.append("<canvas class='EstimateBar-canvas' width=0 height=0 ></canvas>");
+		var $canvas = $e.find(".EstimateBar-canvas");
+		var gtx = brite.gtx($canvas);
+		gtx.fitParent();
+		
+		var width = $canvas.width();
+		var height = $canvas.height();
+		var firstWidth = 26;
+		var minWidth = 10;
+		var minHeight = 5;
+		var minDeltaWidth = 3;
+		var mintGapWidth = 2;
+		var count = 7;
+		gtx.beginPath();
+		gtx.moveTo(0, height);
+		gtx.lineTo(width, height);
+		
+		var maxHeight = getDeltaTarget.call(view, minHeight, 1, 1, count);
+		gtx.lineTo(width, height - maxHeight);
+		gtx.bezierCurveTo(width - width/5, height - maxHeight*2/3, width - width * 3 / 5, height - maxHeight / 3, 0, height);
+		// gtx.lineTo(1, minHeight);
+		gtx.lineTo(0, height);
+		gtx.closePath();
+		
+		var gradient = gtx.createLinearGradient(0, height, width, height);
+		gradient.addColorStop(0.00, "#6d999c");
+		gradient.addColorStop(1.00, "#c2eef6");
+		gtx.fillStyle(gradient);
+		gtx.fill();
+		
+		gtx.fillStyle("#ffffff");
+		var start = minWidth;
+		var totalX = firstWidth;
+		var clearHeight = getDeltaTarget.call(view, minHeight, 1, 1, 6);
+		for(var i = 0; i < count; i++){
+			var width = getDeltaTarget.call(view,minWidth,minDeltaWidth,1, i);
+			var gapWidth = getDeltaTarget.call(view,mintGapWidth,0.5,0.1,i);
+			gtx.fillRect(totalX, height - clearHeight, gapWidth, clearHeight);
+			totalX += width + gapWidth;
+		}
+	}
+	
+	function getDeltaTarget(start,delta,acceleration, pos){
+		var end = start;
+		for(var i = 0; i < pos; i++){
+			end = end + delta + i * acceleration;
+		}
+		return end;
 	}
 	// --------- /Private Methods--------- //
 
