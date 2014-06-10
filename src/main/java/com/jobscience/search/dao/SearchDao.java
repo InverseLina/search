@@ -1539,7 +1539,7 @@ public class SearchDao {
 		           .append(manyToManyTables.get(filterType))
 		           .append("_id=").append(groupedId);
 				if (value.containsKey("minYears")) {
-					condition.append(" AND ").append(filterType)
+					condition.append(" AND ").append(filterType).append(i)
 							.append(".year>=")
 							.append(value.getInt("minYears"));
 				}
