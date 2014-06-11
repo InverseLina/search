@@ -184,6 +184,20 @@
 							}
 						}
 					}
+
+					&.skillTh .operatorBtnGroups,&.companyTh .operatorBtnGroups{
+						.btn{
+							background: #fff;
+							color: #ddd;
+							border:1px solid #ddd;
+							&.active{
+								color: #fff;
+								background: #ddd;
+							}
+						}
+					}						
+					
+
 				}
 				a {
 					color: #ccc;
@@ -300,12 +314,13 @@
 							}
 							
 							.operatorBtnGroups{
-								padding:1px;
 								position:absolute;
 								right:8px;
 								top:8px;
 								background:#fff;
 								border-radius:4px;
+								z-index:0;
+								border:1px solid #fff;
 								.btn{
 									padding:0px;
 									width:38px;
@@ -318,7 +333,7 @@
 							}
 							&.skillTh .operatorBtnGroups{
 								.btn{
-									background: #fff;
+									background: #e3e3e3;
 									color: #555;
 									&.active{
 										color: #fff;
@@ -328,7 +343,7 @@
 							}
 							&.companyTh .operatorBtnGroups{
 								.btn{
-									background: #fff;
+									background: #e3e3e3;
 									color: #555;
 									&.active{
 										color: #fff;

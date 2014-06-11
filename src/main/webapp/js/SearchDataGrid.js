@@ -50,9 +50,10 @@
 					view.$el.trigger("SEARCH_QUERY_CHANGE");
 				}
 			},
-			"click; .searchMode" : function(event) {
+			"click; .searchMode .btn:not(.active)" : function(event) {
 				var view = this;
-				var $searchMode = $(event.currentTarget);
+				var $btn = $(event.currentTarget);
+				var $searchMode = $btn.closest(".searchMode");
 				$searchMode.find(".btn").toggleClass("active");
 				view.$el.trigger("SEARCHMODE_DOSEARCH",new Boolean(true));
 			},
@@ -103,16 +104,20 @@
 					});
 				}
 			},
-			"click; table th[data-column] .operatorBtnGroups" : function(event) {
+			"click; table th[data-column] .operatorBtnGroups .btn" : function(event) {
 				event.preventDefault();
 				event.stopPropagation();
 				var view = this;
-				var $operatorBtnGroups = $(event.currentTarget);
-				$operatorBtnGroups.find(".btn").toggleClass("active");
-				var column = $operatorBtnGroups.closest("th[data-column]").attr("data-column");
-				var value = $operatorBtnGroups.find(".btn.active").attr("data-value");
-				app.preference.store(column+"Operator", value);
-				view.$el.trigger("DO_SEARCH");
+				var $btn = $(event.currentTarget);
+				if(!$btn.hasClass("active")){
+					var $btn = $(event.currentTarget);
+					$operatorBtnGroups = $btn.closest(".operatorBtnGroups");
+					$operatorBtnGroups.find(".btn").toggleClass("active");
+					var column = $operatorBtnGroups.closest("th[data-column]").attr("data-column");
+					var value = $operatorBtnGroups.find(".btn.active").attr("data-value");
+					app.preference.store(column+"Operator", value);
+					view.$el.trigger("DO_SEARCH");
+				}
 			},
 			"click; div.btnPopupColumns" : function(event) {
 				brite.display("SelectColumns");
