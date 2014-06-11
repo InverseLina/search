@@ -25,11 +25,11 @@ public class ResumeWebHandlers {
     
     @WebGet("/getResume")
     public WebResponse search(@WebParam("cid") Long cid, @WebParam("keyword") String keyword) {
-        boolean exact = keyword.matches("^\\s*\"[^\"]+\"\\s*$");
+    	boolean exact = keyword.matches("^\\s*\"[\\s\\S]+\"\\s*$");
         List<Map> result = null;
         Map map = null;
         if (!exact) {
-            String query = keyword.trim().replaceAll("\\s+", "|").replaceAll(" [NOT|OR|AND] ", "|");
+            String query = keyword.trim().replaceAll("\"", "").replaceAll("[NOT|OR|AND]", "").replaceAll("\\s+", "|");
             String sql = "select \"name\", ts_headline(\"ts2__text_resume__c\", to_tsquery(?), \'StartSel=\"<span class=\"\"highlight\"\">\", StopSel=\"</span>\", HighlightAll=true\') as resume from  contact where id = ?";
             result = daoHelper.executeQuery(orgHolder.getOrgName(), sql, query, cid);
         } else {

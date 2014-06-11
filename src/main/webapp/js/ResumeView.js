@@ -62,7 +62,7 @@
 					if (pattern.test(keyWord)) {
 						keyWordsSplited = keyWordsSplited.replace(pattern, "");
 					}
-					keyWordsSplited = [keyWordsSplited];
+					keyWordsSplited = keyWordsSplited.split(/[ ]/);
 					for (var k in keyWordsSplited) {
 						if (keyWordsSplited[k] != "AND" && keyWordsSplited[k] !== "OR" && keyWordsSplited[k] !== "NOT"){
 							var reg = new RegExp("(" + keyWordsSplited[k] + ")", "g");
