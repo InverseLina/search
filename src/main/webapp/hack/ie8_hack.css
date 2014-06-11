@@ -7,3 +7,15 @@
     width: 50%;
     float: left;
 }
+
+.Slider .bar {
+	width: 268px;
+	height: 10px;
+	border: none;
+	background-color:#b7e1e1;
+}
+
+.Slider.zero .bar {
+	background-color:#ccc;
+}
+
