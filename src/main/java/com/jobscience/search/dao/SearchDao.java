@@ -110,104 +110,6 @@ public class SearchDao {
         return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum,org);
     }
     
-//    @SuppressWarnings("unused")
-//    public SearchResult advancedAutoComplete1(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
-//        StringBuilder querySql = new StringBuilder();
-//        StringBuilder groupBy = new StringBuilder();
-//        String column = null;
-//        String baseTableIns = null;
-//        querySql.append("select result.name, count(*) as count from ( select ");
-//        String baseTable = new String();
-//        List values = new ArrayList();
-//        String schemaname = (String)org.getOrgMap().get("schemaname");
-//        
-//        if(type.equals("company")){
-//            baseTable = schemaname+".ts2__employment_history__c ";
-//            baseTableIns = "c";
-//            column = " c.\"ts2__contact__c\" as id, c.\"ts2__name__c\" as name";
-//            groupBy.append(" group by c.\"ts2__contact__c\", c.\"ts2__name__c\" ");
-//        }else if(type.equals("education")){
-//            baseTableIns = "d";
-//            baseTable = schemaname+".ts2__education_history__c ";
-//            groupBy.append(" group by d.\"ts2__contact__c\", d.\"ts2__name__c\" ");
-//            column = " d.\"ts2__contact__c\" as id, d.\"ts2__name__c\" as name";
-//        }else if(type.equals("skill")){
-//            baseTableIns = "b";
-//            baseTable = schemaname+".ts2__skill__c ";
-//            groupBy.append(" group by b.\"ts2__contact__c\", b.\"ts2__skill_name__c\" ");
-//            column = " b.\"ts2__contact__c\" as id, b.\"ts2__skill_name__c\" as name";
-//        }else if(type.equals("location")){
-//            baseTableIns = "z";
-//            baseTable = " jss_sys.zipcode_us ";
-//            column = " z.\"city\" as name ";
-//        }
-//        
-//        querySql.append(column);
-//        querySql.append(" from ");
-//            
-//        String appendJoinTable = "";
-//        
-//        //this flag is used to check if need join with ts2__assessment__c
-//        boolean skill_assessment_rating = false;
-//        
-//        //------- get the skill_assessment_rating config for current org ----------//
-//        if(min!=null&&!"0".equals(min)&&type.equals("skill")){
-//           String skillAssessmentRatingStr = configManager.getConfig("skill_assessment_rating", (Integer)org.getOrgMap().get("id"));
-//            if (!"true".equals(skillAssessmentRatingStr)) {
-//                skill_assessment_rating = false;
-//            } else {
-//                skill_assessment_rating = true;
-//            }
-//            appendJoinTable=(" inner join "+schemaname+".ts2__assessment__c ass on ass.\"ts2__skill__c\"=b.\"sfid\" ");
-//        }
-//        //-------- /get the skill_assessment_rating config for current org ---------//
-//        
-//        //Need to DO refactor here
-//        //querySql.append(renderSearchCondition(searchValues,"advanced",baseTable,baseTableIns,values,appendJoinTable,org)[0]);
-//        
-//        //if has min year or min raidus or min rating,need do filter for this
-//        if(min!=null&&!"0".equals(min)){
-//                if(type.equals("company")){
-//                         querySql.append("  AND EXTRACT(year from age(c.\"ts2__employment_end_date__c\",c.\"ts2__employment_start_date__c\"))>="+min);
-//                }else if(type.equals("education")){
-//                         querySql.append("  AND EXTRACT(year from age(now(),d.\"ts2__graduationdate__c\"))>="+min);
-//                }else if(type.equals("skill")){
-//                           if(skill_assessment_rating){
-//                                   querySql.append("  AND ass.\"ts2__rating__c\" >="+min);
-//                           }else{
-//                                   querySql.append("  AND b.\"ts2__rating__c\" >="+min);
-//                           }
-//                }else if(type.equals("location")){
-//                         querySql.append("   AND  public.earth_distance(public.ll_to_earth(z.\"latitude\",z.\"longitude\"),public.ll_to_earth(a.\"ts2__latitude__c\",a.\"ts2__longitude__c\"))/1000<="+min);
-//                }
-//        }
-//        //add group by statement
-//        if(!"".equals(groupBy.toString())){
-//            querySql.append(groupBy);
-//        }
-//
-//        if(orderByCount){//order by count
-//            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.count desc offset "+(pageNum-1)*pageSize+" limit "+pageSize);
-//        }else{//order by name
-//            querySql.append(") result where result.name != '' and result.name ilike '"+(queryString.length()>2?"%":"")+queryString.replaceAll("\'", "\'\'")+"%' group by result.name order by result.name offset "+(pageNum-1)*pageSize+" limit "+pageSize);
-//        }
-//        if(log.isDebugEnabled()){
-//            log.debug(querySql.toString());
-//        }
-//        Long start = System.currentTimeMillis();
-//        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
-//        List<Map> result =runner.executeQuery(querySql.toString(),values.toArray());
-//        runner.close();
-//        Long end = System.currentTimeMillis();
-//
-//        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
-//        queryLogger.debug(LoggerType.AUTO_PERF, end-start);
-//        SearchResult searchResult = new SearchResult(result, result.size());
-//        searchResult.setDuration(end - start);
-//        searchResult.setSelectDuration(searchResult.getDuration());
-//        return searchResult;
-//    }
-    
     /**
      * boolean search handler for search box
      * @param searchValue
@@ -223,7 +125,7 @@ public class SearchDao {
     	if(!exact){
         	if(!searchValue.contains("NOT ")&&
         	   !searchValue.contains("AND ")&&
-        	   !searchValue.contains("NOT ")){
+        	   !searchValue.contains("OR ")){
             	if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
             	    searchValue = searchValue.replaceAll("\\s+", " OR ");
             	    exact = false;
@@ -307,354 +209,13 @@ public class SearchDao {
     }
 
     /**
-     * Get auto complete data just for name not for count
-     * Now use {@link #getGroupValuesForAdvanced(Map, String, String, Boolean, String, Integer, Integer)}
-     * instead
-     * @param offset
-     * @param size
-     * @param type
-     * @param keyword
-     * @param min
-     * @return
-     * @throws SQLException
-     */
-//    @Deprecated
-//    public List getTopAdvancedType(Integer offset,Integer size,String type,String keyword,String min,Map org) throws SQLException {
-//        if(size == null||size<8){
-//            size = 7;
-//        }
-//        offset = offset < 0 ? 0 : offset;
-//        Runner runner = datasourceManager.newOrgRunner((String)org.get("name"));
-//        String name = getNameExpr(type);
-//        String table = getTable(type,org);
-//        StringBuilder querySql =new StringBuilder();
-//        if("location".equals(type)){
-//        	querySql.append("select city as name from jss_sys.zipcode_us  ");
-//        	if(keyword!=null&&!"".equals(keyword)){
-//            	querySql.append(" where city ilike '"+keyword+ (keyword.length()>2?"%":"")+"' ");
-//            }
-//    	    querySql.append(" group by city order by city offset ").append( offset)
-//    	            .append( " limit ") 
-//    	            .append( size); 
-//        }else{
-//            querySql.append(" select a.name, count(a.contact) from ( ")
-//                    .append( " select e."+name+" as name, e.\"ts2__contact__c\" as contact ")
-//                    .append( " from "+table+" e  ")
-//                    .append( " where e."+name+" !='' ");
-//            if(min!=null&&!"".equals(min)){
-//            	if("company".equals(type)){
-//            	    querySql.append(" AND EXTRACT(year from age(e.\"ts2__employment_end_date__c\",e.\"ts2__employment_start_date__c\"))>="+min);
-//            	}else if("education".equals("type")){
-//            		querySql.append(" AND EXTRACT(year from age(now(),e.\"ts2__graduationdate__c\"))>="+min);
-//            	}else if("skill".equals("type")){
-//            		querySql.append(" AND e.\"ts2__rating__c\" >=  "+min);
-//            	}
-//            }
-//            if(keyword!=null&&!"".equals(keyword)){
-//            	querySql.append(" AND e."+name+" ilike '"+keyword+(keyword.length()>2?"%":"")+ "' ");
-//            }
-//            querySql.append(" group by e.\"ts2__contact__c\", e."+name+") a  ").
-//    				 append(" group by a.name order by a.name offset " ).
-//                     append(offset).
-//                     append(" limit ").
-//                     append(size);
-//        }
-//        List<Map> result =runner.executeQuery(querySql.toString());
-//        runner.close();
-//        return result;
-//    }
-
-    protected SearchResult executeSearch(SearchStatements statementAndValues,SearchRequest searchRequest,OrgContext org){
-    	Runner runner = datasourceManager.newOrgRunner(org.getOrgMap().get("name").toString());
-    	SearchResult searchResult = null;
-    	try{
-    		long start = System.currentTimeMillis();
-    		List<Map> result = null;
-            result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
-    		if(result != null && !searchRequest.searchModeChange()){
-        		result = setLoctionName(searchRequest,result,org);
-    		}
-    		long mid = System.currentTimeMillis();
-    		int count = 0;
-    		boolean exactCount = false;
-    		boolean hasNextPage = false;
-    		
-    		if(result !=null && result.size() == searchRequest.getPageSize() + 1){
-    		    result = result.subList(0, searchRequest.getPageSize());
-    		    hasNextPage = true;
-    		}
-    		
-    		//when the search result less than page size,this would be the last page,we just calculate the count
-    		if(result !=null && result.size() < searchRequest.getPageSize()){
-    			count = searchRequest.getOffest()+result.size();
-    			exactCount = true;
-    		}else{
-    			if(!searchRequest.isEstimateSearch()){
-    				/********** Get the exact count **********/
-	    			try{
-	    				runner.executeUpdate("SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
-	    				int exact= runner.executeCount(statementAndValues.cteSql
-								+" select  count(distinct a.id) as count  "
-								+statementAndValues.countSql);
-	    				count = exact;
-	    				exactCount = true;
-	    			}catch(Exception e){
-	    				log.debug("The count search timeout,use the estimate count");
-	    				exactCount = true;
-	    				count = -1;
-	    			}
-    	    		/********** /Get the exact count **********/
-    			}else{
-	    			/********** Get the exact count **********/
-	    			try{
-	    				runner.executeUpdate("SET statement_timeout TO "+ESTIMATE_COUNT_TIMEOUT+";");
-	    				int exact= runner.executeCount(statementAndValues.cteSql
-								+" select  count(distinct a.id) as count  "
-								+statementAndValues.countSql);
-	    				count = exact;
-	    			}catch(Exception e){
-	    				try{
-	    					log.debug("The count search timeout,use the estimate count");
-		    				/********** Get the estimate count **********/
-		    	    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
-		    						 									+" select  distinct(a.id)  "
-		    						 									+statementAndValues.countSql,
-		    						 									statementAndValues.values);
-		    	    		if(explainPlans.size()>0){
-		    	    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
-		    	    			exactCount = false;
-		    	    		}else{
-		    	    			count = 0;
-		    	    		}
-		    	    		/********** /Get the estimate count **********/
-	    				}catch(Exception ex){
-		    				log.debug("The estimate count search timeout");
-	    				}
-	    			}
-		    		/********** /Get the exact count **********/
-    				exactCount = false;
-                    if (count < searchRequest.getPageIndex() * searchRequest.getPageSize()) {
-                        count = searchRequest.getPageIndex() * searchRequest.getPageSize();
-                    }
-	    		}
-    		}
-    		long end = System.currentTimeMillis();
-    		handleResult(result);
-    		searchResult = new SearchResult(result, count)
-    				.setDuration(end - start)
-    				.setSelectDuration(mid - start)
-    				.setCountDuration(end - mid)
-    				.setExactCount(exactCount)
-    		        .setHasNextPage(hasNextPage);
-    	}finally{
-    		runner.executeUpdate("RESET statement_timeout; ");
-    		runner.close();
-    	}
-    
-    	return searchResult;
-    }
-    
-    private void handleResult(List<Map> results){
-    	String[] temp = new String[2];
-    	if(results==null||results.size()==0){
-    		return;
-    	}
-    	for(Map contact:results){
-    		if(contact.containsKey("skill")){
-    			temp = contact.get("skill").toString().split("##");
-    			contact.put("skill", temp[0]);
-    			contact.put("skillgroupedids", temp[1]);
-    		}
-    		if(contact.containsKey("education")){
-    			temp = contact.get("education").toString().split("##");
-    			contact.put("education", temp[0]);
-    			contact.put("educationroupedids", temp[1]);
-    		}
-    		if(contact.containsKey("company")){
-    			temp = contact.get("company").toString().split("##");
-    			contact.put("company", temp[0]);
-    			contact.put("companygroupedids", temp[1]);
-    		}
-    		
-    	}
-    }
-    
-    protected List<Map> setLoctionName(SearchRequest searchRequest,List<Map> results,OrgContext org){
-    	List<Map> result = results;
-    	JSONArray locations = searchRequest.getLocations();
-    	String cityName = "",suffix="";
-    	double minradius = -1;
-    	double latitude = -1;
-    	double longitude = -1;
-    	for(Map contact:results){
-    		if(locations==null){
-    			contact.put("location", "");
-    			continue;
-    		}
-    		boolean hasCityName = false;
-    		minradius = -1;
-    		if(contact.get("ts2__latitude__c") == null || contact.get("ts2__longitude__c") == null){
-    			continue;
-    		}
-    		latitude = Float.parseFloat(contact.get("ts2__latitude__c").toString());
-    		longitude = Float.parseFloat(contact.get("ts2__longitude__c").toString());
-    		JSONObject jo = null;
-    		String name = null;
-    		double latitudes = 0;
-    		double longituds = 0;
-    		double radius = 0;
-    		double deviation = 0;
-    		for(int x = 0,y = locations.size(); x < y; x++){
-    			 jo = JSONObject.fromObject(locations.get(x));
-    			 name = jo.get("name").toString();
-    			 latitudes = Float.parseFloat(jo.get("latitude").toString());
-    			 longituds = Float.parseFloat(jo.get("longitude").toString());
-    			 int checkradius = Integer.parseInt(jo.get("minRadius").toString());
-    			 radius = getDistance(latitude,longitude,latitudes,longituds);
-    			 if(((int)radius <= checkradius && !hasCityName)||((int)radius <= checkradius && (int)radius < minradius)){
-        				 hasCityName = true;
-        				 cityName = name;
-        				 suffix = jo.get("suffix").toString();
-        				 minradius = radius;
-    			 }else{
-    				 if(deviation==0.0d){
-    					 deviation = radius-checkradius;
-    					 cityName = name;
-    					 suffix = jo.get("suffix").toString();
-    					 minradius = checkradius;
-    				 }
-    				
-    				 if(radius-checkradius<deviation){
-    					 deviation = radius-checkradius;
-    					 cityName = name;
-    					 suffix = jo.get("suffix").toString();
-    					 minradius = checkradius;
-    				 }
-    				 
-    			 }
-    			 
-    		}
-    		contact.put("location", cityName+"("+suffix+")"+(
-					(minradius==0.0d)?"":  ("("+(int)(minradius)+")")
-				     ));
-    	}
-    	return result;
-    }
-    
-    public double getDistance(double lat1, double lng1, double lat2, double lng2){
-    	double EARTH_RADIUS = 6378.137;
-        double radLat1 = rad(lat1);
-	    double radLat2 = rad(lat2);
-	    double a = radLat1 - radLat2;
-	    double b = rad(lng1) - rad(lng2);
-	    double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) + 
-	    Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
-	    s = s * EARTH_RADIUS;
-	    s = Math.round(s * 10000) / 10000;
-	    return s*0.62137;
-    }
-    
-    private static double rad(double d)
-    {
-       return d * Math.PI / 180.0;
-    }
-    
-    protected SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        Filter filter = sc.getFilterByName(type);
-        if(filter==null){
-             return null;
-        }
-        FilterType f = filter.getFilterType();
-        String baseTable = "";
-        if(f==null&&!type.equals("location")){
-            baseTable=filter.getFilterField().getTable();
-        }else if(f.equals(FilterType.COMPANY)){
-            baseTable =  "jss_grouped_employers ";
-        }else if(f.equals(FilterType.EDUCATION)){
-            baseTable =  "jss_grouped_educations ";
-        }else if(f.equals(FilterType.SKILL)){
-            baseTable =  "jss_grouped_skills ";
-        }else if(f.equals(FilterType.LOCATION)){
-            baseTable =  "city_score ";
-        }
-        
-        StringBuilder querySql;
-        if(f==null){
-            FilterField ff = sc.getFilterByName(type).getFilterField();
-            querySql = new StringBuilder(" select count(*) as \"count\","+ff.toString("")+" as name from \"" + baseTable + "\" where 1=1 ");
-            if(queryString!=null&&queryString.trim().length()>0){
-                querySql.append(" AND  "+ff.getColumn()+" ilike '"+ queryString+"%'");
-            }
-            querySql.append(" AND ("+ff.getColumn()+"||'')!='' ")
-                    .append(" AND ("+ff.getColumn()+"||'')!='null' ")
-                    .append(" AND "+ff.getColumn()).append(" is not null   group by "+ff.getColumn());
-            querySql.append(" order by count desc limit 7 ");
-        }else{
-            
-//            String suffixColumn = "";
-//            String groupedidColumn = ", a.id as groupedid ";
-//            String latColumn = "";
-//            String countColumn = "a.count";
-//            String nameColumn = ",a.name";
-//            String joinTable = "";
-//            if(type.equals("location")){
-//                suffixColumn = ", case when a.country = 'US' or a.country = 'CA' then a.region else a.country end as suffix, a.city_world_id as locationid ";
-//                groupedidColumn = "";
-//                countColumn = "a.score as count";
-//                nameColumn = ", a.city as name";
-//                latColumn = ", b.latitude as latitude, b.longitude as longitude ";
-//                joinTable = " join jss_sys.city_world b on a.city_world_id = a.id ";
-//            }
-            if (type.equals("location")) {
-                querySql = new StringBuilder(" select score as count, city as name, case when country = 'US' or country = 'CA' then region else country end as suffix, city_world_id as locationid" + " from " + baseTable + "  where 1=1 ");
-                if (queryString != null && queryString.trim().length() > 0) {
-                    querySql.append(" AND score > 0 ");
-                    String[] values = queryString.split(",");
-                    String firstQuery = values[0].trim();
-                    if (values.length > 1) {
-                        querySql.append(" AND region ilike '" + values[1].trim() + "%'");
-                    }
-                    querySql.append(" AND (city ilike '" + firstQuery + "%' OR region ilike '" + firstQuery + "%' OR country ilike '" + firstQuery + "%' )");
-                }
-                querySql.append(" order by count desc limit 7 ");
-                // the final sql
-                querySql = new StringBuilder("select a.*, b.latitude as latitude, b.longitude as longitude from (" + querySql + ") a left join jss_sys.city_world b on a.locationid = b.id");
-            } else {
-                querySql = new StringBuilder(" select a.count as count, a.name as name, a.id as groupedid from " + baseTable + " a where 1=1 ");
-                if (queryString != null && queryString.trim().length() > 0) {
-                    querySql.append(" AND a.name ilike '" + queryString + "%'");
-                }
-                querySql.append(" order by count desc limit 7 ");
-            }
-
-        }
-        
-        
-        Long start = System.currentTimeMillis();
-        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
-        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
-        List<Map> result =runner.executeQuery(querySql.toString());
-        runner.close();
-        Long end = System.currentTimeMillis();
-        //log for performance
-
-        
-        queryLogger.debug(LoggerType.AUTO_PERF, end-start);
-        SearchResult searchResult = new SearchResult(result, result.size());
-        searchResult.setDuration(end - start);
-        searchResult.setSelectDuration(searchResult.getDuration());
-        return searchResult;
-    }
-
-    /**
      * @param searchValues
      * @return SearchStatements
      */
     protected SearchStatements buildSearchStatements(SearchRequest searchRequest,OrgContext org) {
         SearchStatements ss = new SearchStatements();
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        int offset = (searchRequest.getPageIndex() -1) * searchRequest.getPageSize();
+        int offset = searchRequest.getOffest();
         String schemaname = (String)org.getOrgMap().get("schemaname");
         
         //the select query  that will query data
@@ -782,6 +343,394 @@ public class SearchDao {
         return ss;
     }
 
+    
+    protected SearchResult executeSearch(SearchStatements statementAndValues,SearchRequest searchRequest,OrgContext org){
+    	Runner runner = datasourceManager.newOrgRunner(org.getOrgMap().get("name").toString());
+    	SearchResult searchResult = null;
+    	try{
+    		long start = System.currentTimeMillis();
+    		List<Map> result = null;
+            result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+    		if(result != null && !searchRequest.searchModeChange()){
+        		result = setLoctionName(searchRequest,result,org);
+    		}
+    		long mid = System.currentTimeMillis();
+    		int count = 0;
+    		boolean exactCount = false;
+    		boolean hasNextPage = false;
+    		
+    		if(result !=null && result.size() == searchRequest.getPageSize() + 1){
+    		    result = result.subList(0, searchRequest.getPageSize());
+    		    hasNextPage = true;
+    		}
+    		
+    		//when the search result less than page size,this would be the last page,we just calculate the count
+    		if(result !=null && result.size() < searchRequest.getPageSize()){
+    			count = searchRequest.getOffest()+result.size();
+    			exactCount = true;
+    		}else{
+    			if(!searchRequest.isEstimateSearch()){
+    				/********** Get the exact count **********/
+	    			try{
+	    				runner.executeUpdate("SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
+	    				int exact= runner.executeCount(statementAndValues.cteSql
+								+" select  count(distinct a.id) as count  "
+								+statementAndValues.countSql);
+	    				count = exact;
+	    				exactCount = true;
+	    			}catch(Exception e){
+	    				log.debug("The count search timeout,use the estimate count");
+	    				exactCount = true;
+	    				count = -1;
+	    			}
+    	    		/********** /Get the exact count **********/
+    			}else{
+	    			/********** Get the exact count **********/
+	    			try{
+	    				runner.executeUpdate("SET statement_timeout TO "+ESTIMATE_COUNT_TIMEOUT+";");
+	    				int exact= runner.executeCount(statementAndValues.cteSql
+								+" select  count(distinct a.id) as count  "
+								+statementAndValues.countSql);
+	    				count = exact;
+	    			}catch(Exception e){
+	    				try{
+	    					log.debug("The count search timeout,use the estimate count");
+		    				/********** Get the estimate count **********/
+		    	    		List<Map> explainPlans= runner.executeQuery("explain "+statementAndValues.cteSql
+		    						 									+" select  distinct(a.id)  "
+		    						 									+statementAndValues.countSql,
+		    						 									statementAndValues.values);
+		    	    		if(explainPlans.size()>0){
+		    	    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
+		    	    			exactCount = false;
+		    	    		}else{
+		    	    			count = 0;
+		    	    		}
+		    	    		/********** /Get the estimate count **********/
+	    				}catch(Exception ex){
+		    				log.debug("The estimate count search timeout");
+	    				}
+	    			}
+		    		/********** /Get the exact count **********/
+    				exactCount = false;
+                    if (count < searchRequest.getPageIndex() * searchRequest.getPageSize()) {
+                        count = searchRequest.getPageIndex() * searchRequest.getPageSize();
+                    }
+	    		}
+    		}
+    		long end = System.currentTimeMillis();
+    		handleResult(result);
+    		searchResult = new SearchResult(result, count)
+    				.setDuration(end - start)
+    				.setSelectDuration(mid - start)
+    				.setCountDuration(end - mid)
+    				.setExactCount(exactCount)
+    		        .setHasNextPage(hasNextPage);
+    	}finally{
+    		runner.executeUpdate("RESET statement_timeout; ");
+    		runner.close();
+    	}
+    
+    	return searchResult;
+    }
+
+    protected SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+        Filter filter = sc.getFilterByName(type);
+        if(filter==null){
+             return null;
+        }
+        FilterType f = filter.getFilterType();
+        String baseTable = "";
+        if(f==null&&!type.equals("location")){
+            baseTable=filter.getFilterField().getTable();
+        }else if(f.equals(FilterType.COMPANY)){
+            baseTable =  "jss_grouped_employers ";
+        }else if(f.equals(FilterType.EDUCATION)){
+            baseTable =  "jss_grouped_educations ";
+        }else if(f.equals(FilterType.SKILL)){
+            baseTable =  "jss_grouped_skills ";
+        }else if(f.equals(FilterType.LOCATION)){
+            baseTable =  "city_score ";
+        }
+        
+        StringBuilder querySql;
+        if(f==null){
+            FilterField ff = sc.getFilterByName(type).getFilterField();
+            querySql = new StringBuilder(" select count(*) as \"count\","+ff.toString("")+" as name from \"" + baseTable + "\" where 1=1 ");
+            if(queryString!=null&&queryString.trim().length()>0){
+                querySql.append(" AND  "+ff.getColumn()+" ilike '"+ queryString+"%'");
+            }
+            querySql.append(" AND ("+ff.getColumn()+"||'')!='' ")
+                    .append(" AND ("+ff.getColumn()+"||'')!='null' ")
+                    .append(" AND "+ff.getColumn()).append(" is not null   group by "+ff.getColumn());
+            querySql.append(" order by count desc limit 7 ");
+        }else{
+            if (type.equals("location")) {
+                querySql = new StringBuilder(" select score as count, city as name, case when country = 'US' or country = 'CA' then region else country end as suffix, city_world_id as locationid" + " from " + baseTable + "  where 1=1 ");
+                if (queryString != null && queryString.trim().length() > 0) {
+                    querySql.append(" AND score > 0 ");
+                    String[] values = queryString.split(",");
+                    String firstQuery = values[0].trim();
+                    if (values.length > 1) {
+                        querySql.append(" AND region ilike '" + values[1].trim() + "%'");
+                    }
+                    querySql.append(" AND (city ilike '" + firstQuery + "%' OR region ilike '" + firstQuery + "%' OR country ilike '" + firstQuery + "%' )");
+                }
+                querySql.append(" order by count desc limit 7 ");
+                // the final sql
+                querySql = new StringBuilder("select a.*, b.latitude as latitude, b.longitude as longitude from (" + querySql + ") a left join jss_sys.city_world b on a.locationid = b.id");
+            } else {
+                querySql = new StringBuilder(" select a.count as count, a.name as name, a.id as groupedid from " + baseTable + " a where 1=1 ");
+                if (queryString != null && queryString.trim().length() > 0) {
+                    querySql.append(" AND a.name ilike '" + queryString + "%'");
+                }
+                querySql.append(" order by count desc limit 7 ");
+            }
+
+        }
+        
+        
+        Long start = System.currentTimeMillis();
+        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
+        queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
+        List<Map> result =runner.executeQuery(querySql.toString());
+        runner.close();
+        Long end = System.currentTimeMillis();
+        //log for performance
+
+        
+        queryLogger.debug(LoggerType.AUTO_PERF, end-start);
+        SearchResult searchResult = new SearchResult(result, result.size());
+        searchResult.setDuration(end - start);
+        searchResult.setSelectDuration(searchResult.getDuration());
+        return searchResult;
+    }
+    
+    /**
+     * Get the query column and add group by or join table if needed
+     * @param orginalName
+     * @param columnJoinTables
+     * @param groupBy
+     * @return
+     */
+    private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy,StringBuffer searchedColumns,OrgContext org){
+        String schemaname = (String)org.getOrgMap().get("schemaname");
+        if(searchedColumns.toString().contains(orginalName.toLowerCase()+",")){
+            return "";
+        }
+        searchedColumns.append(orginalName.toLowerCase()).append(",");
+        if(orginalName.toLowerCase().equals("name")){
+    		return "lower(a.\"name\") as \"lname\"";
+    	}else if(orginalName.toLowerCase().equals("id")){
+    		return "";
+    	}else if(orginalName.toLowerCase().equals("resume")){
+            if(groupBy.length()>0){
+                groupBy.append(",");
+            }
+            groupBy.append("a.resume");
+            return " a.resume as resume";
+    	}else if(orginalName.toLowerCase().equals("email")){
+     		if(groupBy.length()>0){
+	     			groupBy.append(",");
+     		}
+     		groupBy.append("a.\"email\"");
+    		return " a.\"email\" as email ";
+    	}else if(orginalName.toLowerCase().equals("title")){
+    		if(groupBy.length()>0){
+    			groupBy.append(",");
+    		}
+    		groupBy.append("a.\"title\"");
+    		return "case   when a.\"title\" is null then '' " +
+        			        " else a.\"title\" END title ";
+    	}else if(orginalName.toLowerCase().equals("createddate")){
+    		if(groupBy.length()>0){
+    			groupBy.append(",");
+    		}
+    		groupBy.append("a.\"createddate\"");
+    		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
+    	}else if(orginalName.toLowerCase().equals("company")){
+    	    return " (select  string_agg(c.\"name\",',')||'##'||string_agg(c.\"id\"::varchar,',') "
+    	                            + "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
+    	                            + "on groupby_employers.jss_groupby_employers_id = c.id  "
+    	                            + "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as company ";
+    	}else if(orginalName.toLowerCase().equals("skill")){
+    	    return " (select  string_agg(b.\"name\",',')||'##'||string_agg(b.\"id\"::varchar,',' ) "
+    	                            + "from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
+    	                            + "on groupby_skills.jss_groupby_skills_id = b.id  "
+    	                            + "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skill ";
+    	}else if(orginalName.toLowerCase().equals("education")){
+    	    return " (select  string_agg(d.\"name\",',' order by d.id)||'##'|| string_agg(d.\"id\"::varchar,',')"
+                                    + "from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
+                                    + "on groupby_educations.jss_groupby_educations_id = d.id  "
+                                    + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as education";
+    	}else if(orginalName.toLowerCase().equals("location")){
+    		return "";
+    	}
+        
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+        Filter f = sc.getFilterByName(orginalName);
+        String tableName = f.getFilterField().getTable();
+        String contactTableName = sc.getContact().getTable();
+        if(tableName.equals(contactTableName)){
+            return f.getFilterField().toString("a")+" as \""+f.getName()+"\"";
+        }else{
+            FilterField ff = f.getFilterField();
+            return " (select  string_agg(distinct d.\""+ff.getColumn()+"\",',') " +
+                                    "from "+schemaname+"."+ff.getTable()+" d  where a.\""+ff.getJoinTo()+"\" = d.\""+ff.getJoinFrom()+"\"   ) as \""+f.getName()+"\"";
+        }
+    	//return orginalName;
+    }
+    
+    /**
+     * get the search columns for outer sql block
+     * @param searchColumns
+     * @return
+     */
+    private String getSearchColumnsForOuter(String searchColumns,OrgContext org){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+        StringBuilder sb = new StringBuilder();
+    	if(searchColumns==null){
+    		sb.append("id,name,email,title ,createddate");
+    	}else{
+	    	for(String column:searchColumns.split(",")){
+	    	    if(sb.indexOf("as \""+column.toLowerCase()+"\"")!=-1||sb.indexOf(column.toLowerCase()+",")!=-1
+	    	       ||sb.indexOf("as \"l"+column.toLowerCase()+"\"")!=-1){
+	    	        continue;
+	    	    }
+		    	if(column.toLowerCase().equals("name")){
+		    		sb.append("lower(name) as \"lname\",");
+		    	}else if(column.toLowerCase().equals("title")){
+		    		sb.append("title, ");
+		    	}else if(column.toLowerCase().equals("email")){
+		    		sb.append( "email,");
+		    	}else if(column.toLowerCase().equals("createddate")){
+		    		sb.append("createddate as \"createddate\",");
+		    	}else if(column.toLowerCase().equals("company")){
+		    		sb.append("company, ");
+		    	}else if(column.toLowerCase().equals("skill")){
+		    		sb.append("skill,");
+		    	}else if(column.toLowerCase().equals("education")){
+		    		sb.append("education, ");
+		    	}else if(column.toLowerCase().equals("resume")){
+		    		sb.append("resume,");
+		    	}else if(column.toLowerCase().equals("location")){
+		    		//sb.append("location as \"location\",");
+		    	}else if(column.toLowerCase().equals("contact")){
+		    		sb.append("name,lower(name) as \"lname\",");
+		    		sb.append("title, ");
+		    		sb.append( "email, ");
+		    	}else{
+		    	    Filter filter = sc.getFilterByName(column);
+		    	    if(filter!=null){
+    		    	    if(sb.indexOf("as "+column)==-1&&sb.indexOf(column+",")==-1){
+    		    	        sb.append("\""+filter.getName()+"\"").append(" as \"").append(filter.getName()).append("\",");
+    		    	    }
+		    	    }
+		    	}
+	    	}
+	    	sb.append("id,name");//make id and name always return
+    	}
+    	sb.append(",sfid");//,phone
+    	sb.append(",ts2__latitude__c,ts2__longitude__c");//ts2__latitude__c and ts2__longitude__c
+        return sb.toString();
+    }
+    
+    /**
+     * get search columns for inner sql block
+     * @param searchColumns
+     * @param columnJoinTables
+     * @param groupBy
+     * @return
+     */
+    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,OrgContext org){
+    	 StringBuilder columnsSql = new StringBuilder();
+    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+    	 if(searchColumns==null){//a.phone,
+             columnsSql.append(sc.toContactFieldsString("a"));
+             //,a.phone
+             groupBy.append(","+sc.toContactFieldsString("a"));
+    	 }else{
+    		 String temp = "";
+    		 StringBuffer sb = new StringBuffer("id,name,sfid,");
+ 	         for(String column:searchColumns.split(",")){
+ 	        	temp = getQueryColumnName(column,columnJoinTables,groupBy,sb,org);
+ 	        	if(!temp.trim().equals("")){
+	 	            columnsSql.append(temp);
+	 	            columnsSql.append(",");
+ 	        	}
+ 	        }
+ 	        columnsSql.append("a.id,a.name,a.sfid,a.ts2__latitude__c,a.ts2__longitude__c ");//,a.phone,
+ 	        if(groupBy.length()>0){
+ 	        	groupBy.append(",");
+ 	        }
+ 	        groupBy.append("a.name,a.sfid,a.\"ts2__latitude__c\", a.\"ts2__longitude__c\"");//always return these columns ,
+         }
+    	 return columnsSql.toString();
+    }
+    
+    protected List<Map> setLoctionName(SearchRequest searchRequest,List<Map> results,OrgContext org){
+    	List<Map> result = results;
+    	JSONArray locations = searchRequest.getLocations();
+    	String cityName = "",suffix="";
+    	double minradius = -1;
+    	double latitude = -1;
+    	double longitude = -1;
+    	for(Map contact:results){
+    		if(locations==null){
+    			contact.put("location", "");
+    			continue;
+    		}
+    		boolean hasCityName = false;
+    		minradius = -1;
+    		if(contact.get("ts2__latitude__c") == null || contact.get("ts2__longitude__c") == null){
+    			continue;
+    		}
+    		latitude = Float.parseFloat(contact.get("ts2__latitude__c").toString());
+    		longitude = Float.parseFloat(contact.get("ts2__longitude__c").toString());
+    		JSONObject jo = null;
+    		String name = null;
+    		double latitudes = 0;
+    		double longituds = 0;
+    		double radius = 0;
+    		double deviation = 0;
+    		for(int x = 0,y = locations.size(); x < y; x++){
+    			 jo = JSONObject.fromObject(locations.get(x));
+    			 name = jo.get("name").toString();
+    			 latitudes = Float.parseFloat(jo.get("latitude").toString());
+    			 longituds = Float.parseFloat(jo.get("longitude").toString());
+    			 int checkradius = Integer.parseInt(jo.get("minRadius").toString());
+    			 radius = getDistance(latitude,longitude,latitudes,longituds);
+    			 if(((int)radius <= checkradius && !hasCityName)||((int)radius <= checkradius && (int)radius < minradius)){
+        				 hasCityName = true;
+        				 cityName = name;
+        				 suffix = jo.get("suffix").toString();
+        				 minradius = radius;
+    			 }else{
+    				 if(deviation==0.0d){
+    					 deviation = radius-checkradius;
+    					 cityName = name;
+    					 suffix = jo.get("suffix").toString();
+    					 minradius = checkradius;
+    				 }
+    				
+    				 if(radius-checkradius<deviation){
+    					 deviation = radius-checkradius;
+    					 cityName = name;
+    					 suffix = jo.get("suffix").toString();
+    					 minradius = checkradius;
+    				 }
+    				 
+    			 }
+    			 
+    		}
+    		contact.put("location", cityName+"("+suffix+")"+(
+					(minradius==0.0d)?"":  ("("+(int)(minradius)+")")
+				     ));
+    	}
+    	return result;
+    }
+
     /**
      * @param searchValues
      * @param values
@@ -871,167 +820,6 @@ public class SearchDao {
        return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),locationSql.toString()};
     }
 
-    /**
-     * Get the query column and add group by or join table if needed
-     * @param orginalName
-     * @param columnJoinTables
-     * @param groupBy
-     * @return
-     */
-    private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy,StringBuffer searchedColumns,OrgContext org){
-        String schemaname = (String)org.getOrgMap().get("schemaname");
-        if(searchedColumns.toString().contains(orginalName.toLowerCase()+",")){
-            return "";
-        }
-        searchedColumns.append(orginalName.toLowerCase()).append(",");
-        if(orginalName.toLowerCase().equals("name")){
-    		return "lower(a.\"name\") as \"lname\"";
-    	}else if(orginalName.toLowerCase().equals("id")){
-    		return "";
-    	}else if(orginalName.toLowerCase().equals("resume")){
-            if(groupBy.length()>0){
-                groupBy.append(",");
-            }
-            groupBy.append("a.resume");
-            return " a.resume as resume";
-    	}else if(orginalName.toLowerCase().equals("email")){
-     		if(groupBy.length()>0){
-	     			groupBy.append(",");
-     		}
-     		groupBy.append("a.\"email\"");
-    		return " a.\"email\" as email,lower(a.\"email\") as \"lemail\" ";
-    	}else if(orginalName.toLowerCase().equals("title")){
-    		if(groupBy.length()>0){
-    			groupBy.append(",");
-    		}
-    		groupBy.append("a.\"title\"");
-    		return "case   when a.\"title\" is null then '' " +
-        			        " else a.\"title\" END title ";
-    	}else if(orginalName.toLowerCase().equals("createddate")){
-    		if(groupBy.length()>0){
-    			groupBy.append(",");
-    		}
-    		groupBy.append("a.\"createddate\"");
-    		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
-    	}else if(orginalName.toLowerCase().equals("company")){
-    	    return " (select  string_agg(c.\"name\",',')||'##'||string_agg(c.\"id\"::varchar,',') "
-    	                            + "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
-    	                            + "on groupby_employers.jss_groupby_employers_id = c.id  "
-    	                            + "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as company ";
-    	}else if(orginalName.toLowerCase().equals("skill")){
-    	    return " (select  string_agg(b.\"name\",',')||'##'||string_agg(b.\"id\"::varchar,',' ) "
-    	                            + "from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
-    	                            + "on groupby_skills.jss_groupby_skills_id = b.id  "
-    	                            + "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skill ";
-    	}else if(orginalName.toLowerCase().equals("education")){
-    	    return " (select  string_agg(d.\"name\",',' order by d.id)||'##'|| string_agg(d.\"id\"::varchar,',')"
-                                    + "from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
-                                    + "on groupby_educations.jss_groupby_educations_id = d.id  "
-                                    + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as education";
-    	}else if(orginalName.toLowerCase().equals("location")){
-    		return "";
-    	}
-        
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        Filter f = sc.getFilterByName(orginalName);
-        String tableName = f.getFilterField().getTable();
-        String contactTableName = sc.getContact().getTable();
-        if(tableName.equals(contactTableName)){
-            return f.getFilterField().toString("a")+" as \""+f.getName()+"\"";
-        }else{
-            FilterField ff = f.getFilterField();
-            return " (select  string_agg(distinct d.\""+ff.getColumn()+"\",',') " +
-                                    "from "+schemaname+"."+ff.getTable()+" d  where a.\""+ff.getJoinTo()+"\" = d.\""+ff.getJoinFrom()+"\"   ) as \""+f.getName()+"\"";
-        }
-    	//return orginalName;
-    }
-    
-    /**
-     * get the search columns for outer sql block
-     * @param searchColumns
-     * @return
-     */
-    private String getSearchColumnsForOuter(String searchColumns,OrgContext org){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        StringBuilder sb = new StringBuilder();
-    	if(searchColumns==null){
-    		sb.append("id,name,lower(name) as \"lname\",email,lower(\"email\") as \"lemail\"lower(title) as \"ltitle\",title ,createddate");
-    	}else{
-	    	for(String column:searchColumns.split(",")){
-	    	    if(sb.indexOf("as \""+column.toLowerCase()+"\"")!=-1||sb.indexOf(column.toLowerCase()+",")!=-1
-	    	       ||sb.indexOf("as \"l"+column.toLowerCase()+"\"")!=-1){
-	    	        continue;
-	    	    }
-		    	if(column.toLowerCase().equals("name")){
-		    		sb.append("lower(name) as \"lname\",");
-		    	}else if(column.toLowerCase().equals("title")){
-		    		sb.append("title,lower(title) as \"ltitle\",");
-		    	}else if(column.toLowerCase().equals("email")){
-		    		sb.append( " email ,lower(email) as \"lemail\",");
-		    	}else if(column.toLowerCase().equals("createddate")){
-		    		sb.append("createddate as \"createddate\",");
-		    	}else if(column.toLowerCase().equals("company")){
-		    		sb.append("company,lower(company) as \"lcompany\", ");
-		    	}else if(column.toLowerCase().equals("skill")){
-		    		sb.append("skill,lower(skill) as \"lskill\",");
-		    	}else if(column.toLowerCase().equals("education")){
-		    		sb.append("education,lower(education) as \"leducation\", ");
-		    	}else if(column.toLowerCase().equals("resume")){
-		    		sb.append("resume,");
-		    	}else if(column.toLowerCase().equals("location")){
-		    		//sb.append("location as \"location\",");
-		    	}else if(column.toLowerCase().equals("contact")){
-		    		sb.append("name,lower(name) as \"lname\",");
-		    		sb.append("title,lower(title) as \"ltitle\",");
-		    		sb.append( " email ,lower(email) as \"lemail\",");
-		    	}else{
-		    	    Filter filter = sc.getFilterByName(column);
-		    	    if(filter!=null){
-    		    	    if(sb.indexOf("as "+column)==-1&&sb.indexOf(column+",")==-1){
-    		    	        sb.append("\""+filter.getName()+"\"").append(" as \"").append(filter.getName()).append("\",");
-    		    	    }
-		    	    }
-		    	}
-	    	}
-	    	sb.append("id,name");//make id and name always return
-    	}
-    	sb.append(",sfid");//,phone
-    	sb.append(",ts2__latitude__c,ts2__longitude__c");//ts2__latitude__c and ts2__longitude__c
-        return sb.toString();
-    }
-    
-    /**
-     * get search columns for inner sql block
-     * @param searchColumns
-     * @param columnJoinTables
-     * @param groupBy
-     * @return
-     */
-    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,OrgContext org){
-    	 StringBuilder columnsSql = new StringBuilder();
-    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-    	 if(searchColumns==null){//a.phone,
-             columnsSql.append(sc.toContactFieldsString("a"));
-             //,a.phone
-             groupBy.append(","+sc.toContactFieldsString("a"));
-    	 }else{
-    		 String temp = "";
-    		 StringBuffer sb = new StringBuffer("id,name,sfid,");
- 	         for(String column:searchColumns.split(",")){
- 	        	temp = getQueryColumnName(column,columnJoinTables,groupBy,sb,org);
- 	        	if(!temp.trim().equals("")){
-	 	            columnsSql.append(temp);
-	 	            columnsSql.append(",");
- 	        	}
- 	        }
- 	        columnsSql.append("a.id,a.name,a.sfid,a.ts2__latitude__c,a.ts2__longitude__c ");//,a.phone,
- 	        if(groupBy.length()>0){
- 	        	groupBy.append(",");
- 	        }
- 	        groupBy.append("a.name,a.sfid,a.\"ts2__latitude__c\", a.\"ts2__longitude__c\"");//always return these columns ,
-         }
-    	 return columnsSql.toString();
-    }
     
     /**
      * Get condition for Search logic 
@@ -1054,14 +842,11 @@ public class SearchDao {
           .addCustomFilter(searchRequest.getCustomFilters()).addObjectType(searchRequest.getObjectType())
           .addStatus(searchRequest.getStatus());
         values.addAll(sb.getValues());
-       
-        
+            
         String condition = sb.getConditions();
         boolean hasContactsCondition = false;
         String locationSql = sb.getLocationSql();
         joinSql = new StringBuilder(sb.getSearchSql());
-        
-        
         
         prefixSql = sb.getPrefixSql();
         countSql = new StringBuilder(sb.getCountSql());
@@ -1103,30 +888,6 @@ public class SearchDao {
         return new String[]{joinSql.toString(),countSql.toString(),prefixSql};
     }
     
-//    /**
-//     * get the table joined for auto complete by type
-//     * @param type available value : company,education,skill and location
-//     * @return
-//     */
-//    private String getAdvancedJoinTable(String type,OrgContext org){
-//        StringBuilder joinSql = new StringBuilder();
-//        String schemaname = (String)org.getOrgMap().get("schemaname");
-//        
-//        if(type.equals("company")){
-//            joinSql.append( " left join  "+schemaname+".ts2__employment_history__c c ");
-//            joinSql.append(" on a.\"sfid\" = c.\"ts2__contact__c\" and c.\"ts2__name__c\"!='' ");
-//        }else if(type.equals("education")){
-//            joinSql.append( " left join  "+schemaname+".ts2__education_history__c d " );
-//            joinSql.append(" on a.\"sfid\" = d.\"ts2__contact__c\" and d.\"ts2__name__c\"!='' ");
-//        }else if(type.equals("skill")){
-//            joinSql.append( " left join  "+schemaname+".ts2__skill__c b " );
-//            joinSql.append(" on a.\"sfid\" = b.\"ts2__contact__c\" and b.\"ts2__skill_name__c\"!='' ");
-//        }else if(type.equals("location")){
-//            joinSql.append(" left join jss_sys.zipcode_us z ");
-//            joinSql.append(" on a.\"mailingpostalcode\" = z.\"zip\" ");
-//        }
-//        return joinSql.toString();
-//    }
     
     /**
      * handle the table joined for boolean search,mainly for contact table
@@ -1160,7 +921,7 @@ public class SearchDao {
 			} else {
 				if (searchRequest.isOnlyKeyWord()) {
 					if (keyword.contains("NOT ") || keyword.contains("AND ")
-							|| keyword.contains("NOT ")) {
+							|| keyword.contains("OR ")) {
 						joinSql.append(booleanSearchHandler(keyword, null, org,
 								false));
 					} else {
@@ -1180,6 +941,7 @@ public class SearchDao {
 			return joinSql.toString();
 		}
 	}
+	
 	private void spiltKeywords(String keyword,ArrayList<String> keys,Map<Integer, String> operators){
 		int flag = 0;
 		while (keyword.length() > 0) {
@@ -1237,6 +999,7 @@ public class SearchDao {
 		}
 		return joinSql.toString();
 	}
+	
     private String renderKeywordSearch(String param,OrgContext org,boolean exact,String alias){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
@@ -1253,49 +1016,7 @@ public class SearchDao {
         }
         return exactFilter+sb.delete(0, 2).toString()+(exact?")":"");
     }
-    /**
-     * Get the column name for type 
-     * @param type
-     * @return
-     */
-//    private String getNameExpr(String type){
-//        StringBuilder sql = new StringBuilder();
-//        if(type.equals("company")){
-//            sql.append("\"ts2__name__c\"");
-//        }else if(type.equals("education")){
-//            sql.append("\"ts2__name__c\"");
-//        }else if(type.equals("skill")){
-//            sql.append("\"ts2__skill_name__c\"");
-//        }else if(type.equals("location")){
-//            sql.append("\"zip\"");
-//        }
-//        return sql.toString();
-//    }
-    
-    /**
-     * Get the table name for type
-     * @param type
-     * @return
-     */
-//    @Deprecated
-//    private String getTable(String type,Map org){
-//        String table = null;
-//        String schemaname = (String)org.get("schemaname");
-//        if(type.equals("company")){
-//            table =  schemaname+".ts2__employment_history__c";
-//        }else if(type.equals("education")){
-//            table = schemaname+".ts2__education_history__c";
-//        }else if(type.equals("skill")){
-//            table = "ts2__skill__c";
-//        }else if(type.equals("location")){
-//        	table = "jss.zipcode_us";
-//        }
-//        if (table.equals("zipcode_us")) {
-//            table = "jss_sys." + table;
-//        }
-//        return table;
-//    }
-    
+
     private boolean hasExtraSearchColumn(SearchRequest searchRequest){
         return (searchRequest.getCustomFilters().keySet().size()>0);
     }
@@ -1646,6 +1367,47 @@ public class SearchDao {
         return hasCondition;
     }
     
+    private void handleResult(List<Map> results){
+    	String[] temp = new String[2];
+    	if(results==null||results.size()==0){
+    		return;
+    	}
+    	for(Map contact:results){
+    		if(contact.containsKey("skill")){
+    			temp = contact.get("skill").toString().split("##");
+    			contact.put("skill", temp[0]);
+    			contact.put("skillgroupedids", temp[1]);
+    		}
+    		if(contact.containsKey("education")){
+    			temp = contact.get("education").toString().split("##");
+    			contact.put("education", temp[0]);
+    			contact.put("educationroupedids", temp[1]);
+    		}
+    		if(contact.containsKey("company")){
+    			temp = contact.get("company").toString().split("##");
+    			contact.put("company", temp[0]);
+    			contact.put("companygroupedids", temp[1]);
+    		}
+    		
+    	}
+    }
+    
+    private double getDistance(double lat1, double lng1, double lat2, double lng2){
+    	double EARTH_RADIUS = 6378.137;
+        double radLat1 = rad(lat1);
+	    double radLat2 = rad(lat2);
+	    double a = radLat1 - radLat2;
+	    double b = rad(lng1) - rad(lng2);
+	    double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) + 
+	    Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
+	    s = s * EARTH_RADIUS;
+	    s = Math.round(s * 10000) / 10000;
+	    return s*0.62137;
+    }
+    
+    private static double rad(double d){
+       return d * Math.PI / 180.0;
+    }
     
     private  static double[] getAround(double lat,double lon,double raidus){  
         
@@ -1668,7 +1430,19 @@ public class SearchDao {
         return new double[]{minLat,minLng,maxLat,maxLng};  
     }  
 
-
+    private static Integer getCountFromExplainPlan(String explainPlan){
+        String value = null;
+        if(explainPlan == null){
+            return null;
+        }
+        Matcher matcher = pattern.matcher(explainPlan);
+        if(matcher.find()){
+            String rowsResult = matcher.group(1).trim();
+            value = rowsResult.substring(rowsResult.indexOf("=") + 1, rowsResult.length());
+        }
+        return ObjectUtil.getValue(value, Integer.class, 0);
+    }
+    
     class SearchBuilder {
  
     	private StringBuilder orderSql = new StringBuilder();
@@ -1710,9 +1484,6 @@ public class SearchDao {
 				  				  .append(" limit ").append(searchRequest.getPageSize() + 1);
                 	}
                 	if(!searchRequest.isOnlyKeyWord()){
-//                		 conditions.append(" AND lower(contact.\"ts2__text_resume__c\") like '")
-//			                       .append(keyword.replaceAll("\\\"", "%").toLowerCase())
-//			                       .append("'");
                 		 exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
 				  				   .append(" offset ")
 				  				   .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
@@ -1860,18 +1631,6 @@ public class SearchDao {
         }
     }
     
-    private static Integer getCountFromExplainPlan(String explainPlan){
-        String value = null;
-        if(explainPlan == null){
-            return null;
-        }
-        Matcher matcher = pattern.matcher(explainPlan);
-        if(matcher.find()){
-            String rowsResult = matcher.group(1).trim();
-            value = rowsResult.substring(rowsResult.indexOf("=") + 1, rowsResult.length());
-        }
-        return ObjectUtil.getValue(value, Integer.class, 0);
-    }
 }
 
 class SearchStatements {
@@ -1879,8 +1638,6 @@ class SearchStatements {
     String cteSql;
     String querySql;
     String countSql;
-    Object[]          values;
+    Object[]  values;
 
 }
-
-
