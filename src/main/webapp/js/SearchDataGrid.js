@@ -321,6 +321,7 @@
 			
 			if(resultData.length == 0){
 				view.showContentMessage("empty");
+				view.$el.trigger("CHECK_CLEAR_BTN");
 			}
 
 			//show desc/asc
