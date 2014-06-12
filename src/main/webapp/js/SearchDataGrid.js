@@ -342,7 +342,7 @@
 					colWidth : getColWidth.call(view)
 				}));
 				$e.trigger("REFRESH_ESTIMATE_COUNT",{count:0, exact:true});
-				$e.trigger("REFRESH_PAGINATION");
+				$e.trigger("REFRESH_PAGINATION",{pageSize:view.pageSize});
 			} else if (cmd === "loading") {
 				$tabContainer.html(render("search-loading"));
 			} else if (cmd === "retrying") {
