@@ -32,7 +32,6 @@ public class SearchRequest {
         
         searchValues = (String)searchParams.get("searchValues");
         if(!Strings.isNullOrEmpty(searchValues)){
-            searchValues = searchValues.replaceFirst("#", "").replaceAll("\\\\\"", "#");
             JSONObject jo = JSONObject.fromObject(searchValues);
             // resolve the search parameters,cause all parameters begin with "q_"
             String temp ;
