@@ -59,7 +59,7 @@
 					keyWordsSplited = keyWordsSplited.split(/["]/);
 					for (var k in keyWordsSplited) {
 						var Operator = new RegExp("\s*(AND|OR|NOT)\s*");
-						if (!Operator.test(keyWordsSplited[k])){
+						if (keyWordsSplited[k] && !(/^ +$/.test(keyWordsSplited[k])) && !Operator.test(keyWordsSplited[k])){
 							var keyWord = keyWordsSplited[k].replace(/(^\s*)|(\s*$)/g, "");
 							var reg = new RegExp("("+ keyWord +")", "gm");
 							resume = resume.replace(reg, "<span class=\"highlight\">$1</span>");

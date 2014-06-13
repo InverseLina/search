@@ -41,6 +41,9 @@ public class SearchRequest {
             	if("q_search".equals(key)){
             		temp = temp.replaceAll("\'", "");
             	}
+            	if("q_search".equals(key) && !temp.matches("^\\s*\".+\"\\s*$")){
+            		temp = ruleInexactKeyWord(temp).trim();
+            	}
                 searchMap.put(key.toString().substring(2),temp);
                 if("q_search".equals(key)||
                    ("q_status".equals(key)&&"All".equals(temp))||
@@ -293,4 +296,47 @@ public class SearchRequest {
         }
         return false;
     }
+    
+    private String ruleInexactKeyWord(String keyWord){
+    	StringBuffer ruleKey = new StringBuffer();
+    	String keyword = keyWord.trim().replaceAll("\"", "");
+    	String[] keywords = keyword.split("[ ]+");
+    	boolean needOperator = false;
+    	boolean hasOperator = false;
+    	String operator = "";
+    	for(String key:keywords){
+    		if(key.trim().equals("AND")){
+    			if(needOperator){
+					operator = "AND ";
+					hasOperator = true;
+    			}
+    			continue;
+    		}else if(key.trim().equals("OR")){
+    			if(needOperator){
+					operator = "OR ";
+					hasOperator = true;
+    			}
+    			continue;
+    		}else if(key.trim().equals("NOT")){
+    			if(needOperator){
+					operator = "NOT ";
+					hasOperator = true;
+    			}
+    			continue;
+    		}
+    		if(needOperator){
+    			if(hasOperator){
+    				ruleKey.append(operator);
+    				hasOperator = false;
+    			}else{
+        			ruleKey.append("OR ");
+    			}
+    		}
+			
+    		ruleKey.append(key).append(" ");
+    		needOperator = true;
+    	}
+		return ruleKey.toString();
+    }
+    
 }

@@ -30,6 +30,7 @@ public class ResumeWebHandlers {
         Map map = null;
         if (!exact) {
             String query = keyword.trim().replaceAll("\"", "").replaceAll("(NOT|OR|AND)", "").replaceAll("\\s+", "|");
+            query = query.replaceAll("^[|]+", "").replaceAll("[|]+$", "");
             String sql = "select \"name\", ts_headline(\"ts2__text_resume__c\", to_tsquery(?), \'StartSel=\"<span class=\"\"highlight\"\">\", StopSel=\"</span>\", HighlightAll=true\') as resume from  contact where id = ?";
             result = daoHelper.executeQuery(orgHolder.getOrgName(), sql, query, cid);
         } else {
