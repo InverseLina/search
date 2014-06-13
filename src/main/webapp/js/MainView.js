@@ -110,6 +110,8 @@
 					app.preference.columns(extra.columns);
 					if(app.ParamsControl.isEmptySearch()){
 						view.contentView.dataGridView.refreshColumns();
+						app.currentDeferred = $.Deferred();
+						app.currentDeferred.resolve({});
 					}else{
 						view.$el.trigger("DO_SEARCH");
 					}
