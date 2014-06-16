@@ -97,10 +97,10 @@ public class BulkManager {
                     queryResults = list.getResult();
                     break;
                 } else if (info.getState() == BatchStateEnum.Failed) {
-                    System.out.println("-­-­-­-­-­-­-­-­-­-­-­-­-­-­ failed -­-­-­-­-­-­-­-­-­-­" + info);
+                    System.out.println("---------------------------- failed --------------------" + info);
                     break;
                 } else {
-                    System.out.println("-­-­-­-­-­-­-­-­-­-­-­-­-­-­ waiting -­-­-­-­-­-­-­-­-­-­" + info);
+                    System.out.println("---------------------------- waiting -------------------" + info);
                 }
             }
             StringBuilder resultContent = new StringBuilder();
