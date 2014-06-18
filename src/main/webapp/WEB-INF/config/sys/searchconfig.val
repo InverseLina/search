@@ -31,6 +31,7 @@
      <field name="mailingpostalcode" column="mailingpostalcode"/>
      <field name="ts2__latitude__c" column="ts2__latitude__c"/>
      <field name="ts2__longitude__c" column="ts2__longitude__c"/>
+     <field name="mailingcity" column="mailingcity"/>
   </contact>
   
 </searchconfig>

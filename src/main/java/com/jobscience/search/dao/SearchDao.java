@@ -351,9 +351,9 @@ public class SearchDao {
     		long start = System.currentTimeMillis();
     		List<Map> result = null;
             result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
-    		if(result != null && !searchRequest.searchModeChange()){
-        		result = setLoctionName(searchRequest,result,org);
-    		}
+//    		if(result != null && !searchRequest.searchModeChange()){
+//        		result = setLoctionName(searchRequest,result,org);
+//    		}
     		long mid = System.currentTimeMillis();
     		int count = 0;
     		boolean exactCount = false;
@@ -565,7 +565,7 @@ public class SearchDao {
                                     + "on groupby_educations.jss_groupby_educations_id = d.id  "
                                     + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as education";
     	}else if(orginalName.toLowerCase().equals("location")){
-    		return "";
+    		return "a.mailingcity as location ";
     	}
         
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
@@ -615,7 +615,7 @@ public class SearchDao {
 		    	}else if(column.toLowerCase().equals("resume")){
 		    		sb.append("resume,");
 		    	}else if(column.toLowerCase().equals("location")){
-		    		//sb.append("location as \"location\",");
+		    		sb.append("location as \"location\",");
 		    	}else if(column.toLowerCase().equals("contact")){
 		    		sb.append("name,lower(name) as \"lname\",");
 		    		sb.append("title, ");
@@ -664,7 +664,7 @@ public class SearchDao {
  	        if(groupBy.length()>0){
  	        	groupBy.append(",");
  	        }
- 	        groupBy.append("a.name,a.sfid,a.\"ts2__latitude__c\", a.\"ts2__longitude__c\"");//always return these columns ,
+ 	        groupBy.append("a.name,a.sfid,a.\"ts2__latitude__c\", a.\"ts2__longitude__c\",a.mailingcity");//always return these columns ,
          }
     	 return columnsSql.toString();
     }
