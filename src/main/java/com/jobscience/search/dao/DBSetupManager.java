@@ -221,7 +221,7 @@ public class DBSetupManager {
                 break;
             }
         }
-        int contactTotal = getDataCount("contact",runner);
+        int contactTotal = getContactMaxId("contact",runner);
         if(insertSchedule.get(table) != null){
         	offset = insertSchedule.get(table);
         }
@@ -1602,6 +1602,17 @@ public class DBSetupManager {
                             +" and table_type='BASE TABLE' " + "and table_name =?",table);
         if(tableCount>0){
             return runner.executeCount("select count(*) from "+table);
+        }else {
+            return 0;
+        }
+    }
+    
+    private int getContactMaxId(String table,Runner runner){
+        int tableCount = runner.executeCount("select count(*) as count from information_schema.tables " 
+                            + " where table_schema= current_schema "
+                            +" and table_type='BASE TABLE' " + "and table_name =?",table);
+        if(tableCount>0){
+            return runner.executeCount("select max(id) from "+table);
         }else {
             return 0;
         }
