@@ -61,15 +61,13 @@
 			"click;.selectedItems .item" : function(event) {
 				var view = this;
 				var $span = $(event.target);
-				var dataName = $span.attr("data-name");
+				var dataName = $span.closest(".item").attr("data-name");
 				var contact = app.ParamsControl.get("contact", dataName);
-
 				var value = contact.value.value;
 				view.$el.find(":input[name='FirstName']").val(value.firstName || "");
 				view.$el.find(":input[name='LastName']").val(value.lastName || "");
 				view.$el.find(":input[name='Email']").val(value.email || "");
 				view.$el.find(":input[name='Title']").val(value.title || "");
-				view.$el.find(".active").removeClass("active");
 
 			},
 			"click; .content .contactRow .clear" : function(event) {
