@@ -1381,7 +1381,7 @@ public class SearchDao {
     		if(contact.containsKey("education")){
     			temp = contact.get("education").toString().split("##");
     			contact.put("education", temp[0]);
-    			contact.put("educationroupedids", temp[1]);
+    			contact.put("educationgroupedids", temp[1]);
     		}
     		if(contact.containsKey("company")){
     			temp = contact.get("company").toString().split("##");
