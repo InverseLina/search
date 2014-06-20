@@ -58,7 +58,7 @@
 				event.stopPropagation();
 				var view = this;
 				var page = view.page;
-				if(view.exactCount){
+				if(view.exactCount && view.page.totalCount != -1){
 					view.page.callback(page.pageCount, view.page.pageSize);
 				}else{
 					view.page.callback(page.pageIdx + 1, view.page.pageSize);
@@ -117,7 +117,6 @@
 			hasNextPage : data.hasNextPage || false,
 			callback : data.callback || function() {},
 		};
-		
 		view.page = page;
 		calc(view.page);
 		var html = render("Pagination-detail", page);
