@@ -543,6 +543,8 @@
 
 					
 					$e.trigger("REFRESH_ESTIMATE_COUNT", {count:result.count,exact: result.exactCount});
+					view.pageIdx = result.pageIdx;
+					view.pageSize = result.pageSize;
 					var paginationData = {
 						pageIdx : result.pageIdx,
 						pageSize : result.pageSize,
