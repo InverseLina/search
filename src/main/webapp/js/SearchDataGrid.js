@@ -329,8 +329,6 @@
 				$e.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
 			}
 
-			//restore input values
-			$e.find(".search-input").val(app.ParamsControl.getQuery()); 
 
 		},
 		showContentMessage : function(cmd, extra) {
