@@ -26,6 +26,7 @@
 			var searchMode = app.preference.get("searchMode","power");
 			$e.find(".searchMode .btn").removeClass("active");
 			$e.find(".searchMode .btn[data-mode='"+searchMode+"']").addClass("active");
+			resizeGridControls.call(view);
 		},
 		// --------- /View Interface Implement--------- //
 
