@@ -2275,8 +2275,9 @@ public class DBSetupManager {
     private boolean checkPkexist(String orgName,String table,String pkName){
     	String querySql = "select count(*) as count from information_schema.table_constraints a "
                 +"where a.constraint_type = 'PRIMARY KEY' and a.table_name = '"
-		          +table+"' and a.constraint_name = '"
-                +pkName+"';";
+		        +table+"' and a.constraint_name = '"
+                +pkName+"' "
+                +"AND    a.constraint_schema = current_schema";
 		List<Map> lists = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),querySql);
 		if(Integer.parseInt(lists.get(0).get("count")+"")==1){
 			return true;
