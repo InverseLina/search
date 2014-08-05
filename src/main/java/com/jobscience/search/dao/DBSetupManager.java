@@ -249,7 +249,6 @@ public class DBSetupManager {
     }
     
     public void resetOrgSetup(String orgName) {
-        dropIndexes(orgName);
         dropAllPkOfmanyTomanyTable(orgName);
         StringBuilder sb = new StringBuilder();
         for (String[] tables : newTableNameChanges) {
@@ -259,7 +258,8 @@ public class DBSetupManager {
             sb.append(",").append(table);
         }
         daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
-                "drop table if exists " + sb.delete(0, 1));
+                "drop table if exists " + sb.delete(0, 1) +" CASCADE");
+        dropIndexes(orgName);
         //reset status
         if(orgGroupTableCountMap.get(orgName) != null){
         	orgGroupTableCountMap.remove(orgName);
@@ -1259,6 +1259,9 @@ public class DBSetupManager {
             for (int i = 0; i < ja.size(); i++) {
                 JSONObject jo = JSONObject.fromObject(ja.get(i));
                 if(!jo.get("type").equals("pk")){
+                	if ("true".equals(jo.get("system"))) {
+						continue;
+					}
                     daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
                             "drop index if exists " + jo.getString("name"));
                     indexesCount++;

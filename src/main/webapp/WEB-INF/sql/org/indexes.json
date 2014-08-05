@@ -56,7 +56,8 @@
                 "type":"btree",
                 "column":"sfid",
                 "operator":" ",
-                "unique":"unique"
+                "unique":"unique",
+                "system":"true"
                },
                {
                 "name":"contact_text_resume",
@@ -77,14 +78,16 @@
                 "type":"btree",
                 "column":"ts2__latitude__c",
                 "operator":"",
-                "unique":""
+                "unique":"",
+                "system":"true"
                },
                {
                 "name":"contact_longitude_idx",
                 "type":"btree",
                 "column":"ts2__longitude__c",
                 "operator":"",
-                "unique":""
+                "unique":"",
+                "system":"true"
                }
               ],
  "ts2__skill__c":[
@@ -93,21 +96,24 @@
                 "type":"btree",
                 "column":"ts2__skill_name__c",
                 "operator":"",
-                "unique":""
+                "unique":"",
+                "system":"true"
                },
                {
                 "name":"ts2__skill__c_contact_c",
                 "type":"btree",
                 "column":"ts2__contact__c",
                 "operator":"",
-                "unique":""
+                "unique":"",
+                "system":"true"
                },
                {
                 "name":"ts2__skill__c_idx_sfid",
                 "type":"btree",
                 "column":"sfid",
                 "operator":"",
-                "unique":"UNIQUE"
+                "unique":"UNIQUE",
+                "system":"true"
                }
               ],
  "ts2__employment_history__c":[
@@ -116,21 +122,24 @@
                 "type":"btree",
                 "column":"ts2__contact__c",
                 "operator":"",
-                "unique":""
+                "unique":"",
+                "system":"true"
                },
                {
                 "name":"ts2__employment_history__c_name_c",
                 "type":"btree",
                 "column":"ts2__name__c",
                 "operator":"",
-                "unique":""
+                "unique":"",
+                "system":"true"
                },
                {
                 "name":"ts2__employment_history__c_idx_sfid",
                 "type":"btree",
                 "column":"sfid",
                 "operator":"",
-                "unique":"UNIQUE"
+                "unique":"UNIQUE",
+                "system":"true"
                }
               ],
  "ts2__education_history__c":[
@@ -139,21 +148,24 @@
                 "type":"btree",
                 "column":"ts2__contact__c",
                 "operator":"",
-                "unique":""
+                "unique":"",
+                "system":"true"
                },
                {
                 "name":"ts2__education_history__c_name_c",
                 "type":"btree",
                 "column":"ts2__name__c",
                 "operator":"",
-                "unique":""
+                "unique":"",
+                "system":"true"
                },
                {
                 "name":"ts2__education_history__c_idx_sfid",
                 "type":"btree",
                 "column":"sfid",
                 "operator":"",
-                "unique":"UNIQUE"
+                "unique":"UNIQUE",
+                "system":"true"
                }
               ],     
  "jss_grouped_skills":[
