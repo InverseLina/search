@@ -117,6 +117,10 @@ var app = app || {};
 			//do nothing for now
 		},
 		cellRenderer : function(cellInfo) {
+			if(cellInfo.value){
+				var separator = new RegExp(app._separator,"g");
+				cellInfo.value = cellInfo.value.replace(separator,",");
+			}
 			return render("search-query-generic-render-cell", cellInfo);
 		}
 

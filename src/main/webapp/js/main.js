@@ -162,6 +162,7 @@ app.defaultMenuSize = 5;
 
 
 	app.buildPathInfo = buildPathInfo;
+	app._separator = "&&&";
 
 })();
 

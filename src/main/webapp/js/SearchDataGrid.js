@@ -150,11 +150,16 @@
 				}else{
 					ids = ids.split(",");
 				}
+				var i, values = value.split(","), names = [];
+				var separator = new RegExp(app._separator,"g");
+				for(i = 0;i < values.length; i++){
+					names[i] = values[i].replace(separator,",");
+				}
 				if (value !== "") {
 					var data = {
 						type : name,
 						contactName : $this.closest("tr").attr("data-contractName"),
-						names : value.split(","),
+						names : names,
 						ids : ids,
 						pos : {
 							x : event.clientX,
@@ -913,8 +918,9 @@
 		value = (value || "") + ",";
 		var matched = "";
 		$.each(filter, function(index, e) {
-			if (value.indexOf(e.name + ",") !== -1) {
-				value = value.replace(e.name + ",", "");
+			var separator = new RegExp(app._separator,"g");
+			if (value.replace(separator,",").indexOf(e.name + ",") !== -1) {
+				value = value.replace(separator,",").replace(e.name + ",", "");
 				matched += "<strong>" + e.name + "</strong>,";
 			}
 		});

@@ -60,6 +60,7 @@ public class SearchDao {
     private static Pattern pattern = Pattern.compile("\\srows=(\\d*)\\s",Pattern.CASE_INSENSITIVE);
     private static int EXACT_COUNT_TIMEOUT = 2000;//ms
     private static int ESTIMATE_COUNT_TIMEOUT = 1000;//ms
+    private static String separator = "&&&";
     /**
      * @param searchColumns
      * @param searchValues
@@ -550,7 +551,7 @@ public class SearchDao {
     		groupBy.append("a.\"createddate\"");
     		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
     	}else if(orginalName.toLowerCase().equals("company")){
-    	    return " (select  string_agg(c.\"name\",',')||'##'||string_agg(c.\"id\"::varchar,',') "
+    	    return " (select  string_agg(replace(c.\"name\",',','"+separator+"'),',')||'##'||string_agg(c.\"id\"::varchar,',') "
     	                            + "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
     	                            + "on groupby_employers.jss_groupby_employers_id = c.id  "
     	                            + "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as company ";
