@@ -85,7 +85,7 @@ CREATE OR REPLACE FUNCTION update_ex_group_skills() RETURNS trigger AS $BODY$
   BEGIN
   schema_name := '"'||TG_TABLE_SCHEMA||'"';
   EXECUTE   'set search_path to '||schema_name;
-        IF(TG_OP = 'UPDATE') THEN
+        IF(TG_OP = 'UPDATE' OR TG_OP = 'DELETE') THEN
           
             c:=(select "count" from jss_grouped_skills where name = OLD.ts2__skill_name__c);
               
@@ -97,13 +97,16 @@ CREATE OR REPLACE FUNCTION update_ex_group_skills() RETURNS trigger AS $BODY$
                 
         END IF;
 
-        SELECT jss_grouped_skills.count into c from jss_grouped_skills where name = NEW.ts2__skill_name__c limit 1;
-        IF FOUND THEN
-           UPDATE jss_grouped_skills set count=(c+1) where name = NEW.ts2__skill_name__c;
-        ELSE
-           INSERT into jss_grouped_skills(count,name) values(1,NEW.ts2__skill_name__c);
-        END IF; 
-
+        IF(TG_OP = 'UPDATE' OR TG_OP = 'INSERT') THEN
+        
+	        SELECT jss_grouped_skills.count into c from jss_grouped_skills where name = NEW.ts2__skill_name__c limit 1;
+	        IF FOUND THEN
+	           UPDATE jss_grouped_skills set count=(c+1) where name = NEW.ts2__skill_name__c;
+	        ELSE
+	           INSERT into jss_grouped_skills(count,name) values(1,NEW.ts2__skill_name__c);
+	        END IF; 
+	        
+		END IF;
 
         RETURN NEW;
       END;  
@@ -127,7 +130,7 @@ CREATE OR REPLACE FUNCTION update_ex_group_educations() RETURNS trigger AS $BODY
   BEGIN
   schema_name := '"'||TG_TABLE_SCHEMA||'"';
   EXECUTE   'set search_path to '||schema_name;
-        IF(TG_OP = 'UPDATE') THEN
+        IF(TG_OP = 'UPDATE' OR TG_OP = 'DELETE') THEN
           
             c:=(select "count" from jss_grouped_educations where name = OLD.ts2__name__c);
               
@@ -139,13 +142,16 @@ CREATE OR REPLACE FUNCTION update_ex_group_educations() RETURNS trigger AS $BODY
                 
         END IF;
 
-        SELECT jss_grouped_educations.count into c from jss_grouped_educations where name = NEW.ts2__name__c limit 1;
-        IF FOUND THEN
-           UPDATE jss_grouped_educations set count=(c+1) where name = NEW.ts2__name__c;
-        ELSE
-           INSERT into jss_grouped_educations(count,name) values(1,NEW.ts2__name__c);
-        END IF; 
+        IF(TG_OP = 'UPDATE' OR TG_OP = 'INSERT') THEN
+        
+	        SELECT jss_grouped_educations.count into c from jss_grouped_educations where name = NEW.ts2__name__c limit 1;
+	        IF FOUND THEN
+	           UPDATE jss_grouped_educations set count=(c+1) where name = NEW.ts2__name__c;
+	        ELSE
+	           INSERT into jss_grouped_educations(count,name) values(1,NEW.ts2__name__c);
+	        END IF; 
 
+		END IF;
 
         RETURN NEW;
       END;  
@@ -169,7 +175,7 @@ CREATE OR REPLACE FUNCTION update_ex_group_employers() RETURNS trigger AS $BODY$
   BEGIN
   schema_name := '"'||TG_TABLE_SCHEMA||'"';
   EXECUTE   'set search_path to '||schema_name;
-        IF(TG_OP = 'UPDATE') THEN
+        IF(TG_OP = 'UPDATE' OR TG_OP = 'DELETE') THEN
           
             c:=(select "count" from jss_grouped_employers where name = OLD.ts2__name__c);
               
@@ -181,12 +187,16 @@ CREATE OR REPLACE FUNCTION update_ex_group_employers() RETURNS trigger AS $BODY$
                 
         END IF;
 
-        SELECT jss_grouped_employers.count into c from jss_grouped_employers where name = NEW.ts2__name__c limit 1;
-        IF FOUND THEN
-           UPDATE jss_grouped_employers set count=(c+1) where name = NEW.ts2__name__c;
-        ELSE
-           INSERT into jss_grouped_employers(count,name) values(1,NEW.ts2__name__c);
-        END IF; 
+		IF(TG_OP = 'UPDATE' OR TG_OP = 'INSERT') THEN
+        
+	        SELECT jss_grouped_employers.count into c from jss_grouped_employers where name = NEW.ts2__name__c limit 1;
+	        IF FOUND THEN
+	           UPDATE jss_grouped_employers set count=(c+1) where name = NEW.ts2__name__c;
+	        ELSE
+	           INSERT into jss_grouped_employers(count,name) values(1,NEW.ts2__name__c);
+	        END IF;
+	      
+		END IF;
 
 
         RETURN NEW;
@@ -263,6 +273,9 @@ CREATE OR REPLACE FUNCTION update_jss_contact_groupby_skills() RETURNS trigger A
         group by c.id, gskill.id;
 
         RETURN NEW;
+  		EXCEPTION 
+  			WHEN unique_violation THEN
+        	RETURN NEW;
       END;  
    $BODY$
     LANGUAGE plpgsql;
@@ -301,8 +314,11 @@ CREATE OR REPLACE FUNCTION update_jss_contact_groupby_educations() RETURNS trigg
         inner join jss_grouped_educations geducation on geducation.name = education.ts2__name__c
         where education.ts2__name__c = NEW.ts2__name__c and education.ts2__contact__c = NEW.ts2__contact__c 
         group by c.id, geducation.id;
-
-        RETURN NEW;
+        
+  		RETURN NEW;
+  		EXCEPTION 
+  			WHEN unique_violation THEN
+        	RETURN NEW;
       END;  
    $BODY$
     LANGUAGE plpgsql;
@@ -341,7 +357,10 @@ CREATE OR REPLACE FUNCTION update_jss_contact_groupby_employers() RETURNS trigge
         where employer.ts2__name__c = NEW.ts2__name__c and employer.ts2__contact__c = NEW.ts2__contact__c 
         group by c.id, gemployer.id;
 
-        RETURN NEW;
+  		RETURN NEW;
+  		EXCEPTION 
+  			WHEN unique_violation THEN
+        	RETURN NEW;
       END;  
    $BODY$
     LANGUAGE plpgsql;
