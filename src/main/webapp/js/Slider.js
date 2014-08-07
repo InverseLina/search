@@ -37,6 +37,7 @@
 				});
 			}
 			view.barLength = $e.find(".bar").outerWidth();
+			view.init = true;
 			setValue.call(view);
 		},
 		// --------- /View Interface Implement--------- //
@@ -135,7 +136,11 @@
 		$valve.text(label);
 		if (view.position !== pos && !force) {
 			view.position = pos;
-			view.$el.trigger("SLIDER_VALUE_CHANGE");
+			if(view.init){
+				view.init = false;
+			}else{
+				view.$el.trigger("SLIDER_VALUE_CHANGE");
+			}
 		}
 	}
 

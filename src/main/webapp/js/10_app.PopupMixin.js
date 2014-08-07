@@ -79,11 +79,22 @@ var app = app || {};
 					var listName = (type === "company" ? "companies" : (type + "s"));
 					var params = JSON.parse(app.ParamsControl.getParamsForSearch().searchValues);
 					delete params["q_" + listName];
-					searchDao.getAutoCompleteData({
-						"searchValues" : JSON.stringify(params),
-						"type" : type,
-						"orderByCount" : true
-					}).always(function(result) {
+					
+					var autoDfd = $.Deferred();
+					
+					if(type == 'location' || app.ParamsControl.isEmptySearch() || app.TopFilterItem.getAutoComplete(type).list.length == 0){
+						searchDao.getAutoCompleteData({
+							"searchValues" : JSON.stringify(params),
+							"type" : type,
+							"orderByCount" : true
+						}).always(function(result){
+							autoDfd.resolve(result);
+						});
+					}else{
+						autoDfd.resolve(app.TopFilterItem.getAutoComplete(type));
+					}
+					
+					autoDfd.done(function(result) {
 						if (type === "company") {
 							type = "employer";
 						}

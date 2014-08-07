@@ -522,6 +522,9 @@
 					var view = this;
 					var $e = view.$el;
 					
+					// process filter cache when have result
+					app.TopFilterItem.saveItems(result.result);
+					
 					$e.find(".resultTime").removeClass("hide");
 					$e.find(".resultTime .count").html("c:{0}ms".format(result.countDuration));
 					if(!result.searchModeChange){
