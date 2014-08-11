@@ -83,7 +83,7 @@
               <tasks>
                 <exec executable="java">
                   <arg line="-jar"/>
-                  <arg line="/apps/jcruncherEx.jar"/>
+                  <arg line="${JCRUNCHER_HOME}/jcruncherEx.jar"/>
                 </exec> 
               </tasks>
             </configuration>
