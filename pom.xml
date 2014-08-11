@@ -277,6 +277,72 @@
       <url>http://nexus.britesnow.com/nexus/content/repositories/snapshots/</url>
     </repository>       
        
-  </repositories>  
+  </repositories>
+
+
+    <profiles>
+        <profile>
+            <id>prod</id>
+            <build>
+                <plugins>
+                    <!-- Overwrite default config for snow.properties -->
+                    <plugin>
+                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                        <artifactId>replacer</artifactId>
+                        <version>1.5.3</version>
+                        <executions>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>replace</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <file>${JSS_CONFIG_HOME}/application.properties</file>
+                            <tokenValueMap>${JSS_CONFIG_HOME}/${JSS_FILTER_NAME}-config-filter.properties
+                            </tokenValueMap>
+                            <outputFile>${basedir}/src/main/webapp/WEB-INF/snow.properties</outputFile>
+                        </configuration>
+                    </plugin>
+                    <!-- cargo plug-in to deploy remotely to JETTY-->
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <version>1.4.9</version>
+                        <configuration>
+                            <container>
+                                <containerId>jetty9x</containerId>
+                                <type>remote</type>
+                            </container>
+                            <configuration>
+                                <type>runtime</type>
+                                <properties>
+                                    <cargo.protocol>https</cargo.protocol>
+                                    <cargo.hostname>${hostToDeploy}</cargo.hostname>
+                                    <cargo.servlet.port>8443</cargo.servlet.port>
+                                    <cargo.remote.username>jenkins</cargo.remote.username>
+                                    <cargo.remote.password>2a828c51606c649b9aea86211d4dc216</cargo.remote.password>
+                                </properties>
+                            </configuration>
+                            <deployer>
+                                <type>remote</type>
+                            </deployer>
+                            <deployables>
+                                <deployable>
+                                    <groupId>com.jobscience</groupId>
+                                    <artifactId>search</artifactId>
+                                    <type>war</type>
+                                    <properties>
+                                        <context>/</context>
+                                    </properties>
+                                </deployable>
+                            </deployables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
   
 </project>
