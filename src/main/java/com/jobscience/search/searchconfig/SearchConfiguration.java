@@ -13,7 +13,9 @@ public class SearchConfiguration {
     private List<Filter> filters;
     
     private Contact contact;
-    
+
+    private CustomFields customFields;
+
     @XmlElement
     public KeyWord getKeyword() {
         return keyword;
@@ -40,7 +42,16 @@ public class SearchConfiguration {
     public void setFilters(List<Filter> filters) {
         this.filters = filters;
     }
-    
+
+    @XmlElement
+    public CustomFields getCustomFields() {
+        return customFields;
+    }
+
+    public void setCustomFields(CustomFields customFields) {
+        this.customFields = customFields;
+    }
+
     public Filter getFilter(FilterType filterType){
         if(filterType!=null){
             for(Filter filter:filters){
@@ -62,7 +73,18 @@ public class SearchConfiguration {
         }
         return null;
     }
-    
+
+    public CustomField getCustomFieldByName(String name){
+        if(name!=null){
+          for(CustomField f:customFields.getFields()){
+              if(name.equals(f.getName())){
+                  return f;
+              }
+          }
+        }
+        return null;
+    }
+
     public Field getContactField(ContactFieldType type){
         if(type!=null){
             for(Field field:contact.getContactFields()){

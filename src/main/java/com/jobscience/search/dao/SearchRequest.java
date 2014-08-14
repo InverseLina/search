@@ -20,14 +20,16 @@ public class SearchRequest {
     private JSONArray educations;
     private JSONArray locations;
     private JSONArray companies;
-    private Map<String,JSONArray> customFilters = new HashMap<String, JSONArray>();
+    private Map<String,JSONArray> customFilters = new HashMap<String, JSONArray>(); //contains filter and column display
+    private JSONArray customFields ; // only contains filter ,no column display
     private String searchValues;
     private String skillOperator;
     private String companyOperator;
     private boolean isOnlyKeyWord = true;
     private boolean estimateSearch = true;
     private boolean searchModeChange = false;
-    
+
+
     public SearchRequest(Map searchParams){
         
         searchValues = (String)searchParams.get("searchValues");
@@ -115,6 +117,7 @@ public class SearchRequest {
         setCompanies();
         setLocations();
         setCustomFilters();
+        setCustomFields();
     }
     
     private void setContacts(){
@@ -182,9 +185,10 @@ public class SearchRequest {
     public Map getSearchMap(){
         return searchMap;
     }
+
     private void setCustomFilters(){
         for(String name:searchMap.keySet()){
-            if(isNativeSearchParam(name)){
+            if(isNativeSearchParam(name)||isCustomFields(name)){ //when customFields should not contains in CustomFilter
                 continue;
             }
             customFilters.put(name, JSONArray.fromObject(searchMap.get(name)));
@@ -193,6 +197,19 @@ public class SearchRequest {
     
     public Map<String,JSONArray> getCustomFilters(){
         return customFilters;
+    }
+
+    private void setCustomFields(){
+        for(String name:searchMap.keySet()){
+            if(isCustomFields(name)){
+                customFields = JSONArray.fromObject(searchMap.get(name));
+                break;
+            }
+        }
+    }
+
+    public JSONArray getCustomFields(){
+        return customFields;
     }
     
     public String getOrder() {
@@ -295,7 +312,10 @@ public class SearchRequest {
         }
         return false;
     }
-    
+
+    private boolean isCustomFields(String name){
+        return !Strings.isNullOrEmpty(name)&&name.equals("customFields");//means customFields
+    }
     private String ruleInexactKeyWord(String keyWord){
     	StringBuffer ruleKey = new StringBuffer();
     	String keyword = keyWord.trim().replaceAll("\"", "");

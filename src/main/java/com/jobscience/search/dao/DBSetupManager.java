@@ -3,12 +3,14 @@ package com.jobscience.search.dao;
 import static com.britesnow.snow.util.MapUtil.mapIt;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipInputStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -30,9 +35,13 @@ import org.jasql.RSQLException;
 import org.jasql.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
 import com.britesnow.snow.web.binding.WebAppFolder;
+import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -98,6 +107,7 @@ public class DBSetupManager {
                                               {"user","jss_user"},
                                               {"savedsearches","jss_savedsearches"}};
     private String[] manyTomanyTable = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
+    private String[] allowCustomIndexColumns = {"integer","boolean","timestamp","character varying","date","timestamp without time zone","double precision"};
     
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
@@ -176,6 +186,7 @@ public class DBSetupManager {
         createIndexColumns(orgName, true);
         createIndexColumns(orgName, false);
         removeWrongIndex(orgName);
+        updateContactCustomIndex(orgName);
         Map<String,Boolean> GroupTableInsertStatus = orgGroupTableInsertStatusMap.get(orgName);
         if(GroupTableInsertStatus != null && GroupTableInsertStatus.get("jss_contact_jss_groupby_skills") != null && !GroupTableInsertStatus.get("jss_contact_jss_groupby_skills")){
             renderManyToMany(orgName,"jss_contact_jss_groupby_skills");
@@ -290,7 +301,7 @@ public class DBSetupManager {
         contactTsvManager.stop();
     }
 
-    public Map orgStatus(String orgName) throws SQLException {
+    public Map orgStatus(String orgName) throws Exception {
         Map status = new HashMap();
         String totalStatus = DONE;
         List<Map> setups = new ArrayList<Map>();
@@ -838,6 +849,70 @@ public class DBSetupManager {
         return result;
     }
     
+    private void updateContactCustomIndex(String orgName){
+    	Runner runner = datasourceManager.newOrgRunner(orgName);
+    	
+    	/******** set the current index ********/
+        CurrentOrgSetupStatus coss = currentOrgSetupStatus.get(orgName);
+        if(coss==null){
+        	coss = new CurrentOrgSetupStatus();
+        	currentOrgSetupStatus.put(orgName, coss);
+        }
+        
+    	//create all column index
+    	List<String> contactColumns = getOrgCustomFieldCloumns(orgName);
+		for(String columnName : contactColumns){
+			String indexName = "jss_contact_customindex_"+columnName;
+			if(allowCreateIndex(orgName, "contact", columnName) && !checkIndexexist(orgName, indexName)){
+		        coss.setCurrentIndex(indexName);
+	   /********  /set the current index ********/
+		        String sql = renderCustomIndex(orgName, "contact", columnName, indexName);
+		        runner.executeUpdate(sql);
+			}
+		}
+		//drop no use column index
+		List<Map> customIndex = getTableIndexs(orgName,"contact","jss_contact_customindex_");
+		for(int i = 0, length = customIndex.size(); i < length; i++){
+			if(!contactColumns.contains(customIndex.get(i).get("index_name").toString().substring(24))){
+				runner.executeUpdate("DROP INDEX if exists " + customIndex.get(i).get("index_name").toString());
+			}
+		}
+		runner.close();
+    }
+    
+    private String renderCustomIndex(String orgName, String tableName, String columnName, String indexName){
+    	StringBuilder sql = new StringBuilder();
+    	sql.append("CREATE INDEX  ").append(indexName).append(" ON contact  USING ");
+    	String column_type = getTableColumnDataType(orgName, tableName, columnName);
+    	if("character varying".equals(column_type)){
+    		sql.append("gin (\"").append(columnName).append("\" gin_trgm_ops)");
+    	}else {
+    		sql.append("btree (\"").append(columnName).append("\")");
+    	}
+    	return sql.toString();
+    }
+    
+    private boolean allowCreateIndex(String orgName, String tableName, String columnName){
+    	String column_type = getTableColumnDataType(orgName, tableName, columnName);
+    	if(!Strings.isNullOrEmpty(column_type) && Arrays.asList(allowCustomIndexColumns).contains(column_type)){
+    		return true;
+    	}
+    	return false;
+    }
+    
+    private String getTableColumnDataType(String orgName, String tableName, String columnName){
+    	Runner runner = datasourceManager.newOrgRunner(orgName);
+    	String sql = "SELECT data_type FROM information_schema.\"columns\" WHERE table_name='"+tableName+"' and table_schema = current_schema "
+				+"and column_name = '"+columnName+"'";
+		List<Map> list = runner.executeQuery(sql);
+		runner.close();
+		String column_type = null;
+		if(list.size()==1){
+			column_type = list.get(0).get("data_type").toString().trim();
+		}
+		return column_type;
+    }
+    
     /**
      * create index for contact and jss_contact
      * @param orgName
@@ -951,12 +1026,12 @@ public class DBSetupManager {
                             	coss = new CurrentOrgSetupStatus();
                             	currentOrgSetupStatus.put(orgName, coss);
                             }
-                            coss.setCurrentIndex(jo.get("pkname").toString());
-                            /********  /set the current index ********/
                             
                             if(checkPkexist(orgName,jo.get("tablename").toString(),jo.get("pkname").toString())){
                             	dropPkOfmanyTomanyTable(orgName,jo.get("tablename").toString(),jo.get("pkname").toString());
     	                	}else{
+                                coss.setCurrentIndex(jo.get("pkname").toString());
+                            /********  /set the current index ********/
         	                	String sql = "ALTER TABLE "+jo.get("tablename")+" ADD CONSTRAINT "
    	                			     +jo.get("pkname")+" PRIMARY KEY("
    	                			     +jo.get("column")+")";
@@ -1449,10 +1524,16 @@ public class DBSetupManager {
 	                }
                 }
         }
+		//check the custom index
+		List<String> contactColumns = getOrgCustomFieldCloumns(orgName);
+		for(String columnName: contactColumns){
+			String indexName = "jss_contact_customindex_"+columnName;
+			if(allowCreateIndex(orgName, "contact", columnName) && checkIndexexist(orgName,indexName)){
+				count++;
+			}
+		}
         return count;
     }
-
-  
     
     /**
      * get the indexes for custom filter which defined in org search config
@@ -1472,7 +1553,7 @@ public class DBSetupManager {
         return sb.toString();
     }
 
-    private int getTotalIndexCount(String orgName) {
+    private int getTotalIndexCount(String orgName) throws Exception {
         int count = 0;
         Map<String, JSONArray> m = getIndexMapFromJsonFile();
         for (String key : m.keySet()) {
@@ -1487,9 +1568,55 @@ public class DBSetupManager {
                 count++;
             }
         }
+        List<String> columns = getOrgCustomFieldCloumns(orgName);
+        for(String column:columns){
+            if(allowCreateIndex(orgName, "contact", column)){
+            	count++;
+            }
+        }
         return count;
     }
 
+    private List<String> getOrgCustomFieldCloumns(String orgName){
+ 	   List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+       String schemaname = null;
+       if (orgs.size() == 1) {
+           schemaname = orgs.get(0).get("schemaname").toString();
+       }
+    	List<String> cloumns = new ArrayList<String>();
+    	String orgConfigContent;
+		try {
+			orgConfigContent = scm.getMergedNodeContent(orgName);
+			DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+	        Document document = db.parse(new ByteArrayInputStream(orgConfigContent.getBytes()));
+	        NodeList sysCustomFields = document.getElementsByTagName("customFields");
+	        if(sysCustomFields.getLength()!=0){
+	            NodeList customFields = sysCustomFields.item(0).getChildNodes();
+	            for(int i=0,j=customFields.getLength();i<j;i++){
+	                Node customField = customFields.item(i);
+	                if(customField.getNodeType()==1 && "field".equals(customField.getNodeName())){
+	                   if(checkAttribute(customField, "name") && checkAttribute(customField, "columnName")){
+	                	   String column = customField.getAttributes().getNamedItem("columnName").getNodeValue();
+	                	   if(checkColumn(column,"contact",schemaname)){
+	                           cloumns.add(customField.getAttributes().getNamedItem("columnName").getNodeValue());
+	                	   }
+	                   }
+	                }
+	            }
+	        }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return cloumns;
+    }
+    
+    private boolean checkAttribute(Node n,String name){
+        if(n.getAttributes().getNamedItem(name)!=null){
+            return true;
+        }
+        return false;
+    }
+    
     private List<String> loadSQLFile(File file) {
         List<String> sqlList = new ArrayList<String>();
         StringBuffer temp = new StringBuffer();
@@ -2259,6 +2386,15 @@ public class DBSetupManager {
         return path.toString();
     }
 
+    private List<Map> getTableIndexs(String orgName, String tableName, String indexPrefix){
+    	String querySql = "SELECT t.relname as table_name, i.relname as index_name, a.attname as column_name "
+                         +"FROM  pg_class t, pg_class i, pg_namespace n, pg_index ix, pg_attribute a "
+                         +"WHERE  n.oid = t.relnamespace and t.oid = ix.indrelid and i.oid = ix.indexrelid and a.attrelid = t.oid and a.attnum = ANY(ix.indkey) and t.relkind = 'r' and t.relname = '"+tableName+"' and i.relname like ' "+indexPrefix+"%'"     
+                         +"AND n.nspname = current_schema";
+		List<Map> lists = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),querySql);
+		return lists;
+    }
+    
     class CurrentOrgSetupStatus{
     	private String orgName;
     	private String currentIndex;

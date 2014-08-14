@@ -408,6 +408,7 @@
 							type : "success"
 						});
 					}
+					refresh.call(view);
 					$btn.prop("disabled", false).html("Save");
 				});
 				return false;

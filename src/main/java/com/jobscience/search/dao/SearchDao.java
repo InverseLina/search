@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.jobscience.search.searchconfig.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -24,13 +25,6 @@ import com.google.common.base.Strings;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
 import com.jobscience.search.organization.OrgContext;
-import com.jobscience.search.searchconfig.ContactFieldType;
-import com.jobscience.search.searchconfig.Field;
-import com.jobscience.search.searchconfig.Filter;
-import com.jobscience.search.searchconfig.FilterField;
-import com.jobscience.search.searchconfig.FilterType;
-import com.jobscience.search.searchconfig.SearchConfiguration;
-import com.jobscience.search.searchconfig.SearchConfigurationManager;
 
 @Singleton
 public class SearchDao {
@@ -359,6 +353,7 @@ public class SearchDao {
     	try{
     		long start = System.currentTimeMillis();
     		List<Map> result = null;
+
             result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
 //    		if(result != null && !searchRequest.searchModeChange()){
 //        		result = setLoctionName(searchRequest,result,org);
@@ -861,7 +856,7 @@ public class SearchDao {
           .addCompany(searchRequest.getCompanies()).addEducation(searchRequest.getEducations())
           .addSkill(searchRequest.getSkills()).addLocation(searchRequest.getLocations())
           .addCustomFilter(searchRequest.getCustomFilters()).addObjectType(searchRequest.getObjectType())
-          .addStatus(searchRequest.getStatus());
+          .addStatus(searchRequest.getStatus()).addCustomFields(searchRequest.getCustomFields());
         values.addAll(sb.getValues());
             
         String condition = sb.getConditions();
@@ -1362,7 +1357,7 @@ public class SearchDao {
                 }
                 hasCondition = true;
             }else{//for the contact table filter
-                JSONArray extraValues =searchValues.get(name);;
+                JSONArray extraValues =searchValues.get(name);
                 if(extraValues.size()>0){
                     conditions.append(" AND (1!=1 ");
                     for(int i=0,j=extraValues.size();i<j;i++){
@@ -1376,6 +1371,38 @@ public class SearchDao {
             }
         }
         return hasCondition;
+    }
+    
+    private boolean renderCustomFields(JSONArray searchValues,StringBuilder conditions,SearchConfiguration sc){
+    	if(searchValues==null){
+            return false;
+        }
+        boolean hasCondition = false;
+        JSONObject jo;
+        CustomField customField;
+        String temp;
+        JSONObject conditionsParam;
+        for(int position=0,length=searchValues.size();position<length;position++){
+            jo = searchValues.getJSONObject(position);
+            customField = sc.getCustomFieldByName(jo.getString("field"));
+            if(customField==null){
+                continue;
+            }
+            temp = customField.toString("contact");
+            conditionsParam = jo.getJSONObject("conditions");
+            for(Object op:conditionsParam.keySet()){
+                conditions.append(" AND ").append(temp).append(op).append(wrap(customField,conditionsParam.get(op)));
+            }
+            hasCondition = true;
+        }
+        return hasCondition;
+    }
+    
+    private String wrap(CustomField customField,Object conditionParam){
+        if("String".equalsIgnoreCase( customField.getType())){
+            return "'"+conditionParam+"'";
+        }
+        return conditionParam+"";
     }
     
     private double getDistance(double lat1, double lng1, double lat2, double lng2){
@@ -1518,12 +1545,17 @@ public class SearchDao {
                						  .append(" offset ")
                						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
                						  .append(" limit ").append(searchRequest.getPageSize() + 1);
+               			}else if(searchRequest.getCustomFields() != null && searchRequest.getCustomFields().size()>0){
+                            exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
+                                               .append(" offset ")
+                                               .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+                                               .append(" limit ").append(searchRequest.getPageSize() + 1);
                			}else{
-               				orderSql.append(" order by ").append(searchRequest.getOrder())
-			      					.append(" offset ")
-			      					.append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-			      					.append(" limit ").append(searchRequest.getPageSize() + 1);
-               			}
+                            orderSql.append(" order by ").append(searchRequest.getOrder())
+                                    .append(" offset ")
+                                    .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+                                    .append(" limit ").append(searchRequest.getPageSize() + 1);
+                       }
                 }
             }else{
             	keyWordSql.append(" select distinct contact.id from contact ");
@@ -1604,7 +1636,11 @@ public class SearchDao {
             renderCustomFilters(searchValues, filterSql, conditions,values,schemaname, sc);
             return this;
         }
-        
+        public SearchBuilder addCustomFields(JSONArray searchValues){
+            hasContactCondition = renderCustomFields(searchValues,  conditions, sc)||hasContactCondition;
+            hasCondition = hasContactCondition|| hasCondition;
+            return this;
+        }
         public String getSearchSql(){
         	if(locationSql.length()>0||
         			(searchRequest.getOrder().trim().startsWith("\"id\"")&&searchRequest.isOnlyKeyWord())||

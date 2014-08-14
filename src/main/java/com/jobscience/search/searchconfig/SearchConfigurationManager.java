@@ -15,6 +15,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -131,7 +132,7 @@ public class SearchConfigurationManager {
             Unmarshaller ums =  jc.createUnmarshaller();
             return (SearchConfiguration) ums.unmarshal(getMergedNode(orgName));
         }catch(Exception e){
-            //
+            e.printStackTrace();
         }
         return new SearchConfiguration();
     }
@@ -145,7 +146,6 @@ public class SearchConfigurationManager {
         return sysDocument;
     }
     private  Node getMergedNode(String orgName) throws Exception {
-       
         DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         //get the sys config
         List<Map> sysConfig = daoHelper.executeQuery(datasourceManager.newSysRunner(),
@@ -334,7 +334,62 @@ public class SearchConfigurationManager {
             contact.appendChild(result.importNode(n, true));
         }
         e.appendChild(contact);
-        
+
+        //handle customFields
+        NodeList sysCustomFields = sys.getElementsByTagName("customFields");
+        NodeList orgCustomFields = org.getElementsByTagName("customFields");
+        Map<String,Node> customFieldsMap = new HashMap<String,Node>();
+
+        for(int current = 0,length=sysCustomFields.getLength();current<length;current++){
+            Node n = sysCustomFields.item(current);
+            NodeList sysCustomFieldsChildren = n.getChildNodes();
+            for(int c = 0,l=sysCustomFieldsChildren.getLength();c<l;c++){
+                Node customField = sysCustomFieldsChildren.item(c);
+                if(customField.getNodeType()==1){
+                    NamedNodeMap field =  customField.getAttributes();
+                    customFieldsMap.put(field.getNamedItem("name").getNodeValue(), customField);
+                }
+            }
+        }
+
+        for(int current = 0,length=orgCustomFields.getLength();current<length;current++){
+            Node n = orgCustomFields.item(current);
+            NodeList customFields = n.getChildNodes();
+            for(int c = 0,l=customFields.getLength();c<l;c++){
+                Node customField = customFields.item(c);
+                if(customField.getNodeType()==1){
+                    NamedNodeMap nameMap =  customField.getAttributes();
+                    String name = nameMap.getNamedItem("name").getNodeValue();
+                    boolean remove = false;
+                    if(nameMap.getNamedItem("remove")!=null&&"true".equals(nameMap.getNamedItem("remove").getNodeValue())){
+                        remove = true;
+                    }
+                    if(remove){
+                        customFieldsMap.remove(name);
+                        continue;
+                    }
+                    if(keywordMap.containsKey(name)){
+                        NamedNodeMap sysNodeNameMap = customFieldsMap.get(name).getAttributes();
+                        if(nameMap.getNamedItem("columnName")==null&&sysNodeNameMap.getNamedItem("columnName")!=null){
+                            ((Element)customField).setAttribute("columnName", sysNodeNameMap.getNamedItem("columnName").getNodeValue());
+                        }
+
+                    }
+                    customFieldsMap.put(name, customField);
+                }
+            }
+        }
+
+        Element customFields =  result.createElement("customFields");
+        for(Node n:customFieldsMap.values()){
+            customFields.appendChild(result.importNode(n, true));
+        }
+        e.appendChild(customFields);
+
+        StringWriter sw = new StringWriter();
+        Transformer t = TransformerFactory.newInstance().newTransformer();
+        t.transform(new DOMSource(e), new StreamResult(sw));
+
         return e;
     }
     
@@ -371,6 +426,29 @@ public class SearchConfigurationManager {
                             errorMsg="Missing contactInfoTsv and contactResumeTsv keyword field.";
                         }else if(!resumeTsv){
                             errorMsg="Missing contactResumeTsv keyword field.";
+                        }
+                    }
+                   //handle for customFields
+                    List<String> columnLists = new ArrayList<String>();
+                    NodeList sysCustomFields = document.getElementsByTagName("customFields");
+                    if(sysCustomFields.getLength()!=0){
+                        NodeList customFields = sysCustomFields.item(0).getChildNodes();
+                        for(int i=0,j=customFields.getLength();i<j;i++){
+                            Node customField = customFields.item(i);
+                            if(customField.getNodeType()==1){
+                            	if("field".equals(customField.getNodeName())){
+		                           if(!checkAttribute(customField, "name")){
+		                               errorMsg = "Missing name attribute for customFields field";
+		                           }
+		                           if(!checkAttribute(customField, "columnName")){
+		                               errorMsg = "Missing columnName attribute for customFields field";
+		                           }
+		                           System.out.println("handle for customFields   "+customField.getAttributes().getNamedItem("columnName").getNodeValue());
+		                           columnLists.add(customField.getAttributes().getNamedItem("columnName").getNodeValue());
+                            	}else{
+                                	errorMsg="The search config xml has grammer issues.";
+                                }
+                            }
                         }
                     }
                     //handle filter
