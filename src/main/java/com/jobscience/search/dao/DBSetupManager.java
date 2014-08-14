@@ -837,43 +837,13 @@ public class DBSetupManager {
         }
         return result;
     }
-
-    private void dropInvalidIndexes(String orgName){
-    	Runner runner = datasourceManager.newOrgRunner(orgName);
-	    	try{
-	    	StringBuilder sql = new StringBuilder();
-	        sql.append("select indexname,tablename,indexdef from pg_indexes ").append("where indexname in (")
-	                .append(getIndexesNamesAndTables()[0]).append(getOrgCustomFilterIndex(orgName))
-	                .append(") and schemaname=current_schema ");
-	        
-	        List<Map> list =runner.executeQuery(sql.toString());
-	        Map<String, JSONArray> indexsDef = getIndexMapFromJsonFile();
-	        
-	        //check the index content
-	        for(Map m:list){
-	            JSONArray ja = indexsDef.get(m.get("tablename"));
-	            for (int i = 0; i < ja.size(); i++) {
-	                JSONObject jo = JSONObject.fromObject(ja.get(i));
-	                if(!jo.get("type").equals("pk")&&jo.get("name").equals(m.get("indexname"))){
-	                	if(!generateIndexDef(m.get("tablename").toString(), jo)
-	                			.replaceAll("\\s", "").equalsIgnoreCase(
-	                					m.get("indexdef").toString().replaceAll("\\s", ""))){
-	                		runner.executeUpdate("drop index if exists " + jo.getString("name"));
-	                	}
-	                }
-	            }
-	        }
-    	}finally{
-    		runner.close();
-    	}
-    }
     
     /**
      * create index for contact and jss_contact
-     * 
      * @param orgName
+     * @param contactEx
      * @return
-     * @throws SQLException
+     * @throws Exception
      */
     public boolean createIndexColumns(String orgName, boolean contactEx) throws Exception {
         if (!orgSetupStatus.get(orgName).booleanValue()) {
@@ -1001,26 +971,6 @@ public class DBSetupManager {
     	return result;
     }
     
-   
-    public String getWrongIndex(String orgName) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("select string_agg(tablename||'.'||indexname,', ') as indexes from pg_indexes ")
-                .append("where indexname not in (").append(getIndexesNamesAndTables()[0])
-                .append(getOrgCustomFilterIndex(orgName)).append(") and tablename in(")
-                .append(getIndexesNamesAndTables()[1]).append(")")
-                .append(" and indexname not ilike '%pkey%' and schemaname=current_schema ");
-        List<Map> list = daoHelper
-                .executeQuery(datasourceManager.newOrgRunner(orgName), sql.toString());
-        if (list.size() == 1) {
-            return list.get(0).get("indexes") == null ? "" : list.get(0).get("indexes").toString();
-        }
-        return "";
-    }
-
-    public boolean recreateTriggers(String orgName) throws Exception{
-        return createExtraTables(orgName);
-    }
-    
     public String removeWrongIndex(String orgName) throws Exception {
         if (!orgSetupStatus.get(orgName).booleanValue()) {
             return "";
@@ -1080,22 +1030,6 @@ public class DBSetupManager {
         return list;
     }
 
-    public boolean hasOrgTable(String orgName, String tableName) {
-        List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-        String schemaname = "";
-        if (orgs.size() == 1) {
-            schemaname = orgs.get(0).get("schemaname").toString();
-        }
-        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
-                "select count(*) as count from information_schema.tables" + " where table_schema='"
-                        + schemaname + "' and table_type='BASE TABLE' and table_name=?", tableName);
-        if (list.size() == 1) {
-            return (Long) list.get(0).get("count") > 0;
-        }
-        return false;
-    }
-
-    
     public int getMtmTableseStatus(String orgName,String tableName) {
     	int count = 0;
     	Runner runner = datasourceManager.newOrgRunner(orgName);
@@ -1123,14 +1057,7 @@ public class DBSetupManager {
     	daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
     			"ALTER TABLE jss_contact DROP COLUMN IF EXISTS \"resume_tsv\" CASCADE");
     }
-    
-    public void computeCityWorld() throws Exception {
-        String extraSysTables = checkSysTables();
-        if (!extraSysTables.contains("city_world")) {
-            excuteSqlUnderSys("01_");
-        }
-    }
-    
+   
     public void importCityWorld() throws Exception {
         String extraSysTables = checkSysTables();
         if (!extraSysTables.contains("city_world")) {
@@ -1328,19 +1255,7 @@ public class DBSetupManager {
     		runner.close();
     	}
     }
-    
-    public boolean checkTableExist(String orgName,String table){
-    	String sql = "SELECT *  FROM information_schema.tables WHERE table_schema = current_schema"
-    	             +" AND "
-    	             +" table_name = '"
-    	             +table+"';";
-    	List<Map> results = daoHelper.executeQuery(orgName, sql);
-    	if(results.size()==1){
-    		return true;
-    	}else{
-    		return false;
-    	}
-    }
+
     // ---------- /public methods ----------//
     
 
@@ -1574,12 +1489,6 @@ public class DBSetupManager {
         }
         return count;
     }
-    
-    private String getRootSqlFolderPath() {
-        StringBuilder path = new StringBuilder(webAppFolder.getAbsolutePath());
-        path.append("/WEB-INF/sql");
-        return path.toString();
-    }
 
     private List<String> loadSQLFile(File file) {
         List<String> sqlList = new ArrayList<String>();
@@ -1629,7 +1538,6 @@ public class DBSetupManager {
 			if (!orgSetupStatus.get(orgName).booleanValue()) {
 				return false;
 			}
-			
 			// when there already has data
 			if (getDataCount(tableName, runner) > 0) {
 				return true;
@@ -2006,6 +1914,36 @@ public class DBSetupManager {
         return false;
     }
 
+    private void dropInvalidIndexes(String orgName){
+    	Runner runner = datasourceManager.newOrgRunner(orgName);
+	    	try{
+	    	StringBuilder sql = new StringBuilder();
+	        sql.append("select indexname,tablename,indexdef from pg_indexes ").append("where indexname in (")
+	                .append(getIndexesNamesAndTables()[0]).append(getOrgCustomFilterIndex(orgName))
+	                .append(") and schemaname=current_schema ");
+	        
+	        List<Map> list =runner.executeQuery(sql.toString());
+	        Map<String, JSONArray> indexsDef = getIndexMapFromJsonFile();
+	        
+	        //check the index content
+	        for(Map m:list){
+	            JSONArray ja = indexsDef.get(m.get("tablename"));
+	            for (int i = 0; i < ja.size(); i++) {
+	                JSONObject jo = JSONObject.fromObject(ja.get(i));
+	                if(!jo.get("type").equals("pk")&&jo.get("name").equals(m.get("indexname"))){
+	                	if(!generateIndexDef(m.get("tablename").toString(), jo)
+	                			.replaceAll("\\s", "").equalsIgnoreCase(
+	                					m.get("indexdef").toString().replaceAll("\\s", ""))){
+	                		runner.executeUpdate("drop index if exists " + jo.getString("name"));
+	                	}
+	                }
+	            }
+	        }
+    	}finally{
+    		runner.close();
+    	}
+    }
+
     private String checkColumns(String schemaName, String fileName, boolean jssTable) {
         Map<String, JSONArray> arrays = loadJsonFile(fileName);
         Map columnsMap = getColumnsGroupbyTable(schemaName);
@@ -2143,7 +2081,20 @@ public class DBSetupManager {
         }
         return sb;
     }
-
+    
+    private boolean checkTableExist(String orgName,String table){
+    	String sql = "SELECT *  FROM information_schema.tables WHERE table_schema = current_schema"
+    	             +" AND "
+    	             +" table_name = '"
+    	             +table+"';";
+    	List<Map> results = daoHelper.executeQuery(orgName, sql);
+    	if(results.size()==1){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
+    
     private void fixMissingColumns(String orgName, Boolean sys) {
         Map<String, JSONArray> arrays = loadJsonFile(sys ? "jss-sys-tables.def"
                 : "org-jss-tables.def");
@@ -2302,6 +2253,12 @@ public class DBSetupManager {
 		}
     }
     
+    private String getRootSqlFolderPath() {
+        StringBuilder path = new StringBuilder(webAppFolder.getAbsolutePath());
+        path.append("/WEB-INF/sql");
+        return path.toString();
+    }
+
     class CurrentOrgSetupStatus{
     	private String orgName;
     	private String currentIndex;
@@ -2322,4 +2279,49 @@ public class DBSetupManager {
 			return currentIndex;
 		}
     }
+    
+    // ---------- public methods(not use) ----------//
+    
+    public String getWrongIndex(String orgName) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select string_agg(tablename||'.'||indexname,', ') as indexes from pg_indexes ")
+                .append("where indexname not in (").append(getIndexesNamesAndTables()[0])
+                .append(getOrgCustomFilterIndex(orgName)).append(") and tablename in(")
+                .append(getIndexesNamesAndTables()[1]).append(")")
+                .append(" and indexname not ilike '%pkey%' and schemaname=current_schema ");
+        List<Map> list = daoHelper
+                .executeQuery(datasourceManager.newOrgRunner(orgName), sql.toString());
+        if (list.size() == 1) {
+            return list.get(0).get("indexes") == null ? "" : list.get(0).get("indexes").toString();
+        }
+        return "";
+    }
+
+    public boolean recreateTriggers(String orgName) throws Exception{
+        return createExtraTables(orgName);
+    }
+
+    public boolean hasOrgTable(String orgName, String tableName) {
+        List<Map> orgs = orgConfigDao.getOrgByName(orgName);
+        String schemaname = "";
+        if (orgs.size() == 1) {
+            schemaname = orgs.get(0).get("schemaname").toString();
+        }
+        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
+                "select count(*) as count from information_schema.tables" + " where table_schema='"
+                        + schemaname + "' and table_type='BASE TABLE' and table_name=?", tableName);
+        if (list.size() == 1) {
+            return (Long) list.get(0).get("count") > 0;
+        }
+        return false;
+    }
+    
+    public void computeCityWorld() throws Exception {
+        String extraSysTables = checkSysTables();
+        if (!extraSysTables.contains("city_world")) {
+            excuteSqlUnderSys("01_");
+        }
+    }
+ 
+    // ---------- /public methods(not use) ----------//
 }

@@ -61,12 +61,12 @@ public class SearchDao {
     private static int EXACT_COUNT_TIMEOUT = 2000;//ms
     private static int ESTIMATE_COUNT_TIMEOUT = 1000;//ms
     private static String separator = "&&&";
+    
     /**
-     * @param searchColumns
-     * @param searchValues
-     * @param pageIdx
-     * @param pageSize
-     * @param orderCon
+     * do the search
+     * @param searchRequest
+     * @param token
+     * @param org
      * @return
      */
     public SearchResult search(SearchRequest searchRequest,String token,OrgContext org) {
@@ -96,26 +96,28 @@ public class SearchDao {
     }
 
 	/**
-     * Get the auto complete data
-     * @param searchValues the search parameters
-     * @param type  the available value is  company,education,skill and location
-     * @param queryString the value which user typed in auto complete box
-     * @param orderByCount true or false
-     * @param min  the min year or min rating or min radius
-     * @param pageSize 
-     * @param pageNum
-     * @return
-     * @throws SQLException
-     */
+	 * Get the auto complete data
+	 * @param searchValues
+	 * @param type
+	 * @param queryString
+	 * @param orderByCount
+	 * @param min
+	 * @param pageSize
+	 * @param pageNum
+	 * @param org
+	 * @return
+	 * @throws SQLException
+	 */
     public SearchResult getGroupValuesForAdvanced(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
         return simpleAutoComplete(searchValues, type, queryString, orderByCount, min, pageSize, pageNum,org);
     }
-    
+
     /**
      * boolean search handler for search box
      * @param searchValue
      * @param type
-     * @param values
+     * @param org
+     * @param exact
      * @return
      */
     public  String booleanSearchHandler(String searchValue,String type,OrgContext org,boolean exact){
@@ -210,8 +212,10 @@ public class SearchDao {
     }
 
     /**
-     * @param searchValues
-     * @return SearchStatements
+     * build SearchStatements by searchRequest
+     * @param searchRequest
+     * @param org
+     * @return
      */
     protected SearchStatements buildSearchStatements(SearchRequest searchRequest,OrgContext org) {
         SearchStatements ss = new SearchStatements();
@@ -297,8 +301,6 @@ public class SearchDao {
                     .append(sc.getContact().getTable())
                     .append(" contact   " );
         }
-    
-        
            
         // for all search mode, we preform the same condition
         String[] sqls = getCondtion(searchRequest,values,org);
@@ -344,7 +346,13 @@ public class SearchDao {
         return ss;
     }
 
-    
+    /**
+     * execute the search use SearchStatements and searchRequest
+     * @param statementAndValues
+     * @param searchRequest
+     * @param org
+     * @return
+     */
     protected SearchResult executeSearch(SearchStatements statementAndValues,SearchRequest searchRequest,OrgContext org){
     	Runner runner = datasourceManager.newOrgRunner(org.getOrgMap().get("name").toString());
     	SearchResult searchResult = null;
@@ -435,6 +443,19 @@ public class SearchDao {
     	return searchResult;
     }
 
+    /**
+     * 
+     * @param searchValues
+     * @param type
+     * @param queryString
+     * @param orderByCount
+     * @param min
+     * @param pageSize
+     * @param pageNum
+     * @param org
+     * @return
+     * @throws SQLException
+     */
     protected SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         Filter filter = sc.getFilterByName(type);
@@ -491,7 +512,6 @@ public class SearchDao {
 
         }
         
-        
         Long start = System.currentTimeMillis();
         Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
         queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
@@ -513,6 +533,8 @@ public class SearchDao {
      * @param orginalName
      * @param columnJoinTables
      * @param groupBy
+     * @param searchedColumns
+     * @param org
      * @return
      */
     private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy,StringBuffer searchedColumns,OrgContext org){
@@ -580,12 +602,12 @@ public class SearchDao {
             return " (select  string_agg(distinct d.\""+ff.getColumn()+"\",',') " +
                                     "from "+schemaname+"."+ff.getTable()+" d  where a.\""+ff.getJoinTo()+"\" = d.\""+ff.getJoinFrom()+"\"   ) as \""+f.getName()+"\"";
         }
-    	//return orginalName;
     }
     
     /**
      * get the search columns for outer sql block
      * @param searchColumns
+     * @param org
      * @return
      */
     private String getSearchColumnsForOuter(String searchColumns,OrgContext org){
@@ -733,6 +755,7 @@ public class SearchDao {
     }
 
     /**
+     * render the search Condition
      * @param searchValues
      * @param values
      * @param org
@@ -824,13 +847,10 @@ public class SearchDao {
     
     /**
      * Get condition for Search logic 
-     * @param searchValue the value typed in search box 
-     * @param searchValues all other search parameters
-     * @param values 
-     * @param orderCon
-     * @param offset
-     * @param pageSize
-     * @return first for query sql,second for query sql
+     * @param searchRequest
+     * @param values
+     * @param org
+     * @return
      */
     private String[] getCondtion(SearchRequest searchRequest,List values,OrgContext org){
     	StringBuilder joinSql = new StringBuilder();
@@ -890,11 +910,14 @@ public class SearchDao {
     }
     
     
+    
     /**
      * handle the table joined for boolean search,mainly for contact table
-     * @param searchValue
+     * @param keyword
      * @param values
      * @param alias
+     * @param org
+     * @param searchRequest
      * @return
      */
 	private String getSearchValueJoinTable(String keyword, List values,
@@ -943,6 +966,23 @@ public class SearchDao {
 		}
 	}
 	
+    private String renderKeywordSearch(String param,OrgContext org,boolean exact,String alias){
+        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+        StringBuilder sb = new StringBuilder();
+        String exactFilter = "";
+        exact = false;
+        if(exact){
+            exactFilter=" ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
+        }
+        for(Field f:sc.getKeyword().getFields()){
+            sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(")
+              .append("'")
+              .append(param)
+              .append("')");
+        }
+        return exactFilter+sb.delete(0, 2).toString()+(exact?")":"");
+    }
+
 	private void spiltKeywords(String keyword,ArrayList<String> keys,Map<Integer, String> operators){
 		int flag = 0;
 		while (keyword.length() > 0) {
@@ -1000,46 +1040,6 @@ public class SearchDao {
 		}
 		return joinSql.toString();
 	}
-	
-    private String renderKeywordSearch(String param,OrgContext org,boolean exact,String alias){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        StringBuilder sb = new StringBuilder();
-        String exactFilter = "";
-        exact = false;
-        if(exact){
-            exactFilter=" ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
-        }
-        for(Field f:sc.getKeyword().getFields()){
-            sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(")
-              .append("'")
-              .append(param)
-              .append("')");
-        }
-        return exactFilter+sb.delete(0, 2).toString()+(exact?")":"");
-    }
-
-    private boolean hasExtraSearchColumn(SearchRequest searchRequest){
-        return (searchRequest.getCustomFilters().keySet().size()>0);
-    }
-    
-    private String addPercentageIfNecessary(String src){
-        if (!src.contains("%")) {
-            return src + "%";
-        }
-        return src;
-    }
-
-    private boolean renderContactPropertyCondition(StringBuilder conditionSql,List values,
-            SearchConfiguration sc,JSONObject contact,String propertyName){
-        if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
-            conditionSql.append("  and ")
-                      .append(sc.getContactField(propertyName.toLowerCase()).toString("contact"))
-                      .append(" ilike '").append(addPercentageIfNecessary(contact.getString(propertyName)))
-                      .append("' ");
-            return true;
-        }
-        return false;
-    }
 
     /**
      *
@@ -1087,6 +1087,18 @@ public class SearchDao {
         return hasContactCondition;
     }
 
+    private boolean renderContactPropertyCondition(StringBuilder conditionSql,List values,
+            SearchConfiguration sc,JSONObject contact,String propertyName){
+        if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
+            conditionSql.append("  and ")
+                      .append(sc.getContactField(propertyName.toLowerCase()).toString("contact"))
+                      .append(" ilike '").append(addPercentageIfNecessary(contact.getString(propertyName)))
+                      .append("' ");
+            return true;
+        }
+        return false;
+    }
+
     @SuppressWarnings("serial")
 	private Map<FilterType,String> manyToManyTables = new HashMap<FilterType, String>(){{
     	put(FilterType.COMPANY, "employers");
@@ -1094,7 +1106,6 @@ public class SearchDao {
     	put(FilterType.SKILL, "skills");
     }};
     
-
     private boolean renderFilterCondition(JSONArray values,StringBuilder prefixSql,
                                        StringBuilder filterSql,String schemaname,
                                        SearchConfiguration sc,FilterType filterType,OrgContext org){
@@ -1317,7 +1328,6 @@ public class SearchDao {
         return hasCondition;
     }
     
-    
     private boolean renderCustomFilters(Map<String, JSONArray> searchValues,StringBuilder filterSql,
             StringBuilder conditions,List values,String schemaname,SearchConfiguration sc){
         boolean hasCondition = false;
@@ -1368,6 +1378,30 @@ public class SearchDao {
         return hasCondition;
     }
     
+    private double getDistance(double lat1, double lng1, double lat2, double lng2){
+    	double EARTH_RADIUS = 6378.137;
+        double radLat1 = rad(lat1);
+	    double radLat2 = rad(lat2);
+	    double a = radLat1 - radLat2;
+	    double b = rad(lng1) - rad(lng2);
+	    double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) + 
+	    Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
+	    s = s * EARTH_RADIUS;
+	    s = Math.round(s * 10000) / 10000;
+	    return s*0.62137;
+    }
+	
+    private boolean hasExtraSearchColumn(SearchRequest searchRequest){
+        return (searchRequest.getCustomFilters().keySet().size()>0);
+    }
+    
+    private String addPercentageIfNecessary(String src){
+        if (!src.contains("%")) {
+            return src + "%";
+        }
+        return src;
+    }
+   
     private void handleResult(List<Map> results){
     	String[] temp = new String[2];
     	if(results==null||results.size()==0){
@@ -1392,20 +1426,20 @@ public class SearchDao {
     		
     	}
     }
-    
-    private double getDistance(double lat1, double lng1, double lat2, double lng2){
-    	double EARTH_RADIUS = 6378.137;
-        double radLat1 = rad(lat1);
-	    double radLat2 = rad(lat2);
-	    double a = radLat1 - radLat2;
-	    double b = rad(lng1) - rad(lng2);
-	    double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) + 
-	    Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
-	    s = s * EARTH_RADIUS;
-	    s = Math.round(s * 10000) / 10000;
-	    return s*0.62137;
-    }
-    
+
+    private static Integer getCountFromExplainPlan(String explainPlan){
+        String value = null;
+        if(explainPlan == null){
+            return null;
+        }
+        Matcher matcher = pattern.matcher(explainPlan);
+        if(matcher.find()){
+            String rowsResult = matcher.group(1).trim();
+            value = rowsResult.substring(rowsResult.indexOf("=") + 1, rowsResult.length());
+        }
+        return ObjectUtil.getValue(value, Integer.class, 0);
+    }    
+ 
     private static double rad(double d){
        return d * Math.PI / 180.0;
     }
@@ -1431,19 +1465,6 @@ public class SearchDao {
         return new double[]{minLat,minLng,maxLat,maxLng};  
     }  
 
-    private static Integer getCountFromExplainPlan(String explainPlan){
-        String value = null;
-        if(explainPlan == null){
-            return null;
-        }
-        Matcher matcher = pattern.matcher(explainPlan);
-        if(matcher.find()){
-            String rowsResult = matcher.group(1).trim();
-            value = rowsResult.substring(rowsResult.indexOf("=") + 1, rowsResult.length());
-        }
-        return ObjectUtil.getValue(value, Integer.class, 0);
-    }
-    
     class SearchBuilder {
  
     	private StringBuilder orderSql = new StringBuilder();
