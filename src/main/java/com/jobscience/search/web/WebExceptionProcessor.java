@@ -70,6 +70,20 @@ public class WebExceptionProcessor {
             e1.printStackTrace();
         }
     }
-
+    @WebExceptionCatcher
+    public void processOtherException(Exception e, WebExceptionContext wec, RequestContext rc) {
+    	rc.getWebModel().put("errorCode", e.toString());
+        rc.getWebModel().put("errorMessage", e.getMessage());
+        rc.getWebModel().put("success", "false");
+        rc.getRes().setHeader("Cache-Control","no-cache");
+        rc.getRes().setHeader("Pragma","no-cache");
+        rc.getRes().setDateHeader ("Expires", -1);
+		logger.warn("SERVER_ERROR",e);
+        try {
+            rc.getWriter().write("The server has occurred an error:"+e.getMessage());
+        } catch (IOException ioException) {
+        	ioException.printStackTrace();
+        }
+    }
 }
 
