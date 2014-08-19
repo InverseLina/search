@@ -14,6 +14,11 @@
 		},
 
 		postDisplay : function(data) {
+			var view = this;
+			var $e = view.$el;
+			
+			var $filterItem = $e.find(".filter-item[data-name='desiredsalary']");
+			brite.display("CustomFilterNumber",$filterItem.find(".filter-item-container"), {name:"desiredsalary"});
 		},
 		// --------- /View Interface Implement--------- //
 
