@@ -1,16 +1,26 @@
 @import "utils";
 
+@font-folder:"fonts";
+
 @font-face {
 	font-family: 'Muli';
-	src: url('fonts/Muli-Light.ttf') format('truetype');
+	src: url('@{font-folder}/Muli-Light.ttf') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }
 
 @font-face {
 	font-family: 'Muli';
-	src: url('fonts/Muli-Regular.ttf') format('truetype');
+	src: url('@{font-folder}/Muli-Regular.ttf') format('truetype');
 	font-weight: bold;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "fontawesome";
+	src:  ~"url('@{font-folder}/fontawesome-webfont.eot')";
+	src:  ~"url('@{font-folder}/fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('@{font-folder}/fontawesome-webfont.woff') format('woff'), url('@{font-folder}/fontawesome-webfont.ttf') format('truetype'), url('@{font-folder}/fontawesome-webfont.svg#fontawesome') format('svg')";
+	font-weight: normal;
 	font-style: normal;
 }
 

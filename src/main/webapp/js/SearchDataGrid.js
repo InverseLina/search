@@ -27,6 +27,8 @@
 			$e.find(".searchMode .btn").removeClass("active");
 			$e.find(".searchMode .btn[data-mode='"+searchMode+"']").addClass("active");
 			resizeGridControls.call(view);
+			
+			brite.display("CustomFilterPopup");
 		},
 		// --------- /View Interface Implement--------- //
 
