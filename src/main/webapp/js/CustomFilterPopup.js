@@ -19,6 +19,8 @@
 			
 			var $filterItem = $e.find(".filter-item[data-name='desiredsalary']");
 			brite.display("CustomFilterNumber",$filterItem.find(".filter-item-container"), {name:"desiredsalary"});
+			$filterItem = $e.find(".filter-item[data-name='iswillingtorelocate']");
+			brite.display("CustomFilterBoolean",$filterItem.find(".filter-item-container"), {name:"iswillingtorelocate"});
 		},
 		// --------- /View Interface Implement--------- //
 

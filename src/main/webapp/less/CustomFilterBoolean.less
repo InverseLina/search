@@ -1,0 +1,40 @@
+// Core variables and mixins
+@import "utils";
+
+// --------- SearchDataGrid --------- //
+.CustomFilterBoolean {
+	.editContainer{
+		.btn-group{
+			margin: 10px 0 30px 32px;
+			.btn {
+				padding: 3px 7px;
+				font-family: "Muli";
+				font-size: 14px;
+				background-color: #fff;
+				color: #444;
+				box-shadow: none;
+				border: 1px solid #00a4a8;
+			}
+			.btn.active {
+				background-color: #00a4a8;
+				color: #fff;
+			}
+		}
+	}
+	.viewContainer{
+		.valueLabel{
+			display:inline-block;
+			margin: 5px 0 10px 32px;
+			padding: 3px 7px;
+			border: 1px solid #00a4a8;
+			background:#fff;
+			border-radius:4px;
+		}
+		.valueLabel.yes{
+			background:#00a4a8;
+			color:#fff;
+		}
+	}
+}
+
+// --------- /CustomFilterBoolean --------- //
