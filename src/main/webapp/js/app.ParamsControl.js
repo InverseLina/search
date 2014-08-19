@@ -50,6 +50,13 @@ var app = app || {};
 			}
 			searchData["q_objectType"] = app.preference.get("contact_filter_objectType", "All");
 			searchData["q_status"] = app.preference.get("contact_filter_status", "All");
+			//for custom fields
+			var customFilterPopup = view.$el.find(".CustomFilterPopup").bView();
+			if(customFilterPopup){
+				var customFields = customFilterPopup.getValues();
+				searchData["q_customFields"] = customFields;
+			}
+			
 			result.searchValues = JSON.stringify(searchData);
 			result.searchMode = app.preference.get("searchMode", "power");
 			result.searchModeChange = searchModeChange;
@@ -62,6 +69,8 @@ var app = app || {};
 			
 			result.pageIndex = view.contentView.dataGridView.pageIdx || 1;
 			result.pageSize = view.contentView.dataGridView.pageSize || 15;
+			
+			
 			return result;
 		},
 		/**

@@ -37,7 +37,7 @@
 				var $target = $(e.currentTarget);
 				var $icon = $target.find(".icon-fa");
 				var $item = $target.closest(".filter-item");
-				var component = $item.find(".filter-item-container").bFindFirstComponent()[0];
+				var component = $($item.find(".filter-item-container").children()[0]).bView();
 				if($item.hasClass("extend")){
 					$item.removeClass("extend");
 					$icon.removeClass("fa-chevron-down");
@@ -54,6 +54,22 @@
 					}
 				}
 			}
+		},
+		getValues:function(){
+			var view = this;
+			var $e = view.$el;
+			var values = [];
+			$e.find(".filter-item").each(function(){
+				var $item = $(this);
+				var itemComponent = $($item.find(".filter-item-container").children()[0]).bView();
+				if(itemComponent){
+					var value = itemComponent.getValue();
+					if(value){
+						values.push(value);
+					}
+				}
+			});
+			return values;
 		}
 		// --------- /Events--------- //
 	});
