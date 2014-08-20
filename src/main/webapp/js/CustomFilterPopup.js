@@ -30,23 +30,26 @@
 			
 			
 			app.getJsonData("/getCustomFields").done(function(result) {
-				console.log(result);
 				for(var i = 0; i < result.length; i++){
 					var field = result[i];
+					var label = "";
+					if(_fieldLabels[field.name]){
+						label = _fieldLabels[field.name].label;
+					}
 					var $filterItem = $(render("CustomFilterPopup-filter", {
-						label : _fieldLabels[field.name].label,
+						label : label,
 						name : field.name
 					}));
 					$filtersContainer.append($filterItem);
 					var viewName;
 					
-					if (field.type == 'Number') {
+					if (field.type.toLowerCase() == 'number') {
 						viewName = "CustomFilterNumber";
-					} else if (field.type == 'String') {
+					} else if (field.type.toLowerCase() == 'string') {
 						viewName = "CustomFilterString";
-					} else if (field.type == 'Date') {
+					} else if (field.type.toLowerCase() == 'date') {
 						viewName = "CustomFilterDate";
-					} else if (field.type == 'Boolean') {
+					} else if (field.type.toLowerCase() == 'boolean') {
 						viewName = "CustomFilterBoolean";
 					}
 	
