@@ -13,55 +13,17 @@
 		<div class="CustomFilterPopup-body">
 			<div class="title">AdvancedSearch</div>
 			<ul class="filters-content">
-				<li class="filter-item" data-name="desiredstartdate">
-					<div class="filter-item-header">
-						<span class="icon-fa fa-chevron-right"></span>
-						<span class="filter-item-label">Desired Start Date</span>
-					</div>
-					<div class="filter-item-container">
-					</div>
-				</li>
-				<li class="filter-item" data-name="lastactivitydate">
-					<div class="filter-item-header">
-						<span class="icon-fa fa-chevron-right"></span>
-						<span class="filter-item-label">Last Activity Date</span>
-					</div>
-					<div class="filter-item-container">
-					</div>
-				</li>
-				<li class="filter-item" data-name="certifications">
-					<div class="filter-item-header">
-						<span class="icon-fa fa-chevron-right"></span>
-						<span class="filter-item-label">Certifications</span>
-					</div>
-					<div class="filter-item-container">
-					</div>
-				</li>
-				<li class="filter-item" data-name="desiredsalary">
-					<div class="filter-item-header">
-						<span class="icon-fa fa-chevron-right"></span>
-						<span class="filter-item-label">Desired Salary</span>
-					</div>
-					<div class="filter-item-container">
-					</div>
-				</li>
-				<li class="filter-item" data-name="iswillingtorelocate">
-					<div class="filter-item-header">
-						<span class="icon-fa fa-chevron-right"></span>
-						<span class="filter-item-label">Is Willing to Relocate</span>
-					</div>
-					<div class="filter-item-container">
-					</div>
-				</li>
-				<li class="filter-item" data-name="candidatesource">
-					<div class="filter-item-header">
-						<span class="icon-fa fa-chevron-right"></span>
-						<span class="filter-item-label">Candidate Source</span>
-					</div>
-					<div class="filter-item-container">
-					</div>
-				</li>
 			</ul>
 		</div>
 	</div>
+</script>
+
+<script id="CustomFilterPopup-filter" type="text/html">
+	<li class="filter-item" data-name="{{name}}">
+		<div class="filter-item-header">
+			<span class="icon-fa fa-chevron-right"></span>
+			<span class="filter-item-label">{{label}}</span>
+		</div>
+		<div class="filter-item-container"></div>
+	</li>
 </script>

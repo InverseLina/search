@@ -5,6 +5,17 @@
  *
  */
 (function($) {
+	
+	//FIXME hardcode for now
+	var _fieldLabels = {
+		"desiredstartdate":{label:"Desired Start Date", type:"date"},
+		"lastactivitydate":{label:"Last Activity Date", type:"date"},
+		"certifications":{label:"Certifications", type:"string"},
+		"desiredsalary":{label:"Desired Salary", type:"number"},
+		"iswillingtorelocate":{label:"Is Willing to Relocate", type:"boolean"},
+		"candidatesource":{label:"Candidate Source", type:"string"}
+	};
+	
 	brite.registerView("CustomFilterPopup", {
 		parent : ".SearchDataGrid .search-result"
 	}, {
@@ -17,16 +28,33 @@
 			var view = this;
 			var $e = view.$el;
 			
-			var $filterItem = $e.find(".filter-item[data-name='desiredsalary']");
-			brite.display("CustomFilterNumber",$filterItem.find(".filter-item-container"), {name:"desiredsalary"});
-			$filterItem = $e.find(".filter-item[data-name='iswillingtorelocate']");
-			brite.display("CustomFilterBoolean",$filterItem.find(".filter-item-container"), {name:"iswillingtorelocate"});
-			$filterItem = $e.find(".filter-item[data-name='desiredstartdate']");
-			brite.display("CustomFilterDate",$filterItem.find(".filter-item-container"), {name:"desiredstartdate"});
-			$filterItem = $e.find(".filter-item[data-name='lastactivitydate']");
-			brite.display("CustomFilterDate",$filterItem.find(".filter-item-container"), {name:"lastactivitydate"});
-			$filterItem = $e.find(".filter-item[data-name='certifications']");
-			brite.display("CustomFilterString",$filterItem.find(".filter-item-container"), {name:"certifications"});
+			
+			var $filtersContainer = $e.find(".filters-content").empty();
+			for (var key in _fieldLabels) {
+				var $filterItem = $(render("CustomFilterPopup-filter", {
+					label : _fieldLabels[key].label,
+					name : key
+				}));
+				$filtersContainer.append($filterItem);
+				var viewName;
+				
+				if (_fieldLabels[key].type == 'number') {
+					viewName = "CustomFilterNumber";
+				} else if (_fieldLabels[key].type == 'string') {
+					viewName = "CustomFilterString";
+				} else if (_fieldLabels[key].type == 'date') {
+					viewName = "CustomFilterDate";
+				} else if (_fieldLabels[key].type == 'boolean') {
+					viewName = "CustomFilterBoolean";
+				}
+
+				if (viewName) {
+					brite.display(viewName, $filterItem.find(".filter-item-container"), {
+						name : key
+					});
+				}
+			}
+
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -68,7 +96,7 @@
 			"click":function(){
 				var view = this;
 				var $e = view.$el;
-				$e.toggleClass("show");
+				$e.removeClass("show");
 			}
 		},
 		
