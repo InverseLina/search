@@ -40,7 +40,7 @@
 				}
 				$e.find(".alert").addClass("hide");
 			},
-			"click; .btnApply" : function(e){
+			"click; .btnApplyValue" : function(e){
 				var view = this;
 				var $e = this.$el;
 				var $btn = $(e.currentTarget);

@@ -75,7 +75,7 @@
 				var $item = $(e.currentTarget).closest(".selected-item");
 				$item.remove();
 			},
-			"click; .btnApply":function(e){
+			"click; .btnApplyValue":function(e){
 				var view = this;
 				var $e = view.$el;
 				$e.find(".value-containers .selected-item").remove();
