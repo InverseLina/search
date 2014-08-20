@@ -1401,6 +1401,8 @@ public class SearchDao {
     private String wrap(CustomField customField,Object conditionParam){
         if("String".equalsIgnoreCase( customField.getType())){
             return "'"+conditionParam+"'";
+        }else if("Date".equalsIgnoreCase( customField.getType())){
+            return "to_date('"+conditionParam+"','MM/DD/YYYY')";
         }
         return conditionParam+"";
     }
