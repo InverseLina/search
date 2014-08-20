@@ -115,11 +115,19 @@ public class SearchWebHandlers {
         WebResponse wr = webResponseBuilder.success(result);
         return wr;
     }
-    
-    @WebGet("/getOrgConfigCustomFields")
-    public WebResponse getOrgConfigCustomFields(@WebParam("org")String orgName){
-    	List<Map> customFields = searchConfigurationManager.getOrgConfigCustomFields(orgName);
+
+    @WebGet("/getCustomFields")
+    public WebResponse getCustomFields(){
+    	List<Map> customFields = searchConfigurationManager.getCustomFields(orgHolder.getCurrentOrg());
     	WebResponse result = webResponseBuilder.success(customFields);
     	return result;
     }
+    
+    @WebGet("/getCustomFieldAutoCompleteData")
+    public WebResponse getCustomFieldAutoCompleteData(@WebParam("fieldName") String fieldName, @WebParam("searchText") String searchText){
+    	List<Map> fieldData = searchConfigurationManager.getCustomFieldCompleteData(orgHolder.getCurrentOrg(),fieldName, searchText);
+    	WebResponse wr = webResponseBuilder.success(fieldData);
+        return wr;
+    }
+
 }

@@ -21,6 +21,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.jasql.Runner;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -28,6 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
+import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -36,6 +38,7 @@ import com.google.inject.Singleton;
 import com.jobscience.search.dao.DaoHelper;
 import com.jobscience.search.dao.DatasourceManager;
 import com.jobscience.search.dao.OrgConfigDao;
+import com.jobscience.search.organization.OrgContext;
 
 @Singleton
 public class SearchConfigurationManager {
@@ -127,7 +130,8 @@ public class SearchConfigurationManager {
         }
     }
 
-    public List<Map> getOrgConfigCustomFields(String orgName){
+    public List<Map> getCustomFields(OrgContext org){
+    	String orgName = org.getOrgMap().get("name").toString();
     	List<Map> customFields = new ArrayList<Map>();
     	SearchConfiguration orgSearchConfig = null;
     	List<CustomField> customFieldLists;
@@ -598,6 +602,43 @@ public class SearchConfigurationManager {
         return errorMsg;
     }
     
+    public List<Map> getCustomFieldCompleteData(OrgContext org, String fieldName, String searchText) {
+    	String orgName = org.getOrgMap().get("name").toString();
+    	List<Map> columnData = new ArrayList<Map>();
+    	SearchConfiguration orgSearchConfig = null;
+    	List<CustomField> customFieldLists;
+    	try {
+			orgSearchConfig =  searchuiconfigCache.get(orgName);
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+    	if(orgSearchConfig != null && orgSearchConfig.getCustomFields() != null){
+        		customFieldLists = orgSearchConfig.getCustomFields().getFields();
+        		for(CustomField field:customFieldLists){
+        			if(field.getName().equals(fieldName)){
+        				columnData = getColumnData(orgName,"contact",field.getColumnName(),searchText,7);
+        				break;
+        			}
+        		}
+        	}
+    	return columnData;
+    }
+    
+    private List<Map> getColumnData(String orgName, String table, String column, String searchText, int limit){
+        Runner runner = datasourceManager.newOrgRunner(orgName);
+        StringBuilder sql = new StringBuilder();
+        sql.append("select distinct ").append(column).append(" as value from ").append(table);
+        if(!Strings.isNullOrEmpty(searchText)){
+        	sql.append(" where ").append(column).append(" like '").append(searchText).append("%' ");
+        }
+        if(limit <= 0){
+        	limit = 7;
+        }
+        sql.append(" limit ").append(limit);
+        System.out.println(sql.toString());
+        List<Map> data = runner.executeQuery(sql.toString());
+        return data;
+    }
     
     private boolean checkAttribute(Node n,String name){
         if(n.getAttributes().getNamedItem(name)!=null){
