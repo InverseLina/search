@@ -357,7 +357,6 @@ public class DBSetupManager {
         }else{
         	setups.add(mapIt("name", "cityscore", "status", cityscoreStatus.getRemaining() > 0 ? PART : DONE, "progress", cityscoreStatus));
         }
-        setups.add(mapIt("name", "tsv", "status", csStatus, "progress", cityscoreStatus));
         if (cityscoreStatus.getRemaining() > 0 && totalStatus.equals(DONE)) {
             totalStatus = PART;
         }
@@ -403,10 +402,16 @@ public class DBSetupManager {
                 totalStatus = PART;
             }
         }
+        //set the org index status
         int indexCount = getIndexStatus(orgName);
         int totalIndexCount = getTotalIndexCount(orgName);
         setups.add(mapIt("name", "indexes", "status", totalIndexCount > indexCount ? PART : DONE,
                 "progress", new IndexerStatus(totalIndexCount - indexCount, indexCount)));
+        //set the orgCustomField index status
+        int customFieldIndexCount = getCustomFieldIndexStatus(orgName);
+        int customFieldTotalIndexCount = getCustomFieldTotalIndexCount(orgName);
+        setups.add(mapIt("name", "customFieldIndexes", "status", customFieldTotalIndexCount > customFieldIndexCount ? PART : DONE,
+                "progress", new IndexerStatus(customFieldTotalIndexCount - customFieldIndexCount, customFieldIndexCount)));
         if(currentOrgSetupStatus.get(orgName)!=null){
         	setups.add(mapIt("name", "current_index", "value",currentOrgSetupStatus.get(orgName).getCurrentIndex(),
         			"status",indexCount==totalIndexCount?DONE:PART));
@@ -468,7 +473,7 @@ public class DBSetupManager {
 				totalEmployertablesCount > EmployertablesCount ? PART : DONE, "progress",
 				totalEmployertablesCount > EmployertablesCount ? new IndexerStatus(totalEmployertablesCount - (EmployertablesCount/1000)*1000, (EmployertablesCount/1000)*1000):new IndexerStatus(totalEmployertablesCount - EmployertablesCount, EmployertablesCount)));
 			
-        if (((totalSkilltablesCount > SkilltablesCount)||(totalEducationtablesCount > EducationtablesCount)||(totalEmployertablesCount > EmployertablesCount)||(totalIndexCount > indexCount)) && totalStatus.equals(DONE)) {
+        if (((totalSkilltablesCount > SkilltablesCount)||(totalEducationtablesCount > EducationtablesCount)||(totalEmployertablesCount > EmployertablesCount)||(totalIndexCount > indexCount)||(customFieldTotalIndexCount > customFieldIndexCount)) && totalStatus.equals(DONE)) {
             totalStatus = PART;
         }
 
@@ -1524,6 +1529,18 @@ public class DBSetupManager {
 	                }
                 }
         }
+        return count;
+    }
+    
+    /**
+     * Get the count for index count for contact and jss_contact
+     * 
+     * @param orgName
+     * @return
+     * @see {@link #createIndexColumns(String)}
+     */
+    private Integer getCustomFieldIndexStatus(String orgName) {
+    	int count = 0;
 		//check the custom index
 		List<String> contactColumns = getOrgCustomFieldCloumns(orgName);
 		for(String columnName: contactColumns){
@@ -1568,7 +1585,12 @@ public class DBSetupManager {
                 count++;
             }
         }
-        List<String> columns = getOrgCustomFieldCloumns(orgName);
+        return count;
+    }
+
+    private int getCustomFieldTotalIndexCount(String orgName) throws Exception {
+    	int count = 0;
+    	List<String> columns = getOrgCustomFieldCloumns(orgName);
         for(String column:columns){
             if(allowCreateIndex(orgName, "contact", column)){
             	count++;
@@ -1576,7 +1598,7 @@ public class DBSetupManager {
         }
         return count;
     }
-
+    
     private List<String> getOrgCustomFieldCloumns(String orgName){
  	   List<Map> orgs = orgConfigDao.getOrgByName(orgName);
        String schemaname = null;

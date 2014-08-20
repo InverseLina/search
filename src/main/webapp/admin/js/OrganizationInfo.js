@@ -369,6 +369,13 @@
 						}
 						
 						if (setup.progress || setup.progress === 0) {
+							if(setup.name === "customFieldIndexes"){
+								if(+setup.progress.perform+setup.progress.remaining===0){
+									view.$el.find(".customFieldIndexes_status_bar").closest("tr").addClass("hide");
+								}else{
+									view.$el.find(".customFieldIndexes_status_bar").closest("tr").removeClass("hide");
+								}
+							}
 							fillProgressBar.call(view, setup);
 						} else {
 							view.$el.find("." + setup.name + "_info").addClass(addClass).removeClass(removeClass).removeClass("hide").html(setup.msg);
