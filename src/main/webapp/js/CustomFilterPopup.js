@@ -8,12 +8,12 @@
 	
 	//FIXME hardcode for now
 	var _fieldLabels = {
-		"desiredstartdate":{label:"Desired Start Date", type:"date"},
-		"lastactivitydate":{label:"Last Activity Date", type:"date"},
-		"certifications":{label:"Certifications", type:"string"},
-		"desiredsalary":{label:"Desired Salary", type:"number"},
-		"iswillingtorelocate":{label:"Is Willing to Relocate", type:"boolean"},
-		"candidatesource":{label:"Candidate Source", type:"string"}
+		"desiredstartdate":{label:"Desired Start Date"},
+		"lastactivitydate":{label:"Last Activity Date"},
+		"certifications":{label:"Certifications"},
+		"desiredsalary":{label:"Desired Salary"},
+		"iswillingtorelocate":{label:"Is Willing to Relocate"},
+		"candidatesource":{label:"Candidate Source"}
 	};
 	
 	brite.registerView("CustomFilterPopup", {
@@ -29,30 +29,38 @@
 			var $e = view.$el;
 			
 			
+			app.getJsonData("/getCustomFields").done(function(result) {
+				console.log(result);
+				for(var i = 0; i < result.length; i++){
+					var field = result[i];
+					var $filterItem = $(render("CustomFilterPopup-filter", {
+						label : _fieldLabels[field.name].label,
+						name : field.name
+					}));
+					$filtersContainer.append($filterItem);
+					var viewName;
+					
+					if (field.type == 'Number') {
+						viewName = "CustomFilterNumber";
+					} else if (field.type == 'String') {
+						viewName = "CustomFilterString";
+					} else if (field.type == 'Date') {
+						viewName = "CustomFilterDate";
+					} else if (field.type == 'Boolean') {
+						viewName = "CustomFilterBoolean";
+					}
+	
+					if (viewName) {
+						brite.display(viewName, $filterItem.find(".filter-item-container"), {
+							name : field.name
+						});
+					}
+				}
+			});
+			
 			var $filtersContainer = $e.find(".filters-content").empty();
 			for (var key in _fieldLabels) {
-				var $filterItem = $(render("CustomFilterPopup-filter", {
-					label : _fieldLabels[key].label,
-					name : key
-				}));
-				$filtersContainer.append($filterItem);
-				var viewName;
 				
-				if (_fieldLabels[key].type == 'number') {
-					viewName = "CustomFilterNumber";
-				} else if (_fieldLabels[key].type == 'string') {
-					viewName = "CustomFilterString";
-				} else if (_fieldLabels[key].type == 'date') {
-					viewName = "CustomFilterDate";
-				} else if (_fieldLabels[key].type == 'boolean') {
-					viewName = "CustomFilterBoolean";
-				}
-
-				if (viewName) {
-					brite.display(viewName, $filterItem.find(".filter-item-container"), {
-						name : key
-					});
-				}
 			}
 
 		},
