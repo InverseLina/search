@@ -1,0 +1,131 @@
+@import "utils";
+// --------- CustomFilterString --------- //
+.CustomFilterString {
+	.selectedItems{
+		.selected-item{
+			position:relative;
+			padding:2px 3px;
+			float:left;
+			background-color:#00a4a8;
+			color:#fff;
+			border-radius:4px;
+			margin: 3px 15px;
+		}
+	}
+	
+	.editContainer{
+		.operationSelect {
+			margin:4px 5px 0 15px;
+			position: relative;
+			float: right;
+			width:70px;
+			color:#fff;
+			float:left;
+			.value{
+				cursor:pointer;
+				background-color:#00a4a8;
+				border-radius:4px;
+				padding-left: 6px;
+			}
+			.fa-chevron-down{
+				position: absolute;
+				right: 5px;
+				top: 0px;
+			}
+			.operations {
+				position: absolute;
+				z-index:3;
+				top: 21px;
+				left: 0px;
+				color:#00a4a8;
+				width:70px;
+				background-color:#fff;
+				.operation-item{
+					cursor:pointer;
+					padding:2px 6px;
+					&:hover{
+						background-color:#00a4a8;
+						color:#fff;
+					}
+				}
+			}
+		}
+		
+		.input-containers{
+			position:relative;
+			float: left;
+			margin: 2px 22px 11px 0;
+			.autocomplete-input-wrapper{
+				width:220px;
+				color:#00a4a8;
+				input{
+					padding:0px 5px;
+					color:#00a4a8;
+					width:100%;
+					border:1px solid #c7c7c7;
+					border-radius:4px;
+				}
+				.autocomplete-container{
+					position:absolute;
+					left:0;
+					top:22px;
+					width:100%;
+					padding:0px 1px;
+					.autocomplete-item{
+						padding:0px 5px;
+						background-color:#fff;
+						cursor:pointer;
+						&:hover{
+							background-color:#00a4a8;
+							color:#fff;
+						}
+					}
+				}
+			}
+		}
+		
+		.wrap-items{
+			clear:both;
+			background-color:#fff;
+			border-radius:4px;
+			margin:10px;
+			.selectedItems{
+				display: inline-block;
+				margin-top: 10px;
+				margin-bottom: 8px;
+				.selected-item{
+					padding-right:25px;
+					.clear{
+						position: absolute;
+						font-size: 16px;
+						width: 16px;
+						height: 16px;
+						top:2px;
+						right:2px;
+						color:#000;
+						cursor:pointer;
+					}
+				}
+			}
+		}
+		
+		.btnApply{
+			float:right;
+			margin: 10px 20px;
+			background: #00a4a8;
+			color:#fff;
+			border-radius:4px;
+			padding:4px 20px;
+			cursor:pointer;
+		}
+		
+	}
+	
+	.viewContainer{
+		.selectedItems{
+			padding:5px 0;
+		}
+	}
+		
+}
+// --------- /CustomFilterString --------- //

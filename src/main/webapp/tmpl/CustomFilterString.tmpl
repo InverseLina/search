@@ -1,0 +1,48 @@
+<script id="CustomFilterString" type="text/html">
+	<div class="CustomFilterString ">
+		<div class="editContainer hide">
+			<div class="operationSelect">
+				<div class="value" data-value="is">is</div>
+				<span class="icon-fa fa-chevron-down"></span>
+				<div class="operations hide">
+					<div class="operation-item hide" data-value="is">is</div>
+					<div class="operation-item" data-value="isnot">is not</div>
+				</div>
+			</div>
+			
+			<div class="input-containers">
+				<div class="autocomplete-input-wrapper">
+					<input name="value" class="valueInput" value=""/>
+					<div class="autocomplete-container ">
+					</div>
+				</div>
+			</div>
+			
+			<div class="wrap-items">
+				<div class="selectedItems">
+				<div class="cb"></div>
+				</div>
+			</div>
+			
+			<div class="btnApply">Apply</div>
+			<div class="cb"></div>
+		</div>
+		<div class="viewContainer hide">
+			<div class="value-containers selectedItems">
+				<div class="cb"></div>
+			</div>
+		</div>
+	</div>
+</script>
+<script id="CustomFilterString-autocomplete-item" type="text/html">
+	<div class="autocomplete-item" data-value="{{value}}">{{value}}</div>
+</script>
+<script id="CustomFilterString-edit-item" type="text/html">
+	<div class="selected-item" data-oper={{operation}} data-value="{{value}}">
+		<span>{{value}}</span>
+		<span class="clear icon-fa fa-times-circle"></span>
+	</div>
+</script>
+<script id="CustomFilterString-view-item" type="text/html">
+	<div class="selected-item" data-oper={{operation}} data-value="{{value}}">{{value}}</div>
+</script>

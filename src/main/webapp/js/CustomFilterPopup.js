@@ -25,6 +25,8 @@
 			brite.display("CustomFilterDate",$filterItem.find(".filter-item-container"), {name:"desiredstartdate"});
 			$filterItem = $e.find(".filter-item[data-name='lastactivitydate']");
 			brite.display("CustomFilterDate",$filterItem.find(".filter-item-container"), {name:"lastactivitydate"});
+			$filterItem = $e.find(".filter-item[data-name='certifications']");
+			brite.display("CustomFilterString",$filterItem.find(".filter-item-container"), {name:"certifications"});
 		},
 		// --------- /View Interface Implement--------- //
 
