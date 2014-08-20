@@ -2,6 +2,7 @@ package com.jobscience.search.web;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -16,6 +17,7 @@ import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchRequest;
 import com.jobscience.search.dao.SearchResult;
 import com.jobscience.search.organization.OrgContextManager;
+import com.jobscience.search.searchconfig.SearchConfigurationManager;
 
 @Singleton
 public class SearchWebHandlers {
@@ -27,6 +29,9 @@ public class SearchWebHandlers {
 
 	@Inject
 	private WebResponseBuilder webResponseBuilder;
+	
+	@Inject
+	private SearchConfigurationManager searchConfigurationManager;
     
     /**
      * api for main search
@@ -110,6 +115,11 @@ public class SearchWebHandlers {
         WebResponse wr = webResponseBuilder.success(result);
         return wr;
     }
-
     
+    @WebGet("/getOrgConfigCustomFields")
+    public WebResponse getOrgConfigCustomFields(@WebParam("org")String orgName){
+    	List<Map> customFields = searchConfigurationManager.getOrgConfigCustomFields(orgName);
+    	WebResponse result = webResponseBuilder.success(customFields);
+    	return result;
+    }
 }
