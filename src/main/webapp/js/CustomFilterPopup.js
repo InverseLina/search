@@ -21,6 +21,10 @@
 			brite.display("CustomFilterNumber",$filterItem.find(".filter-item-container"), {name:"desiredsalary"});
 			$filterItem = $e.find(".filter-item[data-name='iswillingtorelocate']");
 			brite.display("CustomFilterBoolean",$filterItem.find(".filter-item-container"), {name:"iswillingtorelocate"});
+			$filterItem = $e.find(".filter-item[data-name='desiredstartdate']");
+			brite.display("CustomFilterDate",$filterItem.find(".filter-item-container"), {name:"desiredstartdate"});
+			$filterItem = $e.find(".filter-item[data-name='lastactivitydate']");
+			brite.display("CustomFilterDate",$filterItem.find(".filter-item-container"), {name:"lastactivitydate"});
 		},
 		// --------- /View Interface Implement--------- //
 

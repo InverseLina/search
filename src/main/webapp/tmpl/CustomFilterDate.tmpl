@@ -1,0 +1,35 @@
+<script id="CustomFilterDate" type="text/html">
+	<div class="CustomFilterDate">
+		<div class="editContainer hide">
+			<ul class="operation">
+			  <li class="operation-item active" data-oper="between">Between</li>
+			  <li class="operation-item" data-oper="before">Before</li>
+			  <li class="operation-item" data-oper="after">After</li>
+			</ul>
+			
+			<div class="input-containers">
+				<div class="date-input-wrapper">
+					<input name="value" class="valueInput" value=""/>
+					<div class="icon-fa fa-calendar"></div>
+				</div>
+				<div class="alert alert-warning hide">Enter Date</div>
+				<div class="date-input-wrapper">
+					<input name="value1" class="valueInput" value=""/>
+					<div class="icon-fa fa-calendar"></div>
+				</div>
+				<div class="alert alert-warning hide">Enter Date</div>
+			</div>
+			
+			<div class="btnApply">Apply</div>
+			<div class="cb"></div>
+		</div>
+		<div class="viewContainer hide">
+			<div class="operValue" data-oper=""></div>
+			<div class="value-containers">
+				<div class="value resultValue" data-value=""></div>
+				<div class="value resultValue1 hide" data-value=""></div>
+			</div>
+			<div class="cb"></div>
+		</div>
+	</div>
+</script>

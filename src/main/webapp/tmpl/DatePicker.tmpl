@@ -1,0 +1,50 @@
+<script id="DatePicker" type="text/html">
+	<div class="DatePicker">
+		<div class="DatePicker-content">
+		</div>
+	</div>
+</script>
+
+<script id="DatePicker-calendar" type="text/html">
+	<div class="DatePicker-calendar">
+		<div class="calendar-header">
+			<a class="action actionPrev" href="javascript:void(0)"><span class="icon-fa fa-caret-left"></span></a>
+			<span>
+				<span>{{monthLabel}}</span>
+				<span class="year" data-year="{{year}}">{{year}}<span class="icon-fa fa-caret-down"></span></span>
+				<select name="yearSelect" class="hide">
+				</select>
+			</span>
+			<a class="action actionNext" href="javascript:void(0)"><span class="icon-fa fa-caret-right"></span></a>
+		</div>
+		<table class="DatePicker-calendar-table">
+			<thead>
+				<tr class="calendar-week">
+					<th data-vale="0">S</th>
+					<th data-vale="1">M</th>
+					<th data-vale="2">T</th>
+					<th data-vale="3">W</th>
+					<th data-vale="4">T</th>
+					<th data-vale="5">F</th>
+					<th data-vale="6">S</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+		<div class="calendar-footer">
+			<div class="today">Today</div>
+		</div>
+	</div>
+</script>
+
+<script id="DatePicker-calendar-tr" type="text/html">
+	<tr></tr>
+</script>
+
+<script id="DatePicker-calendar-td" type="text/html">
+	<td {{#if dateStr}}data-date='{{dateStr}}' data-date-value='{{dataValue}}'{{/if}}>
+    	<div class="date {{#unless currentMonth}}disable{{/unless}}">
+			{{dataValue}}
+		</div>
+  	</td>
+</script>
