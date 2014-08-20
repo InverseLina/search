@@ -32,6 +32,9 @@
 
 		// --------- Events--------- //
 		events : {
+			"click":function(e){
+				e.stopPropagation();				
+			},
 			"click;.CustomFilterPopup-slider":function(){
 				var view = this;
 				var $e = view.$el;
@@ -61,6 +64,15 @@
 				}
 			}
 		},
+		docEvents:{
+			"click":function(){
+				var view = this;
+				var $e = view.$el;
+				$e.toggleClass("show");
+			}
+		},
+		
+		// --------- /Events--------- //
 		getValues:function(){
 			var view = this;
 			var $e = view.$el;
@@ -77,6 +89,5 @@
 			});
 			return values;
 		}
-		// --------- /Events--------- //
 	});
 })(jQuery);
