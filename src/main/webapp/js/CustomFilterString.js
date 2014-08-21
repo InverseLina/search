@@ -149,9 +149,13 @@
 						isnotArray.push(value);
 					}
 				});
-				valueObject.conditions = {
-					"==" : isArray,
-					"!=" : isnotArray
+				
+				if(isArray.length > 0){
+					valueObject.conditions["=="] = isArray;
+				}
+				
+				if(isnotArray.length > 0){
+					valueObject.conditions["!="] = isnotArray;
 				}
 			}
 			return valueObject;

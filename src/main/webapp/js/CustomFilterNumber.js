@@ -33,9 +33,7 @@
 				var oper = $li.attr("data-oper");
 				if(oper == "between"){
 					$e.find("input[name='value1']").removeClass("hide");
-				}else if(oper == "gt"){
-					$e.find("input[name='value1']").addClass("hide");
-				}else if(oper == "lt"){
+				}else if(oper == "gt" || oper == "lt"){
 					$e.find("input[name='value1']").addClass("hide");
 				}
 				$e.find(".alert").addClass("hide");
