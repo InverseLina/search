@@ -33,9 +33,7 @@
 				var oper = $li.attr("data-oper");
 				if(oper == "between"){
 					$e.find("input[name='value1']").closest(".date-input-wrapper").removeClass("hide");
-				}else if(oper == "after"){
-					$e.find("input[name='value1']").closest(".date-input-wrapper").addClass("hide");
-				}else if(oper == "before"){
+				}else if(oper == "after" || oper == "before"){
 					$e.find("input[name='value1']").closest(".date-input-wrapper").addClass("hide");
 				}
 				$e.find(".alert").addClass("hide");
