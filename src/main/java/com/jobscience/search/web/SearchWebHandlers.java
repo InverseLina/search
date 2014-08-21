@@ -2,7 +2,6 @@ package com.jobscience.search.web;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -17,7 +16,6 @@ import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchRequest;
 import com.jobscience.search.dao.SearchResult;
 import com.jobscience.search.organization.OrgContextManager;
-import com.jobscience.search.searchconfig.SearchConfigurationManager;
 
 @Singleton
 public class SearchWebHandlers {
@@ -29,9 +27,6 @@ public class SearchWebHandlers {
 
 	@Inject
 	private WebResponseBuilder webResponseBuilder;
-	
-	@Inject
-	private SearchConfigurationManager searchConfigurationManager;
     
     /**
      * api for main search
@@ -115,22 +110,4 @@ public class SearchWebHandlers {
         WebResponse wr = webResponseBuilder.success(result);
         return wr;
     }
-
-    @WebGet("/getCustomFields")
-    public WebResponse getCustomFields(){
-    	List<Map> customFields = searchConfigurationManager.getCustomFields(orgHolder.getCurrentOrg());
-    	WebResponse result = webResponseBuilder.success(customFields);
-    	return result;
-    }
-    
-    @WebGet("/getCustomFieldAutoCompleteData")
-    public WebResponse getCustomFieldAutoCompleteData(@WebParam("fieldName") String fieldName, @WebParam("searchText") String searchText){
-    	List<Map> fieldData = searchConfigurationManager.getCustomFieldCompleteData(orgHolder.getCurrentOrg(),fieldName, searchText);
-    	Map result = new HashMap();
-    	result.put("data", fieldData);
-    	result.put("searchText", searchText);
-    	WebResponse wr = webResponseBuilder.success(result);
-        return wr;
-    }
-
 }
