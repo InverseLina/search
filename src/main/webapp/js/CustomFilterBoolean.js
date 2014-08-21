@@ -67,7 +67,7 @@
 				return null;
 			}
 			var value = val * 1 ? true : false;
-			var valueObject = {field:view.paramName, conditions:{"=":value}};
+			var valueObject = {field:view.paramName, conditions:{"==":value}};
 			return valueObject;
 		}
 	});
