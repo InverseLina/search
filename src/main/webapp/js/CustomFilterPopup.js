@@ -28,14 +28,21 @@
 			var view = this;
 			var $e = view.$el;
 			
-			
+			var $filtersContainer = $e.find(".filters-content").empty();
 			app.getJsonData("/getCustomFields").done(function(result) {
 				for(var i = 0; i < result.length; i++){
 					var field = result[i];
-					var label = "";
+					var label = field.name;
+					
+					if(field.label){
+						label = field.label;
+					}
+					
 					if(_fieldLabels[field.name]){
 						label = _fieldLabels[field.name].label;
 					}
+					
+					
 					var $filterItem = $(render("CustomFilterPopup-filter", {
 						label : label,
 						name : field.name
@@ -60,11 +67,6 @@
 					}
 				}
 			});
-			
-			var $filtersContainer = $e.find(".filters-content").empty();
-			for (var key in _fieldLabels) {
-				
-			}
 
 		},
 		// --------- /View Interface Implement--------- //
