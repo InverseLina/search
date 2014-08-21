@@ -126,7 +126,10 @@ public class SearchWebHandlers {
     @WebGet("/getCustomFieldAutoCompleteData")
     public WebResponse getCustomFieldAutoCompleteData(@WebParam("fieldName") String fieldName, @WebParam("searchText") String searchText){
     	List<Map> fieldData = searchConfigurationManager.getCustomFieldCompleteData(orgHolder.getCurrentOrg(),fieldName, searchText);
-    	WebResponse wr = webResponseBuilder.success(fieldData);
+    	Map result = new HashMap();
+    	result.put("data", fieldData);
+    	result.put("searchText", searchText);
+    	WebResponse wr = webResponseBuilder.success(result);
         return wr;
     }
 

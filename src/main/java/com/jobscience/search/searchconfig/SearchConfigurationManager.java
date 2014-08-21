@@ -21,7 +21,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.jasql.Runner;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -616,7 +615,7 @@ public class SearchConfigurationManager {
         		customFieldLists = orgSearchConfig.getCustomFields().getFields();
         		for(CustomField field:customFieldLists){
         			if(field.getName().equals(fieldName)){
-        				columnData = getColumnData(orgName,"contact",field.getColumnName(),searchText,7);
+        				columnData = getColumnData(orgName,"contact",field.getColumnName(),searchText,4);
         				break;
         			}
         		}
@@ -625,18 +624,16 @@ public class SearchConfigurationManager {
     }
     
     private List<Map> getColumnData(String orgName, String table, String column, String searchText, int limit){
-        Runner runner = datasourceManager.newOrgRunner(orgName);
         StringBuilder sql = new StringBuilder();
         sql.append("select distinct ").append(column).append(" as value from ").append(table);
         if(!Strings.isNullOrEmpty(searchText)){
         	sql.append(" where ").append(column).append(" like '").append(searchText).append("%' ");
         }
         if(limit <= 0){
-        	limit = 7;
+        	limit = 4;
         }
         sql.append(" limit ").append(limit);
-        System.out.println(sql.toString());
-        List<Map> data = runner.executeQuery(sql.toString());
+        List<Map> data = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),sql.toString());
         return data;
     }
     
