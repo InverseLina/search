@@ -55,6 +55,7 @@
 			position:relative;
 			float: left;
 			margin: 2px 22px 11px 0;
+			z-index: 1;
 			.autocomplete-input-wrapper{
 				width:220px;
 				color:#00a4a8;
@@ -76,6 +77,10 @@
 						background-color:#fff;
 						cursor:pointer;
 						&:hover{
+							background-color:#00a4a8;
+							color:#fff;
+						}
+						&.active{
 							background-color:#00a4a8;
 							color:#fff;
 						}
@@ -107,6 +112,16 @@
 					}
 				}
 			}
+						
+			&.empty {
+				margin:0;
+				.selectedItems{
+					display: block;
+					margin: 0px;
+				}
+			}
+
+			
 		}
 		
 		.btnApplyValue{

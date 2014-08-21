@@ -5,6 +5,18 @@
  *
  */
 (function($) {
+	
+	var _keys = {
+		LEFT : 37,
+		RIGHT : 39,
+		UP : 38,
+		DOWN : 40,
+		TAB : 9,
+		ESC : 27,
+		ENTER : 13
+	}; 
+
+	
 	brite.registerView("CustomFilterString", {
 		parent : ".filter-item-container"
 	}, {
@@ -20,6 +32,7 @@
 			var view = this;
 			var $e = view.$el;
 			
+			checkEmpty.call(view);
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -47,33 +60,22 @@
 			"keyup; .valueInput":function(e){
 				var view = this;
 				var $e = view.$el;
-				var $item = $(e.currentTarget);
-				var value = $item.val();
-				if(e.which == 13){
-					if(value != ""){
-						var $value = $e.find(".operationSelect .value");
-						var operation = $value.attr("data-value");
-						$e.find(".autocomplete-container").addClass("hide");
-						var $selectedItem = $(render("CustomFilterString-edit-item",{value:value, operation:operation}));
-						$selectedItem.insertBefore($e.find(".editContainer .selectedItems .cb"));
-					}
-				}else{
-					$e.find(".autocomplete-container").removeClass("hide");
-				}
+				e.preventDefault();
+				changeAutoComplete.call(view, e.which);
 			},
 			"click; .autocomplete-item":function(e){
 				var view = this;
 				var $e = view.$el;
 				var $item = $(e.currentTarget);
-				var $input = $e.find(".valueInput");
-				$input.val($item.attr("data-value"));
-				$e.find(".autocomplete-container").addClass("hide");
+				var value = $item.attr("data-value");
+				addItem.call(view, value);
 			},
 			"click; .clear":function(e){
 				var view = this;
 				var $e = view.$el;
 				var $item = $(e.currentTarget).closest(".selected-item");
 				$item.remove();
+				checkEmpty.call(view);
 			},
 			"click; .btnApplyValue":function(e){
 				var view = this;
@@ -155,4 +157,96 @@
 			return valueObject;
 		}
 	});
+	
+	
+	function changeAutoComplete(keyCode){
+		var view = this;
+		var $e = view.$el;
+		var $container = $e.find(".autocomplete-container");
+		var $activeItem = $container.find(".autocomplete-item.active");
+		var $input = $e.find(".autocomplete-input-wrapper .valueInput");
+		switch (keyCode) {
+				case _keys.ENTER:
+				case _keys.TAB:
+					var value = $input.val();
+					if ($activeItem.length > 0) {
+						value = $activeItem.attr("data-value");
+					}
+			
+					addItem.call(view, value);
+					break;
+				case _keys.ESC:
+					$container.empty().addClass("hide");
+					break;
+				case _keys.DOWN:
+					$container.find(".autocomplete-item").removeClass("active");
+					if($activeItem.length == 0 || $activeItem.next().size() == 0){
+						$activeItem = $container.find(".autocomplete-item:first").addClass("active");
+					}else{
+						var $activeItem = $activeItem.next();
+						$activeItem.addClass("active");
+					}
+					$input.val($activeItem.attr("data-value"));
+					$input.focus();
+					break;
+				case _keys.UP:
+					$container.find(".autocomplete-item").removeClass("active");
+					if($activeItem.length == 0 || $activeItem.prev().size() == 0){
+						$container.find(".autocomplete-item:first").addClass("active");
+					}else{
+						var $prevItem = $activeItem.prev();
+						console.log($activeItem);
+						$prevItem.addClass("active");
+					}
+					$input.val($activeItem.attr("data-value"));
+					$input.focus();
+					break;
+				default:
+					$e.find(".autocomplete-container").removeClass("hide")
+					var searchText = $input.val();
+					var fieldName = view.paramName;
+					app.getJsonData("/getCustomFieldAutoCompleteData", {searchText:searchText, fieldName:fieldName}).done(function(result) {
+						if(result.searchText == $input.val()){
+							$e.find(".autocomplete-container").empty();
+							for(var i = 0; i < result.data.length; i++){
+								var $item = $(render("CustomFilterString-autocomplete-item",result.data[i]));
+								$container.append($item);
+							}
+							$container.find(".autocomplete-item:first").addClass("active");
+						}
+					});
+			}
+	}
+	
+	function addItem(value){
+		var view = this;
+		var $e = view.$el;
+		var $input = $e.find(".autocomplete-input-wrapper .valueInput");
+		if (value != "") {
+			var $value = $e.find(".operationSelect .value");
+			var operation = $value.attr("data-value");
+			$e.find(".autocomplete-container").addClass("hide");
+			var $selectedItem = $(render("CustomFilterString-edit-item", {
+				value : value,
+				operation : operation
+			}));
+			$selectedItem.insertBefore($e.find(".editContainer .selectedItems .cb"));
+			$input.val("");
+			$input.focus();
+		}
+		checkEmpty.call(view);
+	}
+	
+	function checkEmpty(){
+		var view = this;
+		var $e = view.$el;
+		var $selectedCon = $e.find(".editContainer .wrap-items");
+		var size = $selectedCon.find(".selected-item").size();
+		if(size > 0){
+			$selectedCon.removeClass("empty");
+		}else{
+			$selectedCon.addClass("empty");
+		}
+	}
+	
 })(jQuery);
