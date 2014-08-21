@@ -26,17 +26,8 @@
 				var view = this;
 				var $e = this.$el;
 				var $li = $(e.currentTarget);
-				var $group = $li.closest(".operation");
-				$group.find(".operation-item").removeClass("active");
-				$li.addClass("active");
-				
 				var oper = $li.attr("data-oper");
-				if(oper == "between"){
-					$e.find("input[name='value1']").removeClass("hide");
-				}else if(oper == "gt" || oper == "lt"){
-					$e.find("input[name='value1']").addClass("hide");
-				}
-				$e.find(".alert").addClass("hide");
+				showByOper.call(view, oper);
 			},
 			"click; .btnApplyValue" : function(e){
 				var view = this;
@@ -69,6 +60,30 @@
 			if(mode == 'edit'){
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
+				
+				//reset value
+				var oper = $e.find(".viewContainer .operValue").attr("data-oper");
+				var $input = $e.find("input[name='value']");
+				var $input1 = $e.find("input[name='value1']");
+				if(oper && oper != null){
+					$e.find(".operation-item[data-oper='"+oper+"']").attr("data-oper");
+					var resultValue = $e.find(".viewContainer .resultValue").attr("data-value");
+					var resultValue1 = $e.find(".viewContainer .resultValue1").attr("data-value");
+					if (oper == "between") {
+						$input.val(resultValue);
+						$input1.val(resultValue1);
+					} else if (oper == "after") {
+						$input.val(resultValue);
+					} else if (oper == "before") {
+						$input.val(resultValue);
+					}
+					showByOper.call(view,oper);
+				}else{
+					$input.val("");
+					$input1.val("");
+					showByOper.call(view,"between");
+				}
+				
 			}else{
 				if(oper != ""){
 					$e.find(".viewContainer").removeClass("hide");
@@ -122,5 +137,22 @@
 		}
 		$e.find(".alert").addClass("hide");
 		return true;
+	}
+	
+	function showByOper(oper){
+		var view = this;
+		var $e = view.$el;
+		var $li = $e.find(".operation-item[data-oper='"+oper+"']");
+		var $group = $li.closest(".operation");
+		$group.find(".operation-item").removeClass("active");
+		$li.addClass("active");
+
+		if (oper == "between") {
+			$e.find("input[name='value1']").removeClass("hide");
+		} else if (oper == "gt" || oper == "lt") {
+			$e.find("input[name='value1']").addClass("hide");
+		}
+
+		$e.find(".alert").addClass("hide"); 
 	}
 })(jQuery);
