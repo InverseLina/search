@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1531,19 +1532,13 @@ public class DBSetupManager {
         }
         return count;
     }
-    
-    /**
-     * Get the count for index count for contact and jss_contact
-     * 
-     * @param orgName
-     * @return
-     * @see {@link #createIndexColumns(String)}
-     */
+
     private Integer getCustomFieldIndexStatus(String orgName) {
     	int count = 0;
 		//check the custom index
-		List<String> contactColumns = getOrgCustomFieldCloumns(orgName);
-		for(String columnName: contactColumns){
+		List<String> columns = getOrgCustomFieldCloumns(orgName);
+		HashSet<String> columnsSet = new HashSet<String>(columns);
+		for(String columnName: columnsSet){
 			String indexName = "jss_contact_customindex_"+columnName;
 			if(allowCreateIndex(orgName, "contact", columnName) && checkIndexexist(orgName,indexName)){
 				count++;
@@ -1591,7 +1586,8 @@ public class DBSetupManager {
     private int getCustomFieldTotalIndexCount(String orgName) throws Exception {
     	int count = 0;
     	List<String> columns = getOrgCustomFieldCloumns(orgName);
-        for(String column:columns){
+    	HashSet<String> columnsSet = new HashSet<String>(columns);
+        for(String column:columnsSet){
             if(allowCreateIndex(orgName, "contact", column)){
             	count++;
             }
