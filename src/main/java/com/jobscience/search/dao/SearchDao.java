@@ -1391,20 +1391,45 @@ public class SearchDao {
             temp = customField.toString("contact");
             conditionsParam = jo.getJSONObject("conditions");
             for(Object op:conditionsParam.keySet()){
-                conditions.append(" AND ").append(temp).append(op).append(wrap(customField,conditionsParam.get(op)));
+                conditions.append(" AND ( 1=1 ").append(wrap(temp,customField,conditionsParam.get(op),op));
             }
             hasCondition = true;
         }
         return hasCondition;
     }
     
-    private String wrap(CustomField customField,Object conditionParam){
+    private String wrap(String temp, CustomField customField, Object conditionParam, Object op){
+    	StringBuilder wrapStr = new StringBuilder();
         if("String".equalsIgnoreCase( customField.getType())){
-            return "'"+conditionParam+"'";
+        	JSONArray terms = JSONArray.fromObject(conditionParam);
+        	if(terms.size()>0 &&("==".equals(op) || "!=".equals(op))){
+        		wrapStr.append("and (");
+        		for(int i = 0,j = terms.size(); i < j; i++){
+        			if(i > 0){
+        				wrapStr.append(" or ");
+        			}
+        			wrapStr.append(temp);
+        			if("==".equals(op)){
+        				wrapStr.append("=");
+        			}else{
+        				wrapStr.append("!=");
+        			}
+        			wrapStr.append(" '").append(terms.get(i)).append("'");
+            	}
+        		wrapStr.append(")");
+        	}
         }else if("Date".equalsIgnoreCase( customField.getType())){
-            return "to_date('"+conditionParam+"','MM/DD/YYYY')";
+        	wrapStr.append("and").append(temp).append(op).append(" to_date('").append(conditionParam).append("','MM/DD/YYYY')");
+        }else if("Boolean".equalsIgnoreCase( customField.getType())){
+            if("=".equals(op) || "==".equals(op)){
+            	wrapStr.append("and").append(temp).append("= ").append(conditionParam);
+            }else if("!=".equals(op)){
+            	wrapStr.append("and").append(temp).append("!= ").append(conditionParam);
+            }
+        }else if("Number".equalsIgnoreCase( customField.getType())){
+        	wrapStr.append("and").append(temp).append(op).append(" ").append(conditionParam);
         }
-        return conditionParam+"";
+        return wrapStr.append(" )").toString();
     }
     
     private double getDistance(double lat1, double lng1, double lat2, double lng2){
