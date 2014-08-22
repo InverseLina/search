@@ -20,14 +20,22 @@
 		postDisplay : function(data) {
 			var view = this;
 			var $e = this.$el;
-			showCalendar.call(view);
+			var date = data.value;
+			if(!date){
+				date = new Date();
+			}
+			view.currentMonth = date.getMonth();
+			view.currentYear = date.getFullYear();
 			
+			showCalendar.call(view,view.currentMonth);
+			selectDate.call(view, date);
 		},
 		events:{
 			"btap":function(e){
 				e.stopPropagation();
 			},
-			"click; .year":function(e){
+			"btap; .year":function(e){
+				e.stopPropagation();
 				var view = this;
 				var $e = view.$el;
 				var $year = $(e.currentTarget);
@@ -76,17 +84,20 @@
 			},
 			"click;.today":function(e){
 				var view = this;
-				var $target = $(view.target);
 				var date = new Date();
-				$target.val(date.format("MM/dd/yyyy"));
+				setValue.call(view, date);
+				view.currentMonth = date.getMonth();
+				view.currentYear = date.getFullYear();
+				showCalendar.call(view,view.currentMonth);
+				selectDate.call(view, date);
 			},
 			"click;.date":function(e){
 				var view = this;
-				var $target = $(view.target);
 				var $date = $(e.currentTarget);
 				var $td = $date.closest("td");
 				var date = $td.data("date");
-				$target.val(date.format("MM/dd/yyyy"));
+				setValue.call(view, date);
+				selectDate.call(view, date);
 			}
 		},
 		docEvents:{
@@ -225,6 +236,22 @@
 		return months[month];
 	}
 
+
+	function setValue(date){
+		var view = this;
+		var $e = view.$el;
+		var $target = $(view.target);
+		$target.val(date.format("MM/dd/yyyy"));
+		$target.data("date", date);
+	}
+	
+	function selectDate(date){
+		var view = this;
+		var $e = view.$el;
+		var dateString = date.format("yyyy/MM/dd");
+		$e.find("td .date").removeClass("selected");
+		$e.find("td[data-date='"+dateString+"'] .date").addClass("selected");
+	}
 	// --------- /Private Methods--------- //
 	
 	

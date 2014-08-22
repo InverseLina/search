@@ -52,13 +52,14 @@
 					$e.find(".viewContainer .resultValue1").text($input1.val()).attr("data-value", $input1.val());
 				}
 			},
-			"click; .date-input-wrapper .icon-fa" : function(e){
+			"click; .date-input-wrapper .fa-calendar" : function(e){
 				var view = this;
 				var $e = this.$el;
 				var $icon = $(e.currentTarget);
 				var $inputWrapper = $icon.closest(".date-input-wrapper");
 				var $input = $inputWrapper.find("input");
-				brite.display("DatePicker",$inputWrapper,{target:$input});
+				var value = $input.data("date");
+				brite.display("DatePicker",$inputWrapper,{target:$input, value:value});
 			}
 		},
 		showMode:function(mode){
@@ -134,17 +135,18 @@
 		var view = this;
 		var $e = view.$el;
 		var value = $input.val();
+		var $alert = $input.closest(".date-input-wrapper").next();
 		if(value == ""){
-			$input.next().removeClass("hide");
+			$alert.removeClass("hide");
 			return false;
 		}
 		if(!/^\d\d\/\d\d\/\d\d\d\d$/.test(value)){
-			$input.next().removeClass("hide");
+			$alert.removeClass("hide");
 			return false;
 		}
 		var dateValue = Date.parse(value);
 		if(isNaN(dateValue) || dateValue <= 0){
-			$input.next().removeClass("hide");
+			$alert.removeClass("hide");
 			return false;
 		}
 		$e.find(".alert").addClass("hide");
