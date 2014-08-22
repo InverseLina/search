@@ -42,15 +42,17 @@ public class CustomFieldsDao {
     	orgSearchConfig =  searchConfigurationManager.getSearchConfiguration(orgName);
 		if(orgSearchConfig != null && orgSearchConfig.getCustomFields() != null){
 			customFieldLists = orgSearchConfig.getCustomFields().getFields();
-			for(CustomField field:customFieldLists){
-				if(!checkOrgCustomFieldIsValid(orgName, field.getColumnName())){
-					continue;
+			if(customFieldLists != null){
+				for(CustomField field:customFieldLists){
+					if(!checkOrgCustomFieldIsValid(orgName, field.getColumnName())){
+						continue;
+					}
+					HashMap fieldMap = new HashMap();
+					fieldMap.put("name", field.getName());
+					fieldMap.put("column", field.getColumnName());
+					fieldMap.put("type", field.getType());
+					customFields.add(fieldMap);
 				}
-				HashMap fieldMap = new HashMap();
-				fieldMap.put("name", field.getName());
-				fieldMap.put("column", field.getColumnName());
-				fieldMap.put("type", field.getType());
-				customFields.add(fieldMap);
 			}
 		}
     	return customFields;

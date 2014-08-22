@@ -435,6 +435,7 @@
 						type : "success"
 					});
 					$btn.prop("disabled", false).html("Reset");
+					refresh.call(view);
 				});
 			},
 			"click;.disable-indexes" : function(event) {

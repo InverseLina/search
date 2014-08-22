@@ -1,5 +1,6 @@
 package com.jobscience.search.web;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,10 @@ public class CustomFieldsWebHandlers {
     @WebGet("/getCustomFieldAutoCompleteData")
     public WebResponse getCustomFieldAutoCompleteData(@WebParam("fieldName") String fieldName, @WebParam("searchText") String searchText){
     	List<Map> fieldData = customFieldsDao.getCustomFieldCompleteData(orgHolder.getCurrentOrg(),fieldName, searchText);
-    	WebResponse wr = webResponseBuilder.success(fieldData);
+    	Map result = new HashMap();
+    	result.put("data", fieldData);
+    	result.put("searchText", searchText);
+    	WebResponse wr = webResponseBuilder.success(result);
         return wr;
     }
 }
