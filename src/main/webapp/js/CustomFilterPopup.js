@@ -78,6 +78,20 @@
 				var $target = $(e.currentTarget);
 				var $icon = $target.find(".icon-fa");
 				var $item = $target.closest(".filter-item");
+				$e.trigger("MODE_CHANGE",{filterItem:$item});
+			}
+		},
+		docEvents:{
+			"click":function(){
+				var view = this;
+				var $e = view.$el;
+				$e.removeClass("show");
+			},
+			"MODE_CHANGE":function(e, extra){
+				var view = this;
+				var $e = view.$el;
+				var $item = $(extra.filterItem)
+				var $icon = $item.find(".filter-item-header > .icon-fa");
 				var component = $($item.find(".filter-item-container").children()[0]).bView();
 				if($item.hasClass("extend")){
 					$item.removeClass("extend");
@@ -94,13 +108,6 @@
 						component.showMode('edit');
 					}
 				}
-			}
-		},
-		docEvents:{
-			"click":function(){
-				var view = this;
-				var $e = view.$el;
-				$e.removeClass("show");
 			}
 		},
 		
