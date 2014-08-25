@@ -57,6 +57,13 @@
 				$value.attr("data-value", value).find(".lbl").html($item.text());
 				$e.find(".operations").addClass("hide");
 			},
+			"keydown; .valueInput":function(e) {
+				var view = this;
+				var $e = view.$el;
+				if (e.which == _keys.TAB) {
+					e.preventDefault();
+				}
+			},
 			"keyup; .valueInput":function(e){
 				var view = this;
 				var $e = view.$el;
@@ -100,7 +107,7 @@
 						$e.find(".operations").addClass("hide");
 					}
 					if($target.closest(".input-containers").size() == 0){
-						$e.find(".autocomplete-container").addClass("hide");
+						$e.find(".autocomplete-container").addClass("hide").empty();
 					}
 				}
 			}
@@ -189,36 +196,46 @@
 					if($activeItem.length == 0 || $activeItem.next().size() == 0){
 						$activeItem = $container.find(".autocomplete-item:first").addClass("active");
 					}else{
-						var $activeItem = $activeItem.next();
+						$activeItem = $activeItem.next();
 						$activeItem.addClass("active");
 					}
-					$input.val($activeItem.attr("data-value"));
-					$input.focus();
+					var dataValue = $activeItem.attr("data-value");
+					if(dataValue && dataValue != ""){
+						$input.val(dataValue);
+						$input.focus();
+					}
 					break;
 				case _keys.UP:
 					$container.find(".autocomplete-item").removeClass("active");
 					if($activeItem.length == 0 || $activeItem.prev().size() == 0){
 						$container.find(".autocomplete-item:first").addClass("active");
 					}else{
-						var $prevItem = $activeItem.prev();
-						console.log($activeItem);
-						$prevItem.addClass("active");
+						$activeItem = $activeItem.prev();
+						$activeItem.addClass("active");
 					}
-					$input.val($activeItem.attr("data-value"));
-					$input.focus();
+					var dataValue = $activeItem.attr("data-value");
+					if(dataValue && dataValue != ""){
+						$input.val(dataValue);
+						$input.focus();
+					}
 					break;
 				default:
-					$e.find(".autocomplete-container").removeClass("hide")
+					
 					var searchText = $input.val();
 					var fieldName = view.paramName;
 					app.getJsonData("/getCustomFieldAutoCompleteData", {searchText:searchText, fieldName:fieldName}).done(function(result) {
 						if(result.searchText == $input.val()){
 							$e.find(".autocomplete-container").empty();
-							for(var i = 0; i < result.data.length; i++){
-								var $item = $(render("CustomFilterString-autocomplete-item",result.data[i]));
-								$container.append($item);
+							if(result.data.length > 0){
+								$e.find(".autocomplete-container").removeClass("hide");
+								for(var i = 0; i < result.data.length; i++){
+									var $item = $(render("CustomFilterString-autocomplete-item",result.data[i]));
+									$container.append($item);
+								}
+								$container.find(".autocomplete-item:first").addClass("active");
+							}else{
+								$e.find(".autocomplete-container").addClass("hide");
 							}
-							$container.find(".autocomplete-item:first").addClass("active");
 						}
 					});
 			}
