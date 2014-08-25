@@ -224,24 +224,37 @@
 			}
 	}
 	
-	function addItem(value){
+	function addItem(value) {
 		var view = this;
 		var $e = view.$el;
 		var $input = $e.find(".autocomplete-input-wrapper .valueInput");
+		var $value = $e.find(".operationSelect .value");
+		var operation = $value.attr("data-value");
+
 		if (value != "") {
-			var $value = $e.find(".operationSelect .value");
-			var operation = $value.attr("data-value");
-			$e.find(".autocomplete-container").addClass("hide");
-			var $selectedItem = $(render("CustomFilterString-edit-item", {
-				value : value,
-				operation : operation
-			}));
-			$selectedItem.insertBefore($e.find(".editContainer .selectedItems .cb"));
+			$e.find(".autocomplete-container").addClass("hide").empty();
 			$input.val("");
 			$input.focus();
+
+			var isExist = false;
+			$e.find(".editContainer .selectedItems .selected-item").each(function() {
+				var $item = $(this);
+				if ($item.attr("data-oper") == operation && value == $item.attr("data-value")) {
+					isExist = true;
+				}
+			});
+
+			if (!isExist) {
+				var $selectedItem = $(render("CustomFilterString-edit-item", {
+					value : value,
+					operation : operation
+				}));
+				$selectedItem.insertBefore($e.find(".editContainer .selectedItems .cb"));
+			}
 		}
 		checkEmpty.call(view);
 	}
+
 	
 	function checkEmpty(){
 		var view = this;
