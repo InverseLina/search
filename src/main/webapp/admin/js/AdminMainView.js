@@ -48,12 +48,17 @@
 			"DO_SHOW_MSG" : function(event, opts) {
 				var $place = $(opts.selector);
 				if (opts.type === "success") {
-					$place.addClass("alert-success").removeClass("alert-danger").removeClass("hide").removeClass("out").addClass("in").html(opts.msg);
+					$place.removeClass("alert-danger").removeClass("alert-warning").addClass("alert-success").removeClass("hide").removeClass("out").addClass("in").html(opts.msg);
 					setTimeout(function() {
 						$place.addClass("out").removeClass("in");
 					}, 2000);
-				} else {
-					$place.removeClass("alert-success").removeClass("out").addClass("in").addClass("alert-danger").removeClass("hide").html(opts.msg);
+				} else if (opts.type === "warn"){
+					$place.removeClass("alert-success").removeClass("alert-danger").addClass("alert-warning").removeClass("hide").removeClass("out").addClass("in").html(opts.msg);
+					setTimeout(function() {
+						$place.addClass("out").removeClass("in");
+					}, 3000);
+				}else{
+					$place.removeClass("alert-success").removeClass("alert-warning").addClass("alert-danger").removeClass("out").addClass("in").removeClass("hide").html(opts.msg);
 				}
 			}
 		},

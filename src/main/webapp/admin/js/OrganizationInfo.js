@@ -408,12 +408,21 @@
 							type : "error"
 						});
 					} else {
-						view.$el.find(".search-content").css("background", "#ffffff");
-						view.$el.trigger("DO_SHOW_MSG", {
-							selector : ".search-config-alert",
-							msg : "Values saved successfully",
-							type : "success"
-						});
+						if(result.warnMsg){
+							view.$el.find(".search-content").css("background", "#ffffff");
+							view.$el.trigger("DO_SHOW_MSG", {
+								selector : ".search-config-alert",
+								msg : "Values saved successfully but "+result.warnMsg,
+								type : "warn"
+							});
+						}else{
+							view.$el.find(".search-content").css("background", "#ffffff");
+							view.$el.trigger("DO_SHOW_MSG", {
+								selector : ".search-config-alert",
+								msg : "Values saved successfully",
+								type : "success"
+							});
+						}
 					}
 					refresh.call(view);
 					$btn.prop("disabled", false).html("Save");

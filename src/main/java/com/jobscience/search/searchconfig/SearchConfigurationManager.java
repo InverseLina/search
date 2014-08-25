@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.britesnow.snow.web.CurrentRequestContextHolder;
+import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -51,6 +54,8 @@ public class SearchConfigurationManager {
     
     private volatile LoadingCache<String, SearchConfiguration> searchuiconfigCache;
     
+    private volatile ConcurrentMap<String,Integer> customFieldsSize = new ConcurrentHashMap<String, Integer>();
+    
     public SearchConfigurationManager() {
         searchuiconfigCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build(new CacheLoader<String, SearchConfiguration>() {
             @Override
@@ -74,6 +79,14 @@ public class SearchConfigurationManager {
         }else{
             searchuiconfigCache.invalidate(orgName);
         }
+    }
+    
+    public Integer getcustomFieldsSize(String orgName){
+    	if(Strings.isNullOrEmpty(orgName)){
+    		return customFieldsSize.get("sys");
+    	}else{
+    		return customFieldsSize.get(orgName);
+    	}
     }
     
     public List<Map> getFilters(String orgName){
@@ -393,7 +406,7 @@ public class SearchConfigurationManager {
         return e;
     }
     
-    public String getErrorMsg(String content,boolean isOrg){
+    public String getErrorMsg(String content,boolean isOrg,String orgName){
         String errorMsg = "";
         if(content!=null){
             try{
@@ -429,7 +442,7 @@ public class SearchConfigurationManager {
                         }
                     }
                    //handle for customFields
-                    String checkInfo = checkOrgSearchConfigCustomfields(document);
+                    String checkInfo = checkSearchConfigCustomfields(document,orgName);
                     if(checkInfo != null){
                     	errorMsg = checkInfo;
                     }
@@ -545,7 +558,7 @@ public class SearchConfigurationManager {
                         }
                     }
               }else{
-            	  String checkInfo = checkOrgSearchConfigCustomfields(document);
+            	  String checkInfo = checkSearchConfigCustomfields(document,orgName);
                   if(checkInfo != null){
                   	errorMsg = checkInfo;
                   }
@@ -559,12 +572,13 @@ public class SearchConfigurationManager {
         return errorMsg;
     }
     
-    private String checkOrgSearchConfigCustomfields(Document document){
+    private String checkSearchConfigCustomfields(Document document, String orgName){
     	String errorMsg = null;
     	NodeList customFieldsContent = document.getElementsByTagName("customFields");
         if(customFieldsContent.getLength()!=0){
             NodeList customFields = customFieldsContent.item(0).getChildNodes();
             boolean hasError = false;
+            int customFieldSize = 0;
             for(int i=0,j=customFields.getLength();i<j;i++){
                 Node customField = customFields.item(i);
                 if(customField.getNodeType()==1){
@@ -592,6 +606,8 @@ public class SearchConfigurationManager {
                        }
                        if(lackProperty){
                     	   hasError = true;
+                       }else{
+                    	   customFieldSize++;
                        }
                 	}else{
                     	errorMsg="The search config xml has grammer issues.";
@@ -600,6 +616,13 @@ public class SearchConfigurationManager {
                 }
                 if(hasError){
                 	break;
+                }
+            }
+            if(!hasError){
+                if(Strings.isNullOrEmpty(orgName)){
+                	customFieldsSize.put("sys", customFieldSize);
+                }else{
+                	customFieldsSize.put(orgName, customFieldSize);
                 }
             }
         }

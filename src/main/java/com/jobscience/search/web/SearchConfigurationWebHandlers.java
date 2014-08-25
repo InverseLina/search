@@ -25,7 +25,8 @@ import com.jobscience.search.searchconfig.SearchConfigurationManager;
 public class SearchConfigurationWebHandlers {
     public static final String CONFIG_PATH = "/WEB-INF/config/sys/searchconfig.val";
 
-
+    private static String customFieldsWarnMsg  = "there has more than 10 customField configed and will only show first 10!";
+    		
     @Inject
     private SearchConfigurationManager searchConfigurationManager;
 
@@ -58,7 +59,7 @@ public class SearchConfigurationWebHandlers {
 
         }else{
             return webResponseBuilder.success(mapIt("content",result.get(0).get("val_text"),
-                    "errorMsg",searchConfigurationManager.getErrorMsg((String)result.get(0).get("val_text"),false)));
+                    "errorMsg",searchConfigurationManager.getErrorMsg((String)result.get(0).get("val_text"),false,null)));
         }
 
     }
@@ -74,19 +75,23 @@ public class SearchConfigurationWebHandlers {
     @WebPost("/saveSearchConfig")
     @RequireAdmin
     public WebResponse saveSearchConfig(@WebParam("content") String content, RequestContext rc) throws IOException {
-        String errorMsg = searchConfigurationManager.getErrorMsg(content,false);
+        String errorMsg = searchConfigurationManager.getErrorMsg(content,false,null);
         if(!Strings.isNullOrEmpty(errorMsg)){
             return webResponseBuilder.success(mapIt("valid",false,"errorMsg",errorMsg));
         }
         searchConfigurationDao.saveSearchConfig(content);
-        return webResponseBuilder.success(mapIt("valid", true));
+        if(searchConfigurationManager.getcustomFieldsSize(null) != null && searchConfigurationManager.getcustomFieldsSize(null) > 10){
+        	return webResponseBuilder.success(mapIt("valid",true,"warnMsg",customFieldsWarnMsg));
+        }else{
+            return webResponseBuilder.success(mapIt("valid", true));
+        }
     }
 
     @WebGet("/getOrgSearchConfig")
     @RequireAdmin
     public WebResponse getOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
         String content = searchConfigurationManager.getOrgConfig(orgName);
-        String errorMsg = searchConfigurationManager.getErrorMsg(content,true);
+        String errorMsg = searchConfigurationManager.getErrorMsg(content,true,orgName);
         return webResponseBuilder.success(mapIt("content",content,"errorMsg",errorMsg));
     }
 
@@ -102,13 +107,16 @@ public class SearchConfigurationWebHandlers {
     @RequireAdmin
     public WebResponse saveOrgSearchConfig(@WebParam("orgName") String orgName,
                                            @WebParam("content") String content, RequestContext rc) throws Exception {
-        String errorMsg = searchConfigurationManager.getErrorMsg(content,true);
+        String errorMsg = searchConfigurationManager.getErrorMsg(content,true,orgName);
         if(!Strings.isNullOrEmpty(errorMsg)){
             return webResponseBuilder.success(mapIt("valid",false,"errorMsg",errorMsg));
         }
         searchConfigurationDao.saveOrgSearchConfig(orgName, content);
-
-        return webResponseBuilder.success(mapIt("valid", true, "config", searchConfigurationManager.getOrgConfig(orgName)));
+        if(searchConfigurationManager.getcustomFieldsSize(orgName) != null && searchConfigurationManager.getcustomFieldsSize(orgName) > 10){
+        	return webResponseBuilder.success(mapIt("valid",true,"config", searchConfigurationManager.getOrgConfig(orgName),"warnMsg",customFieldsWarnMsg));
+        }else{
+        	return webResponseBuilder.success(mapIt("valid", true, "config", searchConfigurationManager.getOrgConfig(orgName)));
+        }
     }
     
 }
