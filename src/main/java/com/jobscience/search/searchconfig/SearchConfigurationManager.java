@@ -89,6 +89,14 @@ public class SearchConfigurationManager {
     	}
     }
     
+    public void resetcustomFieldsSize(String orgName){
+    	if(Strings.isNullOrEmpty(orgName)){
+        	customFieldsSize.put("sys", 0);
+        }else{
+        	customFieldsSize.put(orgName, 0);
+        }
+    }
+    
     public List<Map> getFilters(String orgName){
         List<Map> filters = new ArrayList<Map>();
         SearchConfiguration sc = getSearchConfiguration(orgName);
@@ -624,6 +632,12 @@ public class SearchConfigurationManager {
                 }else{
                 	customFieldsSize.put(orgName, customFieldSize);
                 }
+            }
+        }else{
+        	if(Strings.isNullOrEmpty(orgName)){
+            	customFieldsSize.put("sys", 0);
+            }else{
+            	customFieldsSize.put(orgName, 0);
             }
         }
         return errorMsg;

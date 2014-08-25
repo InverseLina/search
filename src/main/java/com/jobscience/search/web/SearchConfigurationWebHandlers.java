@@ -68,6 +68,7 @@ public class SearchConfigurationWebHandlers {
     @RequireAdmin
     public WebResponse resetSearchConfig(RequestContext rc) throws IOException {
         searchConfigurationDao.resetSearchConfig();
+        searchConfigurationManager.resetcustomFieldsSize(null);
         URL url = rc.getServletContext().getResource(CONFIG_PATH);
         return webResponseBuilder.success(Resources.toString(url, Charsets.UTF_8));
     }
@@ -98,8 +99,8 @@ public class SearchConfigurationWebHandlers {
     @WebGet("/resetOrgSearchConfig")
     @RequireAdmin
     public WebResponse resetOrgSearchConfig(RequestContext rc, @WebParam("orgName") String orgName) throws Exception {
-
         searchConfigurationDao.resetOrgSearchConfig(orgName);
+        searchConfigurationManager.resetcustomFieldsSize(orgName);
         return webResponseBuilder.success(searchConfigurationManager.getOrgConfig(orgName));
     }
 
