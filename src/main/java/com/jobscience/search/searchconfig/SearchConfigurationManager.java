@@ -429,27 +429,9 @@ public class SearchConfigurationManager {
                         }
                     }
                    //handle for customFields
-                    List<String> columnLists = new ArrayList<String>();
-                    NodeList sysCustomFields = document.getElementsByTagName("customFields");
-                    if(sysCustomFields.getLength()!=0){
-                        NodeList customFields = sysCustomFields.item(0).getChildNodes();
-                        for(int i=0,j=customFields.getLength();i<j;i++){
-                            Node customField = customFields.item(i);
-                            if(customField.getNodeType()==1){
-                            	if("field".equals(customField.getNodeName())){
-		                           if(!checkAttribute(customField, "name")){
-		                               errorMsg = "Missing name attribute for customFields field";
-		                           }
-		                           if(!checkAttribute(customField, "columnName")){
-		                               errorMsg = "Missing columnName attribute for customFields field";
-		                           }
-		                           System.out.println("handle for customFields   "+customField.getAttributes().getNamedItem("columnName").getNodeValue());
-		                           columnLists.add(customField.getAttributes().getNamedItem("columnName").getNodeValue());
-                            	}else{
-                                	errorMsg="The search config xml has grammer issues.";
-                                }
-                            }
-                        }
+                    String checkInfo = checkOrgSearchConfigCustomfields(document);
+                    if(checkInfo != null){
+                    	errorMsg = checkInfo;
                     }
                     //handle filter
                     NodeList filterNodes = document.getElementsByTagName("filter");
@@ -562,12 +544,64 @@ public class SearchConfigurationManager {
                             errorMsg = errorMsg.substring(0,errorMsg.length()-1);
                         }
                     }
+              }else{
+            	  String checkInfo = checkOrgSearchConfigCustomfields(document);
+                  if(checkInfo != null){
+                  	errorMsg = checkInfo;
+                  }
               }
             }catch(Exception e){
                 errorMsg="The search config xml has grammer issues.";
             }
         }else{
             errorMsg="The search config xml has grammer issues.";
+        }
+        return errorMsg;
+    }
+    
+    private String checkOrgSearchConfigCustomfields(Document document){
+    	String errorMsg = null;
+    	NodeList customFieldsContent = document.getElementsByTagName("customFields");
+        if(customFieldsContent.getLength()!=0){
+            NodeList customFields = customFieldsContent.item(0).getChildNodes();
+            boolean hasError = false;
+            for(int i=0,j=customFields.getLength();i<j;i++){
+                Node customField = customFields.item(i);
+                if(customField.getNodeType()==1){
+                	if("field".equals(customField.getNodeName())){
+                	   boolean lackProperty = false;
+                	   if(!checkAttribute(customField, "tableName")){
+                            errorMsg = "Missing tableName attribute for customFields field";
+                            lackProperty = true;
+                        }
+                        if(!lackProperty && !checkAttribute(customField, "name")){
+                            errorMsg = "Missing name attribute for customFields field";
+                            lackProperty = true;
+                        }
+                       if(!lackProperty && !checkAttribute(customField, "columnName")){
+                           errorMsg = "Missing columnName attribute for customFields field";
+                           lackProperty = true;
+                       }
+                       if(!lackProperty && !checkAttribute(customField, "label")){
+                           errorMsg = "Missing label attribute for customFields field";
+                           lackProperty = true;
+                       }
+                       if(!lackProperty && !checkAttribute(customField, "type")){
+                           errorMsg = "Missing type attribute for customFields field";
+                           lackProperty = true;
+                       }
+                       if(lackProperty){
+                    	   hasError = true;
+                       }
+                	}else{
+                    	errorMsg="The search config xml has grammer issues.";
+                    	hasError = true;
+                    }
+                }
+                if(hasError){
+                	break;
+                }
+            }
         }
         return errorMsg;
     }

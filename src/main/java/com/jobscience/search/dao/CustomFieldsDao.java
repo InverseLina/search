@@ -49,7 +49,7 @@ public class CustomFieldsDao {
 					}
 					HashMap fieldMap = new HashMap();
 					fieldMap.put("name", field.getName());
-					fieldMap.put("column", field.getColumnName());
+					fieldMap.put("label", field.getLabel());
 					fieldMap.put("type", field.getType());
 					customFields.add(fieldMap);
 				}
