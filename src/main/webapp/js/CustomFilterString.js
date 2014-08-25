@@ -54,7 +54,7 @@
 				var $item = $(e.currentTarget);
 				var value = $item.attr("data-value");
 				var $value = $e.find(".operationSelect .value")
-				$value.html($item.text()).attr("data-value", value);
+				$value.attr("data-value", value).find(".lbl").html($item.text());
 				$e.find(".operations").addClass("hide");
 			},
 			"keyup; .valueInput":function(e){
