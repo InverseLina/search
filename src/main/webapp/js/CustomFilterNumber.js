@@ -50,6 +50,8 @@
 					$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
 					$e.find(".viewContainer .resultValue").text($input.val()).attr("data-value", $input.val());
 					$e.find(".viewContainer .resultValue1").text($input1.val()).attr("data-value", $input1.val());
+					var $filterItem = $e.closest(".filter-item");
+					$e.trigger("MODE_CHANGE",{filterItem:$filterItem});
 				}
 			}
 		},

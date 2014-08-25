@@ -95,6 +95,8 @@
 					var $viewSelectedItem = $(render("CustomFilterString-view-item",{value:value, operation:operation}));
 					$viewSelectedItem.insertBefore($e.find(".value-containers .cb"));
 				});
+				var $filterItem = $e.closest(".filter-item");
+				$e.trigger("MODE_CHANGE",{filterItem:$filterItem});
 			}
 		},
 		parentEvents:{
