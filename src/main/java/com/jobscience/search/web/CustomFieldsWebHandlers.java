@@ -27,8 +27,10 @@ public class CustomFieldsWebHandlers {
     @WebGet("/getCustomFields")
     public WebResponse getCustomFields(){
     	List<Map> customFields = customFieldsDao.getCustomFields(orgHolder.getCurrentOrg());
-    	WebResponse result = webResponseBuilder.success(customFields);
-    	return result;
+    	if(customFields.size() > 10){
+    		customFields = customFields.subList(0, 10);
+    	}
+    	return webResponseBuilder.success(customFields);
     }
     
     @WebGet("/getCustomFieldAutoCompleteData")
