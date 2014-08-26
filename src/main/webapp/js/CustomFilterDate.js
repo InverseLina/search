@@ -27,6 +27,7 @@
 				var $e = this.$el;
 				var $li = $(e.currentTarget);
 				var oper = $li.attr("data-oper");
+				showEditValue.call(view,oper);
 				showByOper.call(view,oper);
 			},
 			"click; .btnApplyValue" : function(e){
@@ -40,10 +41,13 @@
 				var operLabel;
 				if(oper == "between"){
 					validated = validateInput.call(view, $input) && validateInput.call(view, $input1);
-					operLabel = "between";
-				}else if(oper == "after" || oper == "before"){
+					operLabel = "Between";
+				}else if(oper == "after"){
 					validated = validateInput.call(view, $input);
-					operLabel = oper == "after" ? "After" : "Before";
+					operLabel = "After";
+				}else if(oper == "before"){
+					validated = validateInput.call(view, $input1);
+					operLabel = "Before";
 				}
 				
 				if(validated){
@@ -74,24 +78,10 @@
 				
 				//reset value
 				var oper = $e.find(".viewContainer .operValue").attr("data-oper");
-				var $input = $e.find("input[name='value']");
-				var $input1 = $e.find("input[name='value1']");
 				if(oper && oper != null){
-					$e.find(".operation-item[data-oper='"+oper+"']").attr("data-oper");
-					var resultValue = $e.find(".viewContainer .resultValue").attr("data-value");
-					var resultValue1 = $e.find(".viewContainer .resultValue1").attr("data-value");
-					if (oper == "between") {
-						$input.val(resultValue);
-						$input1.val(resultValue1);
-					} else if (oper == "after") {
-						$input.val(resultValue);
-					} else if (oper == "before") {
-						$input.val(resultValue);
-					}
+					showEditValue.call(view, oper);
 					showByOper.call(view,oper);
 				}else{
-					$input.val("");
-					$input1.val("");
 					showByOper.call(view,"between");
 				}
 				
@@ -99,11 +89,13 @@
 				if(oper != ""){
 					$e.find(".viewContainer").removeClass("hide");
 					if(oper == "between"){
-						$e.find(".viewContainer .resultValue1").removeClass("hide");
+						$e.find(".viewContainer .resultValue1, .viewContainer .resultValue").removeClass("hide");
 					}else if(oper == "after"){
+						$e.find(".viewContainer .resultValue").removeClass("hide");
 						$e.find(".viewContainer .resultValue1").addClass("hide");
 					}else if(oper == "before"){
-						$e.find(".viewContainer .resultValue1").addClass("hide");
+						$e.find(".viewContainer .resultValue").addClass("hide");
+						$e.find(".viewContainer .resultValue1").removeClass("hide");
 					}
 				}else{
 					$e.find(".viewContainer").addClass("hide");
@@ -124,7 +116,7 @@
 			} else if (oper == "after") {
 				valueObject.conditions[">="] = resultValue;
 			} else if (oper == "before") {
-				valueObject.conditions["<="] = resultValue;
+				valueObject.conditions["<="] = resultValue1;
 			}else{
 				return null;
 			}
@@ -164,10 +156,35 @@
 		$li.addClass("active");
 
 		if (oper == "between") {
+			$e.find("input[name='value']").closest(".date-input-wrapper").removeClass("hide");
 			$e.find("input[name='value1']").closest(".date-input-wrapper").removeClass("hide");
-		} else if (oper == "after" || oper == "before") {
+		} else if (oper == "after") {
+			$e.find("input[name='value']").closest(".date-input-wrapper").removeClass("hide");
 			$e.find("input[name='value1']").closest(".date-input-wrapper").addClass("hide");
+		} else if (oper == "before") {
+			$e.find("input[name='value']").closest(".date-input-wrapper").addClass("hide");
+			$e.find("input[name='value1']").closest(".date-input-wrapper").removeClass("hide");
 		}
 		$e.find(".alert").addClass("hide"); 
+	}
+	
+	function showEditValue(oper){
+		var view = this;
+		var $e = view.$el;
+		$e.find(".operation-item[data-oper='" + oper + "']").attr("data-oper");
+		var resultValue = $e.find(".viewContainer .resultValue").attr("data-value");
+		var resultValue1 = $e.find(".viewContainer .resultValue1").attr("data-value");
+		var $input = $e.find("input[name='value']");
+		var $input1 = $e.find("input[name='value1']");
+		$input.val("");
+		$input1.val("");
+		if (oper == "between") {
+			$input.val(resultValue);
+			$input1.val(resultValue1);
+		} else if (oper == "after") {
+			$input.val(resultValue);
+		} else if (oper == "before") {
+			$input1.val(resultValue1);
+		}
 	}
 })(jQuery);
