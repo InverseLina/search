@@ -478,6 +478,12 @@ public class DBSetupManager {
             totalStatus = PART;
         }
 
+        String customFieldIndexRemove = getCustomIndexRemoveStr(orgName);
+        if(customFieldIndexRemove.length() > 0){
+        	totalStatus = PART;
+        	status.put("RemoveIndex", customFieldIndexRemove);
+        }
+        
         if (orgSetupStatus.get(orgName) != null && orgSetupStatus.get(orgName)) {
             totalStatus = RUNNING;
         }
@@ -871,7 +877,7 @@ public class DBSetupManager {
 			String indexName = "jss_contact_customindex_"+columnName;
 			if(allowCreateIndex(orgName, "contact", columnName) && !checkIndexexist(orgName, indexName)){
 		        coss.setCurrentIndex(indexName);
-	   /********  /set the current index ********/
+	    /********  /set the current index ********/
 		        String sql = renderCustomIndex(orgName, "contact", columnName, indexName);
 		        runner.executeUpdate(sql);
 			}
@@ -884,6 +890,18 @@ public class DBSetupManager {
 			}
 		}
 		runner.close();
+    }
+    
+    private String getCustomIndexRemoveStr(String orgName){
+    	StringBuilder removeCustomIndex = new StringBuilder();
+    	List<String> contactColumns = getOrgCustomFieldCloumns(orgName);
+    	List<Map> customIndex = getTableIndexs(orgName,"contact","jss_contact_customindex_");
+    	for(int i = 0, length = customIndex.size(); i < length; i++){
+			if(!contactColumns.contains(customIndex.get(i).get("index_name").toString().substring(24))){
+				removeCustomIndex.append(customIndex.get(i).get("index_name").toString()).append("; ");
+			}
+		}
+    	return removeCustomIndex.toString();
     }
     
     private String renderCustomIndex(String orgName, String tableName, String columnName, String indexName){
@@ -1060,7 +1078,7 @@ public class DBSetupManager {
         sql.append("select indexname from pg_indexes ").append("where indexname not in (")
                 .append(getIndexesNamesAndTables()[0]).append(getOrgCustomFilterIndex(orgName))
                 .append(") and tablename in(").append(getIndexesNamesAndTables()[1]).append(")")
-                .append(" and indexname not ilike '%pkey%' and schemaname=current_schema ");
+                .append(" and indexname not ilike '%pkey%' and indexname not ilike 'jss_contact_customindex_%' and schemaname=current_schema ");
         List<Map> list = daoHelper
                 .executeQuery(datasourceManager.newOrgRunner(orgName), sql.toString());
 
@@ -2407,7 +2425,7 @@ public class DBSetupManager {
     private List<Map> getTableIndexs(String orgName, String tableName, String indexPrefix){
     	String querySql = "SELECT t.relname as table_name, i.relname as index_name, a.attname as column_name "
                          +"FROM  pg_class t, pg_class i, pg_namespace n, pg_index ix, pg_attribute a "
-                         +"WHERE  n.oid = t.relnamespace and t.oid = ix.indrelid and i.oid = ix.indexrelid and a.attrelid = t.oid and a.attnum = ANY(ix.indkey) and t.relkind = 'r' and t.relname = '"+tableName+"' and i.relname like ' "+indexPrefix+"%'"     
+                         +"WHERE  n.oid = t.relnamespace and t.oid = ix.indrelid and i.oid = ix.indexrelid and a.attrelid = t.oid and a.attnum = ANY(ix.indkey) and t.relkind = 'r' and t.relname = '"+tableName+"' and i.relname like '"+indexPrefix+"%'"     
                          +"AND n.nspname = current_schema";
 		List<Map> lists = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),querySql);
 		return lists;

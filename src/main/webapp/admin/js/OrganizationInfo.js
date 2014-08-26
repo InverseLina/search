@@ -381,6 +381,12 @@
 							view.$el.find("." + setup.name + "_info").addClass(addClass).removeClass(removeClass).removeClass("hide").html(setup.msg);
 						}
 					});
+					if(result.RemoveIndex){
+						view.$el.find(".CustomField_Indexes_Need_Remove").closest("tr").removeClass("hide");
+						view.$el.find(".CustomField_Indexes_Need_Remove").html(result.RemoveIndex);
+					}else{
+						view.$el.find(".CustomField_Indexes_Need_Remove").closest("tr").addClass("hide");
+					}
 				}).fail(function(){
 					if(times < 3){
 						view.$el.trigger("STATUS_CHANGE",times);
