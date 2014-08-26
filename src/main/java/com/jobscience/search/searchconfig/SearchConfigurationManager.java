@@ -360,6 +360,7 @@ public class SearchConfigurationManager {
         NodeList sysCustomFields = sys.getElementsByTagName("customFields");
         NodeList orgCustomFields = org.getElementsByTagName("customFields");
         Map<String,Node> customFieldsMap = new HashMap<String,Node>();
+        List<String>  customFieldsName= new ArrayList<String>();
 
         for(int current = 0,length=sysCustomFields.getLength();current<length;current++){
             Node n = sysCustomFields.item(current);
@@ -367,8 +368,11 @@ public class SearchConfigurationManager {
             for(int c = 0,l=sysCustomFieldsChildren.getLength();c<l;c++){
                 Node customField = sysCustomFieldsChildren.item(c);
                 if(customField.getNodeType()==1){
-                    NamedNodeMap field =  customField.getAttributes();
-                    customFieldsMap.put(field.getNamedItem("name").getNodeValue(), customField);
+                	String fieldName = customField.getAttributes().getNamedItem("name").getNodeValue();
+                	if(!customFieldsName.contains(fieldName)){
+                		customFieldsName.add(fieldName);
+                	}
+                	customFieldsMap.put(fieldName, customField);
                 }
             }
         }
@@ -380,30 +384,29 @@ public class SearchConfigurationManager {
                 Node customField = customFields.item(c);
                 if(customField.getNodeType()==1){
                     NamedNodeMap nameMap =  customField.getAttributes();
-                    String name = nameMap.getNamedItem("name").getNodeValue();
+                    String fieldName = nameMap.getNamedItem("name").getNodeValue();
                     boolean remove = false;
                     if(nameMap.getNamedItem("remove")!=null&&"true".equals(nameMap.getNamedItem("remove").getNodeValue())){
                         remove = true;
                     }
                     if(remove){
-                        customFieldsMap.remove(name);
+                        customFieldsMap.remove(fieldName);
                         continue;
                     }
-                    if(keywordMap.containsKey(name)){
-                        NamedNodeMap sysNodeNameMap = customFieldsMap.get(name).getAttributes();
-                        if(nameMap.getNamedItem("columnName")==null&&sysNodeNameMap.getNamedItem("columnName")!=null){
-                            ((Element)customField).setAttribute("columnName", sysNodeNameMap.getNamedItem("columnName").getNodeValue());
-                        }
-
-                    }
-                    customFieldsMap.put(name, customField);
+                    if(!customFieldsName.contains(fieldName)){
+                		customFieldsName.add(fieldName);
+                	}
+                    customFieldsMap.put(fieldName, customField);
                 }
             }
         }
 
         Element customFields =  result.createElement("customFields");
-        for(Node n:customFieldsMap.values()){
-            customFields.appendChild(result.importNode(n, true));
+        for(String fieldName : customFieldsName){
+        	Node n = customFieldsMap.get(fieldName);
+        	if(n != null){
+            	customFields.appendChild(result.importNode(n, true));
+        	}
         }
         e.appendChild(customFields);
 

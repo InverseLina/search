@@ -25,7 +25,7 @@ import com.jobscience.search.searchconfig.SearchConfigurationManager;
 public class SearchConfigurationWebHandlers {
     public static final String CONFIG_PATH = "/WEB-INF/config/sys/searchconfig.val";
 
-    private static String customFieldsWarnMsg  = "there has more than 10 customField configed and will only show first 10!";
+    private static String customFieldsWarnMsg  = "Values saved successfully but there has more than 10 customField configed and will only show first 10!";
     		
     @Inject
     private SearchConfigurationManager searchConfigurationManager;

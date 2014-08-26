@@ -412,7 +412,7 @@
 							view.$el.find(".search-content").css("background", "#ffffff");
 							view.$el.trigger("DO_SHOW_MSG", {
 								selector : ".search-config-alert",
-								msg : "Values saved successfully but "+result.warnMsg,
+								msg : result.warnMsg,
 								type : "warn"
 							});
 						}else{
