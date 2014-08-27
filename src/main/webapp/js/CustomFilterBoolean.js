@@ -38,6 +38,7 @@
 					$label.text("No");
 					$label.attr("data-value",0);
 				}
+				$e.trigger("DO_SEARCH");
 			}
 		},
 		// --------- /Events--------- //
