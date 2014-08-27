@@ -72,13 +72,22 @@
 				var $e = view.$el;
 				$e.toggleClass("show");
 			},
-			"click;.filter-item-header":function(e){
+			"click;.left-side":function(e){
 				var view = this;
 				var $e = view.$el;
 				var $target = $(e.currentTarget);
-				var $icon = $target.find(".icon-fa");
 				var $item = $target.closest(".filter-item");
 				$e.trigger("MODE_CHANGE",{filterItem:$item});
+			},
+			"click;.clearAll":function(e){
+				var view = this;
+				var $e = view.$el;
+				var $target = $(e.currentTarget);
+				var $item = $target.closest(".filter-item");
+				var component = $($item.find(".filter-item-container").children()[0]).bView();
+				if(component && component.clearFields && $.isFunction(component.clearFields)){
+					component.clearFields();
+				}
 			}
 		},
 		docEvents:{
@@ -91,20 +100,20 @@
 				var view = this;
 				var $e = view.$el;
 				var $item = $(extra.filterItem)
-				var $icon = $item.find(".filter-item-header > .icon-fa");
+				var $icon = $item.find(".filter-item-header .left-side .icon-fa");
 				var component = $($item.find(".filter-item-container").children()[0]).bView();
 				if($item.hasClass("extend")){
 					$item.removeClass("extend");
 					$icon.removeClass("fa-chevron-down");
 					$icon.addClass("fa-chevron-right");
-					if(component){
+					if(component && component.showMode && $.isFunction(component.showMode)){
 						component.showMode('view');
 					}
 				}else{
 					$item.addClass("extend");
 					$icon.addClass("fa-chevron-down");
 					$icon.removeClass("fa-chevron-right");
-					if(component){
+					if(component && component.showMode && $.isFunction(component.showMode)){
 						component.showMode('edit');
 					}
 				}

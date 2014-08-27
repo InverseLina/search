@@ -45,6 +45,8 @@
 		showMode:function(mode){
 			var view = this;
 			var $e = view.$el;
+			mode = mode || view.mode;
+			view.mode = mode;
 			if(mode == 'edit'){
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
@@ -70,6 +72,16 @@
 			var value = val * 1 ? true : false;
 			var valueObject = {field:view.paramName, conditions:{"==":value}};
 			return valueObject;
+		},
+		clearFields:function(){
+			var view = this;
+			var $e = view.$el;
+			var $label = $e.find(".viewContainer .valueLabel");
+			$label.attr("data-value","").html("");
+			var $btnGroup = $e.find(".editContainer .btn-group");
+			$btnGroup.find(".btn").removeClass("active");
+			$btnGroup.find(".btn[data-mode='0']").addClass("active");
+			view.showMode();
 		}
 	});
 })(jQuery);
