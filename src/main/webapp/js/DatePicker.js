@@ -90,6 +90,7 @@
 				view.currentYear = date.getFullYear();
 				showCalendar.call(view,view.currentMonth);
 				selectDate.call(view, date);
+				close.call(view);
 			},
 			"click;.date":function(e){
 				var view = this;
@@ -98,6 +99,7 @@
 				var date = $td.data("date");
 				setValue.call(view, date);
 				selectDate.call(view, date);
+				close.call(view);
 			}
 		},
 		docEvents:{
@@ -110,6 +112,11 @@
 	});
 
 	// --------- Private Methods--------- //
+	
+	function close(){
+		var view = this;
+		view.$el.bRemove();
+	}
 	
 	function showCalendar(month) {
 		var view = this;
