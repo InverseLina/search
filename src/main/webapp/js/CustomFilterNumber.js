@@ -59,9 +59,12 @@
 				}
 			}
 		},
+		
 		showMode:function(mode){
 			var view = this;
 			var $e = view.$el;
+			mode = mode || view.mode;
+			view.mode = mode;
 			var oper = $e.find(".viewContainer .operValue").attr("data-oper");
 			if(mode == 'edit'){
 				$e.find(".editContainer").removeClass("hide");
@@ -94,6 +97,7 @@
 				$e.find(".editContainer").addClass("hide");
 			}
 		},
+		
 		getValue:function(){
 			var view = this;
 			var $e = view.$el;
@@ -113,6 +117,17 @@
 			}
 			
 			return valueObject;
+		},
+		
+		clearFields:function(){
+			var view = this;
+			var $e = view.$el;
+			$e.find(".viewContainer .operValue").attr("data-oper","");
+			$e.find(".viewContainer .resultValue").attr("data-value", "").html();
+			$e.find(".viewContainer .resultValue1").attr("data-value", "").html();
+			$e.find("input[name='value']").val("");
+			$e.find("input[name='value1']").val("");
+			view.showMode();
 		}
 		// --------- /Events--------- //
 	});

@@ -53,8 +53,7 @@
 				var $e = view.$el;
 				var $item = $(e.currentTarget);
 				var value = $item.attr("data-value");
-				var $value = $e.find(".operationSelect .value")
-				$value.attr("data-value", value).find(".lbl").html($item.text());
+				selectOperation.call(view, value);
 				$e.find(".operations").addClass("hide");
 			},
 			"keydown; .valueInput":function(e) {
@@ -99,6 +98,7 @@
 				$e.trigger("MODE_CHANGE",{filterItem:$filterItem});
 			}
 		},
+		
 		parentEvents:{
 			CustomFilterPopup:{
 				"click":function(e){
@@ -118,6 +118,8 @@
 		showMode:function(mode){
 			var view = this;
 			var $e = view.$el;
+			mode = mode || view.mode;
+			view.mode = mode;
 			if(mode == 'edit'){
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
@@ -130,6 +132,8 @@
 					var $selectedItem = $(render("CustomFilterString-edit-item",{value:value, operation:operation}));
 					$selectedItem.insertBefore($e.find(".editContainer .selectedItems .cb"));
 				});
+				
+				checkEmpty.call(view);
 			}else{
 				if($e.find(".viewContainer .value-containers .selected-item").size() > 0){
 					$e.find(".viewContainer").removeClass("hide");
@@ -139,6 +143,7 @@
 				$e.find(".editContainer").addClass("hide");
 			}
 		},
+		
 		getValue:function(){
 			var view = this;
 			var $e = view.$el;
@@ -170,6 +175,15 @@
 				}
 			}
 			return valueObject;
+		},
+		
+		clearFields:function(){
+			var view = this;
+			var $e = view.$el;
+			$e.find(".selectedItems .selected-item").remove();
+			selectOperation.call(view, "is");
+			checkEmpty.call(view);
+			view.showMode();
 		}
 	});
 	
@@ -285,6 +299,15 @@
 		}else{
 			$selectedCon.addClass("empty");
 		}
+	}
+	
+	function selectOperation(oper){
+		var view = this;
+		var $e = view.$el;
+		var $value = $e.find(".operationSelect .value");
+		var $operations = $e.find(".operations");
+		var text = $operations.find(".operation-item[data-value='"+oper+"']").text();
+		$value.attr("data-value", oper).find(".lbl").html(text);
 	}
 	
 })(jQuery);
