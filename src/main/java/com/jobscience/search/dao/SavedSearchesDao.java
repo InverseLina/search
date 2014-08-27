@@ -24,11 +24,11 @@ public class SavedSearchesDao {
     @Inject
     private DaoHelper daoHelper;
 
-    public List<Map> list(int offset, int limit,Map org) {
+    public List<Map> list(int offset, int limit, Map org) {
         return daoHelper.executeQuery((String)org.get("name"), getSql, offset, limit);
     }
 
-    public void save(String name, String content,Map org){
+    public void save(String name, String content, Map org){
         List<Map> list = daoHelper.executeQuery((String)org.get("name"), getByNameSql, name);
         if(list.size()==0){
             daoHelper.executeUpdate((String)org.get("name"), insertSql, new Timestamp(System.currentTimeMillis()), name, content);
@@ -37,15 +37,15 @@ public class SavedSearchesDao {
         }
     }
 
-    public void delete(Long id,Map org){
+    public void delete(Long id, Map org){
         daoHelper.executeUpdate((String)org.get("name"), deleteSql, id);
     }
 
-    public int count(String name,Map org) {
+    public int count(String name, Map org) {
         return daoHelper.executeQuery((String)org.get("name"), getByNameSql, name).size();
     }
 
-    public Map get(Long id,Map org) {
+    public Map get(Long id, Map org) {
        List<Map> list = daoHelper.executeQuery((String)org.get("name"), getByIDSql, id);
         if (list.size() > 0) {
             return list.get(0);

@@ -133,7 +133,7 @@ public class DBSetupManager {
     private volatile HttpGet cityWorldConnection = null;
     private boolean firstSetup = true;
     private String step = null;
-    private ConcurrentHashMap<String,Thread> orgThreads =new ConcurrentHashMap<String, Thread>();
+    private ConcurrentHashMap<String,Thread> orgThreads = new ConcurrentHashMap<String, Thread>();
     private ConcurrentHashMap<String, CurrentOrgSetupStatus>  currentOrgSetupStatus = 
     		new ConcurrentHashMap<String, DBSetupManager.CurrentOrgSetupStatus>();
     
@@ -143,11 +143,11 @@ public class DBSetupManager {
     	if(orgSetupStatusMsg.get(orgName) != null){
     		orgSetupStatusMsg.get(orgName).clear();
     	}
-        if(webPath==null){
+        if(webPath == null){
             webPath = currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/");
         }
         Thread orgThread = orgThreads.get(orgName);
-        if(orgThread==null){
+        if(orgThread == null){
             orgThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -243,11 +243,11 @@ public class DBSetupManager {
 					return false;
 				}*/
 				if(contactTotal - offset < 100){
-					runner.execute(sqlString , offset,contactTotal);
+					runner.execute(sqlString, offset, contactTotal);
 					insertSchedule.put(table, contactTotal);
 					groupTableStatus.put(table, true);
 				}else{
-					runner.execute(sqlString , offset,offset+99);
+					runner.execute(sqlString, offset, offset+99);
 					insertSchedule.put(table, offset);
 				}
 		        offset += 100;
@@ -292,7 +292,7 @@ public class DBSetupManager {
 
     public void stopOrgSetup(String orgName) {
         Thread orgThread = orgThreads.get(orgName);
-        if(orgThread!=null){
+        if(orgThread != null){
             orgThread = null;
             orgThreads.remove(orgName);
         }
@@ -343,7 +343,7 @@ public class DBSetupManager {
         boolean triggerValid = checkTriggerContent(orgName);
         setups.add(mapIt("name", "create_extra_table", 
         		"status",
-                missingTables.length() == 0&&triggerValid ? DONE :NOTSTARTED,
+                missingTables.length() == 0 && triggerValid ? DONE : NOTSTARTED,
                 "msg",
                 missingTables.length() > 0 ? "Missing Tables:" + missingTables.delete(0, 1)
                         : (triggerValid?"Jss tables created":"Some triggers not valid")));
@@ -413,7 +413,7 @@ public class DBSetupManager {
         int customFieldTotalIndexCount = getCustomFieldTotalIndexCount(orgName);
         setups.add(mapIt("name", "customFieldIndexes", "status", customFieldTotalIndexCount > customFieldIndexCount ? PART : DONE,
                 "progress", new IndexerStatus(customFieldTotalIndexCount - customFieldIndexCount, customFieldIndexCount)));
-        if(currentOrgSetupStatus.get(orgName)!=null){
+        if(currentOrgSetupStatus.get(orgName) != null){
         	setups.add(mapIt("name", "current_index", "value",currentOrgSetupStatus.get(orgName).getCurrentIndex(),
         			"status",indexCount==totalIndexCount?DONE:PART));
         }        
@@ -426,10 +426,10 @@ public class DBSetupManager {
         	groupTableCount = getGroupTableCountMap(orgName);
         }
         Map<String,Boolean> groupedTableInsertStatus = orgGroupTableInsertStatusMap.get(orgName);
-        if(groupedTableInsertStatus==null){
+        if(groupedTableInsertStatus == null){
          	groupedTableInsertStatus = getGroupTableStatusMap(orgName);
         }
-        if(groupTableCount.get("jss_contact_jss_groupby_skills")==0){
+        if(groupTableCount.get("jss_contact_jss_groupby_skills") == 0){
         	groupTableCount = getGroupTableCountMap(orgName);
         }
 		int totalSkilltablesCount = groupTableCount.get("jss_contact_jss_groupby_skills");
@@ -437,14 +437,14 @@ public class DBSetupManager {
 		if(groupedTableInsertStatus.get("jss_contact_jss_groupby_skills") != null && groupedTableInsertStatus.get("jss_contact_jss_groupby_skills")){
 			 SkilltablesCount = totalSkilltablesCount;
 		}
-		if(SkilltablesCount==0){
+		if(SkilltablesCount == 0){
 			 SkilltablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_skills");
 		}
 		setups.add(mapIt("name", "skill", "status",
 				totalSkilltablesCount > SkilltablesCount ? PART : DONE, "progress",
-				totalSkilltablesCount > SkilltablesCount ? new IndexerStatus(totalSkilltablesCount - (SkilltablesCount/1000)*1000, (SkilltablesCount/1000)*1000):new IndexerStatus(totalSkilltablesCount - SkilltablesCount, SkilltablesCount)));
+				totalSkilltablesCount > SkilltablesCount ? new IndexerStatus(totalSkilltablesCount - (SkilltablesCount/1000)*1000, (SkilltablesCount/1000)*1000) : new IndexerStatus(totalSkilltablesCount - SkilltablesCount, SkilltablesCount)));
 
-		if(groupTableCount.get("jss_contact_jss_groupby_educations")==0){
+		if(groupTableCount.get("jss_contact_jss_groupby_educations") == 0){
         	groupTableCount = getGroupTableCountMap(orgName);
         }
 		int totalEducationtablesCount = groupTableCount.get("jss_contact_jss_groupby_educations");
@@ -452,14 +452,14 @@ public class DBSetupManager {
 		if(groupedTableInsertStatus.get("jss_contact_jss_groupby_educations") != null && groupedTableInsertStatus.get("jss_contact_jss_groupby_educations")){
 			EducationtablesCount = totalEducationtablesCount;
 		}
-        if(EducationtablesCount==0){
+        if(EducationtablesCount == 0){
 			EducationtablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_educations");
 		}
 		setups.add(mapIt("name", "education", "status",
 				totalEducationtablesCount > EducationtablesCount ? PART : DONE, "progress",
 				totalEducationtablesCount > EducationtablesCount ? new IndexerStatus(totalEducationtablesCount - (EducationtablesCount/1000)*1000, (EducationtablesCount/1000)*1000): new IndexerStatus(totalEducationtablesCount - EducationtablesCount, EducationtablesCount)));
 
-		if(groupTableCount.get("jss_contact_jss_groupby_employers")==0){
+		if(groupTableCount.get("jss_contact_jss_groupby_employers") == 0){
         	groupTableCount = getGroupTableCountMap(orgName);
         }
 		int totalEmployertablesCount = groupTableCount.get("jss_contact_jss_groupby_employers");
@@ -467,7 +467,7 @@ public class DBSetupManager {
 		if(groupedTableInsertStatus.get("jss_contact_jss_groupby_employers") != null && groupedTableInsertStatus.get("jss_contact_jss_groupby_employers")){
 			EmployertablesCount = totalEmployertablesCount;
 		}
-		if(EmployertablesCount==0){
+		if(EmployertablesCount == 0){
 			EmployertablesCount = getMtmTableseStatus(orgName,"jss_contact_jss_groupby_employers");
 		}
 		setups.add(mapIt("name", "employer", "status",
@@ -820,7 +820,7 @@ public class DBSetupManager {
      * @throws SQLException
      */
     public boolean createExtraTables(String orgName) throws Exception {
-        if (orgSetupStatus.get(orgName)!=null&&!orgSetupStatus.get(orgName).booleanValue()) {
+        if (orgSetupStatus.get(orgName) != null && !orgSetupStatus.get(orgName).booleanValue()) {
             return false;
         }
         boolean result = true;
@@ -839,7 +839,7 @@ public class DBSetupManager {
             runner.startTransaction();
             for (String sql : allSqls) {
                 // when stop the org setup,should jump out
-                if (orgSetupStatus.get(orgName)!=null&&!orgSetupStatus.get(orgName).booleanValue()) {
+                if (orgSetupStatus.get(orgName) != null && !orgSetupStatus.get(orgName).booleanValue()) {
                     runner.commit();
                     return false;
                 }
@@ -861,12 +861,16 @@ public class DBSetupManager {
         return result;
     }
     
+    /**
+     * add and delete customField index on contact table by org searchConfig
+     * @param orgName
+     */
     private void updateContactCustomIndex(String orgName){
     	Runner runner = datasourceManager.newOrgRunner(orgName);
     	
     	/******** set the current index ********/
         CurrentOrgSetupStatus coss = currentOrgSetupStatus.get(orgName);
-        if(coss==null){
+        if(coss == null){
         	coss = new CurrentOrgSetupStatus();
         	currentOrgSetupStatus.put(orgName, coss);
         }
@@ -892,6 +896,11 @@ public class DBSetupManager {
 		runner.close();
     }
     
+    /**
+     * get all the customField index name that need to delete 
+     * @param orgName
+     * @return
+     */
     private String getCustomIndexRemoveStr(String orgName){
     	StringBuilder removeCustomIndex = new StringBuilder();
     	List<String> contactColumns = getOrgCustomFieldCloumns(orgName);
@@ -931,7 +940,7 @@ public class DBSetupManager {
 		List<Map> list = runner.executeQuery(sql);
 		runner.close();
 		String column_type = null;
-		if(list.size()==1){
+		if(list.size() == 1){
 			column_type = list.get(0).get("data_type").toString().trim();
 		}
 		return column_type;
@@ -1046,7 +1055,7 @@ public class DBSetupManager {
                         	
                         	/******** set the current index ********/
                             CurrentOrgSetupStatus coss = currentOrgSetupStatus.get(orgName);
-                            if(coss==null){
+                            if(coss == null){
                             	coss = new CurrentOrgSetupStatus();
                             	currentOrgSetupStatus.put(orgName, coss);
                             }
@@ -1523,7 +1532,7 @@ public class DBSetupManager {
         
         //check the index content
         int count = 0;
-        for(Map m:list){
+        for(Map m : list){
             JSONArray ja = indexsDef.get(m.get("tablename"));
             for (int i = 0; i < ja.size(); i++) {
                 JSONObject jo = JSONObject.fromObject(ja.get(i));
@@ -1556,7 +1565,7 @@ public class DBSetupManager {
 		//check the custom index
 		List<String> columns = getOrgCustomFieldCloumns(orgName);
 		HashSet<String> columnsSet = new HashSet<String>(columns);
-		for(String columnName: columnsSet){
+		for(String columnName : columnsSet){
 			String indexName = "jss_contact_customindex_"+columnName;
 			if(allowCreateIndex(orgName, "contact", columnName) && checkIndexexist(orgName,indexName)){
 				count++;
@@ -1605,7 +1614,7 @@ public class DBSetupManager {
     	int count = 0;
     	List<String> columns = getOrgCustomFieldCloumns(orgName);
     	HashSet<String> columnsSet = new HashSet<String>(columns);
-        for(String column:columnsSet){
+        for(String column : columnsSet){
             if(allowCreateIndex(orgName, "contact", column)){
             	count++;
             }
@@ -1626,11 +1635,11 @@ public class DBSetupManager {
 			DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 	        Document document = db.parse(new ByteArrayInputStream(orgConfigContent.getBytes()));
 	        NodeList sysCustomFields = document.getElementsByTagName("customFields");
-	        if(sysCustomFields.getLength()!=0){
+	        if(sysCustomFields.getLength() != 0){
 	            NodeList customFields = sysCustomFields.item(0).getChildNodes();
-	            for(int i=0,j=customFields.getLength();i<j;i++){
+	            for(int i = 0, j = customFields.getLength(); i < j; i++){
 	                Node customField = customFields.item(i);
-	                if(customField.getNodeType()==1 && "field".equals(customField.getNodeName())){
+	                if(customField.getNodeType() == 1 && "field".equals(customField.getNodeName())){
 	                   if(checkAttribute(customField, "name") && checkAttribute(customField, "columnName")){
 	                	   String column = customField.getAttributes().getNamedItem("columnName").getNodeValue();
 	                	   if(checkColumn(column,"contact",schemaname)){
@@ -1646,8 +1655,8 @@ public class DBSetupManager {
 		return cloumns;
     }
     
-    private boolean checkAttribute(Node n,String name){
-        if(n.getAttributes().getNamedItem(name)!=null){
+    private boolean checkAttribute(Node n, String name){
+        if(n.getAttributes().getNamedItem(name) != null){
             return true;
         }
         return false;
@@ -1671,7 +1680,7 @@ public class DBSetupManager {
         return sqlList;
     }
 
-    private int getDataCount(String table,Runner runner){
+    private int getDataCount(String table, Runner runner){
         int tableCount = runner.executeCount("select count(*) as count from information_schema.tables " 
                             + " where table_schema= current_schema "
                             +" and table_type='BASE TABLE' " + "and table_name =?",table);
@@ -1682,7 +1691,7 @@ public class DBSetupManager {
         }
     }
     
-    private int getContactMaxId(String table,Runner runner){
+    private int getContactMaxId(String table, Runner runner){
         int tableCount = runner.executeCount("select count(*) as count from information_schema.tables " 
                             + " where table_schema= current_schema "
                             +" and table_type='BASE TABLE' " + "and table_name =?",table);
@@ -2165,8 +2174,8 @@ public class DBSetupManager {
     	   orgGroupTableInsertStatusMap.remove(orgName);
     	String[] tables = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
     	Map<String, Boolean> groupTableInsertStatusMap = new HashMap<String, Boolean>();
-    	for(String table:tables){
-    		if(checkPkexist(orgName,table,table+"_pkey")){
+    	for(String table : tables){
+    		if(checkPkexist(orgName, table, table+"_pkey")){
     			groupTableInsertStatusMap.put(table, true);
         	}else{
         		groupTableInsertStatusMap.put(table, false);
@@ -2181,7 +2190,7 @@ public class DBSetupManager {
     		orgGroupTableCountMap.remove(orgName);
     	String[] tables = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
     	Map<String, Integer> groupTableCountMap = new HashMap<String, Integer>();
-    	for(String table:tables){
+    	for(String table : tables){
     		Integer count = getGroupTableCount(orgName, table);
     		groupTableCountMap.put(table, count);
     	}
@@ -2195,7 +2204,7 @@ public class DBSetupManager {
     	}
     	String[] tables = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
     	Map<String, Integer> groupTableInsertScheduleMap = new HashMap<String, Integer>();
-    	for(String table:tables){
+    	for(String table : tables){
     		groupTableInsertScheduleMap.put(table, 0);
     	}
     	orgGroupTableInsertScheduleMap.put(orgName, groupTableInsertScheduleMap);
@@ -2216,7 +2225,7 @@ public class DBSetupManager {
         long count = 0;
         try{
            	List<Map> results = daoHelper.executeQuery(orgName, sqlString);
-           	count= (Long)results.get(0).get("count");
+           	count = (Long)results.get(0).get("count");
         } catch (Exception e){
         	
         } 
@@ -2251,7 +2260,7 @@ public class DBSetupManager {
     	             +" table_name = '"
     	             +table+"';";
     	List<Map> results = daoHelper.executeQuery(orgName, sql);
-    	if(results.size()==1){
+    	if(results.size() == 1){
     		return true;
     	}else{
     		return false;
@@ -2323,15 +2332,13 @@ public class DBSetupManager {
             step = "check_missing_columns";
             fixMissingColumns(null, true);
         }
-
         firstSetup = false;
-
     }
     
     private boolean checkSysSchema(){
         List<Map> list = daoHelper.executeQuery(datasourceManager.newRunner(),"select count(*) as count from information_schema.schemata" +
                 " where schema_name='"+sysSchema+"'");
-        if(list.size()==1){
+        if(list.size() == 1){
             if("1".equals(list.get(0).get("count").toString())){
                 return true;
             }
@@ -2357,10 +2364,10 @@ public class DBSetupManager {
         boolean valid = false;
         Map<String,JSONArray> m = loadJsonFile("triggers.json","sql/org");
         StringBuilder sb = new StringBuilder();
-        for(String key:m.keySet()){
+        for(String key : m.keySet()){
         	sb.append(",'").append(key).append("'");
         }
-        if(sb.length()==0){
+        if(sb.length() == 0){
             return true;
         }
         List<Map> triggers = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName), "select t.trigger_name,p.prosrc"
@@ -2373,11 +2380,11 @@ public class DBSetupManager {
         
         String databaseContent,fileContent;
         
-        if(2*m.keySet().size()!=triggers.size()){
+        if(2*m.keySet().size() != triggers.size()){
         	return false;
         }
         
-        for(Map trigger:triggers){
+        for(Map trigger : triggers){
             fileContent = (String) JSONObject.fromObject(m.get(trigger.get("trigger_name")).get(0)).get("content");
             databaseContent = (String) trigger.get("prosrc");
              if(!fileContent.replaceAll("\\s+", "").equalsIgnoreCase(databaseContent.replaceAll("\\s+", ""))){
@@ -2389,7 +2396,7 @@ public class DBSetupManager {
         return valid;
     }
     
-    private boolean checkPkexist(String orgName,String table,String pkName){
+    private boolean checkPkexist(String orgName, String table, String pkName){
     	String querySql = "select count(*) as count from information_schema.table_constraints a "
                 +"where a.constraint_type = 'PRIMARY KEY' and a.table_name = '"
 		        +table+"' and a.constraint_name = '"

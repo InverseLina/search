@@ -18,7 +18,7 @@ public class OrgConfigDao {
 
   public Integer saveOrUpdateOrg(Map<String,String> params) throws SQLException{
       String sql;
-      if(params.size() > 0 && !"".equals(params.get("id"))&&params.get("id")!=null) {
+      if(params.size() > 0 && !"".equals(params.get("id")) && params.get("id") != null) {
           Integer id = Integer.valueOf(params.get("id"));
           sql = "update org set name = ? ,schemaname = ? ,sfid=?  where id = ?";
           daoHelper.executeUpdate(datasourceManager.newSysRunner(), sql, params.get("name"),

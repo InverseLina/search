@@ -31,7 +31,7 @@ public class IndexerManager {
 			return ;
 		}
 	    this.on = true;
-        webPath+="/WEB-INF/sql";
+        webPath += "/WEB-INF/sql";
 	  	File orgFolder = new File(webPath + "/org");
 	    File[] sqlFiles = orgFolder.listFiles();
 	    String insertSql="" ;
@@ -48,7 +48,7 @@ public class IndexerManager {
 	                in.close();
 	                insertSql = temp.toString().split("-- SCRIPTS")[1].trim();
 	                if(insertSql.endsWith(";")){
-	                	insertSql=insertSql.substring(0,insertSql.length()-1);
+	                	insertSql = insertSql.substring(0,insertSql.length()-1);
 	                }
 	                updateSql = temp.toString().split("-- SCRIPTS")[2].trim();
 	        	}
@@ -81,7 +81,7 @@ public class IndexerManager {
 	    	runner.close();
 	    }
 	   
-	    if(indexerStatus!=null&&indexerStatus.getRemaining()==0){
+	    if(indexerStatus != null && indexerStatus.getRemaining() == 0){
             this.on = false;
         }
 	   

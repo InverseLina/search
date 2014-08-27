@@ -31,6 +31,7 @@ public class CustomFieldsDao {
 	private SearchConfigurationManager searchConfigurationManager;
 
 	/**
+	 * get the org customFields 
 	 * @param org
 	 * @return
 	 */
@@ -43,7 +44,7 @@ public class CustomFieldsDao {
 		if(orgSearchConfig != null && orgSearchConfig.getCustomFields() != null){
 			customFieldLists = orgSearchConfig.getCustomFields().getFields();
 			if(customFieldLists != null){
-				for(CustomField field:customFieldLists){
+				for(CustomField field : customFieldLists){
 					if(!checkOrgCustomFieldIsValid(orgName, field.getColumnName())){
 						continue;
 					}
@@ -58,6 +59,13 @@ public class CustomFieldsDao {
     	return customFields;
     }
     
+	/**
+	 * get the autoCompleteData for customField column and field type is String
+	 * @param org
+	 * @param fieldName
+	 * @param searchText
+	 * @return
+	 */
 	public List<Map> getCustomFieldCompleteData(OrgContext org, String fieldName, String searchText) {
     	String orgName = org.getOrgMap().get("name").toString();
     	List<Map> columnData = new ArrayList<Map>();
@@ -65,7 +73,7 @@ public class CustomFieldsDao {
     	List<CustomField> customFieldLists;
     	if(orgSearchConfig != null && orgSearchConfig.getCustomFields() != null){
         		customFieldLists = orgSearchConfig.getCustomFields().getFields();
-        		for(CustomField field:customFieldLists){
+        		for(CustomField field : customFieldLists){
         			if(field.getName().equals(fieldName)){
         				columnData = getColumnData(orgName,"contact",field.getColumnName(),searchText,4);
         				break;

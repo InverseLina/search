@@ -64,7 +64,7 @@ public class ContactTsvManager {
 	    Runner runner = datasourceManager.newOrgRunner(orgName);
         PQuery pq = runner.newPQuery(insertSql);
         try{
-    	    while(indexerStatus.getRemaining()>0&&on){
+    	    while(indexerStatus.getRemaining() > 0 && on){
     	        pq.executeUpdate(new Object[0]);
     	    	int perform = getContactExCount(orgName);
     	    	indexerStatus = new IndexerStatus(indexerStatus.getPerform()+indexerStatus.getRemaining()-perform, perform);
@@ -106,7 +106,7 @@ public class ContactTsvManager {
 
 	 private int getContactsCount(String orgName){
     	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact");
-    	if(list.size()==1){
+    	if(list.size() == 1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}
 		return 0;
@@ -114,7 +114,7 @@ public class ContactTsvManager {
 	    
 	 private int getContactExCount(String orgName){
 	    List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-        String schemaname="" ;
+        String schemaname = "" ;
         if(orgs.size()==1){
             schemaname = orgs.get(0).get("schemaname").toString();
         }
@@ -122,7 +122,7 @@ public class ContactTsvManager {
 	        return 0;
 	    }
     	List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact where contact_tsv is not null");
-    	if(list.size()==1){
+    	if(list.size() == 1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}
 		return 0;
