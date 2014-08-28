@@ -63,7 +63,7 @@
 				var $icon = $(e.currentTarget);
 				var $inputWrapper = $icon.closest(".date-input-wrapper");
 				var $input = $inputWrapper.find("input");
-				var value = $input.data("date");
+				var value = $input.val();
 				brite.display("DatePicker",$inputWrapper,{target:$input, value:value});
 			}
 		},

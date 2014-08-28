@@ -20,10 +20,16 @@
 		postDisplay : function(data) {
 			var view = this;
 			var $e = this.$el;
-			var date = data.value;
-			if(!date){
+			var dateStr = data.value;
+			var date;
+			if(!dateStr || dateStr == "" || !/^\d\d\/\d\d\/\d\d\d\d$/.test(dateStr)){
 				date = new Date();
+			}else{
+				var dateArr = dateStr.split("/");
+				date = new Date(Date.parse(dateArr[2]+"/"+ dateArr[0] +"/" + dateArr[1]));
 			}
+			
+			
 			view.currentMonth = date.getMonth();
 			view.currentYear = date.getFullYear();
 			
@@ -249,7 +255,6 @@
 		var $e = view.$el;
 		var $target = $(view.target);
 		$target.val(date.format("MM/dd/yyyy"));
-		$target.data("date", date);
 	}
 	
 	function selectDate(date){
