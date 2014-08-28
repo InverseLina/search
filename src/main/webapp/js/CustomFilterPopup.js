@@ -87,6 +87,7 @@
 				var component = $($item.find(".filter-item-container").children()[0]).bView();
 				if(component && component.clearFields && $.isFunction(component.clearFields)){
 					component.clearFields();
+					$e.trigger("DO_SEARCH");
 				}
 			}
 		},
