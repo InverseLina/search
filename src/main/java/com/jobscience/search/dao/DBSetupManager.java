@@ -108,7 +108,8 @@ public class DBSetupManager {
                                               {"user","jss_user"},
                                               {"savedsearches","jss_savedsearches"}};
     private String[] manyTomanyTable = {"jss_contact_jss_groupby_skills","jss_contact_jss_groupby_educations","jss_contact_jss_groupby_employers"};
-    private String[] allowCustomIndexColumns = {"integer","boolean","timestamp","character varying","date","timestamp without time zone","double precision"};
+    private String[] allowCustomIndexColumnName = {"name","email","title","firstname","lastname","phone","mailingcity"};
+    private String[] allowCustomIndexColumnType = {"integer","boolean","timestamp","character varying","date","timestamp without time zone","double precision"};
     
     private Cache<String, Object> cache= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
     .maximumSize(100).build(new CacheLoader<String,Object >() {
@@ -926,9 +927,12 @@ public class DBSetupManager {
     }
     
     private boolean allowCreateIndex(String orgName, String tableName, String columnName){
+    	if(Arrays.asList(allowCustomIndexColumnName).contains(columnName)){
+			return true;
+		}
     	String column_type = getTableColumnDataType(orgName, tableName, columnName);
-    	if(!Strings.isNullOrEmpty(column_type) && Arrays.asList(allowCustomIndexColumns).contains(column_type)){
-    		return true;
+    	if(!Strings.isNullOrEmpty(column_type) && Arrays.asList(allowCustomIndexColumnType).contains(column_type)){
+    			return true;
     	}
     	return false;
     }
