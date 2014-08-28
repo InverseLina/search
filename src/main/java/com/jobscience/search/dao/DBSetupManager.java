@@ -409,15 +409,19 @@ public class DBSetupManager {
         int totalIndexCount = getTotalIndexCount(orgName);
         setups.add(mapIt("name", "indexes", "status", totalIndexCount > indexCount ? PART : DONE,
                 "progress", new IndexerStatus(totalIndexCount - indexCount, indexCount)));
+        if(currentOrgSetupStatus.get(orgName) != null && currentOrgSetupStatus.get(orgName).getCurrentIndex() != null){
+        	setups.add(mapIt("name", "current_index", "value",currentOrgSetupStatus.get(orgName).getCurrentIndex(),
+        			"status",indexCount==totalIndexCount?DONE:PART));
+        }
         //set the orgCustomField index status
         int customFieldIndexCount = getCustomFieldIndexStatus(orgName);
         int customFieldTotalIndexCount = getCustomFieldTotalIndexCount(orgName);
         setups.add(mapIt("name", "customFieldIndexes", "status", customFieldTotalIndexCount > customFieldIndexCount ? PART : DONE,
                 "progress", new IndexerStatus(customFieldTotalIndexCount - customFieldIndexCount, customFieldIndexCount)));
-        if(currentOrgSetupStatus.get(orgName) != null){
-        	setups.add(mapIt("name", "current_index", "value",currentOrgSetupStatus.get(orgName).getCurrentIndex(),
-        			"status",indexCount==totalIndexCount?DONE:PART));
-        }        
+        if(currentOrgSetupStatus.get(orgName) != null && currentOrgSetupStatus.get(orgName).getCurrentCustomIndex() != null){
+        	setups.add(mapIt("name", "current_custom_index", "value",currentOrgSetupStatus.get(orgName).getCurrentCustomIndex(),
+        			"status",customFieldIndexCount==customFieldTotalIndexCount?DONE:PART));
+        }
         if(orgSetupStatusMsg.get(orgName) != null && orgSetupStatusMsg.get(orgName).get("createIndex") != null){
         	setups.add(mapIt("name", "indexes", "status", ERROR,
         			"msg",  orgSetupStatusMsg.get(orgName).get("createIndex")));
@@ -881,7 +885,7 @@ public class DBSetupManager {
 		for(String columnName : contactColumns){
 			String indexName = "jss_contact_customindex_"+columnName;
 			if(allowCreateIndex(orgName, "contact", columnName) && !checkIndexexist(orgName, indexName)){
-		        coss.setCurrentIndex(indexName);
+		        coss.setCurrentCustomIndex(indexName);
 	    /********  /set the current index ********/
 		        String sql = renderCustomIndex(orgName, "contact", columnName, indexName);
 		        runner.executeUpdate(sql);
@@ -2445,6 +2449,7 @@ public class DBSetupManager {
     class CurrentOrgSetupStatus{
     	private String orgName;
     	private String currentIndex;
+    	private String currentCustomIndex;
     	
     	public void setOrgName(String orgName) {
 			this.orgName = orgName;
@@ -2460,6 +2465,14 @@ public class DBSetupManager {
     	
     	public String getCurrentIndex() {
 			return currentIndex;
+		}
+
+		public String getCurrentCustomIndex() {
+			return currentCustomIndex;
+		}
+
+		public void setCurrentCustomIndex(String currentCustomIndex) {
+			this.currentCustomIndex = currentCustomIndex;
 		}
     }
     

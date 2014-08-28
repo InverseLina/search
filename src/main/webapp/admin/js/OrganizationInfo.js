@@ -356,7 +356,7 @@
 								addClass = "alert-danger";
 								removeClass = "alert-success";
 						}
-						if(setup.name&&setup.name.indexOf("current_")==0){//now only the indexes
+						if(setup.name && setup.name.indexOf("current_")==0){//now only the indexes
 							var $info=view.$el.find("." + setup.name.replace("current_","") + "es_info");
 							if(setup.status=="done"){
 								$info.addClass("hide");
@@ -367,7 +367,17 @@
 								});
 							}
 						}
-						
+						if(setup.name && setup.name.indexOf("current_custom_")==0){//now only the custom indexes
+							var $info=view.$el.find("." + setup.name.replace("current_","") + "es_info");
+							if(setup.status=="done"){
+								$info.addClass("hide");
+							}else{
+								$info.addClass("alert-success").removeClass("alert-danger").removeClass("hide");
+								$info.find("span").fadeOut(100,function(){
+									$(this).html("Creating "+setup.value).fadeIn();
+								});
+							}
+						}
 						if (setup.progress || setup.progress === 0) {
 							if(setup.name === "customFieldIndexes"){
 								if(+setup.progress.perform+setup.progress.remaining===0){
