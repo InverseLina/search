@@ -97,6 +97,17 @@
 				var $e = view.$el;
 				$e.removeClass("show");
 			},
+			"CLEAR_ALL_CUSTOM_FIELDS":function(){
+				var view = this;
+				var $e = view.$el;
+				$e.find(".filter-item").each(function(){
+					var $item = $(this);
+					var component = $($item.find(".filter-item-container").children()[0]).bView();
+					if(component && component.clearFields && $.isFunction(component.clearFields)){
+						component.clearFields();
+					}
+				});
+			},
 			"MODE_CHANGE":function(e, extra){
 				var view = this;
 				var $e = view.$el;

@@ -189,6 +189,17 @@ var app = app || {};
 				}
 				
 			}
+			
+			//for custom fields
+			var view = getMainView();
+			var customFilterPopup = view.$el.find(".CustomFilterPopup").bView();
+			if(customFilterPopup){
+				var customFields = customFilterPopup.getValues();
+				if(customFields && customFields.length > 0){
+					return false;
+				}
+			}
+			
 			return true;
 		}
 

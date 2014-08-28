@@ -237,6 +237,7 @@
 		app.preference.store("contact_filter_status", "All");
 		view.$el.find(".contentview-ctn").bEmpty();
 		app.TopFilterItem.clear();
+		$el.trigger("CLEAR_ALL_CUSTOM_FIELDS");
 		brite.display("ContentView", this.$el.find(".contentview-ctn")).done(function(contentView) {
 			view.contentView = contentView;
 			view.$el.find(".clear-all").prop("disabled", true);
