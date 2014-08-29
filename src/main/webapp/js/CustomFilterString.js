@@ -207,32 +207,10 @@
 					$container.empty().addClass("hide");
 					break;
 				case _keys.DOWN:
-					$container.find(".autocomplete-item").removeClass("active");
-					if($activeItem.length == 0 || $activeItem.next().size() == 0){
-						$activeItem = $container.find(".autocomplete-item:first").addClass("active");
-					}else{
-						$activeItem = $activeItem.next();
-						$activeItem.addClass("active");
-					}
-					var dataValue = $activeItem.attr("data-value");
-					if(dataValue && dataValue != ""){
-						$input.val(dataValue);
-						$input.focus();
-					}
+					activeNextItem.call(view, true);
 					break;
 				case _keys.UP:
-					$container.find(".autocomplete-item").removeClass("active");
-					if($activeItem.length == 0 || $activeItem.prev().size() == 0){
-						$container.find(".autocomplete-item:first").addClass("active");
-					}else{
-						$activeItem = $activeItem.prev();
-						$activeItem.addClass("active");
-					}
-					var dataValue = $activeItem.attr("data-value");
-					if(dataValue && dataValue != ""){
-						$input.val(dataValue);
-						$input.focus();
-					}
+					activeNextItem.call(view, false);
 					break;
 				default:
 					
@@ -307,6 +285,34 @@
 		var $operations = $e.find(".operations");
 		var text = $operations.find(".operation-item[data-value='"+oper+"']").text();
 		$value.attr("data-value", oper).find(".lbl").html(text);
+	}
+	
+	function activeNextItem(oriention){
+		var view = this;
+		var $e = view.$el;
+		var $container = $e.find(".autocomplete-container");
+		var $activeItem = $container.find(".autocomplete-item.active");
+		var $input = $e.find(".autocomplete-input-wrapper .valueInput");
+		$container.find(".autocomplete-item").removeClass("active");
+		var $next;
+		if(oriention){
+			$next = $activeItem.next();
+		}else{
+			$next = $activeItem.prev();
+		}
+		
+		if ($activeItem.length == 0 || $next.length == 0) {
+			$activeItem = $container.find(".autocomplete-item:first").addClass("active");
+		} else {
+			$activeItem = $next;
+			$activeItem.addClass("active");
+		}
+		
+		var dataValue = $activeItem.attr("data-value");
+		if (dataValue && dataValue != "") {
+			$input.val(dataValue);
+			$input.focus();
+		}
 	}
 	
 })(jQuery);
