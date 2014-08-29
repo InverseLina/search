@@ -16,9 +16,6 @@ public class PerfManager {
 	private volatile MetricRegistry methodMetrics = new MetricRegistry();
 	private volatile MetricRegistry requestMetrics = new MetricRegistry();
 
-
-
-
 	RcPerf newRcPerf(String pathInfo){
 		return new RcPerf(pathInfo, requestMetrics);
 	}
@@ -36,7 +33,6 @@ public class PerfManager {
 		return new AppPerf(poolInfo, methodMetrics,requestMetrics);
 	}
 
-
 	private PerfContext start(MetricRegistry metrics, String name){
 		Timer timer = metrics.timer(name);
 		final Timer.Context ctx = timer.time();
@@ -52,6 +48,4 @@ public class PerfManager {
 	public static interface PerfContext{
 		public void end();
 	}
-
-
 }

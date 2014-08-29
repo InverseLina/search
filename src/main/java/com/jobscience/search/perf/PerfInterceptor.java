@@ -40,7 +40,5 @@ public class PerfInterceptor implements MethodInterceptor {
 			if (requestPrefContext != null) requestPrefContext.end();
 		}
 		return result;
-
-
 	}
 }

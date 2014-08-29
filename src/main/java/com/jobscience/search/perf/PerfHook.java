@@ -10,14 +10,8 @@ import com.britesnow.snow.web.RequestContext;
 import com.britesnow.snow.web.WebRequestType;
 import com.britesnow.snow.web.hook.annotation.WebRequestHook;
 
-/**
- *
- *
- */
 @Singleton
 public class PerfHook {
-
-
 
 	@Inject
 	private PerfManager perfManager;
@@ -34,7 +28,5 @@ public class PerfHook {
 		}
 
 	}
-
-
 
 }

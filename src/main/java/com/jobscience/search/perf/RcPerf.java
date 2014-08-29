@@ -48,6 +48,10 @@ public class RcPerf {
 		requestMetricsStartContext = metricsTimer.time();
 	}
 
+	public Map getRcPerfInfo(){
+		return rootRcTimers;
+	}
+
 	public void endRequest() {
 		if (rootRequestPerfCtx != null) {
 			rootRequestPerfCtx.end();
@@ -117,22 +121,14 @@ public class RcPerf {
 		return new RcTimer(name,timerStart);
 	}
 
-	public Map getRcPerfInfo(){
-		return rootRcTimers;
-	}
-
-
 	public class RcTimer{
+		
 		private String name;
-
 		private int count = 0;
-
 		private Long firstTimerStart = null;
 		private Long timerStart = null;
 		private Long timerEnd = null;
-
 		private Long duration = 0L;
-
 		private Map<String,RcTimer> subs = new HashMap<String,RcTimer>();
 
 		private RcTimer(String name, Long timerStart) {
