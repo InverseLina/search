@@ -70,19 +70,13 @@ public class MetadataManager {
             if (stringBuilder.length() > 0) {
                 System.out.println("Retrieve warnings:\n" + stringBuilder);
             }
-//            for(int i = 0; i < retrieveResult.getFileProperties().length; i++){
-//                if(retrieveResult.getFileProperties()[i].getNamespacePrefix() != null){
-//                    packageNamespacePrefix = retrieveResult.getFileProperties()[i].getNamespacePrefix() + "__";
-//                    break;
-//                }
-//            }
+            
             byte[] bs = retrieveResult.getZipFile();
             return bs;
         }catch (Exception e){
             e.printStackTrace();
         }
         return null;
-        
     }
     
     private String getMetaDataServerUrl(String token, String instanceUrl){
@@ -112,8 +106,6 @@ public class MetadataManager {
         result = JsonUtil.toMapAndList(oauth.send().getBody());
         return result;
     }
-    
-    
 
     private DeployResult waitForDeployCompletion(String asyncResultId, MetadataConnection metadataConnection) throws Exception {
         int poll = 0;

@@ -39,7 +39,7 @@ public class BulkManager {
     /**
      * Create the BulkConnection used to call Bulk API operations.
      */
-    public BulkConnection getBulkConnection(String token,String instanceUrl)
+    public BulkConnection getBulkConnection(String token, String instanceUrl)
           throws ConnectionException, AsyncApiException {
         ConnectorConfig config = new ConnectorConfig();
         config.setSessionId(token);
@@ -52,7 +52,7 @@ public class BulkManager {
         return connection;
     }
     
-    public void uploadData(String objectType,String content,BulkConnection bulkConnection) throws ConnectionException, AsyncApiException, IOException {
+    public void uploadData(String objectType, String content, BulkConnection bulkConnection) throws ConnectionException, AsyncApiException, IOException {
         JobInfo job = new JobInfo();
         job.setObject(objectType);
         job.setOperation(OperationEnum.insert);
@@ -215,11 +215,9 @@ public class BulkManager {
         tmpOut.close();
         FileInputStream tmpInputStream = new FileInputStream(tmpFile);
         try {
-            BatchInfo batchInfo =
-              connection.createBatchFromStream(jobInfo, tmpInputStream);
+            BatchInfo batchInfo = connection.createBatchFromStream(jobInfo, tmpInputStream);
             System.out.println(batchInfo);
             batchInfos.add(batchInfo);
-
         } finally {
             tmpInputStream.close();
         }
@@ -294,7 +292,5 @@ public class BulkManager {
             }
         }
     }
-    
-    
-    
+        
 }
