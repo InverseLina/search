@@ -40,6 +40,4 @@ public class Contact {
         this.contactFields = contactFields;
     }
     
-    
-    
 }

@@ -6,15 +6,10 @@ import javax.xml.bind.annotation.XmlElement;
 public class Filter {
 
     private String name;
-    
     private FilterType filterType;
-
     private FilterField filterField;
-    
     private String title;
-    
     private boolean delete;
-    
     private String show;
     
     @XmlAttribute
@@ -36,7 +31,7 @@ public class Filter {
     }
     
     public boolean isNeedShow() {
-        if(show==null){
+        if(show == null){
             return true;
         }
         return "true".equals(show);
@@ -77,6 +72,5 @@ public class Filter {
     public void setFilterType(FilterType filterType) {
         this.filterType = filterType;
     }
-    
     
 }

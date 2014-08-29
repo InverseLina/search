@@ -4,12 +4,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 public class Field {
 
-   
     private String table;
-    
-   
     private String column;
-    
     private String name;
 
     @XmlAttribute

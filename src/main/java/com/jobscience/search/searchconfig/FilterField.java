@@ -13,6 +13,7 @@ public class FilterField extends Field {
     public String getJoinFrom() {
         return joinFrom;
     }
+    
     public void setJoinFrom(String joinFrom) {
         this.joinFrom = joinFrom;
     }
@@ -21,6 +22,7 @@ public class FilterField extends Field {
     public String getJoinTo() {
         return joinTo;
     }
+    
     public void setJoinTo(String joinTo) {
         this.joinTo = joinTo;
     }

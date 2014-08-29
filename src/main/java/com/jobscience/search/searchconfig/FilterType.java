@@ -23,10 +23,10 @@ public enum FilterType {
     }
     
     public boolean equals(FilterType filterType){
-        if(filterType==null){
+        if(filterType == null){
             return false;
         }
-        return this.val==filterType.getVal();
+        return this.val == filterType.getVal();
     }
     
     public String value(){

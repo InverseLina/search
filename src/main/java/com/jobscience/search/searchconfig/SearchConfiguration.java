@@ -9,11 +9,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class SearchConfiguration {
 
     private KeyWord keyword;
-
     private List<Filter> filters;
-    
     private Contact contact;
-
     private CustomFields customFields;
 
     @XmlElement
