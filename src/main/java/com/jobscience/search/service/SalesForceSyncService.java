@@ -45,29 +45,8 @@ public class SalesForceSyncService {
 
     public List<Map> syncData(String token, String instanceUrl)throws AsyncApiException, ConnectionException, IOException{
         MetadataConnection metadataConnection = metadataManager.getMetadataConnection(token, instanceUrl);
-        BulkConnection bulkConnection = bulkManager.getBulkConnection(token, instanceUrl);
-//        List objects = getCustomObjectNames(metadataConnection);
-//        
-//        for(int i = 0; i < objects.size(); i++){
-//            System.out.println(objects.get(i));
-//        }
-//        
-//        List tables = syncDao.getTablesByOrg(null);
-//        
+        BulkConnection bulkConnection = bulkManager.getBulkConnection(token, instanceUrl);      
         List notExistTables = new ArrayList();
-//        for(int i = 0; i < tables.size(); i++){
-//            boolean isExist = false;
-//            for(int j = 0; j < objects.size(); j++){
-//                if(tables.get(i).equals(objects.get(j))){
-//                    isExist = true;
-//                    break;
-//                }
-//            }
-//            if(!isExist){
-//                    notExistObjects.add(tables.get(i));
-//            }
-//        }
-//        this.pushTables(metadataConnection, notExistObjects);
         
         // ----------- hardcode ----------//
         String tableName = "ts2__education_history__c";
@@ -86,11 +65,10 @@ public class SalesForceSyncService {
             result = this.downloadData(bulkConnection,tablename);
             System.out.println(result);
         }
-        
         return result;
     }
     
-    public void uploadData(BulkConnection bulkConnection,String tablename) throws AsyncApiException, IOException, ConnectionException{
+    public void uploadData(BulkConnection bulkConnection, String tablename) throws AsyncApiException, IOException, ConnectionException{
             String object = nameResolver.escapeName(tablename);
             List headers = syncDao.getFields(tablename);
             List data = syncDao.getData(tablename, 2000, 3000,orgHolder.getCurrentOrg().getOrgMap());
@@ -123,13 +101,6 @@ public class SalesForceSyncService {
             System.out.println(lines[i]);
             for(int j = 0; j < records.length; j++){
                 Map columnDef = (Map) columns.get(j);
-//                for(int k = 0; k < columns.size(); k++){
-//                    String fieldName = (String) ((Map)columns.get(k)).get("name");
-//                    if(fieldName.equals(fieldNames.get(j))){
-//                        columnDef = (Map) columns.get(k);
-//                        break;
-//                    }
-//                }
                 map.put(fieldNames.get(j), getValueByType(columnDef,records[j].replaceAll("\"", "")));
             }
             result.add(map);
@@ -141,7 +112,7 @@ public class SalesForceSyncService {
         syncDao.syncFromSF("ts2__education_history__c", syncData(token, instanceUrl),orgHolder.getCurrentOrg().getOrgMap());
     }
     
-    private void pushTables(MetadataConnection metadataConnection,List tables){
+    private void pushTables(MetadataConnection metadataConnection, List tables){
         if(tables.size() == 0){
             return;
         }
@@ -196,7 +167,6 @@ public class SalesForceSyncService {
             
             zipFile(out, "unpackaged/package.xml", builder.toString());
             
-            
             out.close();
             
             byte[] zipBytes = byteStream.toByteArray(); 
@@ -207,46 +177,11 @@ public class SalesForceSyncService {
             e.printStackTrace();
         }
     }
-    
 
-//    private List<String> getCustomObjectNames(MetadataConnection metadataConnection) {
-//        com.sforce.soap.metadata.Package p = new com.sforce.soap.metadata.Package();
-//        p.setVersion(VERSION);
-//        
-//        PackageTypeMembers ptm = new PackageTypeMembers();
-//        ptm.setName("CustomObject");
-//        ptm.setMembers(new String[]{"*"});
-//        
-//        
-//        p.setTypes(new PackageTypeMembers[]{ptm});
-//        byte[] data = metadataManager.retriveMetadataObjects(metadataConnection, p);
-//        
-//        List<String> names = new ArrayList();
-//        try {
-//            ByteArrayInputStream bis = new ByteArrayInputStream(data);
-//            ZipInputStream zip = new ZipInputStream(bis);
-//            ZipEntry entry = null;
-//            while ((entry = zip.getNextEntry()) != null) {
-//                if(entry.getName().indexOf("unpackaged/objects/") == 0){
-//                    String name = entry.getName();
-//                    name = name.substring(name.lastIndexOf("/") + 1, name.lastIndexOf(".") );
-//                    names.add(name);
-//                    zip.closeEntry();
-//                }
-//            }
-//            zip.close();
-//            bis.close();
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//        return names;
-//    }
-    
     private String toCSVData(List<Map> headers, List<Map> data) throws AsyncApiException, IOException{
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for(Map header : headers){
-                
             if (i != 0) {
                 sb.append(",");
             }
@@ -258,7 +193,6 @@ public class SalesForceSyncService {
         for(Map row : data){
             i = 0;
             for(Map header : headers){
-                    
                 if (i != 0) {
                     sb.append(",");
                 }

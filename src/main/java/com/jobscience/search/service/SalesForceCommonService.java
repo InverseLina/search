@@ -55,7 +55,7 @@ public class SalesForceCommonService {
         oauth.addQuerystringParameter("q", "SELECT Name from Organization where id = '"+info.get("organization_id")+"'");
         Map orgInfo = JsonUtil.toMapAndList(oauth.send().getBody());
         JSONArray orgs  = JSONArray.fromObject(orgInfo.get("records"));
-        if(orgs.size()==1){
+        if(orgs.size() == 1){
         	JSONObject jo = JSONObject.fromObject(orgs.get(0));
         	 result.put("orgName",(String)jo.get("Name"));
         }
@@ -85,7 +85,7 @@ public class SalesForceCommonService {
         oauth.addQuerystringParameter("q", "SELECT Name from Organization where id = '"+info.get("organization_id")+"'");
         Map orgInfo = JsonUtil.toMapAndList(oauth.send().getBody());
         JSONArray orgs  = JSONArray.fromObject(orgInfo.get("records"));
-        if(orgs.size()==1){
+        if(orgs.size() == 1){
         	JSONObject jo = JSONObject.fromObject(orgs.get(0));
         	 info.put("orgName",(String)jo.get("Name"));
         }
