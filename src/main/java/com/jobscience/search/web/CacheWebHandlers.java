@@ -31,7 +31,7 @@ public class CacheWebHandlers {
     public WebResponse saveConfig(@WebParam("orgName") String orgName) throws SQLException {
         List<Map> orgs = orgConfigDao.getOrgByName(orgName);
         Integer orgId = null;
-        if(orgs.size()>0){
+        if(orgs.size() > 0){
             orgId = Integer.parseInt(orgs.get(0).get("id").toString());
         }
         

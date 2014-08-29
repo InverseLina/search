@@ -31,6 +31,7 @@ public class SyncSfWebHandlers {
     
         return webResponseBuilder.fail();
     }
+    
     @WebGet("/syncsf/stopDownload")
     public WebResponse stopDownload(RequestContext rc){
         String ctoken = rc.getCookie("ctoken");
@@ -39,6 +40,7 @@ public class SyncSfWebHandlers {
         }
         return webResponseBuilder.fail();
     }
+    
     @WebGet("/syncsf/downloadStatus")
     public WebResponse getDownStatus(RequestContext rc){
         return webResponseBuilder.success(isDownloading);

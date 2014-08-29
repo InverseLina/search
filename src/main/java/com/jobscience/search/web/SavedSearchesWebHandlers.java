@@ -51,11 +51,13 @@ public class SavedSearchesWebHandlers {
         savedSearchesDao.delete(id,orgHolder.getCurrentOrg().getOrgMap());
         return webResponseBuilder.success();
     }
+    
     @WebGet("/countSavedSearches")
     public WebResponse count(@WebParam("name") String name) {
         int result = savedSearchesDao.count(name,orgHolder.getCurrentOrg().getOrgMap());
         return webResponseBuilder.success(result);
     }
+    
     @WebGet("/getOneSavedSearches")
     public WebResponse get(@WebParam("id") Long id) {
         Map map = savedSearchesDao.get(id,orgHolder.getCurrentOrg().getOrgMap());

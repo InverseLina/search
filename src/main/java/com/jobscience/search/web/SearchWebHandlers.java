@@ -91,17 +91,17 @@ public class SearchWebHandlers {
         }
         result.put("queryString", queryString);
         Map searchMap = new HashMap();
-        for(Object key:jo.keySet()){
+        for(Object key : jo.keySet()){
         	searchMap.put(key.toString().substring(2),jo.get(key).toString());
         }
-        if(orderByCount==null){
+        if(orderByCount == null){
         	orderByCount = true;
         }
-        if(pageNum==null||pageNum<1){
-        	pageNum=1;
+        if(pageNum == null || pageNum < 1){
+        	pageNum = 1;
         }
-        if(pageSize==null||pageSize<1){
-        	pageSize=7;
+        if(pageSize == null || pageSize < 1){
+        	pageSize = 7;
         }
         SearchResult  sResult = searchDao.getGroupValuesForAdvanced(searchMap,type,queryString,orderByCount,min,pageSize,pageNum,orgHolder.getCurrentOrg());
         result.put("list", sResult.getResult());

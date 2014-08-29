@@ -160,15 +160,6 @@ public class AppAuthRequest implements AuthRequest {
                 } catch (Exception e) {
                     rc.removeCookie(COOKIE_ORG_USER_TOKEN);
                 }
-                
-                //update token
-//    			if (user != null && user.get("rtoken") != null) {
-//    				long timeout = (Long) user.get("timeout");
-//    				if (System.currentTimeMillis() - timeout > 0) {
-//    					ForceDotComApi.ForceDotComToken token = (ForceDotComApi.ForceDotComToken) forceAuthService.updateToken((String) user.get("rtoken"));
-//    					updateUserToken(token);
-//    				}
-//    			}
             }
 		}else{
 		    //FIXME: for now do check here, cause the expection catcher just for rest methods.
@@ -183,6 +174,10 @@ public class AppAuthRequest implements AuthRequest {
 	            rc.getWebModel().put("success", "false");
 	        }
 		}
+    }
+
+    public void updateCache(Map user){
+        userCache.put((String)user.get(COOKIE_ORG_USER_TOKEN), user);
     }
     
     private AuthToken authWebRequest(RequestContext rc){
@@ -292,7 +287,6 @@ public class AppAuthRequest implements AuthRequest {
                 log.warn("Does not have user token");
             }
         }
-    
         return authToken;
     }
     
@@ -315,9 +309,6 @@ public class AppAuthRequest implements AuthRequest {
             rc.getWebModel().put("errorMessage", "Organization is not correct, Please enter correct organization");
             rc.getWebModel().put("success", "false");
         }
-        
-        
-        
         return user;
     }
     
@@ -352,27 +343,7 @@ public class AppAuthRequest implements AuthRequest {
         
         return user;
     }
-    
 
-//    private void updateUserToken(ForceDotComApi.ForceDotComToken token) {
-//        try {
-//            String timeout = configManager.getConfig("sf_session_timeout", orgHolder.getId());
-//            long sfTimeout;
-//            try {
-//                sfTimeout = token.getIssuedAt().getTime() + Integer.valueOf(timeout);
-//            } catch (NumberFormatException e) {
-//                sfTimeout = token.getIssuedAt().getTime() + 1000*60 * 180;
-//            }
-//            userDao.checkAndUpdateUser(1, token.getId(), token.getToken(), sfTimeout, token.getRefreshToken());
-//        } catch (Exception e) {
-//            throw new AbortWithHttpRedirectException("/");
-//        }
-//    }
-
-    public void updateCache(Map user){
-        userCache.put((String)user.get(COOKIE_ORG_USER_TOKEN), user);
-    }
-    
     private void setCookie(RequestContext rc, String name, String value, float expire){
         Cookie cookie = new Cookie(name,value);
         cookie.setPath("/");
