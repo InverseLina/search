@@ -5,7 +5,6 @@ import java.util.Map;
 public class OrgContext {
 
     private Map orgMap;
-    
     private String sfid;
     
     public Map getOrgMap() {

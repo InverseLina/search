@@ -23,6 +23,7 @@ import com.jobscience.search.exception.OrganizationNotSelectException;
 
 @Singleton
 public class OrgContextManager {
+	
     @Inject
     private CurrentRequestContextHolder crh;
     @Inject
@@ -31,13 +32,15 @@ public class OrgContextManager {
     private OrgConfigDao orgConfigDao;
     @Inject
     private DBSetupManager dbSetupManager;
+    @Inject
+    private DatasourceManager datasourceManager;
+    
     private Cache<String, OrgContext> orgCacheByToken;
     private Cache<String, OrgContext> orgCacheByorgName;
+    
     @Named("jss.prod")
     @Inject
     private boolean productMode;
-    @Inject
-    private DatasourceManager datasourceManager;
 
     public String getOrgName() {
         return (String)getFieldValue("name");
@@ -46,7 +49,7 @@ public class OrgContextManager {
     public void updateSchema(){
         final String orgName = getOrgName();
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
-    	if(orgs.size()==1){
+    	if(orgs.size() == 1){
     	    OrgContext orgContext = null;
             try {
                 orgContext = orgCacheByorgName.get(orgName,new Callable<OrgContext>() {
@@ -58,7 +61,7 @@ public class OrgContextManager {
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-            if(orgContext!=null){
+            if(orgContext != null){
         	    orgContext.setOrgMap(orgs.get(0));
         	    orgCacheByorgName.put(getOrgName(),orgContext);
             }
@@ -67,10 +70,10 @@ public class OrgContextManager {
     
     public String getSchemaName(){
         String orgName = getOrgName();
-    	String schemaname =orgCacheByorgName.getIfPresent(orgName).getOrgMap().get("schemaname").toString();
-    	if(schemaname==null){
+    	String schemaname = orgCacheByorgName.getIfPresent(orgName).getOrgMap().get("schemaname").toString();
+    	if(schemaname == null){
 	    	List<Map> orgs = orgConfigDao.getOrgByName(getOrgName());
-	    	if(orgs.size()==1){
+	    	if(orgs.size() == 1){
 	    		schemaname = orgs.get(0).get("schemaname").toString();
 	    	}
     	}
@@ -78,12 +81,12 @@ public class OrgContextManager {
     }
 
     public OrgContextManager() {
-        orgCacheByToken= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
+        orgCacheByToken = CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
                .maximumSize(100).build(new CacheLoader<String, OrgContext>() {
                    @Override
                    public OrgContext load(String token) throws Exception {return null;}
                });
-        orgCacheByorgName= CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
+        orgCacheByorgName = CacheBuilder.newBuilder().expireAfterAccess(8, TimeUnit.MINUTES)
                 .maximumSize(100).build(new CacheLoader<String, OrgContext>() {
                     @Override
                     public OrgContext load(String orgName) throws Exception {
@@ -97,15 +100,6 @@ public class OrgContextManager {
 
     public Integer getId(){
         return (Integer) getFieldValue("id");
-    }
-
-    protected Object getFieldValue(String fieldName){
-        Map map = getCurrentOrg().getOrgMap();
-        if (map != null) {
-            return map.get(fieldName);
-        }
-        OrganizationNotSelectException e = new OrganizationNotSelectException();
-        throw e;
     }
 
     public OrgContext getCurrentOrg() {
@@ -136,17 +130,13 @@ public class OrgContextManager {
                 }
             }
         }
-        if(orgContext==null){
+        if(orgContext == null){
             OrganizationNotSelectException e = new OrganizationNotSelectException();
             throw e;
         }
         return orgContext;
     }
-    
-    private OrgContext getOrg(String ctoken) {
-        return orgCacheByToken.getIfPresent(ctoken);
-    }
-    
+
     /**
      * Set the salesforce token and the related org info into cookie
      * @param ctoken
@@ -180,12 +170,26 @@ public class OrgContextManager {
         return null;
     }
 
+    protected Object getFieldValue(String fieldName){
+        Map map = getCurrentOrg().getOrgMap();
+        if (map != null) {
+            return map.get(fieldName);
+        }
+        OrganizationNotSelectException e = new OrganizationNotSelectException();
+        throw e;
+    }
+    
+    private OrgContext getOrg(String ctoken) {
+        return orgCacheByToken.getIfPresent(ctoken);
+    }
+    
     private OrgContext loadOrgContext(String orgName){
         OrgContext orgContext = new OrgContext();
         orgContext.setOrgMap(loadOrg(orgName));
         orgContext.setSfid(loadOrgSfid(orgName));
         return orgContext;
     }
+    
     private Map loadOrg(String orgName){
         List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
                 "select * from org where name = ?", orgName);
@@ -195,10 +199,6 @@ public class OrgContextManager {
         }
         return map;
     }
-    
-  /*  private void loadOrgConfig(String orgName){
-        
-    }*/
     
     private String loadOrgSfid(String orgName){
         String sfid = null;
