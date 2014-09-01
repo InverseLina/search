@@ -45,7 +45,6 @@ public class ConfigManager {
         });
     }
     
-    
     /**
      * Get org configs,will always get the global configs
      * @param name
@@ -70,7 +69,6 @@ public class ConfigManager {
         if (orgId == null) {
             orgId = -1;
         }
-        
         try {
             Map<String, Object> cacheConfigMap = configCache.get(orgId);
             return cacheConfigMap;

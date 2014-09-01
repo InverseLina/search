@@ -85,7 +85,6 @@ public class DatasourceManager {
             poolInfo.put("numBusyConnections",dataSource.getNumBusyConnectionsDefaultUser());
             poolInfo.put("numIdleConnections",dataSource.getNumIdleConnections());
         } catch (SQLException e) {
-            // TODO: need to use logger.warn
         }
         return poolInfo;
     }

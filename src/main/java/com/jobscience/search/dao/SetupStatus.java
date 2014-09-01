@@ -11,9 +11,11 @@ public enum SetupStatus {
     PG_TRGM_CREATED(1<<7);//128
     
 	private Integer value;
+	
 	public Integer getValue() {
 		return value;
 	}
+	
 	SetupStatus(Integer value){
 		this.value=value;
 	}

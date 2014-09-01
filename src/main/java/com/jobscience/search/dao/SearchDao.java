@@ -75,7 +75,7 @@ public class SearchDao {
 
 		Long userId = -1L;
 		Map user =  userDao.getUserByTokenAndOrg(token, (String)org.getOrgMap().get("name"));
-		if(user!=null){
+		if(user != null){
 			userId=Long.parseLong(user.get("id").toString());
 		}
 
@@ -195,7 +195,6 @@ public class SearchDao {
         		hasNot = true;
         		temp = notConditions[i].trim();
         		sb.append(" except ");
-                        
         		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".jss_contact ex where "+renderKeywordSearch(temp,org,exact,"ex") + " ) ");
         	}
         	if(hasNot){
@@ -307,7 +306,6 @@ public class SearchDao {
         for(String join : columnJoinTables){
         	if(!join.equals("No Join")){
             	querySql.append(join);
-            	//countSql.append(join);
         	}
         }
         
@@ -472,7 +470,7 @@ public class SearchDao {
         }
         
         StringBuilder querySql;
-        if(f==null){
+        if(f == null){
             FilterField ff = sc.getFilterByName(type).getFilterField();
             querySql = new StringBuilder(" select count(*) as \"count\","+ff.toString("")+" as name from \"" + baseTable + "\" where 1=1 ");
             if(queryString != null && queryString.trim().length() > 0){
@@ -612,8 +610,8 @@ public class SearchDao {
     		sb.append("id,name,email,title ,createddate");
     	}else{
 	    	for(String column : searchColumns.split(",")){
-	    	    if(sb.indexOf("as \""+column.toLowerCase()+"\"")!=-1||sb.indexOf(column.toLowerCase()+",")!=-1
-	    	       ||sb.indexOf("as \"l"+column.toLowerCase()+"\"")!=-1){
+	    	    if(sb.indexOf("as \""+column.toLowerCase()+"\"") != -1 || sb.indexOf(column.toLowerCase()+",") != -1
+	    	       || sb.indexOf("as \"l"+column.toLowerCase()+"\"") != -1){
 	    	        continue;
 	    	    }
 		    	if(column.toLowerCase().equals("name")){
@@ -641,7 +639,7 @@ public class SearchDao {
 		    	}else{
 		    	    Filter filter = sc.getFilterByName(column);
 		    	    if(filter != null){
-    		    	    if(sb.indexOf("as "+column) == -1&&sb.indexOf(column+",") == -1){
+    		    	    if(sb.indexOf("as "+column) == -1 && sb.indexOf(column+",") == -1){
     		    	        sb.append("\""+filter.getName()+"\"").append(" as \"").append(filter.getName()).append("\",");
     		    	    }
 		    	    }
@@ -679,7 +677,7 @@ public class SearchDao {
  	        	}
  	        }
  	        columnsSql.append("a.id,a.name,a.sfid,a.ts2__latitude__c,a.ts2__longitude__c ");//,a.phone,
- 	        if(groupBy.length()>0){
+ 	        if(groupBy.length() > 0){
  	        	groupBy.append(",");
  	        }
  	        groupBy.append("a.name,a.sfid,a.\"ts2__latitude__c\", a.\"ts2__longitude__c\",a.mailingcity");//always return these columns ,
@@ -750,7 +748,7 @@ public class SearchDao {
     			 
     		}
     		contact.put("location", cityName +"("+suffix+")"+(
-					(minradius == 0.0d)?"":  ("("+(int)(minradius)+")")
+					(minradius == 0.0d) ? "":  ("("+(int)(minradius)+")")
 				     ));
     	}
     	return result;
@@ -779,7 +777,7 @@ public class SearchDao {
            // for all search mode, we preform the same condition
            String search = searchRequest.getKeyword();
            if (!Strings.isNullOrEmpty(search)) {
-               if(search.length()>=3){
+               if(search.length() >= 3){
                    querySql.append(getSearchValueJoinTable(search, values, "contact", org,searchRequest));
                    if(search.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
                        conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
@@ -815,14 +813,14 @@ public class SearchDao {
             }
             // add the 'educations' filter, and join ts2__education_history__c table
             hasCondition = renderEducationCondition( searchRequest.getEducations(),
-                    prefixSql, querySql, schemaname, sc,FilterType.EDUCATION,org)||hasCondition;
+                    prefixSql, querySql, schemaname, sc,FilterType.EDUCATION,org) || hasCondition;
            // add the 'companies' filter, and join ts2__employment_history__c table
            hasCondition = renderCompanyCondition(searchRequest.getCompanyOperator(), searchRequest.getCompanies(),
-                   prefixSql, querySql, schemaname, sc,FilterType.COMPANY,org)||hasCondition;
+                   prefixSql, querySql, schemaname, sc,FilterType.COMPANY,org) || hasCondition;
            
            // add the 'skillNames' filter, and join ts2__skill__c table
            hasCondition = renderSkillCondition(searchRequest.getSkillOperator(),searchRequest.getSkills(),
-                   prefixSql, querySql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
+                   prefixSql, querySql, schemaname, sc,FilterType.SKILL,org) || hasCondition;
            
            //add the 'radius' filter
            hasCondition = renderLocationCondition(searchRequest.getLocations(), locationSql,
@@ -833,7 +831,7 @@ public class SearchDao {
        values.addAll(subValues);
     
        hasCondition = renderCustomFilters(searchRequest.getCustomFilters(), querySql, conditions,values,schemaname, sc)
-                      ||hasCondition;
+                      || hasCondition;
     
        //if there has no condition,just append 1!=1
        if(!hasCondition){
@@ -903,8 +901,8 @@ public class SearchDao {
         }
        
         joinSql.append(") a ");
-        if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||locationSql.length()>0||
-                Strings.isNullOrEmpty(searchRequest.getKeyword())||searchRequest.getKeyword().length()<3){
+        if(!hasExtraSearchColumn(searchRequest) || hasContactsCondition || locationSql.length() > 0 ||
+                Strings.isNullOrEmpty(searchRequest.getKeyword()) || searchRequest.getKeyword().length() < 3){
             countSql.append(") a ");
         }
        
@@ -980,9 +978,9 @@ public class SearchDao {
         String exactFilter = "";
         exact = false;
         if(exact){
-            exactFilter=" ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
+            exactFilter = " ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
         }
-        for(Field f:sc.getKeyword().getFields()){
+        for(Field f : sc.getKeyword().getFields()){
             sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(")
               .append("'")
               .append(param)
@@ -1314,7 +1312,7 @@ public class SearchDao {
             
             if(cities.size() != 0){
                 Runner runner = datasourceManager.newSysRunner();
-                for(Map city: cities){//minLat,minLng,maxLat,maxLng
+                for(Map city : cities){//minLat,minLng,maxLat,maxLng
                     double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
                                                Double.valueOf(city.get("longitude").toString()),
                                                Double.valueOf(city.get("radius").toString()) * 1609);
@@ -1415,7 +1413,7 @@ public class SearchDao {
     	StringBuilder wrapStr = new StringBuilder();
         if("String".equalsIgnoreCase( customField.getType())){
         	JSONArray terms = JSONArray.fromObject(conditionParam);
-        	if(terms.size()>0 &&("==".equals(op) || "!=".equals(op))){
+        	if(terms.size() > 0 &&("==".equals(op) || "!=".equals(op))){
         		wrapStr.append("and (");
         		for(int i = 0,j = terms.size(); i < j; i++){
         			if(i > 0){
@@ -1560,7 +1558,7 @@ public class SearchDao {
         
         public SearchBuilder addKeyWord(String keyword,SearchRequest searchRequest){
         	this.searchRequest =searchRequest;
-            if(!Strings.isNullOrEmpty(keyword)&&keyword.length() >= 3){
+            if(!Strings.isNullOrEmpty(keyword) && keyword.length() >= 3){
                 hasCondition = true;
                 keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org,searchRequest));
                 keyWordCountSql.append(keyWordSql.toString());
@@ -1682,7 +1680,7 @@ public class SearchDao {
             return this;
         }
         public String getSearchSql(){
-        	if(locationSql.length() > 0||
+        	if(locationSql.length() > 0 ||
         			(searchRequest.getOrder().trim().startsWith("\"id\"")&&searchRequest.isOnlyKeyWord())||
         			hasContactCondition||!searchRequest.getOrder().trim().startsWith("\"id\"")){
         		  return " join ( "+keyWordSql+filterSql;
@@ -1720,7 +1718,6 @@ public class SearchDao {
      						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
      						  .append(" limit ").append(searchRequest.getPageSize() + 1);
         	}
-        			
         	return exactSearchOrderSql.toString();
         }
         

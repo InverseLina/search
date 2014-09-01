@@ -32,10 +32,10 @@ public class SfidManager {
 			return ;
 		}
 	    this.on = true;
-        webPath+="/WEB-INF/sql";
+        webPath += "/WEB-INF/sql";
 	  	File orgFolder = new File(webPath + "/org");
 	    File[] sqlFiles = orgFolder.listFiles();
-	    String insertSql="" ,addColumnSql = "";
+	    String insertSql = "" ,addColumnSql = "";
 	    try{
 		    for(File file : sqlFiles){
 		    	StringBuilder temp = new StringBuilder();
@@ -64,7 +64,7 @@ public class SfidManager {
 	    Runner runner = datasourceManager.newOrgRunner(orgName);
         PQuery pq = runner.newPQuery(insertSql);
         try{
-    	    while(indexerStatus.getRemaining()>0&&on){
+    	    while(indexerStatus.getRemaining() > 0 && on){
     	        pq.executeUpdate(new Object[0]);
     	    	int perform = getContactExCount(orgName);
     	    	indexerStatus = new IndexerStatus(indexerStatus.getPerform()+indexerStatus.getRemaining()-perform, perform);
@@ -72,7 +72,7 @@ public class SfidManager {
         }catch(Exception e){
             on = false;
         }
-	    if(indexerStatus!=null&&indexerStatus.getRemaining()==0){
+	    if(indexerStatus != null && indexerStatus.getRemaining() == 0){
 	    	this.on = false;
 	    }
 	    pq.close();
@@ -97,7 +97,7 @@ public class SfidManager {
 	 public IndexerStatus getQuickStatus(String orgName){
 	     int all = 0;
 	     List<Map> list = daoHelper.executeQuery(orgName, "select max(id) as count from contact");
-	        if(list.size()==1){
+	        if(list.size() == 1){
 	            all =  Integer.parseInt(list.get(0).get("count").toString());
 	        }
 	     indexerStatus = new IndexerStatus(0,all);
@@ -110,7 +110,7 @@ public class SfidManager {
 
     private int getContactsCount(String orgName){
     	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact");
-    	if(list.size()==1){
+    	if(list.size() == 1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}
 		return 0;
@@ -119,14 +119,14 @@ public class SfidManager {
 	 private int getContactExCount(String orgName){
 	    List<Map> orgs = orgConfigDao.getOrgByName(orgName);
         String schemaname="" ;
-        if(orgs.size()==1){
+        if(orgs.size() == 1){
             schemaname = orgs.get(0).get("schemaname").toString();
         }
 	    if(!checkColumn("sfid", "jss_contact", schemaname)){
 	        return 0;
 	    }
     	List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact where sfid is not null");
-    	if(list.size()==1){
+    	if(list.size() == 1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}
 		return 0;

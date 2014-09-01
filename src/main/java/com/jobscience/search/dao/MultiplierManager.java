@@ -44,10 +44,9 @@ public class MultiplierManager {
             org = orgs.get(0);
         }
         Integer orgId = Integer.parseInt(org.get("id").toString());
-//        List<Map> configs = configManager.getConfig(null, orgId);
         Map configs = configManager.getConfigMap(orgId);
         Long current_iteration_number =1L;
-        Long origin_count = null,companyCount = null,skillCount=null,educationCount=null;
+        Long origin_count = null,companyCount = null,skillCount = null,educationCount = null;
 
 
         Map newConfig = new HashMap();
@@ -76,7 +75,7 @@ public class MultiplierManager {
             skillCount = Long.parseLong((String) configs.get("ts2__skill__c_origin_count"));
         }
 
-        if( configs.get("ts2__education_history__c_origin_count")==null){
+        if( configs.get("ts2__education_history__c_origin_count") == null){
             List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from ts2__education_history__c");
             educationCount = Long.parseLong(counts.get(0).get("count").toString());
             newConfig.put("ts2__education_history__c_origin_count", educationCount);
@@ -103,7 +102,7 @@ public class MultiplierManager {
             
             while(origin_count-perform > 10000 && !stop){
                 daoHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'"+tableName+"')");
-                perform+=10000;
+                perform += 10000;
                 performCounts = perform;
             }
            
@@ -161,6 +160,7 @@ public class MultiplierManager {
     public void stop(){
         this.stop = true;
     }
+    
     public Map<String,Object> getStatus(){
         Map<String,Object> m = new HashMap<String, Object>();
         m.put("currentTime", currentTime);
@@ -169,6 +169,3 @@ public class MultiplierManager {
         return m;
     }
 }
-
-
-

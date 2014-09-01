@@ -37,7 +37,7 @@ public class SearchRequest {
             JSONObject jo = JSONObject.fromObject(searchValues);
             // resolve the search parameters,cause all parameters begin with "q_"
             String temp ;
-            for(Object key:jo.keySet()){
+            for(Object key : jo.keySet()){
             	temp = jo.get(key).toString().replaceAll("#", "\\\"");
             	if("q_search".equals(key)){
             		temp = temp.replaceAll("\'", "");
@@ -66,7 +66,7 @@ public class SearchRequest {
         boolean asc = searchParams.get("orderType") instanceof Boolean?
                 (Boolean)searchParams.get("orderType"):
                 Boolean.valueOf((String)searchParams.get("orderType"));
-        if(orderBy!=null){
+        if(orderBy != null){
             if(orderBy.equals("contact")){
                 orderBy = "name";
                 order = " \""+getOrderColumn(orderBy)+ "\" " +(asc?"asc":"desc");
@@ -187,8 +187,8 @@ public class SearchRequest {
     }
 
     private void setCustomFilters(){
-        for(String name:searchMap.keySet()){
-            if(isNativeSearchParam(name)||isCustomFields(name)){ //when customFields should not contains in CustomFilter
+        for(String name : searchMap.keySet()){
+            if(isNativeSearchParam(name) || isCustomFields(name)){ //when customFields should not contains in CustomFilter
                 continue;
             }
             customFilters.put(name, JSONArray.fromObject(searchMap.get(name)));
@@ -200,7 +200,7 @@ public class SearchRequest {
     }
 
     private void setCustomFields(){
-        for(String name:searchMap.keySet()){
+        for(String name : searchMap.keySet()){
             if(isCustomFields(name)){
                 customFields = JSONArray.fromObject(searchMap.get(name));
                 break;
@@ -323,7 +323,7 @@ public class SearchRequest {
     	boolean needOperator = false;
     	boolean hasOperator = false;
     	String operator = "";
-    	for(String key:keywords){
+    	for(String key : keywords){
     		if(key.trim().equals("AND")){
     			if(needOperator){
 					operator = "AND ";

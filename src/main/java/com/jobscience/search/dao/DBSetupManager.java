@@ -124,8 +124,7 @@ public class DBSetupManager {
     private volatile ConcurrentMap<String,Map<String,Boolean>> orgGroupTableInsertStatusMap = new ConcurrentHashMap<String, Map<String,Boolean>>();
     private volatile ConcurrentMap<String,Map<String,Integer>> orgGroupTableInsertScheduleMap = new ConcurrentHashMap<String, Map<String,Integer>>();
     
-    private String DONE="done",RUNNING="running",NOTSTARTED="notstarted",ERROR="error",PART="part",
-            INCOMPLETE="incomplete";
+    private String DONE="done",RUNNING="running",NOTSTARTED="notstarted",ERROR="error",PART="part",INCOMPLETE="incomplete";
     private String webPath;
     private volatile Thread sysThread;
     private volatile boolean sysReseting = false;
@@ -240,9 +239,6 @@ public class DBSetupManager {
         }
         try{
 			while (offset < contactTotal) {
-				/*if (!orgSetupStatus.get(orgName).booleanValue()) {
-					return false;
-				}*/
 				if(contactTotal - offset < 100){
 					runner.execute(sqlString, offset, contactTotal);
 					insertSchedule.put(table, contactTotal);
@@ -1486,7 +1482,7 @@ public class DBSetupManager {
         
         /******** set the current index ********/
         CurrentOrgSetupStatus coss = currentOrgSetupStatus.get(orgName);
-        if(coss==null){
+        if(coss == null){
         	coss = new CurrentOrgSetupStatus();
         	currentOrgSetupStatus.put(orgName, coss);
         }
@@ -1692,7 +1688,7 @@ public class DBSetupManager {
         int tableCount = runner.executeCount("select count(*) as count from information_schema.tables " 
                             + " where table_schema= current_schema "
                             +" and table_type='BASE TABLE' " + "and table_name =?",table);
-        if(tableCount>0){
+        if(tableCount > 0){
             return runner.executeCount("select count(*) from "+table);
         }else {
             return 0;
@@ -1703,7 +1699,7 @@ public class DBSetupManager {
         int tableCount = runner.executeCount("select count(*) as count from information_schema.tables " 
                             + " where table_schema= current_schema "
                             +" and table_type='BASE TABLE' " + "and table_name =?",table);
-        if(tableCount>0){
+        if(tableCount > 0){
             return runner.executeCount("select max(id) from "+table);
         }else {
             return 0;
@@ -1802,7 +1798,7 @@ public class DBSetupManager {
 					return false;
 				}
 	            runner.executeUpdate(subSqlList.get(5),offset,offset+9999);
-	            offset+=10000;
+	            offset += 10000;
 	        }
 	        runner.executeUpdate(subSqlList.get(6));
         }catch (Exception e) {
@@ -2235,7 +2231,6 @@ public class DBSetupManager {
            	List<Map> results = daoHelper.executeQuery(orgName, sqlString);
            	count = (Long)results.get(0).get("count");
         } catch (Exception e){
-        	
         } 
         return (int)count;
     }
@@ -2346,27 +2341,30 @@ public class DBSetupManager {
     private boolean checkSysSchema(){
         List<Map> list = daoHelper.executeQuery(datasourceManager.newRunner(),"select count(*) as count from information_schema.schemata" +
                 " where schema_name='"+sysSchema+"'");
-        if(list.size() == 1){
-            if("1".equals(list.get(0).get("count").toString())){
-                return true;
-            }
-        }
+		if (list.size() == 1) {
+			if ("1".equals(list.get(0).get("count").toString())) {
+				return true;
+			}
+		}
         return false;
     }
 
-    private void createSysSchemaIfNecessary() {
-        if(!checkSysSchema()){
-            daoHelper.executeUpdate(datasourceManager.newRunner(), "CREATE SCHEMA " + sysSchema + " AUTHORIZATION " + user, new Object[0]);
-        }
-        datasourceManager.updateDB(null);
-    }
-    
-    private void dropSysSchemaIfNecessary() {
-        if(checkSysSchema()){
-            daoHelper.executeUpdate(datasourceManager.newRunner(),"Drop SCHEMA " + sysSchema + " CASCADE ", new Object[0]);
-        }
-        datasourceManager.updateDB(null);
-    }
+	private void createSysSchemaIfNecessary() {
+		if (!checkSysSchema()) {
+			daoHelper.executeUpdate(datasourceManager.newRunner(),
+					"CREATE SCHEMA " + sysSchema + " AUTHORIZATION " + user,
+					new Object[0]);
+		}
+		datasourceManager.updateDB(null);
+	}
+
+	private void dropSysSchemaIfNecessary() {
+		if (checkSysSchema()) {
+			daoHelper.executeUpdate(datasourceManager.newRunner(),
+					"Drop SCHEMA " + sysSchema + " CASCADE ", new Object[0]);
+		}
+		datasourceManager.updateDB(null);
+	}
     
     private boolean checkTriggerContent(String orgName){
         boolean valid = false;
@@ -2395,10 +2393,10 @@ public class DBSetupManager {
         for(Map trigger : triggers){
             fileContent = (String) JSONObject.fromObject(m.get(trigger.get("trigger_name")).get(0)).get("content");
             databaseContent = (String) trigger.get("prosrc");
-             if(!fileContent.replaceAll("\\s+", "").equalsIgnoreCase(databaseContent.replaceAll("\\s+", ""))){
-                 valid = false;
-                 return valid;
-             }
+			if (!fileContent.replaceAll("\\s+", "").equalsIgnoreCase(databaseContent.replaceAll("\\s+", ""))) {
+				valid = false;
+				return valid;
+			}
         }
         valid = true;
         return valid;
@@ -2411,7 +2409,7 @@ public class DBSetupManager {
                 +pkName+"' "
                 +"AND    a.constraint_schema = current_schema";
 		List<Map> lists = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),querySql);
-		if(Integer.parseInt(lists.get(0).get("count")+"")==1){
+		if (Integer.parseInt(lists.get(0).get("count")+"") == 1) {
 			return true;
 		}else{
 			return false;
@@ -2424,7 +2422,7 @@ public class DBSetupManager {
                          +"WHERE  c.relname = '"+indexName+"' "
                          +"AND    n.nspname = current_schema";
 		List<Map> lists = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),querySql);
-		if(Integer.parseInt(lists.get(0).get("count")+"")==1){
+		if (Integer.parseInt(lists.get(0).get("count")+"") == 1) {
 			return true;
 		}else{
 			return false;

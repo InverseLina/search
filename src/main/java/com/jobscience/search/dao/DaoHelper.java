@@ -58,6 +58,9 @@ public class DaoHelper {
             runner.close();
         }
     }
+    // --------- /create method -------- //
+    
+    // --------- insert method -------- //
     public Object insert(Runner runner, String tableName, Map objMap){
         try{
             return runner.create(tableName, objMap);

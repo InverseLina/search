@@ -32,10 +32,10 @@ public class ContactTsvManager {
 			return ;
 		}
 	    this.on = true;
-        webPath+="/WEB-INF/sql";
+        webPath += "/WEB-INF/sql";
 	  	File orgFolder = new File(webPath + "/org");
 	    File[] sqlFiles = orgFolder.listFiles();
-	    String insertSql="" ,addColumnSql = "";
+	    String insertSql = "" ,addColumnSql = "";
 	    try{
 		    for(File file : sqlFiles){
 		    	StringBuilder temp = new StringBuilder();
@@ -46,12 +46,12 @@ public class ContactTsvManager {
 	                    temp.append(str);
 	                }
 	                in.close();
-	                String sqls[]= temp.toString().split("-- SCRIPTS");
+	                String sqls[] = temp.toString().split("-- SCRIPTS");
 	                addColumnSql = sqls[1];
 	                daoHelper.executeUpdate(orgName,addColumnSql);
 	                insertSql = sqls[2];
 	                if(insertSql.endsWith(";")){
-	                	insertSql=insertSql.substring(0,insertSql.length()-1);
+	                	insertSql = insertSql.substring(0,insertSql.length()-1);
 	                }
 	        	}
 	        }
@@ -72,18 +72,22 @@ public class ContactTsvManager {
         }catch(Exception e){
             on = false;
         }
-        if(indexerStatus!=null&&indexerStatus.getRemaining()==0){
+        if(indexerStatus != null && indexerStatus.getRemaining() == 0){
             this.on = false;
         }
 	    pq.close();
         runner.close();
 	 }
 	 
-	 public void stop(){
-		 this.on = false;
-		 indexerStatus = null;
-	 }
+	public void stop(){
+		this.on = false;
+		indexerStatus = null;
+	}
 
+	public boolean isOn() {
+		return on;
+	}
+		
     public IndexerStatus getStatus(String orgName, boolean quick) {
         if (quick) {
             return getQuickStatus(orgName);
@@ -115,7 +119,7 @@ public class ContactTsvManager {
 	 private int getContactExCount(String orgName){
 	    List<Map> orgs = orgConfigDao.getOrgByName(orgName);
         String schemaname = "" ;
-        if(orgs.size()==1){
+        if(orgs.size() == 1){
             schemaname = orgs.get(0).get("schemaname").toString();
         }
 	    if(!checkColumn("contact_tsv", "jss_contact", schemaname)){
@@ -128,10 +132,6 @@ public class ContactTsvManager {
 		return 0;
 	 }
 
-	public boolean isOn() {
-		return on;
-	}
-	
 	private boolean checkColumn(String columnName,String table,String schemaName) {
         boolean result = false;
         List list = daoHelper.executeQuery(datasourceManager.newRunner(), " select 1 from information_schema.columns " +

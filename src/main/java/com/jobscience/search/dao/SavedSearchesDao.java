@@ -30,7 +30,7 @@ public class SavedSearchesDao {
 
     public void save(String name, String content, Map org){
         List<Map> list = daoHelper.executeQuery((String)org.get("name"), getByNameSql, name);
-        if(list.size()==0){
+        if(list.size() == 0){
             daoHelper.executeUpdate((String)org.get("name"), insertSql, new Timestamp(System.currentTimeMillis()), name, content);
         }else{
             daoHelper.executeUpdate((String)org.get("name"), updateSql, new Timestamp(System.currentTimeMillis()), content, name);
