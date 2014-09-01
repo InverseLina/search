@@ -114,6 +114,7 @@
 			}
 		},
 		// --------- /Events--------- //
+		// --------- Filter Common API--------- //
 		showMode:function(mode){
 			var view = this;
 			var $e = view.$el;
@@ -184,9 +185,10 @@
 			checkEmpty.call(view);
 			view.showMode();
 		}
+		// --------- /Filter Common API--------- //
 	});
 	
-	
+	// --------- Private Methods--------- //
 	function changeAutoComplete(keyCode){
 		var view = this;
 		var $e = view.$el;
@@ -314,5 +316,5 @@
 			$input.focus();
 		}
 	}
-	
+	// --------- /Private Methods--------- //
 })(jQuery);

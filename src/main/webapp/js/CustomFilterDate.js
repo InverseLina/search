@@ -67,7 +67,8 @@
 				brite.display("DatePicker",$inputWrapper,{target:$input, value:value});
 			}
 		},
-		
+		// --------- /Events--------- //
+		// --------- Filter Common API--------- //
 		showMode:function(mode){
 			var view = this;
 			var $e = view.$el;
@@ -136,9 +137,10 @@
 			$e.find("input[name='value1']").val("");
 			view.showMode();
 		}
-		// --------- /Events--------- //
+		// --------- /Filter Common API--------- //
 	});
 	
+	// --------- Private Methods--------- //
 	function validateInput($input){
 		var view = this;
 		var $e = view.$el;
@@ -201,4 +203,5 @@
 			$input1.val(resultValue1);
 		}
 	}
+	// --------- /Private Methods--------- //
 })(jQuery);

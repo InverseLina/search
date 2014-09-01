@@ -42,6 +42,7 @@
 			}
 		},
 		// --------- /Events--------- //
+		// --------- Filter Common API--------- //
 		showMode:function(mode){
 			var view = this;
 			var $e = view.$el;
@@ -83,5 +84,6 @@
 			$btnGroup.find(".btn[data-mode='0']").addClass("active");
 			view.showMode();
 		}
+		// --------- /Filter Common API--------- //
 	});
 })(jQuery);
