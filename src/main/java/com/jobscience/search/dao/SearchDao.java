@@ -437,7 +437,7 @@ public class SearchDao {
     }
 
     /**
-     * 
+     * get the auto complete data for filter, now only support simple model
      * @param searchValues
      * @param type
      * @param queryString
@@ -512,8 +512,6 @@ public class SearchDao {
         runner.close();
         Long end = System.currentTimeMillis();
         //log for performance
-
-        
         queryLogger.debug(LoggerType.AUTO_PERF, end-start);
         SearchResult searchResult = new SearchResult(result, result.size());
         searchResult.setDuration(end - start);
@@ -523,80 +521,91 @@ public class SearchDao {
     
     /**
      * Get the query column and add group by or join table if needed
-     * @param orginalName
+     * @param originalName
      * @param columnJoinTables
      * @param groupBy
      * @param searchedColumns
      * @param org
      * @return
      */
-    private String getQueryColumnName(String orginalName ,List<String> columnJoinTables,StringBuilder groupBy,StringBuffer searchedColumns,OrgContext org){
+    private String getQueryColumnName(String originalName ,List<String> columnJoinTables,StringBuilder groupBy,
+                                      StringBuffer searchedColumns,OrgContext org){
         String schemaname = (String)org.getOrgMap().get("schemaname");
-        if(searchedColumns.toString().contains(orginalName.toLowerCase()+",")){
+        if(searchedColumns.toString().contains(originalName.toLowerCase()+",")){
             return "";
         }
-        searchedColumns.append(orginalName.toLowerCase()).append(",");
-        if(orginalName.toLowerCase().equals("name")){
+        searchedColumns.append(originalName.toLowerCase()).append(",");
+        if(originalName.toLowerCase().equals("name")){
     		return "lower(a.\"name\") as \"lname\"";
-    	}else if(orginalName.toLowerCase().equals("id")){
+    	}else if(originalName.toLowerCase().equals("id")){
     		return "";
-    	}else if(orginalName.toLowerCase().equals("resume")){
+    	}else if(originalName.toLowerCase().equals("resume")){
             if(groupBy.length() > 0){
                 groupBy.append(",");
             }
             groupBy.append("a.resume");
             return " a.resume as resume";
-    	}else if(orginalName.toLowerCase().equals("email")){
+    	}else if(originalName.toLowerCase().equals("email")){
      		if(groupBy.length() > 0){
 	     			groupBy.append(",");
      		}
      		groupBy.append("a.\"email\"");
     		return " a.\"email\" as email ";
-    	}else if(orginalName.toLowerCase().equals("title")){
+    	}else if(originalName.toLowerCase().equals("title")){
     		if(groupBy.length() > 0){
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"title\"");
-    		return "case   when a.\"title\" is null then '' " +
-        			        " else a.\"title\" END title ";
-    	}else if(orginalName.toLowerCase().equals("createddate")){
+    		return connectionString("case   when a.\"title\" is null then '' " , " else a.\"title\" END title ");
+    	}else if(originalName.toLowerCase().equals("createddate")){
     		if(groupBy.length() > 0){
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"createddate\"");
     		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
-    	}else if(orginalName.toLowerCase().equals("company")){
-    	    return " (select  string_agg(replace(c.\"name\",',','"+separator+"'),',')||'##'||string_agg(c.\"id\"::varchar,',') "
-    	                            + "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
-    	                            + "on groupby_employers.jss_groupby_employers_id = c.id  "
-    	                            + "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as company ";
-    	}else if(orginalName.toLowerCase().equals("skill")){
-    	    return " (select  string_agg(b.\"name\",',')||'##'||string_agg(b.\"id\"::varchar,',' ) "
-    	                            + "from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
-    	                            + "on groupby_skills.jss_groupby_skills_id = b.id  "
-    	                            + "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skill ";
-    	}else if(orginalName.toLowerCase().equals("education")){
-    	    return " (select  string_agg(d.\"name\",',' order by d.id)||'##'|| string_agg(d.\"id\"::varchar,',')"
-                                    + "from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
-                                    + "on groupby_educations.jss_groupby_educations_id = d.id  "
-                                    + "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as education";
-    	}else if(orginalName.toLowerCase().equals("location")){
+    	}else if(originalName.toLowerCase().equals("company")){
+    	    return connectionString(" (select  string_agg(replace(c.\"name\",',','"+separator+"'),',')||'##'||string_agg(c.\"id\"::varchar,',') "
+    	                            , "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
+    	                            , "on groupby_employers.jss_groupby_employers_id = c.id  "
+    	                            , "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as company ");
+    	}else if(originalName.toLowerCase().equals("skill")){
+    	    return connectionString(" (select  string_agg(b.\"name\",',')||'##'||string_agg(b.\"id\"::varchar,',' ) "
+    	                            , "from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
+    	                            , "on groupby_skills.jss_groupby_skills_id = b.id  "
+    	                            , "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skill ");
+    	}else if(originalName.toLowerCase().equals("education")){
+    	    return connectionString(" (select  string_agg(d.\"name\",',' order by d.id)||'##'|| string_agg(d.\"id\"::varchar,',')"
+                                    , "from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
+                                    , "on groupby_educations.jss_groupby_educations_id = d.id  "
+                                    , "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as education");
+    	}else if(originalName.toLowerCase().equals("location")){
     		return "a.mailingcity as location ";
     	}
         
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        Filter f = sc.getFilterByName(orginalName);
+        Filter f = sc.getFilterByName(originalName);
         String tableName = f.getFilterField().getTable();
         String contactTableName = sc.getContact().getTable();
         if(tableName.equals(contactTableName)){
             return f.getFilterField().toString("a")+" as \""+f.getName()+"\"";
         }else{
             FilterField ff = f.getFilterField();
-            return " (select  string_agg(distinct d.\""+ff.getColumn()+"\",',') " +
-                                    "from "+schemaname+"."+ff.getTable()+" d  where a.\""+ff.getJoinTo()+"\" = d.\""+ff.getJoinFrom()+"\"   ) as \""+f.getName()+"\"";
+            return connectionString(" (select  string_agg(distinct d.\"",ff.getColumn(),"\",',') " ,
+                                    "from ",schemaname,".",ff.getTable()," d  where a.\"",ff.getJoinTo(),"\" = d.\"",
+                                    ff.getJoinFrom()+"\"   ) as \"",f.getName(),"\"");
         }
     }
-    
+
+    private String connectionString(String ...strings){
+        if(strings == null || strings.length == 0){
+            return "";
+        }
+        StringBuffer sb = new StringBuffer("");
+        for(String s:strings){
+            sb.append(s);
+        }
+        return sb.toString();
+    }
     /**
      * get the search columns for outer sql block
      * @param searchColumns
@@ -755,8 +764,8 @@ public class SearchDao {
     }
 
     /**
-     * render the search Condition
-     * @param searchValues
+     * render the condition sql
+     * @param searchRequest
      * @param values
      * @param org
      * @return
@@ -938,7 +947,7 @@ public class SearchDao {
 				//spilt keywords
 				spiltKeywords(keyword,keys,operators);
 				//exactkeywordSql
-				joinSql.append(exactkeywordSql(org ,keys , operators , searchRequest));
+				joinSql.append(exactkeywordSql(org, keys, operators, searchRequest));
 				return joinSql.toString();
 			} else {
 				if (searchRequest.isOnlyKeyWord()) {
@@ -1048,11 +1057,11 @@ public class SearchDao {
 	}
 
     /**
-     *
+     * render the contact conditions if have some contacts parameters
      * @param conditionSql
      * @param values
      * @param sc
-     * @param contactParamsString
+     * @param contacts
      * @return
      */
     private boolean renderContactConditions(StringBuilder conditionSql,List values,
