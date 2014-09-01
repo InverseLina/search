@@ -13,7 +13,7 @@ public  class JSSSqlException{
 	
 	public JSSSqlException(SQLException e) {
 		this.errorCode = e.getErrorCode();
-		if(e.getNextException()!=null){
+		if(e.getNextException() != null){
 		    this.errorMsg = e.getNextException().getMessage();
 		}else{
 		    this.errorMsg = e.getMessage();
@@ -23,12 +23,15 @@ public  class JSSSqlException{
 	public Integer getErrorCode() {
 		return errorCode;
 	}
+	
 	public void setErrorCode(Integer errorCode) {
 		this.errorCode = errorCode;
 	}
+	
 	public String getErrorMsg() {
 		return errorMsg;
 	}
+	
 	public void setErrorMsg(String errorMsg) {
 		this.errorMsg = errorMsg;
 	}

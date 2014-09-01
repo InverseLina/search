@@ -16,6 +16,5 @@ public class AppException extends RuntimeException {
     public String getErrorCode(){
         return this.errorEnum.name();
     }
-    
-    
+     
 }
