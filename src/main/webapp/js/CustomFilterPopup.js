@@ -17,48 +17,9 @@
 		postDisplay : function(data) {
 			var view = this;
 			var $e = view.$el;
-			
-			var $filtersContainer = $e.find(".filters-content").empty();
-			app.getJsonData("/getCustomFields").done(function(result) {
-				if(result && result.length > 0){
-					$e.removeClass("disable");
-					for(var i = 0; i < result.length; i++){
-						var field = result[i];
-						var label = field.name;
-						
-						if(field.label){
-							label = field.label;
-						}
-						
-						var $filterItem = $(render("CustomFilterPopup-filter", {
-							label : label,
-							name : field.name
-						}));
-						$filtersContainer.append($filterItem);
-						var viewName;
-						
-						if (field.type.toLowerCase() == 'number') {
-							viewName = "CustomFilterNumber";
-						} else if (field.type.toLowerCase() == 'string') {
-							viewName = "CustomFilterString";
-						} else if (field.type.toLowerCase() == 'date') {
-							viewName = "CustomFilterDate";
-						} else if (field.type.toLowerCase() == 'boolean') {
-							viewName = "CustomFilterBoolean";
-						}
-		
-						if (viewName) {
-							brite.display(viewName, $filterItem.find(".filter-item-container"), {
-								name : field.name
-							});
-						}
-					}
-				}else{
-					$e.addClass("disable");
-				}
-				
-			});
-
+			data = data || {};
+			var fields = data.fields;
+			showFields.call(view, fields);
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -150,4 +111,42 @@
 			return values;
 		}
 	});
+	
+	function showFields(fields){
+		var view = this;
+		var $e = view.$el;
+		var $filtersContainer = $e.find(".filters-content").empty();
+		for (var i = 0; i < fields.length; i++) {
+			var field = fields[i];
+			var label = field.name;
+
+			if (field.label) {
+				label = field.label;
+			}
+
+			var $filterItem = $(render("CustomFilterPopup-filter", {
+				label : label,
+				name : field.name
+			}));
+			$filtersContainer.append($filterItem);
+			var viewName;
+
+			if (field.type.toLowerCase() == 'number') {
+				viewName = "CustomFilterNumber";
+			} else if (field.type.toLowerCase() == 'string') {
+				viewName = "CustomFilterString";
+			} else if (field.type.toLowerCase() == 'date') {
+				viewName = "CustomFilterDate";
+			} else if (field.type.toLowerCase() == 'boolean') {
+				viewName = "CustomFilterBoolean";
+			}
+
+			if (viewName) {
+				brite.display(viewName, $filterItem.find(".filter-item-container"), {
+					name : field.name
+				});
+			}
+		}
+	}
+	
 })(jQuery);
