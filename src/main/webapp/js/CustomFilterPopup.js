@@ -45,11 +45,8 @@
 				var $e = view.$el;
 				var $target = $(e.currentTarget);
 				var $item = $target.closest(".filter-item");
-				var component = $($item.find(".filter-item-container").children()[0]).bView();
-				if(component && component.clearFields && $.isFunction(component.clearFields)){
-					component.clearFields();
-					$e.trigger("DO_SEARCH");
-				}
+				callFilterViewMethod.call(view, $item, "clearFields");
+				$e.trigger("DO_SEARCH");
 			}
 		},
 		docEvents:{
@@ -63,10 +60,7 @@
 				var $e = view.$el;
 				$e.find(".filter-item").each(function(){
 					var $item = $(this);
-					var component = $($item.find(".filter-item-container").children()[0]).bView();
-					if(component && component.clearFields && $.isFunction(component.clearFields)){
-						component.clearFields();
-					}
+					callFilterViewMethod.call(view, $item, "clearFields");
 				});
 			},
 			"MODE_CHANGE":function(e, extra){
@@ -74,21 +68,16 @@
 				var $e = view.$el;
 				var $item = $(extra.filterItem)
 				var $icon = $item.find(".filter-item-header .left-side .icon-fa");
-				var component = $($item.find(".filter-item-container").children()[0]).bView();
 				if($item.hasClass("extend")){
 					$item.removeClass("extend");
 					$icon.removeClass("fa-chevron-down");
 					$icon.addClass("fa-chevron-right");
-					if(component && component.showMode && $.isFunction(component.showMode)){
-						component.showMode('view');
-					}
+					callFilterViewMethod.call(view, $item, "showMode", "view");
 				}else{
 					$item.addClass("extend");
 					$icon.addClass("fa-chevron-down");
 					$icon.removeClass("fa-chevron-right");
-					if(component && component.showMode && $.isFunction(component.showMode)){
-						component.showMode('edit');
-					}
+					callFilterViewMethod.call(view, $item, "showMode", "edit");
 				}
 			}
 		},
@@ -100,13 +89,11 @@
 			var values = [];
 			$e.find(".filter-item").each(function(){
 				var $item = $(this);
-				var itemComponent = $($item.find(".filter-item-container").children()[0]).bView();
-				if(itemComponent){
-					var value = itemComponent.getValue();
-					if(value){
-						values.push(value);
-					}
+				var value = callFilterViewMethod.call(view, $item, "getValue");
+				if (value) {
+					values.push(value);
 				}
+
 			});
 			return values;
 		}
@@ -147,6 +134,22 @@
 				});
 			}
 		}
+	}
+	
+	function callFilterViewMethod($currentItem, methodName){
+		var view = this;
+		var $e = view.$el;
+		var args = [];
+		
+		if(arguments.length > 2){
+			args = Array.prototype.slice.call(arguments, 2);
+		}
+		
+		var component = $($currentItem.find(".filter-item-container").children()[0]).bView();
+		if (component && component[methodName] && $.isFunction(component[methodName])) {
+			return component[methodName].apply(component, args);
+		}
+		return null;
 	}
 	
 })(jQuery);
