@@ -159,9 +159,6 @@ public class ForceDotComApi extends DefaultApi20
             this.refreshToken = refreshToken;
         }
 
-        //        private Pattern forceTokenPattern =
-//                Pattern.compile("\"id\":\"(\\S*?)\",\"issued_at\":\"(\\d*?)\",.*,\"instance_url\":\"(\\S*?)\",.*,\"signature\":\"(\\S*?)\",\"access_token\":\"(\\S*?)\"");
-
         @Override
         public Token extract(String response)
         {
@@ -195,7 +192,6 @@ public class ForceDotComApi extends DefaultApi20
      */
     public static class ForceDotComOAuth20ServiceImpl extends OAuth20ServiceImpl
     {
-
         public ForceDotComOAuth20ServiceImpl(DefaultApi20 api, OAuthConfig config)
         {
             super(api, config);
