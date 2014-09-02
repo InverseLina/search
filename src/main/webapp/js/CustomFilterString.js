@@ -66,8 +66,15 @@
 			"keyup; .valueInput":function(e){
 				var view = this;
 				var $e = view.$el;
+				var $input = $(e.currentTarget);
+				var $apply = $e.find(".btnApplyValue");
 				e.preventDefault();
 				changeAutoComplete.call(view, e.which);
+				if($input.val() != ""){
+					$apply.removeClass("disable");
+				}else{
+					$apply.addClass("disable");
+				}
 			},
 			"click; .autocomplete-item":function(e){
 				var view = this;
@@ -82,19 +89,16 @@
 				var $item = $(e.currentTarget).closest(".selected-item");
 				$item.remove();
 				checkEmpty.call(view);
+				applyValues.call(view);
 			},
-			"click; .btnApplyValue":function(e){
+			"click; .btnApplyValue:not(.disable)":function(e){
 				var view = this;
 				var $e = view.$el;
-				$e.find(".value-containers .selected-item").remove();
-				$e.find(".editContainer .selectedItems .selected-item").each(function(){
-					var $item = $(this);
-					var operation = $item.attr("data-oper");
-					var value = $item.attr("data-value");
-					var $viewSelectedItem = $(render("CustomFilterString-view-item",{value:value, operation:operation}));
-					$viewSelectedItem.insertBefore($e.find(".value-containers .cb"));
-				});
-				$e.trigger("DO_SEARCH");
+				var $input = $e.find(".autocomplete-input-wrapper .valueInput");
+				var value = $input.val();
+				if(value != ""){
+					addItem.call(view, value);
+				}
 			}
 		},
 		
@@ -135,6 +139,12 @@
 				
 				checkEmpty.call(view);
 			}else{
+				var $input = $e.find(".autocomplete-input-wrapper .valueInput");
+				var value = $input.val();
+				if(value != ""){
+					addItem.call(view, value);
+				}
+				
 				if($e.find(".viewContainer .value-containers .selected-item").size() > 0){
 					$e.find(".viewContainer").removeClass("hide");
 				}else{
@@ -180,6 +190,8 @@
 		clearFields:function(){
 			var view = this;
 			var $e = view.$el;
+			$e.find(".autocomplete-input-wrapper .valueInput").val("");
+			$e.find(".btnApplyValue").addClass("disable");
 			$e.find(".selectedItems .selected-item").remove();
 			selectOperation.call(view, "is");
 			checkEmpty.call(view);
@@ -247,6 +259,8 @@
 			$e.find(".autocomplete-container").addClass("hide").empty();
 			$input.val("");
 			$input.focus();
+			var $apply = $e.find(".btnApplyValue");
+			$apply.addClass("disable");
 
 			var isExist = false;
 			$e.find(".editContainer .selectedItems .selected-item").each(function() {
@@ -265,6 +279,7 @@
 			}
 		}
 		checkEmpty.call(view);
+		applyValues.call(view);
 	}
 
 	
@@ -315,6 +330,24 @@
 			$input.val(dataValue);
 			$input.focus();
 		}
+	}
+	
+	function applyValues(){
+		var view = this;
+		var $e = view.$el;
+		$e.find(".value-containers .selected-item").remove();
+		$e.find(".editContainer .selectedItems .selected-item").each(function() {
+			var $item = $(this);
+			var operation = $item.attr("data-oper");
+			var value = $item.attr("data-value");
+			var $viewSelectedItem = $(render("CustomFilterString-view-item", {
+				value : value,
+				operation : operation
+			}));
+			$viewSelectedItem.insertBefore($e.find(".value-containers .cb"));
+		});
+		$e.trigger("DO_SEARCH"); 
+
 	}
 	// --------- /Private Methods--------- //
 })(jQuery);

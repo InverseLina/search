@@ -29,33 +29,12 @@
 				var oper = $li.attr("data-oper");
 				showEditValue.call(view,oper);
 				showByOper.call(view,oper);
+				applyValue.call(view, true);
 			},
-			"click; .btnApplyValue" : function(e){
+			"click; .btnApplyValue:not(.disable)" : function(e){
 				var view = this;
 				var $e = this.$el;
-				var $btn = $(e.currentTarget);
-				var oper = $e.find(".operation-item.active").attr("data-oper");
-				var $input = $e.find("input[name='value']");
-				var $input1 = $e.find("input[name='value1']");
-				var validated = false;
-				var operLabel;
-				if(oper == "between"){
-					validated = validateInput.call(view, $input) && validateInput.call(view, $input1);
-					operLabel = "Between";
-				}else if(oper == "after"){
-					validated = validateInput.call(view, $input);
-					operLabel = "After";
-				}else if(oper == "before"){
-					validated = validateInput.call(view, $input1);
-					operLabel = "Before";
-				}
-				
-				if(validated){
-					$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
-					$e.find(".viewContainer .resultValue").text($input.val()).attr("data-value", $input.val());
-					$e.find(".viewContainer .resultValue1").text($input1.val()).attr("data-value", $input1.val());
-					$e.trigger("DO_SEARCH");
-				}
+				applyValue.call(view);
 			},
 			"click; .date-input-wrapper .fa-calendar" : function(e){
 				var view = this;
@@ -64,7 +43,20 @@
 				var $inputWrapper = $icon.closest(".date-input-wrapper");
 				var $input = $inputWrapper.find("input");
 				var value = $input.val();
-				brite.display("DatePicker",$inputWrapper,{target:$input, value:value});
+				brite.display("DatePicker",$inputWrapper,{target:$input, value:value}).done(function(datePickerView){
+					datePickerView.onSelect(function(dateValue){
+						$input.val(dateValue);
+						applyValue.call(view, true);
+					});
+				});
+			},
+			"keyup; .valueInput" : function(e){
+				var view = this;
+				var $e = this.$el;
+				checkApplyDisable.call(view);
+				if(e.which == 13){
+					applyValue.call(view);
+				}
 			}
 		},
 		// --------- /Events--------- //
@@ -76,6 +68,7 @@
 			view.mode = mode;
 			var oper = $e.find(".viewContainer .operValue").attr("data-oper");
 			if(mode == 'edit'){
+				checkApplyDisable.call(view);
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
 				
@@ -89,6 +82,7 @@
 				}
 				
 			}else{
+				applyValue.call(view, true);
 				if(oper != ""){
 					$e.find(".viewContainer").removeClass("hide");
 					if(oper == "between"){
@@ -141,22 +135,29 @@
 	});
 	
 	// --------- Private Methods--------- //
-	function validateInput($input){
+	function validateInput($input, showMessage){
 		var view = this;
 		var $e = view.$el;
 		var value = $input.val();
 		var $alert = $input.closest(".date-input-wrapper").next();
 		if(value == ""){
-			$alert.removeClass("hide");
+			if(showMessage){
+				$alert.removeClass("hide");
+			}
 			return false;
 		}
+		
 		if(!/^\d\d\/\d\d\/\d\d\d\d$/.test(value)){
-			$alert.removeClass("hide");
+			if(showMessage){
+				$alert.removeClass("hide");
+			}
 			return false;
 		}
 		var dateValue = Date.parse(value);
 		if(isNaN(dateValue) || dateValue <= 0){
-			$alert.removeClass("hide");
+			if(showMessage){
+				$alert.removeClass("hide");
+			}
 			return false;
 		}
 		$e.find(".alert").addClass("hide");
@@ -201,6 +202,60 @@
 			$input.val(resultValue);
 		} else if (oper == "before") {
 			$input1.val(resultValue1);
+		}
+	}
+	
+	function applyValue(force){
+		var view = this;
+		var $e = this.$el;
+		var oper = $e.find(".operation-item.active").attr("data-oper");
+		var $input = $e.find("input[name='value']");
+		var $input1 = $e.find("input[name='value1']");
+		var validated = false;
+		var operLabel;
+		var showMessage = typeof force == "undefined" || !force ? true : false;
+		if (oper == "between") {
+			validated = validateInput.call(view, $input, showMessage) && validateInput.call(view, $input1, showMessage);
+			operLabel = "Between";
+		} else if (oper == "after") {
+			validated = validateInput.call(view, $input, showMessage);
+			operLabel = "After";
+		} else if (oper == "before") {
+			validated = validateInput.call(view, $input1, showMessage);
+			operLabel = "Before";
+		}
+
+		if (validated) {
+			$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
+			$e.find(".viewContainer .resultValue").text($input.val()).attr("data-value", $input.val());
+			$e.find(".viewContainer .resultValue1").text($input1.val()).attr("data-value", $input1.val());
+			$e.trigger("DO_SEARCH");
+		}
+
+		checkApplyDisable.call(view, validated);
+	}
+	
+	function checkApplyDisable(validated){
+		var view = this;
+		var $e = this.$el;
+		var oper = $e.find(".operation-item.active").attr("data-oper");
+		var $input = $e.find("input[name='value']");
+		var $input1 = $e.find("input[name='value1']");
+		var showMessage = false;
+		if(typeof validated == "undefined"){
+			if (oper == "between") {
+				validated = validateInput.call(view, $input, showMessage) && validateInput.call(view, $input1, showMessage);
+			} else if (oper == "after") {
+				validated = validateInput.call(view, $input, showMessage);
+			} else if (oper == "before") {
+				validated = validateInput.call(view, $input1, showMessage);
+			}
+		}
+		
+		if(validated){
+			$e.find(".btnApplyValue").removeClass("disable");
+		}else{
+			$e.find(".btnApplyValue").addClass("disable");
 		}
 	}
 	// --------- /Private Methods--------- //

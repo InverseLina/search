@@ -36,6 +36,8 @@
 			showCalendar.call(view,view.currentMonth);
 			selectDate.call(view, date);
 		},
+		// --------- /View Interface Implement--------- //
+		// --------- Events--------- //
 		events:{
 			"btap":function(e){
 				e.stopPropagation();
@@ -91,11 +93,11 @@
 			"click;.today":function(e){
 				var view = this;
 				var date = new Date();
-				setValue.call(view, date);
 				view.currentMonth = date.getMonth();
 				view.currentYear = date.getFullYear();
 				showCalendar.call(view,view.currentMonth);
 				selectDate.call(view, date);
+				setValue.call(view, date);
 				close.call(view);
 			},
 			"click;.date":function(e){
@@ -103,18 +105,26 @@
 				var $date = $(e.currentTarget);
 				var $td = $date.closest("td");
 				var date = $td.data("date");
-				setValue.call(view, date);
 				selectDate.call(view, date);
+				setValue.call(view, date);
 				close.call(view);
 			}
 		},
+		// --------- /Events--------- //
+		// --------- Document Events--------- //
 		docEvents:{
 			"btap":function(e){
 				var view = this;
 				view.$el.bRemove();
 			}
+		},
+		// --------- /Document Events--------- //
+		// --------- Public APIs --------- //
+		onSelect:function(selectCallback){
+			var view = this;
+			view._onSelectCallback = selectCallback;
 		}
-		// --------- /View Interface Implement--------- //
+		// --------- /Public APIs--------- //
 	});
 
 	// --------- Private Methods--------- //
@@ -252,9 +262,9 @@
 
 	function setValue(date){
 		var view = this;
-		var $e = view.$el;
-		var $target = $(view.target);
-		$target.val(date.format("MM/dd/yyyy"));
+		if(view._onSelectCallback && $.isFunction(view._onSelectCallback)){
+			view._onSelectCallback(date.format("MM/dd/yyyy"));
+		}
 	}
 	
 	function selectDate(date){

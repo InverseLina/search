@@ -29,32 +29,19 @@
 				var oper = $li.attr("data-oper");
 				showEditValue.call(view, oper);
 				showByOper.call(view, oper);
+				applyValue.call(view, true);
 			},
-			"click; .btnApplyValue" : function(e){
+			"click; .btnApplyValue:not(.disable)" : function(e){
 				var view = this;
 				var $e = this.$el;
-				var $btn = $(e.currentTarget);
-				var oper = $e.find(".operation-item.active").attr("data-oper");
-				var $input = $e.find("input[name='value']");
-				var $input1 = $e.find("input[name='value1']");
-				var validated = false;
-				var operLabel;
-				if(oper == "between"){
-					validated = validateInput.call(view, $input) && validateInput.call(view, $input1);
-					operLabel = "Between";
-				}else if(oper == "lt"){
-					validated = validateInput.call(view, $input1);
-					operLabel = "Less than";
-				}else if(oper == "gt"){
-					validated = validateInput.call(view, $input);
-					operLabel = "Greater than";
-				}
-				
-				if(validated){
-					$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
-					$e.find(".viewContainer .resultValue").text($input.val()).attr("data-value", $input.val());
-					$e.find(".viewContainer .resultValue1").text($input1.val()).attr("data-value", $input1.val());
-					$e.trigger("DO_SEARCH");
+				applyValue.call(view);
+			},
+			"keyup; .valueInput" : function(e){
+				var view = this;
+				var $e = this.$el;
+				checkApplyDisable.call(view);
+				if(e.which == 13){
+					applyValue.call(view);
 				}
 			}
 		},
@@ -67,6 +54,7 @@
 			view.mode = mode;
 			var oper = $e.find(".viewContainer .operValue").attr("data-oper");
 			if(mode == 'edit'){
+				checkApplyDisable.call(view);
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
 				
@@ -80,6 +68,8 @@
 				}
 				
 			}else{
+				applyValue.call(view, true);
+				oper = $e.find(".viewContainer .operValue").attr("data-oper");
 				if(oper != ""){
 					$e.find(".viewContainer").removeClass("hide");
 					if(oper == "between"){
@@ -133,16 +123,20 @@
 	});
 	
 	// --------- Private Methods--------- //
-	function validateInput($input){
+	function validateInput($input, showMessage){
 		var view = this;
 		var $e = view.$el;
 		var value = $input.val();
 		if(value == ""){
-			$input.next().removeClass("hide");
+			if(showMessage){
+				$input.next().removeClass("hide");
+			}
 			return false;
 		}
 		if(isNaN(value * 1)){
-			$input.next().removeClass("hide");
+			if(showMessage){
+				$input.next().removeClass("hide");
+			}
 			return false;
 		}
 		$e.find(".alert").addClass("hide");
@@ -189,5 +183,64 @@
 			$input1.val(resultValue1);
 		}
 	}
+	
+	
+	function applyValue(force){
+		var view = this;
+		var $e = this.$el;
+		var oper = $e.find(".operation-item.active").attr("data-oper");
+		var $input = $e.find("input[name='value']");
+		var $input1 = $e.find("input[name='value1']");
+		var validated = false;
+		var operLabel;
+		if (oper == "between") {
+			validated = validateInput.call(view, $input) && validateInput.call(view, $input1);
+			operLabel = "Between";
+		} else if (oper == "lt") {
+			validated = validateInput.call(view, $input1);
+			operLabel = "Less than";
+		} else if (oper == "gt") {
+			validated = validateInput.call(view, $input);
+			operLabel = "Greater than";
+		}
+
+		if (validated) {
+			$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
+			$e.find(".viewContainer .resultValue").text($input.val()).attr("data-value", $input.val());
+			$e.find(".viewContainer .resultValue1").text($input1.val()).attr("data-value", $input1.val());
+			$e.trigger("DO_SEARCH");
+		}
+		
+		checkApplyDisable.call(view, validated);
+
+	}
+	
+	function checkApplyDisable(validated){
+		var view = this;
+		var $e = this.$el;
+		var oper = $e.find(".operation-item.active").attr("data-oper");
+		var $input = $e.find("input[name='value']");
+		var $input1 = $e.find("input[name='value1']");
+		var showMessage = false;
+		if(typeof validated == "undefined"){
+			if (oper == "between") {
+				validated = validateInput.call(view, $input) && validateInput.call(view, $input1);
+				operLabel = "Between";
+			} else if (oper == "lt") {
+				validated = validateInput.call(view, $input1);
+				operLabel = "Less than";
+			} else if (oper == "gt") {
+				validated = validateInput.call(view, $input);
+				operLabel = "Greater than";
+			}
+		}
+		
+		if(validated){
+			$e.find(".btnApplyValue").removeClass("disable");
+		}else{
+			$e.find(".btnApplyValue").addClass("disable");
+		}
+	}
+	
 	// --------- /Private Methods--------- //
 })(jQuery);
