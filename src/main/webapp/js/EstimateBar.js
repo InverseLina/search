@@ -26,6 +26,9 @@
 			
 			refresh.call(view,{count:0, exact:true});
 		},
+		// --------- /View Interface Implement--------- //
+		
+		// --------- Document Events--------- //
 		docEvents:{
 			"REFRESH_ESTIMATE_COUNT":function(e, extra){
 				var view = this;
@@ -36,7 +39,7 @@
 				doWaiting.call(view);
 			}
 		}
-		// --------- /View Interface Implement--------- //
+		// --------- /Document Events--------- //
 	});
 
 	// --------- Private Methods--------- //

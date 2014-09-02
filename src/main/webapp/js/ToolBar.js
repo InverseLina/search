@@ -9,7 +9,7 @@
 	brite.registerView("ToolBar", {
 		parent : ".toolbar-ctn"
 	}, {
-		// --------- Implement Interface--------- //
+		// --------- View Interface Implement--------- //
 		create : function(data, config) {
 			var $e = $(render("ToolBar"));
 			return $e;
@@ -18,7 +18,8 @@
 		postDisplay : function(data) {
 			var view = this;
 		},
-		// --------- /Implement Interface--------- //
+		// --------- /View Interface Implement--------- //
+		// --------- Events--------- //
 		events : {
 			"click; .btnApply" : function(event) {
 				var view = this;
@@ -54,6 +55,8 @@
 			},
 
 		},
+		// --------- /Events--------- //
+		// --------- Document Events--------- //
 		docEvents : {
 			"DO_TOOLBAR_ACTIVE_BUTTONS" : function() {
 				var view = this;
@@ -69,6 +72,7 @@
 			},
 
 		}
+		// --------- /Document Events--------- //
 	});
 
 })(jQuery);

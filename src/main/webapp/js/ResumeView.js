@@ -34,10 +34,9 @@
 				view.$el.bRemove();
 			}
 
-			// --------- /Events--------- //
 
-		},
-		docEvents : {}
+		}
+		// --------- /Events--------- //
 	});
 
 	// --------- Private Methods--------- //

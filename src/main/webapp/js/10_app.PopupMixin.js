@@ -13,6 +13,7 @@ var app = app || {};
 		};
 
 		return {
+			// --------- View Interface Implement--------- //
 			create : function(data, config) {
 				var $e, dfd = $.Deferred();
 				var view = this;
@@ -108,20 +109,9 @@ var app = app || {};
 				}
 				$(":text").placeholder();
 			},
-			getValue : function() {
-				var datasName = this.type.substring(0, 1).toLocaleLowerCase() + this.type.substring(1) + "s";
-				if (datasName === "companys") {
-					dataName = "companies";
-				}
-				var data = {};
-				var values = data[datasName] = [], value;
-				var view = this;
-				view.$el.find(".item").each(function() {
-					value = $(this).data("value");
-					values.push(value);
-				});
-				return data;
-			},
+			// --------- /View Interface Implement--------- //
+			
+			// --------- Events--------- //
 			events : {
 				"click; span.add" : function(event) {
 					var view = this;
@@ -260,7 +250,24 @@ var app = app || {};
 					changeAutoComplete.call(view, event);
 				}
 
+			},
+			// --------- /Events--------- //
+			// --------- Public APIs--------- //
+			getValue : function() {
+				var datasName = this.type.substring(0, 1).toLocaleLowerCase() + this.type.substring(1) + "s";
+				if (datasName === "companys") {
+					dataName = "companies";
+				}
+				var data = {};
+				var values = data[datasName] = [], value;
+				var view = this;
+				view.$el.find(".item").each(function() {
+					value = $(this).data("value");
+					values.push(value);
+				});
+				return data;
 			}
+			// --------- /Public APIs--------- //
 		};
 
 		// --------- Private Methods--------- //
@@ -483,6 +490,7 @@ var app = app || {};
 	};
 
 	// --------- /Private Methods--------- //
+	
 	app.mixin = function(mixinObj, component, options) {
 		var merge, obj = {};
 		var eventNames = ['events', 'docEvents', 'winEvents', 'parentEvents'];

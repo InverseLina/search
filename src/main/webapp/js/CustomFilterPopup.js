@@ -49,6 +49,8 @@
 				$e.trigger("DO_SEARCH");
 			}
 		},
+		// --------- /Events--------- //
+		// --------- Document Events--------- //
 		docEvents:{
 			"click":function(){
 				var view = this;
@@ -82,7 +84,8 @@
 			}
 		},
 		
-		// --------- /Events--------- //
+		// --------- /Document Events--------- //
+		// --------- Public APIs--------- //
 		getValues:function(){
 			var view = this;
 			var $e = view.$el;
@@ -97,8 +100,10 @@
 			});
 			return values;
 		}
+		// --------- /Public APIs--------- //
 	});
 	
+	// --------- Private methods--------- //
 	function showFields(fields){
 		var view = this;
 		var $e = view.$el;
@@ -151,5 +156,5 @@
 		}
 		return null;
 	}
-	
+	// --------- /Private methods--------- //
 })(jQuery);

@@ -9,6 +9,8 @@
 	brite.registerView("HeaderPopup", {
 		emptyParent : false
 	}, {
+		
+		// --------- View Interface Implement--------- //
 		create : function(data, config) {
 			var dfd = $.Deferred();
 			var view = this;
@@ -60,6 +62,9 @@
 			view.$el.css("opacity", 1);
 
 		},
+		// --------- /View Interface Implement--------- //
+		
+		// --------- Document Events--------- //
 		docEvents : {
 			"click" : function(event) {
 				var view = this;
@@ -76,7 +81,8 @@
 				close.call(view);
 			}
 
-		},
+		}
+		// --------- /Document Events--------- //
 	});
 
 	function close() {

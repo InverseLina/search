@@ -29,8 +29,7 @@
 				view.$el.bRemove();
 			},
 
-		},
+		}
 		// --------- /Events--------- //
-		docEvents : {}
 	});
 })(jQuery);

@@ -10,6 +10,8 @@
 	brite.registerView("ContactFilterView", {
 		emptyParent : true
 	}, {
+		
+		// --------- View Interface Implement--------- //
 		create : function(data, config) {
 			this.type = "contact";
 			return render("ContactFilterView", data);
@@ -50,6 +52,10 @@
 			}
 
 		},
+		
+		// --------- /View Interface Implement--------- //
+		
+		// --------- Events--------- //
 		events : {
 			"click;.cancel" : function(event) {
 				var view = this;
@@ -146,10 +152,8 @@
 				}
 			}
 
-		},
-		docEvents : {
-
 		}
+		// --------- /Events--------- //
 	});
 
 	// --------- Private Methods--------- //
@@ -220,4 +224,5 @@
 		}
 	}
 
+	// --------- /Private Methods--------- //
 })(jQuery);
