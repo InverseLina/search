@@ -114,10 +114,9 @@ public class SearchDao {
      * @param exact
      * @return
      */
-    public  String booleanSearchHandler(String searchValue,String type,OrgContext org,boolean exact){
+    public  String booleanSearchHandler(String searchValue, String type, OrgContext org, boolean exact){
         String schemaname = (String)org.getOrgMap().get("schemaname");
     	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-    	StringBuilder sb = new StringBuilder();
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
     	if(!exact){
         	if(!searchValue.contains("NOT ") &&
@@ -139,7 +138,22 @@ public class SearchDao {
     	//if no search value,just return sql with 1!=1
     	if(searchValue.equals("")){
     		return  " select id,sfid from "+schemaname+"."+sc.getContact().getTable()+" where 1!=1 ";
+    	}else{
+        	return renderSplitKeyWord(schemaname, searchValue, type, org, exact);
     	}
+    }
+
+    /**
+     * 
+     * @param schemaname
+     * @param searchValue
+     * @param type
+     * @param org
+     * @param exact
+     * @return
+     */
+    private String renderSplitKeyWord(String schemaname, String searchValue, String type, OrgContext org, boolean exact){
+    	StringBuilder sb = new StringBuilder();
     	String temp = "";
     	if(type == null || "OR".equals(type)){//if params split with space or "OR",we do in OR logic
         	String[] orConditions = searchValue.trim().split("\\s+OR\\s+");
@@ -203,7 +217,7 @@ public class SearchDao {
     	}
     	return sb.toString();
     }
-
+    
     /**
      * build SearchStatements by searchRequest
      * @param searchRequest
@@ -353,9 +367,6 @@ public class SearchDao {
     		List<Map> result = null;
 
             result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
-//    		if(result != null && !searchRequest.searchModeChange()){
-//        		result = setLoctionName(searchRequest,result,org);
-//    		}
     		long mid = System.currentTimeMillis();
     		int count = 0;
     		boolean exactCount = false;
@@ -452,7 +463,7 @@ public class SearchDao {
     protected SearchResult simpleAutoComplete(Map<String, String> searchValues, String type,String queryString,Boolean orderByCount,String min,Integer pageSize,Integer pageNum,OrgContext org) throws SQLException {
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         Filter filter = sc.getFilterByName(type);
-        if(filter==null){
+        if(filter == null){
              return null;
         }
         FilterType f = filter.getFilterType();
@@ -956,12 +967,11 @@ public class SearchDao {
 						joinSql.append(booleanSearchHandler(keyword, null, org,
 								false));
 					} else {
-						return "  select contact.id,contact.sfid from  "
-								+ org.getOrgMap().get("schemaname")
-								+ ".jss_contact contact where "
-								+ renderKeywordSearch(keyword.trim()
-										.replaceAll("\\s+", "|"), org, exact,
-										"contact") + "  ";
+						return connectionString("  select contact.id,contact.sfid from  ",
+										        org.getOrgMap().get("schemaname").toString(),
+								                ".jss_contact contact where ",
+								                renderKeywordSearch(keyword.trim().replaceAll("\\s+", "|"), org, exact,"contact"),
+								                "  ");
 					}
 				} else {
 					joinSql.append(booleanSearchHandler(keyword, null, org,
