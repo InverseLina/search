@@ -140,6 +140,29 @@
 		return true;
 	}
 	
+	function validateNumberRange($input, $input1, showMessage){
+		var view = this;
+		var $e = view.$el;
+		var value = $input.val();
+		var value1 = $input1.val();
+		var $alert = $e.find(".rangeError");
+		var validated = validateInput.call(view, $input, showMessage) && validateInput.call(view, $input1, showMessage);
+		if(validated){
+			value = value * 1;
+			value1 = value1 * 1;
+			if(value > value1){
+				if(showMessage){
+					$alert.removeClass("hide");
+				}
+				return false;
+			}
+		}else{
+			return false;
+		}
+		$alert.addClass("hide");
+		return true;
+	}
+	
 	function showByOper(oper){
 		var view = this;
 		var $e = view.$el;
@@ -192,7 +215,7 @@
 		var operLabel;
 		var showMessage = typeof force == "undefined" || !force ? true : false;
 		if (oper == "between") {
-			validated = validateInput.call(view, $input, showMessage) && validateInput.call(view, $input1, showMessage);
+			validated = validateNumberRange.call(view, $input, $input1, showMessage);
 			operLabel = "Between";
 		} else if (oper == "lt") {
 			validated = validateInput.call(view, $input1, showMessage);

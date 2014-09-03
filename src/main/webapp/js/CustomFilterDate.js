@@ -162,6 +162,29 @@
 		return true;
 	}
 	
+	function validateDateRange($input, $input1, showMessage){
+		var view = this;
+		var $e = view.$el;
+		var value = $input.val();
+		var value1 = $input1.val();
+		var $alert = $e.find(".rangeError"); 
+		var validated = validateInput.call(view, $input, showMessage) && validateInput.call(view, $input1, showMessage);
+		if(validated){
+			var dateValue = Date.parse(value);
+			var dateValue1 = Date.parse(value1);
+			if(dateValue > dateValue1){
+				if(showMessage){
+					$alert.removeClass("hide");	
+				}
+				return false;
+			}
+		}else{
+			return false;
+		}
+		$alert.addClass(".hide");
+		return true;
+	}
+	
 	function showByOper(oper){
 		var view = this;
 		var $e = view.$el;
@@ -213,7 +236,7 @@
 		var operLabel;
 		var showMessage = typeof force == "undefined" || !force ? true : false;
 		if (oper == "between") {
-			validated = validateInput.call(view, $input, showMessage) && validateInput.call(view, $input1, showMessage);
+			validated = validateDateRange.call(view,$input, $input1, showMessage);
 			operLabel = "Between";
 		} else if (oper == "after") {
 			validated = validateInput.call(view, $input, showMessage);
