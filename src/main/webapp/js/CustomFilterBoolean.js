@@ -22,10 +22,10 @@
 
 		// --------- Events--------- //
 		events : {
-			"click;.btn-group" : function(e){
+			"click;.btn-group .btn:not(.active)" : function(e){
 				var view = this;
 				var $e = view.$el;
-				var $btnGroup = $(e.currentTarget);
+				var $btnGroup = $(e.currentTarget).closest(".btn-group");
 				$btnGroup.find(".btn").toggleClass("active");
 				var value = $btnGroup.find(".btn.active").attr("data-mode") * 1;
 				var $label = $e.find(".viewContainer .valueLabel");
