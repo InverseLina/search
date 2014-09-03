@@ -70,11 +70,6 @@
 				var $apply = $e.find(".btnApplyValue");
 				e.preventDefault();
 				changeAutoComplete.call(view, e.which);
-				if($input.val() != ""){
-					$apply.removeClass("disable");
-				}else{
-					$apply.addClass("disable");
-				}
 			},
 			"click; .autocomplete-item":function(e){
 				var view = this;
@@ -89,16 +84,15 @@
 				var $item = $(e.currentTarget).closest(".selected-item");
 				$item.remove();
 				checkEmpty.call(view);
-				applyValues.call(view);
+				applyValues.call(view,false);
 			},
-			"click; .btnApplyValue:not(.disable)":function(e){
+			"click; .btnApplyValue":function(e){
 				var view = this;
 				var $e = view.$el;
 				var $input = $e.find(".autocomplete-input-wrapper .valueInput");
 				var value = $input.val();
-				if(value != ""){
-					addItem.call(view, value);
-				}
+				addItem.call(view, value);
+				applyValues.call(view,true);
 			}
 		},
 		
@@ -191,10 +185,10 @@
 			var view = this;
 			var $e = view.$el;
 			$e.find(".autocomplete-input-wrapper .valueInput").val("");
-			$e.find(".btnApplyValue").addClass("disable");
 			$e.find(".selectedItems .selected-item").remove();
 			selectOperation.call(view, "is");
 			checkEmpty.call(view);
+			applyValues.call(view, true);
 			view.showMode();
 		}
 		// --------- /Filter Common API--------- //
@@ -259,8 +253,6 @@
 			$e.find(".autocomplete-container").addClass("hide").empty();
 			$input.val("");
 			$input.focus();
-			var $apply = $e.find(".btnApplyValue");
-			$apply.addClass("disable");
 
 			var isExist = false;
 			$e.find(".editContainer .selectedItems .selected-item").each(function() {
@@ -279,7 +271,7 @@
 			}
 		}
 		checkEmpty.call(view);
-		applyValues.call(view);
+		applyValues.call(view,false);
 	}
 
 	
@@ -332,7 +324,7 @@
 		}
 	}
 	
-	function applyValues(){
+	function applyValues(search){
 		var view = this;
 		var $e = view.$el;
 		$e.find(".value-containers .selected-item").remove();
@@ -346,7 +338,9 @@
 			}));
 			$viewSelectedItem.insertBefore($e.find(".value-containers .cb"));
 		});
-		$e.trigger("DO_SEARCH"); 
+		if(search){
+			$e.trigger("DO_SEARCH"); 
+		}
 
 	}
 	// --------- /Private Methods--------- //
