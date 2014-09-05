@@ -5,6 +5,7 @@ import static com.britesnow.snow.util.MapUtil.mapIt;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class SearchConfigurationManager {
     private volatile LoadingCache<String, SearchConfiguration> searchuiconfigCache;
     
     private volatile ConcurrentMap<String,Integer> customFieldsSize = new ConcurrentHashMap<String, Integer>();
+    private String[] notAllowCustomIndexColumnName = {"ts2__text_resume__c"};
     
     public SearchConfigurationManager() {
         searchuiconfigCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build(new CacheLoader<String, SearchConfiguration>() {
@@ -616,6 +618,10 @@ public class SearchConfigurationManager {
                            errorMsg = "Missing type attribute for customFields field";
                            lackProperty = true;
                        }
+                       if(!lackProperty && !checkIfAllowCustomFieldsColumn(getVal(customField, "columnName"))){
+                           errorMsg = "Not allow config for the column of " + getVal(customField, "columnName");
+                           lackProperty = true;
+                       }
                        if(lackProperty){
                     	   hasError = true;
                        }else{
@@ -645,6 +651,13 @@ public class SearchConfigurationManager {
             }
         }
         return errorMsg;
+    }
+    
+    private boolean checkIfAllowCustomFieldsColumn(String columnName){
+    	if(Arrays.asList(notAllowCustomIndexColumnName).contains(columnName)){
+			return false;
+		}
+    	return true;
     }
     
     private boolean checkAttribute(Node n, String name){
