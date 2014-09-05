@@ -227,8 +227,8 @@
 
 		if (validated) {
 			$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
-			$e.find(".viewContainer .resultValue").text($input.val()).attr("data-value", $input.val());
-			$e.find(".viewContainer .resultValue1").text($input1.val()).attr("data-value", $input1.val());
+			$e.find(".viewContainer .resultValue").text(formatNumber($input.val())).attr("data-value", $input.val());
+			$e.find(".viewContainer .resultValue1").text(formatNumber($input1.val())).attr("data-value", $input1.val());
 			if (search) {
 				$e.trigger("DO_SEARCH");
 			}
@@ -237,5 +237,21 @@
 
 	}
 	
+	
+	function formatNumber(val){
+		var restult = val;
+		if(!isNaN(val)){
+			var nStr = val + "";
+			var x = nStr.split('.');
+			var x1 = x[0];
+			var x2 = x.length > 1 ? '.' + x[1] : "";
+			var rgx = /(\d+)(\d{3})/;
+			while(rgx.test(x1)){
+				x1 = x1.replace(rgx, '$1' + ',' + '$2');
+			}
+			return x1 + x2;
+		}
+		return result;		
+	}
 	// --------- /Private Methods--------- //
 })(jQuery);
