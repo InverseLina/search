@@ -58,6 +58,8 @@ public class SearchConfigurationManager {
     private volatile ConcurrentMap<String,Integer> customFieldsSize = new ConcurrentHashMap<String, Integer>();
     private String[] notAllowCustomIndexColumnName = {"ts2__text_resume__c"};
     
+    private static String[] supportCustomFieldsTypes = {"Date", "String", "Number", "Boolean"};
+    
     public SearchConfigurationManager() {
         searchuiconfigCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build(new CacheLoader<String, SearchConfiguration>() {
             @Override
@@ -622,6 +624,10 @@ public class SearchConfigurationManager {
                            errorMsg = "Not allow config for the column of " + getVal(customField, "columnName");
                            lackProperty = true;
                        }
+                       if(!lackProperty && !isSupportType(getVal(customField, "type"))){
+                           errorMsg = "Not support type \"" + getVal(customField, "type") + "\"";
+                           lackProperty = true;
+                       }
                        if(lackProperty){
                     	   hasError = true;
                        }else{
@@ -672,5 +678,16 @@ public class SearchConfigurationManager {
             return null;
         }
         return n.getAttributes().getNamedItem(attributeName).getNodeValue();
+    }
+    
+    private boolean isSupportType(String type){
+        boolean isSupport = false;
+        for(String s : supportCustomFieldsTypes){
+            if(s.equalsIgnoreCase(type.toLowerCase())){
+                isSupport = true;
+                break;
+            }
+        }
+        return isSupport;
     }
 }
