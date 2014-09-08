@@ -227,8 +227,8 @@
 
 		if (validated) {
 			$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
-			$e.find(".viewContainer .resultValue").text(formatNumber($input.val())).attr("data-value", $input.val());
-			$e.find(".viewContainer .resultValue1").text(formatNumber($input1.val())).attr("data-value", $input1.val());
+			$e.find(".viewContainer .resultValue").text(formatNumber($input.val())).attr("data-value", $input.val() * 1);
+			$e.find(".viewContainer .resultValue1").text(formatNumber($input1.val())).attr("data-value", $input1.val() * 1);
 			if (search) {
 				$e.trigger("DO_SEARCH");
 			}
@@ -239,9 +239,9 @@
 	
 	
 	function formatNumber(val){
-		var restult = val;
-		if(!isNaN(val)){
-			var nStr = val + "";
+		var restult = val * 1 + "";
+		if(!isNaN(restult)){
+			var nStr = restult + "";
 			var x = nStr.split('.');
 			var x1 = x[0];
 			var x2 = x.length > 1 ? '.' + x[1] : "";
