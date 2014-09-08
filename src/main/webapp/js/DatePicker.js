@@ -27,6 +27,9 @@
 			}else{
 				var dateArr = dateStr.split("/");
 				date = new Date(Date.parse(dateArr[2]+"/"+ dateArr[0] +"/" + dateArr[1]));
+				if(date == "Invalid Date"){
+					date = new Date();
+				}
 			}
 			
 			
