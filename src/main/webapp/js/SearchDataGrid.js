@@ -753,8 +753,8 @@
 		}
 		var realWidth;
 
-		var $body = view.$el.find("tbody");
-		var $head = view.$el.find("thead");
+		var $body = view.$el.find(".scrollTable tbody");
+		var $head = view.$el.find(".scrollTable thead");
 		var tlen = $head.find("th").length - 1;
 
 		$head.find("th").each(function(idx, item) {
