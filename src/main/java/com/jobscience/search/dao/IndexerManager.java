@@ -25,7 +25,7 @@ public class IndexerManager {
 	 private IndexerStatus indexerStatus;
 	 @Inject
 	 private DatasourceManager datasourceManager;
-	 
+
 	 public synchronized void run(String orgName,String webPath) throws Exception{
 		if(on){
 			return ;
@@ -57,14 +57,48 @@ public class IndexerManager {
 	    	e.printStackTrace();
 			throw e;
 		}
-	    indexerStatus = getStatus(orgName, false);
-	    
-	    Runner runner = datasourceManager.newOrgRunner(orgName);
-	    PQuery pq = runner.newPQuery(insertSql + " limit ?");
+	    executeResumeSql(orgName, insertSql, updateSql);
+	}
+
+	public void stop(){
+		this.on = false;
+		indexerStatus = null;
+	}
+
+	public boolean isOn() {
+		return on;
+	}	 
+
+	public IndexerStatus getStatus(String orgName,boolean quick){
+		if(quick){
+			return getQuickStatus(orgName);
+	    }
+
+		int all = getContactsCount(orgName);
+		int perform = getContactExCount(orgName);
+		indexerStatus = new IndexerStatus(all-perform, perform);
+		return indexerStatus;
+	}
+
+	public IndexerStatus getQuickStatus(String orgName){
+		int all = 0;
+		List<Map> list = daoHelper.executeQuery(orgName, "select max(id) as count from contact");
+	    if(list.size() == 1){
+	    	all =  Integer.parseInt(list.get(0).get("count").toString());
+	    }
+	    indexerStatus = new IndexerStatus(0,all);
+	    return indexerStatus;
+	}
+
+	private void executeResumeSql(String orgName, String insertSql, String updateSql){
+		indexerStatus = getStatus(orgName, false);
+		
+		Runner runner = datasourceManager.newOrgRunner(orgName);
+	    PQuery insertPq = runner.newPQuery(insertSql + " limit ?");
 	    PQuery updatePq = runner.newPQuery(updateSql);
 	    try{
 		    while(getJssContactCount(orgName) != getContactsCount(orgName) && on){//insert
-		        pq.executeUpdate(new Object[]{1000});
+		    	insertPq.executeUpdate(new Object[]{1000});
 		        if(getContactExCount(orgName) < getContactsCount(orgName)){
 		        	updatePq.executeUpdate();
 		        }
@@ -76,7 +110,7 @@ public class IndexerManager {
 		    }
 	    }finally{
 	    	on = false;
-	    	pq.close();
+	    	insertPq.close();
 	    	updatePq.close();
 	    	runner.close();
 	    }
@@ -85,59 +119,29 @@ public class IndexerManager {
             this.on = false;
         }
 	   
-	 }
-	 
-	 public void stop(){
-		 this.on = false;
-		 indexerStatus = null;
-	 }
-	 
-	 public IndexerStatus getStatus(String orgName,boolean quick){
-	    if(quick){
-            return getQuickStatus(orgName);
-        }
+	}
 
-		int all = getContactsCount(orgName);
-    	int perform = getContactExCount(orgName);
-    	indexerStatus = new IndexerStatus(all-perform, perform);
-		return indexerStatus;
-	 }
-	 
-	 public IndexerStatus getQuickStatus(String orgName){
-         int all = 0;
-         List<Map> list = daoHelper.executeQuery(orgName, "select max(id) as count from contact");
-            if(list.size() == 1){
-                all =  Integer.parseInt(list.get(0).get("count").toString());
-            }
-         indexerStatus = new IndexerStatus(0,all);
-         return indexerStatus;
-     }
-	 
-	 private int getContactsCount(String orgName){
-    	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact");
-    	if(list.size() == 1){
-    		return Integer.parseInt(list.get(0).get("count").toString());
-    	}
+	private int getContactsCount(String orgName){
+		List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact");
+		if(list.size() == 1){
+			return Integer.parseInt(list.get(0).get("count").toString());
+		}
 		return 0;
-	 }
-	    
-	 private int getJssContactCount(String orgName){
-	    	List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact ");
-	    	if(list.size() == 1){
-	    		return Integer.parseInt(list.get(0).get("count").toString());
-	    	}
-			return 0;
-	 }
-	 
-	 private int getContactExCount(String orgName){
-    	List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact where resume_tsv is not null");
-    	if(list.size() == 1){
-    		return Integer.parseInt(list.get(0).get("count").toString());
-    	}
-		return 0;
-	 }
+	}
 
-	public boolean isOn() {
-		return on;
+	private int getJssContactCount(String orgName){
+		List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact ");
+		if(list.size() == 1){
+			return Integer.parseInt(list.get(0).get("count").toString());
+		}
+		return 0;
+	}
+
+	private int getContactExCount(String orgName){
+		List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact where resume_tsv is not null");
+		if(list.size() == 1){
+			return Integer.parseInt(list.get(0).get("count").toString());
+		}
+		return 0;
 	}
 }
