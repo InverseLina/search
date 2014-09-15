@@ -83,7 +83,9 @@
 			"CHECK_CLEAR_BTN" : function() {
 				var view = this;
 				var isEmptySearch = app.ParamsControl.isEmptySearch();
-				if (!isEmptySearch) {
+				
+				// should check the results
+				if (!isEmptySearch || view.contentView.$el.find(".scrollTable tbody tr:not(.full)").size() > 0) {
 					view.$el.find(".btnClearSearch").prop("disabled", false).removeClass("disabled");
 				} else {
 					view.$el.find(".btnClearSearch").prop("disabled", true).addClass("disabled");
