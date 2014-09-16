@@ -18,6 +18,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.DBSetupManager;
+import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.dao.SearchConfigurationDao;
 import com.jobscience.search.searchconfig.SearchConfigurationManager;
 
@@ -26,7 +27,10 @@ public class SearchConfigurationWebHandlers {
     public static final String CONFIG_PATH = "/WEB-INF/config/sys/searchconfig.val";
 
     private static String customFieldsWarnMsg  = "Values saved successfully but there has more than 10 customField configed and will only show first 10!";
-    		
+    
+    @Inject
+    private OrgConfigDao orgConfigDao;
+    
     @Inject
     private SearchConfigurationManager searchConfigurationManager;
 
@@ -106,8 +110,16 @@ public class SearchConfigurationWebHandlers {
 
     @WebPost("/saveOrgSearchConfig")
     @RequireAdmin
-    public WebResponse saveOrgSearchConfig(@WebParam("orgName") String orgName,
+    public WebResponse saveOrgSearchConfig(@WebParam("orgId") Integer orgId,
                                            @WebParam("content") String content, RequestContext rc) throws Exception {
+    	String orgName = null;
+    	List<Map> orgNames = orgConfigDao.getOrgNameById(orgId);
+    	if(orgNames.size() == 1 && orgNames.get(0).get("name") != null){
+    		orgName = (String)orgNames.get(0).get("name");
+    	}
+    	if(orgName == null){
+    		return webResponseBuilder.success(mapIt("valid",false,"errorMsg","The CurrentOrg is lost!"));
+    	}
         String errorMsg = searchConfigurationManager.getErrorMsg(content,true,orgName);
         if(!Strings.isNullOrEmpty(errorMsg)){
             return webResponseBuilder.success(mapIt("valid",false,"errorMsg",errorMsg));

@@ -48,6 +48,11 @@ public class OrgConfigDao {
       return daoHelper.executeQuery(datasourceManager.newSysRunner(), sql);
   }
   
+  public List<Map> getOrgNameById(int orgId){
+      String sql = "select name from org where id='"+orgId+"'";
+      return daoHelper.executeQuery(datasourceManager.newSysRunner(), sql);
+  }
+  
   public List getOrgsList(String keyWords){
       String sql = "select * from org";
       return daoHelper.executeQuery(datasourceManager.newSysRunner(), sql);

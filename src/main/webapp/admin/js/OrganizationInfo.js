@@ -127,6 +127,15 @@
 
 					values.configsJson = JSON.stringify(configs);
 					app.getJsonData("/config/save", values, "Post").done(function(data) {
+						if(data && data.msg){
+							view.$el.trigger("DO_SHOW_MSG", {
+								selector : $(".alert", $btn.closest(".btns")),
+								msg : data.msg,
+								type : "error"
+							});
+							$btn.prop("disabled", false).html("Save");
+							return;
+						}
 						$.extend(app.orgInfo || {}, configs);
 						values = {};
 						values["name"] = view.$el.find("[name='name']").val();
@@ -413,7 +422,7 @@
 				$btn.prop("disabled", true).html("saving...");
 				var content = view.$el.find("textarea[name='searchConfig']").val();
 				app.getJsonData("saveOrgSearchConfig", {
-					orgName : view.orgName,
+					orgId : view.orgId,
 					content : content
 				}, "Post").done(function(result) {
 					if (!result.valid) {

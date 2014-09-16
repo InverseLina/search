@@ -1,6 +1,8 @@
 package com.jobscience.search.web;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.britesnow.snow.util.JsonUtil;
@@ -12,13 +14,18 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.auth.RequireAdmin;
 import com.jobscience.search.dao.ConfigManager;
+import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class ConfigWebHandlers {
 
     @Inject
+    private OrgConfigDao orgConfigDao;
+    
+    @Inject
     private ConfigManager configManager;
+    
     @Inject
     private OrgContextManager orgHolder;
 
@@ -29,6 +36,12 @@ public class ConfigWebHandlers {
     @RequireAdmin
     public WebResponse saveConfig(@WebParam("configsJson") String configsJson,
                             @WebParam("orgId") Integer orgId) throws SQLException {
+    	Map result = new HashMap();
+        List<Map> orgNames = orgConfigDao.getOrgNameById(orgId);
+    	if(orgNames.size() != 1 || orgNames.get(0).get("name") == null){
+    		result.put("msg", "The CurrentOrg is lost!");
+    		return webResponseBuilder.success(result);
+    	}
         Map paramConfigs = JsonUtil.toMapAndList(configsJson);
         Integer id = -1;
         try {
