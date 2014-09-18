@@ -198,7 +198,7 @@ public class SearchRequest {
     	}
     }
 
-    private void setCustomFilters(){
+    private void setCustomFilters () {
         for(String name : searchMap.keySet()){
             if(isNativeSearchParam(name) || isCustomFields(name)){ //when customFields should not contains in CustomFilter
                 continue;
