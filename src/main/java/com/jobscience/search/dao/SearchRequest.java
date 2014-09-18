@@ -28,7 +28,7 @@ public class SearchRequest {
     private boolean isOnlyKeyWord = true;
     private boolean estimateSearch = true;
     private boolean searchModeChange = false;
-
+    private boolean hasContactTitle = false;
 
     public SearchRequest(Map searchParams){
         
@@ -118,6 +118,7 @@ public class SearchRequest {
         setLocations();
         setCustomFilters();
         setCustomFields();
+        setHasContactTitle();
     }
     
     private void setContacts(){
@@ -184,6 +185,17 @@ public class SearchRequest {
     
     public Map getSearchMap(){
         return searchMap;
+    }
+
+    public void setHasContactTitle () {
+    	if (contacts!=null) {
+        	for (Object contactString : contacts) {
+        		JSONObject contact = JSONObject.fromObject(contactString);
+        		if (contact.containsKey("title")) {
+        			hasContactTitle = true;
+        		}
+        	}
+    	}
     }
 
     private void setCustomFilters(){
@@ -267,6 +279,10 @@ public class SearchRequest {
 		return searchModeChange;
 	}
 
+    public boolean hasContactTitle() {
+		return hasContactTitle;
+	}
+    
 	public String toString(){
         return searchValues;
     }

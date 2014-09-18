@@ -292,21 +292,32 @@ public class SearchDao {
                     .append(") as \"lemail\" ");
         }
         
-        querySql.append( " from  "+schemaname+".")
-                .append(sc.getContact().getTable())
-                .append(" contact  " );
+        querySql.append(" from ");
+        if(searchRequest.hasContactTitle()){
+        	querySql.append(renderContactSearch(searchRequest, schemaname, sc));
+        }else{
+        	querySql.append(schemaname+".")
+            .append(sc.getContact().getTable());
+        }
+        querySql.append(" contact ");
         
         JSONArray locationValues = searchRequest.getLocations();
         boolean hasContactsCondition = false;
         if(searchRequest.getContacts() != null){
             hasContactsCondition = searchRequest.getContacts().size()>0;
         }
-        if(!hasExtraSearchColumn(searchRequest) || hasContactsCondition || (Strings.isNullOrEmpty(search) || search.length()<3) || (locationValues != null)){
-            countSql.append( " from ( select ")
-                    .append(sc.toContactFieldsString("contact"))
-                    .append(" from  "+schemaname+".")
-                    .append(sc.getContact().getTable())
-                    .append(" contact   " );
+        if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||(Strings.isNullOrEmpty(search)||search.length()<3)||(locationValues!=null)){
+            countSql.append(" from (select ")
+                    .append(sc.toContactFieldsString("contact"));
+            
+            countSql.append(" from ");
+            if(searchRequest.hasContactTitle()){
+            	countSql.append(renderContactSearch(searchRequest, schemaname, sc));
+            }else{
+            	countSql.append(schemaname+".")
+                .append(sc.getContact().getTable());
+            }
+            countSql.append(" contact ");
         }
            
         // for all search mode, we preform the same condition
@@ -567,9 +578,10 @@ public class SearchDao {
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"title\"");
-    		return connectionString("case   when a.\"title\" is null then '' " , " else a.\"title\" END title ");
+    		return "(select string_agg(e.\"ts2__job_title__c\",',') from "+schemaname
+    				+".ts2__employment_history__c e where a.\"sfid\" = e.\"ts2__contact__c\"  ) as title ";
     	}else if(originalName.toLowerCase().equals("createddate")){
-    		if(groupBy.length() > 0){
+    		if(groupBy.length()>0){
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"createddate\"");
@@ -773,97 +785,6 @@ public class SearchDao {
     	}
     	return result;
     }
-
-    /**
-     * render the condition sql
-     * @param searchRequest
-     * @param values
-     * @param org
-     * @return
-     */
-    protected String[] renderSearchCondition(SearchRequest searchRequest, List values, OrgContext org){
-        SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
-        StringBuilder querySql = new StringBuilder();
-        StringBuilder conditions = new StringBuilder();
-        List subValues = new ArrayList();
-        boolean hasCondition = false;
-        String schemaname = (String)org.getOrgMap().get("schemaname");
-        StringBuilder prefixSql = new StringBuilder("");
-        boolean hasSearchValue = false;//to check if the search box has value or not
-        StringBuilder locationSql = new StringBuilder();
-        
-        if (searchRequest != null) {
-            
-           // for all search mode, we preform the same condition
-           String search = searchRequest.getKeyword();
-           if (!Strings.isNullOrEmpty(search)) {
-               if(search.length() >= 3){
-                   querySql.append(getSearchValueJoinTable(search, values, "contact", org,searchRequest));
-                   if(search.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
-                       conditions.append(" AND contact.\"ts2__text_resume__c\" ilike '")
-                                 .append(search.replaceAll("\\\"", "%"))
-                                 .append("'");
-                   }
-                   hasSearchValue = true;
-                   hasCondition = true;
-               }
-           }
-           
-            //Get the contacts parameters and render them
-            hasCondition = renderContactConditions(conditions,subValues,sc,searchRequest.getContacts())||hasCondition;
-            
-            //handle the objectType
-            if (!Strings.isNullOrEmpty(searchRequest.getObjectType())) {
-                String value = searchRequest.getObjectType();
-                if ("Contact".equals(value)) {
-                    conditions.append("  and contact.\"recordtypeid\" != '").append(org.getSfid()).append("'");
-                }else if("Candidate".equals(value)){
-                    conditions.append("  and contact.\"recordtypeid\" = '").append(org.getSfid()).append("'");
-                }
-            }
-    
-            //handle the status
-            if (!Strings.isNullOrEmpty(searchRequest.getStatus())) {
-                String value = searchRequest.getStatus();
-                if ("Active".equals(value)) {
-                    conditions.append("  and contact.\"ts2__people_status__c\" in('',null, 'Active') ");
-                } else if ("Inactive".equals(value)){
-                    conditions.append("  and contact.\"ts2__people_status__c\" = 'Inactive' ");
-                }
-            }
-            // add the 'educations' filter, and join ts2__education_history__c table
-            hasCondition = renderEducationCondition( searchRequest.getEducations(),
-                    prefixSql, querySql, schemaname, sc,FilterType.EDUCATION,org) || hasCondition;
-           // add the 'companies' filter, and join ts2__employment_history__c table
-           hasCondition = renderCompanyCondition(searchRequest.getCompanyOperator(), searchRequest.getCompanies(),
-                   prefixSql, querySql, schemaname, sc,FilterType.COMPANY,org) || hasCondition;
-           
-           // add the 'skillNames' filter, and join ts2__skill__c table
-           hasCondition = renderSkillCondition(searchRequest.getSkillOperator(),searchRequest.getSkills(),
-                   prefixSql, querySql, schemaname, sc,FilterType.SKILL,org) || hasCondition;
-           
-           //add the 'radius' filter
-           hasCondition = renderLocationCondition(searchRequest.getLocations(), locationSql,
-                   conditions, schemaname,sc,org)||hasCondition;
-       }
-       //at last,combine all part to complete sql
-        
-       values.addAll(subValues);
-    
-       hasCondition = renderCustomFilters(searchRequest.getCustomFilters(), querySql, conditions,values,schemaname, sc)
-                      || hasCondition;
-    
-       //if there has no condition,just append 1!=1
-       if(!hasCondition){
-           conditions.append(" and 1!=1 ");
-       }
-    
-       if(hasSearchValue){
-           querySql = new StringBuilder(" join (").append(querySql);
-       }
-       return new String[]{querySql.toString(),prefixSql.toString(),conditions.toString(),locationSql.toString()};
-    }
-
     
     /**
      * Get condition for Search logic 
@@ -877,7 +798,7 @@ public class SearchDao {
     	StringBuilder countSql = new StringBuilder();
     	String prefixSql = "";
         SearchBuilder sb = new SearchBuilder(org);
-        sb.addKeyWord(searchRequest.getKeyword(),searchRequest).addContactFilter(searchRequest.getContacts())
+        sb.addKeyWord(searchRequest.getKeyword(),searchRequest).addContactFilter(searchRequest.getContacts(), searchRequest.hasContactTitle())
           .addCompany(searchRequest.getCompanies()).addEducation(searchRequest.getEducations())
           .addSkill(searchRequest.getSkills()).addLocation(searchRequest.getLocations())
           .addCustomFilter(searchRequest.getCustomFilters()).addObjectType(searchRequest.getObjectType())
@@ -906,16 +827,17 @@ public class SearchDao {
         	
         	joinSql.append(" ) subcontact on contact.id=subcontact.id ");
             countSql.append(" ) subcontact on contact.id=subcontact.id ");
-        	
-        	joinSql.append(" where 1=1 ");
-            countSql.append(" where 1=1 ");
+            
+            if(!searchRequest.hasContactTitle()){
+            	joinSql.append(" where 1=1 ");
+                countSql.append(" where 1=1 ");
+            }
         }else{        
             joinSql.append(" ) subcontact on contact.id=subcontact.id ");
             countSql.append(" ) subcontact on contact.id=subcontact.id ");
             
             joinSql.append(locationSql);
             countSql.append(locationSql);
-            
             joinSql.append(" where 1=1 ").append(condition).append(sb.getExactSearchOrderSql());
             countSql.append(" where 1=1 ").append(condition);
         }
@@ -1008,6 +930,62 @@ public class SearchDao {
         return exactFilter+sb.delete(0, 2).toString()+(exact?")":"");
     }
 
+    /**
+     * if the search contacts has title property, just  move the contact filter to before keyword search
+     * 
+     * @param searchRequest
+     * @param schemaname
+     * @return
+     */
+    private String renderContactSearch (SearchRequest searchRequest, String schemaname, SearchConfiguration sc) {
+    	StringBuilder contactSql = new StringBuilder();
+    	JSONArray contacts = searchRequest.getContacts();
+    	if (contacts!=null) {
+    		contactSql.append("(");
+            boolean firstContact = true;
+            for (Object contactString : contacts) {
+            	if(!firstContact){
+            		contactSql.append(" union ");
+            	}
+                JSONObject contact = JSONObject.fromObject(contactString);
+                contactSql.append("(select contact.*  from ").append(schemaname+".").append(sc.getContact().getTable()).append(" contact ");
+                if(contact.containsKey("title")){
+                	contactSql.append("join ").append(schemaname+".ts2__employment_history__c employment on contact.sfid=employment.ts2__contact__c ");
+                }
+                contactSql.append(" where 1!=1 OR (1=1");//for single contact,would do with "AND"
+                //handle for first name
+                renderContactProperty(contactSql,sc,contact,"firstName");
+                //handle for last name
+                renderContactProperty(contactSql,sc,contact,"lastName");
+                //handle for email
+                renderContactProperty(contactSql,sc,contact,"email");
+                //handle for title
+                renderContactProperty(contactSql,sc,contact,"title");
+
+                contactSql.append(") )");
+                firstContact = false;
+            }
+            contactSql.append(")");
+    	}   
+    	return contactSql.toString();
+    }
+    
+    private void renderContactProperty(StringBuilder conditionSql, SearchConfiguration sc,JSONObject contact,String propertyName){
+    	if("title".equals(propertyName)){
+    		if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
+                conditionSql.append(" and employment.\"ts2__job_title__c\"")
+                          .append(" ilike '").append(addPercentageIfNecessary(contact.getString(propertyName)))
+                          .append("'");
+            }
+    	}else{
+            if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
+                conditionSql.append(" and ")
+                          .append(sc.getContactField(propertyName.toLowerCase()).toString("contact"))
+                          .append(" ilike '").append(addPercentageIfNecessary(contact.getString(propertyName)))
+                          .append("' ");
+            }
+    	}
+    }
 	private void spiltKeywords(String keyword,ArrayList<String> keys,Map<Integer, String> operators){
 		int flag = 0;
 		while (keyword.length() > 0) {
@@ -1684,8 +1662,10 @@ public class SearchDao {
             return this;
         }
         
-        public SearchBuilder addContactFilter(JSONArray contacts){
-        	hasContactCondition = renderContactConditions(conditions,values,sc,contacts)||hasContactCondition;
+        public SearchBuilder addContactFilter(JSONArray contacts, boolean hasContactTitle){
+        	if (!hasContactTitle) {
+            	hasContactCondition = renderContactConditions(conditions,values,sc,contacts)||hasContactCondition;
+        	}
             return this;
         }
        
