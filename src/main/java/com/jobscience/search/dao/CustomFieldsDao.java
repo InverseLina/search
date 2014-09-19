@@ -87,7 +87,7 @@ public class CustomFieldsDao {
 		StringBuilder sql = new StringBuilder();
         sql.append("select distinct ").append(column).append(" as value from ").append(table);
         if(!Strings.isNullOrEmpty(searchText)){
-        	sql.append(" where ").append(column).append(" like '").append(searchText).append("%' ");
+        	sql.append(" where ").append(column).append(" ilike '").append(searchText).append("%' ");
         }
         if(limit <= 0){
         	limit = 4;
