@@ -45,6 +45,7 @@
 		var $e = view.$el;
 		var $body = $e.find(".modal-body");
 		var query = app.ParamsControl.getQuery();
+		var encapeChars = ["\\","*",".","?","+","$","^","[","]","(",")","{","}","|","/"];
 		app.getJsonData("getResume", {
 			cid : data.id,
 			keyword : query
@@ -60,6 +61,10 @@
 						var Operator = new RegExp("\s*(AND|OR|NOT)\s*");
 						if (keyWordsSplited[k] && !(/^ +$/.test(keyWordsSplited[k])) && !Operator.test(keyWordsSplited[k])){
 							var keyWord = keyWordsSplited[k].replace(/(^\s*)|(\s*$)/g, "");
+							for(var i = 0; i < encapeChars.length; i++){
+								var encapeChar = encapeChars[i];
+								keyWord = keyWord.replace(new RegExp("\\"+encapeChar,"g"), "\\"+encapeChar);
+							}
 							var reg = new RegExp("("+ keyWord +")", "gm");
 							resume = resume.replace(reg, "<span class=\"highlight\">$1</span>");
 						}
