@@ -6,6 +6,7 @@
 	  skills_tsv tsvector,
 	  contact_tsv tsvector,
 	  sfid character varying(18),
+	  resume_lower text,
 	  CONSTRAINT jss_contact_pkey PRIMARY KEY (id),
 	  CONSTRAINT fk_jss_contact_contact FOREIGN KEY (id)
 	      REFERENCES contact (id) MATCH SIMPLE

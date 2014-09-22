@@ -20,6 +20,13 @@
                 "column":"contact_tsv",
                 "operator":" ",
                 "unique":""
+               },
+               {
+                "name":"jss_contact_resume_lower_gin",
+                "type":"gin",
+                "column":"resume_lower",
+                "operator":"gin_trgm_ops",
+                "unique":""
                }
               ],
  "contact":[

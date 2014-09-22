@@ -1004,9 +1004,12 @@ public class SearchDao {
 	
 	private String exactkeywordSql(OrgContext org , ArrayList<String> keys , Map<Integer, String> operators , SearchRequest searchRequest) {
 		StringBuilder joinSql = new StringBuilder();
-		joinSql.append("  select contact.id,contact.sfid from  ")
+		joinSql.append("  select contact.id,contact.sfid from ")
 				.append(org.getOrgMap().get("schemaname"))
-				.append(".contact  where (");
+				.append(".contact join ")
+				.append(org.getOrgMap().get("schemaname"))
+				.append(".jss_contact jss on contact.sfid=jss.sfid ")
+				.append("where (");
 		boolean like = true;
 		boolean lastOne = false;
 		for (int i = 0; i < keys.size(); i++) {
@@ -1016,11 +1019,11 @@ public class SearchDao {
 					joinSql.append(" and ");
 					lastOne = false;
 				}
-				joinSql.append(" contact.\"ts2__text_resume__c\" like '")
-						.append("%" + key.trim() + "%").append("' ");
+				joinSql.append(" jss.\"resume_lower\" like '")
+						.append("%" + key.trim().toLowerCase() + "%").append("' ");
 			} else {
-				joinSql.append(" contact.\"ts2__text_resume__c\" not like '")
-						.append("%" + key.trim() + "%").append("' ");
+				joinSql.append(" jss.\"resume_lower\" not like '")
+						.append("%" + key.trim().toLowerCase() + "%").append("' ");
 			}
 			String operator = operators.get(i + 1);
 			if (operator != null) {

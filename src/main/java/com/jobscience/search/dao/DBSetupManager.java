@@ -80,6 +80,8 @@ public class DBSetupManager {
     @Inject
     private ContactTsvManager contactTsvManager;
     @Inject
+    private ResumeLowerManager resumeLowerManager;
+    @Inject
     private SearchConfigurationManager scm;
     
     private volatile ConcurrentMap<String,JSONArray> indexesMap;
@@ -183,6 +185,7 @@ public class DBSetupManager {
         indexerManager.run(orgName,webPath);
         sfidManager.run(orgName,webPath);
         contactTsvManager.run(orgName,webPath);
+        resumeLowerManager.run(orgName,webPath);
         dropInvalidIndexes(orgName);
         createIndexColumns(orgName, true);
         createIndexColumns(orgName, false);
@@ -392,10 +395,24 @@ public class DBSetupManager {
                 totalStatus = PART;
             }
 
+            if(checkColumn("resume_lower", "jss_contact", schemaname)){
+            	IndexerStatus resumeLower = resumeLowerManager.getStatus(orgName, false);
+	            String resumeLowerStatus = resumeLower.getRemaining() > 0 ? DONE :PART; 
+	            setups.add(mapIt("name", "resume_lower", "status",resumeLowerStatus, "progress", resumeLower));
+	            
+	            if (resumeLower.getRemaining() > 0 && totalStatus.equals(DONE)) {
+	                totalStatus = PART;
+	            }
+            }else{
+            	setups.add(mapIt("name", "resume_lower", "status",PART, "progress", 0));
+            	totalStatus = PART;
+            }
+            
         } else {
             setups.add(mapIt("name", "resume", "status", NOTSTARTED, "progress", 0));
             setups.add(mapIt("name", "sfid", "status", NOTSTARTED, "progress", 0));
             setups.add(mapIt("name", "tsv", "status", NOTSTARTED, "progress", 0));
+            setups.add(mapIt("name", "resume_lower", "status",PART, "progress", 0));
             if (totalStatus.equals(DONE)) {
                 totalStatus = PART;
             }
