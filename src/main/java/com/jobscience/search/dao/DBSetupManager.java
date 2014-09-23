@@ -1521,14 +1521,26 @@ public class DBSetupManager {
         return sb.toString();
     }
 
-    
-    private String generateIndexDef(String tabelName, JSONObject jo) {
+    /**
+     * 
+     * @param tabelName
+     * @param jo
+     * @param withCollate when the withCollate if true ,do the create sql function,but for the false do the compare sql String
+     * @return
+     */
+    private String generateIndexDef(String tabelName, JSONObject jo, boolean withCollate) {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE ")
         .append(jo.get("unique"))
         .append(" INDEX ").append(jo.get("name")).append("  ON ")
-        .append(tabelName).append(" USING ").append(jo.get("type")).append(" ( ")
-        .append(jo.get("column")).append(" ").append(jo.get("operator"))
+        .append(tabelName).append(" USING ").append(jo.get("type")).append(" (");
+        if (withCollate) {
+        	sb.append(jo.get("column"));
+        }else {
+        	sb.append(jo.get("column").toString().split(" ")[0]);
+        }
+        
+        sb.append(" ").append(jo.get("operator"))
         .append(")");
 
         return sb.toString();
@@ -1558,10 +1570,14 @@ public class DBSetupManager {
             for (int i = 0; i < ja.size(); i++) {
                 JSONObject jo = JSONObject.fromObject(ja.get(i));
                 if(!jo.get("type").equals("pk") && jo.get("name").equals(m.get("indexname"))){
-                	if(generateIndexDef(m.get("tablename").toString(), jo)
+                	if(generateIndexDef(m.get("tablename").toString(), jo, false)
                 			.replaceAll("\\s", "").equalsIgnoreCase(
                 					m.get("indexdef").toString().replaceAll("\\s", ""))){
                 		count++;
+                	}else{
+                		System.out.println(generateIndexDef(m.get("tablename").toString(), jo, false)
+                    			.replaceAll("\\s", ""));
+                		System.out.println(m.get("indexdef").toString().replaceAll("\\s", ""));
                 	}
                 }
             }
@@ -2124,7 +2140,7 @@ public class DBSetupManager {
 	            for (int i = 0; i < ja.size(); i++) {
 	                JSONObject jo = JSONObject.fromObject(ja.get(i));
 	                if(!jo.get("type").equals("pk")&&jo.get("name").equals(m.get("indexname"))){
-	                	if(!generateIndexDef(m.get("tablename").toString(), jo)
+	                	if(!generateIndexDef(m.get("tablename").toString(), jo, false)
 	                			.replaceAll("\\s", "").equalsIgnoreCase(
 	                					m.get("indexdef").toString().replaceAll("\\s", ""))){
 	                		runner.executeUpdate("drop index if exists " + jo.getString("name"));

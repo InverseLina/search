@@ -24,7 +24,7 @@
                {
                 "name":"jss_contact_resume_lower_gin",
                 "type":"gin",
-                "column":"resume_lower",
+                "column":"resume_lower COLLATE pg_catalog.\"default\"",
                 "operator":"gin_trgm_ops",
                 "unique":""
                }
@@ -76,7 +76,7 @@
                {
                 "name":"contact_earth_distance_idx",
                 "type":"gist",
-                "column":"ll_to_earth(ts2__latitude__c ,ts2__longitude__c)",
+                "column":"ll_to_earth(ts2__latitude__c,ts2__longitude__c)",
                 "operator":"",
                 "unique":""
                },
