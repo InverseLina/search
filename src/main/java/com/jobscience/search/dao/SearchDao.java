@@ -114,7 +114,7 @@ public class SearchDao {
      * @param exact
      * @return
      */
-    public  String booleanSearchHandler(String searchValue, String type, OrgContext org, boolean exact){
+    public  String booleanSearchHandler(String searchValue,String type,OrgContext org,boolean exact,List values){
         String schemaname = (String)org.getOrgMap().get("schemaname");
     	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
@@ -139,7 +139,7 @@ public class SearchDao {
     	if(searchValue.equals("")){
     		return  " select id,sfid from "+schemaname+"."+sc.getContact().getTable()+" where 1!=1 ";
     	}else{
-        	return renderSplitKeyWord(schemaname, searchValue, type, org, exact);
+        	return renderSplitKeyWord(schemaname, searchValue, type, org, exact, values);
     	}
     }
 
@@ -152,16 +152,16 @@ public class SearchDao {
      * @param exact
      * @return
      */
-    private String renderSplitKeyWord(String schemaname, String searchValue, String type, OrgContext org, boolean exact){
+    private String renderSplitKeyWord(String schemaname, String searchValue, String type, OrgContext org, boolean exact, List values){
     	StringBuilder sb = new StringBuilder();
     	String temp = "";
     	if(type == null || "OR".equals(type)){//if params split with space or "OR",we do in OR logic
         	String[] orConditions = searchValue.trim().split("\\s+OR\\s+");
         	boolean hasSearch = false;
-        	for(int i=0;i<orConditions.length;i++){
+        	for(int i = 0; i < orConditions.length; i++){
         		String orCondition = orConditions[i];
         		sb.append("select a_extr"+i+".id,a_extr"+i+".sfid from (");
-        		sb.append(booleanSearchHandler(orCondition, "AND",org,exact));
+        		sb.append(booleanSearchHandler(orCondition, "AND",org,exact,values));
         		sb.append(" a_extr"+i+" union ");
         		hasSearch = true;
         	}
@@ -177,7 +177,7 @@ public class SearchDao {
     			if(i == 0){
     				sb.append(" select n_ext0.id as id,n_ext0.sfid as sfid from ");
     			}
-        		sb.append(booleanSearchHandler(andCondition, "NOT",org,exact)+(i));
+    			sb.append(booleanSearchHandler(andCondition, "NOT",org,exact,values)+(i));
         		if(i > 0){
         			sb.append(" on n_ext"+i+".id=n_ext"+(i-1)+".id");
         		}
@@ -196,7 +196,7 @@ public class SearchDao {
     		
     		temp = notConditions[0].trim();
     		sb.append(" select ex.id,ex.sfid from   "+schemaname
-    		    +".jss_contact ex where "+renderKeywordSearch(temp,org,exact,"ex")  );
+    				+".jss_contact ex where "+renderKeywordSearch(temp,org,exact,"ex",values)  );
     		
     		if(notConditions.length == 1){
     			sb.append(") n_ext");
@@ -209,7 +209,7 @@ public class SearchDao {
         		hasNot = true;
         		temp = notConditions[i].trim();
         		sb.append(" except ");
-        		sb.append("  (select ex.id,ex.sfid from  "+schemaname+".jss_contact ex where "+renderKeywordSearch(temp,org,exact,"ex") + " ) ");
+        		sb.append(" (select ex.id,ex.sfid from "+schemaname+".jss_contact ex where "+renderKeywordSearch(temp,org,exact,"ex",values) + " ) ");
         	}
         	if(hasNot){
         		sb.append(")n_ext");
@@ -234,6 +234,10 @@ public class SearchDao {
         StringBuilder querySql = new StringBuilder();
         //the count query sql that will query the count of data
         StringBuilder countSql = new StringBuilder();
+        //the query data needed by the select query
+        List<Object> querySqlparam = new ArrayList();
+        //the query data needed by the count query
+        List<Object> countSqlparam = new ArrayList();
         // the part of query that build join tables sql
         StringBuilder joinTables = new StringBuilder();
         // the part of query that build join tables sql
@@ -243,8 +247,6 @@ public class SearchDao {
         // the part of query that build group by sql
         StringBuilder groupBy= new StringBuilder("a.\"id\"");
         String search = searchRequest.getKeyword();
-        // the params will be put in sql
-        List values = new ArrayList();
         String cteSql = "";
         
         
@@ -294,7 +296,7 @@ public class SearchDao {
         
         querySql.append(" from ");
         if(searchRequest.hasContactTitle()){
-        	querySql.append(renderContactSearch(searchRequest, schemaname, sc));
+        	querySql.append(renderContactSearch(searchRequest, schemaname, sc, querySqlparam));
         }else{
         	querySql.append(schemaname+".")
             .append(sc.getContact().getTable());
@@ -304,7 +306,7 @@ public class SearchDao {
         JSONArray locationValues = searchRequest.getLocations();
         boolean hasContactsCondition = false;
         if(searchRequest.getContacts() != null){
-            hasContactsCondition = searchRequest.getContacts().size()>0;
+            hasContactsCondition = searchRequest.getContacts().size() > 0;
         }
         if(!hasExtraSearchColumn(searchRequest)||hasContactsCondition||(Strings.isNullOrEmpty(search)||search.length()<3)||(locationValues!=null)){
             countSql.append(" from (select ")
@@ -312,16 +314,16 @@ public class SearchDao {
             
             countSql.append(" from ");
             if(searchRequest.hasContactTitle()){
-            	countSql.append(renderContactSearch(searchRequest, schemaname, sc));
+            	countSql.append(renderContactSearch(searchRequest, schemaname, sc, countSqlparam));
             }else{
             	countSql.append(schemaname+".")
                 .append(sc.getContact().getTable());
             }
             countSql.append(" contact ");
         }
-           
+
         // for all search mode, we preform the same condition
-        String[] sqls = getCondtion(searchRequest,values,org);
+        String[] sqls = getCondtion(searchRequest,org,querySqlparam,countSqlparam);
         querySql.append(sqls[0]);
         countSql.append(sqls[1]);
         cteSql=sqls[2];
@@ -359,7 +361,8 @@ public class SearchDao {
         ss.querySql =cteSql+" "+querySql.toString();
         ss.countSql =countSql.toString();
         ss.cteSql =   cteSql;
-        ss.values = values.toArray();
+        ss.querySqlparam = querySqlparam;
+        ss.countSqlparam = countSqlparam;
         return ss;
     }
 
@@ -377,7 +380,7 @@ public class SearchDao {
     		long start = System.currentTimeMillis();
     		List<Map> result = null;
 
-            result = runner.executeQuery(statementAndValues.querySql, statementAndValues.values);
+    		result = runner.executeQuery(statementAndValues.querySql, statementAndValues.querySqlparam.toArray());
     		long mid = System.currentTimeMillis();
     		int count = 0;
     		boolean exactCount = false;
@@ -399,7 +402,7 @@ public class SearchDao {
 	    				runner.executeUpdate("SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
 	    				int exact= runner.executeCount(statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
-								+statementAndValues.countSql);
+								+statementAndValues.countSql,statementAndValues.countSqlparam.toArray());
 	    				count = exact;
 	    				exactCount = true;
 	    			}catch(Exception e){
@@ -423,7 +426,7 @@ public class SearchDao {
 		    	    		List<Map> explainPlans = runner.executeQuery("explain "+statementAndValues.cteSql
 		    						 									+" select  distinct(a.id)  "
 		    						 									+statementAndValues.countSql,
-		    						 									statementAndValues.values);
+		    						 									statementAndValues.countSqlparam.toArray());
 		    	    		if(explainPlans.size() > 0){
 		    	    			count = getCountFromExplainPlan((String)explainPlans.get(0).get("QUERY PLAN"));
 		    	    			exactCount = false;
@@ -793,7 +796,7 @@ public class SearchDao {
      * @param org
      * @return
      */
-    private String[] getCondtion(SearchRequest searchRequest,List values,OrgContext org){
+    private String[] getCondtion(SearchRequest searchRequest,OrgContext org,List querySqlparam,List countSqlparam){
     	StringBuilder joinSql = new StringBuilder();
     	StringBuilder countSql = new StringBuilder();
     	String prefixSql = "";
@@ -803,7 +806,8 @@ public class SearchDao {
           .addSkill(searchRequest.getSkills()).addLocation(searchRequest.getLocations())
           .addCustomFilter(searchRequest.getCustomFilters()).addObjectType(searchRequest.getObjectType())
           .addStatus(searchRequest.getStatus()).addCustomFields(searchRequest.getCustomFields());
-        values.addAll(sb.getValues());
+        querySqlparam.addAll(sb.getValues());
+        countSqlparam.addAll(sb.getValues());
             
         String condition = sb.getConditions();
         boolean hasContactsCondition = false;
@@ -818,12 +822,17 @@ public class SearchDao {
         
         if(searchRequest.getLocations() != null && (Strings.isNullOrEmpty(searchRequest.getKeyword()) || searchRequest.getKeyword().length() < 3) && !searchRequest.getOrder().contains("location")){
 
-        	joinSql.append(" where ").append(condition.subSequence(4, condition.length()))
-        	       .append(locationSql)
-        	       .append(sb.getExactSearchOrderSql());
-        	countSql.append(" where ").append(condition.subSequence(3, condition.length()))
- 	                .append(locationSql)
- 	                .append(sb.getExactSearchOrderSql());
+        	joinSql.append(" where ").append(condition.subSequence(4, condition.length()));
+        	querySqlparam.addAll(sb.getConditionValues());
+        	joinSql.append(locationSql);
+        	querySqlparam.addAll(sb.getLocationValues());
+        	joinSql.append(sb.getExactSearchOrderSql());
+        	
+        	countSql.append(" where ").append(condition.subSequence(3, condition.length()));
+        	countSqlparam.addAll(sb.getConditionValues());
+ 	        countSql.append(locationSql);
+        	countSqlparam.addAll(sb.getLocationValues());
+ 	        countSql.append(sb.getExactSearchOrderSql());
         	
         	joinSql.append(" ) subcontact on contact.id=subcontact.id ");
             countSql.append(" ) subcontact on contact.id=subcontact.id ");
@@ -839,7 +848,9 @@ public class SearchDao {
             joinSql.append(locationSql);
             countSql.append(locationSql);
             joinSql.append(" where 1=1 ").append(condition).append(sb.getExactSearchOrderSql());
+            querySqlparam.addAll(sb.getConditionValues());
             countSql.append(" where 1=1 ").append(condition);
+            countSqlparam.addAll(sb.getConditionValues());
         }
        
         joinSql.append(") a ");
@@ -865,7 +876,7 @@ public class SearchDao {
 		StringBuilder joinSql = new StringBuilder();
 		if ("a".equals(alias)) {
 			joinSql.append(" right join (");
-			joinSql.append(booleanSearchHandler(keyword, null, org, false));
+			joinSql.append(booleanSearchHandler(keyword, null, org, false,values));
 			joinSql.append(")  a_ext on a_ext.id = " + alias + ".id ");
 			return joinSql.toString();
 		} else {
@@ -880,24 +891,24 @@ public class SearchDao {
 				//spilt keywords
 				spiltKeywords(keyword,keys,operators);
 				//exactkeywordSql
-				joinSql.append(exactkeywordSql(org, keys, operators, searchRequest));
+				joinSql.append(exactkeywordSql(org,keys, operators, searchRequest,values));
 				return joinSql.toString();
 			} else {
 				if (searchRequest.isOnlyKeyWord()) {
 					if (keyword.contains("NOT ") || keyword.contains("AND ")
 							|| keyword.contains("OR ")) {
 						joinSql.append(booleanSearchHandler(keyword, null, org,
-								false));
+								false,values));
 					} else {
 						return connectionString("  select contact.id,contact.sfid from  ",
 										        org.getOrgMap().get("schemaname").toString(),
 								                ".jss_contact contact where ",
-								                renderKeywordSearch(keyword.trim().replaceAll("\\s+", "|"), org, exact,"contact"),
+								                renderKeywordSearch(keyword.trim().replaceAll("\\s+", "|"), org, exact,"contact",values),
 								                "  ");
 					}
 				} else {
 					joinSql.append(booleanSearchHandler(keyword, null, org,
-							false));
+							false,values));
 				}
 			}
 			joinSql.append(")  contact ");
@@ -913,19 +924,18 @@ public class SearchDao {
 	 * @param alias
 	 * @return
 	 */
-    private String renderKeywordSearch(String param,OrgContext org,boolean exact,String alias){
+	private String renderKeywordSearch(String param,OrgContext org,boolean exact,String alias,List values){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
         String exactFilter = "";
         exact = false;
         if(exact){
-            exactFilter = " ts_rank(resume_tsv,'"+param.replaceAll("\\s+", "&")+"')>0 AND (";
+        	exactFilter=" ts_rank(resume_tsv, ?)>0 AND (";
+        	            values.add(param.replaceAll("\\s+", "&"));
         }
         for(Field f : sc.getKeyword().getFields()){
-            sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(")
-              .append("'")
-              .append(param)
-              .append("')");
+        	sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(?)");
+        	            values.add(param);
         }
         return exactFilter+sb.delete(0, 2).toString()+(exact?")":"");
     }
@@ -937,7 +947,7 @@ public class SearchDao {
      * @param schemaname
      * @return
      */
-    private String renderContactSearch (SearchRequest searchRequest, String schemaname, SearchConfiguration sc) {
+    private String renderContactSearch (SearchRequest searchRequest, String schemaname, SearchConfiguration sc, List sqlparam) {
     	StringBuilder contactSql = new StringBuilder();
     	JSONArray contacts = searchRequest.getContacts();
     	if (contacts!=null) {
@@ -954,13 +964,13 @@ public class SearchDao {
                 }
                 contactSql.append(" where 1!=1 OR (1=1");//for single contact,would do with "AND"
                 //handle for first name
-                renderContactProperty(contactSql,sc,contact,"firstName");
+                renderContactProperty(contactSql,sc,contact,"firstName",sqlparam);
                 //handle for last name
-                renderContactProperty(contactSql,sc,contact,"lastName");
+                renderContactProperty(contactSql,sc,contact,"lastName",sqlparam);
                 //handle for email
-                renderContactProperty(contactSql,sc,contact,"email");
+                renderContactProperty(contactSql,sc,contact,"email",sqlparam);
                 //handle for title
-                renderContactProperty(contactSql,sc,contact,"title");
+                renderContactProperty(contactSql,sc,contact,"title",sqlparam);
 
                 contactSql.append(") )");
                 firstContact = false;
@@ -970,19 +980,19 @@ public class SearchDao {
     	return contactSql.toString();
     }
     
-    private void renderContactProperty(StringBuilder conditionSql, SearchConfiguration sc,JSONObject contact,String propertyName){
+    private void renderContactProperty(StringBuilder conditionSql, SearchConfiguration sc,JSONObject contact,String propertyName, List sqlparam){
     	if("title".equals(propertyName)){
     		if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
                 conditionSql.append(" and employment.\"ts2__job_title__c\"")
-                          .append(" ilike '").append(addPercentageIfNecessary(contact.getString(propertyName)))
-                          .append("'");
+                          .append(" ilike ? ");
+                sqlparam.add(addPercentageIfNecessary(contact.getString(propertyName)));
             }
     	}else{
             if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
                 conditionSql.append(" and ")
                           .append(sc.getContactField(propertyName.toLowerCase()).toString("contact"))
-                          .append(" ilike '").append(addPercentageIfNecessary(contact.getString(propertyName)))
-                          .append("' ");
+                          .append(" ilike ? ");
+                sqlparam.add(addPercentageIfNecessary(contact.getString(propertyName)));
             }
     	}
     }
@@ -1002,7 +1012,7 @@ public class SearchDao {
 		}
 	}
 	
-	private String exactkeywordSql(OrgContext org , ArrayList<String> keys , Map<Integer, String> operators , SearchRequest searchRequest) {
+	private String exactkeywordSql(OrgContext org , ArrayList<String> keys , Map<Integer, String> operators , SearchRequest searchRequest,List values) {
 		StringBuilder joinSql = new StringBuilder();
 		joinSql.append("  select contact.id,contact.sfid from ")
 				.append(org.getOrgMap().get("schemaname"))
@@ -1019,11 +1029,11 @@ public class SearchDao {
 					joinSql.append(" and ");
 					lastOne = false;
 				}
-				joinSql.append(" jss.\"resume_lower\" like '")
-						.append("%" + key.trim().toLowerCase() + "%").append("' ");
+				joinSql.append(" jss.\"resume_lower\" like ? ");
+				values.add("%" + key.trim().toLowerCase() + "%");
 			} else {
-				joinSql.append(" jss.\"resume_lower\" not like '")
-						.append("%" + key.trim().toLowerCase() + "%").append("' ");
+				joinSql.append(" jss.\"resume_lower\" not like ? ");
+				values.add("%" + key.trim().toLowerCase() + "%");
 			}
 			String operator = operators.get(i + 1);
 			if (operator != null) {
@@ -1098,8 +1108,8 @@ public class SearchDao {
         if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
             conditionSql.append("  and ")
                       .append(sc.getContactField(propertyName.toLowerCase()).toString("contact"))
-                      .append(" ilike '").append(addPercentageIfNecessary(contact.getString(propertyName)))
-                      .append("' ");
+                      .append(" ilike ? ");
+            values.add(addPercentageIfNecessary(contact.getString(propertyName)));
             return true;
         }
         return false;
@@ -1114,7 +1124,7 @@ public class SearchDao {
     
     private boolean renderEducationCondition(JSONArray values,StringBuilder prefixSql,
                                        StringBuilder filterSql,String schemaname,
-                                       SearchConfiguration sc,FilterType filterType,OrgContext org){
+                                       SearchConfiguration sc,FilterType filterType,OrgContext org,List valueList){
             boolean hasCondition = false;
             if(values != null){
                 StringBuilder condition = new StringBuilder();
@@ -1128,13 +1138,15 @@ public class SearchDao {
 					condition.append(" OR ").append(filterType)
 							 .append(".jss_groupby_")
 							 .append(manyToManyTables.get(filterType))
-							 .append("_id=")
-                    		 .append(groupedId);
+							 .append("_id=? ");
+					valueList.add(groupedId);
                     	if(value.containsKey("minYears")){
                     		if(FilterType.COMPANY.equals(filterType)){
-                    			condition.append(" AND ").append(filterType).append(".year>=").append(value.getInt("minYears"));
+                    			condition.append(" AND ").append(filterType).append(".year>=? ");
+                    			valueList.add(value.getInt("minYears"));
                     		}else if(FilterType.SKILL.equals(filterType)){
-                    			condition.append(" AND ").append(filterType).append(".rating>=").append(value.getInt("minYears"));
+                    			condition.append(" AND ").append(filterType).append(".rating>=? ");
+                    			valueList.add(value.getInt("minYears"));
                     		}
                     		
                     	}
@@ -1152,14 +1164,14 @@ public class SearchDao {
     
     private boolean renderSkillCondition(String operator, JSONArray values,StringBuilder prefixSql,
                             StringBuilder filterSql,String schemaname, 
-                            SearchConfiguration sc, FilterType filterType,OrgContext org) {
+                            SearchConfiguration sc, FilterType filterType,OrgContext org,List valueList) {
         boolean hasCondition = false;
         if (values != null) {
             StringBuilder condition = new StringBuilder();
             if(operator.equals("R")){
-                condition.append(setSkillCondition("and", filterType, values));
+                condition.append(setSkillCondition("and", filterType, values, valueList));
             }else{
-                condition.append(setSkillCondition("or", filterType, values));                
+                condition.append(setSkillCondition("or", filterType, values, valueList));                
             }
             filterSql.append(condition);
             hasCondition = true;
@@ -1168,7 +1180,7 @@ public class SearchDao {
     }
 
 	private String setSkillCondition(String logic, FilterType filterType,
-			List<JSONObject> list) {
+			List<JSONObject> list, List valueList) {
 		StringBuilder condition = new StringBuilder();
 		if (logic.equals("or")) {
 			condition.append(" inner join  jss_contact_jss_groupby_")
@@ -1185,17 +1197,18 @@ public class SearchDao {
 				condition.append("( ").append(filterType)
 						.append(".jss_groupby_")
 						.append(manyToManyTables.get(filterType))
-						.append("_id=").append(groupedId);
+						.append("_id=? ");
+				valueList.add(groupedId);
 				if (value.containsKey("minYears")) {
 					condition.append(" AND ").append(filterType)
-							.append(".rating>=")
-							.append(value.getInt("minYears"));
+							.append(".rating>=? ");
+					valueList.add(value.getInt("minYears"));
 				}
 				condition.append(" )");
 			}
 			condition.append(" ) )");
 		} else if (logic.equals("and") && list.size() == 1) {
-			return setSkillCondition("or", filterType, list);
+			return setSkillCondition("or", filterType, list,valueList);
 		} else if (logic.equals("and") && list.size() != 1) {
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
@@ -1208,11 +1221,12 @@ public class SearchDao {
 				condition.append("AND ( ").append(filterType).append(i)
 						.append(".jss_groupby_")
 						.append(manyToManyTables.get(filterType))
-						.append("_id=").append(groupedId);
+						.append("_id=? ");
+				valueList.add(groupedId);
 				if (value.containsKey("minYears")) {
 					condition.append(" AND ").append(filterType).append(i)
-							.append(".rating>=")
-							.append(value.getInt("minYears"));
+							.append(".rating>=? ");
+					valueList.add(value.getInt("minYears"));
 				}
 				condition.append(" )");
 			}
@@ -1222,14 +1236,14 @@ public class SearchDao {
     
 	private boolean renderCompanyCondition(String operator, JSONArray values,StringBuilder prefixSql,
 			                    StringBuilder filterSql,String schemaname, 
-			                    SearchConfiguration sc, FilterType filterType,OrgContext org) {
+			                    SearchConfiguration sc, FilterType filterType,OrgContext org,List valueList) {
 		boolean hasCondition = false;
 		if (values != null) {
             StringBuilder condition = new StringBuilder();
             if(operator.equals("R")){
-                condition.append(setCompanyCondition("and", filterType, values));
+                condition.append(setCompanyCondition("and", filterType, values, valueList));
             }else{
-                condition.append(setCompanyCondition("or", filterType, values));                
+                condition.append(setCompanyCondition("or", filterType, values, valueList));              
             }
             filterSql.append(condition);
             hasCondition = true;
@@ -1237,7 +1251,7 @@ public class SearchDao {
         return hasCondition;
 	}
 
-	private String setCompanyCondition(String logic, FilterType filterType, List<JSONObject> list) {
+	private String setCompanyCondition(String logic, FilterType filterType, List<JSONObject> list, List valueList) {
 		StringBuilder condition = new StringBuilder();
 		if (logic.equals("or")) {
 			condition.append(" inner join  jss_contact_jss_groupby_")
@@ -1264,7 +1278,7 @@ public class SearchDao {
 			}
 			condition.append(" ) )");
 		} else if (logic.equals("and") && list.size() == 1) {
-        	return setCompanyCondition("or", filterType, list);
+			return setCompanyCondition("or", filterType, list, valueList);
         } else if (logic.equals("and") && list.size() != 1)  {
 			for (int i = 0, j = list.size(); i < j; i++) {
 				JSONObject value = list.get(i);
@@ -1276,11 +1290,12 @@ public class SearchDao {
 		        condition.append("AND ( ").append(filterType).append(i)
 		           .append(".jss_groupby_")
 		           .append(manyToManyTables.get(filterType))
-		           .append("_id=").append(groupedId);
+		           .append("_id=? ");
+		        valueList.add(groupedId);
 				if (value.containsKey("minYears")) {
 					condition.append(" AND ").append(filterType).append(i)
-							.append(".year>=")
-							.append(value.getInt("minYears"));
+							.append(".year>=? ");
+					valueList.add(value.getInt("minYears"));
 				}
 				condition.append(") ");
 			}
@@ -1290,7 +1305,7 @@ public class SearchDao {
 
     private boolean renderLocationCondition(JSONArray locationValues,StringBuilder locationSql,
             StringBuilder conditions,String schemaname,
-            SearchConfiguration sc,OrgContext org){
+            SearchConfiguration sc,OrgContext org,List values){
         boolean hasCondition = false;
         if(locationValues != null){
             StringBuilder joinCity = new StringBuilder();
@@ -1316,11 +1331,15 @@ public class SearchDao {
                     double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
                                                Double.valueOf(city.get("longitude").toString()),
                                                Double.valueOf(city.get("radius").toString()) * 1609);
-                    joinCity.append(" OR (").append("contact.ts2__latitude__c>="+range[0])
-                              .append(" AND contact.ts2__latitude__c<="+range[2])
-                              .append(" AND contact.ts2__longitude__c>="+range[1])
-                              .append(" AND contact.ts2__longitude__c<="+range[3])
+                    joinCity.append(" OR (").append("contact.ts2__latitude__c>=? ")
+                    		.append(" AND contact.ts2__latitude__c<=? ")
+                    		.append(" AND contact.ts2__longitude__c>=? ")
+                    		.append(" AND contact.ts2__longitude__c<=? ")
                               .append(") ");
+                    values.add(range[0]);
+                    values.add(range[2]);
+                    values.add(range[1]);
+                    values.add(range[3]);
                 }
                 runner.close();
             }
@@ -1335,7 +1354,7 @@ public class SearchDao {
     }
     
     private boolean renderCustomFilters(Map<String, JSONArray> searchValues,StringBuilder filterSql,
-            StringBuilder conditions,List values,String schemaname,SearchConfiguration sc){
+    		StringBuilder conditions,List filterValues, List conditionValues,String schemaname,SearchConfiguration sc){
         boolean hasCondition = false;
         String contactTable = sc.getContact().getTable();
         for(String name : searchValues.keySet()){
@@ -1361,7 +1380,8 @@ public class SearchDao {
                 for(int i = 0, j = extraValues.size(); i < j; i++){
                     JSONObject v = JSONObject.fromObject(extraValues.get(i));
                     filterSql.append(" OR \"").append(ff.getTable()).append("\".")
-                                .append(ff.getColumn()).append("= '").append(v.get("name")).append("' ");
+                    .append(ff.getColumn()).append("=? ");
+                    filterValues.add(v.get("name"));
                 }
                 if(extraValues.size() > 0){
                     filterSql.append(" ) ");
@@ -1373,7 +1393,8 @@ public class SearchDao {
                     conditions.append(" AND (1!=1 ");
                     for(int i = 0, j = extraValues.size(); i < j; i++){
                         JSONObject value = JSONObject.fromObject(extraValues.get(i));
-                        conditions.append(" OR ").append(filterName).append("= '").append(value.get("name")).append("'");
+                        conditions.append(" OR ").append(filterName).append("=? ");
+                        conditionValues.add(value.get("name"));
                     }
                     conditions.append(" ) ");
                     hasCondition = true;
@@ -1538,6 +1559,8 @@ public class SearchDao {
         StringBuilder keyWordSql = new StringBuilder();
         StringBuilder keyWordCountSql = new StringBuilder();
         List values = new ArrayList();
+        List conditionValues = new ArrayList();
+        List locationValues = new ArrayList();
         private StringBuilder conditions = new StringBuilder();
         private OrgContext org;
         private SearchConfiguration sc;
@@ -1610,27 +1633,27 @@ public class SearchDao {
         
         public SearchBuilder addEducation(JSONArray educations){
             hasCondition = renderEducationCondition( educations,
-                    prefixSql, filterSql, schemaname, sc,FilterType.EDUCATION,org)||hasCondition;
+            		prefixSql, filterSql, schemaname, sc,FilterType.EDUCATION,org,values)||hasCondition;
             return this;
         }
         
         
         public SearchBuilder addCompany(JSONArray companies){
             hasCondition = renderCompanyCondition(searchRequest.getCompanyOperator(), companies,
-                    prefixSql, filterSql, schemaname, sc,FilterType.COMPANY,org)||hasCondition;
+            		prefixSql, filterSql, schemaname, sc,FilterType.COMPANY,org,values)||hasCondition;
             return this;
         }
       
        
         public SearchBuilder addSkill(JSONArray skills){
             hasCondition = renderSkillCondition(searchRequest.getSkillOperator(), skills,
-                    prefixSql, filterSql, schemaname, sc,FilterType.SKILL,org)||hasCondition;
+            		prefixSql, filterSql, schemaname, sc,FilterType.SKILL,org,values)||hasCondition;
             return this;
         }
         
         public SearchBuilder addLocation(JSONArray locations){
             hasCondition = renderLocationCondition( locations,
-                    locationSql, conditions, schemaname, sc,org)||hasCondition;
+            		locationSql, conditions, schemaname, sc, org, conditionValues)||hasCondition;
             return this;
         }
               
@@ -1667,13 +1690,13 @@ public class SearchDao {
         
         public SearchBuilder addContactFilter(JSONArray contacts, boolean hasContactTitle){
         	if (!hasContactTitle) {
-            	hasContactCondition = renderContactConditions(conditions,values,sc,contacts)||hasContactCondition;
+        		hasContactCondition = renderContactConditions(conditions,conditionValues,sc,contacts)||hasContactCondition;
         	}
             return this;
         }
        
         public SearchBuilder addCustomFilter(Map searchValues){
-            renderCustomFilters(searchValues, filterSql, conditions,values,schemaname, sc);
+        	renderCustomFilters(searchValues, filterSql, conditions, values, conditionValues, schemaname, sc);
             return this;
         }
         public SearchBuilder addCustomFields(JSONArray searchValues){
@@ -1726,6 +1749,14 @@ public class SearchDao {
         public List getValues(){
             return values;
         }
+        
+        public List getConditionValues(){
+            return conditionValues;
+        }
+        
+        public List getLocationValues(){
+            return locationValues;
+        }
     }
     
 }
@@ -1735,6 +1766,7 @@ class SearchStatements {
     String cteSql;
     String querySql;
     String countSql;
-    Object[]  values;
 
+    List querySqlparam;
+    List countSqlparam;
 }

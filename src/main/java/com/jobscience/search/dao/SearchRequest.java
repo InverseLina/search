@@ -38,7 +38,7 @@ public class SearchRequest {
             // resolve the search parameters,cause all parameters begin with "q_"
             String temp ;
             for(Object key : jo.keySet()){
-            	temp = jo.get(key).toString().replaceAll("#", "\\\"");
+            	temp = jo.get(key).toString()/*.replaceAll("#", "\\\"")*/;
             	if("q_search".equals(key)){
             		temp = temp.replaceAll("\'", "");
             	}
