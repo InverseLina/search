@@ -65,7 +65,7 @@
 								var encapeChar = encapeChars[i];
 								keyWord = keyWord.replace(new RegExp("\\"+encapeChar,"g"), "\\"+encapeChar);
 							}
-							var reg = new RegExp("("+ keyWord +")", "gm");
+							var reg = new RegExp("("+ keyWord +")", "gmi");
 							resume = resume.replace(reg, "<span class=\"highlight\">$1</span>");
 						}
 					}
