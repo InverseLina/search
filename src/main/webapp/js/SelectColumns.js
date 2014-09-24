@@ -16,6 +16,16 @@
 			var orders = app.getFilterOrders();
 			var colOrders = [];
 			var ids = [];
+			
+			//get custom fields
+			app.getJsonData("/getCustomFields", {}, {async : false}).done(function(result) {
+				for(var i = 0; i < result.length; i++){
+					var colObj = result[i];
+					colObj.display = colObj.label;
+					columns.push(colObj);
+				}
+			});
+			
 			$.each(orders, function(idx, name) {
 				$.each(columns, function(idx, item) {
 					if (item.name === name) {
