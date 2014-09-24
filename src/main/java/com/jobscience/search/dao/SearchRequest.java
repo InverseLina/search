@@ -57,10 +57,18 @@ public class SearchRequest {
         }
         
         columns = (String)searchParams.get("columns");
+        columns =  columns.replaceAll("\\s+", "");
         if(Strings.isNullOrEmpty(columns)){
             columns = "contact";
         }
-        columns = columns.replaceAll("contact", "id,name,title,email,CreatedDate,resume");
+        columns = "," + columns +",";
+        columns = columns.replaceAll(",contact,", "id,name,title,email,CreatedDate,resume,");
+        if(columns.startsWith(",")){
+        	columns = columns.substring(1);
+        }
+        if(columns.endsWith(",")){
+        	columns = columns.substring(0,columns.length()-1);
+        }
         
         String orderBy = (String)searchParams.get("orderBy");
         boolean asc = searchParams.get("orderType") instanceof Boolean?
