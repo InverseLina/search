@@ -24,6 +24,7 @@ public class DatasourceManager {
     private String url;
     private String user;
     private String pwd;
+    private String poolSize;
     private String sysSchema = "jss_sys";
     private ComboPooledDataSource dataSource;
     private volatile DB db;
@@ -33,10 +34,12 @@ public class DatasourceManager {
     @Inject
     public void init(@Named("jss.db.url") String url,
                      @Named("jss.db.user") String user,
-                     @Named("jss.db.pwd") String pwd) {
+                     @Named("jss.db.pwd") String pwd,
+                     @Named("db.pool.size") String poolSize) {
         this.url = url;
         this.user = user;
         this.pwd = pwd;
+        this.poolSize = poolSize;
         dataSource = buildDs();
         this.db = new DBBuilder().newDB(dataSource);
     }
@@ -98,7 +101,7 @@ public class DatasourceManager {
         ds.setJdbcUrl(url);
         ds.setUser(user);
         ds.setPassword(pwd);
-        ds.setMaxPoolSize(10);
+        ds.setMaxPoolSize(Integer.valueOf(poolSize));
         ds.setUnreturnedConnectionTimeout(0);
         return ds;
     }
