@@ -111,17 +111,18 @@ public class SearchConfigurationManager {
                                      "type",   "contact"));
 
 
-        for(Filter f : sc.getFilters()){
+        for(Filter f : sc.getColumnFilters()){
                 if(!f.isDelete()){
                     Map m = mapIt(      "name",   f.getName(),
                                        "title",   f.getTitle(),
-                                      "native",   (f.getFilterType()!=null),
-                                        "show",   f.isNeedShow());
-                    if(f.getFilterType() == null){
+                                      "native",   (f.getType()!=null),
+                                        "show",   f.isNeedShow(),
+                    					"bg_color",   f.getBg_color());
+                    if(f.getType() == null){
                         m.put("paramName",   f.getFilterField().getColumn());
                         m.put("type", "custom");
                     }else{
-                        m.put("type",   f.getFilterType().value());
+                        m.put("type",   f.getType().value());
                     }
                     filters.add(m);
                 }
@@ -200,7 +201,6 @@ public class SearchConfigurationManager {
             org = db.newDocument();
         }
         
-        
         Document result = db.newDocument();
         Element e =  result.createElement("searchconfig");
 
@@ -219,27 +219,32 @@ public class SearchConfigurationManager {
             Node n = orgNodes.item(current);
             NamedNodeMap nameMap = n.getAttributes();
             String name = n.getAttributes().getNamedItem("name").getNodeValue();
-            if(sysNodeMap.containsKey(name)){
-                boolean remove = false;
-                if(nameMap.getNamedItem("remove") != null && "true".equals(nameMap.getNamedItem("remove").getNodeValue())){
-                    remove = true;
+            if(sysNodeMap.containsKey(name) && checkAttribute(n,"display") && "column".equals(n.getAttributes().getNamedItem("display").getNodeValue())){
+                boolean delete = false;
+                if(nameMap.getNamedItem("delete") != null && "true".equals(nameMap.getNamedItem("delete").getNodeValue())){
+                	delete = true;
                 }
                 Node sysNode = sysNodeMap.get(name);
                 NamedNodeMap sysNodeNameMap =  sysNode.getAttributes();
                 sysNodesList.remove(sysNode);
                 sysNodeMap.remove(name);
                 
-                if(!remove){
+                if(!delete){
                     if(nameMap.getNamedItem("title") == null && sysNodeNameMap.getNamedItem("title") != null){
                         ((Element)n).setAttribute("title", sysNodeNameMap.getNamedItem("title").getNodeValue());
                     }
-                    if(nameMap.getNamedItem("filtertype") == null && sysNodeNameMap.getNamedItem("filtertype") != null){
-                        ((Element)n).setAttribute("filtertype", sysNodeNameMap.getNamedItem("filtertype").getNodeValue());
+                    if(nameMap.getNamedItem("type") == null && sysNodeNameMap.getNamedItem("type") != null){
+                        ((Element)n).setAttribute("type", sysNodeNameMap.getNamedItem("type").getNodeValue());
                     }
                     if(nameMap.getNamedItem("show") == null && sysNodeNameMap.getNamedItem("show") != null){
                         ((Element)n).setAttribute("show", sysNodeNameMap.getNamedItem("show").getNodeValue());
                     }
-
+                    if(nameMap.getNamedItem("display") == null && sysNodeNameMap.getNamedItem("display") != null){
+                        ((Element)n).setAttribute("display", sysNodeNameMap.getNamedItem("display").getNodeValue());
+                    }
+                    if(nameMap.getNamedItem("bg-color") == null && sysNodeNameMap.getNamedItem("bg-color") != null){
+                        ((Element)n).setAttribute("bg-color", sysNodeNameMap.getNamedItem("bg-color").getNodeValue());
+                    }
                     NodeList filterNodes = n.getChildNodes();
                     boolean hasField = false; 
                     for(int c = 0, l = filterNodes.getLength(); c < l; c++){
@@ -293,11 +298,11 @@ public class SearchConfigurationManager {
                 if(keywordField.getNodeType()==1){
                     NamedNodeMap nameMap =  keywordField.getAttributes();
                     String name = nameMap.getNamedItem("name").getNodeValue();
-                    boolean remove = false;
-                    if(nameMap.getNamedItem("remove") != null && "true".equals(nameMap.getNamedItem("remove").getNodeValue())){
-                        remove = true;
+                    boolean delete = false;
+                    if(nameMap.getNamedItem("delete") != null && "true".equals(nameMap.getNamedItem("delete").getNodeValue())){
+                    	delete = true;
                     }
-                    if(remove){
+                    if(delete){
                         keywordMap.remove(name);
                         continue;
                     }
@@ -361,60 +366,6 @@ public class SearchConfigurationManager {
         }
         e.appendChild(contact);
 
-        //handle customFields
-        NodeList sysCustomFields = sys.getElementsByTagName("customFields");
-        NodeList orgCustomFields = org.getElementsByTagName("customFields");
-        Map<String,Node> customFieldsMap = new HashMap<String,Node>();
-        List<String>  customFieldsName= new ArrayList<String>();
-
-        for(int current = 0, length = sysCustomFields.getLength(); current < length; current++){
-            Node n = sysCustomFields.item(current);
-            NodeList sysCustomFieldsChildren = n.getChildNodes();
-            for(int c = 0, l = sysCustomFieldsChildren.getLength(); c < l; c++){
-                Node customField = sysCustomFieldsChildren.item(c);
-                if(customField.getNodeType()==1){
-                	String fieldName = customField.getAttributes().getNamedItem("name").getNodeValue();
-                	if(!customFieldsName.contains(fieldName)){
-                		customFieldsName.add(fieldName);
-                	}
-                	customFieldsMap.put(fieldName, customField);
-                }
-            }
-        }
-
-        for(int current = 0, length = orgCustomFields.getLength(); current < length; current++){
-            Node n = orgCustomFields.item(current);
-            NodeList customFields = n.getChildNodes();
-            for(int c = 0, l = customFields.getLength(); c < l; c++){
-                Node customField = customFields.item(c);
-                if(customField.getNodeType()==1){
-                    NamedNodeMap nameMap =  customField.getAttributes();
-                    String fieldName = nameMap.getNamedItem("name").getNodeValue();
-                    boolean remove = false;
-                    if(nameMap.getNamedItem("remove")!=null&&"true".equals(nameMap.getNamedItem("remove").getNodeValue())){
-                        remove = true;
-                    }
-                    if(remove){
-                        customFieldsMap.remove(fieldName);
-                        continue;
-                    }
-                    if(!customFieldsName.contains(fieldName)){
-                		customFieldsName.add(fieldName);
-                	}
-                    customFieldsMap.put(fieldName, customField);
-                }
-            }
-        }
-
-        Element customFields =  result.createElement("customFields");
-        for(String fieldName : customFieldsName){
-        	Node n = customFieldsMap.get(fieldName);
-        	if(n != null){
-            	customFields.appendChild(result.importNode(n, true));
-        	}
-        }
-        e.appendChild(customFields);
-
         StringWriter sw = new StringWriter();
         Transformer t = TransformerFactory.newInstance().newTransformer();
         t.transform(new DOMSource(e), new StreamResult(sw));
@@ -467,44 +418,48 @@ public class SearchConfigurationManager {
                     boolean skillFilter = false,educationFilter = false,locationFilter = false,companyFilter = false;
                     for(int i = 0, j = filterNodes.getLength(); i < j; i++){
                         Node filterField = filterNodes.item(i);
-                        if(filterField.getNodeType() == 1 && checkAttribute(filterField, "filtertype")){
-                           String val = filterField.getAttributes().getNamedItem("filtertype").getNodeValue();
-                           if("skill".equals(val)){
-                               skillFilter = true;
-                           }
-                           if("education".equals(val)){
-                               educationFilter = true;
-                           }
-                           if("location".equals(val)){
-                               locationFilter = true;
-                           }
-                           if("company".equals(val)){
-                               companyFilter = true;
-                           }
-                           for(int m = 0, n = filterField.getChildNodes().getLength(); m < n; m++){
-                               Node fieldNode = filterField.getChildNodes().item(m);
-                               if(fieldNode.getNodeType() == 1){
-                                   if(!checkAttribute(fieldNode,"table")){
-                                       errorMsg="Missing table attribute for "+val+" filter field";
-                                   }
-                                   if(!checkAttribute(fieldNode,"column")){
-                                       errorMsg="Missing column attribute for "+val+" filter field";
-                                   }
-                                   if(!"location".equals(val)){
-                                       if(!checkAttribute(fieldNode,"joinfrom")){
-                                           errorMsg="Missing joinfrom attribute for "+val+" filter field";
-                                       }
-                                       if(!checkAttribute(fieldNode,"table")){
-                                           errorMsg="Missing jointo attribute for "+val+" filter field";
-                                       }
-                                   }
-                                   if("skill".equals(val)){
-                                       if(!checkAttribute(fieldNode,"slider")){
-                                           errorMsg="Missing slider attribute for "+val+" filter field";
-                                       }
-                                   }
-                               }
-                           }
+                        if(filterField.getNodeType() == 1 && checkAttribute(filterField, "display")){
+                        	if(checkAttribute(filterField, "type")){
+                        		 String val = filterField.getAttributes().getNamedItem("type").getNodeValue();
+                                 if("skill".equals(val)){
+                                     skillFilter = true;
+                                 }
+                                 if("education".equals(val)){
+                                     educationFilter = true;
+                                 }
+                                 if("location".equals(val)){
+                                     locationFilter = true;
+                                 }
+                                 if("company".equals(val)){
+                                     companyFilter = true;
+                                 }
+                                 for(int m = 0, n = filterField.getChildNodes().getLength(); m < n; m++){
+                                     Node fieldNode = filterField.getChildNodes().item(m);
+                                     if(fieldNode.getNodeType() == 1){
+                                         if(!checkAttribute(fieldNode,"table")){
+                                             errorMsg="Missing table attribute for "+val+" filter field";
+                                         }
+                                         if(!checkAttribute(fieldNode,"column")){
+                                             errorMsg="Missing column attribute for "+val+" filter field";
+                                         }
+                                         if(!"location".equals(val)){
+                                             if(!checkAttribute(fieldNode,"joinfrom")){
+                                                 errorMsg="Missing joinfrom attribute for "+val+" filter field";
+                                             }
+                                             if(!checkAttribute(fieldNode,"jointo")){
+                                                 errorMsg="Missing jointo attribute for "+val+" filter field";
+                                             }
+                                         }
+                                         if("skill".equals(val)){
+                                             if(!checkAttribute(fieldNode,"slider")){
+                                                 errorMsg="Missing slider attribute for "+val+" filter field";
+                                             }
+                                         }
+                                     }
+                                 }
+                        	}
+                        } else {
+                        	errorMsg="Missing display attribute filter field";
                         }
                     }
                         
@@ -588,75 +543,71 @@ public class SearchConfigurationManager {
         return errorMsg;
     }
     
-    private String checkSearchConfigCustomfields(Document document, String orgName){
+    private String checkSearchConfigCustomfields(Document document, String orgName) {
     	String errorMsg = null;
-    	NodeList customFieldsContent = document.getElementsByTagName("customFields");
-        if(customFieldsContent.getLength() != 0){
-            NodeList customFields = customFieldsContent.item(0).getChildNodes();
-            boolean hasError = false;
-            int customFieldSize = 0;
-            for(int i = 0, j = customFields.getLength(); i < j; i++){
-                Node customField = customFields.item(i);
-                if(customField.getNodeType() == 1){
-                	if("field".equals(customField.getNodeName())){
-                	   boolean lackProperty = false;
-                	   if(!checkAttribute(customField, "tableName")){
-                            errorMsg = "Missing tableName attribute for customFields field";
-                            lackProperty = true;
+        boolean hasError = false;
+    	NodeList filterNodes = document.getElementsByTagName("filter");
+    	int customFieldSize = 0;
+    	for(int i = 0, j = filterNodes.getLength(); i < j; i++){
+            Node filterNode = filterNodes.item(i);
+            String filterName = "";
+            if(filterNode.getNodeType() == 1 && checkAttribute(filterNode, "display")){
+            	if("side".equals(filterNode.getAttributes().getNamedItem("display").getNodeValue())){
+            		 if(!checkAttribute(filterNode,"name")){
+                         errorMsg="Missing name attribute for filter field";
+                         hasError = true;
+                     }else {
+                    	 filterName = filterNode.getAttributes().getNamedItem("name").getNodeValue();
+                     }
+                     if(!checkAttribute(filterNode,"title")){
+                         errorMsg="Missing title attribute for " + filterName + " filter field";
+                         hasError = true;
+                     }
+                     if(!checkAttribute(filterNode,"type")){
+                         errorMsg="Missing type attribute for " + filterName + " filter field";
+                         hasError = true;
+                     }
+                     if(!isSupportType(getVal(filterNode, "type"))){
+                         errorMsg = "Not support type \"" + getVal(filterNode, "type") + "\"";
+                         hasError = true;
+                     }
+            		 for(int m = 0, n = filterNode.getChildNodes().getLength(); m < n; m++){
+                        Node fieldNode = filterNode.getChildNodes().item(m);
+                        if(fieldNode.getNodeType() == 1){
+                            if(!checkAttribute(fieldNode,"table")){
+                                errorMsg="Missing table attribute for "+filterName+" filter field";
+                                hasError = true;
+                            }
+                            if(!checkAttribute(fieldNode,"column")){
+                                errorMsg="Missing column attribute for "+filterName+" filter field";
+                                hasError = true;
+                            }
+                            if(!checkIfAllowCustomFieldsColumn(getVal(fieldNode, "column"))){
+                                errorMsg = "Not allow config for the column of " + getVal(fieldNode, "columnName");
+                                hasError = true;
+                            }
                         }
-                        if(!lackProperty && !checkAttribute(customField, "name")){
-                            errorMsg = "Missing name attribute for customFields field";
-                            lackProperty = true;
-                        }
-                       if(!lackProperty && !checkAttribute(customField, "columnName")){
-                           errorMsg = "Missing columnName attribute for customFields field";
-                           lackProperty = true;
-                       }
-                       if(!lackProperty && !checkAttribute(customField, "label")){
-                           errorMsg = "Missing label attribute for customFields field";
-                           lackProperty = true;
-                       }
-                       if(!lackProperty && !checkAttribute(customField, "type")){
-                           errorMsg = "Missing type attribute for customFields field";
-                           lackProperty = true;
-                       }
-                       if(!lackProperty && !checkIfAllowCustomFieldsColumn(getVal(customField, "columnName"))){
-                           errorMsg = "Not allow config for the column of " + getVal(customField, "columnName");
-                           lackProperty = true;
-                       }
-                       if(!lackProperty && !isSupportType(getVal(customField, "type"))){
-                           errorMsg = "Not support type \"" + getVal(customField, "type") + "\"";
-                           lackProperty = true;
-                       }
-                       if(lackProperty){
-                    	   hasError = true;
-                       }else{
-                    	   customFieldSize++;
-                       }
-                	}else{
-                    	errorMsg="The search config xml has grammer issues.";
-                    	hasError = true;
                     }
-                }
-                if(hasError){
-                	break;
-                }
+            		if(!hasError){
+            			customFieldSize++;
+            		}
+            	}
+            }else {
+            	errorMsg="Missing display attribute for filter field";
+                hasError = true;
             }
-            if(!hasError){
-                if(Strings.isNullOrEmpty(orgName)){
-                	customFieldsSize.put("sys", customFieldSize);
-                }else{
-                	customFieldsSize.put(orgName, customFieldSize);
-                }
+            if(hasError) {
+            	break;
             }
-        }else{
-        	if(Strings.isNullOrEmpty(orgName)){
-            	customFieldsSize.put("sys", 0);
+    	}
+    	if(!hasError){
+            if(Strings.isNullOrEmpty(orgName)){
+            	customFieldsSize.put("sys", customFieldSize);
             }else{
-            	customFieldsSize.put(orgName, 0);
+            	customFieldsSize.put(orgName, customFieldSize);
             }
         }
-        return errorMsg;
+    	return errorMsg;
     }
     
     private boolean checkIfAllowCustomFieldsColumn(String columnName){

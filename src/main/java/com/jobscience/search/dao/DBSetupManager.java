@@ -1011,7 +1011,7 @@ public class DBSetupManager {
                 	if (!orgSetupStatus.get(orgName).booleanValue()) {
                         return false;
                     }
-                    if (f.getFilterType() == null) {
+                    if (f.getType() == null) {
                         FilterField ff = f.getFilterField();
                         JSONObject jo = new JSONObject();
                         jo.accumulate("name", String.format("%s_%s_index", f.getFilterField()
@@ -1327,7 +1327,7 @@ public class DBSetupManager {
 
         SearchConfiguration sc = scm.getSearchConfiguration(orgName);
         for (Filter f : sc.getFilters()) {
-            if (f.getFilterType() == null) {
+            if (f.getType() == null) {
                 String indexName = f.getFilterField().getTable() + "_"
                         + f.getFilterField().getColumn() + "_index";
                 daoHelper.executeUpdate(datasourceManager.newOrgRunner(orgName),
@@ -1621,7 +1621,7 @@ public class DBSetupManager {
         SearchConfiguration sc = scm.getSearchConfiguration(orgName);
         StringBuilder sb = new StringBuilder();
         for (Filter f : sc.getFilters()) {
-            if (f.getFilterType() == null) {
+            if (f.getType() == null) {
                 sb.append(",'" + f.getFilterField().getTable() + "_"
                         + f.getFilterField().getColumn() + "_index'");
             }
@@ -1640,7 +1640,7 @@ public class DBSetupManager {
         }
         SearchConfiguration sc = scm.getSearchConfiguration(orgName);
         for (Filter f : sc.getFilters()) {
-            if (f.getFilterType() == null) {
+            if (f.getType() == null) {
                 count++;
             }
         }
@@ -1671,20 +1671,25 @@ public class DBSetupManager {
 			orgConfigContent = scm.getMergedNodeContent(orgName);
 			DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 	        Document document = db.parse(new ByteArrayInputStream(orgConfigContent.getBytes()));
-	        NodeList sysCustomFields = document.getElementsByTagName("customFields");
-	        if(sysCustomFields.getLength() != 0){
-	            NodeList customFields = sysCustomFields.item(0).getChildNodes();
-	            for(int i = 0, j = customFields.getLength(); i < j; i++){
-	                Node customField = customFields.item(i);
-	                if(customField.getNodeType() == 1 && "field".equals(customField.getNodeName())){
-	                   if(checkAttribute(customField, "name") && checkAttribute(customField, "columnName")){
-	                	   String column = customField.getAttributes().getNamedItem("columnName").getNodeValue();
-	                	   if(checkColumn(column,"contact",schemaname)){
-	                           cloumns.add(customField.getAttributes().getNamedItem("columnName").getNodeValue());
-	                	   }
-	                   }
-	                }
-	            }
+	        NodeList filterNodes = document.getElementsByTagName("filter");
+	        if(filterNodes.getLength() > 0){
+	        	for(int i = 0, j = filterNodes.getLength(); i < j; i++){
+	        		Node filterField = filterNodes.item(i);
+                    if(filterField.getNodeType() == 1 && checkAttribute(filterField, "display") && "side".equals(filterField.getAttributes().getNamedItem("display").getNodeValue())){
+                    	NodeList customFields = filterField.getChildNodes();
+                    	for(int m = 0, n = customFields.getLength(); m < n; m++){
+                            Node customFieldNode = filterField.getChildNodes().item(m);
+                            if(customFieldNode != null && customFieldNode.getNodeType() == 1){
+                        		if(checkAttribute(customFieldNode, "table") && checkAttribute(customFieldNode, "column")){
+                                	String column = customFieldNode.getAttributes().getNamedItem("column").getNodeValue();
+                                	if(checkColumn(column,"contact",schemaname)){
+         	                           cloumns.add(column);
+         	                	   }
+                            	}
+                            }
+                    	}   
+                    }
+	        	}
 	        }
 		} catch (Exception e) {
 			e.printStackTrace();

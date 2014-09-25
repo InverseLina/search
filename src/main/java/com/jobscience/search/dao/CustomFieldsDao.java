@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
 import com.jobscience.search.organization.OrgContext;
-import com.jobscience.search.searchconfig.CustomField;
+import com.jobscience.search.searchconfig.Filter;
 import com.jobscience.search.searchconfig.SearchConfiguration;
 import com.jobscience.search.searchconfig.SearchConfigurationManager;
 
@@ -39,19 +39,20 @@ public class CustomFieldsDao {
     	String orgName = org.getOrgMap().get("name").toString();
     	List<Map> customFields = new ArrayList<Map>();
     	SearchConfiguration orgSearchConfig = null;
-    	List<CustomField> customFieldLists;
+    	List<Filter> filterLists;
     	orgSearchConfig =  searchConfigurationManager.getSearchConfiguration(orgName);
-		if(orgSearchConfig != null && orgSearchConfig.getCustomFields() != null){
-			customFieldLists = orgSearchConfig.getCustomFields().getFields();
-			if(customFieldLists != null){
-				for(CustomField field : customFieldLists){
-					if(!checkOrgCustomFieldIsValid(orgName, field.getColumnName())){
+		if(orgSearchConfig != null){
+			filterLists = orgSearchConfig.getCustomFilters();
+			if(filterLists != null){
+				for(Filter filter : filterLists){
+					if(!checkOrgCustomFieldIsValid(orgName, filter.getFilterField().getColumn())){
 						continue;
 					}
 					HashMap fieldMap = new HashMap();
-					fieldMap.put("name", field.getName());
-					fieldMap.put("label", field.getLabel());
-					fieldMap.put("type", field.getType());
+					fieldMap.put("name", filter.getName());
+					fieldMap.put("label", filter.getTitle());
+					fieldMap.put("type", StringFirstCharToUpperCase(filter.getType().value()));
+					fieldMap.put("bg_color", filter.getBg_color());
 					customFields.add(fieldMap);
 				}
 			}
@@ -70,12 +71,11 @@ public class CustomFieldsDao {
     	String orgName = org.getOrgMap().get("name").toString();
     	List<Map> columnData = new ArrayList<Map>();
     	SearchConfiguration orgSearchConfig = searchConfigurationManager.getSearchConfiguration(orgName);
-    	List<CustomField> customFieldLists;
-    	if(orgSearchConfig != null && orgSearchConfig.getCustomFields() != null){
-        		customFieldLists = orgSearchConfig.getCustomFields().getFields();
-        		for(CustomField field : customFieldLists){
-        			if(field.getName().equals(fieldName)){
-        				columnData = getColumnData(orgName,"contact",field.getColumnName(),searchText,4);
+    	List<Filter> customFilterLists = orgSearchConfig.getCustomFilters();
+    	if(orgSearchConfig != null && customFilterLists.size() > 0){
+        		for(Filter customFilter : customFilterLists){
+        			if(customFilter.getName().equals(fieldName)){
+        				columnData = getColumnData(orgName,"contact",customFilter.getFilterField().getColumn(),searchText,4);
         				break;
         			}
         		}
@@ -135,5 +135,9 @@ public class CustomFieldsDao {
             result = true;
         }
         return result;
+    }
+
+    public String StringFirstCharToUpperCase(String string) {
+    	return string.substring(0,1).toUpperCase()+string.substring(1);
     }
 }

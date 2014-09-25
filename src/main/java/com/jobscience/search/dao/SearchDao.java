@@ -263,7 +263,7 @@ public class SearchDao {
         querySql.append(" from ( select  ")
                 .append(contactString);
         for(Filter f : sc.getFilters()){
-            if(f.getFilterType() == null && contactString.indexOf(f.getFilterField().toString("contact")) == -1){
+            if(f.getType() == null && contactString.indexOf(f.getFilterField().toString("contact")) == -1){
                 if(contactTable.equals(f.getFilterField().getTable())){
                     querySql.append(",").append(f.getFilterField().toString("contact"));
                     groupBy.append(",").append(f.getFilterField().toString("a"));
@@ -480,17 +480,17 @@ public class SearchDao {
         if(filter == null){
              return null;
         }
-        FilterType f = filter.getFilterType();
+        Type f = filter.getType();
         String baseTable = "";
         if(f == null && !type.equals("location")){
             baseTable=filter.getFilterField().getTable();
-        }else if(f.equals(FilterType.COMPANY)){
+        }else if(f.equals(Type.COMPANY)){
             baseTable =  "jss_grouped_employers ";
-        }else if(f.equals(FilterType.EDUCATION)){
+        }else if(f.equals(Type.EDUCATION)){
             baseTable =  "jss_grouped_educations ";
-        }else if(f.equals(FilterType.SKILL)){
+        }else if(f.equals(Type.SKILL)){
             baseTable =  "jss_grouped_skills ";
-        }else if(f.equals(FilterType.LOCATION)){
+        }else if(f.equals(Type.LOCATION)){
             baseTable =  "city_score ";
         }
         
@@ -1116,15 +1116,15 @@ public class SearchDao {
     }
 
     @SuppressWarnings("serial")
-	private Map<FilterType,String> manyToManyTables = new HashMap<FilterType, String>(){{
-    	put(FilterType.COMPANY, "employers");
-    	put(FilterType.EDUCATION, "educations");
-    	put(FilterType.SKILL, "skills");
+	private Map<Type,String> manyToManyTables = new HashMap<Type, String>(){{
+    	put(Type.COMPANY, "employers");
+    	put(Type.EDUCATION, "educations");
+    	put(Type.SKILL, "skills");
     }};
     
     private boolean renderEducationCondition(JSONArray values,StringBuilder prefixSql,
                                        StringBuilder filterSql,String schemaname,
-                                       SearchConfiguration sc,FilterType filterType,OrgContext org,List valueList){
+                                       SearchConfiguration sc,Type filterType,OrgContext org,List valueList){
             boolean hasCondition = false;
             if(values != null){
                 StringBuilder condition = new StringBuilder();
@@ -1141,10 +1141,10 @@ public class SearchDao {
 							 .append("_id=? ");
 					valueList.add(groupedId);
                     	if(value.containsKey("minYears")){
-                    		if(FilterType.COMPANY.equals(filterType)){
+                    		if(Type.COMPANY.equals(filterType)){
                     			condition.append(" AND ").append(filterType).append(".year>=? ");
                     			valueList.add(value.getInt("minYears"));
-                    		}else if(FilterType.SKILL.equals(filterType)){
+                    		}else if(Type.SKILL.equals(filterType)){
                     			condition.append(" AND ").append(filterType).append(".rating>=? ");
                     			valueList.add(value.getInt("minYears"));
                     		}
@@ -1164,7 +1164,7 @@ public class SearchDao {
     
     private boolean renderSkillCondition(String operator, JSONArray values,StringBuilder prefixSql,
                             StringBuilder filterSql,String schemaname, 
-                            SearchConfiguration sc, FilterType filterType,OrgContext org,List valueList) {
+                            SearchConfiguration sc, Type filterType,OrgContext org,List valueList) {
         boolean hasCondition = false;
         if (values != null) {
             StringBuilder condition = new StringBuilder();
@@ -1179,7 +1179,7 @@ public class SearchDao {
         return hasCondition;
     }
 
-	private String setSkillCondition(String logic, FilterType filterType,
+	private String setSkillCondition(String logic, Type filterType,
 			List<JSONObject> list, List valueList) {
 		StringBuilder condition = new StringBuilder();
 		if (logic.equals("or")) {
@@ -1236,7 +1236,7 @@ public class SearchDao {
     
 	private boolean renderCompanyCondition(String operator, JSONArray values,StringBuilder prefixSql,
 			                    StringBuilder filterSql,String schemaname, 
-			                    SearchConfiguration sc, FilterType filterType,OrgContext org,List valueList) {
+			                    SearchConfiguration sc, Type filterType,OrgContext org,List valueList) {
 		boolean hasCondition = false;
 		if (values != null) {
             StringBuilder condition = new StringBuilder();
@@ -1251,7 +1251,7 @@ public class SearchDao {
         return hasCondition;
 	}
 
-	private String setCompanyCondition(String logic, FilterType filterType, List<JSONObject> list, List valueList) {
+	private String setCompanyCondition(String logic, Type filterType, List<JSONObject> list, List valueList) {
 		StringBuilder condition = new StringBuilder();
 		if (logic.equals("or")) {
 			condition.append(" inner join  jss_contact_jss_groupby_")
@@ -1411,28 +1411,28 @@ public class SearchDao {
         }
         boolean hasCondition = false;
         JSONObject jo;
-        CustomField customField;
+        Filter customFilter;
         String temp;
         JSONObject conditionsParam;
         for(int position = 0, length=searchValues.size(); position < length; position++){
             jo = searchValues.getJSONObject(position);
-            customField = sc.getCustomFieldByName(jo.getString("field"));
-            if(customField == null){
+            customFilter = sc.getFilterByName(jo.getString("field"));
+            if(customFilter == null){
                 continue;
             }
-            temp = customField.toString("contact");
+            temp = customFilter.getFilterField().toString("contact");
             conditionsParam = jo.getJSONObject("conditions");
             for(Object op : conditionsParam.keySet()){
-                conditions.append(" AND ( 1=1 ").append(wrap(temp,customField,conditionsParam.get(op),op));
+                conditions.append(" AND ( 1=1 ").append(wrap(temp,customFilter,conditionsParam.get(op),op));
             }
             hasCondition = true;
         }
         return hasCondition;
     }
     
-    private String wrap(String temp, CustomField customField, Object conditionParam, Object op){
+    private String wrap(String temp, Filter customFilter, Object conditionParam, Object op){
     	StringBuilder wrapStr = new StringBuilder();
-        if("String".equalsIgnoreCase( customField.getType())){
+        if("String".equalsIgnoreCase(customFilter.getType().name())){
         	JSONArray terms = JSONArray.fromObject(conditionParam);
         	if(terms.size() > 0 &&("==".equals(op) || "!=".equals(op))){
         		wrapStr.append("and (");
@@ -1450,15 +1450,15 @@ public class SearchDao {
             	}
         		wrapStr.append(")");
         	}
-        }else if("Date".equalsIgnoreCase( customField.getType())){
+        }else if("Date".equalsIgnoreCase(customFilter.getType().name())){
         	wrapStr.append("and").append(temp).append(op).append(" to_date('").append(conditionParam).append("','MM/DD/YYYY')");
-        }else if("Boolean".equalsIgnoreCase( customField.getType())){
+        }else if("Boolean".equalsIgnoreCase(customFilter.getType().name())){
             if("=".equals(op) || "==".equals(op)){
             	wrapStr.append("and").append(temp).append("= ").append(conditionParam);
             }else if("!=".equals(op)){
             	wrapStr.append("and").append(temp).append("!= ").append(conditionParam);
             }
-        }else if("Number".equalsIgnoreCase( customField.getType())){
+        }else if("Number".equalsIgnoreCase(customFilter.getType().name())){
         	wrapStr.append("and").append(temp).append(op).append(" ").append(conditionParam);
         }
         return wrapStr.append(" )").toString();
@@ -1633,21 +1633,21 @@ public class SearchDao {
         
         public SearchBuilder addEducation(JSONArray educations){
             hasCondition = renderEducationCondition( educations,
-            		prefixSql, filterSql, schemaname, sc,FilterType.EDUCATION,org,values)||hasCondition;
+            		prefixSql, filterSql, schemaname, sc,Type.EDUCATION,org,values)||hasCondition;
             return this;
         }
         
         
         public SearchBuilder addCompany(JSONArray companies){
             hasCondition = renderCompanyCondition(searchRequest.getCompanyOperator(), companies,
-            		prefixSql, filterSql, schemaname, sc,FilterType.COMPANY,org,values)||hasCondition;
+            		prefixSql, filterSql, schemaname, sc,Type.COMPANY,org,values)||hasCondition;
             return this;
         }
       
        
         public SearchBuilder addSkill(JSONArray skills){
             hasCondition = renderSkillCondition(searchRequest.getSkillOperator(), skills,
-            		prefixSql, filterSql, schemaname, sc,FilterType.SKILL,org,values)||hasCondition;
+            		prefixSql, filterSql, schemaname, sc,Type.SKILL,org,values)||hasCondition;
             return this;
         }
         

@@ -6,10 +6,30 @@ import com.google.common.base.Strings;
 
 public class FilterField extends Field {
 
+	private String table;
+    private String column;
     private String joinFrom;
     private String joinTo;
     
-    @XmlAttribute(name="joinfrom")
+    @XmlAttribute(name="table")
+	public String getTable() {
+		return table;
+	}
+
+	public void setTable(String table) {
+		this.table = table;
+	}
+
+	@XmlAttribute(name="column")
+	public String getColumn() {
+		return column;
+	}
+
+	public void setColumn(String column) {
+		this.column = column;
+	}
+
+	@XmlAttribute(name="joinfrom")
     public String getJoinFrom() {
         return joinFrom;
     }

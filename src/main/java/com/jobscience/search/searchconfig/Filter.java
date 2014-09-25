@@ -5,72 +5,95 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class Filter {
 
-    private String name;
-    private FilterType filterType;
-    private FilterField filterField;
-    private String title;
-    private boolean delete;
-    private String show;
-    
-    @XmlAttribute
-    public boolean isDelete() {
-        return delete;
-    }
+	private String name;
+	private String title;
+	private Type type;
+	private FilterField filterField;
+	private String show;
+	private String display;
+	private String bg_color;
+	private boolean delete;
 
-    public void setDelete(boolean delete) {
-        this.delete = delete;
-    }
+	@XmlAttribute
+	public boolean isDelete() {
+		return delete;
+	}
 
-    @XmlAttribute(name="show")
-    public String getShow() {
-        return show;
-    }
+	public void setDelete(boolean delete) {
+		this.delete = delete;
+	}
 
-    public void setShow(String show) {
-        this.show = show;
-    }
-    
-    public boolean isNeedShow() {
-        if(show == null){
-            return true;
-        }
-        return "true".equals(show);
-    }
-   
-    @XmlAttribute
-    public String getTitle() {
-        return title;
-    }
+	@XmlAttribute(name = "show")
+	public String getShow() {
+		return show;
+	}
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+	public void setShow(String show) {
+		this.show = show;
+	}
 
-    @XmlElement(name="field")
-    public FilterField getFilterField() {
-        return filterField;
-    }
+	public boolean isNeedShow() {
+		if (show == null) {
+			return true;
+		}
+		return "true".equals(show);
+	}
 
-    public void setFilterField(FilterField filterField) {
-        this.filterField = filterField;
-    }
+	@XmlAttribute
+	public String getTitle() {
+		return title;
+	}
 
-    @XmlAttribute
-    public String getName() {
-        return name;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	@XmlElement(name = "field")
+	public FilterField getFilterField() {
+		return filterField;
+	}
 
-    @XmlAttribute(name="filtertype")
-    public FilterType getFilterType() {
-        return filterType;
-    }
+	public void setFilterField(FilterField filterField) {
+		this.filterField = filterField;
+	}
 
-    public void setFilterType(FilterType filterType) {
-        this.filterType = filterType;
-    }
-    
+	@XmlAttribute
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@XmlAttribute(name = "type")
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	@XmlAttribute(name = "display")
+	public String getDisplay() {
+		return display;
+	}
+
+	public void setDisplay(String display) {
+		this.display = display;
+	}
+
+	@XmlAttribute(name = "bg-color")
+	public String getBg_color() {
+		return bg_color;
+	}
+
+	public void setBg_color(String bg_color) {
+		this.bg_color = bg_color;
+	}
+
+	public boolean isFilterColumn (){
+		return "column".equals(display);
+	}
 }

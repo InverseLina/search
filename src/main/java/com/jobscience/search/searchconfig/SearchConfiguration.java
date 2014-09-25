@@ -1,5 +1,6 @@
 package com.jobscience.search.searchconfig;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -11,7 +12,6 @@ public class SearchConfiguration {
     private KeyWord keyword;
     private List<Filter> filters;
     private Contact contact;
-    private CustomFields customFields;
 
     @XmlElement
     public KeyWord getKeyword() {
@@ -40,19 +40,10 @@ public class SearchConfiguration {
         this.filters = filters;
     }
 
-    @XmlElement
-    public CustomFields getCustomFields() {
-        return customFields;
-    }
-
-    public void setCustomFields(CustomFields customFields) {
-        this.customFields = customFields;
-    }
-
-    public Filter getFilter(FilterType filterType){
-        if(filterType!=null){
+    public Filter getFilter(Type type){
+        if(type!=null){
             for(Filter filter:filters){
-                if(filterType.equals(filter.getFilterType())){
+                if(type.equals(filter.getType())){
                     return filter;
                 }
             }
@@ -70,18 +61,31 @@ public class SearchConfiguration {
         }
         return null;
     }
-
-    public CustomField getCustomFieldByName(String name){
-        if(name!=null){
-          for(CustomField f:customFields.getFields()){
-              if(name.equals(f.getName())){
-                  return f;
-              }
-          }
+    
+    public List<Filter> getColumnFilters () {
+    	List<Filter> columnFilters = new ArrayList<Filter>();
+    	if(filters != null){
+            for(Filter filter:filters){
+                if("column".equals(filter.getDisplay())){
+                	columnFilters.add(filter);
+                }
+            }
         }
-        return null;
+    	return columnFilters;
     }
 
+    public List<Filter> getCustomFilters () {
+    	List<Filter> customFilters = new ArrayList<Filter>();
+    	if(filters != null){
+            for(Filter filter:filters){
+                if("side".equals(filter.getDisplay())){
+                	customFilters.add(filter);
+                }
+            }
+        }
+    	return customFilters;
+    }
+    
     public Field getContactField(ContactFieldType type){
         if(type!=null){
             for(Field field:contact.getContactFields()){

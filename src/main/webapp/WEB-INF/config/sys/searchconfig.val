@@ -2,21 +2,22 @@
   <keyword>
      <field table="jss_contact" name="contactResumeTsv" column="resume_tsv" />
   </keyword>
-  <filter name="skill" title="Skill" filtertype="skill">
+  
+  <filter name="skill" title="Skill" type="skill" display="column" bg-color="#eeddee">
      <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" slider="ts2__rating__c">
         <joinslider table="ts2__assessment__c" column="ts2__rating__c" joincolumn=""/>
      </field>
   </filter>
 
-  <filter name="education" title="Education" filtertype="education">
+  <filter name="education" title="Education" type="education" display="column" bg-color="#eeddee">
      <field table="ts2__education_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
   
-  <filter name="company" title="Employer" filtertype="company">
+  <filter name="company" title="Employer" type="company" display="column" bg-color="#eeddee">
      <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
 
-  <filter name="location" title="Location" filtertype="location" show="false">
+  <filter name="location" title="Location" type="location" show="false" display="column" bg-color="#eeddee">
      <field table="city_score" column="city" />
   </filter> 
   
