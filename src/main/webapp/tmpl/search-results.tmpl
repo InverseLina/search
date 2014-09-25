@@ -47,7 +47,7 @@
 				<!--<th class="favLabel"><div class="headerTh"></div></th>-->
 				<th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
 					{{#each displayColumns}}
-				<th style="width:{{../colWidth}}%" data-column="{{name}}" {{#check @index "===" 0}}colspan="2"{{/check}} {{#if ../labelAssigned}} class="favFilter"{{/if}}>
+				<th style="width:{{../colWidth}}%" data-column="{{name}}" {{#if custom}}data-custom="true" data-type="{{type}}"{{/if}} {{#check @index "===" 0}}colspan="2"{{/check}} {{#if ../labelAssigned}} class="favFilter"{{/if}}>
 					{{{renderHeader this}}}
 				</th>
 					{{/each}}

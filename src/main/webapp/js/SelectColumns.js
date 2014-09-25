@@ -16,6 +16,15 @@
 			var orders = app.getFilterOrders();
 			var colOrders = [];
 			var ids = [];
+			
+			//get custom fields
+			var fields = app.getCustomFields();
+			for(var i = 0; i < fields.length; i++){
+				var colObj = fields[i];
+				colObj.display = colObj.label;
+				columns.push(colObj);
+			}
+			
 			$.each(orders, function(idx, name) {
 				$.each(columns, function(idx, item) {
 					if (item.name === name) {

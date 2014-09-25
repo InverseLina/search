@@ -28,11 +28,11 @@
 			$e.find(".searchMode .btn[data-mode='"+searchMode+"']").addClass("active");
 			resizeGridControls.call(view);
 			
-			app.getJsonData("/getCustomFields").done(function(result) {
-				if(result && result.length > 0){
-					brite.display("CustomFilterPopup", null, {fields: result});
-				}
-			});
+			var fields = app.getCustomFields();
+			if(fields && fields.length > 0){
+				brite.display("CustomFilterPopup", null, {fields: fields});
+			}
+			
 		},
 		// --------- /View Interface Implement--------- //
 

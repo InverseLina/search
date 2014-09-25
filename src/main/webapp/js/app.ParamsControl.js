@@ -2,6 +2,8 @@ var app = app || {};
 (function($) {
 	var _storeValue = {};
 	var queryKey = "";
+	
+	var _headerCustomFilters = [];
 	function getMainView() {
 		return app.MainView;
 	}
@@ -201,6 +203,17 @@ var app = app || {};
 			}
 			
 			return true;
+		},
+		
+		saveHeaderCustomFilter:function(headerCustomFilter){
+			var index = 0;
+			for(var i = 0; i < _headerCustomFilters.length; i++){
+				var filter = _headerCustomFilters[i];
+				if(filter.field == _headerCustomFilters.field){
+					index = i;
+				}
+			}
+			_headerCustomFilters.splice(index, 1, headerCustomFilter);
 		}
 
 	};
