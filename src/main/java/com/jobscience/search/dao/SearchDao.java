@@ -258,9 +258,11 @@ public class SearchDao {
         
         
         //---------------------- add select columns ----------------------//
+        String customFieldColumnString = getcustomFieldColumnString(searchRequest.getColumns(), groupBy, org);
         String contactString = sc.toContactFieldsString("contact");
         String contactTable = sc.getContact().getTable();
         querySql.append(" from ( select  ")
+        		.append(customFieldColumnString)
                 .append(contactString);
         for(Filter f : sc.getFilters()){
             if(f.getType() == null && contactString.indexOf(f.getFilterField().toString("contact")) == -1){
@@ -719,7 +721,54 @@ public class SearchDao {
          }
     	 return columnsSql.toString();
     }
-    
+
+    /**
+     * 
+     * @param searchColumns
+     * @param columnJoinTables
+     * @param groupBy
+     * @param org
+     * @return
+     */
+    private String getcustomFieldColumnString(String searchColumns,StringBuilder groupBy,OrgContext org){
+    	 StringBuilder customColumnsSql = new StringBuilder();
+    	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
+    	 if(searchColumns == null){//a.phone,
+    		 return customColumnsSql.toString();
+    	 }else{
+    		 String temp = "";
+ 	         for(String column : searchColumns.split(",")){
+ 	        	temp = getQueryCustomColumnName(column, groupBy, org, sc);
+ 	        	if(!temp.trim().equals("")){
+ 	        		customColumnsSql.append(temp);
+ 	        		customColumnsSql.append(",");
+ 	        	}
+ 	        }
+         }
+    	 return customColumnsSql.toString();
+    }
+    /**
+     * 
+     * @param originalName
+     * @param org
+     * @param sc
+     * @return
+     */
+    private String getQueryCustomColumnName(String originalName, StringBuilder groupBy, OrgContext org, SearchConfiguration sc){
+    	StringBuilder customColumn = new StringBuilder();
+        List<Filter> customFilters = sc.getCustomFilters();
+        for(Filter customFilter : customFilters){
+        	if(originalName.trim().equals(customFilter.getName()) && sc.getContactFieldByName(originalName) == null){
+        		String column = customFilter.getFilterField().getColumn();
+        		customColumn.append("contact.\"").append(column)
+        		.append("\" as ").append(column);
+        		groupBy.append("," + column);
+        	}
+        }
+        return customColumn.toString();
+    }
+
+
     /**
      * render the List<Map> results set contact LocationName (Now not use,359)
      * @param searchRequest

@@ -122,4 +122,16 @@ public class SearchConfiguration {
         }
         return sb.toString();
     }
+    
+    public Field getContactFieldByName(String name){
+    	Field contactField = null;
+    	for(Field field : contact.getContactFields()){
+            if(name.equalsIgnoreCase(field.getName())){
+            	contactField = field;
+            	break;
+            }
+        }
+    	return contactField;
+    }
+    
 }

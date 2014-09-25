@@ -8,10 +8,12 @@ import javax.xml.bind.annotation.XmlElement;
 public class Contact {
 
     private List<Field> contactFields;
+
+    private String title;
     
     private String table;
    
-    @XmlAttribute
+    @XmlAttribute(name="title")
     public String getTitle() {
         return title;
     }
@@ -20,8 +22,6 @@ public class Contact {
         this.title = title;
     }
 
-    private String title;
-    
     @XmlAttribute(name="table")
     public String getTable() {
         return table;
