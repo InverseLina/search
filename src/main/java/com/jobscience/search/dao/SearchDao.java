@@ -1268,11 +1268,12 @@ public class SearchDao {
 				condition.append("( ").append(filterType)
 						.append(".jss_groupby_")
 						.append(manyToManyTables.get(filterType))
-						.append("_id=").append(groupedId);
+						.append("_id=? ");
+				valueList.add(groupedId);
 				if (value.containsKey("minYears")) {
 					condition.append(" AND ").append(filterType)
-							.append(".year>=")
-							.append(value.getInt("minYears"));
+							.append(".year>=? ");
+					valueList.add(value.getInt("minYears"));
 				}
 				condition.append(" )");
 			}
@@ -1294,7 +1295,7 @@ public class SearchDao {
 		        valueList.add(groupedId);
 				if (value.containsKey("minYears")) {
 					condition.append(" AND ").append(filterType).append(i)
-							.append(".year>=? ");
+							 .append(".year>=? ");
 					valueList.add(value.getInt("minYears"));
 				}
 				condition.append(") ");
