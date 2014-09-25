@@ -31,15 +31,15 @@ var app = app || {};
 	};
 
 	app.getSearchUiConfig = function(update) {
+		var result;
 		if (update) {
 			cache = getConfig();
 		}
-		if (cache) {
-			return cache;
-		} else {
+		if (!cache){
 			cache = getConfig();
-			return cache;
 		}
+		result = cache;
+		return $.extend([], result);
 	};
 
 	var filters = {

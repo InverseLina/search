@@ -18,13 +18,12 @@
 			var ids = [];
 			
 			//get custom fields
-			app.getJsonData("/getCustomFields", {}, {async : false}).done(function(result) {
-				for(var i = 0; i < result.length; i++){
-					var colObj = result[i];
-					colObj.display = colObj.label;
-					columns.push(colObj);
-				}
-			});
+			var fields = app.getCustomFields();
+			for(var i = 0; i < fields.length; i++){
+				var colObj = fields[i];
+				colObj.display = colObj.label;
+				columns.push(colObj);
+			}
 			
 			$.each(orders, function(idx, name) {
 				$.each(columns, function(idx, item) {

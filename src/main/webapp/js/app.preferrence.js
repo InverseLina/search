@@ -69,7 +69,15 @@ var app = app || {};
 			}
 		},
 		displayColumns : function() {
-			return app.getSearchUiConfig();
+			var columns = app.getSearchUiConfig();
+			var fields = app.getCustomFields();
+			
+			for (var i = 0; i < fields.length; i++) {
+				var colObj = fields[i];
+				colObj.title = colObj.label;
+				columns.push(colObj);
+			}
+			return columns;
 		}
 	};
 
