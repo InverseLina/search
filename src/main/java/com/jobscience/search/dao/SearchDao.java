@@ -1405,7 +1405,7 @@ public class SearchDao {
         return hasCondition;
     }
     
-    private boolean renderCustomFields(JSONArray searchValues,StringBuilder conditions,SearchConfiguration sc){
+    private boolean renderCustomFields(JSONArray searchValues,StringBuilder conditions, List conditionValues, SearchConfiguration sc){
     	if(searchValues == null){
             return false;
         }
@@ -1423,14 +1423,14 @@ public class SearchDao {
             temp = customFilter.getFilterField().toString("contact");
             conditionsParam = jo.getJSONObject("conditions");
             for(Object op : conditionsParam.keySet()){
-                conditions.append(" AND ( 1=1 ").append(wrap(temp,customFilter,conditionsParam.get(op),op));
+                conditions.append(" AND ( 1=1 ").append(wrap(temp,customFilter,conditionsParam.get(op),op,conditionValues));
             }
             hasCondition = true;
         }
         return hasCondition;
     }
     
-    private String wrap(String temp, Filter customFilter, Object conditionParam, Object op){
+    private String wrap(String temp, Filter customFilter, Object conditionParam, Object op, List conditionValues){
     	StringBuilder wrapStr = new StringBuilder();
         if("String".equalsIgnoreCase(customFilter.getType().name())){
         	JSONArray terms = JSONArray.fromObject(conditionParam);
@@ -1446,20 +1446,25 @@ public class SearchDao {
         			}else{
         				wrapStr.append("!=");
         			}
-        			wrapStr.append(" '").append(terms.get(i)).append("'");
+        			wrapStr.append(" ?");
+        			conditionValues.add(terms.get(i));
             	}
         		wrapStr.append(")");
         	}
         }else if("Date".equalsIgnoreCase(customFilter.getType().name())){
-        	wrapStr.append("and").append(temp).append(op).append(" to_date('").append(conditionParam).append("','MM/DD/YYYY')");
+        	wrapStr.append("and").append(temp).append(op).append(" to_date(?,'MM/DD/YYYY')");
+        	conditionValues.add(conditionParam);
         }else if("Boolean".equalsIgnoreCase(customFilter.getType().name())){
             if("=".equals(op) || "==".equals(op)){
-            	wrapStr.append("and").append(temp).append("= ").append(conditionParam);
+            	wrapStr.append("and").append(temp).append("=?");
+            	conditionValues.add(conditionParam);
             }else if("!=".equals(op)){
-            	wrapStr.append("and").append(temp).append("!= ").append(conditionParam);
+            	wrapStr.append("and").append(temp).append("!=?");
+            	conditionValues.add(conditionParam);
             }
         }else if("Number".equalsIgnoreCase(customFilter.getType().name())){
-        	wrapStr.append("and").append(temp).append(op).append(" ").append(conditionParam);
+        	wrapStr.append("and").append(temp).append(op).append("?");
+        	conditionValues.add(conditionParam);
         }
         return wrapStr.append(" )").toString();
     }
@@ -1700,7 +1705,7 @@ public class SearchDao {
             return this;
         }
         public SearchBuilder addCustomFields(JSONArray searchValues){
-            hasContactCondition = renderCustomFields(searchValues,  conditions, sc)||hasContactCondition;
+            hasContactCondition = renderCustomFields(searchValues,  conditions, conditionValues, sc)||hasContactCondition;
             hasCondition = hasContactCondition|| hasCondition;
             return this;
         }
