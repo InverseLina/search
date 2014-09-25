@@ -95,19 +95,16 @@
 				applyValues.call(view,true);
 			}
 		},
-		
-		parentEvents:{
-			CustomFilterPopup:{
-				"click":function(e){
-					var view = this;
-					var $e = view.$el;
-					var $target = $(e.target);
-					if($target.closest(".operationSelect").size() == 0){
-						$e.find(".operations").addClass("hide");
-					}
-					if($target.closest(".input-containers").size() == 0){
-						$e.find(".autocomplete-container").addClass("hide").empty();
-					}
+		docEvents:{
+			"click":function(e){
+				var view = this;
+				var $e = view.$el;
+				var $target = $(e.target);
+				if($target.closest(".operationSelect").size() == 0){
+					$e.find(".operations").addClass("hide");
+				}
+				if($target.closest(".input-containers").size() == 0){
+					$e.find(".autocomplete-container").addClass("hide").empty();
 				}
 			}
 		},

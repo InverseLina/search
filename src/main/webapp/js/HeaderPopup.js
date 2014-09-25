@@ -54,8 +54,14 @@
 					top : top
 				});
 				//call filterRender method
-				var type = $target.attr("data-column");
-				var filterRender = app.getFilterRender(type);
+				var custom = $target.attr("data-custom");
+				var filterRender;
+				if(custom == "true"){
+					filterRender = app.getFilterRender("custom");
+				}else{
+					var type = $target.attr("data-column");
+					filterRender = app.getFilterRender(type);
+				}
 				filterRender(view.$content, $target);
 
 			}

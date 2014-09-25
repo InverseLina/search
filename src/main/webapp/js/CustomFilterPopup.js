@@ -25,10 +25,8 @@
 
 		// --------- Events--------- //
 		events : {
-			"click":function(e){
-				e.stopPropagation();				
-			},
-			"click;.CustomFilterPopup-slider":function(){
+			"click;.CustomFilterPopup-slider":function(e){
+				e.stopPropagation();
 				var view = this;
 				var $e = view.$el;
 				$e.toggleClass("show");
@@ -52,10 +50,13 @@
 		// --------- /Events--------- //
 		// --------- Document Events--------- //
 		docEvents:{
-			"click":function(){
+			"click":function(e){
 				var view = this;
 				var $e = view.$el;
-				$e.removeClass("show");
+				var $target = $(e.target);
+				if($target.closest(".CustomFilterPopup").size() == 0){
+					$e.removeClass("show");
+				}
 			},
 			"CLEAR_ALL_CUSTOM_FIELDS":function(){
 				var view = this;

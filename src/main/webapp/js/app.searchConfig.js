@@ -105,7 +105,34 @@ var app = app || {};
 					th : headerInfo
 				});
 			}
-		}
+		},
+		custom : {
+			headerRenderer : genericHeaderFilterRenderer,
+			filterRenderer : function($content, headerInfo) {
+				var $target = $(headerInfo);
+				var type = $target.attr("data-type");
+				var name = $target.attr("data-column");
+				var viewName;
+				if (type.toLowerCase() == 'number') {
+					viewName = "CustomFilterNumber";
+				} else if (type.toLowerCase() == 'string') {
+					viewName = "CustomFilterString";
+				} else if (type.toLowerCase() == 'date') {
+					viewName = "CustomFilterDate";
+				} else if (type.toLowerCase() == 'boolean') {
+					viewName = "CustomFilterBoolean";
+				}
+				
+				if (viewName) {
+					brite.display(viewName, $content, {
+						name : name
+					}).done(function(custonFilterView){
+						custonFilterView.showMode("edit");
+					});
+				}
+			},
+
+		},
 
 	};
 	//for generic not default filter render
