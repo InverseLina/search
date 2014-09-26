@@ -1640,7 +1640,7 @@ public class DBSetupManager {
         }
         SearchConfiguration sc = scm.getSearchConfiguration(orgName);
         for (Filter f : sc.getFilters()) {
-            if (f.getType() == null) {
+            if ("column".equals(f.getType())) {
                 count++;
             }
         }

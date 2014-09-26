@@ -122,7 +122,7 @@ public class SearchConfigurationManager {
                         m.put("paramName",   f.getFilterField().getColumn());
                         m.put("type", "custom");
                     }else{
-                        m.put("type",   f.getType().value());
+                        m.put("type",   f.getFilterType().value());
                     }
                     filters.add(m);
                 }

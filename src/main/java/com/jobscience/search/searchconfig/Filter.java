@@ -7,7 +7,8 @@ public class Filter {
 
 	private String name;
 	private String title;
-	private Type type;
+	private Type filterType;
+	private String type;
 	private FilterField filterField;
 	private String show;
 	private String display;
@@ -67,11 +68,11 @@ public class Filter {
 	}
 
 	@XmlAttribute(name = "type")
-	public Type getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(Type type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
@@ -91,6 +92,21 @@ public class Filter {
 
 	public void setBg_color(String bg_color) {
 		this.bg_color = bg_color;
+	}
+
+	public Type getFilterType() {
+		if(filterType == null && type != null){
+			for (Type type : Type.values()){
+				if(type.value().toLowerCase().equals(this.type.toLowerCase())){
+					this.filterType = type;
+				}
+			}
+		}
+		return filterType;
+	}
+
+	public void setFilterType(Type filterType) {
+		this.filterType = filterType;
 	}
 
 	public boolean isFilterColumn (){

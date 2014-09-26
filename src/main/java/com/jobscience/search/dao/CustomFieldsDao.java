@@ -51,7 +51,7 @@ public class CustomFieldsDao {
 					HashMap fieldMap = new HashMap();
 					fieldMap.put("name", filter.getName());
 					fieldMap.put("label", filter.getTitle());
-					fieldMap.put("type", StringFirstCharToUpperCase(filter.getType().value()));
+					fieldMap.put("type", filter.getFilterType().value());
 					fieldMap.put("bg_color", filter.getBg_color());
 					customFields.add(fieldMap);
 				}
@@ -137,7 +137,4 @@ public class CustomFieldsDao {
         return result;
     }
 
-    public String StringFirstCharToUpperCase(String string) {
-    	return string.substring(0,1).toUpperCase()+string.substring(1);
-    }
 }

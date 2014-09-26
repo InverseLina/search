@@ -482,7 +482,7 @@ public class SearchDao {
         if(filter == null){
              return null;
         }
-        Type f = filter.getType();
+        Type f = filter.getFilterType();
         String baseTable = "";
         if(f == null && !type.equals("location")){
             baseTable=filter.getFilterField().getTable();
@@ -1482,7 +1482,7 @@ public class SearchDao {
     
     private String wrap(String temp, Filter customFilter, Object conditionParam, Object op, List conditionValues){
     	StringBuilder wrapStr = new StringBuilder();
-        if("String".equalsIgnoreCase(customFilter.getType().name())){
+        if("string".equalsIgnoreCase(customFilter.getFilterType().value())){
         	JSONArray terms = JSONArray.fromObject(conditionParam);
         	if(terms.size() > 0 &&("==".equals(op) || "!=".equals(op))){
         		wrapStr.append("and (");
@@ -1501,10 +1501,10 @@ public class SearchDao {
             	}
         		wrapStr.append(")");
         	}
-        }else if("Date".equalsIgnoreCase(customFilter.getType().name())){
+        }else if("date".equalsIgnoreCase(customFilter.getFilterType().value())){
         	wrapStr.append("and").append(temp).append(op).append(" to_date(?,'MM/DD/YYYY')");
         	conditionValues.add(conditionParam);
-        }else if("Boolean".equalsIgnoreCase(customFilter.getType().name())){
+        }else if("boolean".equalsIgnoreCase(customFilter.getFilterType().value())){
             if("=".equals(op) || "==".equals(op)){
             	wrapStr.append("and").append(temp).append("=?");
             	conditionValues.add(conditionParam);
@@ -1512,7 +1512,7 @@ public class SearchDao {
             	wrapStr.append("and").append(temp).append("!=?");
             	conditionValues.add(conditionParam);
             }
-        }else if("Number".equalsIgnoreCase(customFilter.getType().name())){
+        }else if("number".equalsIgnoreCase(customFilter.getFilterType().value())){
         	wrapStr.append("and").append(temp).append(op).append("?");
         	conditionValues.add(conditionParam);
         }
