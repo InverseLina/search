@@ -41,6 +41,7 @@ public class SearchRequest {
             	temp = jo.get(key).toString()/*.replaceAll("#", "\\\"")*/;
             	if("q_search".equals(key)){
             		temp = temp.replaceAll("\'", "");
+            		temp = temp.replaceAll("[\\,\\:\\(\\)\\[\\]\\{\\}/\\*\\^!&]","");
             	}
             	if("q_search".equals(key) && !temp.matches("^\\s*\".+\"\\s*$")){
             		temp = ruleInexactKeyWord(temp).trim();
