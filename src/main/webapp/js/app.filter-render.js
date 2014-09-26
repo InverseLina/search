@@ -109,8 +109,10 @@ var app = app || {};
 		},
 		cellRenderer : function(cellInfo) {
 			if(cellInfo.value){
-				var separator = new RegExp(app._separator,"g");
-				cellInfo.value = cellInfo.value.replace(separator,",");
+				if(cellInfo.value.replace){
+					var separator = new RegExp(app._separator,"g");
+					cellInfo.value = cellInfo.value.replace(separator,",");
+				}
 			}
 			return render("search-query-generic-render-cell", cellInfo);
 		}
