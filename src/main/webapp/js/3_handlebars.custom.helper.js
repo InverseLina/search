@@ -1,40 +1,4 @@
 (function($) {
-	function getDisplayOrders() {
-		var i, oldColumns = app.preference.columns();
-		//reorder columns
-		var filterOrders = app.getFilterOrders() || [];
-		var columns = [];
-
-		$.each(filterOrders, function(idx, colName) {
-			if ($.inArray(colName, oldColumns) >= 0) {
-				columns.push(colName);
-			}
-		});
-
-		$.each(oldColumns, function(idx, colName) {
-			if ($.inArray(colName, columns) < 0) {
-				columns.push(colName);
-			}
-		});
-		if (columns.length > 0 && columns.length !== filterOrders.length) {
-			app.getFilterOrders(columns);
-		}
-
-		var displays = [];
-		
-		$.each(columns, function(idx, colName) {
-			$.each(app.preference.displayColumns(), function(didx, item) {
-				if (item.name === colName) {
-					displays.push(item);
-				}
-			});
-
-		});
-		return displays;
-	}
-
-	app = app || {};
-	app.getDisplayOrders = getDisplayOrders;
 
 	Handlebars.registerHelper('listNum', function(start, end, currentPage, options) {
 		currentPage = parseInt(currentPage);
@@ -126,7 +90,7 @@
 
 	Handlebars.registerHelper('colHeader', function(template, labelAssigned, options) {
 		labelAssigned = labelAssigned || false;
-		var displays = getDisplayOrders();
+		var displays = app.columns.getSelectedColumns();
 		var html = Handlebars.templates[template]({
 			displayColumns : displays,
 			colWidth : 100 / displays.length,
@@ -137,7 +101,7 @@
 	});
 
 	Handlebars.registerHelper('colBody', function(template, options) {
-		var displays = getDisplayOrders();
+		var displays = app.columns.getSelectedColumns();
 		var buffer = options.fn(this);
 		var html = Handlebars.templates[template]({
 			displayColumns : displays,

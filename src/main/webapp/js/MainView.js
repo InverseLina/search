@@ -109,7 +109,7 @@
 							app.ParamsControl.remove(column === "contact" ? "Contact" : column);
 						}
 					});
-					app.preference.columns(extra.columns);
+					app.columns.save(extra.columns);
 					if(app.ParamsControl.isEmptySearch()){
 						view.contentView.dataGridView.refreshColumns();
 						app.currentDeferred = $.Deferred();

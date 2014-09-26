@@ -12,34 +12,7 @@
 	}, {
 		// --------- View Interface Implement--------- //
 		create : function(data, config) {
-			var i, columns = app.getSearchUiConfig(true);
-			var orders = app.getFilterOrders();
-			var colOrders = [];
-			var ids = [];
-			
-			//get custom fields
-			var fields = app.getCustomFields();
-			for(var i = 0; i < fields.length; i++){
-				var colObj = fields[i];
-				colObj.display = colObj.label;
-				columns.push(colObj);
-			}
-			
-			$.each(orders, function(idx, name) {
-				$.each(columns, function(idx, item) {
-					if (item.name === name) {
-						colOrders.push(item);
-						ids.push(idx);
-					}
-				});
-
-			});
-
-			for ( i = 0; i < columns.length; i++) {
-				if ($.inArray(i, ids) < 0) {
-					colOrders.push(columns[i]);
-				}
-			}
+			var colOrders = app.columns.listAllWithOrder();
 			return render("SelectColumns", {
 				columns : colOrders
 			});
@@ -47,7 +20,7 @@
 
 		postDisplay : function(data) {
 			var view = this;
-			var columns = app.preference.columns();
+			var columns = app.columns.get();
 			if (app.buildPathInfo().labelAssigned) {
 				view.$el.addClass("favFilter");
 			}
@@ -99,7 +72,8 @@
 					alert("Please a column at least!");
 					$checkbox.prop("checked", true);
 				}
-
+				
+				view.$el.trigger("REFRESH_POPUP_CUSTOM_FIELDS");
 			},
 			"bdragstart; li" : function(event) {
 				event.stopPropagation();
@@ -160,19 +134,15 @@
 				var $e = view.$el;
 
 				var columns = [];
-				$e.find(".columns li").each(function(idx, th) {
-					var $li = $(th);
-					columns.push($li.find("input").val());
+				$e.find(".columns li input:checked").each(function(idx, th) {
+					var $checkbox = $(this);
+					columns.push($checkbox.val());
 				});
 				view.$el.find("#columnsClone").remove();
-
 				$e.find(".columns li").removeClass("holderSpace");
-
-				app.getJsonData("perf/save-user-pref", {
-					value : JSON.stringify(columns)
-				}, "Post").done(function() {
-
-					app.getFilterOrders(columns);
+				
+				
+				app.columns.save(columns).done(function(){
 					view.$el.trigger("DO_SEARCH");
 				});
 			}

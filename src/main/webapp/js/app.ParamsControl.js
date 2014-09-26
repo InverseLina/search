@@ -18,9 +18,9 @@ var app = app || {};
 			var searchData = result.searchValues = {};
 			var contentSearchValues = view.contentView.dataGridView.getSearchValues();
 			queryKey = $.trim(params.search || contentSearchValues.search);
-			result.searchColumns = app.preference.columns().join(",");
+			result.searchColumns = app.columns.get().join(",");
 			if (contentSearchValues.sort) {
-				if(new RegExp(contentSearchValues.sort.column,"i").test(app.preference.columns())){//only the sort header shown 
+				if(new RegExp(contentSearchValues.sort.column,"i").test(app.columns.get())){//only the sort header shown 
 					result.orderBy = contentSearchValues.sort.column;
 					result.orderType = contentSearchValues.sort.order === "asc";
 				}

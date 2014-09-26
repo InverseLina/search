@@ -12,6 +12,7 @@
 		postDisplay : function() {
 			var view = this;
 			var $e = view.$el;
+			
 			view.$searchInput = view.$el.find(".search-input");
 			view.$searchResult = view.$el.find(".search-result");
 			view.tableOrderColumn = null;
@@ -28,11 +29,7 @@
 			$e.find(".searchMode .btn[data-mode='"+searchMode+"']").addClass("active");
 			resizeGridControls.call(view);
 			
-			var fields = app.getCustomFields();
-			if(fields && fields.length > 0){
-				brite.display("CustomFilterPopup", null, {fields: fields});
-			}
-			
+			brite.display("CustomFilterPopup", null);
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -307,10 +304,7 @@
 
 				$e.find(".scrollTable th, .scrollTable td").removeClass("holderSpace");
 
-				app.getJsonData("perf/save-user-pref", {
-					value : JSON.stringify(columns)
-				}, "Post").done(function() {
-					app.getFilterOrders(columns);
+				app.columns.save(columns).done(function(){
 					view.$el.trigger("DO_SEARCH");
 				});
 			}
@@ -619,26 +613,7 @@
 	function buildResult(items) {
 		var result = [];
 		var item;
-		var oldColumns = app.preference.columns();
-		//reorder columns
-		var filterOrders = app.getFilterOrders();
-		var columns = [];
-
-		$.each(filterOrders, function(idx, colName) {
-			if ($.inArray(colName, oldColumns) >= 0) {
-				columns.push(colName);
-			}
-		});
-
-		$.each(oldColumns, function(idx, colName) {
-			if ($.inArray(colName, columns) < 0) {
-				columns.push(colName);
-			}
-		});
-		if (columns.length > 0 && columns.length !== filterOrders.length) {
-			app.getFilterOrders(columns);
-		}
-
+		var columns = app.columns.get();
 		var colLen = columns.length;
 		var view = this;
 		var dtd = $.Deferred();
@@ -715,7 +690,7 @@
 
 	function getColWidth() {
 		var view = this;
-		var colLen = app.preference.columns().length;
+		var colLen = app.columns.get().length;
 		//        return parseInt((view.$searchResult.innerWidth()-30)/colLen)-2;
 		return 100 / colLen;
 	}
@@ -725,7 +700,7 @@
 		var $e = view.$el;
 		var colWidth;
 		var colName;
-		var columns = app.preference.columns();
+		var columns = app.columns.get();
 		var colLen = columns.length;
 		var tableWidth = view.$el.find(".tableContainer").width();
 		var excludes = ["id", "CreatedDate", "title", "email", "resume"];
