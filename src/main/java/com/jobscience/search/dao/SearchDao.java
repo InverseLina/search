@@ -615,7 +615,11 @@ public class SearchDao {
         String tableName = f.getFilterField().getTable();
         String contactTableName = sc.getContact().getTable();
         if(tableName.equals(contactTableName)){
-            return f.getFilterField().toString("a")+" as \""+f.getName()+"\"";
+        	if("date".equalsIgnoreCase(f.getFilterType().value())){
+        		return connectionString("to_char(",f.getFilterField().toString("a"),",'yyyy-mm-dd') as \"",f.getName(),"\"");
+	        }else{
+	        	return f.getFilterField().toString("a")+" as \""+f.getName()+"\"";
+	        }
         }else{
             FilterField ff = f.getFilterField();
             return connectionString(" (select  string_agg(distinct d.\"",ff.getColumn(),"\",',') " ,
