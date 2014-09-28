@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.jobscience.search.searchconfig.*;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -727,7 +728,7 @@ public class SearchDao {
     }
 
     /**
-     * 
+     * get all the customfields column string
      * @param searchColumns
      * @param columnJoinTables
      * @param groupBy
@@ -752,7 +753,7 @@ public class SearchDao {
     	 return customColumnsSql.toString();
     }
     /**
-     * 
+     * add the custom fields column string
      * @param originalName
      * @param org
      * @param sc
@@ -762,8 +763,8 @@ public class SearchDao {
     	StringBuilder customColumn = new StringBuilder();
         List<Filter> customFilters = sc.getCustomFilters();
         for(Filter customFilter : customFilters){
-        	if(originalName.trim().equals(customFilter.getName()) && sc.getContactFieldByName(originalName) == null){
-        		String column = customFilter.getFilterField().getColumn();
+        	String column = customFilter.getFilterField().getColumn();
+        	if(originalName.trim().equals(customFilter.getName()) && !judgeColumnInContactField(column, sc)){
         		customColumn.append("contact.\"").append(column)
         		.append("\" as ").append(column);
         		groupBy.append("," + column);
@@ -772,6 +773,21 @@ public class SearchDao {
         return customColumn.toString();
     }
 
+    /**
+     * judge the column if in the config Contact field column
+     * @param column
+     * @param sc
+     * @return
+     */
+    private boolean judgeColumnInContactField( String column, SearchConfiguration sc) {
+    	List<Field> contactFields = sc.getContact().getContactFields();
+    	for (Field field : contactFields){
+    		if(column.equalsIgnoreCase(field.getColumn())){
+    			return true;
+    		}
+    	}
+    	return false;
+    }
 
     /**
      * render the List<Map> results set contact LocationName (Now not use,359)
