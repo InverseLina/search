@@ -3,7 +3,7 @@
      <field table="jss_contact" name="contactResumeTsv" column="resume_tsv" />
   </keyword>
   
-  <filter name="skill" title="Skill" type="skill" display="column" bg-color="#eeddee">
+  <filter name="skill" title="Skill" type="skill" all-any="false" display="column" bg-color="#eeddee">
      <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" slider="ts2__rating__c">
         <joinslider table="ts2__assessment__c" column="ts2__rating__c" joincolumn=""/>
      </field>
@@ -17,7 +17,7 @@
      <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
   </filter>   
 
-  <filter name="location" title="Location" type="location" show="false" display="column" bg-color="#eeddee">
+  <filter name="location" title="Location" type="location" orderable="false" show="false" display="column" bg-color="#eeddee">
      <field table="city_score" column="city" />
   </filter> 
   

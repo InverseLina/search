@@ -13,16 +13,9 @@ public class Filter {
 	private String show;
 	private String display;
 	private String bg_color;
+	private boolean all_any;
+	private boolean orderable;
 	private boolean delete;
-
-	@XmlAttribute
-	public boolean isDelete() {
-		return delete;
-	}
-
-	public void setDelete(boolean delete) {
-		this.delete = delete;
-	}
 
 	@XmlAttribute(name = "show")
 	public String getShow() {
@@ -40,7 +33,7 @@ public class Filter {
 		return "true".equals(show);
 	}
 
-	@XmlAttribute
+	@XmlAttribute(name = "title")
 	public String getTitle() {
 		return title;
 	}
@@ -58,7 +51,7 @@ public class Filter {
 		this.filterField = filterField;
 	}
 
-	@XmlAttribute
+	@XmlAttribute(name = "name")
 	public String getName() {
 		return name;
 	}
@@ -92,6 +85,33 @@ public class Filter {
 
 	public void setBg_color(String bg_color) {
 		this.bg_color = bg_color;
+	}
+	
+	@XmlAttribute(name = "delete")
+	public boolean isDelete() {
+		return delete;
+	}
+
+	public void setDelete(boolean delete) {
+		this.delete = delete;
+	}
+	
+	@XmlAttribute(name = "all-any")
+	public boolean isAll_any() {
+		return all_any;
+	}
+
+	public void setAll_any(boolean all_any) {
+		this.all_any = all_any;
+	}
+
+	@XmlAttribute(name = "orderable")
+	public boolean isOrderable() {
+		return orderable;
+	}
+
+	public void setOrderable(boolean orderable) {
+		this.orderable = orderable;
 	}
 
 	public Type getFilterType() {

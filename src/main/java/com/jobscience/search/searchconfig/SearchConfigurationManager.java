@@ -117,6 +117,8 @@ public class SearchConfigurationManager {
                                        "title",   f.getTitle(),
                                       "native",   (f.getType()!=null),
                                         "show",   f.isNeedShow(),
+                                        "all-any",   f.isAll_any(),
+                                        "orderable",   f.isOrderable(),
                     					"bg_color",   f.getBg_color());
                     if(f.getType() == null){
                         m.put("paramName",   f.getFilterField().getColumn());

@@ -52,6 +52,8 @@ public class CustomFieldsDao {
 					fieldMap.put("name", filter.getName());
 					fieldMap.put("label", filter.getTitle());
 					fieldMap.put("type", filter.getFilterType().value());
+					fieldMap.put("all-any", filter.isAll_any());
+					fieldMap.put("orderable", filter.isOrderable());
 					fieldMap.put("bg_color", filter.getBg_color());
 					customFields.add(fieldMap);
 				}
