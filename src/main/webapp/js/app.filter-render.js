@@ -108,7 +108,7 @@ var app = app || {};
 			//do nothing for now
 		},
 		cellRenderer : function(cellInfo) {
-			if(cellInfo.value){
+			if(typeof cellInfo.value != 'undefined' && cellInfo.value != null){
 				if(cellInfo.value.replace){
 					var separator = new RegExp(app._separator,"g");
 					cellInfo.value = cellInfo.value.replace(separator,",");

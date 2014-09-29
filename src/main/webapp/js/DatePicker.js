@@ -42,10 +42,10 @@
 		// --------- /View Interface Implement--------- //
 		// --------- Events--------- //
 		events:{
-			"btap":function(e){
+			"click":function(e){
 				e.stopPropagation();
 			},
-			"btap; .year":function(e){
+			"click; .year":function(e){
 				e.stopPropagation();
 				var view = this;
 				var $e = view.$el;
@@ -116,9 +116,12 @@
 		// --------- /Events--------- //
 		// --------- Document Events--------- //
 		docEvents:{
-			"btap":function(e){
+			"click":function(e){
 				var view = this;
-				view.$el.bRemove();
+				var $target = $(e.target)
+				if($target.closest("."+view.name).size() > 0){
+					close.call(view);
+				}
 			}
 		},
 		// --------- /Document Events--------- //

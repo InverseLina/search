@@ -37,6 +37,39 @@
 			.text{
 				margin-left:10px;
 			}
+			
+			.clear {
+				position: absolute;
+				font-size: 16px;
+				width: 16px;
+				height: 16px;
+				text-align: center;
+				line-height: 16px;
+				vertical-align: middle;
+				border-radius: 16px;
+				cursor: pointer;
+				background: #333;
+				color: #ffffff;
+				padding-top: 2px;
+				padding-left: 0px;
+				right: 2px;
+				margin-top: 3px;
+				top: 2px;
+				i {
+					font-family: 'Glyphicons Halflings';
+					font-style: normal;
+					font-size: 12px;
+					font-weight: lighter;
+					height: 12px;
+					line-height: 12px;
+					margin-top: 0px;
+					display: block;
+					color: #e13c5e;
+					&:after {
+						content: "\e014";
+					}
+				}
+			}
 		}
 		
 		.separateLine {
@@ -170,40 +203,6 @@
 		padding: 2px 5px;
 		position: absolute;
 		cursor: pointer;
-	}
-	
-	.clear {
-		position: absolute;
-		font-size: 16px;
-		width: 16px;
-		height: 16px;
-		text-align: center;
-		line-height: 16px;
-		vertical-align: middle;
-		border-radius: 16px;
-		cursor: pointer;
-		background: #333;
-		color: #ffffff;
-		font-family: monospace;
-		padding-top: 2px;
-		padding-left: 0px;
-		right: 2px;
-		margin-top: 3px;
-		top: 2px;
-		i {
-			font-family: 'Glyphicons Halflings';
-			font-style: normal;
-			font-size: 12px;
-			font-weight: lighter;
-			height: 12px;
-			line-height: 12px;
-			margin-top: 0px;
-			display: block;
-			color: #e13c5e;
-			&:after {
-				content: "\e014";
-			}
-		}
 	}
 	
 	.autoComplete {

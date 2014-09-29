@@ -77,8 +77,8 @@
 				var width = view.$el.width();
 				var height = view.$el.height();
 				var pos = view.$el.offset();
-				if (event.pageX > pos.left && event.pageX < pos.left + width && event.pageY > pos.top && event.pageY < pos.top + height) {
-				} else {
+				var $target = $(event.target);
+				if ($target.closest("."+view.name).size() == 0) {
 					close.call(view);
 				}
 			},

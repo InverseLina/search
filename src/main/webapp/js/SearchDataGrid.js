@@ -429,6 +429,96 @@
 					$th.find(".addFilter").hide();
 				}
 			}
+			
+			// for custom
+			var headerCustomFilters = app.ParamsControl.getHeaderCustomFilter();
+			var customColumns = app.columns.getCustomColumnsSelected();
+			for(var i = 0; i < headerCustomFilters.length; i++){
+				var headerCustomFilter = headerCustomFilters[i];
+				var fieldName = headerCustomFilter.field;
+				$th = view.$el.find("table thead th[data-column='{0}']".format(fieldName));
+				var type;
+				for(var j = 0; j < customColumns.length; j++){
+					var customColumn = customColumns[j];
+					if(customColumn.name == fieldName){
+						type = customColumn.type;
+						break;
+					}
+				}
+				
+				if(type){
+					var item = {};
+					if(type.toLowerCase() == "string"){
+						var isValue = headerCustomFilter.conditions["=="];
+						var isValueHtml;
+						if(isValue){
+							isValueHtml = "Is: "
+							for(var k = 0; k < isValue.length; k++){
+								item = {};
+								item.name = isValue[k];
+								item.display = item.name;
+								isValueHtml += render("search-items-header-add-item", item)
+							}
+						}
+						var isNotValue = headerCustomFilter.conditions["!="];
+						var isNotValueHtml;
+						if(isNotValue){
+							isNotValueHtml = "Is not: ";
+							for(var k = 0; k < isNotValue.length; k++){
+								item = {};
+								item.name = isNotValue[k];
+								item.display = item.name;
+								isNotValueHtml += render("search-items-header-add-item", item)
+							}
+						}
+						
+						if(isValueHtml && isNotValueHtml){
+							$html = isValueHtml + ", " + isNotValueHtml;
+						}else if(isValue){
+							$html = isValueHtml;
+						}else{
+							$html = isNotValueHtml;
+						}
+						$th.find(".addFilter").before("<span>"+$html+"</span>");
+					}else if(type.toLowerCase() == "boolean"){
+						item.name = headerCustomFilter.conditions["=="];
+						item.display = item.name + "" == "true" ? "Yes" : "No";
+						$html = $(render("search-items-header-add-item", item));
+						$th.find(".addFilter").before($html);
+					}else if(type.toLowerCase() == "date"){
+						var greaterValue = headerCustomFilter.conditions[">="];
+						var lessValue = headerCustomFilter.conditions["<="];
+						
+						if(greaterValue && lessValue){
+							item.name = "Between: " + greaterValue + " and " + lessValue;
+						}else if(lessValue){
+							item.name = "Before: " + lessValue;
+						}else{
+							item.name = "After: " + greaterValue;
+						}
+						item.display = item.name;
+						$html = $(render("search-items-header-add-item", item));
+						$th.find(".addFilter").before($html);
+					}else if(type.toLowerCase() == "number"){
+						var greaterValue = headerCustomFilter.conditions[">="];
+						var lessValue = headerCustomFilter.conditions["<="];
+						
+						if(greaterValue && lessValue){
+							item.name = "Between: " + greaterValue + " and " + lessValue;
+						}else if(lessValue){
+							item.name = "Less than: " + lessValue;
+						}else{
+							item.name = "Greater than: " + greaterValue;
+						}
+						item.display = item.name;
+						$html = $(render("search-items-header-add-item", item));
+						$th.find(".addFilter").before($html);
+					}
+				}
+				$th.find(".addFilter").hide();
+				
+			}
+			
 			resizeHeight.call(view);
 		},
 		// --------- /Public Methods--------- //

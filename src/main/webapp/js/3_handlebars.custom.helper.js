@@ -139,6 +139,9 @@
 	 * ",,,c1,,,,,c2"===>"c1,c2"
 	 */
 	Handlebars.registerHelper('rmComma', function(src, options) {
+		if(typeof src == 'boolean'){
+			return new Handlebars.SafeString(src); 
+		}
 		if (src) {
 			src = src + "";
 		} else {

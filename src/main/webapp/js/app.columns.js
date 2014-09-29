@@ -109,6 +109,26 @@ var app = app || {};
 				}
 			});
 			return customColumns;
+		},
+		
+		getCustomColumnsSelected: function() {
+			var columns = this.get();
+			var customFields = app.getCustomFields();
+			
+			var customColumns = [];
+			$.each(customFields, function(i, item) {
+				var exist = false;
+				$.each(columns, function(j, name) {
+					if (item.name === name) {
+						exist = true;
+					}
+				});
+				
+				if(exist){
+					customColumns.push(item);
+				}
+			});
+			return customColumns;
 		}
 	};
 	

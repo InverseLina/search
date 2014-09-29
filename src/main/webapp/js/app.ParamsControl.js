@@ -53,10 +53,11 @@ var app = app || {};
 			searchData["q_objectType"] = app.preference.get("contact_filter_objectType", "All");
 			searchData["q_status"] = app.preference.get("contact_filter_status", "All");
 			//for custom fields
+			searchData["q_customFields"] = _headerCustomFilters;
 			var customFilterPopup = view.$el.find(".CustomFilterPopup").bView();
 			if(customFilterPopup){
 				var customFields = customFilterPopup.getValues();
-				searchData["q_customFields"] = customFields;
+				searchData["q_customFields"] = $.extend([], searchData["q_customFields"], customFields);
 			}
 			
 			result.searchValues = JSON.stringify(searchData);
@@ -153,6 +154,7 @@ var app = app || {};
 		},
 		clear : function() {
 			_storeValue = {};
+			_headerCustomFilters = [];
 		},
 		isEmptySearch:function(){
 			var searchParams = this.getParamsForSearch() || {};
@@ -202,18 +204,33 @@ var app = app || {};
 				}
 			}
 			
+			if(_headerCustomFilters.length > 0){
+				return false;
+			}
+			
 			return true;
 		},
 		
 		saveHeaderCustomFilter:function(headerCustomFilter){
-			var index = 0;
+			if(!headerCustomFilter){
+				return;
+			}
+			var index = -1;
 			for(var i = 0; i < _headerCustomFilters.length; i++){
 				var filter = _headerCustomFilters[i];
-				if(filter.field == _headerCustomFilters.field){
+				if(filter.field == headerCustomFilter.field){
 					index = i;
 				}
 			}
-			_headerCustomFilters.splice(index, 1, headerCustomFilter);
+			if(index == -1){
+				_headerCustomFilters.push(headerCustomFilter);
+			}else{
+				_headerCustomFilters.splice(index, 1, headerCustomFilter);
+			}
+		},
+		
+		getHeaderCustomFilter : function(){
+			return $.extend([], _headerCustomFilters);
 		}
 
 	};

@@ -38,6 +38,11 @@
 					$label.text("No");
 					$label.attr("data-value",0);
 				}
+				
+				if($e.closest(".HeaderPopup").size() > 0){
+					app.ParamsControl.saveHeaderCustomFilter(view.getValue());
+				}
+				
 				$e.trigger("DO_SEARCH");
 			}
 		},

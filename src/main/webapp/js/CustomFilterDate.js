@@ -250,6 +250,11 @@
 			$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
 			$e.find(".viewContainer .resultValue").text($input.val()).attr("data-value", $input.val());
 			$e.find(".viewContainer .resultValue1").text($input1.val()).attr("data-value", $input1.val());
+			
+			if($e.closest(".HeaderPopup").size() > 0){
+				app.ParamsControl.saveHeaderCustomFilter(view.getValue());
+			}
+			
 			if (search) {
 				$e.trigger("DO_SEARCH");
 			}

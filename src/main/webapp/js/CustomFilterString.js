@@ -78,9 +78,10 @@
 				var value = $item.attr("data-value");
 				addItem.call(view, value);
 			},
-			"click; .clear":function(e){
+			"click; .clearStringItem":function(e){
 				var view = this;
 				var $e = view.$el;
+				e.stopPropagation();
 				var $item = $(e.currentTarget).closest(".selected-item");
 				$item.remove();
 				checkEmpty.call(view);
@@ -100,11 +101,13 @@
 				var view = this;
 				var $e = view.$el;
 				var $target = $(e.target);
-				if($target.closest(".operationSelect").size() == 0){
-					$e.find(".operations").addClass("hide");
-				}
-				if($target.closest(".input-containers").size() == 0){
-					$e.find(".autocomplete-container").addClass("hide").empty();
+				if($e){
+					if($target.closest(".operationSelect").size() == 0){
+						$e.find(".operations").addClass("hide");
+					}
+					if($target.closest(".input-containers").size() == 0){
+						$e.find(".autocomplete-container").addClass("hide").empty();
+					}
 				}
 			}
 		},
@@ -335,6 +338,12 @@
 			}));
 			$viewSelectedItem.insertBefore($e.find(".value-containers .cb"));
 		});
+		
+		
+		if($e.closest(".HeaderPopup").size() > 0){
+			app.ParamsControl.saveHeaderCustomFilter(view.getValue());
+		}
+			
 		if(search){
 			$e.trigger("DO_SEARCH"); 
 		}

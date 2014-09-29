@@ -53,7 +53,7 @@
 				var view = this;
 				var $e = view.$el;
 				var $target = $(e.target);
-				if($target.closest(".CustomFilterPopup").size() == 0){
+				if($target.closest("."+view.name).size() == 0){
 					$e.removeClass("show");
 				}
 			},
