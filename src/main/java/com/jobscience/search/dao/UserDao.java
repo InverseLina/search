@@ -22,7 +22,7 @@ import com.jobscience.search.organization.OrgContextManager;
 @Singleton
 public class UserDao {
     @Inject
-    private DaoHelper daoHelper;
+    private DaoRwHelper daoRwHelper;
     @Inject
     private OrgContextManager orgHolder;
     @Inject
@@ -30,8 +30,6 @@ public class UserDao {
     @Named("jss.prod")
     @Inject
     private boolean productMode;
-    @Inject
-    private DatasourceManager datasourceManager;
 
     public static final String selectSql = "select * from \"jss_user\" where sfid = ?";
     public static final String selectByTokenSql = "select * from \"jss_user\" where ctoken = ?";
@@ -51,11 +49,11 @@ public class UserDao {
     }
     
     public List<Map> getUserMap(String sfid){
-         return daoHelper.executeQuery(orgHolder.getOrgName(), selectSql, sfid);
+         return daoRwHelper.executeQuery(orgHolder.getOrgName(), selectSql, sfid);
     }
 
     public Map getUserByToken(String ctoken) {
-        List<Map> users = daoHelper.executeQuery(orgHolder.getOrgName(), selectByTokenSql, ctoken);
+        List<Map> users = daoRwHelper.executeQuery(orgHolder.getOrgName(), selectByTokenSql, ctoken);
         if (users.size() > 0) {
             return users.get(0);
         }else{
@@ -63,7 +61,7 @@ public class UserDao {
         }
     }
     public Map getUserByTokenAndOrg(String ctoken, String orgName) {
-        List<Map> users = daoHelper.executeQuery(orgName, selectByTokenSql, ctoken);
+        List<Map> users = daoRwHelper.executeQuery(orgName, selectByTokenSql, ctoken);
         if (users.size() > 0) {
             return users.get(0);
         }else{
@@ -72,7 +70,7 @@ public class UserDao {
     }
 
    public void updateCToken(String sfid, String ctoken, long sfTimeout, String rtoken) {
-       daoHelper.executeUpdate(orgHolder.getOrgName(), updateSql, ctoken, sfTimeout, rtoken, sfid);
+       daoRwHelper.executeUpdate(orgHolder.getOrgName(), updateSql, ctoken, sfTimeout, rtoken, sfid);
    }
    
    public Map insertUser(String sfid, String ctoken, long sfTimeout, String rtoken) {
@@ -81,7 +79,7 @@ public class UserDao {
            sfid = demoSfid();
        }
        
-       Runner runner = datasourceManager.newOrgRunner(orgHolder.getOrgName());
+       Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgHolder.getOrgName());
        Map user = runner.executeWithReturn(insertSql, sfid, ctoken, sfTimeout, rtoken);
        runner.close();
        return user;

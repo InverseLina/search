@@ -22,10 +22,7 @@ public class CustomFieldsDao {
     private OrgConfigDao orgConfigDao;
 	
 	@Inject
-    private DaoHelper daoHelper;
-	
-	@Inject
-    private DatasourceManager datasourceManager;
+    private DaoRwHelper daoRwHelper;
 	
 	@Inject
 	private SearchConfigurationManager searchConfigurationManager;
@@ -95,7 +92,7 @@ public class CustomFieldsDao {
         	limit = 4;
         }
         sql.append(" limit ").append(limit);
-        List<Map> data = daoHelper.executeQuery(datasourceManager.newOrgRunner(orgName),sql.toString());
+        List<Map> data = daoRwHelper.executeQuery(orgName, sql.toString());
         return data;
     }
 	
@@ -129,7 +126,7 @@ public class CustomFieldsDao {
     private boolean checkColumn(String columnName, String table, String schemaName)
             throws SQLException {
         boolean result = false;
-        List list = daoHelper.executeQuery(datasourceManager.newRunner(),
+        List list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newRunner(),
                 " select 1 from information_schema.columns "
                         + " where table_name =? and table_schema=?  and column_name=? ", table,
                 schemaName, columnName);

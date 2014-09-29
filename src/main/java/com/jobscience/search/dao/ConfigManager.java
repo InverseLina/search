@@ -25,9 +25,7 @@ import com.google.inject.Singleton;
 public class ConfigManager {
 
     @Inject
-    private DaoHelper daoHelper;
-    @Inject
-    private DatasourceManager datasourceManager;
+    private DaoRwHelper daoRwHelper;
     
     private static final String[] snowPropertiesInheritedArray = new String[]{};
     private static final Set<String> snowPropertiesInherited = new HashSet<String>(Arrays.asList(snowPropertiesInheritedArray));
@@ -101,8 +99,8 @@ public class ConfigManager {
         }
         names.append("'-1')");
         sql.deleteCharAt(sql.length() - 1);
-        daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("delete from config where org_id = %s and  name in %s", orgId, names));
-        daoHelper.executeUpdate(datasourceManager.newSysRunner(), format("insert into  config(org_id, name,value) values %s ", sql));
+        daoRwHelper.executeUpdate(daoRwHelper.datasourceManager.newSysRunner(), format("delete from config where org_id = %s and  name in %s", orgId, names));
+        daoRwHelper.executeUpdate(daoRwHelper.datasourceManager.newSysRunner(), format("insert into  config(org_id, name,value) values %s ", sql));
         
         //clear cache
         updateCache(orgId);
@@ -121,7 +119,7 @@ public class ConfigManager {
             params.add(orgId);
         }
         
-        List valueList = daoHelper.executeQuery(datasourceManager.newSysRunner(), sql, params.toArray());
+        List valueList = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(), sql, params.toArray());
         Map m = getConfigValuesFromValueList(valueList, -1);
         if(orgId != -1){
             Map m1 = getConfigValuesFromValueList(valueList, orgId);

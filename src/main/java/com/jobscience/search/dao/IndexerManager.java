@@ -20,11 +20,9 @@ public class IndexerManager {
 	 */
 	 private volatile boolean on = false;
 	 @Inject
-	 private DaoHelper daoHelper;
+	 private DaoRwHelper daoRwHelper;
 
 	 private IndexerStatus indexerStatus;
-	 @Inject
-	 private DatasourceManager datasourceManager;
 
 	 public synchronized void run(String orgName,String webPath) throws Exception{
 		if(on){
@@ -82,7 +80,7 @@ public class IndexerManager {
 
 	public IndexerStatus getQuickStatus(String orgName){
 		int all = 0;
-		List<Map> list = daoHelper.executeQuery(orgName, "select max(id) as count from contact");
+		List<Map> list = daoRwHelper.executeQuery(orgName, "select max(id) as count from contact");
 	    if(list.size() == 1){
 	    	all =  Integer.parseInt(list.get(0).get("count").toString());
 	    }
@@ -92,8 +90,7 @@ public class IndexerManager {
 
 	private void executeResumeSql(String orgName, String insertSql, String updateSql){
 		indexerStatus = getStatus(orgName, false);
-		
-		Runner runner = datasourceManager.newOrgRunner(orgName);
+		Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
 	    PQuery insertPq = runner.newPQuery(insertSql + " limit ?");
 	    PQuery updatePq = runner.newPQuery(updateSql);
 	    try{
@@ -122,7 +119,7 @@ public class IndexerManager {
 	}
 
 	private int getContactsCount(String orgName){
-		List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact");
+		List<Map> list = daoRwHelper.executeQuery(orgName, "select count(*) as count from contact");
 		if(list.size() == 1){
 			return Integer.parseInt(list.get(0).get("count").toString());
 		}
@@ -130,7 +127,7 @@ public class IndexerManager {
 	}
 
 	private int getJssContactCount(String orgName){
-		List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact ");
+		List<Map> list = daoRwHelper.executeQuery(orgName, "select count(id) as count from jss_contact ");
 		if(list.size() == 1){
 			return Integer.parseInt(list.get(0).get("count").toString());
 		}
@@ -138,7 +135,7 @@ public class IndexerManager {
 	}
 
 	private int getContactExCount(String orgName){
-		List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact where resume_tsv is not null");
+		List<Map> list = daoRwHelper.executeQuery(orgName, "select count(id) as count from jss_contact where resume_tsv is not null");
 		if(list.size() == 1){
 			return Integer.parseInt(list.get(0).get("count").toString());
 		}

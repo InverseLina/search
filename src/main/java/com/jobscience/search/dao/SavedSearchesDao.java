@@ -22,31 +22,31 @@ public class SavedSearchesDao {
     public static final String updateSql = "UPDATE savedsearches SET   update_date=?, search=?  WHERE name = ?";
 
     @Inject
-    private DaoHelper daoHelper;
+    private DaoRwHelper daoRwHelper;
 
     public List<Map> list(int offset, int limit, Map org) {
-        return daoHelper.executeQuery((String)org.get("name"), getSql, offset, limit);
+        return daoRwHelper.executeQuery((String)org.get("name"), getSql, offset, limit);
     }
 
     public void save(String name, String content, Map org){
-        List<Map> list = daoHelper.executeQuery((String)org.get("name"), getByNameSql, name);
+        List<Map> list = daoRwHelper.executeQuery((String)org.get("name"), getByNameSql, name);
         if(list.size() == 0){
-            daoHelper.executeUpdate((String)org.get("name"), insertSql, new Timestamp(System.currentTimeMillis()), name, content);
+            daoRwHelper.executeUpdate((String)org.get("name"), insertSql, new Timestamp(System.currentTimeMillis()), name, content);
         }else{
-            daoHelper.executeUpdate((String)org.get("name"), updateSql, new Timestamp(System.currentTimeMillis()), content, name);
+            daoRwHelper.executeUpdate((String)org.get("name"), updateSql, new Timestamp(System.currentTimeMillis()), content, name);
         }
     }
 
     public void delete(Long id, Map org){
-        daoHelper.executeUpdate((String)org.get("name"), deleteSql, id);
+        daoRwHelper.executeUpdate((String)org.get("name"), deleteSql, id);
     }
 
     public int count(String name, Map org) {
-        return daoHelper.executeQuery((String)org.get("name"), getByNameSql, name).size();
+        return daoRwHelper.executeQuery((String)org.get("name"), getByNameSql, name).size();
     }
 
     public Map get(Long id, Map org) {
-       List<Map> list = daoHelper.executeQuery((String)org.get("name"), getByIDSql, id);
+       List<Map> list = daoRwHelper.executeQuery((String)org.get("name"), getByIDSql, id);
         if (list.size() > 0) {
             return list.get(0);
         }else{

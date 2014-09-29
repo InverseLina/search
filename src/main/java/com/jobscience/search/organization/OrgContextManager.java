@@ -16,8 +16,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.jobscience.search.dao.DBSetupManager;
-import com.jobscience.search.dao.DaoHelper;
-import com.jobscience.search.dao.DatasourceManager;
+import com.jobscience.search.dao.DaoRwHelper;
 import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.exception.OrganizationNotSelectException;
 
@@ -27,13 +26,11 @@ public class OrgContextManager {
     @Inject
     private CurrentRequestContextHolder crh;
     @Inject
-    private DaoHelper daoHelper;
+    private DaoRwHelper daoRwHelper;
     @Inject
     private OrgConfigDao orgConfigDao;
     @Inject
     private DBSetupManager dbSetupManager;
-    @Inject
-    private DatasourceManager datasourceManager;
     
     private Cache<String, OrgContext> orgCacheByToken;
     private Cache<String, OrgContext> orgCacheByorgName;
@@ -143,7 +140,7 @@ public class OrgContextManager {
      * @param sfid
      */
     public void setOrg(String ctoken, String sfid) {
-        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(), "select * from org where sfid = ?", sfid);
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(), "select * from org where sfid = ?", sfid);
         if (list.size() > 0) {
             String orgName = (String) list.get(0).get("name");
             OrgContext orgContext = new OrgContext();
@@ -191,7 +188,7 @@ public class OrgContextManager {
     }
     
     private Map loadOrg(String orgName){
-        List<Map> list = daoHelper.executeQuery(datasourceManager.newSysRunner(),
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
                 "select * from org where name = ?", orgName);
         Map map = null;
         if (list.size() > 0) {
@@ -203,7 +200,7 @@ public class OrgContextManager {
     private String loadOrgSfid(String orgName){
         String sfid = null;
         if(dbSetupManager.hasOrgTable(orgName, "recordtype")){
-            List<Map> list = daoHelper.executeQuery(orgName,
+            List<Map> list = daoRwHelper.executeQuery(orgName,
                     "select sfid from recordtype where recordtype.sobjecttype='Contact' "
                     +" and recordtype.name='Candidate' and recordtype.namespaceprefix='ts2'");
             if (list.size() > 0) {

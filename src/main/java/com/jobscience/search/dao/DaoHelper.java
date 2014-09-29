@@ -4,15 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
+import org.jasql.PQuery;
 import org.jasql.Runner;
 
-@Singleton
-public class DaoHelper {
+public abstract class DaoHelper {
     
     @Inject
-    private DatasourceManager datasourceManager;
+    public DatasourceManager datasourceManager;
     
     // ---------  query method --------- //
     public List<Map> executeQuery(String orgName,String query) {
@@ -69,4 +68,24 @@ public class DaoHelper {
         }
     }
     // --------- /insert method -------- //
+    
+	// --------- count method -------- //
+    public int executeCount(String orgName, String sql, Object... vals){
+        return executeCount(datasourceManager.newOrgRunner(orgName), sql, vals);
+	}
+    
+    public int executeCount(Runner runner, String countSql, Object... vals){
+        try{
+            return runner.executeCount(countSql, vals);
+        }finally{
+            runner.close();
+        }
+    }
+    // --------- /count method -------- //
+    
+	// --------- other method -------- //
+    public PQuery getNewPQuery(String orgName, String sql){
+        return datasourceManager.newOrgRunner(orgName).newPQuery(sql);
+	}
+    // --------- /other method -------- //
 }

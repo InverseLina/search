@@ -18,7 +18,7 @@ public class MultiplierManager {
     @Inject
     private OrgConfigDao orgConfigDao;
     @Inject
-    private DaoHelper daoHelper;
+    private DaoRwHelper daoRwHelper;
     @Inject
     private DBSetupManager dbSetupManager;
 
@@ -34,7 +34,7 @@ public class MultiplierManager {
        List<String> sqlCommands = dbSetupManager.getSqlCommandForOrg("04_multiply_data.sql");
        for(String sql : sqlCommands){
            if(!sql.trim().equals("")){
-               daoHelper.executeUpdate(orgName, sql, new Object[0]);
+               daoRwHelper.executeUpdate(orgName, sql, new Object[0]);
            }
        }
        
@@ -51,7 +51,7 @@ public class MultiplierManager {
 
         Map newConfig = new HashMap();
         if (configs.get(tableName + "_origin_count") == null) {
-            List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from " + tableName);
+            List<Map> counts = daoRwHelper.executeQuery(orgName, "select count(*) as count from " + tableName);
             origin_count = Long.parseLong(counts.get(0).get("count").toString());
             newConfig.put(tableName + "_origin_count", origin_count);
         }else{
@@ -59,7 +59,7 @@ public class MultiplierManager {
         }
 
         if (configs.get("ts2__employment_history__c_origin_count") == null) {
-            List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from ts2__employment_history__c");
+            List<Map> counts = daoRwHelper.executeQuery(orgName, "select count(*) as count from ts2__employment_history__c");
             companyCount = Long.parseLong(counts.get(0).get("count").toString());
             newConfig.put("ts2__employment_history__c_origin_count", companyCount);
         } else {
@@ -68,7 +68,7 @@ public class MultiplierManager {
 
 
         if (configs.get("ts2__skill__c_origin_count") == null) {
-            List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from ts2__skill__c");
+            List<Map> counts = daoRwHelper.executeQuery(orgName, "select count(*) as count from ts2__skill__c");
             skillCount = Long.parseLong(counts.get(0).get("count").toString());
             newConfig.put("ts2__skill__c_origin_count", skillCount);
         }else{
@@ -76,7 +76,7 @@ public class MultiplierManager {
         }
 
         if( configs.get("ts2__education_history__c_origin_count") == null){
-            List<Map> counts = daoHelper.executeQuery(orgName, "select count(*) as count from ts2__education_history__c");
+            List<Map> counts = daoRwHelper.executeQuery(orgName, "select count(*) as count from ts2__education_history__c");
             educationCount = Long.parseLong(counts.get(0).get("count").toString());
             newConfig.put("ts2__education_history__c_origin_count", educationCount);
         }else{
@@ -101,13 +101,13 @@ public class MultiplierManager {
             currentTime++;
             
             while(origin_count-perform > 10000 && !stop){
-                daoHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'"+tableName+"')");
+                daoRwHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'"+tableName+"')");
                 perform += 10000;
                 performCounts = perform;
             }
            
             if(origin_count-perform > 0 && !stop){
-                daoHelper.executeQuery(orgName,"select multiplydata("+perform+","+(origin_count-perform)+","+current_iteration_number+",'"+tableName+"')");
+                daoRwHelper.executeQuery(orgName,"select multiplydata("+perform+","+(origin_count-perform)+","+current_iteration_number+",'"+tableName+"')");
                 perform = origin_count;
                 performCounts = perform;
                 
@@ -115,42 +115,42 @@ public class MultiplierManager {
             if("contact".equals(tableName)){
                 perform = 0L;
                 while(companyCount-perform > 10000 && !stop){
-                    daoHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__employment_history__c')");
+                    daoRwHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__employment_history__c')");
                     perform += 10000;
                 }
                
                 if(companyCount-perform > 0 && !stop){
-                    daoHelper.executeQuery(orgName,"select multiplydata("+perform+","+(companyCount-perform)+","+current_iteration_number+",'ts2__employment_history__c')");
+                    daoRwHelper.executeQuery(orgName,"select multiplydata("+perform+","+(companyCount-perform)+","+current_iteration_number+",'ts2__employment_history__c')");
                     perform = origin_count;
                     
                 }
                 
                 perform = 0L;
                 while(skillCount-perform > 10000 && !stop){
-                    daoHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__skill__c')");
+                    daoRwHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__skill__c')");
                     perform += 10000;
                 }
                
                 if(origin_count-perform > 0 && !stop){
-                    daoHelper.executeQuery(orgName,"select multiplydata("+perform+","+(skillCount-perform)+","+current_iteration_number+",'ts2__skill__c')");
+                    daoRwHelper.executeQuery(orgName,"select multiplydata("+perform+","+(skillCount-perform)+","+current_iteration_number+",'ts2__skill__c')");
                     perform = skillCount;
                     
                 }
                 
                 perform = 0L;
                 while(educationCount-perform > 10000 && !stop){
-                    daoHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__education_history__c')");
+                    daoRwHelper.executeQuery(orgName,"select multiplydata("+perform+",10000,"+current_iteration_number+",'ts2__education_history__c')");
                     perform += 10000;
                 }
                
                 if(origin_count-perform > 0 && !stop){
-                    daoHelper.executeQuery(orgName,"select multiplydata("+perform+","+(educationCount-perform)+","+current_iteration_number+",'ts2__education_history__c')");
+                    daoRwHelper.executeQuery(orgName,"select multiplydata("+perform+","+(educationCount-perform)+","+current_iteration_number+",'ts2__education_history__c')");
                 }
             }
             times--;
             current_iteration_number++;
         }
-        List<Map> dbSizes= daoHelper.executeQuery(orgName,"select pg_database_size(current_database())/1024/1024 as dbsize;");
+        List<Map> dbSizes= daoRwHelper.executeQuery(orgName,"select pg_database_size(current_database())/1024/1024 as dbsize;");
         if(dbSizes.size() == 1){
             currentDbSize = Long.valueOf(dbSizes.get(0).get("dbsize").toString());
         }

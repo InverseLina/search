@@ -12,7 +12,7 @@ import javax.inject.Singleton;
 
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
-import com.jobscience.search.dao.DatasourceManager;
+import com.jobscience.search.dao.DaoRwHelper;
 import com.jobscience.search.perf.AppPerf.Snap;
 import com.jobscience.search.web.WebResponse;
 import com.jobscience.search.web.WebResponseBuilder;
@@ -25,17 +25,17 @@ public class PerfWebRest {
 
 	@Inject
 	private WebResponseBuilder wrb;
-
+	
+    @Inject
+    private DaoRwHelper daoRwHelper;
+    
 	@Inject
 	private PerfManager perfManager;
-
-	@Inject
-	DatasourceManager datasourceManager;
 
 	@WebGet("/perf-get-all")
 	public WebResponse getAllPerf(){
 
-		AppPerf appPerf = perfManager.getAppPerf(datasourceManager.getPoolInfo());
+		AppPerf appPerf = perfManager.getAppPerf(daoRwHelper.datasourceManager.getPoolInfo());
 		Map result = new HashMap();
 		result.put("appPerf", appPerf);
 		

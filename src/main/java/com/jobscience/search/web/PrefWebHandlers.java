@@ -12,7 +12,7 @@ import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.param.annotation.WebUser;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
-import com.jobscience.search.dao.DaoHelper;
+import com.jobscience.search.dao.DaoRwHelper;
 import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
@@ -22,7 +22,7 @@ public class PrefWebHandlers {
     private OrgContextManager orgHolder;
 
     @Inject
-    private DaoHelper daoHelper;
+    private DaoRwHelper daoRwHelper;
 
     @Inject
     private WebResponseBuilder webResponseBuilder;
@@ -30,7 +30,7 @@ public class PrefWebHandlers {
     @WebGet("/perf/get-user-pref")
     public WebResponse getUserPref (@WebUser Map user) throws SQLException {
         try {
-            List<Map> prefs = daoHelper.executeQuery(orgHolder.getOrgName(), "select * from jss_pref where name = ? and user_id = ?", "filter_order", user.get("id"));
+            List<Map> prefs = daoRwHelper.executeQuery(orgHolder.getOrgName(), "select * from jss_pref where name = ? and user_id = ?", "filter_order", user.get("id"));
             if (prefs.size() == 1) {
                 return webResponseBuilder.success(prefs.get(0));
             } else {
@@ -46,13 +46,13 @@ public class PrefWebHandlers {
     public WebResponse saveUserPref (@WebUser Map user, @WebParam("value") String value, RequestContext rc) throws SQLException {
         if (user != null && value.trim().length() > 0) {
             try {
-                List<Map> prefs = daoHelper.executeQuery(orgHolder.getOrgName(),
+                List<Map> prefs = daoRwHelper.executeQuery(orgHolder.getOrgName(),
                         "select * from jss_pref where name = ? and user_id = ?", "filter_order", user.get("id"));
                 if (prefs.size() == 0) {
-                    daoHelper.executeUpdate(orgHolder.getOrgName(),
+                    daoRwHelper.executeUpdate(orgHolder.getOrgName(),
                             "insert into jss_pref (user_id, name, val_text) values(?,?,?)",user.get("id"),"filter_order", value);
                 } else {
-                    daoHelper.executeUpdate(orgHolder.getOrgName(),
+                    daoRwHelper.executeUpdate(orgHolder.getOrgName(),
                             "update jss_pref set val_text = ? where id = ?",value, prefs.get(0).get("id") );
                 }
                 return webResponseBuilder.success(true);

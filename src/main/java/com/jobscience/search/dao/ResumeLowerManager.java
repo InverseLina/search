@@ -20,12 +20,12 @@ public class ResumeLowerManager {
 	 */
 	 private volatile boolean on = false;
 	 @Inject
-	 private DaoHelper daoHelper;
+	 private DaoRwHelper daoRwHelper;
+	 
 	 @Inject
      private OrgConfigDao orgConfigDao;
+	 
 	 private IndexerStatus indexerStatus ;
-	 @Inject
-     private DatasourceManager datasourceManager;
 
 	 public synchronized void run(String orgName,String webPath) throws Exception{
 		if(on){
@@ -48,7 +48,7 @@ public class ResumeLowerManager {
 	                in.close();
 	                String sqls[]= temp.toString().split("-- SCRIPTS");
 	                addColumnSql = sqls[1];
-	                daoHelper.executeUpdate(orgName,addColumnSql);
+	                daoRwHelper.executeUpdate(orgName,addColumnSql);
 	                insertSql = sqls[2];
 	                if(insertSql.endsWith(";")){
 	                	insertSql=insertSql.substring(0,insertSql.length()-1);
@@ -61,7 +61,7 @@ public class ResumeLowerManager {
 		}
 	    indexerStatus = getStatus(orgName, false);
 	    
-	    Runner runner = datasourceManager.newOrgRunner(orgName);
+	    Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
         PQuery pq = runner.newPQuery(insertSql);
         try{
     	    while(indexerStatus.getRemaining() > 0 && on){
@@ -96,7 +96,7 @@ public class ResumeLowerManager {
 	 
 	 public IndexerStatus getQuickStatus(String orgName){
 	     int all = 0;
-	     List<Map> list = daoHelper.executeQuery(orgName, "select max(id) as count from contact");
+	     List<Map> list = daoRwHelper.executeQuery(orgName, "select max(id) as count from contact");
 	        if(list.size()==1){
 	            all =  Integer.parseInt(list.get(0).get("count").toString());
 	        }
@@ -109,7 +109,7 @@ public class ResumeLowerManager {
     }
 
     private int getContactResumeCount(String orgName){
-    	List<Map> list = daoHelper.executeQuery(orgName, "select count(*) as count from contact");
+    	List<Map> list = daoRwHelper.executeQuery(orgName, "select count(*) as count from contact");
     	if(list.size()==1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}
@@ -125,7 +125,7 @@ public class ResumeLowerManager {
 	    if(!checkColumn("resume_lower", "jss_contact", schemaname)){
 	        return 0;
 	    }
-    	List<Map> list = daoHelper.executeQuery(orgName, "select count(id) as count from jss_contact where resume_lower is not null");
+    	List<Map> list = daoRwHelper.executeQuery(orgName, "select count(id) as count from jss_contact where resume_lower is not null");
     	if(list.size()==1){
     		return Integer.parseInt(list.get(0).get("count").toString());
     	}
@@ -135,7 +135,7 @@ public class ResumeLowerManager {
 	private boolean checkColumn(String columnName,String table,String schemaName) {
         boolean result = false;
         
-        List list = daoHelper.executeQuery(datasourceManager.newRunner(), " select 1 from information_schema.columns " +
+        List list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newRunner(), " select 1 from information_schema.columns " +
                                 " where table_name =? and table_schema=?  and column_name=? ", table, schemaName, columnName);
         if(list.size() > 0){
             result = true;

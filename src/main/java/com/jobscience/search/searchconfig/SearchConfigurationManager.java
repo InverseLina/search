@@ -36,8 +36,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.jobscience.search.dao.DaoHelper;
-import com.jobscience.search.dao.DatasourceManager;
+import com.jobscience.search.dao.DaoRwHelper;
 import com.jobscience.search.dao.OrgConfigDao;
 
 @Singleton
@@ -46,11 +45,10 @@ public class SearchConfigurationManager {
     @Inject
     private CurrentRequestContextHolder currentRequestContextHolder;
     @Inject
-    private DaoHelper daoHelper;
+    private DaoRwHelper daoRwHelper;
     @Inject
     private OrgConfigDao orgConfigDao;
-    @Inject
-    private DatasourceManager datasourceManager;
+    
     private volatile Document sysDocument;
     
     private volatile LoadingCache<String, SearchConfiguration> searchuiconfigCache;
@@ -145,7 +143,7 @@ public class SearchConfigurationManager {
         if(orgs.size() > 0){
             orgId = Integer.parseInt( orgs.get(0).get("id").toString());
         }
-        List<Map> orgConfig = daoHelper.executeQuery(datasourceManager.newSysRunner(),
+        List<Map> orgConfig = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
             "select val_text from config where name = ? and org_id =?", "searchconfig",orgId);
         if(orgConfig.size() > 0){
            return orgConfig.get(0).get("val_text").toString();
@@ -177,7 +175,7 @@ public class SearchConfigurationManager {
     private  Node getMergedNode(String orgName) throws Exception {
         DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         //get the sys config
-        List<Map> sysConfig = daoHelper.executeQuery(datasourceManager.newSysRunner(),
+        List<Map> sysConfig = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
             "select val_text from config where name = ? and org_id is null", "searchconfig");
         Document sys = null;
         if (sysConfig.size() == 0) {
@@ -194,7 +192,7 @@ public class SearchConfigurationManager {
             orgId = Integer.parseInt( orgs.get(0).get("id").toString());
         }
         Document org ;
-        List<Map> orgConfig = daoHelper.executeQuery(datasourceManager.newSysRunner(),
+        List<Map> orgConfig = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
             "select val_text from config where name = ? and org_id =?", "searchconfig",orgId);
         if(orgConfig.size() > 0){
             ByteArrayInputStream in = new ByteArrayInputStream(orgConfig.get(0).get("val_text").toString().getBytes());

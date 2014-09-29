@@ -25,6 +25,10 @@ public class DatasourceManager {
     private String user;
     private String pwd;
     private String poolSize;
+    private String ro_url;
+    private String ro_user;
+    private String ro_pwd;
+    private String ro_poolSize;
     private String sysSchema = "jss_sys";
     private ComboPooledDataSource dataSource;
     private volatile DB db;
@@ -40,7 +44,30 @@ public class DatasourceManager {
         this.user = user;
         this.pwd = pwd;
         this.poolSize = poolSize;
-        dataSource = buildDs();
+    }
+    
+    @Inject(optional=true)
+    public void initRO(@Named("db.ro.url") String ro_url,
+                     @Named("db.ro.user") String ro_user,
+                     @Named("db.ro.pwd") String ro_pwd,
+                     @Named("db.ro.pool.size") String ro_poolSize) {
+        this.ro_url = ro_url;
+        this.ro_user = ro_user;
+        this.ro_pwd = ro_pwd;
+        this.ro_poolSize = ro_poolSize;
+    }
+    
+    public void setDefaultDataSource (){
+        this.dataSource = buildDs(url, user, pwd, Integer.valueOf(poolSize));
+        this.db = new DBBuilder().newDB(dataSource);
+    }
+    
+    public void setReadOnlyDataSource (){
+    	if (!Strings.isNullOrEmpty(ro_url) && !Strings.isNullOrEmpty(ro_user) && !Strings.isNullOrEmpty(ro_pwd) && !Strings.isNullOrEmpty(ro_poolSize)){
+    		this.dataSource = buildDs(ro_url, ro_user, ro_pwd, Integer.valueOf(ro_poolSize));
+    	} else {
+    		this.dataSource = buildDs(url, user, pwd, Integer.valueOf(poolSize));
+    	}
         this.db = new DBBuilder().newDB(dataSource);
     }
     
@@ -96,7 +123,7 @@ public class DatasourceManager {
         runner.executeUpdate("set search_path to \""+searchPath+"\"");
     }
     
-    private ComboPooledDataSource buildDs() {
+    private ComboPooledDataSource buildDs( String url, String user, String pwd, int pooSize) {
         ComboPooledDataSource ds = new ComboPooledDataSource();
         ds.setJdbcUrl(url);
         ds.setUser(user);

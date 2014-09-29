@@ -12,8 +12,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DBSetupManager;
-import com.jobscience.search.dao.DaoHelper;
-import com.jobscience.search.dao.DatasourceManager;
+import com.jobscience.search.dao.DaoRwHelper;
 import com.jobscience.search.exception.OAuthConfigBuildException;
 import com.jobscience.search.organization.OrgContextManager;
 
@@ -22,15 +21,13 @@ public class OAuthHelper {
     @Inject
     private ConfigManager configManager;
     @Inject
-    private DaoHelper daoHelper;
+    private DaoRwHelper daoRwHelper;
     @Inject
     private DBSetupManager dbSetupManager;
     @Inject 
     private ForceDotComApiManager forceDotComApiManager;
     @Inject 
     private OrgContextManager currentOrgHolder;
-    @Inject
-    private DatasourceManager datasourceManager;
 
     private volatile String apiKey = null;
     private volatile String apiSecret = null;
@@ -48,7 +45,7 @@ public class OAuthHelper {
     	List<Map> list = new ArrayList();
 	    if(dbSetupManager.checkSysTables().contains("jss_config")){
 	        String sql = "select * from config  where org_id = -1 ";
-	        List<Map> configList = daoHelper.executeQuery(datasourceManager.newSysRunner(), sql);
+	        List<Map> configList = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(), sql);
 	        if (configList != null && configList.size() > 0) {
 	            list = configList;
 	        }

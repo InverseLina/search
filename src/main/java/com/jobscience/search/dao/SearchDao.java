@@ -11,12 +11,9 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import com.jobscience.search.searchconfig.*;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.jasql.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +23,13 @@ import com.google.common.base.Strings;
 import com.jobscience.search.log.LoggerType;
 import com.jobscience.search.log.QueryLogger;
 import com.jobscience.search.organization.OrgContext;
+import com.jobscience.search.searchconfig.ContactFieldType;
+import com.jobscience.search.searchconfig.Field;
+import com.jobscience.search.searchconfig.Filter;
+import com.jobscience.search.searchconfig.FilterField;
+import com.jobscience.search.searchconfig.SearchConfiguration;
+import com.jobscience.search.searchconfig.SearchConfigurationManager;
+import com.jobscience.search.searchconfig.Type;
 
 @Singleton
 public class SearchDao {
@@ -35,8 +39,8 @@ public class SearchDao {
     private Logger log = LoggerFactory.getLogger(SearchDao.class);
     
     @Inject
-    private DatasourceManager datasourceManager;
-
+    private DaoRwHelper daoRwHelper;
+    
     @Inject
     private UserDao userDao;
     
@@ -377,13 +381,14 @@ public class SearchDao {
      * @return
      */
     protected SearchResult executeSearch(SearchStatements statementAndValues,SearchRequest searchRequest,OrgContext org){
-    	Runner runner = datasourceManager.newOrgRunner(org.getOrgMap().get("name").toString());
+    	//Runner runner = datasourceManager.newOrgRunner(org.getOrgMap().get("name").toString());
+    	String orgName = org.getOrgMap().get("name").toString();
     	SearchResult searchResult = null;
     	try{
     		long start = System.currentTimeMillis();
     		List<Map> result = null;
 
-    		result = runner.executeQuery(statementAndValues.querySql, statementAndValues.querySqlparam.toArray());
+    		result = daoRwHelper.executeQuery(orgName, statementAndValues.querySql, statementAndValues.querySqlparam.toArray());
     		long mid = System.currentTimeMillis();
     		int count = 0;
     		boolean exactCount = false;
@@ -402,8 +407,8 @@ public class SearchDao {
     			if(!searchRequest.isEstimateSearch()){
     				/********** Get the exact count **********/
 	    			try{
-	    				runner.executeUpdate("SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
-	    				int exact= runner.executeCount(statementAndValues.cteSql
+	    				daoRwHelper.executeUpdate(orgName, "SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
+	    				int exact= daoRwHelper.executeCount(orgName, statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
 								+statementAndValues.countSql,statementAndValues.countSqlparam.toArray());
 	    				count = exact;
@@ -417,8 +422,8 @@ public class SearchDao {
     			}else{
 	    			/********** Get the exact count **********/
 	    			try{
-	    				runner.executeUpdate("SET statement_timeout TO "+ESTIMATE_COUNT_TIMEOUT+";");
-	    				int exact= runner.executeCount(statementAndValues.cteSql
+	    				daoRwHelper.executeUpdate(orgName, "SET statement_timeout TO "+ESTIMATE_COUNT_TIMEOUT+";");
+	    				int exact= daoRwHelper.executeCount(orgName, statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
 								+statementAndValues.countSql);
 	    				count = exact;
@@ -426,7 +431,7 @@ public class SearchDao {
 	    				try{
 	    					log.debug("The count search timeout,use the estimate count");
 		    				/********** Get the estimate count **********/
-		    	    		List<Map> explainPlans = runner.executeQuery("explain "+statementAndValues.cteSql
+		    	    		List<Map> explainPlans =daoRwHelper.executeQuery(orgName, "explain "+statementAndValues.cteSql
 		    						 									+" select  distinct(a.id)  "
 		    						 									+statementAndValues.countSql,
 		    						 									statementAndValues.countSqlparam.toArray());
@@ -457,8 +462,7 @@ public class SearchDao {
     				.setExactCount(exactCount)
     		        .setHasNextPage(hasNextPage);
     	}finally{
-    		runner.executeUpdate("RESET statement_timeout; ");
-    		runner.close();
+    		daoRwHelper.executeUpdate(orgName, "RESET statement_timeout; ");
     	}
     
     	return searchResult;
@@ -534,10 +538,11 @@ public class SearchDao {
         }
         
         Long start = System.currentTimeMillis();
-        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
+//        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
+        String orgName = org.getOrgMap().get("name").toString();
+        
         queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
-        List<Map> result =runner.executeQuery(querySql.toString());
-        runner.close();
+        List<Map> result =daoRwHelper.executeQuery(orgName, querySql.toString());
         Long end = System.currentTimeMillis();
         //log for performance
         queryLogger.debug(LoggerType.AUTO_PERF, end-start);
@@ -1396,7 +1401,7 @@ public class SearchDao {
             }
             
             if(cities.size() != 0){
-                Runner runner = datasourceManager.newSysRunner();
+//                Runner runner = datasourceManager.newSysRunner();
                 for(Map city : cities){//minLat,minLng,maxLat,maxLng
                     double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
                                                Double.valueOf(city.get("longitude").toString()),
@@ -1411,7 +1416,7 @@ public class SearchDao {
                     values.add(range[1]);
                     values.add(range[3]);
                 }
-                runner.close();
+//                runner.close();
             }
             
             if (joinCity.length() > 0) {

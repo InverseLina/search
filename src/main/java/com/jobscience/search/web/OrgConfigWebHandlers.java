@@ -11,7 +11,7 @@ import com.britesnow.snow.web.rest.annotation.WebPost;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.auth.RequireAdmin;
-import com.jobscience.search.dao.DatasourceManager;
+import com.jobscience.search.dao.DaoRwHelper;
 import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.oauth.ForceDotComApiManager;
 import com.jobscience.search.organization.OrgContextManager;
@@ -26,7 +26,7 @@ public class OrgConfigWebHandlers {
   @Inject
   private ForceDotComApiManager forceDotComApiManager;
   @Inject
-  private DatasourceManager datasourceManager;
+  private DaoRwHelper daoRwHelper;
   @Inject
   private WebResponseBuilder webResponseBuilder;
   
@@ -40,7 +40,7 @@ public class OrgConfigWebHandlers {
       params.put("schemaname", schemaname);
       params.put("sfid", sfid);
       Integer oId = orgConfigDao.saveOrUpdateOrg(params);
-      datasourceManager.updateDB(name);
+      daoRwHelper.datasourceManager.updateDB(name);
       try{
           currentOrgHolder.updateSchema();
           forceDotComApiManager.clearForceDotComApi(currentOrgHolder.getId());
