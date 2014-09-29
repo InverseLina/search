@@ -168,6 +168,14 @@
 			});
 			var searchKey = app.ParamsControl.getQuery();
 			var filters = app.ParamsControl.getFilterParams();
+			if (/[\(\)]/.test(searchKey)) {
+				view.contentView.dataGridView.showContentMessage("parentheses");
+				var labelAssigned = app.buildPathInfo().labelAssigned;
+				if (labelAssigned) {
+					view.$el.trigger("CHANGE_TO_FAV_VIEW");
+				}
+				return;
+			}
 			if ($.trim(searchKey).length > 0 && $.trim(searchKey).length < 3) {
 				view.contentView.dataGridView.showContentMessage("lessword");
 				var labelAssigned = app.buildPathInfo().labelAssigned;

@@ -358,6 +358,9 @@
 					labelAssigned : app.buildPathInfo().labelAssigned
 				}));
 				view.restoreSearchParam();
+			} else if (cmd === "parentheses") {
+				$tabContainer.html(render("search-query-cannot-parentheses"));
+				view.restoreSearchParam();
 			} else if (cmd === "error") {
 				var html = render("search-query-error", {
 					title : extra.title,
