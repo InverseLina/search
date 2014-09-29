@@ -17,7 +17,7 @@
 		
 		<script src="../js/0-jquery.min.js" type="text/javascript"></script>
 		<script src="../js/1-brite.js" type="text/javascript"></script>
-		<script src="../js/2_handlebars.runtime-v1.3.0.js" type="text/javascript"></script>
+		<script src="../js/2_handlebars.runtime-v2.0.0.js" type="text/javascript"></script>
 		<script src="../js/main.js" type="text/javascript"></script>
 		<script src="../js/app.preferrence.js" type="text/javascript"></script>
 		<script src="../js/MainView.js" type="text/javascript"></script>
