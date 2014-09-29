@@ -72,6 +72,7 @@
 				changeAutoComplete.call(view, e.which);
 			},
 			"click; .autocomplete-item":function(e){
+				e.stopPropagation();
 				var view = this;
 				var $e = view.$el;
 				var $item = $(e.currentTarget);
