@@ -796,19 +796,7 @@
 		var columns = app.columns.get();
 		var colLen = columns.length;
 		var tableWidth = view.$el.find(".tableContainer").width();
-		var excludes = ["id", "CreatedDate", "title", "email", "resume"];
-		if ($.inArray("id", columns) >= 0) {
-			tableWidth = tableWidth - 80;
-			colLen--;
-		}
-		if ($.inArray("CreatedDate", columns) >= 0) {
-			tableWidth = tableWidth - 110;
-			colLen--;
-		}
-		if ($.inArray("resume", columns) >= 0) {
-			tableWidth = tableWidth - 95;
-			colLen--;
-		}
+		
 		//checkbox
 		var applyContactCheckboxWidth = 19;
 		if (!view.labelDisable) {
@@ -896,11 +884,6 @@
 				}).find(" > span").css({
 					width : realWidth - 4
 				});
-			}
-
-			//hide filter
-			if ($.inArray(colName, excludes) >= 0) {
-				$item.find(".addFilter").hide();
 			}
 
 		});
