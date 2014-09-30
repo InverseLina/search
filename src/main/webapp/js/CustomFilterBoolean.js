@@ -53,9 +53,34 @@
 			var $e = view.$el;
 			mode = mode || view.mode;
 			view.mode = mode;
+			
+			if ($e.closest(".HeaderPopup").size() > 0) {
+				var headerFilter = app.ParamsControl.getHeaderCustomFilter(view.paramName);
+				if (headerFilter && headerFilter.conditions) {
+					var value = headerFilter.conditions["=="];
+					var $label = $e.find(".viewContainer .valueLabel");
+					var $btnGroup = $e.find(".editContainer .btn-group");
+					if (value) {
+						$label.addClass("yes");
+						$label.text("Yes");
+						$label.attr("data-value", 1);
+						$btnGroup.find(".btn[data-mode='1']").addClass("active");
+						$btnGroup.find(".btn[data-mode='0']").removeClass("active");
+					} else {
+						$label.removeClass("yes");
+						$label.text("No");
+						$label.attr("data-value", 0);
+						$btnGroup.find(".btn[data-mode='0']").addClass("active");
+						$btnGroup.find(".btn[data-mode='1']").removeClass("active");
+					}
+				}
+			}
+
+			
 			if(mode == 'edit'){
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
+				
 			}else{
 				var $label = $e.find(".viewContainer .valueLabel");
 				var val = $label.attr("data-value"); 

@@ -50,6 +50,30 @@
 			var $e = view.$el;
 			mode = mode || view.mode;
 			view.mode = mode;
+			
+			
+			if ($e.closest(".HeaderPopup").size() > 0) {
+				var headerFilter = app.ParamsControl.getHeaderCustomFilter(view.paramName);
+				if (headerFilter && headerFilter.conditions) {
+					var greaterValue = headerFilter.conditions[">="];
+					if (greaterValue) {
+						$e.find(".viewContainer .resultValue").attr("data-value", greaterValue);
+					}
+
+					var lessValue = headerFilter.conditions["<="];
+					if (lessValue) {
+						$e.find(".viewContainer .resultValue1").attr("data-value", lessValue);
+					}
+					if(greaterValue && lessValue){
+						$e.find(".viewContainer .operValue").attr("data-oper", "between");
+					}else if(greaterValue){
+						$e.find(".viewContainer .operValue").attr("data-oper", "gt");
+					}else{
+						$e.find(".viewContainer .operValue").attr("data-oper", "lt");
+					}
+				}
+			}
+
 			var oper = $e.find(".viewContainer .operValue").attr("data-oper");
 			if(mode == 'edit'){
 				$e.find(".editContainer").removeClass("hide");

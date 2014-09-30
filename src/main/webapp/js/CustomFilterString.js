@@ -119,6 +119,37 @@
 			var $e = view.$el;
 			mode = mode || view.mode;
 			view.mode = mode;
+			
+			
+			if ($e.closest(".HeaderPopup").size() > 0) {
+				var headerFilter = app.ParamsControl.getHeaderCustomFilter(view.paramName);
+				if (headerFilter && headerFilter.conditions) {
+					var isArray = headerFilter.conditions["=="];
+					if (isArray) {
+						for (var i = 0; i < isArray.length; i++) {
+							var value = isArray[i];
+							var $selectedItem = $(render("CustomFilterString-view-item", {
+								value : value,
+								operation : "is"
+							}));
+							$selectedItem.insertBefore($e.find(".viewContainer .selectedItems .cb"));
+						}
+					}
+
+					var isnotArray = headerFilter.conditions["!="];
+					if (isnotArray) {
+						for (var i = 0; i < isnotArray.length; i++) {
+							var value = isnotArray[i];
+							var $selectedItem = $(render("CustomFilterString-view-item", {
+								value : value,
+								operation : "isnot"
+							}));
+							$selectedItem.insertBefore($e.find(".viewContainer .selectedItems .cb"));
+						}
+					}
+				}
+			}
+			
 			if(mode == 'edit'){
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
@@ -342,7 +373,14 @@
 		
 		
 		if($e.closest(".HeaderPopup").size() > 0){
-			app.ParamsControl.saveHeaderCustomFilter(view.getValue());
+			if(view.getValue()){
+				app.ParamsControl.saveHeaderCustomFilter(view.getValue());
+			}else{
+				if(app.ParamsControl.getHeaderCustomFilter(view.paramName)){
+					//clear
+					app.ParamsControl.saveHeaderCustomFilter({field:view.paramName,conditions:null});
+				}
+			}
 		}
 			
 		if(search){

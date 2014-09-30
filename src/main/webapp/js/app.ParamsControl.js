@@ -225,12 +225,26 @@ var app = app || {};
 			if(index == -1){
 				_headerCustomFilters.push(headerCustomFilter);
 			}else{
-				_headerCustomFilters.splice(index, 1, headerCustomFilter);
+				if(headerCustomFilter.conditions){
+					_headerCustomFilters.splice(index, 1, headerCustomFilter);
+				}else{
+					_headerCustomFilters.splice(index, 1);
+				}
 			}
 		},
 		
-		getHeaderCustomFilter : function(){
+		getHeaderCustomFilters : function(){
 			return $.extend([], _headerCustomFilters);
+		},
+		
+		getHeaderCustomFilter : function(fieldName){
+			for(var i = 0; i < _headerCustomFilters.length; i++){
+				var filter = _headerCustomFilters[i];
+				if(fieldName == filter.field){
+					return $.extend({}, filter);
+				}
+			}
+			return null;
 		}
 
 	};

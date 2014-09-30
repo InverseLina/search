@@ -431,7 +431,7 @@
 			}
 			
 			// for custom
-			var headerCustomFilters = app.ParamsControl.getHeaderCustomFilter();
+			var headerCustomFilters = app.ParamsControl.getHeaderCustomFilters();
 			var customColumns = app.columns.getCustomColumnsSelected();
 			for(var i = 0; i < headerCustomFilters.length; i++){
 				var headerCustomFilter = headerCustomFilters[i];
