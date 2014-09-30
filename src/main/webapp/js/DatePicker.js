@@ -14,6 +14,7 @@
 			data = data || {};
 			var view = this;
 			view.target = data.target;
+			view.elementInit = false;
 			return render("DatePicker");
 		},
 
@@ -38,6 +39,7 @@
 			
 			showCalendar.call(view,view.currentMonth);
 			selectDate.call(view, date);
+			view.elementInit = true;
 		},
 		// --------- /View Interface Implement--------- //
 		// --------- Events--------- //
@@ -119,7 +121,7 @@
 			"click":function(e){
 				var view = this;
 				var $target = $(e.target)
-				if($target.closest("."+view.name).size() > 0){
+				if($target.closest("."+view.name).size() == 0 && view.elementInit && view.$el){
 					close.call(view);
 				}
 			}
