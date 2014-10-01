@@ -457,7 +457,7 @@
 								item = {};
 								item.name = isValue[k];
 								item.display = item.name;
-								isValueHtml += render("search-items-header-add-item", item)
+								isValueHtml += render("search-items-header-add-single-item", item)
 							}
 						}
 						var isNotValue = headerCustomFilter.conditions["!="];
@@ -468,7 +468,7 @@
 								item = {};
 								item.name = isNotValue[k];
 								item.display = item.name;
-								isNotValueHtml += render("search-items-header-add-item", item)
+								isNotValueHtml += render("search-items-header-add-single-item", item)
 							}
 						}
 						
@@ -490,28 +490,26 @@
 						var lessValue = headerCustomFilter.conditions["<="];
 						
 						if(greaterValue && lessValue){
-							item.name = "Between: " + greaterValue + " and " + lessValue;
+							item.display = "Between: " + greaterValue + " and " + lessValue;
 						}else if(lessValue){
-							item.name = "Before: " + lessValue;
+							item.display = "Before: " + lessValue;
 						}else{
-							item.name = "After: " + greaterValue;
+							item.display = "After: " + greaterValue;
 						}
-						item.display = item.name;
-						$html = $(render("search-items-header-add-item", item));
+						$html = $(render("search-items-header-add-single-item", item));
 						$th.find(".addFilter").before($html);
 					}else if(type.toLowerCase() == "number"){
 						var greaterValue = headerCustomFilter.conditions[">="];
 						var lessValue = headerCustomFilter.conditions["<="];
 						
 						if(greaterValue && lessValue){
-							item.name = "Between: " + greaterValue + " and " + lessValue;
+							item.display = "Between: " + greaterValue + " and " + lessValue;
 						}else if(lessValue){
-							item.name = "Less than: " + lessValue;
+							item.display = "Less than: " + lessValue;
 						}else{
-							item.name = "Greater than: " + greaterValue;
+							item.display = "Greater than: " + greaterValue;
 						}
-						item.display = item.name;
-						$html = $(render("search-items-header-add-item", item));
+						$html = $(render("search-items-header-add-single-item", item));
 						$th.find(".addFilter").before($html);
 					}
 				}
