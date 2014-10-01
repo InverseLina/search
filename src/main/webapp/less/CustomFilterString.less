@@ -21,8 +21,11 @@
 			width:70px;
 			color:#fff;
 			float:left;
-			box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);
 			border-radius: 2px;
+			&:focus{
+				outline:none;
+				box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);
+			}
 			.value{
 				cursor:pointer;
 				background-color:#00a4a8;
@@ -43,6 +46,7 @@
 				color:#00a4a8;
 				width:70px;
 				background-color:#fff;
+				box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.5);
 				.operation-item{
 					cursor:pointer;
 					padding:2px 6px;
@@ -68,7 +72,10 @@
 					width:100%;
 					border:1px solid #c7c7c7;
 					border-radius:4px;
-					box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.5);
+					&:focus{
+						outline:none;
+						box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.5);
+					}
 				}
 				.autocomplete-container{
 					position:absolute;
