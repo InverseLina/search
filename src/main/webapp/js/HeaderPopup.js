@@ -22,7 +22,8 @@
 			var $e = view.$el;
 			view.$content = $e.find(".popover-content");
 			if (data.$target) {
-				var $target = data.$target;
+				var $target = view.$target = data.$target;
+				view.$target.addClass("popupShow");
 				var targetCenter = $target.offset().left + $target.outerWidth() / 2;
 				var left = targetCenter - $e.width() / 2;
 				var top = $target.offset().top + $target.height() + 24;
@@ -94,6 +95,9 @@
 	function close() {
 		var view = this;
 		view.$el.bRemove();
+		if(view.$target){
+			view.$target.removeClass("popupShow");
+		}
 	}
 
 })(jQuery);

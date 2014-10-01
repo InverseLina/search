@@ -96,10 +96,9 @@
 				event.preventDefault();
 				event.stopPropagation();
 				var view = this;
+				var $e = view.$el;
 				var $th = $(event.currentTarget);
-				var contentName = $(event.currentTarget).attr("data-column").toLowerCase();
-				var popupName = String($($(".HeaderPopup .popover-content").find("div").get(0)).attr("class")).toLowerCase();
-				if(popupName.indexOf(contentName) >=0){
+				if($th.hasClass("popupShow")){
 					view.$el.trigger("POPUP_CLOSE");
 				}else{
 		            view.$el.trigger("POPUP_CLOSE");
