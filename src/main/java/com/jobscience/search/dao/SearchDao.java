@@ -902,7 +902,7 @@ public class SearchDao {
         	querySqlparam.addAll(sb.getLocationValues());
         	joinSql.append(sb.getExactSearchOrderSql());
         	
-        	countSql.append(" where ").append(condition.subSequence(3, condition.length()));
+        	countSql.append(" where ").append(condition.subSequence(4, condition.length()));
         	countSqlparam.addAll(sb.getConditionValues());
  	        countSql.append(locationSql);
         	countSqlparam.addAll(sb.getLocationValues());
