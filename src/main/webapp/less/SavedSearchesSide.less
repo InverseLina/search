@@ -1,0 +1,77 @@
+// Core variables and mixins
+@import "utils";
+
+// --------- SavedSearchesSide --------- //
+.SavedSearchesSide{
+	.saved-title{
+		font-size: 16px;
+		margin-left: 12px;
+		color:#00a4a8;
+	}
+	.input-containers{
+		margin: 0px 12px 15px 12px;
+		z-index: 1;
+		color:#00a4a8;
+		input{
+			padding:3px 5px;
+			color:#00a4a8;
+			width:100%;
+			border:1px solid #c7c7c7;
+			border-radius:4px;
+			&:focus{
+				outline:none;
+				box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.5);
+			}
+		}
+	}
+			
+	.wrap-items{
+		background-color:#fff;
+		border-radius:4px;
+		margin:10px 22px;
+		.savedItems{
+			padding:10px 10px 0px 10px;
+			.saved-item{
+				position:relative;
+				border-radius:4px;
+				color:#fff;
+				background-color:#00a4a8;
+				padding:2px 25px 2px 3px;
+				position:relative;
+				float:left;
+				margin: 0 10px 10px 0;
+				.clear{
+					position: absolute;
+					font-size: 16px;
+					width: 16px;
+					height: 16px;
+					top:2px;
+					right:2px;
+					color:#000;
+					cursor:pointer;
+				}
+			}
+		}
+							
+		&.empty {
+			margin:0;
+			.savedItems{
+				margin: 0px;
+				padding: 0px;
+			}
+		}
+				
+	}
+				
+	.btnSave{
+		float:right;
+		margin: 0px 12px 5px;
+		background: #00a4a8;
+		color:#fff;
+		border-radius:4px;
+		padding:4px 20px;
+		cursor:pointer;
+	}
+					
+}
+// --------- /SavedSearchesSide --------- //

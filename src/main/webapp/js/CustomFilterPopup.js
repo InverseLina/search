@@ -19,6 +19,7 @@
 			var $e = view.$el;
 			
 			showFields.call(view);
+			brite.display("SavedSearchesSide");
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -29,6 +30,19 @@
 				var view = this;
 				var $e = view.$el;
 				$e.toggleClass("show");
+			},
+			"click; .customSearchMode .btn:not(.active)" : function(event) {
+				var view = this;
+				var $e = view.$el;
+				var $btn = $(event.currentTarget);
+				var $searchMode = $btn.closest(".customSearchMode");
+				$searchMode.find(".btn").toggleClass("active");
+				
+				var mode = $searchMode.find(".btn.active").attr("data-mode");
+				var $filterContent = $e.find(".filters-content");
+				var $savedContent = $e.find(".saved-content");
+				$filterContent.toggleClass("hide");
+				$savedContent.toggleClass("hide");
 			},
 			"click;.left-side":function(e){
 				var view = this;

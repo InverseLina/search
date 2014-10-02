@@ -14,12 +14,12 @@ public class SavedSearchesDao {
     public static final String getSql = "select id, search, name, " +
             "   case when create_date > COALESCE(update_date, timestamp '1970-1-1 00:00:01') then create_date " +
             "   else update_date " +
-            "   end as new_date from savedsearches order by new_date desc offset ? limit ? ";
-    public static final String getByNameSql = "select 1 from savedsearches where name = ?";
-    public static final String getByIDSql = "select * from savedsearches where id = ?";
-    public static final String deleteSql = "delete from savedsearches where id = ?";
-    public static final String insertSql = "INSERT INTO savedsearches(create_date,name, search)  VALUES (?,?, ?);";
-    public static final String updateSql = "UPDATE savedsearches SET   update_date=?, search=?  WHERE name = ?";
+            "   end as new_date from jss_savedsearches order by new_date desc offset ? limit ? ";
+    public static final String getByNameSql = "select 1 from jss_savedsearches where name = ?";
+    public static final String getByIDSql = "select * from jss_savedsearches where id = ?";
+    public static final String deleteSql = "delete from jss_savedsearches where id = ?";
+    public static final String insertSql = "INSERT INTO jss_savedsearches(create_date,name, search)  VALUES (?,?, ?);";
+    public static final String updateSql = "UPDATE jss_savedsearches SET   update_date=?, search=?  WHERE name = ?";
 
     @Inject
     private DaoRwHelper daoRwHelper;
