@@ -39,7 +39,7 @@ public class DatasourceManager {
     public void init(@Named("jss.db.url") String url,
                      @Named("jss.db.user") String user,
                      @Named("jss.db.pwd") String pwd,
-                     @Named("db.pool.size") String poolSize) {
+                     @Named("jss.db.pool.size") String poolSize) {
         this.url = url;
         this.user = user;
         this.pwd = pwd;
