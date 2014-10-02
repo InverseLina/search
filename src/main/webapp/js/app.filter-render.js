@@ -90,8 +90,10 @@ var app = app || {};
 				if (viewName) {
 					brite.display(viewName, $content, {
 						name : name
-					}).done(function(custonFilterView){
-						custonFilterView.showMode("edit");
+					}).done(function(customFilterView){
+						var headerFilter = app.ParamsControl.getHeaderCustomFilter(name);
+						customFilterView.setValue(headerFilter);
+						customFilterView.showMode("edit");
 					});
 				}
 			},

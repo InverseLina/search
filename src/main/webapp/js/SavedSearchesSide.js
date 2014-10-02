@@ -30,9 +30,8 @@
 		events : {
 			"keydown; .valueInput":function(e) {
 				var view = this;
-				var $input = $(e.currentTarget);
 				if(e.which == 13){
-					saveSearch.call(view, $input.val());
+					saveSearch.call(view);
 				}
 			},
 			"click; .saved-item":function(e){
@@ -51,21 +50,22 @@
 			"click; .btnSave":function(e){
 				var view = this;
 				var $e = view.$el;
-				var $input = $e.find(".input-containers .valueInput");
-				var value = $input.val();
-				saveSearch.call(view, value);
+				saveSearch.call(view);
 			}
 		},
 		// --------- /Events--------- //
 	});
 	
 	// --------- Private Methods--------- //
-	function saveSearch(name){
+	function saveSearch(){
 		var view = this;
 		var $e = view.$el;
 		var $input = $e.find(".input-containers .valueInput");
+		if($input.val() == ""){
+			return;
+		}
 		var content = JSON.stringify(app.ParamsControl.getParamsForSearch());
-		app.SavedSearchesDaoHandler.save(name,content).done(function(){
+		app.SavedSearchesDaoHandler.save($input.val(),content).done(function(){
 			$input.val("");
 			showSearches.call(view);
 		});
@@ -97,8 +97,8 @@
 	function restoreSearchForUI(content){
 		var view = this;
 		var search = JSON.parse(content);
-		//app.ParamsControl.setFilterParams(search.searchValues);
-		//view.$el.trigger("DO_SEARCH");
+		app.ParamsControl.restoreSearch(search);
+		view.$el.trigger("DO_SEARCH");
 	}
 	
 	function checkEmpty(){

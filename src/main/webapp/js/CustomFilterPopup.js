@@ -117,6 +117,24 @@
 
 			});
 			return values;
+		},
+		setValues:function(values){
+			var view = this;
+			var $e = view.$el;
+			$e.find(".filter-item").each(function(){
+				var $item = $(this);
+				var name = $item.attr("data-name");
+				for(var i = 0; i < values.length; i++){
+					var value = values[i];
+					if(name == value.field){
+						callFilterViewMethod.call(view, $item, "setValue", value);
+						callFilterViewMethod.call(view, $item, "showMode");
+						break;
+					}
+				}
+
+			});
+			return values;
 		}
 		// --------- /Public APIs--------- //
 	});

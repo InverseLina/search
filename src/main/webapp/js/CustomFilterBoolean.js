@@ -54,29 +54,6 @@
 			mode = mode || view.mode;
 			view.mode = mode;
 			
-			if ($e.closest(".HeaderPopup").size() > 0) {
-				var headerFilter = app.ParamsControl.getHeaderCustomFilter(view.paramName);
-				if (headerFilter && headerFilter.conditions) {
-					var value = headerFilter.conditions["=="];
-					var $label = $e.find(".viewContainer .valueLabel");
-					var $btnGroup = $e.find(".editContainer .btn-group");
-					if (value) {
-						$label.addClass("yes");
-						$label.text("Yes");
-						$label.attr("data-value", 1);
-						$btnGroup.find(".btn[data-mode='1']").addClass("active");
-						$btnGroup.find(".btn[data-mode='0']").removeClass("active");
-					} else {
-						$label.removeClass("yes");
-						$label.text("No");
-						$label.attr("data-value", 0);
-						$btnGroup.find(".btn[data-mode='0']").addClass("active");
-						$btnGroup.find(".btn[data-mode='1']").removeClass("active");
-					}
-				}
-			}
-
-			
 			if(mode == 'edit'){
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
@@ -104,6 +81,30 @@
 			var valueObject = {field:view.paramName, conditions:{"==":value}};
 			return valueObject;
 		},
+		
+		setValue:function(filter){
+			var view = this;
+			var $e = view.$el;
+			if (filter && filter.conditions) {
+				var value = filter.conditions["=="];
+				var $label = $e.find(".viewContainer .valueLabel");
+				var $btnGroup = $e.find(".editContainer .btn-group");
+				if (value) {
+					$label.addClass("yes");
+					$label.text("Yes");
+					$label.attr("data-value", 1);
+					$btnGroup.find(".btn[data-mode='1']").addClass("active");
+					$btnGroup.find(".btn[data-mode='0']").removeClass("active");
+				} else {
+					$label.removeClass("yes");
+					$label.text("No");
+					$label.attr("data-value", 0);
+					$btnGroup.find(".btn[data-mode='0']").addClass("active");
+					$btnGroup.find(".btn[data-mode='1']").removeClass("active");
+				}
+			}
+		},
+		
 		clearFields:function(){
 			var view = this;
 			var $e = view.$el;
