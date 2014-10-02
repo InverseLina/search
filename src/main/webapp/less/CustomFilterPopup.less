@@ -72,11 +72,25 @@
 		right:0px;
 		bottom:0px;
 		overflow-y: auto;
-		.title{
-			color:#919191;
-			font-size:19px;
-			margin: 30px 0 0 11px;
+			
+		.customSearchMode {
+			margin: 15px 80px;
+			.btn{
+				padding: 8px 7px;
+				font-family:"Muli";
+				font-size: 16px;
+				background-color: #fff;
+				color:#81b7c0;
+				box-shadow:none;
+				border: 1px solid #81b7c0;
+				width:110px;
+			}
+			.btn.active {
+				background-color: #81b7c0;
+				color: #fff;
+			}
 		}
+
 		.filters-content{
 			padding:0;
 			.filter-item{
@@ -119,6 +133,12 @@
 				}
 			}
 		}
+		
+		.saved-content{
+			padding:10px;
+			background-color:#e3e3e3;
+		}
+		
 	}
 }
 

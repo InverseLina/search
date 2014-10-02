@@ -76,6 +76,71 @@ var app = app || {};
 			
 			return result;
 		},
+		restoreSearch:function(search){
+			var view = getMainView();
+			var searchValues = JSON.parse(search.searchValues);
+			app.ParamsControl.clear();
+			app.columns.save(search.searchColumns);
+			app.preference.store("skillOperator", searchValues["skillOperator"]);
+			app.preference.store("companyOperator", searchValues["companyOperator"]);
+			app.preference.store("searchMode", searchValues["searchMode"]);
+			
+			for(var key in searchValues){
+				if(key == "q_search"){
+					view.contentView.dataGridView.$el.find(".search-input").val(searchValues[key]);
+				}else if(key == "q_objectType"){
+					app.preference.store("contact_filter_objectType", searchValues[key]);
+				}else if(key == "q_status"){
+					app.preference.store("contact_filter_status", searchValues[key]);
+				}else if(key == "q_customFields"){
+					var fields = searchValues[key];
+					var customFilterPopup = view.$el.find(".CustomFilterPopup").bView();
+					if(customFilterPopup){
+						customFilterPopup.setValues(fields);
+					}
+					
+					var customColumns = app.columns.getCustomColumnsSelected();
+					for(var i = 0; i < customColumns.length; i++){
+						for(var j = 0; j < fields.length; j++){
+							if(customColumns[i].name == fields[j].field){
+								app.ParamsControl.saveHeaderCustomFilter(fields[j]);
+							}
+						}
+					}
+					
+				}else if(key == "q_contacts"){
+					var type = "contact";
+					var valueArr = searchValues[key];
+					for (var i = 0; i < valueArr.length; i++) {
+						var value = valueArr[i];
+						var displayName = app.getContactDisplayName(value);
+						app.ParamsControl.save({
+							name : displayName,
+							type : type,
+							value : value
+						});
+					}
+
+				}else if(key == "q_companies"){
+					var type = "company";
+					var valueArr = searchValues[key];
+					for (var i = 0; i < valueArr.length; i++) {
+						var value = valueArr[i];
+						value.type = "company";
+						app.ParamsControl.save(value);
+					}
+
+				}else{
+					var type = key.substring(2, key.length - 1);
+					var valueArr = searchValues[key];
+					for (var i = 0; i < valueArr.length; i++) {
+						var value = valueArr[i];
+						value.type = type;
+						app.ParamsControl.save(value);
+					}
+				}
+			}
+		},
 		/**
 		 * save data {type: xx, name: xx, val:xx}
 		 * @param data

@@ -50,29 +50,6 @@
 			var $e = view.$el;
 			mode = mode || view.mode;
 			view.mode = mode;
-			
-			
-			if ($e.closest(".HeaderPopup").size() > 0) {
-				var headerFilter = app.ParamsControl.getHeaderCustomFilter(view.paramName);
-				if (headerFilter && headerFilter.conditions) {
-					var greaterValue = headerFilter.conditions[">="];
-					if (greaterValue) {
-						$e.find(".viewContainer .resultValue").attr("data-value", greaterValue);
-					}
-
-					var lessValue = headerFilter.conditions["<="];
-					if (lessValue) {
-						$e.find(".viewContainer .resultValue1").attr("data-value", lessValue);
-					}
-					if(greaterValue && lessValue){
-						$e.find(".viewContainer .operValue").attr("data-oper", "between");
-					}else if(greaterValue){
-						$e.find(".viewContainer .operValue").attr("data-oper", "gt");
-					}else{
-						$e.find(".viewContainer .operValue").attr("data-oper", "lt");
-					}
-				}
-			}
 
 			var oper = $e.find(".viewContainer .operValue").attr("data-oper");
 			if(mode == 'edit'){
@@ -128,6 +105,31 @@
 			}
 			
 			return valueObject;
+		},
+		
+		setValue : function(filter){
+			var view = this;
+			var $e = view.$el;
+					
+			if (filter && filter.conditions) {
+				var greaterValue = filter.conditions[">="];
+				if (greaterValue) {
+					$e.find(".viewContainer .resultValue").attr("data-value", greaterValue).text(formatNumber(greaterValue));
+				}
+		
+				var lessValue = filter.conditions["<="];
+				if (lessValue) {
+					$e.find(".viewContainer .resultValue1").attr("data-value", lessValue).text(formatNumber(lessValue));
+				}
+				if (greaterValue && lessValue) {
+					$e.find(".viewContainer .operValue").attr("data-oper", "between").text("Between");
+				} else if (greaterValue) {
+					$e.find(".viewContainer .operValue").attr("data-oper", "gt").text("Greater than");
+				} else {
+					$e.find(".viewContainer .operValue").attr("data-oper", "lt").text("Less than");
+				}
+			}
+
 		},
 		
 		clearFields:function(){

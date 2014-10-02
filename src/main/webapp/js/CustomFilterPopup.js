@@ -19,6 +19,7 @@
 			var $e = view.$el;
 			
 			showFields.call(view);
+			brite.display("SavedSearchesSide");
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -29,6 +30,19 @@
 				var view = this;
 				var $e = view.$el;
 				$e.toggleClass("show");
+			},
+			"click; .customSearchMode .btn:not(.active)" : function(event) {
+				var view = this;
+				var $e = view.$el;
+				var $btn = $(event.currentTarget);
+				var $searchMode = $btn.closest(".customSearchMode");
+				$searchMode.find(".btn").toggleClass("active");
+				
+				var mode = $searchMode.find(".btn.active").attr("data-mode");
+				var $filterContent = $e.find(".filters-content");
+				var $savedContent = $e.find(".saved-content");
+				$filterContent.toggleClass("hide");
+				$savedContent.toggleClass("hide");
 			},
 			"click;.left-side":function(e){
 				var view = this;
@@ -99,6 +113,24 @@
 				var value = callFilterViewMethod.call(view, $item, "getValue");
 				if (value) {
 					values.push(value);
+				}
+
+			});
+			return values;
+		},
+		setValues:function(values){
+			var view = this;
+			var $e = view.$el;
+			$e.find(".filter-item").each(function(){
+				var $item = $(this);
+				var name = $item.attr("data-name");
+				for(var i = 0; i < values.length; i++){
+					var value = values[i];
+					if(name == value.field){
+						callFilterViewMethod.call(view, $item, "setValue", value);
+						callFilterViewMethod.call(view, $item, "showMode");
+						break;
+					}
 				}
 
 			});
