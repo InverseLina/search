@@ -186,6 +186,7 @@
 		setValue:function(filter){
 			var view = this;
 			var $e = view.$el;
+			$e.find(".viewContainer .selectedItems .selected-item").remove();
 			if (filter && filter.conditions) {
 				var isArray = filter.conditions["=="];
 				if (isArray) {
