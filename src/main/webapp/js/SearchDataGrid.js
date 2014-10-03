@@ -780,7 +780,8 @@
 
 	function getColWidth() {
 		var view = this;
-		var colLen = app.columns.get().length;
+		var $e = view.$el;
+		var colLen = $e.find(".scrollTable th[data-column]").size();
 		//        return parseInt((view.$searchResult.innerWidth()-30)/colLen)-2;
 		return 100 / colLen;
 	}
@@ -790,8 +791,7 @@
 		var $e = view.$el;
 		var colWidth;
 		var colName;
-		var columns = app.columns.get();
-		var colLen = columns.length;
+		var colLen = $e.find(".scrollTable th[data-column]").size();
 		var tableWidth = view.$el.find(".tableContainer").width();
 		
 		//checkbox

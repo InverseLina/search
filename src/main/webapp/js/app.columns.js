@@ -38,15 +38,21 @@ var app = app || {};
 		save : function(newColumns){
 			var dfd = $.Deferred();
 			if (newColumns && $.type(newColumns) === "array") {
-				if (newColumns.length > 0) {
-					app.cookie("columns", newColumns.join(","));
-				}
-				
-				app.getJsonData("perf/save-user-pref", {
-					value : JSON.stringify(newColumns)
-				}, "Post").done(function() {
+				var oldColumns = app.preference.get("columns", null);
+				// if not same do save
+				if(newColumns.join(",") != oldColumns){
+					if (newColumns.length > 0) {
+						app.cookie("columns", newColumns.join(","));
+					}
+					
+					app.getJsonData("perf/save-user-pref", {
+						value : JSON.stringify(newColumns)
+					}, "Post").done(function() {
+						dfd.resolve();
+					});
+				}else{
 					dfd.resolve();
-				});
+				}
 			}else{
 				dfd.reject();
 			}
