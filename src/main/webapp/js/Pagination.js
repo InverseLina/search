@@ -83,9 +83,15 @@
 				var view = this;
 				var $e = view.$el;
 				var value = $e.find(".pageSelect .value").attr("data-value");
-				$e.find(".pageSelect .options").show();
-				$e.find(".pageSelect .options .option").show();
-				$e.find(".pageSelect .options .option[data-value='"+value+"']").hide();
+				//when it show, then click it to close
+				var $pageSelectOptions = $e.find(".pageSelect .options");
+				if($pageSelectOptions.is(":visible")){
+					$pageSelectOptions.hide();
+				}else{
+					$pageSelectOptions.show();
+					$pageSelectOptions.find(".option").show();
+					$pageSelectOptions.find(".option[data-value='"+value+"']").hide();
+				}
 			}
 
 		},
