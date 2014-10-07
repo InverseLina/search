@@ -191,7 +191,6 @@
 					view.contentView.dataGridView.showContentMessage("loading");
 				}
 			}
-			app.columns.save(searchParameter.searchColumns.split(","));
 			view.contentView.dataGridView.restoreSearchParam();
 	
 			searchParameter.pageIndex = opts.pageIdx || 1;

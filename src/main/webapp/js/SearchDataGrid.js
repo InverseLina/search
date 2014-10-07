@@ -501,9 +501,9 @@
 						var greaterValue = headerCustomFilter.conditions[">="];
 						var lessValue = headerCustomFilter.conditions["<="];
 						
-						if(greaterValue && lessValue){
+						if(typeof greaterValue != "undefined" && typeof lessValue != "undefined"){
 							item.display = "Between: " + greaterValue + " and " + lessValue;
-						}else if(lessValue){
+						}else if(typeof lessValue != "undefined"){
 							item.display = "Less than: " + lessValue;
 						}else{
 							item.display = "Greater than: " + greaterValue;

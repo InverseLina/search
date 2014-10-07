@@ -18,11 +18,7 @@ var app = app || {};
 			var searchData = result.searchValues = {};
 			var contentSearchValues = view.contentView.dataGridView.getSearchValues();
 			queryKey = $.trim(params.search || contentSearchValues.search);
-			var searchColumns = [];
-			view.contentView.dataGridView.$el.find(".scrollTable th[data-column]").each(function(){
-				searchColumns.push($(this).attr("data-column"));
-			});
-			result.searchColumns = searchColumns.join(",");
+			result.searchColumns = app.columns.get().join(",");
 			
 			if (contentSearchValues.sort) {
 				if(new RegExp(contentSearchValues.sort.column,"i").test(app.columns.get())){//only the sort header shown 
