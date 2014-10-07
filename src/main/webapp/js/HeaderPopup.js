@@ -79,6 +79,7 @@
 				var view = this;
 				var $e = view.$el;
 				var component = $(view.$content.children()[1]).bView();
+				app.ParamsControl.saveHeaderCustomFilter({field:component.paramName});
 				component.clearFields();
 				$e.trigger("DO_SEARCH");
 			}
