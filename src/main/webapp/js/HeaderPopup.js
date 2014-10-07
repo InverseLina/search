@@ -59,6 +59,8 @@
 				var filterRender;
 				if(custom == "true"){
 					filterRender = app.getFilterRender("custom");
+					view.$content.addClass("custom");
+					view.$content.append("<span class='clearCustomFilter icon-fa fa-times-circle'></span>");
 				}else{
 					var type = $target.attr("data-column");
 					filterRender = app.getFilterRender(type);
@@ -70,6 +72,18 @@
 
 		},
 		// --------- /View Interface Implement--------- //
+		
+		// --------- Events --------- //
+		events:{
+			"click;.clearCustomFilter" : function(){
+				var view = this;
+				var $e = view.$el;
+				var component = $(view.$content.children()[1]).bView();
+				component.clearFields();
+				$e.trigger("DO_SEARCH");
+			}
+		},
+		// --------- /Events--------- //
 		
 		// --------- Document Events--------- //
 		docEvents : {
