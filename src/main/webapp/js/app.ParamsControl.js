@@ -289,7 +289,9 @@ var app = app || {};
 				}
 			}
 			if(index == -1){
-				_headerCustomFilters.push(headerCustomFilter);
+				if(headerCustomFilter.conditions){
+					_headerCustomFilters.push(headerCustomFilter);
+				}
 			}else{
 				if(headerCustomFilter.conditions){
 					_headerCustomFilters.splice(index, 1, headerCustomFilter);
