@@ -42,7 +42,7 @@ public class CustomFieldsDao {
 			filterLists = orgSearchConfig.getCustomFilters();
 			if(filterLists != null){
 				for(Filter filter : filterLists){
-					if(!checkOrgCustomFieldIsValid(orgName, filter.getFilterField().getColumn())){
+					if(!checkOrgCustomFieldIsValid(orgName, filter)){
 						continue;
 					}
 					HashMap fieldMap = new HashMap();
@@ -74,7 +74,7 @@ public class CustomFieldsDao {
     	if(orgSearchConfig != null && customFilterLists.size() > 0){
         		for(Filter customFilter : customFilterLists){
         			if(customFilter.getName().equals(fieldName)){
-        				columnData = getColumnData(orgName,"contact",customFilter.getFilterField().getColumn(),searchText,4);
+        				columnData = getColumnData(orgName,customFilter.getFilterField().getTable(),customFilter.getFilterField().getColumn(),searchText,4);
         				break;
         			}
         		}
@@ -96,7 +96,7 @@ public class CustomFieldsDao {
         return data;
     }
 	
-	private boolean checkOrgCustomFieldIsValid(String orgName, String columnName) {
+	private boolean checkOrgCustomFieldIsValid(String orgName, Filter filter) {
     	List<Map> orgs = orgConfigDao.getOrgByName(orgName);
         String schemaname = "";
         if (orgs.size() == 1) {
@@ -105,9 +105,20 @@ public class CustomFieldsDao {
         	return false;
         }
     	try {
-			if(checkColumn(columnName,"contact",schemaname)){
+    		String table = filter.getFilterField().getTable();
+    		String column = filter.getFilterField().getColumn();
+    		if (table.equalsIgnoreCase("contact") && checkColumn(column,"contact",schemaname)) {
+    			return true;
+    		}
+    		String joinfrom = filter.getFilterField().getJoinFrom();
+    		String jointo = filter.getFilterField().getJoinTo();
+			if (Strings.isNullOrEmpty(table) || Strings.isNullOrEmpty(column) || Strings.isNullOrEmpty(joinfrom) || Strings.isNullOrEmpty(jointo)){
+				return false;
+			}
+			if (checkColumn(column, table, schemaname) && checkColumn(joinfrom, table, schemaname) && checkColumn(jointo, "contact", schemaname)){
 				return true;
 			}
+			return false;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

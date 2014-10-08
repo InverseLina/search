@@ -538,7 +538,6 @@ public class SearchDao {
         }
         
         Long start = System.currentTimeMillis();
-//        Runner runner = datasourceManager.newOrgRunner((String)org.getOrgMap().get("name"));
         String orgName = org.getOrgMap().get("name").toString();
         
         queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
@@ -769,11 +768,13 @@ public class SearchDao {
         List<Filter> customFilters = sc.getCustomFilters();
         for(Filter customFilter : customFilters){
         	String column = customFilter.getFilterField().getColumn();
-        	if(originalName.trim().equals(customFilter.getName()) && !judgeColumnInContactField(column, sc)){
-        		customColumn.append("contact.\"").append(column)
-        		.append("\" as ").append(column);
-        		groupBy.append("," + column);
-        	}
+			if (customFilter.getFilterField().getTable().equalsIgnoreCase("contact")){
+	        	if(originalName.trim().equals(customFilter.getName()) && !judgeColumnInContactField(column, sc)){
+	        		customColumn.append("contact.\"").append(column)
+	        		.append("\" as ").append(column);
+	        		groupBy.append("," + column);
+	        	}
+			}
         }
         return customColumn.toString();
     }
@@ -877,7 +878,7 @@ public class SearchDao {
         SearchBuilder sb = new SearchBuilder(org);
         sb.addKeyWord(searchRequest.getKeyword(),searchRequest).addContactFilter(searchRequest.getContacts(), searchRequest.hasContactTitle())
           .addCompany(searchRequest.getCompanies()).addEducation(searchRequest.getEducations())
-          .addSkill(searchRequest.getSkills()).addLocation(searchRequest.getLocations())
+          .addSkill(searchRequest.getSkills()).addCustomPartCondition(searchRequest.getCustomFields()).addLocation(searchRequest.getLocations())
           .addCustomFilter(searchRequest.getCustomFilters()).addObjectType(searchRequest.getObjectType())
           .addStatus(searchRequest.getStatus()).addCustomFields(searchRequest.getCustomFields());
         querySqlparam.addAll(sb.getValues());
@@ -1377,7 +1378,48 @@ public class SearchDao {
 		}
 		return condition.toString();
 	}
+    
+    private boolean renderCustomPartCondition(JSONArray searchValues, StringBuilder filterSql, String schemaname, 
+                            SearchConfiguration sc, OrgContext org, List valueList) {
+        boolean hasCondition = false;
+        if (searchValues != null) {
+            StringBuilder condition = new StringBuilder();
+            Filter customFilter;
+            for(int position = 0, length=searchValues.size(); position < length; position++){
+            	JSONObject jo = searchValues.getJSONObject(position);
+                customFilter = sc.getFilterByName(jo.getString("field"));
+                if (customFilter == null) {
+                    continue;
+                }
+                String table = customFilter.getFilterField().getTable();
+            	String column = customFilter.getFilterField().getColumn();
+            	String joinfrom = customFilter.getFilterField().getJoinFrom();
+        		String jointo = customFilter.getFilterField().getJoinTo();
+        		if (Strings.isNullOrEmpty(table) || Strings.isNullOrEmpty(column) || Strings.isNullOrEmpty(joinfrom) || Strings.isNullOrEmpty(jointo)){
+        			continue;
+        		}
+        		condition.append(" join ").append(table).append(" on contact.").append(jointo).append("=")
+        		         .append(table).append(".").append(joinfrom).append(" AND (1!=1 OR (1=1");
+                condition.append(setCustomPartCondition(jo, customFilter, schemaname, sc, org, valueList, table));
+        		condition.append(" ) )");
+            }
+            System.out.println(condition.toString());
+            filterSql.append(condition);
+            hasCondition = true;
+        }
+        return hasCondition;
+    }
 
+    private String setCustomPartCondition(JSONObject jo, Filter customFilter, String schemaname, SearchConfiguration sc,OrgContext org,List valueList, String table){
+    	StringBuilder condition = new StringBuilder();
+		String temp = customFilter.getFilterField().toString(table);
+		JSONObject conditionsParam = jo.getJSONObject("conditions");
+        for(Object op : conditionsParam.keySet()){
+            condition.append(" AND (1=1 ").append(wrap(temp, customFilter, conditionsParam.get(op), op, valueList));
+        }
+    	return condition.toString();
+    }
+    
     private boolean renderLocationCondition(JSONArray locationValues,StringBuilder locationSql,
             StringBuilder conditions,String schemaname,
             SearchConfiguration sc,OrgContext org,List values){
@@ -1401,7 +1443,6 @@ public class SearchDao {
             }
             
             if(cities.size() != 0){
-//                Runner runner = datasourceManager.newSysRunner();
                 for(Map city : cities){//minLat,minLng,maxLat,maxLng
                     double[] range = getAround(Double.valueOf(city.get("latitude").toString()),
                                                Double.valueOf(city.get("longitude").toString()),
@@ -1416,7 +1457,6 @@ public class SearchDao {
                     values.add(range[1]);
                     values.add(range[3]);
                 }
-//                runner.close();
             }
             
             if (joinCity.length() > 0) {
@@ -1492,13 +1532,17 @@ public class SearchDao {
         for(int position = 0, length=searchValues.size(); position < length; position++){
             jo = searchValues.getJSONObject(position);
             customFilter = sc.getFilterByName(jo.getString("field"));
-            if(customFilter == null){
+            if (customFilter == null) {
                 continue;
             }
-            temp = customFilter.getFilterField().toString("contact");
-            conditionsParam = jo.getJSONObject("conditions");
-            for(Object op : conditionsParam.keySet()){
-                conditions.append(" AND ( 1=1 ").append(wrap(temp,customFilter,conditionsParam.get(op),op,conditionValues));
+            if (customFilter.getFilterField().getTable().equalsIgnoreCase("contact")){
+                temp = customFilter.getFilterField().toString("contact");
+                conditionsParam = jo.getJSONObject("conditions");
+                for(Object op : conditionsParam.keySet()){
+                    conditions.append(" AND ( 1=1 ").append(wrap(temp,customFilter,conditionsParam.get(op),op,conditionValues));
+                }
+            } else {
+            	//other conditions has add in customfielter
             }
             hasCondition = true;
         }
@@ -1731,6 +1775,11 @@ public class SearchDao {
             return this;
         }
         
+        public SearchBuilder addCustomPartCondition(JSONArray searchValues){
+            hasCondition = renderCustomPartCondition(searchValues, filterSql, schemaname, sc, org, values)||hasCondition;
+            return this;
+        }
+        
         public SearchBuilder addLocation(JSONArray locations){
             hasCondition = renderLocationCondition( locations,
             		locationSql, conditions, schemaname, sc, org, conditionValues)||hasCondition;
@@ -1776,12 +1825,12 @@ public class SearchDao {
         }
        
         public SearchBuilder addCustomFilter(Map searchValues){
-        	renderCustomFilters(searchValues, filterSql, conditions, values, conditionValues, schemaname, sc);
+        	hasContactCondition = renderCustomFilters(searchValues, filterSql, conditions, values, conditionValues, schemaname, sc)||hasContactCondition;
             return this;
         }
         public SearchBuilder addCustomFields(JSONArray searchValues){
-            hasContactCondition = renderCustomFields(searchValues,  conditions, conditionValues, sc)||hasContactCondition;
-            hasCondition = hasContactCondition|| hasCondition;
+            hasContactCondition = renderCustomFields(searchValues,  conditions, conditionValues, sc) || hasContactCondition;
+            hasCondition = hasContactCondition || hasCondition;
             return this;
         }
         public String getSearchSql(){
