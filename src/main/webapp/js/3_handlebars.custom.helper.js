@@ -114,7 +114,12 @@
 	});
 
 	Handlebars.registerHelper('renderHeader', function(filterInfo, options) {
-		var render = app.getHeaderRender(filterInfo.name);
+		var render;
+		if(filterInfo.custom){
+			render = app.getHeaderRender("custom")
+		}else{
+			render = app.getHeaderRender(filterInfo.name)
+		}
 		var html = render(filterInfo);
 		return html;
 	});

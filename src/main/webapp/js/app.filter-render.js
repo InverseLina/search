@@ -2,10 +2,6 @@ var app = app || {};
 
 (function($) {
 
-	function genericHeaderFilterRenderer(filterInfo) {
-		return render("search-query-generic-filter-render-header", filterInfo);
-	}
-
 	var filters = {
 		contact : {
 			headerRenderer : function(filterInfo) {
@@ -50,7 +46,6 @@ var app = app || {};
 
 		},
 		education : {
-			headerRenderer : genericHeaderFilterRenderer,
 			filterRenderer : function($content, headerInfo) {
 				var data = app.ParamsControl.getFilterParams()['education'] || [];
 				brite.display("EducationFilterView", $content, {
@@ -61,7 +56,6 @@ var app = app || {};
 
 		},
 		location : {
-			headerRenderer : genericHeaderFilterRenderer,
 			filterRenderer : function($content, headerInfo) {
 				var data = app.ParamsControl.getFilterParams()['location'] || [];
 				brite.display("LocationFilterView", $content, {
@@ -71,7 +65,10 @@ var app = app || {};
 			}
 		},
 		custom : {
-			headerRenderer : genericHeaderFilterRenderer,
+			headerRenderer : function genericHeaderFilterRenderer(filterInfo) {
+				console.log(render("search-query-generic-custom-render-header", filterInfo));
+				return render("search-query-generic-custom-render-header", filterInfo);
+			},
 			filterRenderer : function($content, headerInfo) {
 				var $target = $(headerInfo);
 				var type = $target.attr("data-type");
@@ -98,7 +95,7 @@ var app = app || {};
 				}
 			},
 
-		},
+		}
 
 	};
 	//for generic not default filter render
@@ -123,7 +120,7 @@ var app = app || {};
 
 	function getRender(field, renderName) {
 		var renderer = filters[field];
-
+		
 		if (!renderer) {
 			renderer = genericRender;
 		} else {

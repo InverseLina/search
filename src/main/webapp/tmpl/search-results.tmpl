@@ -136,7 +136,7 @@
 </script>
 
 <script id="search-query-generic-render-header" type="text/html">
-	<div class="headerTh customTh {{name}}Th" {{#if bg_color}}style="background-color:{{bg_color}}"{{/if}}>
+	<div class="headerTh {{name}}Th">
 		<span class="columnName">{{title}}</span>
 			<div class="selectedItems">
 				<span class="addFilter">+&nbsp;jFactor</span>
@@ -145,13 +145,12 @@
 	</div>
 </script>
 
-<script id="search-query-generic-filter-render-header" type="text/html">
-	<div class="headerTh {{name}}Th">
+<script id="search-query-generic-custom-render-header" type="text/html">
+	<div class="headerTh customTh {{name}}Th" {{#if bg_color}}style="background-color:{{bg_color}}"{{/if}}>
 		<span class="columnName">{{title}}</span>
-			<div class="selectedItems">
-				<span class="addFilter">+&nbsp;jFactor</span>
-			</div>
-		<span class="order desc">&darr;</span><span class="order asc">&uarr;</span>
+		<div class="selectedItems">
+			<span class="addFilter">+&nbsp;jFactor</span>
+		</div>
 	</div>
 </script>
 
