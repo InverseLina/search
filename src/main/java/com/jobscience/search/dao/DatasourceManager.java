@@ -37,6 +37,7 @@ public class DatasourceManager {
     private ConcurrentHashMap<String, String> orgs = new ConcurrentHashMap<String, String>();
     private ConcurrentHashMap<String, String> roorgs = new ConcurrentHashMap<String, String>();
     private Logger logger = LoggerFactory.getLogger(getClass());
+    private boolean hasRODataSource;
     
     @Inject
     public void init(@Named("jss.db.url") String url,
@@ -70,8 +71,10 @@ public class DatasourceManager {
     private void setReadOnlyDataSource (){
     	if (!Strings.isNullOrEmpty(ro_url) && !Strings.isNullOrEmpty(ro_user) && !Strings.isNullOrEmpty(ro_pwd) && !Strings.isNullOrEmpty(ro_poolSize)){
     		this.roDataSource = buildDs(ro_url, ro_user, ro_pwd, Integer.valueOf(ro_poolSize));
+    		hasRODataSource = true;
     	} else {
     		this.roDataSource = buildDs(url, user, pwd, Integer.valueOf(poolSize));
+    		hasRODataSource = false;
     	}
         this.rodb = new DBBuilder().newDB(roDataSource);
     }
@@ -133,6 +136,9 @@ public class DatasourceManager {
     }
     
     public Map getROPoolInfo(){
+    	if(!hasRODataSource){
+    		return null;
+    	}
         Map poolInfo = new HashMap();
         try {
             poolInfo.put("numConnections",roDataSource.getNumConnectionsDefaultUser());

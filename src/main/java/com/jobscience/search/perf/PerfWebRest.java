@@ -35,7 +35,7 @@ public class PerfWebRest {
 	@WebGet("/perf-get-all")
 	public WebResponse getAllPerf(){
 
-		AppPerf appPerf = perfManager.getAppPerf(daoRwHelper.datasourceManager.getPoolInfo());
+		AppPerf appPerf = perfManager.getAppPerf(daoRwHelper.datasourceManager.getPoolInfo(), daoRwHelper.datasourceManager.getROPoolInfo());
 		Map result = new HashMap();
 		result.put("appPerf", appPerf);
 		

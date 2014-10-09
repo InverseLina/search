@@ -15,7 +15,7 @@
 			view.$tbodyRequests = view.$el.find(".tbody-requests");
 			view.$javaInfo = view.$el.find(".java-info");
 			view.$poolInfo = view.$el.find(".pool-info");
-
+			view.$roPoolInfo = view.$el.find(".roPool-info");
 			view.$refresh = view.$el.find(".do-perf-refresh");
 
 			refresh.call(view);
@@ -56,7 +56,10 @@
 			}));
 			view.$javaInfo.html(render("PerfView-javaInfo", response.appPerf.javaInfo));
 			view.$poolInfo.html(render("PerfView-poolInfo", response.appPerf.poolInfo));
-
+			if(response.appPerf.roPoolInfo){
+				view.$roPoolInfo.html(render("PerfView-roPoolInfo", response.appPerf.roPoolInfo));
+			}
+			
 			view.$refresh.html(html);
 
 		});

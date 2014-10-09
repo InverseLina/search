@@ -16,9 +16,11 @@ public class AppPerf {
 	private final Map<String, Snap> methodsPerf;
 	private final Map<String, Snap> requestsPerf;
 	private final Map poolInfo;
+	private final Map roPoolInfo;
 
-	AppPerf(Map poolInfo, MetricRegistry methodMetrics, MetricRegistry requestMetrics){
+	AppPerf(Map poolInfo, Map roPoolInfo, MetricRegistry methodMetrics, MetricRegistry requestMetrics){
 		this.poolInfo = poolInfo;
+		this.roPoolInfo = roPoolInfo;
 		methodsPerf = extractSnapshots(methodMetrics);
 		requestsPerf =  extractSnapshots(requestMetrics);
 	}
@@ -40,6 +42,10 @@ public class AppPerf {
 
 	public Map getPoolInfo(){
 		return poolInfo;
+	}
+
+	public Map getRoPoolInfo(){
+		return roPoolInfo;
 	}
 
 	/**

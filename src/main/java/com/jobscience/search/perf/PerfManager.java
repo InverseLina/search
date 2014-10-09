@@ -29,8 +29,8 @@ public class PerfManager {
 		return start(methodMetrics,name);
 	}
 
-	public AppPerf getAppPerf(Map poolInfo){
-		return new AppPerf(poolInfo, methodMetrics,requestMetrics);
+	public AppPerf getAppPerf(Map poolInfo, Map roPoolInfo){
+		return new AppPerf(poolInfo, roPoolInfo, methodMetrics,requestMetrics);
 	}
 
 	private PerfContext start(MetricRegistry metrics, String name){
