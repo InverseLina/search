@@ -40,7 +40,7 @@ public class OrgConfigWebHandlers {
       params.put("schemaname", schemaname);
       params.put("sfid", sfid);
       Integer oId = orgConfigDao.saveOrUpdateOrg(params);
-      daoRwHelper.datasourceManager.updateDB(name);
+      daoRwHelper.updateDB(name);
       try{
           currentOrgHolder.updateSchema();
           forceDotComApiManager.clearForceDotComApi(currentOrgHolder.getId());

@@ -90,7 +90,7 @@ public class IndexerManager {
 
 	private void executeResumeSql(String orgName, String insertSql, String updateSql){
 		indexerStatus = getStatus(orgName, false);
-		Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+		Runner runner = daoRwHelper.newOrgRunner(orgName);
 	    PQuery insertPq = runner.newPQuery(insertSql + " limit ?");
 	    PQuery updatePq = runner.newPQuery(updateSql);
 	    try{

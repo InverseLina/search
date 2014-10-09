@@ -12,14 +12,39 @@ public abstract class DaoHelper {
     
     @Inject
     public DatasourceManager datasourceManager;
+
+    private boolean isRODB;
+
+    public void setDB (boolean isRODB) {
+    	this.isRODB = isRODB;
+    }
+    
+    // ---------  dataSource runner method --------- //
+    public void updateDB(String orgName){
+    	datasourceManager.updateDB(orgName, isRODB);
+    }
+    
+    public Runner newSysRunner(){
+        return datasourceManager.newSysRunner(isRODB);
+    }
+    
+    public Runner newRunner(){
+        return datasourceManager.newRunner(isRODB);
+    }
+    
+    public Runner newOrgRunner(String orgName){
+        return datasourceManager.newDBOrgRunner(orgName, isRODB);
+    }
+
+    // ---------  /dataSource runner method --------- //
     
     // ---------  query method --------- //
     public List<Map> executeQuery(String orgName,String query) {
-        return executeQuery(datasourceManager.newOrgRunner(orgName), query);
+        return executeQuery(newOrgRunner(orgName), query);
     }
     
     public List<Map> executeQuery(String orgName,  String query, Object... vals) {
-        return executeQuery(datasourceManager.newOrgRunner(orgName), query, vals);
+        return executeQuery(newOrgRunner(orgName), query, vals);
     }
     
     public List<Map> executeQuery(Runner runner,String sql,Object... vals){
@@ -33,7 +58,7 @@ public abstract class DaoHelper {
     
     // --------- update method -------- //
     public int executeUpdate(String orgName, String query, Object... vals) {
-        return executeUpdate(datasourceManager.newOrgRunner(orgName), query, vals);
+        return executeUpdate(newOrgRunner(orgName), query, vals);
     }
     
     public int executeUpdate(Runner runner, String sql, Object... vals) {
@@ -47,7 +72,7 @@ public abstract class DaoHelper {
     
     // --------- create method -------- //
     public Object create(String orgName, String sql, Object... vals){
-       return create(datasourceManager.newOrgRunner(orgName), sql, vals);
+       return create(newOrgRunner(orgName), sql, vals);
     }
     
     public Object create(Runner runner, String sql, Object... vals){
@@ -71,7 +96,7 @@ public abstract class DaoHelper {
     
 	// --------- count method -------- //
     public int executeCount(String orgName, String sql, Object... vals){
-        return executeCount(datasourceManager.newOrgRunner(orgName), sql, vals);
+        return executeCount(newOrgRunner(orgName), sql, vals);
 	}
     
     public int executeCount(Runner runner, String countSql, Object... vals){
@@ -85,7 +110,7 @@ public abstract class DaoHelper {
     
 	// --------- other method -------- //
     public PQuery getNewPQuery(String orgName, String sql){
-        return datasourceManager.newOrgRunner(orgName).newPQuery(sql);
+        return newOrgRunner(orgName).newPQuery(sql);
 	}
     // --------- /other method -------- //
 }

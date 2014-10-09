@@ -129,7 +129,7 @@ public class ContactTsvManager {
 
 	private boolean checkColumn(String columnName,String table,String schemaName) {
         boolean result = false;
-        List list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newRunner(), " select 1 from information_schema.columns " +
+        List list = daoRwHelper.executeQuery(daoRwHelper.newRunner(), " select 1 from information_schema.columns " +
                     " where table_name =? and table_schema=?  and column_name=? ", table, schemaName, columnName);
         if(list.size() > 0){
             result = true;

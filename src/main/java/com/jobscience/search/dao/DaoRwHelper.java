@@ -9,6 +9,6 @@ public class DaoRwHelper extends DaoHelper {
 
 	@Inject
     public void init() {
-		datasourceManager.setDefaultDataSource();
+		setDB(false);
     }
 }

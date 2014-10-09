@@ -20,23 +20,23 @@ public class SyncDao {
             schemaName = (String)org.get("schemaname");
         }
         
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newRunner(), "select table_name as name from information_schema.tables" +
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newRunner(), "select table_name as name from information_schema.tables" +
                 " where table_schema= ? and table_type='BASE TABLE'", schemaName);
         return list;
     }
     
     public  List<Map> getFields(String tableName){
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newRunner(), "select column_name as name, data_type as type, character_maximum_length as length from information_schema.columns where table_name= ? ", tableName);
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newRunner(), "select column_name as name, data_type as type, character_maximum_length as length from information_schema.columns where table_name= ? ", tableName);
         return list;
     }
     
     public  List<Map> getData(String tableName, int pageIndex, int pageSize,Map org){
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newOrgRunner((String)org.get("name")), "select * from "+tableName+" offset "+pageIndex+" limit "+pageSize);
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newOrgRunner((String)org.get("name")), "select * from "+tableName+" offset "+pageIndex+" limit "+pageSize);
         return list;
     }
     
     public  List<Map> getAllData(String tableName){
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newRunner(), "select * from "+tableName);
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newRunner(), "select * from "+tableName);
         return list;
     }
     
@@ -56,7 +56,7 @@ public class SyncDao {
         
         String prefix = "insert into "+tableName+"("+columns+") values(";
         StringBuilder sql =new StringBuilder();
-        Runner runner = daoRwHelper.datasourceManager.newOrgRunner((String)org.get("name"));
+        Runner runner = daoRwHelper.newOrgRunner((String)org.get("name"));
         int time = 0;
         for(Map d : data){
             if(time%99 == 0){

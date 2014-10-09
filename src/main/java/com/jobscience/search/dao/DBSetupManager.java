@@ -758,7 +758,7 @@ public class DBSetupManager {
 
         if (checkExtension(extName) != 0) {
             result = true;
-            daoRwHelper.executeUpdate(daoRwHelper.datasourceManager.newRunner(), "drop extension  if  exists " + extName
+            daoRwHelper.executeUpdate(daoRwHelper.newRunner(), "drop extension  if  exists " + extName
                                     + "  cascade;");
         }
 
@@ -785,7 +785,7 @@ public class DBSetupManager {
         if (checkExtension(extName) > 0) {
             return true;
         }
-        daoRwHelper.executeUpdate(daoRwHelper.datasourceManager.newRunner(), "CREATE extension  if not exists "
+        daoRwHelper.executeUpdate(daoRwHelper.newRunner(), "CREATE extension  if not exists "
                 + extName + "  with schema pg_catalog;");
         return result;
     }
@@ -811,7 +811,7 @@ public class DBSetupManager {
      */
     public String checkSysTables() {
         List<Map> list = daoRwHelper
-                .executeQuery(daoRwHelper.datasourceManager.newRunner(),
+                .executeQuery(daoRwHelper.newRunner(),
                         "select string_agg(table_name,',') as names from information_schema.tables"
                                 + " where table_schema='jss_sys' and table_type='BASE TABLE' and table_name in ('zipcode_us','org','config','city','city_world')");
         if (list.size() == 1) {
@@ -847,7 +847,7 @@ public class DBSetupManager {
                 allSqls.addAll(subSqlList);
             }
         }
-        Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+        Runner runner = daoRwHelper.newOrgRunner(orgName);
         try {
             runner.startTransaction();
             for (String sql : allSqls) {
@@ -879,7 +879,7 @@ public class DBSetupManager {
      * @param orgName
      */
     private void updateContactCustomIndex(String orgName){
-    	Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+    	Runner runner = daoRwHelper.newOrgRunner(orgName);
     	
     	/******** set the current index ********/
         CurrentOrgSetupStatus coss = currentOrgSetupStatus.get(orgName);
@@ -950,7 +950,7 @@ public class DBSetupManager {
     }
     
     private String getTableColumnDataType(String orgName, String tableName, String columnName){
-    	Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+    	Runner runner = daoRwHelper.newOrgRunner(orgName);
     	String sql = "SELECT data_type FROM information_schema.\"columns\" WHERE table_name='"+tableName+"' and table_schema = current_schema "
 				+"and column_name = '"+columnName+"'";
 		List<Map> list = runner.executeQuery(sql);
@@ -975,7 +975,7 @@ public class DBSetupManager {
         }
         boolean result = true;
         Map<String, JSONArray> m = getIndexMapFromJsonFile();
-        Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+        Runner runner = daoRwHelper.newOrgRunner(orgName);
         try {
             if (contactEx && m.get("jss_contact") != null) {
                 JSONArray ja = m.get("jss_contact");
@@ -1060,7 +1060,7 @@ public class DBSetupManager {
     public boolean createPKOfmanyTManyTable(String orgName) throws Exception {
     	dropAllPkOfmanyTomanyTable(orgName);
     	boolean result = true;
-    	Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+    	Runner runner = daoRwHelper.newOrgRunner(orgName);
     	Map<String, JSONArray> m = getIndexMapFromJsonFile();
     	try{
     		for (String key : m.keySet()) {
@@ -1107,7 +1107,7 @@ public class DBSetupManager {
         List<Map> list = daoRwHelper
                 .executeQuery(orgName, sql.toString());
 
-        Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+        Runner runner = daoRwHelper.newOrgRunner(orgName);
         try {
             for (Map m : list) {
                 if (!orgSetupStatus.get(orgName).booleanValue()) {
@@ -1146,7 +1146,7 @@ public class DBSetupManager {
         for (String[] tables : newTableNameChanges) {
             sb.append(",'").append(tables[1]).append("'");
         }
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(),
                 "select unnest(ARRAY[" + sb.delete(0, 1) + "]) as tablename " + " EXCEPT "
                         + " select table_name as tablename from information_schema.tables"
                         + " where table_schema='" + schemaname
@@ -1156,7 +1156,7 @@ public class DBSetupManager {
 
     public int getMtmTableseStatus(String orgName,String tableName) {
     	int count = 0;
-    	Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+    	Runner runner = daoRwHelper.newOrgRunner(orgName);
         try{
         	count = getDataCount(tableName,runner);
         }finally{
@@ -1196,7 +1196,7 @@ public class DBSetupManager {
             in.getNextEntry();
             BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             String line = br.readLine();
-            Runner runner = daoRwHelper.datasourceManager.newSysRunner();
+            Runner runner = daoRwHelper.newSysRunner();
             try {
                 runner.startTransaction();
                 while (line != null) {
@@ -1217,7 +1217,7 @@ public class DBSetupManager {
             in.close();
             
             //FIXME CREATE index here now
-            runner = daoRwHelper.datasourceManager.newSysRunner();
+            runner = daoRwHelper.newSysRunner();
             runner.executeUpdate("CREATE INDEX city_world_earth_distance_idx on city_world USING gist(ll_to_earth(latitude ,longitude));",new Object[0]);
             runner.close();
             
@@ -1231,7 +1231,7 @@ public class DBSetupManager {
         if (!extraSysTables.contains("city")) {
             excuteSqlUnderSys("01_");
         }
-        Runner runner = daoRwHelper.datasourceManager.newSysRunner();
+        Runner runner = daoRwHelper.newSysRunner();
         runner.executeUpdate("insert into city(name,longitude,latitude)"
                 + " select city,avg(longitude),avg(latitude) from zipcode_us group by city",
                 new Object[0]);
@@ -1252,7 +1252,7 @@ public class DBSetupManager {
             in.getNextEntry();
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line = br.readLine();
-            Runner runner = daoRwHelper.datasourceManager.newSysRunner();
+            Runner runner = daoRwHelper.newSysRunner();
             try {
                 runner.startTransaction();
                 while (line != null) {
@@ -1358,7 +1358,7 @@ public class DBSetupManager {
      * @param orgName
      */
     public void dropPkOfmanyTomanyTable(String orgName,String table,String pk) {
-    	Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+    	Runner runner = daoRwHelper.newOrgRunner(orgName);
     	Map<String, JSONArray> m = getIndexMapFromJsonFile();
     	try{
     		for (String key : m.keySet()) {
@@ -1429,7 +1429,7 @@ public class DBSetupManager {
     private boolean checkColumn(String columnName, String table, String schemaName)
             throws SQLException {
         boolean result = false;
-        List list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newRunner(),
+        List list = daoRwHelper.executeQuery(daoRwHelper.newRunner(),
                 " select 1 from information_schema.columns "
                         + " where table_name =? and table_schema=?  and column_name=? ", table,
                 schemaName, columnName);
@@ -1458,7 +1458,7 @@ public class DBSetupManager {
                 allSqls.addAll(subSqlList);
             }
         }
-        Runner runner = daoRwHelper.datasourceManager.newSysRunner();
+        Runner runner = daoRwHelper.newSysRunner();
         try {
             runner.startTransaction();
             for (String sql : allSqls) {
@@ -1474,7 +1474,7 @@ public class DBSetupManager {
             }
             throw e;
         } finally {
-        	daoRwHelper.datasourceManager.updateDB(null);
+        	daoRwHelper.updateDB(null);
             runner.close();
         }
         return result;
@@ -1741,7 +1741,7 @@ public class DBSetupManager {
     
 	private boolean createExtraGroup(String orgName, String tableName)
 			throws Exception {
-		Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+		Runner runner = daoRwHelper.newOrgRunner(orgName);
 		boolean result = true;
 		try {
 			if (!orgSetupStatus.get(orgName).booleanValue()) {
@@ -1790,7 +1790,7 @@ public class DBSetupManager {
 	
 	private boolean createExtraGroupCity(String orgName, String tableName){
         boolean result = true;
-        Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+        Runner runner = daoRwHelper.newOrgRunner(orgName);
         try{
         	if (!orgSetupStatus.get(orgName).booleanValue()) {
 				return false;
@@ -1811,7 +1811,7 @@ public class DBSetupManager {
 	        if(!checkTableExist(orgName,"city_score")){
 		        runner.executeUpdate(subSqlList.get(0));
 	        }
-	        if(getDataCount("city_score",daoRwHelper.datasourceManager.newOrgRunner(orgName)) == 0){
+	        if(getDataCount("city_score",daoRwHelper.newOrgRunner(orgName)) == 0){
 		        runner.executeUpdate(subSqlList.get(1));
 	        }
 	        if(!checkIndexexist(orgName,"contact_earth_distance_idx")){
@@ -1850,7 +1850,7 @@ public class DBSetupManager {
         } else {
             return done;
         }
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(),
                 "select count(*) from city");
         if (list.size() == 1) {
             if (!"0".equals(list.get(0).get("count").toString())) {
@@ -1870,7 +1870,7 @@ public class DBSetupManager {
         } else {
             return done;
         }
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(),
                 "select count(*) from city_world");
         if (list.size() == 1) {
             if (!"0".equals(list.get(0).get("count").toString())) {
@@ -1935,7 +1935,7 @@ public class DBSetupManager {
         if (orgs.size() == 1) {
             schemaname = orgs.get(0).get("schemaname").toString();
         }
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newRunner(),
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newRunner(),
                 "select count(*) as count from information_schema.schemata"
                         + " where schema_name='" + schemaname + "'");
         if (list.size() == 1) {
@@ -1958,7 +1958,7 @@ public class DBSetupManager {
         if (zipcodeLoadCount == null) {
             zipcodeLoadCount = doUpdateZipCode(false);
         }
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(),
                 "select count(*) as count from zipcode_us");
         if (list.size() == 1) {
             if (list.get(0).get("count").toString().equals(zipcodeLoadCount + "")) {
@@ -2001,7 +2001,7 @@ public class DBSetupManager {
             }
             String sql = "INSERT INTO jss_sys.zipcode_us (" + line + ") values ("
                     + valueStr.toString() + ");";
-            Runner runner = daoRwHelper.datasourceManager.newRunner();
+            Runner runner = daoRwHelper.newRunner();
             try {
                 runner.startTransaction();
                 line = br.readLine();
@@ -2058,7 +2058,7 @@ public class DBSetupManager {
     private int checkExtension(String extName) {
         List<Map> list = daoRwHelper
                 .executeQuery(
-                		daoRwHelper.datasourceManager.newRunner(),
+                		daoRwHelper.newRunner(),
                         "select sum(case when nspname='pg_catalog' then 1 else 0 end) as pg,"
                                 + "sum(case when nspname!='pg_catalog' then 1 else 0 end) as not_pg "
                                 + "from pg_catalog.pg_extension e left join pg_catalog.pg_namespace n on e.extnamespace=n.oid"
@@ -2086,7 +2086,7 @@ public class DBSetupManager {
     	}
     	int total = 0;
     	int  perform = 0;
-    	Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+    	Runner runner = daoRwHelper.newOrgRunner(orgName);
     	try{
         	total = runner.executeCount("select count(*) as count from city_score;");
         	perform = runner.executeCount("select count(*) as count from city_score where city_score.score is not null;");
@@ -2097,7 +2097,7 @@ public class DBSetupManager {
     }
     
     private void fixJssTableNames(String orgName) {
-        Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+        Runner runner = daoRwHelper.newOrgRunner(orgName);
         runner.startTransaction();
         for (String[] tables : newTableNameChanges) {
             runner.executeUpdate(" Alter table if exists \"" + tables[0] + "\" rename to \""
@@ -2124,7 +2124,7 @@ public class DBSetupManager {
     }
 
     private void dropInvalidIndexes(String orgName){
-    	Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgName);
+    	Runner runner = daoRwHelper.newOrgRunner(orgName);
 	    	try{
 	    	StringBuilder sql = new StringBuilder();
 	        sql.append("select indexname,tablename,indexdef from pg_indexes ").append("where indexname in (")
@@ -2196,7 +2196,7 @@ public class DBSetupManager {
     private Map getColumnsGroupbyTable(String org) {
         List<Map> list = daoRwHelper
                 .executeQuery(
-                		daoRwHelper.datasourceManager.newRunner(),
+                		daoRwHelper.newRunner(),
                         " select string_agg(\"column_name\",',') as column_string,table_name from information_schema.columns"
                                 + "  where table_schema=? group by table_name", org);
         Map<String, String> columnsStringMap = new HashMap<String, String>();
@@ -2306,7 +2306,7 @@ public class DBSetupManager {
     private void fixMissingColumns(String orgName, Boolean sys) {
         Map<String, JSONArray> arrays = loadJsonFile(sys ? "jss-sys-tables.def"
                 : "org-jss-tables.def");
-        Runner runner = sys ? daoRwHelper.datasourceManager.newSysRunner() : daoRwHelper.datasourceManager.newOrgRunner(orgName);
+        Runner runner = sys ? daoRwHelper.newSysRunner() : daoRwHelper.newOrgRunner(orgName);
         runner.startTransaction();
         for (String key : arrays.keySet()) {
             JSONArray ja = arrays.get(key);
@@ -2372,7 +2372,7 @@ public class DBSetupManager {
     }
     
     private boolean checkSysSchema(){
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newRunner(),"select count(*) as count from information_schema.schemata" +
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newRunner(),"select count(*) as count from information_schema.schemata" +
                 " where schema_name='"+sysSchema+"'");
 		if (list.size() == 1) {
 			if ("1".equals(list.get(0).get("count").toString())) {
@@ -2384,19 +2384,19 @@ public class DBSetupManager {
 
 	private void createSysSchemaIfNecessary() {
 		if (!checkSysSchema()) {
-			daoRwHelper.executeUpdate(daoRwHelper.datasourceManager.newRunner(),
+			daoRwHelper.executeUpdate(daoRwHelper.newRunner(),
 					"CREATE SCHEMA " + sysSchema + " AUTHORIZATION " + user,
 					new Object[0]);
 		}
-		daoRwHelper.datasourceManager.updateDB(null);
+		daoRwHelper.updateDB(null);
 	}
 
 	private void dropSysSchemaIfNecessary() {
 		if (checkSysSchema()) {
-			daoRwHelper.executeUpdate(daoRwHelper.datasourceManager.newRunner(),
+			daoRwHelper.executeUpdate(daoRwHelper.newRunner(),
 					"Drop SCHEMA " + sysSchema + " CASCADE ", new Object[0]);
 		}
-		daoRwHelper.datasourceManager.updateDB(null);
+		daoRwHelper.updateDB(null);
 	}
     
     private boolean checkTriggerContent(String orgName){
@@ -2534,7 +2534,7 @@ public class DBSetupManager {
         if (orgs.size() == 1) {
             schemaname = orgs.get(0).get("schemaname").toString();
         }
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(),
                 "select count(*) as count from information_schema.tables" + " where table_schema='"
                         + schemaname + "' and table_type='BASE TABLE' and table_name=?", tableName);
         if (list.size() == 1) {

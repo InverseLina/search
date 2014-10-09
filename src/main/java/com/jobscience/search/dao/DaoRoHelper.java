@@ -9,6 +9,6 @@ public class DaoRoHelper extends DaoHelper {
 
 	@Inject
     public void init() {
-		datasourceManager.setReadOnlyDataSource();
+		setDB(true);
     }
 }

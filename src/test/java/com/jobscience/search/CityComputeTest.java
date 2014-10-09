@@ -12,7 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.britesnow.snow.testsupport.SnowTestSupport;
-import com.jobscience.search.dao.DatasourceManager;
+import com.jobscience.search.dao.DaoRwHelper;
 
 public class CityComputeTest extends SnowTestSupport{
 
@@ -23,7 +23,7 @@ public class CityComputeTest extends SnowTestSupport{
     
     //@Test
     public void computeCity(){
-        DatasourceManager dm = appInjector.getInstance(DatasourceManager.class);
+    	DaoRwHelper dm = appInjector.getInstance(DaoRwHelper.class);
         Runner runner = dm.newSysRunner();
         runner.executeUpdate("insert into city(name,longitude,latitude)"
                 +" select city,avg(longitude),avg(latitude) from zipcode_us group by city",
@@ -34,7 +34,7 @@ public class CityComputeTest extends SnowTestSupport{
     //@Test
     public void importCity() throws Exception{
         try{
-            DatasourceManager dm = appInjector.getInstance(DatasourceManager.class);
+        	DaoRwHelper drh = appInjector.getInstance(DaoRwHelper.class);
             URL url = new URL("https://dl.dropboxusercontent.com/s/2ak2xg3d182t4sj/city.zip?dl=1");
             HttpURLConnection con =  (HttpURLConnection) url.openConnection();
             ZipInputStream in = new ZipInputStream(con.getInputStream());
@@ -42,7 +42,7 @@ public class CityComputeTest extends SnowTestSupport{
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String line = br.readLine();
             //To match csv dataType, if columns change should change this
-            Runner runner = dm.newSysRunner();
+            Runner runner = drh.newSysRunner();
             try{
                 runner.startTransaction();
                 while(line!=null){

@@ -140,7 +140,7 @@ public class OrgContextManager {
      * @param sfid
      */
     public void setOrg(String ctoken, String sfid) {
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(), "select * from org where sfid = ?", sfid);
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(), "select * from org where sfid = ?", sfid);
         if (list.size() > 0) {
             String orgName = (String) list.get(0).get("name");
             OrgContext orgContext = new OrgContext();
@@ -188,7 +188,7 @@ public class OrgContextManager {
     }
     
     private Map loadOrg(String orgName){
-        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(),
                 "select * from org where name = ?", orgName);
         Map map = null;
         if (list.size() > 0) {

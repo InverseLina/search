@@ -79,7 +79,7 @@ public class UserDao {
            sfid = demoSfid();
        }
        
-       Runner runner = daoRwHelper.datasourceManager.newOrgRunner(orgHolder.getOrgName());
+       Runner runner = daoRwHelper.newOrgRunner(orgHolder.getOrgName());
        Map user = runner.executeWithReturn(insertSql, sfid, ctoken, sfTimeout, rtoken);
        runner.close();
        return user;

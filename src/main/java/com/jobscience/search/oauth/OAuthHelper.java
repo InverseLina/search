@@ -45,7 +45,7 @@ public class OAuthHelper {
     	List<Map> list = new ArrayList();
 	    if(dbSetupManager.checkSysTables().contains("jss_config")){
 	        String sql = "select * from config  where org_id = -1 ";
-	        List<Map> configList = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(), sql);
+	        List<Map> configList = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(), sql);
 	        if (configList != null && configList.size() > 0) {
 	            list = configList;
 	        }

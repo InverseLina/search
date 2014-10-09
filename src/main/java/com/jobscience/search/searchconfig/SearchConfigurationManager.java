@@ -143,7 +143,7 @@ public class SearchConfigurationManager {
         if(orgs.size() > 0){
             orgId = Integer.parseInt( orgs.get(0).get("id").toString());
         }
-        List<Map> orgConfig = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
+        List<Map> orgConfig = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(),
             "select val_text from config where name = ? and org_id =?", "searchconfig",orgId);
         if(orgConfig.size() > 0){
            return orgConfig.get(0).get("val_text").toString();
@@ -175,7 +175,7 @@ public class SearchConfigurationManager {
     private  Node getMergedNode(String orgName) throws Exception {
         DocumentBuilder db  = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         //get the sys config
-        List<Map> sysConfig = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
+        List<Map> sysConfig = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(),
             "select val_text from config where name = ? and org_id is null", "searchconfig");
         Document sys = null;
         if (sysConfig.size() == 0) {
@@ -192,7 +192,7 @@ public class SearchConfigurationManager {
             orgId = Integer.parseInt( orgs.get(0).get("id").toString());
         }
         Document org ;
-        List<Map> orgConfig = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(),
+        List<Map> orgConfig = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(),
             "select val_text from config where name = ? and org_id =?", "searchconfig",orgId);
         if(orgConfig.size() > 0){
             ByteArrayInputStream in = new ByteArrayInputStream(orgConfig.get(0).get("val_text").toString().getBytes());

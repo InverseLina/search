@@ -30,7 +30,7 @@ public class TriggerTestWebHandlers {
     @RequireAdmin
     public WebResponse queryOrgs() {
 
-    	List<Map> map = daoRwHelper.executeQuery(daoRwHelper.datasourceManager.newSysRunner(), "select * from org");
+    	List<Map> map = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(), "select * from org");
         return webResponseBuilder.success(map);
     }
 
@@ -42,7 +42,7 @@ public class TriggerTestWebHandlers {
         Map contact = rc.getParamMap("test.");
         String sfid = RandomStringUtils.random(18, "01234567890abcdedfhijklmnopqrst");
         contact.put("sfid", sfid);
-        daoRwHelper.insert(daoRwHelper.datasourceManager.newOrgRunner(org), "contact", contact);
+        daoRwHelper.insert(daoRwHelper.newOrgRunner(org), "contact", contact);
         skills = skills.trim();
         if (skills.length() > 0) {
             String[] skill = skills.split(",");
