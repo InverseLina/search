@@ -98,10 +98,11 @@
 				var view = this;
 				var $e = view.$el;
 				var $th = $(event.currentTarget);
-				if($th.hasClass("popupShow")){
+				var $headerPopup = $e.closest('.SearchDataGrid').find('.HeaderPopup');
+				if($headerPopup.is(":visible")){
 					view.$el.trigger("POPUP_CLOSE");
 				}else{
-		            view.$el.trigger("POPUP_CLOSE");
+					view.$el.trigger("POPUP_CLOSE");
 					brite.display("HeaderPopup", ".SearchDataGrid", {
 						$target : $th
 					});
