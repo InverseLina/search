@@ -617,6 +617,9 @@ public class SearchDao {
         
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         Filter f = sc.getFilterByName(originalName);
+        if(f == null){
+        	return "";
+        }
         String tableName = f.getFilterField().getTable();
         String contactTableName = sc.getContact().getTable();
         if(tableName.equals(contactTableName)){
