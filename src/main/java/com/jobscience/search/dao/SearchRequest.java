@@ -63,7 +63,7 @@ public class SearchRequest {
             columns = "contact";
         }
         columns = "," + columns +",";
-        columns = columns.replaceAll(",contact,", "id,name,title,email,CreatedDate,resume,");
+        columns = columns.replaceAll(",contact,", ",id,name,title,email,CreatedDate,resume,");
         if(columns.startsWith(",")){
         	columns = columns.substring(1);
         }
