@@ -11,13 +11,15 @@ import javax.inject.Singleton;
 import org.jasql.DB;
 import org.jasql.DBBuilder;
 import org.jasql.Runner;
+import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Singleton
 public class DatasourceManager {
@@ -30,8 +32,8 @@ public class DatasourceManager {
     private String ro_pwd;
     private String ro_poolSize;
     private String sysSchema = "jss_sys";
-    private ComboPooledDataSource dataSource;
-    private ComboPooledDataSource roDataSource;
+    private HikariDataSource  dataSource;
+    private HikariDataSource  roDataSource;
     private volatile DB db;
     private volatile DB rodb;
     private ConcurrentHashMap<String, String> orgs = new ConcurrentHashMap<String, String>();
@@ -125,13 +127,9 @@ public class DatasourceManager {
     
     public Map getPoolInfo(){
         Map poolInfo = new HashMap();
-        try {
-            poolInfo.put("numConnections",dataSource.getNumConnectionsDefaultUser());
-            poolInfo.put("numBusyConnections",dataSource.getNumBusyConnectionsDefaultUser());
-            poolInfo.put("numIdleConnections",dataSource.getNumIdleConnections());
-        } catch (SQLException e) {
-        	
-        }
+        poolInfo.put("maxLifetime",dataSource.getMaxLifetime());
+        poolInfo.put("minimumIdle",dataSource.getMinimumIdle());
+        poolInfo.put("maximumPoolSize",dataSource.getMaximumPoolSize());
         return poolInfo;
     }
     
@@ -140,23 +138,24 @@ public class DatasourceManager {
     		return null;
     	}
         Map poolInfo = new HashMap();
-        try {
-            poolInfo.put("numConnections",roDataSource.getNumConnectionsDefaultUser());
-            poolInfo.put("numBusyConnections",roDataSource.getNumBusyConnectionsDefaultUser());
-            poolInfo.put("numIdleConnections",roDataSource.getNumIdleConnections());
-        } catch (SQLException e) {
-        	
-        }
+        poolInfo.put("maxLifetime",roDataSource.getMaxLifetime());
+        poolInfo.put("minimumIdle",roDataSource.getMinimumIdle());
+        poolInfo.put("maximumPoolSize",roDataSource.getMaximumPoolSize());
         return poolInfo;
     }
-    private ComboPooledDataSource buildDs( String url, String user, String pwd, int pooSize) {
-        ComboPooledDataSource ds = new ComboPooledDataSource();
-        ds.setJdbcUrl(url);
-        ds.setUser(user);
-        ds.setPassword(pwd);
-        ds.setMaxPoolSize(Integer.valueOf(poolSize));
-        ds.setUnreturnedConnectionTimeout(0);
-        return ds;
+    private HikariDataSource  buildDs( String url, String user, String pwd, int pooSize) {
+    	HikariConfig config = new HikariConfig();
+    	PGSimpleDataSource pg = new PGSimpleDataSource();
+    	try {
+    	    pg.setUrl(url);
+    	    pg.setUser(user);
+    	    pg.setPassword(pwd);
+    	} catch (SQLException e) {
+    	    throw new RuntimeException(e);
+    	}
+    	config.setDataSource(pg);
+    	config.setMaximumPoolSize(pooSize);
+        return new HikariDataSource(config);
     }
     
     private void setSearchPath(Runner runner,String searchPath){
