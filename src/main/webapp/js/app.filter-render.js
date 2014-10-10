@@ -66,7 +66,6 @@ var app = app || {};
 		},
 		custom : {
 			headerRenderer : function genericHeaderFilterRenderer(filterInfo) {
-				console.log(render("search-query-generic-custom-render-header", filterInfo));
 				return render("search-query-generic-custom-render-header", filterInfo);
 			},
 			filterRenderer : function($content, headerInfo) {

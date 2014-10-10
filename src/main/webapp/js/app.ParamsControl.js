@@ -141,6 +141,10 @@ var app = app || {};
 					}
 				}
 			}
+			
+			if(!searchValues.q_search){
+				view.contentView.dataGridView.$el.find(".search-input").val("");
+			}
 		},
 		/**
 		 * save data {type: xx, name: xx, val:xx}
