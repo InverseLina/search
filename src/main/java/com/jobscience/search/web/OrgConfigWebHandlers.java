@@ -8,9 +8,11 @@ import java.util.Map;
 import com.britesnow.snow.web.param.annotation.WebParam;
 import com.britesnow.snow.web.rest.annotation.WebGet;
 import com.britesnow.snow.web.rest.annotation.WebPost;
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.jobscience.search.auth.RequireAdmin;
+import com.jobscience.search.dao.ConfigManager;
 import com.jobscience.search.dao.DaoRwHelper;
 import com.jobscience.search.dao.OrgConfigDao;
 import com.jobscience.search.oauth.ForceDotComApiManager;
@@ -18,7 +20,9 @@ import com.jobscience.search.organization.OrgContextManager;
 
 @Singleton
 public class OrgConfigWebHandlers {
-
+    
+  @Inject
+  private ConfigManager configManager;
   @Inject
   private OrgConfigDao orgConfigDao;
   @Inject
@@ -40,6 +44,11 @@ public class OrgConfigWebHandlers {
       params.put("schemaname", schemaname);
       params.put("sfid", sfid);
       Integer oId = orgConfigDao.saveOrUpdateOrg(params);
+      //if the id is null,this will create one new org, and we should update the config infomation 
+      //because the new org's config infomation is saved use orgid=-1
+      if(Strings.isNullOrEmpty(id)){
+    	  configManager.updateConfigByOrgID(oId);
+      }
       daoRwHelper.updateDB(name);
       try{
           currentOrgHolder.updateSchema();
@@ -59,6 +68,7 @@ public class OrgConfigWebHandlers {
   @RequireAdmin
   public WebResponse delEntity(@WebParam("id")String id) throws SQLException{
       orgConfigDao.deleteOrg(id);
+      configManager.deleteConfigByOrgID(Integer.valueOf(id));
       return webResponseBuilder.success();
   }
   

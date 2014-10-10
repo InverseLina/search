@@ -38,7 +38,7 @@ public class ConfigWebHandlers {
                             @WebParam("orgId") Integer orgId) throws SQLException {
     	Map result = new HashMap();
         List<Map> orgNames = orgConfigDao.getOrgNameById(orgId);
-    	if(orgNames.size() != 1 || orgNames.get(0).get("name") == null){
+        if(orgId != -1 && (orgNames.size() != 1 || orgNames.get(0).get("name") == null)){
     		result.put("msg", "The CurrentOrg is lost!");
     		return webResponseBuilder.success(result);
     	}

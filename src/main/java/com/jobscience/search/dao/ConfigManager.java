@@ -106,6 +106,14 @@ public class ConfigManager {
         updateCache(orgId);
     }
     
+    public void updateConfigByOrgID(Integer orgId){
+    	daoRwHelper.executeUpdate(daoRwHelper.newSysRunner(), format("update config set org_id = %s where org_id = '-1'", orgId));
+    }
+    
+    public void deleteConfigByOrgID(Integer orgId){
+    	daoRwHelper.executeUpdate(daoRwHelper.newSysRunner(), format("delete from config where org_id = %s", orgId));
+    }
+    
     protected Map<String, Object> loadConfigMap(Integer orgId){
         
         List params = new ArrayList();
