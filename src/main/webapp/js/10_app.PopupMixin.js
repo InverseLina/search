@@ -66,7 +66,8 @@ var app = app || {};
 						opts.defaultValue = 10;
 						opts.minLabel = null;
 					} else if (view.type === "skill") {
-						opts.max = 10;
+						opts.min = 0;
+						opts.max = 100;
 					}
 					brite.display("Slider", ".sliderBarContainer", opts).done(function(slider) {
 						view.slider = slider;
@@ -339,8 +340,12 @@ var app = app || {};
 			var len = $dataItem.length;
 			if (view.slider) {
 				minValue = view.slider.getValue();
+				if(view.type == "skill"){
+					var maxSkillsRating = app.orgInfo.skills_rating || 10;
+					minValue = Math.ceil(minValue * maxSkillsRating * 0.01);
+				}
 			}
-			
+
 			if (len === 0) {
 				item = {
 					type : view.type,
@@ -376,7 +381,7 @@ var app = app || {};
 					latitude : data.latitude,
 					name : data.name,
 					suffix : data.suffix,
-					min : minValue || ""
+					min : minValue
 				}));
 				view.$el.trigger("ADD_FILTER", item);
 				view.$el.find("input").val("").focus().change();
@@ -400,7 +405,7 @@ var app = app || {};
 					longitude : data.longitude,
 					name : data.name,
 					suffix : data.suffix,
-					min : minValue > 0 ? minValue : ""
+					min : minValue
 				});
 				$dataItem.html($(html).html());
 				view.$el.trigger("UPDATE_FILTER"); 
