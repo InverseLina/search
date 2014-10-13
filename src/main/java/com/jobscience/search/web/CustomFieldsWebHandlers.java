@@ -35,7 +35,17 @@ public class CustomFieldsWebHandlers {
     
     @WebGet("/getCustomFieldAutoCompleteData")
     public WebResponse getCustomFieldAutoCompleteData(@WebParam("fieldName") String fieldName, @WebParam("searchText") String searchText){
-    	List<Map> fieldData = customFieldsDao.getCustomFieldCompleteData(orgHolder.getCurrentOrg(),fieldName, searchText);
+    	List<Map> fieldData = customFieldsDao.getCustomFieldCompleteData(orgHolder.getCurrentOrg(),fieldName, searchText, 4);
+    	Map result = new HashMap();
+    	result.put("data", fieldData);
+    	result.put("searchText", searchText);
+    	WebResponse wr = webResponseBuilder.success(result);
+        return wr;
+    }
+    
+    @WebGet("/getCustomFilterAutoCompleteData")
+    public WebResponse getCustomFilterAutoCompleteData(@WebParam("fieldName") String fieldName, @WebParam("searchText") String searchText){
+    	List<Map> fieldData = customFieldsDao.getCustomFieldCompleteData(orgHolder.getCurrentOrg(),fieldName, searchText, 7);
     	Map result = new HashMap();
     	result.put("data", fieldData);
     	result.put("searchText", searchText);

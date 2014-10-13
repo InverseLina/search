@@ -52,7 +52,7 @@ public class SearchConfigurationManager {
     private volatile Document sysDocument;
     
     private volatile LoadingCache<String, SearchConfiguration> searchuiconfigCache;
-    
+    private static String[] systemIncludeColumn = {"skill", "education", "company", "location"};
     private volatile ConcurrentMap<String,Integer> customFieldsSize = new ConcurrentHashMap<String, Integer>();
     private String[] notAllowCustomIndexColumnName = {"ts2__text_resume__c"};
     
@@ -109,7 +109,7 @@ public class SearchConfigurationManager {
                                      "type",   "contact"));
 
 
-        for(Filter f : sc.getColumnFilters()){
+        for(Filter f : sc.getSysColumnFilters()){
                 if(!f.isDelete()){
                     Map m = mapIt(      "name",   f.getName(),
                                        "title",   f.getTitle(),
@@ -408,17 +408,17 @@ public class SearchConfigurationManager {
                             errorMsg="Missing contactResumeTsv keyword field.";
                         }
                     }
-                   //handle for customFields
-                    String checkInfo = checkSearchConfigCustomfields(document,orgName);
-                    if(checkInfo != null){
-                    	errorMsg = checkInfo;
-                    }
                     //handle filter
                     NodeList filterNodes = document.getElementsByTagName("filter");
                     boolean skillFilter = false,educationFilter = false,locationFilter = false,companyFilter = false;
                     for(int i = 0, j = filterNodes.getLength(); i < j; i++){
                         Node filterField = filterNodes.item(i);
-                        if(filterField.getNodeType() == 1 && checkAttribute(filterField, "display")){
+                        if(filterField.getNodeType() == 1 && checkAttribute(filterField, "name") && checkAttribute(filterField, "display")){
+                        	String name = filterField.getAttributes().getNamedItem("name").getNodeValue();
+                        	String display = filterField.getAttributes().getNamedItem("display").getNodeValue();
+                        	if("side".equalsIgnoreCase(display) || ("column".equalsIgnoreCase(display) && !Arrays.asList(systemIncludeColumn).contains(name))){
+                        		continue;
+                        	}
                         	if(checkAttribute(filterField, "type")){
                         		 String val = filterField.getAttributes().getNamedItem("type").getNodeValue();
                                  if("skill".equals(val)){
@@ -462,7 +462,7 @@ public class SearchConfigurationManager {
                         	errorMsg="Missing display attribute filter field";
                         }
                     }
-                        
+
                     StringBuilder sb = new StringBuilder();
                     if(!skillFilter){
                         sb.append("skill,");
@@ -479,7 +479,19 @@ public class SearchConfigurationManager {
                     if(sb.length()>0){
                         errorMsg = "Missing filters : "+sb.deleteCharAt(sb.length()-1).toString();
                     }
-                    
+
+                    //handle for customFielter
+                    String checkCustomFielterInfo = checkSearchConfigCustomFilter(document,orgName);
+                    if(checkCustomFielterInfo != null){
+                    	errorMsg = checkCustomFielterInfo;
+                    }
+                     
+                    //handle for customFields
+                    String checkCustomFieldsInfo = checkSearchConfigCustomFields(document,orgName);
+                    if(checkCustomFieldsInfo != null){
+                    	errorMsg = checkCustomFieldsInfo;
+                    }
+                     
                     //handle contact
                     NodeList contactFiler = document.getElementsByTagName("contact");
                     if(contactFiler.getLength()==0){
@@ -529,9 +541,14 @@ public class SearchConfigurationManager {
                         }
                     }
               }else{
-            	  String checkInfo = checkSearchConfigCustomfields(document,orgName);
+            	  String checkInfo = checkSearchConfigCustomFilter(document,orgName);
                   if(checkInfo != null){
                   	errorMsg = checkInfo;
+                  }else{
+                	  checkInfo = checkSearchConfigCustomFields(document,orgName);
+                      if(checkInfo != null){
+                      	errorMsg = checkInfo;
+                      }
                   }
               }
             }catch(Exception e){
@@ -543,7 +560,75 @@ public class SearchConfigurationManager {
         return errorMsg;
     }
     
-    private String checkSearchConfigCustomfields(Document document, String orgName) {
+    private String checkSearchConfigCustomFilter(Document document, String orgName) {
+    	String errorMsg = null;
+        boolean hasError = false;
+    	NodeList filterNodes = document.getElementsByTagName("filter");
+    	for(int i = 0, j = filterNodes.getLength(); i < j; i++){
+            Node filterNode = filterNodes.item(i);
+            String filterName = "";
+            if(filterNode.getNodeType() == 1 && checkAttribute(filterNode, "name") && checkAttribute(filterNode, "display")){
+            	String name = filterNode.getAttributes().getNamedItem("name").getNodeValue();
+            	String display = filterNode.getAttributes().getNamedItem("display").getNodeValue();
+            	if("side".equalsIgnoreCase(display) || ("column".equalsIgnoreCase(display) && Arrays.asList(systemIncludeColumn).contains(name))){
+            		continue;
+            	}	
+            	if("column".equals(filterNode.getAttributes().getNamedItem("display").getNodeValue())){
+            		 if(!checkAttribute(filterNode,"name")){
+                         errorMsg="Missing name attribute for filter field";
+                         hasError = true;
+                         break;
+                     }else {
+                    	 filterName = filterNode.getAttributes().getNamedItem("name").getNodeValue();
+                     }
+                     if(!checkAttribute(filterNode,"title")){
+                         errorMsg="Missing title attribute for " + filterName + " filter field";
+                         hasError = true;
+                     }
+                     if(!checkAttribute(filterNode,"type")){
+                         errorMsg="Missing type attribute for " + filterName + " filter field";
+                         hasError = true;
+                     }
+                     if(!"string".equalsIgnoreCase(getVal(filterNode, "type"))){
+                         errorMsg = "Not support type \"" + getVal(filterNode, "type") + "\"";
+                         hasError = true;
+                     }
+            		 for(int m = 0, n = filterNode.getChildNodes().getLength(); m < n; m++){
+                        Node fieldNode = filterNode.getChildNodes().item(m);
+                        if(fieldNode.getNodeType() == 1){
+                            if(!checkAttribute(fieldNode,"table")){
+                                errorMsg="Missing table attribute for "+filterName+" filter field";
+                                hasError = true;
+                            }
+                            if(!checkAttribute(fieldNode,"column")){
+                                errorMsg="Missing column attribute for "+filterName+" filter field";
+                                hasError = true;
+                            }
+                            if(!"contact".equalsIgnoreCase(getVal(fieldNode, "table"))){
+                            	if(!checkAttribute(fieldNode,"joinfrom")){
+                                    errorMsg="Missing joinfrom attribute for "+filterName+" filter field";
+                                    hasError = true;
+                                }
+                            	if(!checkAttribute(fieldNode,"jointo")){
+                                    errorMsg="Missing jointo attribute for "+filterName+" filter field";
+                                    hasError = true;
+                                }
+                            }
+                        }
+                    }
+            	}
+            }else {
+            	errorMsg="Missing display attribute for filter field";
+                hasError = true;
+            }
+            if(hasError) {
+            	break;
+            }
+    	}
+    	return errorMsg;
+    }
+  
+    private String checkSearchConfigCustomFields(Document document, String orgName) {
     	String errorMsg = null;
         boolean hasError = false;
     	NodeList filterNodes = document.getElementsByTagName("filter");
@@ -556,6 +641,7 @@ public class SearchConfigurationManager {
             		 if(!checkAttribute(filterNode,"name")){
                          errorMsg="Missing name attribute for filter field";
                          hasError = true;
+                         break;
                      }else {
                     	 filterName = filterNode.getAttributes().getNamedItem("name").getNodeValue();
                      }

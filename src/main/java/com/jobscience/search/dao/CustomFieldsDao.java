@@ -52,6 +52,7 @@ public class CustomFieldsDao {
 					fieldMap.put("all-any", filter.isAll_any());
 					fieldMap.put("orderable", filter.isOrderable());
 					fieldMap.put("bg_color", filter.getBg_color());
+					fieldMap.put("display", filter.getDisplay());
 					customFields.add(fieldMap);
 				}
 			}
@@ -66,7 +67,7 @@ public class CustomFieldsDao {
 	 * @param searchText
 	 * @return
 	 */
-	public List<Map> getCustomFieldCompleteData(OrgContext org, String fieldName, String searchText) {
+	public List<Map> getCustomFieldCompleteData(OrgContext org, String fieldName, String searchText, Integer limit) {
     	String orgName = org.getOrgMap().get("name").toString();
     	List<Map> columnData = new ArrayList<Map>();
     	SearchConfiguration orgSearchConfig = searchConfigurationManager.getSearchConfiguration(orgName);
@@ -74,7 +75,7 @@ public class CustomFieldsDao {
     	if(orgSearchConfig != null && customFilterLists.size() > 0){
         		for(Filter customFilter : customFilterLists){
         			if(customFilter.getName().equals(fieldName)){
-        				columnData = getColumnData(orgName,customFilter.getFilterField().getTable(),customFilter.getFilterField().getColumn(),searchText,4);
+        				columnData = getColumnData(orgName,customFilter.getFilterField().getTable(),customFilter.getFilterField().getColumn(),searchText,limit);
         				break;
         			}
         		}

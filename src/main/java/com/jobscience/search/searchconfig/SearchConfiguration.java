@@ -1,6 +1,7 @@
 package com.jobscience.search.searchconfig;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -9,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="searchconfig")
 public class SearchConfiguration {
 
+	private static String[] systemIncludeColumn = {"skill", "education", "company", "location"};
     private KeyWord keyword;
     private List<Filter> filters;
     private Contact contact;
@@ -62,11 +64,11 @@ public class SearchConfiguration {
         return null;
     }
     
-    public List<Filter> getColumnFilters () {
+    public List<Filter> getSysColumnFilters () {
     	List<Filter> columnFilters = new ArrayList<Filter>();
     	if(filters != null){
-            for(Filter filter:filters){
-                if("column".equals(filter.getDisplay())){
+            for(Filter filter : filters){
+                if("column".equals(filter.getDisplay()) && Arrays.asList(systemIncludeColumn).contains(filter.getName())){
                 	columnFilters.add(filter);
                 }
             }
@@ -77,8 +79,8 @@ public class SearchConfiguration {
     public List<Filter> getCustomFilters () {
     	List<Filter> customFilters = new ArrayList<Filter>();
     	if(filters != null){
-            for(Filter filter:filters){
-                if("side".equals(filter.getDisplay())){
+            for(Filter filter : filters){
+                if("side".equals(filter.getDisplay()) || ("column".equals(filter.getDisplay()) && !Arrays.asList(systemIncludeColumn).contains(filter.getName()))){
                 	customFilters.add(filter);
                 }
             }
