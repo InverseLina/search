@@ -20,7 +20,7 @@ public class SearchRequest {
     private JSONArray educations;
     private JSONArray locations;
     private JSONArray companies;
-    private Map<String,JSONArray> customFilters = new HashMap<String, JSONArray>(); //contains filter and column display
+    private Map<String,JSONObject> customFilters = new HashMap<String, JSONObject>(); //contains filter and column display
     private JSONArray customFields ; // only contains filter ,no column display
     private String searchValues;
     private String skillOperator;
@@ -212,11 +212,11 @@ public class SearchRequest {
             if(isNativeSearchParam(name) || isCustomFields(name)){ //when customFields should not contains in CustomFilter
                 continue;
             }
-            customFilters.put(name, JSONArray.fromObject(searchMap.get(name)));
+            customFilters.put(name, JSONObject.fromObject(searchMap.get(name)));
         }
     }
     
-    public Map<String,JSONArray> getCustomFilters(){
+    public Map<String,JSONObject> getCustomFilters(){
         return customFilters;
     }
 

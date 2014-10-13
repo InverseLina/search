@@ -1475,19 +1475,18 @@ public class SearchDao {
         return hasCondition;
     }
     
-    private boolean renderCustomFilters(Map<String, JSONArray> searchValues,StringBuilder filterSql,
+    private boolean renderCustomFilters(Map<String, JSONObject> searchValues,StringBuilder filterSql,
     		StringBuilder conditions,List filterValues, List conditionValues,String schemaname,SearchConfiguration sc){
         boolean hasCondition = false;
         String contactTable = sc.getContact().getTable();
         for(String name : searchValues.keySet()){
-            String filterName = name.substring(0, name.length()-1);//remove the s at last, example filters-->filter
-            Filter filter = sc.getFilterByName(filterName);
-            if (filter == null) {
+            Filter filter = sc.getFilterByName(name);
+            if (filter == null || searchValues.get(name).size() != 1) {
                 continue;
             }
             FilterField ff = filter.getFilterField();
             if(!contactTable.equals(ff.getTable())){
-                JSONArray extraValues = searchValues.get(name);
+            	JSONObject extraValues = searchValues.get(name);
                 filterSql.append(" join ")
                          .append( schemaname)
                          .append( ".\"")
@@ -1499,29 +1498,46 @@ public class SearchDao {
                 if(extraValues.size()>0){
                     filterSql.append(" AND (1!=1 ");
                 }
-                for(int i = 0, j = extraValues.size(); i < j; i++){
-                    JSONObject v = JSONObject.fromObject(extraValues.get(i));
+                JSONArray values = null;
+                String operate = null;
+                for(Object op : extraValues.keySet()){
+                	operate = String.valueOf(op);
+                	values = JSONArray.fromObject(extraValues.get(op));
+                	break;
+                }
+                for(int i = 0, j = values.size(); i < j; i++){
                     filterSql.append(" OR \"").append(ff.getTable()).append("\".")
-                    .append(ff.getColumn()).append("=? ");
-                    filterValues.add(v.get("name"));
+                    .append(ff.getColumn());
+                    if("==".equals(operate)){
+                    	filterSql.append("=? ");
+        			}else{
+        				filterSql.append("!=? ");
+        			}
+                    filterValues.add(values.getString(i));
                 }
-                if(extraValues.size() > 0){
-                    filterSql.append(" ) ");
-                }
+                filterSql.append(" ) ");
                 hasCondition = true;
             }else{//for the contact table filter
-                JSONArray extraValues = searchValues.get(name);
-                if(extraValues.size() > 0){
-                    conditions.append(" AND (1!=1 ");
-                    for(int i = 0, j = extraValues.size(); i < j; i++){
-                        JSONObject value = JSONObject.fromObject(extraValues.get(i));
-                        conditions.append(" OR ").append(filterName).append("=? ");
-                        conditionValues.add(value.get("name"));
-                    }
-                    conditions.append(" ) ");
-                    hasCondition = true;
+            	JSONObject extraValues = searchValues.get(name);
+                conditions.append(" AND (1!=1 ");
+                JSONArray values = null;
+                String operate = null;
+                for(Object op : extraValues.keySet()){
+                	operate = String.valueOf(op);
+                	values = JSONArray.fromObject(extraValues.get(op));
+                	break;
                 }
-            
+                for(int i = 0, j = values.size(); i < j; i++){
+                    conditions.append(" OR ").append(ff.getColumn());
+                    if("==".equals(operate)){
+                    	conditions.append("=? ");
+        			}else{
+        				conditions.append("!=? ");
+        			}
+                    conditionValues.add(values.getString(i));
+                }
+                conditions.append(" ) ");
+                hasCondition = true;
             }
         }
         return hasCondition;
