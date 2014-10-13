@@ -931,7 +931,12 @@ public class SearchDao {
             countSqlparam.addAll(sb.getConditionValues());
         }
        
-        joinSql.append(") a ");
+        //add pagination
+        joinSql.append(" offset ")
+        .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
+        .append(" limit ").append(searchRequest.getPageSize() + 1).append(") a ");
+        
+        
         if(!hasExtraSearchColumn(searchRequest) || hasContactsCondition || locationSql.length() > 0 ||
                 Strings.isNullOrEmpty(searchRequest.getKeyword()) || searchRequest.getKeyword().length() < 3){
             countSql.append(") a ");
@@ -1406,7 +1411,6 @@ public class SearchDao {
                 condition.append(setCustomPartCondition(jo, customFilter, schemaname, sc, org, valueList, table));
         		condition.append(" ) )");
             }
-            System.out.println(condition.toString());
             filterSql.append(condition);
             hasCondition = true;
         }
@@ -1715,44 +1719,26 @@ public class SearchDao {
                 if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
                 	if(searchRequest.getOrder().trim().startsWith("\"id\"")&&
                            	searchRequest.isOnlyKeyWord()){
-                		keyWordSql.append(" order by ").append(searchRequest.getOrder())
-				  				  .append(" offset ")
-				  				  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-				  				  .append(" limit ").append(searchRequest.getPageSize() + 1);
+                		keyWordSql.append(" order by ").append(searchRequest.getOrder());
                 	}
                 	if(!searchRequest.isOnlyKeyWord()){
-                		 exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
-				  				   .append(" offset ")
-				  				   .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-				  				   .append(" limit ").append(searchRequest.getPageSize() + 1);
+                		 exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder());
                 	}
                 }else{
                 	   if (searchRequest.getOrder().trim().startsWith("\"id\"")&&
                            	searchRequest.isOnlyKeyWord()) {
-                           	keyWordSql.append(" order by ").append(searchRequest.getOrder())
-               						  .append(" offset ")
-               						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-               						  .append(" limit ").append(searchRequest.getPageSize() + 1);
+                           	keyWordSql.append(" order by ").append(searchRequest.getOrder());
                			}else if(searchRequest.getCustomFields() != null && searchRequest.getCustomFields().size()>0){
-                            exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
-                                               .append(" offset ")
-                                               .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-                                               .append(" limit ").append(searchRequest.getPageSize() + 1);
+                            exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder());
                			}else{
-                            orderSql.append(" order by ").append(searchRequest.getOrder())
-                                    .append(" offset ")
-                                    .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-                                    .append(" limit ").append(searchRequest.getPageSize() + 1);
+                            orderSql.append(" order by ").append(searchRequest.getOrder());
                        }
                 }
             }else{
             	keyWordSql.append(" select distinct contact.id from contact ");
             	keyWordCountSql.append(" select  distinct contact.id from contact ");
             	if (searchRequest.getOrder().trim().startsWith("\"id\"")) {
-            		orderSql.append(" order by ").append(searchRequest.getOrder())
-     						  .append(" offset ")
-     						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-     						  .append(" limit ").append(searchRequest.getPageSize() + 1);
+            		orderSql.append(" order by ").append(searchRequest.getOrder());
             	}
             }
             return this;
@@ -1870,10 +1856,7 @@ public class SearchDao {
         public String getExactSearchOrderSql(){
         	if((locationSql.length() > 0 || hasContactCondition) && searchRequest.getOrder().trim().startsWith("\"id\"")){
         		if(exactSearchOrderSql.length() == 0)
-            		exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder())
-     						  .append(" offset ")
-     						  .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
-     						  .append(" limit ").append(searchRequest.getPageSize() + 1);
+            		exactSearchOrderSql.append(" order by ").append(searchRequest.getOrder());
         	}
         	return exactSearchOrderSql.toString();
         }
