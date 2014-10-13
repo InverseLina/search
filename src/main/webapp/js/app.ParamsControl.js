@@ -3,6 +3,7 @@ var app = app || {};
 	var _storeValue = {};
 	var queryKey = "";
 	
+	var _headerCustomColumnFilters = {};
 	var _headerCustomFilters = [];
 	function getMainView() {
 		return app.MainView;
@@ -60,6 +61,9 @@ var app = app || {};
 				var customFields = customFilterPopup.getValues();
 				searchData["q_customFields"] = $.extend([], searchData["q_customFields"], customFields);
 			}
+			
+			//for custom columns
+			searchData = $.extend({}, searchData, _headerCustomColumnFilters);
 			
 			result.searchValues = JSON.stringify(searchData);
 			result.searchMode = app.preference.get("searchMode", "power");
@@ -225,6 +229,7 @@ var app = app || {};
 		clear : function() {
 			_storeValue = {};
 			_headerCustomFilters = [];
+			_headerCustomColumnFilters = {};
 		},
 		isEmptySearch:function(){
 			var searchParams = this.getParamsForSearch() || {};
@@ -278,6 +283,22 @@ var app = app || {};
 				return false;
 			}
 			
+			// custom columns
+			var hasColumnFilter = false;
+			for(var k in _headerCustomColumnFilters){
+				var obj = _headerCustomColumnFilters[k];
+				if(obj){
+					if((obj["=="] && obj["=="].length > 0) || (obj["!="] && obj["!="].length > 0)){
+						hasColumnFilter = true;
+						break;
+					}
+				}
+			}
+			
+			if(hasColumnFilter){
+				return false;
+			}
+			
 			return true;
 		},
 		
@@ -317,7 +338,20 @@ var app = app || {};
 				}
 			}
 			return null;
-		}
+		},
+		
+		saveHeaderCustomColumnFilter : function(name, data) {
+			_headerCustomColumnFilters["q_" + name] = data;
+		},
+		
+		getHeaderCustomColumnFilters : function() {
+			return $.extend([], _headerCustomColumnFilters);
+		},
+		
+		getHeaderCustomColumnFilter : function(name) {
+			var filters = this.getHeaderCustomColumnFilters();
+			return filters["q_" + name] || {};
+		},
 
 	};
 

@@ -60,13 +60,19 @@ var app = app || {};
 		},
 		
 		listAll: function() {
-			var columns = app.getSearchUiConfig();
-			var fields = app.getCustomFields();
+			var columns = [];
+			var fields = app.getSearchUiConfig();
+			
+			for (var i = 0; i < fields.length; i++) {
+				var colObj = fields[i];
+				colObj.label = colObj.title;
+				columns.push(colObj);
+			}
+			
+			fields = app.getCustomFields();
 	
 			for (var i = 0; i < fields.length; i++) {
 				var colObj = fields[i];
-				colObj.title = colObj.label;
-				colObj.display = colObj.label;
 				colObj.custom = true;
 				columns.push(colObj);
 			}

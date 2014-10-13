@@ -72,26 +72,37 @@ var app = app || {};
 				var $target = $(headerInfo);
 				var type = $target.attr("data-type");
 				var name = $target.attr("data-column");
-				var viewName;
-				if (type.toLowerCase() == 'number') {
-					viewName = "CustomFilterNumber";
-				} else if (type.toLowerCase() == 'string') {
-					viewName = "CustomFilterString";
-				} else if (type.toLowerCase() == 'date') {
-					viewName = "CustomFilterDate";
-				} else if (type.toLowerCase() == 'boolean') {
-					viewName = "CustomFilterBoolean";
-				}
+				var display = $target.attr("data-display");
 				
-				if (viewName) {
-					brite.display(viewName, $content, {
-						name : name
-					}).done(function(customFilterView){
-						var headerFilter = app.ParamsControl.getHeaderCustomFilter(name);
-						customFilterView.setValue(headerFilter);
-						customFilterView.showMode("edit");
+				if(display == "side"){
+					var viewName;
+					if (type.toLowerCase() == 'number') {
+						viewName = "CustomFilterNumber";
+					} else if (type.toLowerCase() == 'string') {
+						viewName = "CustomFilterString";
+					} else if (type.toLowerCase() == 'date') {
+						viewName = "CustomFilterDate";
+					} else if (type.toLowerCase() == 'boolean') {
+						viewName = "CustomFilterBoolean";
+					}
+					
+					if (viewName) {
+						brite.display(viewName, $content, {
+							name : name
+						}).done(function(customFilterView){
+							var headerFilter = app.ParamsControl.getHeaderCustomFilter(name);
+							customFilterView.setValue(headerFilter);
+							customFilterView.showMode("edit");
+						});
+					}
+				}else{
+					var color = $target.find(".customTh").css("backgroundColor");
+					brite.display("CustomColumnString", $content, {
+						name : name,
+						color : color
 					});
 				}
+				
 			},
 
 		}

@@ -1,0 +1,32 @@
+<script id="CustomColumnString" type="text/html">
+	<div class="CustomColumnString">
+		<div class="selectedItems">
+			<span class="add separateLine" style="display:none"></span>
+			<span class="autocomplete-input-wrapper">
+				<input type="text" class="valueInput"  placeholder="Enter value"/>
+			</span>
+		</div>
+		<div class="content">
+			<div class="toggleBtnsContainer">
+				<div class="btn-group operatorBtnGroups">
+					<label class="btn active" data-value="is">Is</label>
+					<label class="btn " data-value="isnot">Is not</label>
+				</div>
+			</div>
+			<div class="autoCompleteList">
+				<div class="center">loading...</div>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script id="CustomColumnString-autocomplete-item" type="text/html">
+	<div class="autocomplete-item" data-value="{{value}}">{{value}}</div>
+</script>
+
+<script id="CustomColumnString-selected-item" type="text/html">
+	<div class="selected-item" data-oper={{operation}} data-value="{{value}}">
+		<span>{{value}}</span>
+		<span class="clear clearStringItem icon-fa fa-times-circle"></span>
+	</div>
+</script>

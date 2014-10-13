@@ -436,7 +436,7 @@
 			for(var i = 0; i < headerCustomFilters.length; i++){
 				var headerCustomFilter = headerCustomFilters[i];
 				var fieldName = headerCustomFilter.field;
-				$th = view.$el.find("table thead th[data-column='{0}']".format(fieldName));
+				$th = view.$el.find("table thead th[data-column='{0}'][data-display='side']".format(fieldName));
 				var type;
 				for(var j = 0; j < customColumns.length; j++){
 					var customColumn = customColumns[j];
@@ -515,6 +515,53 @@
 				}
 				$th.find(".addFilter").hide();
 				
+			}
+			
+			// for custom columns
+			var headerCustomColumnFilters = app.ParamsControl.getHeaderCustomColumnFilters();
+			var customColumns = app.columns.getCustomColumnsSelected();
+			for(var k in headerCustomColumnFilters){
+				var headerCustomColumnFilter = headerCustomColumnFilters[k];
+				var fieldName = k.substring(2);
+				$th = view.$el.find("table thead th[data-column='{0}'][data-display='column']".format(fieldName));
+				if($th.length > 0){
+					var isValue = headerCustomColumnFilter["=="];
+					var isValueHtml;
+					if (isValue) {
+						isValueHtml = "Is: "
+						for (var k = 0; k < isValue.length; k++) {
+							item = {};
+							item.name = isValue[k];
+							item.display = item.name;
+							isValueHtml += render("search-items-header-add-single-item", item)
+						}
+					}
+					var isNotValue = headerCustomColumnFilter["!="];
+					var isNotValueHtml;
+					if (isNotValue) {
+						isNotValueHtml = "Is not: ";
+						for (var k = 0; k < isNotValue.length; k++) {
+							item = {};
+							item.name = isNotValue[k];
+							item.display = item.name;
+							isNotValueHtml += render("search-items-header-add-single-item", item)
+						}
+					}
+					
+					
+					if(isValueHtml || isValueHtml){
+						if (isValueHtml && isNotValueHtml) {
+							$html = isValueHtml + ", " + isNotValueHtml;
+						} else if (isValue) {
+							$html = isValueHtml;
+						} else {
+							$html = isNotValueHtml;
+						}
+						$th.find(".addFilter").before("<span>" + $html + "</span>");
+						$th.find(".addFilter").hide(); 
+					}
+
+				}
 			}
 			
 			resizeHeight.call(view);

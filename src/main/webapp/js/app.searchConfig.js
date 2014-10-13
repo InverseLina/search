@@ -16,7 +16,7 @@ var app = app || {};
 			});
 			var temp = [];
 			$.each(filters || {}, function(idx, item) {
-				item.display = item.title;
+				item.label = item.title;
 				temp.push(item);
 				temp[item.name] = item;
 			});

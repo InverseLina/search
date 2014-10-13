@@ -56,11 +56,14 @@
 				});
 				//call filterRender method
 				var custom = $target.attr("data-custom");
+				var display = $target.attr("data-display");
 				var filterRender;
 				if(custom == "true"){
 					filterRender = app.getFilterRender("custom");
-					view.$content.addClass("custom");
-					view.$content.append("<span class='clearCustomFilter icon-fa fa-times-circle'></span>");
+					if(display == "side"){
+						view.$content.addClass("custom");
+						view.$content.append("<span class='clearCustomFilter icon-fa fa-times-circle'></span>");
+					}
 				}else{
 					var type = $target.attr("data-column");
 					filterRender = app.getFilterRender(type);
