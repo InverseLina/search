@@ -549,7 +549,7 @@
 					}
 					
 					
-					if(isValueHtml || isValueHtml){
+					if(isValueHtml || isNotValueHtml){
 						if (isValueHtml && isNotValueHtml) {
 							$html = isValueHtml + ", " + isNotValueHtml;
 						} else if (isValue) {

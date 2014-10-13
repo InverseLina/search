@@ -35,7 +35,7 @@
 			var $input = $e.find(".autocomplete-input-wrapper .valueInput");
 			$input.focus();
 			changeAutoComplete.call(view);
-			
+			applyValues.call(view);
 			showColor.call(view);
 		},
 		// --------- /View Interface Implement--------- //
@@ -168,16 +168,19 @@
 				}
 				
 				if(!exist){
+					console.log();
 					isNotArray.push(value);
 				}
 			}
 			var data = {};
 			if(isArray.length > 0){
 				data["=="] = isArray;
-			}else if(isNotArray.length > 0){
+			}
+			if(isNotArray.length > 0){
 				data["!="] = isNotArray;
 			}
 			app.ParamsControl.saveHeaderCustomColumnFilter(view.paramName, data);
+			$e.trigger("DO_SEARCH"); 
 		}
 	}
 	
@@ -222,10 +225,12 @@
 			var data = {};
 			if(isArray.length > 0){
 				data["=="] = isArray;
-			}else if(isNotArray.length > 0){
+			}
+			if(isNotArray.length > 0){
 				data["!="] = isNotArray;
 			}
 			app.ParamsControl.saveHeaderCustomColumnFilter(view.paramName, data);
+			$e.trigger("DO_SEARCH"); 
 		}
 	}
 
@@ -288,7 +293,6 @@
 		}
 		
 		view.$el.find(".selectedItems .selected-item").css("backgroundColor", view.color);
-		$e.trigger("DO_SEARCH"); 
 	}
 	
 	function showColor(){
