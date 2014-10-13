@@ -39,7 +39,7 @@ public class SearchDao {
     private Logger log = LoggerFactory.getLogger(SearchDao.class);
     
     @Inject
-    private DaoRwHelper daoRwHelper;
+    private DaoRoHelper daoRoHelper;
     
     @Inject
     private UserDao userDao;
@@ -388,7 +388,7 @@ public class SearchDao {
     		long start = System.currentTimeMillis();
     		List<Map> result = null;
 
-    		result = daoRwHelper.executeQuery(orgName, statementAndValues.querySql, statementAndValues.querySqlparam.toArray());
+    		result = daoRoHelper.executeQuery(orgName, statementAndValues.querySql, statementAndValues.querySqlparam.toArray());
     		long mid = System.currentTimeMillis();
     		int count = 0;
     		boolean exactCount = false;
@@ -407,8 +407,8 @@ public class SearchDao {
     			if(!searchRequest.isEstimateSearch()){
     				/********** Get the exact count **********/
 	    			try{
-	    				daoRwHelper.executeUpdate(orgName, "SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
-	    				int exact= daoRwHelper.executeCount(orgName, statementAndValues.cteSql
+	    				daoRoHelper.executeUpdate(orgName, "SET statement_timeout TO "+EXACT_COUNT_TIMEOUT+";");
+	    				int exact= daoRoHelper.executeCount(orgName, statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
 								+statementAndValues.countSql,statementAndValues.countSqlparam.toArray());
 	    				count = exact;
@@ -422,8 +422,8 @@ public class SearchDao {
     			}else{
 	    			/********** Get the exact count **********/
 	    			try{
-	    				daoRwHelper.executeUpdate(orgName, "SET statement_timeout TO "+ESTIMATE_COUNT_TIMEOUT+";");
-	    				int exact= daoRwHelper.executeCount(orgName, statementAndValues.cteSql
+	    				daoRoHelper.executeUpdate(orgName, "SET statement_timeout TO "+ESTIMATE_COUNT_TIMEOUT+";");
+	    				int exact= daoRoHelper.executeCount(orgName, statementAndValues.cteSql
 								+" select  count(distinct a.id) as count  "
 								+statementAndValues.countSql);
 	    				count = exact;
@@ -431,7 +431,7 @@ public class SearchDao {
 	    				try{
 	    					log.debug("The count search timeout,use the estimate count");
 		    				/********** Get the estimate count **********/
-		    	    		List<Map> explainPlans =daoRwHelper.executeQuery(orgName, "explain "+statementAndValues.cteSql
+		    	    		List<Map> explainPlans = daoRoHelper.executeQuery(orgName, "explain "+statementAndValues.cteSql
 		    						 									+" select  distinct(a.id)  "
 		    						 									+statementAndValues.countSql,
 		    						 									statementAndValues.countSqlparam.toArray());
@@ -462,7 +462,7 @@ public class SearchDao {
     				.setExactCount(exactCount)
     		        .setHasNextPage(hasNextPage);
     	}finally{
-    		daoRwHelper.executeUpdate(orgName, "RESET statement_timeout; ");
+    		daoRoHelper.executeUpdate(orgName, "RESET statement_timeout; ");
     	}
     
     	return searchResult;
@@ -541,7 +541,7 @@ public class SearchDao {
         String orgName = org.getOrgMap().get("name").toString();
         
         queryLogger.debug(LoggerType.SEARCH_SQL, querySql);
-        List<Map> result =daoRwHelper.executeQuery(orgName, querySql.toString());
+        List<Map> result = daoRoHelper.executeQuery(orgName, querySql.toString());
         Long end = System.currentTimeMillis();
         //log for performance
         queryLogger.debug(LoggerType.AUTO_PERF, end-start);

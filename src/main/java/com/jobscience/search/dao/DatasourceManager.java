@@ -32,9 +32,9 @@ public class DatasourceManager {
     private String ro_pwd;
     private String ro_poolSize;
     private String sysSchema = "jss_sys";
-    private HikariDataSource  dataSource;
-    private HikariDataSource  roDataSource;
-    private volatile DB db;
+    private HikariDataSource  rwdataSource;
+    private HikariDataSource  rodataSource;
+    private volatile DB rwdb;
     private volatile DB rodb;
     private ConcurrentHashMap<String, String> orgs = new ConcurrentHashMap<String, String>();
     private ConcurrentHashMap<String, String> roorgs = new ConcurrentHashMap<String, String>();
@@ -50,7 +50,7 @@ public class DatasourceManager {
         this.user = user;
         this.pwd = pwd;
         this.poolSize = poolSize;
-        setDefaultDataSource();
+        setReadWriteDataSource();
     }
     
     @Inject(optional=true)
@@ -65,20 +65,20 @@ public class DatasourceManager {
         setReadOnlyDataSource();
     }
     
-    private void setDefaultDataSource (){
-        this.dataSource = buildDs(url, user, pwd, Integer.valueOf(poolSize));
-        this.db = new DBBuilder().newDB(dataSource);
+    private void setReadWriteDataSource (){
+        this.rwdataSource = buildDs(url, user, pwd, Integer.valueOf(poolSize));
+        this.rwdb = new DBBuilder().newDB(rwdataSource);
     }
     
     private void setReadOnlyDataSource (){
     	if (!Strings.isNullOrEmpty(ro_url) && !Strings.isNullOrEmpty(ro_user) && !Strings.isNullOrEmpty(ro_pwd) && !Strings.isNullOrEmpty(ro_poolSize)){
-    		this.roDataSource = buildDs(ro_url, ro_user, ro_pwd, Integer.valueOf(ro_poolSize));
+    		this.rodataSource = buildDs(ro_url, ro_user, ro_pwd, Integer.valueOf(ro_poolSize));
     		hasRODataSource = true;
     	} else {
-    		this.roDataSource = buildDs(url, user, pwd, Integer.valueOf(poolSize));
+    		this.rodataSource = buildDs(url, user, pwd, Integer.valueOf(poolSize));
     		hasRODataSource = false;
     	}
-        this.rodb = new DBBuilder().newDB(roDataSource);
+        this.rodb = new DBBuilder().newDB(rodataSource);
     }
 
     public void updateDB(String orgName, boolean isRODB){
@@ -86,12 +86,12 @@ public class DatasourceManager {
     		if(!Strings.isNullOrEmpty(orgName)){
     			roorgs.remove(orgName);
             }
-    		this.rodb = new DBBuilder().newDB(roDataSource);
+    		this.rodb = new DBBuilder().newDB(rodataSource);
     	}else{
     		if(!Strings.isNullOrEmpty(orgName)){
                 orgs.remove(orgName);
             }
-    		this.db = new DBBuilder().newDB(dataSource);
+    		this.rwdb = new DBBuilder().newDB(rwdataSource);
     	}
     }
     
@@ -101,7 +101,7 @@ public class DatasourceManager {
     	if(isRODB) {
     		runner = rodb.newRunner();
     	}else{
-    		runner = db.newRunner();
+    		runner = rwdb.newRunner();
     	}
         setSearchPath(runner,sysSchema);
         return runner;
@@ -112,7 +112,7 @@ public class DatasourceManager {
     	if(isRODB) {
     		runner = rodb.newRunner();
     	}else{
-    		runner = db.newRunner();
+    		runner = rwdb.newRunner();
     	}
         return runner;
     }
@@ -127,9 +127,9 @@ public class DatasourceManager {
     
     public Map getPoolInfo(){
         Map poolInfo = new HashMap();
-        poolInfo.put("maxLifetime",dataSource.getMaxLifetime());
-        poolInfo.put("minimumIdle",dataSource.getMinimumIdle());
-        poolInfo.put("maximumPoolSize",dataSource.getMaximumPoolSize());
+        poolInfo.put("maxLifetime",rwdataSource.getMaxLifetime());
+        poolInfo.put("minimumIdle",rwdataSource.getMinimumIdle());
+        poolInfo.put("maximumPoolSize",rwdataSource.getMaximumPoolSize());
         return poolInfo;
     }
     
@@ -138,9 +138,9 @@ public class DatasourceManager {
     		return null;
     	}
         Map poolInfo = new HashMap();
-        poolInfo.put("maxLifetime",roDataSource.getMaxLifetime());
-        poolInfo.put("minimumIdle",roDataSource.getMinimumIdle());
-        poolInfo.put("maximumPoolSize",roDataSource.getMaximumPoolSize());
+        poolInfo.put("maxLifetime",rodataSource.getMaxLifetime());
+        poolInfo.put("minimumIdle",rodataSource.getMinimumIdle());
+        poolInfo.put("maximumPoolSize",rodataSource.getMaximumPoolSize());
         return poolInfo;
     }
     private HikariDataSource  buildDs( String url, String user, String pwd, int pooSize) {
@@ -163,7 +163,7 @@ public class DatasourceManager {
     }
 
     public Runner newDBOrgRunner(String orgName, boolean isRODB){
-        Runner runner = db.newRunner();
+        Runner runner = rwdb.newRunner();
         if(orgs.containsKey(orgName)){
             setSearchPath(runner, orgs.get(orgName));
         }else{
