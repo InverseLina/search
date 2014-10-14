@@ -135,7 +135,7 @@ var app = app || {};
 						app.ParamsControl.save(value);
 					}
 
-				}else{
+				}else if(key == "q_skills" || key == "q_locations" || key == "q_educations"){
 					var type = key.substring(2, key.length - 1);
 					var valueArr = searchValues[key];
 					for (var i = 0; i < valueArr.length; i++) {
@@ -143,6 +143,10 @@ var app = app || {};
 						value.type = type;
 						app.ParamsControl.save(value);
 					}
+				}else{
+					var type = key.substring(2, key.length);
+					var value = searchValues[key];
+					this.saveHeaderCustomColumnFilter(type,value);
 				}
 			}
 			
