@@ -122,7 +122,7 @@
 				default:
 					var searchText = $input.val();
 					var fieldName = view.paramName;
-					app.getJsonData("/getCustomFieldAutoCompleteData", {searchText:searchText, fieldName:fieldName}).done(function(result) {
+					app.getJsonData("/getCustomFilterAutoCompleteData", {searchText:searchText, fieldName:fieldName}).done(function(result) {
 						if(result.searchText == $input.val()){
 							$e.find(".autoCompleteList").empty();
 							for (var i = 0; i < result.data.length; i++) {

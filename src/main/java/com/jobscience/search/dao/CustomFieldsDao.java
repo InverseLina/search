@@ -85,9 +85,11 @@ public class CustomFieldsDao {
 	
 	private List<Map> getColumnData(String orgName, String table, String column, String searchText, int limit){
 		StringBuilder sql = new StringBuilder();
-        sql.append("select distinct ").append(column).append(" as value from ").append(table);
+        sql.append("select distinct ").append(column).append(" as value from ").append(table)
+        .append(" where ").append(column).append(" != ''");
         if(!Strings.isNullOrEmpty(searchText)){
-        	sql.append(" where ").append(column).append(" ilike '").append(searchText).append("%' ");
+        	sql.append(" and ").append(column).append(" ilike '").append(searchText).append("%'");
+        	
         }
         if(limit <= 0){
         	limit = 4;
