@@ -100,12 +100,12 @@ var app = app || {};
 						if (type === "company") {
 							type = "employer";
 						}
-						$input.parent().parent().parent().find(".autoCompleteList").html(render("filterPanel-autoComplete-list", {
+						$input.closest('.popover-content').find(".autoCompleteList").html(render("filterPanel-autoComplete-list", {
 							results : result["list"],
 							type : type
 						}));
 						activeFirstItem.call(view);
-						$input.parent().parent().parent().parent().next().text("" + (result.duration || 0) + "ms");
+						$input.closest('.popover-content').next().text("" + (result.duration || 0) + "ms");
 					});
 				}
 				$(":text").placeholder();
