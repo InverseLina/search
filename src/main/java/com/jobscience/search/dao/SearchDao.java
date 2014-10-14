@@ -1481,7 +1481,7 @@ public class SearchDao {
         String contactTable = sc.getContact().getTable();
         for(String name : searchValues.keySet()){
             Filter filter = sc.getFilterByName(name);
-            if (filter == null || searchValues.get(name).size() != 1) {
+            if (filter == null || searchValues.get(name).size() < 1) {
                 continue;
             }
             FilterField ff = filter.getFilterField();
@@ -1496,45 +1496,58 @@ public class SearchDao {
                          .append(" = ")
                          .append( ff.toJoinFromString("\"" + ff.getTable() + "\""));
                 if(extraValues.size()>0){
-                    filterSql.append(" AND (1!=1 ");
+                    filterSql.append(" AND (1=1 ");
                 }
                 JSONArray values = null;
                 String operate = null;
                 for(Object op : extraValues.keySet()){
                 	operate = String.valueOf(op);
                 	values = JSONArray.fromObject(extraValues.get(op));
-                	break;
-                }
-                for(int i = 0, j = values.size(); i < j; i++){
-                    filterSql.append(" OR \"").append(ff.getTable()).append("\".")
-                    .append(ff.getColumn());
-                    if("==".equals(operate)){
-                    	filterSql.append("=? ");
-        			}else{
-        				filterSql.append("!=? ");
-        			}
-                    filterValues.add(values.getString(i));
+                	if("==".equals(operate)){
+                		filterSql.append(" AND (1!=1");
+                        for(int i = 0, j = values.size(); i < j; i++){
+                            filterSql.append(" OR \"").append(ff.getTable()).append("\".").append(ff.getColumn());
+                            filterSql.append(" =? ");
+                            filterValues.add(values.getString(i));
+                        }
+                        filterSql.append(" ) ");
+                	}else if("!=".equals(operate)){
+                		filterSql.append(" AND (1=1");
+                        for(int i = 0, j = values.size(); i < j; i++){
+                            filterSql.append(" AND \"").append(ff.getTable()).append("\".").append(ff.getColumn());
+                			filterSql.append(" !=? ");
+                            filterValues.add(values.getString(i));
+                        }
+                        filterSql.append(" ) ");
+                	}
                 }
                 filterSql.append(" ) ");
                 hasCondition = true;
             }else{//for the contact table filter
             	JSONObject extraValues = searchValues.get(name);
-                conditions.append(" AND (1!=1 ");
+                conditions.append(" AND (1=1 ");
                 JSONArray values = null;
                 String operate = null;
                 for(Object op : extraValues.keySet()){
                 	operate = String.valueOf(op);
                 	values = JSONArray.fromObject(extraValues.get(op));
-                	break;
-                }
-                for(int i = 0, j = values.size(); i < j; i++){
-                    conditions.append(" OR ").append(ff.getColumn());
-                    if("==".equals(operate)){
-                    	conditions.append("=? ");
-        			}else{
-        				conditions.append("!=? ");
-        			}
-                    conditionValues.add(values.getString(i));
+                	if("==".equals(operate)){
+                		conditions.append(" AND (1!=1");
+                        for(int i = 0, j = values.size(); i < j; i++){
+                        	conditions.append(" OR \"").append(ff.getTable()).append("\".").append(ff.getColumn());
+                        	conditions.append(" =? ");
+                        	conditionValues.add(values.getString(i));
+                        }
+                        conditions.append(" ) ");
+                	}else if("!=".equals(operate)){
+                		conditions.append(" AND (1=1");
+                        for(int i = 0, j = values.size(); i < j; i++){
+                        	conditions.append(" AND \"").append(ff.getTable()).append("\".").append(ff.getColumn());
+                        	conditions.append(" !=? ");
+                        	conditionValues.add(values.getString(i));
+                        }
+                        conditions.append(" ) ");
+                	}
                 }
                 conditions.append(" ) ");
                 hasCondition = true;
