@@ -100,15 +100,43 @@
 		// --------- Document Events--------- //
 		docEvents : {
 			"DO_SET_COLUMNS" : function(event, extra) {
-				var columns = ["contact", "company", "skill", "education", "location"];
-				var colStr, view = this;
+				var oldColumns = app.columns.get();
+				var defaultFilter = app.ParamsControl.getFilterParams();
+				var customFilters = app.ParamsControl.getHeaderCustomFilters();
+				var customColumnFilters = app.ParamsControl.getHeaderCustomColumnFilters();
+				var newColumns, view = this;
 				if (extra.columns && extra.columns.length > 0) {
-					colStr = extra.columns.join(",");
-					$.each(columns, function(idx, column) {
-						if (colStr.indexOf(column) < 0) {
-							app.ParamsControl.remove(column === "contact" ? "Contact" : column);
+					newColumns = extra.columns.join(",");
+					$.each(oldColumns, function(idx, column) {
+						if (newColumns.indexOf(column) < 0) {
+							
+							var key = column;
+							if(defaultFilter[column]){
+								app.ParamsControl.remove(column);
+							}
+							
+							key = "q_" + column;
+							if(customColumnFilters[key]){
+								app.ParamsControl.saveHeaderCustomColumnFilter(column);
+							}
+							
+							if(customFilters.length > 0){
+								var isExist = false;
+								for(var i = 0; i < customFilters.length; i++){
+									if(customFilters[i].field == column){
+										isExist = true;
+										break;
+									}
+								}
+								
+								if(isExist){
+									app.ParamsControl.saveHeaderCustomFilter({field:column});
+								}
+							}
+						
 						}
 					});
+					
 					app.columns.save(extra.columns);
 					if(app.ParamsControl.isEmptySearch()){
 						view.contentView.dataGridView.refreshColumns();

@@ -345,7 +345,11 @@ var app = app || {};
 		},
 		
 		saveHeaderCustomColumnFilter : function(name, data) {
-			_headerCustomColumnFilters["q_" + name] = data;
+			if(data){
+				_headerCustomColumnFilters["q_" + name] = data;
+			}else{
+				delete _headerCustomColumnFilters["q_" + name];
+			}
 		},
 		
 		getHeaderCustomColumnFilters : function() {
