@@ -1426,8 +1426,7 @@ public class DBSetupManager {
      * @return
      * @throws SQLException
      */
-    private boolean checkColumn(String columnName, String table, String schemaName)
-            throws SQLException {
+    private boolean checkColumn(String columnName, String table, String schemaName){
         boolean result = false;
         List list = daoRwHelper.executeQuery(daoRwHelper.newRunner(),
                 " select 1 from information_schema.columns "

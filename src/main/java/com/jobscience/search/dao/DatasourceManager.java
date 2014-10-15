@@ -121,7 +121,7 @@ public class DatasourceManager {
     	if(isRODB) {
     		return newRODBOrgRunner(orgName, isRODB);
     	}else{
-    		return newDBOrgRunner(orgName, isRODB);
+    		return newRWDBOrgRunner(orgName, isRODB);
     	}
     }
     
@@ -162,7 +162,7 @@ public class DatasourceManager {
         runner.executeUpdate("set search_path to \""+searchPath+"\"");
     }
 
-    public Runner newDBOrgRunner(String orgName, boolean isRODB){
+    public Runner newRWDBOrgRunner(String orgName, boolean isRODB){
         Runner runner = rwdb.newRunner();
         if(orgs.containsKey(orgName)){
             setSearchPath(runner, orgs.get(orgName));

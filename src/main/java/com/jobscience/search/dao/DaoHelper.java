@@ -33,7 +33,7 @@ public abstract class DaoHelper {
     }
     
     public Runner newOrgRunner(String orgName){
-        return datasourceManager.newDBOrgRunner(orgName, isRODB);
+        return datasourceManager.newRWDBOrgRunner(orgName, isRODB);
     }
 
     // ---------  /dataSource runner method --------- //
