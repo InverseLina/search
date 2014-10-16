@@ -237,6 +237,20 @@
 		var view = this;
 		searchModeChange = searchModeChange || false;
 		searchTimes++ ;
+
+		//when local_distance is kilometers, need to chagne to miles
+		if(app.localDistance == "k"){
+			var searchValuesObj = JSON.parse(searchParameter.searchValues);
+			if(searchValuesObj.q_locations && searchValuesObj.q_locations.length > 0){
+				var locationsVal = searchValuesObj.q_locations;
+				for(var i=0; i < locationsVal.length; i++){
+					var newMinRadius = Math.ceil(locationsVal[i].minRadius * 0.62137);
+					searchValuesObj.q_locations[i].minRadius = newMinRadius;
+				}
+				searchParameter.searchValues = JSON.stringify(searchValuesObj);
+			}
+		}
+
 		app.currentDeferred = searchDao.search(searchParameter);
 		
 		app.currentDeferred.done(function(result) {
