@@ -13,7 +13,7 @@ public abstract class DaoHelper {
     @Inject
     public DatasourceManager datasourceManager;
 
-    private boolean isRODB;
+    private boolean isRODB = false;
 
     public void setDB (boolean isRODB) {
     	this.isRODB = isRODB;

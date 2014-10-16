@@ -42,6 +42,9 @@ public class SearchDao {
     private DaoRoHelper daoRoHelper;
     
     @Inject
+    private DaoRwHelper daoRwHelper;
+    
+    @Inject
     private UserDao userDao;
     
     @Inject
@@ -623,16 +626,36 @@ public class SearchDao {
         String tableName = f.getFilterField().getTable();
         String contactTableName = sc.getContact().getTable();
         if(tableName.equals(contactTableName)){
-        	if("date".equalsIgnoreCase(f.getFilterType().value())){
-        		return connectionString("to_char(",f.getFilterField().toString("a"),",'yyyy-mm-dd') as \"",f.getName(),"\"");
+        	if("date".equals(f.getFilterType().value())){
+        		String dataFormat = null;
+            	if(org.getOrgMap().get("name") != null){
+            		dataFormat = getOrgConfigValue((String)org.getOrgMap().get("name"), "local_date");
+            	}
+        		if(dataFormat == null){
+        			dataFormat = "yyyy-mm-dd";
+        		}
+        		return connectionString("to_char(",f.getFilterField().toString("a"),",'" + dataFormat + "') as \"",f.getName(),"\"");
 	        }else{
 	        	return f.getFilterField().toString("a")+" as \""+f.getName()+"\"";
 	        }
         }else{
             FilterField ff = f.getFilterField();
-            return connectionString(" (select  string_agg(distinct d.\"",ff.getColumn(),"\",',') " ,
-                                    "from ",schemaname,".",ff.getTable()," d  where a.\"",ff.getJoinTo(),"\" = d.\"",
-                                    ff.getJoinFrom()+"\"   ) as \"",f.getName(),"\"");
+            if("date".equals(f.getFilterType().value())){
+            	String dataFormat = null;
+            	if(org.getOrgMap().get("name") != null){
+            		dataFormat = getOrgConfigValue((String)org.getOrgMap().get("name"), "local_date");
+            	}
+        		if(dataFormat == null){
+        			dataFormat = "yyyy-mm-dd";
+        		}
+        		return connectionString(" (select string_agg(distinct ","to_char(d.\"",ff.getColumn(),"\",'",dataFormat,"') ",",',') ",
+                        "from ",schemaname,".",ff.getTable()," d  where a.\"",ff.getJoinTo(),"\" = d.\"",
+                        ff.getJoinFrom()+"\"   ) as \"",f.getName(),"\"");
+	        }else{
+	            return connectionString(" (select string_agg(distinct d.\"",ff.getColumn(),"\"::varchar,',') " ,
+                        "from ",schemaname,".",ff.getTable()," d  where a.\"",ff.getJoinTo(),"\" = d.\"",
+                        ff.getJoinFrom()+"\"   ) as \"",f.getName(),"\"");
+	        }
         }
     }
 
@@ -1622,6 +1645,16 @@ public class SearchDao {
         	conditionValues.add(conditionParam);
         }
         return wrapStr.append(" )").toString();
+    }
+    
+    private String getOrgConfigValue(String orgName, String configColumn){
+    	String sql = "select value from config where org_id in (select id from org where name = ?) and name = ?";
+    	List<Map> results = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(), sql, orgName, configColumn);
+    	if(results.size() == 1){
+    		return results.get(0).get("value").toString();
+    	} else {
+        	return null;
+    	}
     }
     
     private double getDistance(double lat1, double lng1, double lat2, double lng2){
