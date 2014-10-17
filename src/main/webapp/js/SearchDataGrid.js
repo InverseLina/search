@@ -126,7 +126,7 @@
 			"click; div.btnPopupColumns" : function(event) {
 				brite.display("SelectColumns");
 			},
-			"click; .resume-ico" : function(event) {
+			"click; .resume-ico.click" : function(event) {
 				var cid = $(event.currentTarget).closest("i").attr("data-id");
 				var sfid = $(event.currentTarget).closest("i").attr("data-sfid");
 				var cname = $(event.currentTarget).closest("i").attr("data-cname");
@@ -140,7 +140,21 @@
 						name : cname
 					});
 				}
-
+			},
+			"mouseover; .resume-ico.hover" : function(event) {
+				var cid = $(event.currentTarget).closest("i").attr("data-id");
+				var sfid = $(event.currentTarget).closest("i").attr("data-sfid");
+				var cname = $(event.currentTarget).closest("i").attr("data-cname");
+				if (app.orgInfo.apex_resume_url && app.orgInfo.apex_resume_url.length && app.orgInfo.apex_resume_url.length > 0) {
+					var url = app.orgInfo.apex_resume_url + sfid;
+					window.showModalDialog(url, "dialogWidth=540px;dialogHeight=430px");
+				} else {
+					brite.display("ResumeView", "body", {
+						id : cid,
+						sfid : sfid,
+						name : cname
+					});
+				}
 			},
 			"click; table td[data-column='company'],td[data-column='skill'],td[data-column='education']" : function(event) {
 				var view = this;
@@ -795,7 +809,12 @@
 				} else if (columns[j] === "contact") {
 					var displayValue = "<a class='lineInfo name' target='_blank' href='" + app.orgInfo.instance_url + items[i]["sfid"] + "'>" + items[i]["name"] + "</a>";
 					if (items[i]['resume'] !== -1) {
-						displayValue += "<i data-id='" + items[i]["resume"] + "' data-sfid='" + items[i]["sfid"] + "' data-cname='" + items[i]["name"] + "' title='View Resume.' class='resume-ico glyphicon glyphicon-file'></i>";
+						var resumeBehave = app.orgInfo.contact_resume_behave || "click";
+						if(resumeBehave === "click"){
+							displayValue += "<i data-id='" + items[i]["resume"] + "' data-sfid='" + items[i]["sfid"] + "' data-cname='" + items[i]["name"] + "' title='View Resume.' class='resume-ico click glyphicon glyphicon-file'></i>";
+						}else{
+							displayValue += "<i data-id='" + items[i]["resume"] + "' data-sfid='" + items[i]["sfid"] + "' data-cname='" + items[i]["name"] + "' title='View Resume.' class='resume-ico hover glyphicon glyphicon-file'></i>";
+						}
 					}
 					displayValue += "<div class='lineInfo title'>" + items[i]["title"] + "</div>";
 					displayValue += "<a class='lineInfo email' href='mailTo:" + items[i]["email"] + "'>" + items[i]["email"] + "</a>";

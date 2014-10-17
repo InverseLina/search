@@ -29,7 +29,7 @@ public class ConfigManager {
     
     private static final String[] snowPropertiesInheritedArray = new String[]{};
     private static final Set<String> snowPropertiesInherited = new HashSet<String>(Arrays.asList(snowPropertiesInheritedArray));
-    private static final String[] orgInfoKeysArray = new String[]{"apex_resume_url","local_distance","local_date","instance_url","skills_rating"};
+    private static final String[] orgInfoKeysArray = new String[]{"apex_resume_url","local_distance","local_date","instance_url","skills_rating","contact_resume_behave"};
     private static final Set<String> orgInfoKeys = new HashSet<String>(Arrays.asList(orgInfoKeysArray));
     
     private volatile LoadingCache<Integer, Map<String, Object>> configCache;

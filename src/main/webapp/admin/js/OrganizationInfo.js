@@ -114,6 +114,7 @@
 					var configs = {};
 					configs["local_distance"] = view.$el.find("[name='local_distance']").val();
 					configs["local_date"] = view.$el.find("[name='local_date']").val();
+					configs["contact_resume_behave"] = view.$el.find("[name='contact_resume_behave']").val();
 					configs["skills_rating"] = view.$el.find("[name='skills_rating']").val();
 					configs["action_add_to_sourcing"] = view.$el.find("[name='action_add_to_sourcing']").prop("checked");
 					configs["action_favorite"] = view.$el.find("[name='action_favorite']").prop("checked");
