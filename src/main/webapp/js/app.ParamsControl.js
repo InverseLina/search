@@ -5,6 +5,7 @@ var app = app || {};
 	
 	var _headerCustomColumnFilters = {};
 	var _headerCustomFilters = [];
+	var _headerCustomAdvancedFilters = [];
 	function getMainView() {
 		return app.MainView;
 	}
@@ -55,12 +56,7 @@ var app = app || {};
 			searchData["q_objectType"] = app.preference.get("contact_filter_objectType", "All");
 			searchData["q_status"] = app.preference.get("contact_filter_status", "All");
 			//for custom fields
-			searchData["q_customFields"] = _headerCustomFilters;
-			var customFilterPopup = view.$el.find(".CustomFilterPopup").bView();
-			if(customFilterPopup){
-				var customFields = customFilterPopup.getValues();
-				searchData["q_customFields"] = $.extend([], searchData["q_customFields"], customFields);
-			}
+			searchData["q_customFields"] = $.extend([], _headerCustomFilters, _headerCustomAdvancedFilters);
 			
 			//for custom columns
 			searchData = $.extend({}, searchData, _headerCustomColumnFilters);
@@ -99,9 +95,19 @@ var app = app || {};
 					app.preference.store("contact_filter_status", searchValues[key]);
 				}else if(key == "q_customFields"){
 					var fields = searchValues[key];
+					
+					var customAdvancedFilter = app.columns.getCustomColumnsNotSelected();
+					for(var i = 0; i < customAdvancedFilter.length; i++){
+						for(var j = 0; j < fields.length; j++){
+							if(customColumns[i].name == fields[j].field){
+								app.ParamsControl.saveHeaderCustomAdvancedFilter(fields[j]);
+							}
+						}
+					}
+					
 					var customFilterPopup = view.$el.find(".CustomFilterPopup").bView();
 					if(customFilterPopup){
-						customFilterPopup.setValues(fields);
+						customFilterPopup.setValues(app.ParamsControl.getHeaderCustomAdvancedFilters());
 					}
 					
 					var customColumns = app.columns.getCustomColumnsSelected();
@@ -234,6 +240,7 @@ var app = app || {};
 			_storeValue = {};
 			_headerCustomFilters = [];
 			_headerCustomColumnFilters = {};
+			_headerCustomAdvancedFilters = {};
 		},
 		isEmptySearch:function(){
 			var searchParams = this.getParamsForSearch() || {};
@@ -274,13 +281,8 @@ var app = app || {};
 			}
 			
 			//for custom fields
-			var view = getMainView();
-			var customFilterPopup = view.$el.find(".CustomFilterPopup").bView();
-			if(customFilterPopup){
-				var customFields = customFilterPopup.getValues();
-				if(customFields && customFields.length > 0){
-					return false;
-				}
+			if(_headerCustomAdvancedFilters.length > 0){
+				return false;
 			}
 			
 			if(_headerCustomFilters.length > 0){
@@ -360,6 +362,44 @@ var app = app || {};
 			var filters = this.getHeaderCustomColumnFilters();
 			return filters["q_" + name] || {};
 		},
+		
+		saveHeaderCustomAdvancedFilter:function(headerCustomAdvancedFilter){
+			if(!headerCustomAdvancedFilter){
+				return;
+			}
+			var index = -1;
+			for(var i = 0; i < _headerCustomAdvancedFilters.length; i++){
+				var filter = _headerCustomAdvancedFilters[i];
+				if(filter.field == headerCustomAdvancedFilter.field){
+					index = i;
+				}
+			}
+			if(index == -1){
+				if(headerCustomAdvancedFilter.conditions){
+					_headerCustomAdvancedFilters.push(headerCustomAdvancedFilter);
+				}
+			}else{
+				if(headerCustomAdvancedFilter.conditions){
+					_headerCustomAdvancedFilters.splice(index, 1, headerCustomAdvancedFilter);
+				}else{
+					_headerCustomAdvancedFilters.splice(index, 1);
+				}
+			}
+		},
+		
+		getHeaderCustomAdvancedFilters : function(){
+			return $.extend([], _headerCustomAdvancedFilters);
+		},
+		
+		getHeaderCustomAdvancedFilter : function(fieldName){
+			for(var i = 0; i < _headerCustomAdvancedFilters.length; i++){
+				var filter = _headerCustomAdvancedFilters[i];
+				if(fieldName == filter.field){
+					return $.extend({}, filter);
+				}
+			}
+			return null;
+		}
 
 	};
 

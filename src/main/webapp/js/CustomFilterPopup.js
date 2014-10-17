@@ -176,6 +176,8 @@
 				if (viewName) {
 					brite.display(viewName, $filterItem.find(".filter-item-container"), {
 						name : field.name
+					}).done(function(v){
+						v.showMode();
 					});
 				}
 			}

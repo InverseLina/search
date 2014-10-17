@@ -124,15 +124,7 @@
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
 				
-				$e.find(".editContainer .selectedItems .selected-item").remove();
-				$e.find(".value-containers .selected-item").each(function(){
-					var $item = $(this);
-					var operation = $item.attr("data-oper");
-					var value = $item.attr("data-value");
-					var $selectedItem = $(render("CustomFilterString-edit-item",{value:value, operation:operation}));
-					$selectedItem.insertBefore($e.find(".editContainer .selectedItems .cb"));
-				});
-				
+				showEditValues.call(view, view.getValue());
 				checkEmpty.call(view);
 			}else{
 				var $input = $e.find(".autocomplete-input-wrapper .valueInput");
@@ -141,6 +133,7 @@
 					addItem.call(view, value);
 				}
 				
+				showViewValues.call(view, view.getValue());
 				if($e.find(".viewContainer .value-containers .selected-item").size() > 0){
 					$e.find(".viewContainer").removeClass("hide");
 				}else{
@@ -153,75 +146,47 @@
 		getValue:function(){
 			var view = this;
 			var $e = view.$el;
-			var valueObject = null;
-			if($e.find(".viewContainer .value-containers .selected-item").size() > 0){
-				valueObject = {
-					field:view.paramName,
-					conditions:{}
-				};
-				var isArray = [];
-				var isnotArray = [];
-				$e.find(".viewContainer .value-containers .selected-item").each(function(){
-					var $item = $(this);
-					var operation = $item.attr("data-oper");
-					var value = $item.attr("data-value");
-					if(operation == "is"){
-						isArray.push(value);
-					}else{
-						isnotArray.push(value);
-					}
-				});
-				
-				if(isArray.length > 0){
-					valueObject.conditions["=="] = isArray;
-				}
-				
-				if(isnotArray.length > 0){
-					valueObject.conditions["!="] = isnotArray;
-				}
+			var valueObj = null;
+			if($e.closest(".HeaderPopup").size() > 0){
+				valueObj = app.ParamsControl.getHeaderCustomFilter(view.paramName);
+			}else{
+				valueObj = app.ParamsControl.getHeaderCustomAdvancedFilter(view.paramName);
 			}
-			return valueObject;
+			return valueObj;
 		},
 		
 		setValue:function(filter){
 			var view = this;
 			var $e = view.$el;
-			$e.find(".viewContainer .selectedItems .selected-item").remove();
-			if (filter && filter.conditions) {
-				var isArray = filter.conditions["=="];
-				if (isArray) {
-					for (var i = 0; i < isArray.length; i++) {
-						var value = isArray[i];
-						var $selectedItem = $(render("CustomFilterString-view-item", {
-							value : value,
-							operation : "is"
-						}));
-						$selectedItem.insertBefore($e.find(".viewContainer .selectedItems .cb"));
+			
+			if($e.closest(".HeaderPopup").size() > 0){
+				if(filter){
+					app.ParamsControl.saveHeaderCustomFilter(filter);
+				}else{
+					if(app.ParamsControl.getHeaderCustomFilter(view.paramName)){
+						//clear
+						app.ParamsControl.saveHeaderCustomFilter({field:view.paramName,conditions:null});
 					}
 				}
-				var isnotArray = filter.conditions["!="];
-				if (isnotArray) {
-					for (var i = 0; i < isnotArray.length; i++) {
-						var value = isnotArray[i];
-						var $selectedItem = $(render("CustomFilterString-view-item", {
-							value : value,
-							operation : "isnot"
-						}));
-						$selectedItem.insertBefore($e.find(".viewContainer .selectedItems .cb"));
+			}else{
+				if(filter){
+					app.ParamsControl.saveHeaderCustomAdvancedFilter(filter);
+				}else{
+					console.log(1);
+					if(app.ParamsControl.getHeaderCustomAdvancedFilter(view.paramName)){
+						//clear
+						app.ParamsControl.saveHeaderCustomAdvancedFilter({field:view.paramName,conditions:null});
 					}
 				}
 			}
-
+			
+			view.showMode();
 		},
 		
 		clearFields:function(){
 			var view = this;
 			var $e = view.$el;
-			$e.find(".autocomplete-input-wrapper .valueInput").val("");
-			$e.find(".selectedItems .selected-item").remove();
-			selectOperation.call(view, "is");
-			checkEmpty.call(view);
-			applyValues.call(view, true);
+			view.setValue({field: view.paramName, conditions:null});
 			view.showMode();
 		}
 		// --------- /Filter Common API--------- //
@@ -360,34 +325,111 @@
 	function applyValues(search){
 		var view = this;
 		var $e = view.$el;
-		$e.find(".value-containers .selected-item").remove();
-		$e.find(".editContainer .selectedItems .selected-item").each(function() {
-			var $item = $(this);
-			var operation = $item.attr("data-oper");
-			var value = $item.attr("data-value");
-			var $viewSelectedItem = $(render("CustomFilterString-view-item", {
-				value : value,
-				operation : operation
-			}));
-			$viewSelectedItem.insertBefore($e.find(".value-containers .cb"));
-		});
 		
 		
-		if($e.closest(".HeaderPopup").size() > 0){
-			if(view.getValue()){
-				app.ParamsControl.saveHeaderCustomFilter(view.getValue());
-			}else{
-				if(app.ParamsControl.getHeaderCustomFilter(view.paramName)){
-					//clear
-					app.ParamsControl.saveHeaderCustomFilter({field:view.paramName,conditions:null});
+		var valueObject = null;
+		if ($e.find(".editContainer .selectedItems .selected-item").size() > 0) {
+			valueObject = {
+				field : view.paramName,
+				conditions : {}
+			};
+			var isArray = [];
+			var isnotArray = [];
+			$e.find(".editContainer .selectedItems .selected-item").each(function() {
+				var $item = $(this);
+				var operation = $item.attr("data-oper");
+				var value = $item.attr("data-value");
+				if (operation == "is") {
+					isArray.push(value);
+				} else {
+					isnotArray.push(value);
 				}
+			});
+
+			if (isArray.length > 0) {
+				valueObject.conditions["=="] = isArray;
+			}
+
+			if (isnotArray.length > 0) {
+				valueObject.conditions["!="] = isnotArray;
 			}
 		}
+		
+		view.setValue(valueObject);
 			
 		if(search){
 			$e.trigger("DO_SEARCH"); 
 		}
 
 	}
+	
+	function showEditValues(filter) {
+		var view = this;
+		var $e = view.$el;
+		$e.find(".editContainer .selectedItems .selected-item").remove();
+		if (filter && filter.conditions) {
+			var isArray = filter.conditions["=="];
+			if (isArray) {
+				for (var i = 0; i < isArray.length; i++) {
+					var value = isArray[i];
+					var $selectedItem = $(render("CustomFilterString-edit-item", {
+						value : value,
+						operation : "is"
+					}));
+					$selectedItem.insertBefore($e.find(".editContainer .selectedItems .cb"));
+				}
+			}
+			var isnotArray = filter.conditions["!="];
+			if (isnotArray) {
+				for (var i = 0; i < isnotArray.length; i++) {
+					var value = isnotArray[i];
+					var $selectedItem = $(render("CustomFilterString-view-item", {
+						value : value,
+						operation : "isnot"
+					}));
+					$selectedItem.insertBefore($e.find(".editContainer .selectedItems .cb"));
+				}
+			}
+		}else{
+			$e.find(".autocomplete-input-wrapper .valueInput").val("");
+			$e.find(".editContainer .selectedItems .selected-item").remove();
+			selectOperation.call(view, "is");
+			checkEmpty.call(view);
+		}
+	}
+
+	function showViewValues(filter) {
+		var view = this;
+		var $e = view.$el;
+		$e.find(".viewContainer .selectedItems .selected-item").remove();
+		if (filter && filter.conditions) {
+			var isArray = filter.conditions["=="];
+			if (isArray) {
+				for (var i = 0; i < isArray.length; i++) {
+					var value = isArray[i];
+					var $selectedItem = $(render("CustomFilterString-view-item", {
+						value : value,
+						operation : "is"
+					}));
+					$selectedItem.insertBefore($e.find(".viewContainer .selectedItems .cb"));
+				}
+			}
+			var isnotArray = filter.conditions["!="];
+			if (isnotArray) {
+				for (var i = 0; i < isnotArray.length; i++) {
+					var value = isnotArray[i];
+					var $selectedItem = $(render("CustomFilterString-view-item", {
+						value : value,
+						operation : "isnot"
+					}));
+					$selectedItem.insertBefore($e.find(".viewContainer .selectedItems .cb"));
+				}
+			}
+		}else{
+			$e.find(".viewContainer .selectedItems .selected-item").remove();
+			checkEmpty.call(view);
+		}
+	}
+
 	// --------- /Private Methods--------- //
 })(jQuery);

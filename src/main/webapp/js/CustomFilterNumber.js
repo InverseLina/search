@@ -27,7 +27,7 @@
 				var $e = this.$el;
 				var $li = $(e.currentTarget);
 				var oper = $li.attr("data-oper");
-				showEditValue.call(view, oper);
+				showEditValues.call(view, view.getValue());
 				showByOper.call(view, oper);
 			},
 			"click; .btnApplyValue" : function(e){
@@ -57,53 +57,32 @@
 				$e.find(".viewContainer").addClass("hide");
 				
 				//reset value
-				var oper = $e.find(".viewContainer .operValue").attr("data-oper");
-				if(oper && oper != null){
-					showEditValue.call(view, oper);
-					showByOper.call(view,oper);
-				}else{
-					showByOper.call(view,"between");
-				}
+				showEditValues.call(view, view.getValue());
 				
 			}else{
 				applyValue.call(view, true);
-				oper = $e.find(".viewContainer .operValue").attr("data-oper");
-				if(oper != ""){
+				var valueObj = view.getValue();
+				showViewValues.call(view, valueObj);
+				oper = getOper.call(view, valueObj);
+				if (oper != "") {
 					$e.find(".viewContainer").removeClass("hide");
-					if(oper == "between"){
-						$e.find(".viewContainer .resultValue, .viewContainer .resultValue1").removeClass("hide");
-					}else if(oper == "gt"){
-						$e.find(".viewContainer .resultValue1").addClass("hide");
-						$e.find(".viewContainer .resultValue").removeClass("hide");
-					}else if(oper == "lt"){
-						$e.find(".viewContainer .resultValue").addClass("hide");
-						$e.find(".viewContainer .resultValue1").removeClass("hide");
-					}
-				}else{
+				} else {
 					$e.find(".viewContainer").addClass("hide");
 				}
-				$e.find(".editContainer").addClass("hide");
+				$e.find(".editContainer").addClass("hide"); 
 			}
 		},
 		
 		getValue:function(){
 			var view = this;
 			var $e = view.$el;
-			var valueObject = {field:view.paramName, conditions:{}};
-			var oper = $e.find(".viewContainer .operValue").attr("data-oper");
-			var resultValue = $e.find(".viewContainer .resultValue").attr("data-value") * 1;
-			var resultValue1 = $e.find(".viewContainer .resultValue1").attr("data-value") * 1;
-			if (oper == "between") {
-				valueObject.conditions[">="] = resultValue;
-				valueObject.conditions["<="] = resultValue1;
-			} else if (oper == "gt") {
-				valueObject.conditions[">="] = resultValue;
-			} else if (oper == "lt") {
-				valueObject.conditions["<="] = resultValue1;
-			}else{
-				return null;
+			var valueObject;
+			if ($e.closest(".HeaderPopup").size() > 0) {
+				valueObject = app.ParamsControl.getHeaderCustomFilter(view.paramName);
+			} else {
+				valueObject = app.ParamsControl.getHeaderCustomAdvancedFilter(view.paramName);
 			}
-			
+
 			return valueObject;
 		},
 		
@@ -111,25 +90,14 @@
 			var view = this;
 			var $e = view.$el;
 					
-			if (filter && filter.conditions) {
-				var greaterValue = filter.conditions[">="];
-				if (greaterValue) {
-					$e.find(".viewContainer .resultValue").attr("data-value", greaterValue).text(formatNumber(greaterValue));
-				}
-		
-				var lessValue = filter.conditions["<="];
-				if (lessValue) {
-					$e.find(".viewContainer .resultValue1").attr("data-value", lessValue).text(formatNumber(lessValue));
-				}
-				if (greaterValue && lessValue) {
-					$e.find(".viewContainer .operValue").attr("data-oper", "between").text("Between");
-				} else if (greaterValue) {
-					$e.find(".viewContainer .operValue").attr("data-oper", "gt").text("Greater than");
-				} else {
-					$e.find(".viewContainer .operValue").attr("data-oper", "lt").text("Less than");
+			if(filter){
+				if($e.closest(".HeaderPopup").size() > 0){
+					app.ParamsControl.saveHeaderCustomFilter(filter);
+				}else{
+					app.ParamsControl.saveHeaderCustomAdvancedFilter(filter);
 				}
 			}
-
+			
 		},
 		
 		clearFields:function(){
@@ -140,6 +108,7 @@
 			$e.find(".viewContainer .resultValue1").attr("data-value", "").html();
 			$e.find("input[name='value']").val("");
 			$e.find("input[name='value1']").val("");
+			view.setValue({field: view.paramName, conditions:null});
 			view.showMode();
 		}
 		// --------- /Filter Common API--------- //
@@ -210,26 +179,23 @@
 		$e.find(".alert").addClass("hide"); 
 	}
 	
-	function showEditValue(oper){
+	function getOper(filter){
 		var view = this;
 		var $e = view.$el;
-		$e.find(".operation-item[data-oper='" + oper + "']").attr("data-oper");
-		var resultValue = $e.find(".viewContainer .resultValue").attr("data-value");
-		var resultValue1 = $e.find(".viewContainer .resultValue1").attr("data-value");
-		var $input = $e.find("input[name='value']");
-		var $input1 = $e.find("input[name='value1']");
-		$input.val("");
-		$input1.val("");
-		if (oper == "between") {
-			$input.val(resultValue);
-			$input1.val(resultValue1);
-		} else if (oper == "gt") {
-			$input.val(resultValue);
-		} else if (oper == "lt") {
-			$input1.val(resultValue1);
+		var oper = "";
+		if (filter && filter.conditions) {
+			var greaterValue = filter.conditions[">="];
+			var lessValue = filter.conditions["<="];
+			if (greaterValue && lessValue) {
+				oper = "between";
+			} else if (greaterValue) {
+				oper = "gt";
+			} else {
+				oper = "lt";
+			}
 		}
+		return oper;
 	}
-	
 	
 	function applyValue(force, search){
 		var view = this;
@@ -238,28 +204,30 @@
 		var $input = $e.find("input[name='value']");
 		var $input1 = $e.find("input[name='value1']");
 		var validated = false;
-		var operLabel;
 		var showMessage = typeof force == "undefined" || !force ? true : false;
 		if (oper == "between") {
 			validated = validateNumberRange.call(view, $input, $input1, showMessage);
-			operLabel = "Between";
 		} else if (oper == "lt") {
 			validated = validateInput.call(view, $input1, showMessage);
-			operLabel = "Less than";
 		} else if (oper == "gt") {
 			validated = validateInput.call(view, $input, showMessage);
-			operLabel = "Greater than";
 		}
 
 		if (validated) {
-			$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
-			$e.find(".viewContainer .resultValue").text(formatNumber($input.val())).attr("data-value", $input.val() * 1);
-			$e.find(".viewContainer .resultValue1").text(formatNumber($input1.val())).attr("data-value", $input1.val() * 1);
-			
-			
-			if($e.closest(".HeaderPopup").size() > 0){
-				app.ParamsControl.saveHeaderCustomFilter(view.getValue());
+			var valueObject = {field:view.paramName, conditions:{}};
+			var resultValue = $input.val() * 1;
+			var resultValue1 = $input1.val() * 1;
+			if (oper == "between") {
+				valueObject.conditions[">="] = resultValue;
+				valueObject.conditions["<="] = resultValue1;
+			} else if (oper == "gt") {
+				valueObject.conditions[">="] = resultValue;
+			} else if (oper == "lt") {
+				valueObject.conditions["<="] = resultValue1;
+			}else{
+				valueObject = null;
 			}
+			view.setValue(valueObject);
 			
 			if (search) {
 				$e.trigger("DO_SEARCH");
@@ -267,6 +235,75 @@
 
 		}
 
+	}
+	
+	function showEditValues(filter){
+		var view = this;
+		var $e = view.$el;
+		var $oper = $e.find(".operation");
+		var $input = $e.find("input[name='value']");
+		var $input1 = $e.find("input[name='value1']");
+		
+
+		if (filter && filter.conditions) {
+			var greaterValue = filter.conditions[">="];
+			if (greaterValue) {
+				$input.val(greaterValue);
+			}
+
+			var lessValue = filter.conditions["<="];
+			if (lessValue) {
+				$input1.val(lessValue);
+			}
+			
+			if (greaterValue && lessValue) {
+				showByOper.call(view, "between");
+			} else if (greaterValue) {
+				showByOper.call(view, "gt");
+				$input1.val("");
+			} else {
+				showByOper.call(view, "lt");
+				$input.val("");
+			}
+		}else{
+			showByOper.call(view, "between");
+			$input.val("");
+			$input1.val("");
+		}
+	}
+	
+	function showViewValues(filter){
+		var view = this;
+		var $e = view.$el;
+		if (filter && filter.conditions) {
+			var greaterValue = filter.conditions[">="];
+			if (greaterValue) {
+				$e.find(".viewContainer .resultValue").attr("data-value", greaterValue).text(formatNumber(greaterValue));
+			}
+
+			var lessValue = filter.conditions["<="];
+			if (lessValue) {
+				$e.find(".viewContainer .resultValue1").attr("data-value", lessValue).text(formatNumber(lessValue));
+			}
+			
+			if (greaterValue && lessValue) {
+				$e.find(".viewContainer .operValue").attr("data-oper", "between").text("Between");
+				$e.find(".viewContainer .resultValue, .viewContainer .resultValue1").removeClass("hide");
+			} else if (greaterValue) {
+				$e.find(".viewContainer .operValue").attr("data-oper", "gt").text("Greater than");
+				$e.find(".viewContainer .resultValue1").addClass("hide");
+				$e.find(".viewContainer .resultValue").removeClass("hide");
+			} else {
+				$e.find(".viewContainer .operValue").attr("data-oper", "lt").text("Less than");
+				$e.find(".viewContainer .resultValue").addClass("hide");
+				$e.find(".viewContainer .resultValue1").removeClass("hide");
+			}
+		}else{
+			$e.find(".viewContainer .operValue").attr("data-oper", "").text("");
+			$e.find(".viewContainer .resultValue").addClass("hide").attr("data-value", "").text("");
+			$e.find(".viewContainer .resultValue1").addClass("hide").attr("data-value", "").text("");
+		}
+		
 	}
 	
 	

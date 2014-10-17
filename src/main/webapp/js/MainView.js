@@ -117,6 +117,10 @@
 							
 							key = "q_" + column;
 							if(customColumnFilters[key]){
+								var conditions = app.ParamsControl.getHeaderCustomColumnFilter(column);
+								// move
+								app.ParamsControl.saveHeaderCustomAdvancedFilter({field:column, conditions:conditions});
+								// remove
 								app.ParamsControl.saveHeaderCustomColumnFilter(column);
 							}
 							
@@ -130,7 +134,11 @@
 								}
 								
 								if(isExist){
-									app.ParamsControl.saveHeaderCustomFilter({field:column});
+									var fieldObj = app.ParamsControl.getHeaderCustomFilter(column);
+									// move
+									app.ParamsControl.saveHeaderCustomAdvancedFilter(fieldObj);
+									// remove
+									app.ParamsControl.saveHeaderCustomFilter({field:column, conditions:null});
 								}
 							}
 						
@@ -138,6 +146,7 @@
 					});
 					
 					app.columns.save(extra.columns);
+					view.$el.trigger("REFRESH_POPUP_CUSTOM_FIELDS");
 					if(app.ParamsControl.isEmptySearch()){
 						view.contentView.dataGridView.refreshColumns();
 						app.currentDeferred = $.Deferred();

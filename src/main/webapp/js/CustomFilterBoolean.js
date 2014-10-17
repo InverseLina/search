@@ -39,9 +39,10 @@
 					$label.attr("data-value",0);
 				}
 				
-				if($e.closest(".HeaderPopup").size() > 0){
-					app.ParamsControl.saveHeaderCustomFilter(view.getValue());
-				}
+				var val = value * 1 ? true : false;
+				var valueObject = {field:view.paramName, conditions:{"==":val}};
+				
+				view.setValue(valueObject);
 				
 				$e.trigger("DO_SEARCH");
 			}
@@ -54,41 +55,11 @@
 			mode = mode || view.mode;
 			view.mode = mode;
 			
-			if(mode == 'edit'){
-				$e.find(".editContainer").removeClass("hide");
-				$e.find(".viewContainer").addClass("hide");
-				
-			}else{
-				var $label = $e.find(".viewContainer .valueLabel");
-				var val = $label.attr("data-value"); 
-				if(val){
-					$e.find(".viewContainer").removeClass("hide");
-				}else{
-					$e.find(".viewContainer").addClass("hide");
-				}
-				$e.find(".editContainer").addClass("hide");
-			}
-		},
-		getValue:function(){
-			var view = this;
-			var $e = view.$el;
+			var filter = view.getValue();
 			var $label = $e.find(".viewContainer .valueLabel");
-			var val = $label.attr("data-value"); 
-			if(!val){
-				return null;
-			}
-			var value = val * 1 ? true : false;
-			var valueObject = {field:view.paramName, conditions:{"==":value}};
-			return valueObject;
-		},
-		
-		setValue:function(filter){
-			var view = this;
-			var $e = view.$el;
+			var $btnGroup = $e.find(".editContainer .btn-group");
 			if (filter && filter.conditions) {
 				var value = filter.conditions["=="];
-				var $label = $e.find(".viewContainer .valueLabel");
-				var $btnGroup = $e.find(".editContainer .btn-group");
 				if (value) {
 					$label.addClass("yes");
 					$label.text("Yes");
@@ -102,17 +73,56 @@
 					$btnGroup.find(".btn[data-mode='0']").addClass("active");
 					$btnGroup.find(".btn[data-mode='1']").removeClass("active");
 				}
+			}else{
+				$label.attr("data-value", "").html("");
+				$btnGroup.find(".btn").removeClass("active");
+				$btnGroup.find(".btn[data-mode='0']").addClass("active"); 
 			}
+			
+			if(mode == 'edit'){
+				$e.find(".editContainer").removeClass("hide");
+				$e.find(".viewContainer").addClass("hide");
+			}else{
+				var $label = $e.find(".viewContainer .valueLabel");
+				var val = $label.attr("data-value"); 
+				if(val){
+					$e.find(".viewContainer").removeClass("hide");
+				}else{
+					$e.find(".viewContainer").addClass("hide");
+				}
+				$e.find(".editContainer").addClass("hide");
+			}
+			
+			
+		},
+		getValue:function(){
+			var view = this;
+			var $e = view.$el;
+			var valueObject;
+			if ($e.closest(".HeaderPopup").size() > 0) {
+				valueObject = app.ParamsControl.getHeaderCustomFilter(view.paramName);
+			} else {
+				valueObject = app.ParamsControl.getHeaderCustomAdvancedFilter(view.paramName);
+			}
+			return valueObject;
+		},
+		
+		setValue:function(filter){
+			var view = this;
+			var $e = view.$el;
+			
+			if ($e.closest(".HeaderPopup").size() > 0) {
+				app.ParamsControl.saveHeaderCustomFilter(filter);
+			} else {
+				app.ParamsControl.saveHeaderCustomAdvancedFilter(filter);
+			}
+
 		},
 		
 		clearFields:function(){
 			var view = this;
 			var $e = view.$el;
-			var $label = $e.find(".viewContainer .valueLabel");
-			$label.attr("data-value","").html("");
-			var $btnGroup = $e.find(".editContainer .btn-group");
-			$btnGroup.find(".btn").removeClass("active");
-			$btnGroup.find(".btn[data-mode='0']").addClass("active");
+			view.setValue({field: view.paramName, conditions:null});
 			view.showMode();
 		}
 		// --------- /Filter Common API--------- //

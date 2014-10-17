@@ -72,8 +72,6 @@
 					alert("Please a column at least!");
 					$checkbox.prop("checked", true);
 				}
-				
-				view.$el.trigger("REFRESH_POPUP_CUSTOM_FIELDS");
 			},
 			"bdragstart; li" : function(event) {
 				event.stopPropagation();

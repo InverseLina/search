@@ -27,8 +27,8 @@
 				var $e = this.$el;
 				var $li = $(e.currentTarget);
 				var oper = $li.attr("data-oper");
-				showEditValue.call(view,oper);
-				showByOper.call(view,oper);
+				showEditValues.call(view, view.getValue());
+				showByOper.call(view, oper);
 			},
 			"click; .btnApplyValue" : function(e){
 				var view = this;
@@ -65,84 +65,50 @@
 			mode = mode || view.mode;
 			view.mode = mode;
 			
-			var oper = $e.find(".viewContainer .operValue").attr("data-oper");
 			if(mode == 'edit'){
 				$e.find(".editContainer").removeClass("hide");
 				$e.find(".viewContainer").addClass("hide");
 				
 				//reset value
-				var oper = $e.find(".viewContainer .operValue").attr("data-oper");
-				if(oper && oper != null){
-					showEditValue.call(view, oper);
-					showByOper.call(view, oper);
-				}else{
-					showByOper.call(view,"between");
-				}
+				showEditValues.call(view, view.getValue());
 				
 			}else{
 				applyValue.call(view, true);
-				oper = $e.find(".viewContainer .operValue").attr("data-oper");
-				if(oper != ""){
+				var valueObj = view.getValue();
+				showViewValues.call(view, valueObj);
+				oper = getOper.call(view, valueObj);
+				if (oper != "") {
 					$e.find(".viewContainer").removeClass("hide");
-					if(oper == "between"){
-						$e.find(".viewContainer .resultValue1, .viewContainer .resultValue").removeClass("hide");
-					}else if(oper == "after"){
-						$e.find(".viewContainer .resultValue").removeClass("hide");
-						$e.find(".viewContainer .resultValue1").addClass("hide");
-					}else if(oper == "before"){
-						$e.find(".viewContainer .resultValue").addClass("hide");
-						$e.find(".viewContainer .resultValue1").removeClass("hide");
-					}
-				}else{
+				} else {
 					$e.find(".viewContainer").addClass("hide");
 				}
-				$e.find(".editContainer").addClass("hide");
+				$e.find(".editContainer").addClass("hide"); 
 			}
 		},
 		
 		getValue:function(){
 			var view = this;
 			var $e = view.$el;
-			var valueObject = {field:view.paramName, conditions:{}};
-			var oper = $e.find(".viewContainer .operValue").attr("data-oper");
-			var resultValue = $e.find(".viewContainer .resultValue").attr("data-value");
-			var resultValue1 = $e.find(".viewContainer .resultValue1").attr("data-value");
-			if (oper == "between") {
-				valueObject.conditions[">="] = resultValue;
-				valueObject.conditions["<="] = resultValue1;
-			} else if (oper == "after") {
-				valueObject.conditions[">="] = resultValue;
-			} else if (oper == "before") {
-				valueObject.conditions["<="] = resultValue1;
-			}else{
-				return null;
+			var valueObject;
+			if ($e.closest(".HeaderPopup").size() > 0) {
+				valueObject = app.ParamsControl.getHeaderCustomFilter(view.paramName);
+			} else {
+				valueObject = app.ParamsControl.getHeaderCustomAdvancedFilter(view.paramName);
 			}
+
 			return valueObject;
 		},
 		
 		setValue:function(filter){
 			var view = this;
 			var $e = view.$el;
-			if (filter && filter.conditions) {
-				var greaterValue = filter.conditions[">="];
-				if (greaterValue) {
-					$e.find(".viewContainer .resultValue").attr("data-value", greaterValue).text(greaterValue);
-				}
-		
-				var lessValue = filter.conditions["<="];
-				if (lessValue) {
-					$e.find(".viewContainer .resultValue1").attr("data-value", lessValue).text(lessValue);
-				}
-		
-				if (greaterValue && lessValue) {
-					$e.find(".viewContainer .operValue").attr("data-oper", "between").text("Between");
-				} else if (greaterValue) {
-					$e.find(".viewContainer .operValue").attr("data-oper", "after").text("After");
-				} else {
-					$e.find(".viewContainer .operValue").attr("data-oper", "before").text("Before");
+			if(filter){
+				if($e.closest(".HeaderPopup").size() > 0){
+					app.ParamsControl.saveHeaderCustomFilter(filter);
+				}else{
+					app.ParamsControl.saveHeaderCustomAdvancedFilter(filter);
 				}
 			}
-			
 		},
 		
 		clearFields:function(){
@@ -153,6 +119,7 @@
 			$e.find(".viewContainer .resultValue1").attr("data-value", "").html();
 			$e.find("input[name='value']").val("");
 			$e.find("input[name='value1']").val("");
+			view.setValue({field: view.paramName, conditions:null});
 			view.showMode();
 		}
 		// --------- /Filter Common API--------- //
@@ -232,24 +199,22 @@
 		$e.find(".alert").addClass("hide"); 
 	}
 	
-	function showEditValue(oper){
+	function getOper(filter){
 		var view = this;
 		var $e = view.$el;
-		$e.find(".operation-item[data-oper='" + oper + "']").attr("data-oper");
-		var resultValue = $e.find(".viewContainer .resultValue").attr("data-value");
-		var resultValue1 = $e.find(".viewContainer .resultValue1").attr("data-value");
-		var $input = $e.find("input[name='value']");
-		var $input1 = $e.find("input[name='value1']");
-		$input.val("");
-		$input1.val("");
-		if (oper == "between") {
-			$input.val(resultValue);
-			$input1.val(resultValue1);
-		} else if (oper == "after") {
-			$input.val(resultValue);
-		} else if (oper == "before") {
-			$input1.val(resultValue1);
+		var oper = "";
+		if (filter && filter.conditions) {
+			var greaterValue = filter.conditions[">="];
+			var lessValue = filter.conditions["<="];
+			if (greaterValue && lessValue) {
+				oper = "between";
+			} else if (greaterValue) {
+				oper = "after";
+			} else {
+				oper = "before";
+			}
 		}
+		return oper;
 	}
 	
 	function applyValue(force, search){
@@ -259,27 +224,30 @@
 		var $input = $e.find("input[name='value']");
 		var $input1 = $e.find("input[name='value1']");
 		var validated = false;
-		var operLabel;
 		var showMessage = typeof force == "undefined" || !force ? true : false;
 		if (oper == "between") {
-			validated = validateDateRange.call(view,$input, $input1, showMessage);
-			operLabel = "Between";
-		} else if (oper == "after") {
-			validated = validateInput.call(view, $input, showMessage);
-			operLabel = "After";
+			validated = validateDateRange.call(view, $input, $input1, showMessage);
 		} else if (oper == "before") {
 			validated = validateInput.call(view, $input1, showMessage);
-			operLabel = "Before";
+		} else if (oper == "after") {
+			validated = validateInput.call(view, $input, showMessage);
 		}
 
 		if (validated) {
-			$e.find(".viewContainer .operValue").text(operLabel).attr("data-oper", oper);
-			$e.find(".viewContainer .resultValue").text($input.val()).attr("data-value", $input.val());
-			$e.find(".viewContainer .resultValue1").text($input1.val()).attr("data-value", $input1.val());
-			
-			if($e.closest(".HeaderPopup").size() > 0){
-				app.ParamsControl.saveHeaderCustomFilter(view.getValue());
+			var valueObject = {field:view.paramName, conditions:{}};
+			var resultValue = $input.val();
+			var resultValue1 = $input1.val();
+			if (oper == "between") {
+				valueObject.conditions[">="] = resultValue;
+				valueObject.conditions["<="] = resultValue1;
+			} else if (oper == "after") {
+				valueObject.conditions[">="] = resultValue;
+			} else if (oper == "before") {
+				valueObject.conditions["<="] = resultValue1;
+			}else{
+				valueObject = null;
 			}
+			view.setValue(valueObject);
 			
 			if (search) {
 				$e.trigger("DO_SEARCH");
@@ -288,5 +256,75 @@
 		}
 		
 	}
+	
+	function showEditValues(filter){
+		var view = this;
+		var $e = view.$el;
+		var $oper = $e.find(".operation");
+		var $input = $e.find("input[name='value']");
+		var $input1 = $e.find("input[name='value1']");
+		
+
+		if (filter && filter.conditions) {
+			var greaterValue = filter.conditions[">="];
+			if (greaterValue) {
+				$input.val(greaterValue);
+			}
+
+			var lessValue = filter.conditions["<="];
+			if (lessValue) {
+				$input1.val(lessValue);
+			}
+			
+			if (greaterValue && lessValue) {
+				showByOper.call(view, "between");
+			} else if (greaterValue) {
+				showByOper.call(view, "after");
+				$input1.val("");
+			} else {
+				showByOper.call(view, "before");
+				$input.val("");
+			}
+		}else{
+			showByOper.call(view, "between");
+			$input.val("");
+			$input1.val("");
+		}
+	}
+	
+	function showViewValues(filter){
+		var view = this;
+		var $e = view.$el;
+		if (filter && filter.conditions) {
+			var greaterValue = filter.conditions[">="];
+			if (greaterValue) {
+				$e.find(".viewContainer .resultValue").attr("data-value", greaterValue).text(greaterValue);
+			}
+
+			var lessValue = filter.conditions["<="];
+			if (lessValue) {
+				$e.find(".viewContainer .resultValue1").attr("data-value", lessValue).text(lessValue);
+			}
+			
+			if (greaterValue && lessValue) {
+				$e.find(".viewContainer .operValue").attr("data-oper", "between").text("Between");
+				$e.find(".viewContainer .resultValue, .viewContainer .resultValue1").removeClass("hide");
+			} else if (greaterValue) {
+				$e.find(".viewContainer .operValue").attr("data-oper", "after").text("After");
+				$e.find(".viewContainer .resultValue1").addClass("hide");
+				$e.find(".viewContainer .resultValue").removeClass("hide");
+			} else {
+				$e.find(".viewContainer .operValue").attr("data-oper", "before").text("Before");
+				$e.find(".viewContainer .resultValue").addClass("hide");
+				$e.find(".viewContainer .resultValue1").removeClass("hide");
+			}
+		}else{
+			$e.find(".viewContainer .operValue").attr("data-oper", "").text("");
+			$e.find(".viewContainer .resultValue").addClass("hide").attr("data-value", "").text("");
+			$e.find(".viewContainer .resultValue1").addClass("hide").attr("data-value", "").text("");
+		}
+		
+	}
+	
 	// --------- /Private Methods--------- //
 })(jQuery);
