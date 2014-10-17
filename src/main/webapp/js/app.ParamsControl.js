@@ -99,7 +99,7 @@ var app = app || {};
 					var customAdvancedFilter = app.columns.getCustomColumnsNotSelected();
 					for(var i = 0; i < customAdvancedFilter.length; i++){
 						for(var j = 0; j < fields.length; j++){
-							if(customColumns[i].name == fields[j].field){
+							if(customAdvancedFilter[i].name == fields[j].field){
 								app.ParamsControl.saveHeaderCustomAdvancedFilter(fields[j]);
 							}
 						}
@@ -240,7 +240,7 @@ var app = app || {};
 			_storeValue = {};
 			_headerCustomFilters = [];
 			_headerCustomColumnFilters = {};
-			_headerCustomAdvancedFilters = {};
+			_headerCustomAdvancedFilters = [];
 		},
 		isEmptySearch:function(){
 			var searchParams = this.getParamsForSearch() || {};

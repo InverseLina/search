@@ -141,6 +141,15 @@ var app = app || {};
 				}
 			});
 			return customColumns;
+		},
+		
+		getColumnInfo: function(column){
+			var columns = this.listAll();
+			for(var i = 0; i < columns.length; i++){
+				if(columns[i].name == column){
+					return columns[i];
+				}
+			}
 		}
 	};
 	

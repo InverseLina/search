@@ -124,24 +124,42 @@
 								app.ParamsControl.saveHeaderCustomColumnFilter(column);
 							}
 							
-							if(customFilters.length > 0){
-								var isExist = false;
-								for(var i = 0; i < customFilters.length; i++){
-									if(customFilters[i].field == column){
-										isExist = true;
-										break;
+							if(app.ParamsControl.getHeaderCustomFilter(column)){
+								var fieldObj = app.ParamsControl.getHeaderCustomFilter(column);
+								// move
+								app.ParamsControl.saveHeaderCustomAdvancedFilter(fieldObj);
+								// remove
+								app.ParamsControl.saveHeaderCustomFilter({field:column, conditions:null});
+							}
+						
+						}
+					});
+					
+					var oldColumnsString = oldColumns.join(",");
+					$.each(extra.columns, function(idx, column) {
+						if (oldColumnsString.indexOf(column) < 0) {
+							var columnInfo = app.columns.getColumnInfo(column);
+							
+							if(columnInfo.custom){
+								var filter = app.ParamsControl.getHeaderCustomAdvancedFilter(column);
+								if(filter){
+									if(columnInfo.display == "column"){
+										var conditions = filter.conditions;
+										// move
+										app.ParamsControl.saveHeaderCustomColumnFilter(column, conditions);
+										// remove
+										app.ParamsControl.saveHeaderCustomAdvancedFilter({field:column, conditions:null});
+									}else{
+										var conditions = filter.conditions;
+										// move
+										app.ParamsControl.saveHeaderCustomFilter(filter);
+										// remove
+										app.ParamsControl.saveHeaderCustomAdvancedFilter({field:column, conditions:null});
 									}
 								}
 								
-								if(isExist){
-									var fieldObj = app.ParamsControl.getHeaderCustomFilter(column);
-									// move
-									app.ParamsControl.saveHeaderCustomAdvancedFilter(fieldObj);
-									// remove
-									app.ParamsControl.saveHeaderCustomFilter({field:column, conditions:null});
-								}
 							}
-						
+							
 						}
 					});
 					
