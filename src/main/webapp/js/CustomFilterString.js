@@ -150,7 +150,7 @@
 			if($e.closest(".HeaderPopup").size() > 0){
 				valueObj = app.ParamsControl.getHeaderCustomFilter(view.paramName);
 			}else{
-				valueObj = app.ParamsControl.getHeaderCustomAdvancedFilter(view.paramName);
+				valueObj = app.ParamsControl.getSideCustomAdvancedFilter(view.paramName);
 			}
 			return valueObj;
 		},
@@ -170,12 +170,12 @@
 				}
 			}else{
 				if(filter){
-					app.ParamsControl.saveHeaderCustomAdvancedFilter(filter);
+					app.ParamsControl.saveSideCustomAdvancedFilter(filter);
 				}else{
 					console.log(1);
-					if(app.ParamsControl.getHeaderCustomAdvancedFilter(view.paramName)){
+					if(app.ParamsControl.getSideCustomAdvancedFilter(view.paramName)){
 						//clear
-						app.ParamsControl.saveHeaderCustomAdvancedFilter({field:view.paramName,conditions:null});
+						app.ParamsControl.saveSideCustomAdvancedFilter({field:view.paramName,conditions:null});
 					}
 				}
 			}
@@ -383,7 +383,7 @@
 			if (isnotArray) {
 				for (var i = 0; i < isnotArray.length; i++) {
 					var value = isnotArray[i];
-					var $selectedItem = $(render("CustomFilterString-view-item", {
+					var $selectedItem = $(render("CustomFilterString-edit-item", {
 						value : value,
 						operation : "isnot"
 					}));

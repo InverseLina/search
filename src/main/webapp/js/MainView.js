@@ -119,7 +119,7 @@
 							if(customColumnFilters[key]){
 								var conditions = app.ParamsControl.getHeaderCustomColumnFilter(column);
 								// move
-								app.ParamsControl.saveHeaderCustomAdvancedFilter({field:column, conditions:conditions});
+								app.ParamsControl.saveSideCustomAdvancedFilter({field:column, conditions:conditions});
 								// remove
 								app.ParamsControl.saveHeaderCustomColumnFilter(column);
 							}
@@ -127,7 +127,7 @@
 							if(app.ParamsControl.getHeaderCustomFilter(column)){
 								var fieldObj = app.ParamsControl.getHeaderCustomFilter(column);
 								// move
-								app.ParamsControl.saveHeaderCustomAdvancedFilter(fieldObj);
+								app.ParamsControl.saveSideCustomAdvancedFilter(fieldObj);
 								// remove
 								app.ParamsControl.saveHeaderCustomFilter({field:column, conditions:null});
 							}
@@ -141,20 +141,20 @@
 							var columnInfo = app.columns.getColumnInfo(column);
 							
 							if(columnInfo.custom){
-								var filter = app.ParamsControl.getHeaderCustomAdvancedFilter(column);
+								var filter = app.ParamsControl.getSideCustomAdvancedFilter(column);
 								if(filter){
 									if(columnInfo.display == "column"){
 										var conditions = filter.conditions;
 										// move
 										app.ParamsControl.saveHeaderCustomColumnFilter(column, conditions);
 										// remove
-										app.ParamsControl.saveHeaderCustomAdvancedFilter({field:column, conditions:null});
+										app.ParamsControl.saveSideCustomAdvancedFilter({field:column, conditions:null});
 									}else{
 										var conditions = filter.conditions;
 										// move
 										app.ParamsControl.saveHeaderCustomFilter(filter);
 										// remove
-										app.ParamsControl.saveHeaderCustomAdvancedFilter({field:column, conditions:null});
+										app.ParamsControl.saveSideCustomAdvancedFilter({field:column, conditions:null});
 									}
 								}
 								

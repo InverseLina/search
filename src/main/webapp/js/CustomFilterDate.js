@@ -93,7 +93,7 @@
 			if ($e.closest(".HeaderPopup").size() > 0) {
 				valueObject = app.ParamsControl.getHeaderCustomFilter(view.paramName);
 			} else {
-				valueObject = app.ParamsControl.getHeaderCustomAdvancedFilter(view.paramName);
+				valueObject = app.ParamsControl.getSideCustomAdvancedFilter(view.paramName);
 			}
 
 			return valueObject;
@@ -106,7 +106,7 @@
 				if($e.closest(".HeaderPopup").size() > 0){
 					app.ParamsControl.saveHeaderCustomFilter(filter);
 				}else{
-					app.ParamsControl.saveHeaderCustomAdvancedFilter(filter);
+					app.ParamsControl.saveSideCustomAdvancedFilter(filter);
 				}
 			}
 		},

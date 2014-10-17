@@ -80,7 +80,7 @@
 			if ($e.closest(".HeaderPopup").size() > 0) {
 				valueObject = app.ParamsControl.getHeaderCustomFilter(view.paramName);
 			} else {
-				valueObject = app.ParamsControl.getHeaderCustomAdvancedFilter(view.paramName);
+				valueObject = app.ParamsControl.getSideCustomAdvancedFilter(view.paramName);
 			}
 
 			return valueObject;
@@ -94,7 +94,7 @@
 				if($e.closest(".HeaderPopup").size() > 0){
 					app.ParamsControl.saveHeaderCustomFilter(filter);
 				}else{
-					app.ParamsControl.saveHeaderCustomAdvancedFilter(filter);
+					app.ParamsControl.saveSideCustomAdvancedFilter(filter);
 				}
 			}
 			
@@ -247,18 +247,18 @@
 
 		if (filter && filter.conditions) {
 			var greaterValue = filter.conditions[">="];
-			if (greaterValue) {
+			if (typeof greaterValue != "undefined") {
 				$input.val(greaterValue);
 			}
 
 			var lessValue = filter.conditions["<="];
-			if (lessValue) {
+			if (typeof lessValue != "undefined") {
 				$input1.val(lessValue);
 			}
 			
-			if (greaterValue && lessValue) {
+			if (typeof greaterValue != "undefined" && typeof lessValue != "undefined") {
 				showByOper.call(view, "between");
-			} else if (greaterValue) {
+			} else if (typeof greaterValue != "undefined") {
 				showByOper.call(view, "gt");
 				$input1.val("");
 			} else {
@@ -277,19 +277,19 @@
 		var $e = view.$el;
 		if (filter && filter.conditions) {
 			var greaterValue = filter.conditions[">="];
-			if (greaterValue) {
+			if (typeof greaterValue != "undefined") {
 				$e.find(".viewContainer .resultValue").attr("data-value", greaterValue).text(formatNumber(greaterValue));
 			}
 
 			var lessValue = filter.conditions["<="];
-			if (lessValue) {
+			if (typeof lessValue != "undefined") {
 				$e.find(".viewContainer .resultValue1").attr("data-value", lessValue).text(formatNumber(lessValue));
 			}
 			
-			if (greaterValue && lessValue) {
+			if (typeof greaterValue != "undefined" && typeof lessValue != "undefined") {
 				$e.find(".viewContainer .operValue").attr("data-oper", "between").text("Between");
 				$e.find(".viewContainer .resultValue, .viewContainer .resultValue1").removeClass("hide");
-			} else if (greaterValue) {
+			} else if (typeof greaterValue != "undefined") {
 				$e.find(".viewContainer .operValue").attr("data-oper", "gt").text("Greater than");
 				$e.find(".viewContainer .resultValue1").addClass("hide");
 				$e.find(".viewContainer .resultValue").removeClass("hide");

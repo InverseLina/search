@@ -135,6 +135,14 @@
 
 			});
 			return values;
+		},
+		refreshFilterViews:function(){
+			var view = this;
+			var $e = view.$el;
+			$e.find(".filter-item").each(function(){
+				var $item = $(this);
+				callFilterViewMethod.call(view, $item, "showMode");
+			});
 		}
 		// --------- /Public APIs--------- //
 	});
