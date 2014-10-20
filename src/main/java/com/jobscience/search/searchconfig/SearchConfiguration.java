@@ -43,8 +43,8 @@ public class SearchConfiguration {
     }
 
     public Filter getFilter(Type type){
-        if(type!=null){
-            for(Filter filter:filters){
+        if(type != null){
+            for(Filter filter : filters){
                 if(type.equals(filter.getType())){
                     return filter;
                 }
@@ -54,8 +54,8 @@ public class SearchConfiguration {
     }
     
     public Filter getFilterByName(String name){
-        if(name!=null){
-            for(Filter filter:filters){
+        if(name != null){
+            for(Filter filter : filters){
                 if(name.equals(filter.getName())){
                     return filter;
                 }
@@ -75,7 +75,18 @@ public class SearchConfiguration {
         }
     	return columnFilters;
     }
-
+    
+    public Filter getCustomFilterByName(String name){
+        if(name != null){
+            for(Filter filter : filters){
+                if(name.equals(filter.getName()) && !Arrays.asList(systemIncludeColumn).contains(filter.getName())){
+                    return filter;
+                }
+            }
+        }
+        return null;
+    }
+    
     public List<Filter> getCustomFilters () {
     	List<Filter> customFilters = new ArrayList<Filter>();
     	if(filters != null){

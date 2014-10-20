@@ -13,7 +13,7 @@ import com.google.common.base.Strings;
 public class SearchRequest {
 
     private Map<String,String> searchMap = new HashMap();
-    private String order ,columns;
+    private String order, orderName, columns;
     private int pageIndex = 1,pageSize = 15;
     private JSONArray contacts;
     private JSONArray skills;
@@ -78,10 +78,13 @@ public class SearchRequest {
         if(orderBy != null){
             if(orderBy.equals("contact")){
                 orderBy = "name";
+                orderName = "name";
                 order = " \""+getOrderColumn(orderBy)+ "\" " +(asc?"asc":"desc");
-            }/*else if(columns.contains(orderBy)){
+            }else if(columns.contains(orderBy)){
+            	orderName = orderBy;
                 order = " \""+getOrderColumn(orderBy)+ "\" " +(asc?"asc":"desc");
-            }*/else{
+            }else{
+            	orderName = "id";
                 order = " \"id\" desc";
             }
             
@@ -237,7 +240,11 @@ public class SearchRequest {
         return order;
     }
 
-    public String getColumns() {
+	public String getOrderName() {
+		return orderName;
+	}
+
+	public String getColumns() {
         return columns;
     }
 
@@ -302,13 +309,8 @@ public class SearchRequest {
      * @return
      */
     private String getOrderColumn(String originalName){
-        if("name".equalsIgnoreCase(originalName)||
-           "title".equalsIgnoreCase(originalName)||
-           "company".equalsIgnoreCase(originalName)||
-           "skill".equalsIgnoreCase(originalName)||
-           "education".equalsIgnoreCase(originalName)||
-           "email".equalsIgnoreCase(originalName)){
-            return "l"+originalName;
+        if("name".equalsIgnoreCase(originalName)){
+            return "lname";
         }else if("createddate".equalsIgnoreCase(originalName)){
             return "createddate";
         }else if( "location".equalsIgnoreCase(originalName)){
