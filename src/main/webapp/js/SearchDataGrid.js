@@ -64,7 +64,7 @@
 				$searchMode.find(".btn").toggleClass("active");
 				view.$el.trigger("SEARCHMODE_DOSEARCH",new Boolean(true));
 			},
-			"click; table .locationTh span.columnName,table .contactTh span.columnName" : function(event) {
+			"click; table .locationTh span.columnName,table .contactTh span.columnName,table th:not([data-type='boolean']) .customTh span.columnName" : function(event) {
 				var view = this;
 				var $th = $(event.currentTarget).closest("th");
 				var $desc = $(".desc", $th);
