@@ -165,8 +165,8 @@
 					
 					app.columns.save(extra.columns);
 					view.$el.trigger("REFRESH_POPUP_CUSTOM_FIELDS");
+					view.contentView.dataGridView.refreshColumns();
 					if(app.ParamsControl.isEmptySearch()){
-						view.contentView.dataGridView.refreshColumns();
 						app.currentDeferred = $.Deferred();
 						app.currentDeferred.resolve({});
 					}else{

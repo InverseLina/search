@@ -1,130 +1,83 @@
 <script id="search-items" type="text/html">
 	<table class="scrollTable">
-		{{{colHeader "search-items-header" labelAssigned }}}
-			<tbody class="{{#if  labelAssigned}}favFilter{{/if}}">
-		{{#each items}}
-			<tr data-entity="Contact" data-entity-id="{{names.id}}" data-objId="{{names.id}}" data-contractName="{{names.name}}" data-sfid="{{names.sfid}}">
-				<td class="favLabel  {{#if hasLabel}}hasLabel{{/if}} " title = {{labelName}}>
-					<div>
-						{{#if isFav}}
-							<i class="glyphicon glyphicon-star"></i>
-						{{else}}
-							<i class="glyphicon glyphicon-stop"></i>
-						{{/if}}
-				
-					</div>
-				</td>
-				<td class="applyContact">
-					<div class="selectCheckbox" data-name="{{applyId}}" data-value="{{names.id}}"></div>
-				</td>
-				<!--<td class="checkboxCol"><input type="checkbox" checked="true"/></td>-->
-				{{#each row}}
-					{{{renderCell this}}}
-				{{/each}}
-			</tr>
-		{{/each}}
+		<thead>
+		</thead>
+		<tbody>
 		</tbody>
 	</table>
 </script>
 
 <script id="search-items-header" type="text/html">
-	<thead>
-		<tr>
-			<th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
-				{{#each displayColumns}}
-					<th style="width:{{../colWidth}}%" data-column="{{name}}" {{#if custom}}data-custom="true" data-type="{{type}}" {{#if display}}data-display="{{display}}"{{/if}}{{/if}} {{#check @index "===" 0}}colspan="2"{{/check}} {{#if ../labelAssigned}} class="favFilter"{{/if}}>
-				{{{renderHeader this}}}
-			</th>
-				{{/each}}
-		</tr>
-	</thead>
+	<tr>
+		<th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
+	</tr>
 </script>
 
-<script id="search-items-header-with-body" type="text/html">
-	<table  class="scrollTable">
-		<thead>
-			<tr>
-				<!--<th class="favLabel"><div class="headerTh"></div></th>-->
-				<th class="favLabel  {{#if  labelAssigned}}  favFilter{{/if}}"><div class="headerTh">&nbsp;</div></th>
-					{{#each displayColumns}}
-				<th style="width:{{../colWidth}}%" data-column="{{name}}" {{#if custom}}data-custom="true" data-type="{{type}}" {{#if display}}data-display="{{display}}"{{/if}}{{/if}} {{#check @index "===" 0}}colspan="2"{{/check}} {{#if ../labelAssigned}} class="favFilter"{{/if}}>
-					{{{renderHeader this}}}
-				</th>
-					{{/each}}
-			</tr>
-		</thead>
-		<tbody>
-			<tr class="full">
-				<td colspan="{{colsLen}}">
-					{{{decode block}}}
-				</td>
-			</tr>
-		</tbody>
-	</table>
+<script id="search-items-header-th" type="text/html">
+	<th style="width:{{../colWidth}}%" data-column="{{name}}" {{#if custom}}data-custom="true" data-type="{{type}}" {{#if display}}data-display="{{display}}"{{/if}}{{/if}} {{#check @index "===" 0}}colspan="2"{{/check}} {{#if ../labelAssigned}} class="favFilter"{{/if}}>
+		{{{thContent}}}
+	</th>
+</script>
+
+<script id="search-items-body-tr" type="text/html">
+	<tr data-entity="Contact" data-entity-id="{{names.id}}" data-objId="{{names.id}}" data-contractName="{{names.name}}" data-sfid="{{names.sfid}}">
+		<td class="favLabel  {{#if hasLabel}}hasLabel{{/if}} " title = {{labelName}}>
+			<div>{{#if isFav}}<i class="glyphicon glyphicon-star"></i>{{else}}<i class="glyphicon glyphicon-stop"></i>{{/if}}</div>
+		</td>
+		<td class="applyContact"><div class="selectCheckbox" data-name="{{applyId}}" data-value="{{names.id}}"></div></td>
+		<!--<td class="checkboxCol"><input type="checkbox" checked="true"/></td>-->
+	</tr>
+</script>
+
+<script id="search-items-single-body" type="text/html">
+	<tr class="full">
+		<td colspan="{{colsLen}}">
+		</td>
+	</tr>
 </script>
 
 <script id="search-query-notfound" type="text/html">
-	{{#colBody 'search-items-header-with-body'}}
-		{{#if labelAssigned}}
-		{{else}}
-		<div class="alert alert-block alert-info fade in">
-			<strong>Nothing found,</strong> please change search criteria and retry
-		</div>
-		{{/if}}
-
-	{{/colBody}}
+	{{#unless labelAssigned}}
+	<div class="alert alert-block alert-info fade in">
+		<strong>Nothing found,</strong> please change search criteria and retry
+	</div>
+	{{/unless}}
 </script>
 
 <script id="search-query-less-words" type="text/html">
-	{{#colBody 'search-items-header-with-body'}}
-		{{#if labelAssigned}}
-		{{else}}
-			<div class="alert alert-block alert-info fade in">
-				please enter more than 3 character and retry
-			</div>
-		{{/if}}
-
-	{{/colBody}}
+	{{#unless labelAssigned}}
+	<div class="alert alert-block alert-info fade in">
+		please enter more than 3 character and retry
+	</div>
+	{{/unless}}
 </script>
 
 <script id="search-query-cannot-parentheses" type="text/html">
-	{{#colBody 'search-items-header-with-body'}}
-		{{#if labelAssigned}}
-		{{else}}
-			<div class="alert alert-block alert-info fade in">
-				Can not contain parentheses, please remove it
-			</div>
-		{{/if}}
-
-	{{/colBody}}
+	{{#unless labelAssigned}}
+	<div class="alert alert-block alert-info fade in">
+		Can not contain parentheses, please remove it
+	</div>
+	{{/unless}}
 </script>
 
 <script id="search-loading" type="text/html">
-	{{#colBody 'search-items-header-with-body'}}
-		<span class="loading badge badge-info">Loading...</span>
-	{{/colBody}}
+	<span class="loading badge badge-info">Loading...</span>
 </script>
 
 <script id="search-retrying" type="text/html">
-	{{#colBody 'search-items-header-with-body'}}
-		<span class="retrying badge badge-info">Retrying...</span>
-	{{/colBody}}
+	<span class="retrying badge badge-info">Retrying...</span>
 </script>
 
 <script id="search-empty" type="text/html">
-	{{#colBody 'search-items-header-with-body'}}
-		<div class="empty-search">
-			<div class="jfactorImg"></div>
-		</div>
-	{{/colBody}}
+	<div class="empty-search">
+		<div class="jfactorImg"></div>
+	</div>
 </script>
 
 <script id="search-query-error" type="text/html">
-	{{#colBody 'search-items-header-with-body'}}
-		<div class="alert alert-block alert-error alert-danger fade in">
-			<strong>{{title}}:</strong> {{{detail}}}
-		</div>
-	{{/colBody}}
+	<div class="alert alert-block alert-error alert-danger fade in">
+		<strong>{{title}}:</strong> {{{detail}}}
+	</div>
 </script>
 
 <script id="search-items-header-add-item" type="text/html">

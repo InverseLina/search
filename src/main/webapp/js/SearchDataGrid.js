@@ -18,6 +18,9 @@
 			view.tableOrderColumn = null;
 			view.tableOrderType = null;
 			view.labelDisable = true;
+			
+			initTable.call(view);
+			
 			view.showContentMessage("empty");
 			brite.display("ToolBar");
 			brite.display("Pagination", view.$el.find(".pagination-ctn"));
@@ -74,17 +77,13 @@
 				}
 				view.tableOrderColumn = column;
 				if ($asc.is(":hidden")) {
-					$(".desc,.asc", $th.parent()).hide();
-					$asc.show();
 					view.tableOrderType = "asc";
 					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH", {
 						pageIdx : pageIdx,
 						pageSize : pageSize
 					});
 				} else {
-					$(".desc,.asc", $th.parent()).hide();
 					view.tableOrderType = "desc";
-					$desc.show();
 					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH", {
 						pageIdx : pageIdx,
 						pageSize : pageSize
@@ -328,60 +327,51 @@
 
 		// --------- Public Methods--------- //
 		refreshColumns : function(resultData, labelAssigned) {
-			labelAssigned = labelAssigned || app.buildPathInfo().labelAssigned;
+			var view = this;
 			resultData = resultData || [];
 			var view = this;
 			var $e = view.$el;
-			var html = render("search-items", {
-				items : resultData,
-				colWidth : getColWidth.call(view),
-				labelAssigned : labelAssigned
-			});
-			view.$searchResult.find(".tableContainer").html(html);
+			
+			renderHeader.call(view, labelAssigned);
+			renderBody.call(view, resultData, labelAssigned);
 			
 			if(resultData.length == 0){
 				view.showContentMessage("empty");
 				view.$el.trigger("CHECK_CLEAR_BTN");
+			}else{
+				view.restoreSearchParam();
 			}
-
+			
 			//show desc/asc
 			if (view.tableOrderColumn && view.tableOrderType) {
 				$e.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
 			}
 
-
 		},
 		showContentMessage : function(cmd, extra) {
 			var view = this;
 			var $e = view.$el;
-			view.$el.find(".search-info").addClass("hide");
 			var $tabContainer = view.$searchResult.find(".tableContainer");
 			if (cmd === "empty") {
-				$tabContainer.html(render("search-empty", {
-					colWidth : getColWidth.call(view)
-				}));
+				renderSingleBody.call(view, "search-empty");
 				$e.trigger("REFRESH_ESTIMATE_COUNT",{count:0, exact:true});
 				$e.trigger("REFRESH_PAGINATION",{pageSize:view.pageSize});
 			} else if (cmd === "loading") {
-				$tabContainer.html(render("search-loading"));
+				renderSingleBody.call(view, "search-loading");
 			} else if (cmd === "retrying") {
-				$tabContainer.html(render("search-retrying"));
+				renderSingleBody.call(view, "search-retrying");
 			} else if (cmd === "lessword") {
-				$tabContainer.html(render("search-query-less-words", {
-					colWidth : getColWidth.call(view),
-					labelAssigned : app.buildPathInfo().labelAssigned
-				}));
+				renderSingleBody.call(view, "search-query-less-words");
 				view.restoreSearchParam();
 			} else if (cmd === "parentheses") {
-				$tabContainer.html(render("search-query-cannot-parentheses"));
+				renderSingleBody.call(view, "search-query-cannot-parentheses");
 				view.restoreSearchParam();
 			} else if (cmd === "error") {
-				var html = render("search-query-error", {
+				var opt = {
 					title : extra.title,
 					detail : extra.detail,
-					colWidth : getColWidth.call(view)
-				});
-				$tabContainer.html(html);
+				};
+				renderSingleBody.call(view, "search-query-error", opt);
 			}
 			
 			view.restoreSearchParam();
@@ -395,9 +385,7 @@
 			view.$el.find("table th[data-column='company'] .operatorBtnGroups .btn").removeClass("active");
 			view.$el.find("table th[data-column='company'] .operatorBtnGroups .btn[data-value='" + app.preference.get("companyOperator", "O") + "']").addClass("active");
 			
-			if (view.$el.find("table th .selectedItems .item").length > 0) {
-				return;
-			}
+			view.$el.find("table th .selectedItems .addFilter").show().prevAll().bRemove();
 
 			var result = filters || app.ParamsControl.getFilterParams() || {};
 			for (key in result) {
@@ -527,8 +515,11 @@
 						$th.find(".addFilter").before($html);
 					}
 				}
-				$th.find(".addFilter").hide();
-				
+				if($th.find(".addFilter").prevAll().size() > 0){
+					$th.find(".addFilter").hide();
+				}else{
+					$th.find(".addFilter").show();
+				}
 			}
 			
 			// for custom columns
@@ -540,7 +531,7 @@
 				$th = view.$el.find("table thead th[data-column='{0}'][data-display='column']".format(fieldName));
 				if($th.length > 0){
 					var isValue = headerCustomColumnFilter["=="];
-					var isValueHtml;
+					var isValueHtml = null;
 					if (isValue) {
 						isValueHtml = "Is: "
 						for (var k = 0; k < isValue.length; k++) {
@@ -551,7 +542,7 @@
 						}
 					}
 					var isNotValue = headerCustomColumnFilter["!="];
-					var isNotValueHtml;
+					var isNotValueHtml = null;
 					if (isNotValue) {
 						isNotValueHtml = "Is not: ";
 						for (var k = 0; k < isNotValue.length; k++) {
@@ -563,6 +554,7 @@
 					}
 					
 					
+					$html = null;
 					if(isValueHtml || isNotValueHtml){
 						if (isValueHtml && isNotValueHtml) {
 							$html = isValueHtml + ", " + isNotValueHtml;
@@ -571,8 +563,12 @@
 						} else {
 							$html = isNotValueHtml;
 						}
-						$th.find(".addFilter").before("<span>" + $html + "</span>");
-						$th.find(".addFilter").hide(); 
+						if($html){
+							$th.find(".addFilter").before("<span>" + $html + "</span>");
+							$th.find(".addFilter").hide(); 
+						}else{
+							$th.find(".addFilter").show(); 
+						}
 					}
 
 				}
@@ -689,11 +685,7 @@
 							});
 	
 						} else {
-							view.$searchResult.find(".tableContainer").html(render("search-query-notfound", {
-								colWidth : getColWidth.call(view),
-								labelAssigned : app.buildPathInfo().labelAssigned
-							}));
-	
+							renderSingleBody.call(view, "search-query-notfound");
 						}
 						
 						fixColWidth.call(view);
@@ -762,6 +754,98 @@
 	});
 
 	// --------- Private Methods--------- //
+	function initTable(){
+		var view = this;
+		var labelAssigned = labelAssigned || app.buildPathInfo().labelAssigned;
+		var html = render("search-items");
+		view.$searchResult.find(".tableContainer").html(html);
+		renderHeader.call(view, labelAssigned); 
+	}
+	
+	function renderHeader(labelAssigned){
+		var view = this;
+		labelAssigned = labelAssigned || false;
+		var displays = app.columns.getSelectedColumns();
+		
+		var html = render("search-items-header", {
+			labelAssigned : labelAssigned
+		});
+		
+		var $html = $(html);
+		var $thead = view.$el.find(".scrollTable thead");
+		$thead.empty().append($html);
+		var $theadTr = $thead.find("tr");
+		
+		for(var i = 0; i < displays.length; i++){
+			var thContent = renderHeaderCell.call(view, displays[i]);
+			var obj = displays[i];
+			obj.thContent = thContent;
+			obj.colWidth = 100 / displays.length;
+			var $th = render("search-items-header-th", obj);
+			$theadTr.append($th);
+		}
+	}
+	
+	function renderBody(items, labelAssigned) {
+		var view = this;
+		labelAssigned = labelAssigned || app.buildPathInfo().labelAssigned;
+		var view = this;
+		var $tbody = view.$searchResult.find(".tableContainer tbody");
+		$tbody.empty();
+		if(labelAssigned){
+			$tbody.addClass("favFilter");
+		}else{
+			$tbody.removeClass("favFilter");
+		}
+		
+		for(var i = 0; i < items.length; i++){
+			var item = items[i];
+			var $tr = $(render("search-items-body-tr", item));
+			$tbody.append($tr);
+			for(var j = 0; j < item.row.length; j++){
+				var $td = $(renderBodyCell.call(view,item.row[j]));
+				$tr.append($td);
+			}
+		}
+	}
+	
+	
+	function renderHeaderCell(filterInfo){
+		var render;
+		if(filterInfo.custom){
+			render = app.getHeaderRender("custom")
+		}else{
+			render = app.getHeaderRender(filterInfo.name)
+		}
+		var html = render(filterInfo);
+		return html;
+	}
+	
+	function renderBodyCell(filterInfo){
+		var render = app.getCellRender(filterInfo.name);
+		var html = render(filterInfo);
+		return html;
+	}
+	
+	function renderSingleBody(tmplName, opt){
+		var view = this;
+		var $tbody = view.$el.find(".scrollTable tbody").empty();
+		var displays = app.columns.getSelectedColumns();
+		var labelAssigned = app.buildPathInfo().labelAssigned;
+		var tr = render("search-items-single-body", {
+			colsLen : displays.length
+		});
+		
+		var $tr = $(tr);
+		$tbody.append($tr);
+		
+		opt = opt || {};
+		opt.labelAssigned = labelAssigned;
+		var html = render(tmplName, opt);
+		$tr.find("td").append($(html));
+	}
+
+	
 	function buildResult(items) {
 		var result = [];
 		var item;
@@ -844,7 +928,7 @@
 
 		return dtd.promise();
 	}
-
+	
 	function getColWidth() {
 		var view = this;
 		var $e = view.$el;
