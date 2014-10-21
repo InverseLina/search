@@ -1420,6 +1420,7 @@ public class SearchDao {
                 if (customFilter == null) {
                     continue;
                 }
+                String name = customFilter.getName();
                 String table = customFilter.getFilterField().getTable();
             	String column = customFilter.getFilterField().getColumn();
             	String joinfrom = customFilter.getFilterField().getJoinFrom();
@@ -1427,9 +1428,9 @@ public class SearchDao {
         		if (Strings.isNullOrEmpty(table) || Strings.isNullOrEmpty(column) || Strings.isNullOrEmpty(joinfrom) || Strings.isNullOrEmpty(jointo)){
         			continue;
         		}
-        		condition.append(" join ").append(table).append(" on contact.").append(jointo).append("=")
-        		         .append(table).append(".").append(joinfrom).append(" AND (1!=1 OR (1=1");
-                condition.append(setCustomPartCondition(jo, customFilter, schemaname, sc, org, valueList, table));
+        		condition.append(" join ").append(table).append(" ").append(name).append(" on contact.").append(jointo).append("=")
+        		         .append(name).append(".").append(joinfrom).append(" AND (1!=1 OR (1=1");
+                condition.append(setCustomPartCondition(jo, customFilter, schemaname, sc, org, valueList, name));
         		condition.append(" ) )");
             }
             filterSql.append(condition);
@@ -1512,10 +1513,11 @@ public class SearchDao {
                          .append( schemaname)
                          .append( ".\"")
                          .append( ff.getTable())
-                         .append( "\" on ")
+                         .append("\" ").append(name)
+                         .append( " on ")
                          .append(ff.toJoinToString("contact"))
                          .append(" = ")
-                         .append( ff.toJoinFromString("\"" + ff.getTable() + "\""));
+                         .append( ff.toJoinFromString(name));
                 if(extraValues.size()>0){
                     filterSql.append(" AND (1=1 ");
                 }
@@ -1527,7 +1529,7 @@ public class SearchDao {
                 	if("==".equals(operate)){
                 		filterSql.append(" AND (1!=1");
                         for(int i = 0, j = values.size(); i < j; i++){
-                            filterSql.append(" OR \"").append(ff.getTable()).append("\".").append(ff.getColumn());
+                            filterSql.append(" OR ").append(name).append(".").append(ff.getColumn());
                             filterSql.append(" =? ");
                             filterValues.add(values.getString(i));
                         }
@@ -1535,7 +1537,7 @@ public class SearchDao {
                 	}else if("!=".equals(operate)){
                 		filterSql.append(" AND (1=1");
                         for(int i = 0, j = values.size(); i < j; i++){
-                            filterSql.append(" AND \"").append(ff.getTable()).append("\".").append(ff.getColumn());
+                            filterSql.append(" AND ").append(name).append(".").append(ff.getColumn());
                 			filterSql.append(" !=? ");
                             filterValues.add(values.getString(i));
                         }
@@ -1555,7 +1557,7 @@ public class SearchDao {
                 	if("==".equals(operate)){
                 		conditions.append(" AND (1!=1");
                         for(int i = 0, j = values.size(); i < j; i++){
-                        	conditions.append(" OR \"").append(ff.getTable()).append("\".").append(ff.getColumn());
+                        	conditions.append(" OR ").append(ff.getTable()).append(".").append(ff.getColumn());
                         	conditions.append(" =? ");
                         	conditionValues.add(values.getString(i));
                         }
@@ -1563,7 +1565,7 @@ public class SearchDao {
                 	}else if("!=".equals(operate)){
                 		conditions.append(" AND (1=1");
                         for(int i = 0, j = values.size(); i < j; i++){
-                        	conditions.append(" AND \"").append(ff.getTable()).append("\".").append(ff.getColumn());
+                        	conditions.append(" AND ").append(ff.getTable()).append(".").append(ff.getColumn());
                         	conditions.append(" !=? ");
                         	conditionValues.add(values.getString(i));
                         }
