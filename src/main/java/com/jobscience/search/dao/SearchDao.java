@@ -158,6 +158,7 @@ public class SearchDao {
      * @param type
      * @param org
      * @param exact
+     * @param values
      * @return
      */
     private String renderSplitKeyWord(String schemaname, String searchValue, String type, OrgContext org, boolean exact, List values){
@@ -246,10 +247,6 @@ public class SearchDao {
         List<Object> querySqlparam = new ArrayList();
         //the query data needed by the count query
         List<Object> countSqlparam = new ArrayList();
-        // the part of query that build join tables sql
-        StringBuilder joinTables = new StringBuilder();
-        // the part of query that build join tables sql
-        List<String> columnJoinTables = new ArrayList<String>();
         // the part of query that build conditions sql
         StringBuilder conditions = new StringBuilder();
         // the part of query that build group by sql
@@ -262,7 +259,7 @@ public class SearchDao {
         querySql.append(getSearchColumnsForOuter(searchRequest.getColumns(),org));
         querySql.append(" from ( ");
         querySql.append(QUERY_SELECT);
-        querySql.append(getSearchColumns(searchRequest.getColumns(),columnJoinTables,groupBy,org));
+        querySql.append(getSearchColumns(searchRequest.getColumns(),groupBy,org));
         
         
         //---------------------- add select columns ----------------------//
@@ -337,15 +334,7 @@ public class SearchDao {
         querySql.append(sqls[0]);
         countSql.append(sqls[1]);
         cteSql=sqls[2];
-        
-        querySql.append(joinTables);
-        countSql.append(joinTables);
-        for(String join : columnJoinTables){
-        	if(!join.equals("No Join")){
-            	querySql.append(join);
-        	}
-        }
-        
+
         querySql.append(conditions);
         countSql.append(conditions);
         if(!"".equals(groupBy.toString())){
@@ -384,7 +373,6 @@ public class SearchDao {
      * @return
      */
     protected SearchResult executeSearch(SearchStatements statementAndValues,SearchRequest searchRequest,OrgContext org){
-    	//Runner runner = datasourceManager.newOrgRunner(org.getOrgMap().get("name").toString());
     	String orgName = org.getOrgMap().get("name").toString();
     	SearchResult searchResult = null;
     	try{
@@ -563,8 +551,7 @@ public class SearchDao {
      * @param org
      * @return
      */
-    private String getQueryColumnName(String originalName ,List<String> columnJoinTables,StringBuilder groupBy,
-                                      StringBuffer searchedColumns,OrgContext org){
+    private String getQueryColumnName(String originalName, StringBuilder groupBy, StringBuffer searchedColumns, OrgContext org){
         String schemaname = (String)org.getOrgMap().get("schemaname");
         if(searchedColumns.toString().contains(originalName.toLowerCase()+",")){
             return "";
@@ -675,7 +662,7 @@ public class SearchDao {
      * @param org
      * @return
      */
-    private String getSearchColumnsForOuter(String searchColumns,OrgContext org){
+    private String getSearchColumnsForOuter(String searchColumns, OrgContext org){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
     	if(searchColumns == null){
@@ -731,7 +718,7 @@ public class SearchDao {
      * @param groupBy
      * @return
      */
-    private String getSearchColumns(String searchColumns,List columnJoinTables,StringBuilder groupBy,OrgContext org){
+    private String getSearchColumns(String searchColumns, StringBuilder groupBy, OrgContext org){
     	 StringBuilder columnsSql = new StringBuilder();
     	 SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
     	 if(searchColumns == null){//a.phone,
@@ -742,7 +729,7 @@ public class SearchDao {
     		 String temp = "";
     		 StringBuffer sb = new StringBuffer("id,name,sfid,");
  	         for(String column : searchColumns.split(",")){
- 	        	temp = getQueryColumnName(column,columnJoinTables,groupBy,sb,org);
+ 	        	temp = getQueryColumnName(column,groupBy,sb,org);
  	        	if(!temp.trim().equals("")){
 	 	            columnsSql.append(temp);
 	 	            columnsSql.append(",");
@@ -760,7 +747,6 @@ public class SearchDao {
     /**
      * get all the customfields column string
      * @param searchColumns
-     * @param columnJoinTables
      * @param groupBy
      * @param org
      * @return
@@ -773,7 +759,7 @@ public class SearchDao {
     	 }else{
     		 String temp = "";
  	         for(String column : searchColumns.split(",")){
- 	        	temp = getQueryCustomColumnName(column, groupBy, org, sc);
+ 	        	temp = getQueryCustomColumnName(column, groupBy, sc);
  	        	if(!temp.trim().equals("")){
  	        		customColumnsSql.append(temp);
  	        		customColumnsSql.append(",");
@@ -782,14 +768,15 @@ public class SearchDao {
          }
     	 return customColumnsSql.toString();
     }
+
     /**
-     * add the custom fields column string
+     *  add the custom fields column string
      * @param originalName
-     * @param org
+     * @param groupBy
      * @param sc
      * @return
      */
-    private String getQueryCustomColumnName(String originalName, StringBuilder groupBy, OrgContext org, SearchConfiguration sc){
+    private String getQueryCustomColumnName(String originalName, StringBuilder groupBy, SearchConfiguration sc){
     	StringBuilder customColumn = new StringBuilder();
         List<Filter> customFilters = sc.getCustomFilters();
         for(Filter customFilter : customFilters){
@@ -897,12 +884,12 @@ public class SearchDao {
      * @param org
      * @return
      */
-    private String[] getCondtion(SearchRequest searchRequest,OrgContext org,List querySqlparam,List countSqlparam,SearchConfiguration sc){
+    private String[] getCondtion(SearchRequest searchRequest, OrgContext org, List querySqlparam, List countSqlparam, SearchConfiguration sc){
     	StringBuilder joinSql = new StringBuilder();
     	StringBuilder countSql = new StringBuilder();
     	String prefixSql = "";
         SearchBuilder sb = new SearchBuilder(org);
-        sb.addKeyWord(searchRequest.getKeyword(),searchRequest,sc).addContactFilter(searchRequest.getContacts(), searchRequest.hasContactTitle())
+        sb.addKeyWord(searchRequest.getKeyword(),searchRequest).addContactFilter(searchRequest.getContacts(), searchRequest.hasContactTitle())
           .addCompany(searchRequest.getCompanies()).addEducation(searchRequest.getEducations())
           .addSkill(searchRequest.getSkills()).addCustomPartCondition(searchRequest.getCustomFields()).addLocation(searchRequest.getLocations())
           .addCustomFilter(searchRequest.getCustomFilters()).addObjectType(searchRequest.getObjectType())
@@ -1028,7 +1015,7 @@ public class SearchDao {
 	 * @param alias
 	 * @return
 	 */
-	private String renderKeywordSearch(String param,OrgContext org,boolean exact,String alias,List values){
+	private String renderKeywordSearch(String param, OrgContext org, boolean exact, String alias, List values){
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
         String exactFilter = "";
@@ -1084,7 +1071,7 @@ public class SearchDao {
     	return contactSql.toString();
     }
     
-    private void renderContactProperty(StringBuilder conditionSql, SearchConfiguration sc,JSONObject contact,String propertyName, List sqlparam){
+    private void renderContactProperty(StringBuilder conditionSql, SearchConfiguration sc, JSONObject contact, String propertyName, List sqlparam){
     	if("title".equals(propertyName)){
     		if (contact.containsKey(propertyName) && !"".equals(contact.getString(propertyName))) {
                 conditionSql.append(" and employment.\"ts2__job_title__c\"")
@@ -1100,7 +1087,7 @@ public class SearchDao {
             }
     	}
     }
-	private void spiltKeywords(String keyword,ArrayList<String> keys,Map<Integer, String> operators){
+	private void spiltKeywords(String keyword, ArrayList<String> keys, Map<Integer, String> operators){
 		int flag = 0;
 		while (keyword.length() > 0) {
 			if (keyword.startsWith("\"")) {
@@ -1116,7 +1103,7 @@ public class SearchDao {
 		}
 	}
 	
-	private String exactkeywordSql(OrgContext org , ArrayList<String> keys , Map<Integer, String> operators , SearchRequest searchRequest,List values) {
+	private String exactkeywordSql(OrgContext org, ArrayList<String> keys, Map<Integer, String> operators, SearchRequest searchRequest, List values) {
 		StringBuilder joinSql = new StringBuilder();
 		joinSql.append("  select contact.id,contact.sfid from ")
 				.append(org.getOrgMap().get("schemaname"))
@@ -1227,8 +1214,7 @@ public class SearchDao {
     }};
     
     private boolean renderEducationCondition(JSONArray values,StringBuilder prefixSql,
-                                       StringBuilder filterSql,String schemaname,
-                                       SearchConfiguration sc,Type filterType,OrgContext org,List valueList){
+                                       StringBuilder filterSql,Type filterType,List valueList){
             boolean hasCondition = false;
             if(values != null){
                 StringBuilder condition = new StringBuilder();
@@ -1267,8 +1253,7 @@ public class SearchDao {
     }
     
     private boolean renderSkillCondition(String operator, JSONArray values,StringBuilder prefixSql,
-                            StringBuilder filterSql,String schemaname, 
-                            SearchConfiguration sc, Type filterType,OrgContext org,List valueList) {
+                            StringBuilder filterSql, Type filterType,List valueList) {
         boolean hasCondition = false;
         if (values != null) {
             StringBuilder condition = new StringBuilder();
@@ -1283,8 +1268,7 @@ public class SearchDao {
         return hasCondition;
     }
 
-	private String setSkillCondition(String logic, Type filterType,
-			List<JSONObject> list, List valueList) {
+	private String setSkillCondition(String logic, Type filterType, List<JSONObject> list, List valueList) {
 		StringBuilder condition = new StringBuilder();
 		if (logic.equals("or")) {
 			condition.append(" inner join  jss_contact_jss_groupby_")
@@ -1339,8 +1323,7 @@ public class SearchDao {
 	}
     
 	private boolean renderCompanyCondition(String operator, JSONArray values,StringBuilder prefixSql,
-			                    StringBuilder filterSql,String schemaname, 
-			                    SearchConfiguration sc, Type filterType,OrgContext org,List valueList) {
+			                    StringBuilder filterSql, Type filterType, List valueList) {
 		boolean hasCondition = false;
 		if (values != null) {
             StringBuilder condition = new StringBuilder();
@@ -1408,8 +1391,8 @@ public class SearchDao {
 		return condition.toString();
 	}
     
-    private boolean renderCustomPartCondition(JSONArray searchValues, StringBuilder filterSql, String schemaname, 
-                            SearchConfiguration sc, OrgContext org, List valueList) {
+    private boolean renderCustomPartCondition(JSONArray searchValues, StringBuilder filterSql,
+                            SearchConfiguration sc, List valueList) {
         boolean hasCondition = false;
         if (searchValues != null) {
             StringBuilder condition = new StringBuilder();
@@ -1430,7 +1413,7 @@ public class SearchDao {
         		}
         		condition.append(" join ").append(table).append(" ").append(name).append(" on contact.").append(jointo).append("=")
         		         .append(name).append(".").append(joinfrom).append(" AND (1!=1 OR (1=1");
-                condition.append(setCustomPartCondition(jo, customFilter, schemaname, sc, org, valueList, name));
+                condition.append(setCustomPartCondition(jo, customFilter, sc, valueList, name));
         		condition.append(" ) )");
             }
             filterSql.append(condition);
@@ -1439,7 +1422,7 @@ public class SearchDao {
         return hasCondition;
     }
 
-    private String setCustomPartCondition(JSONObject jo, Filter customFilter, String schemaname, SearchConfiguration sc,OrgContext org,List valueList, String table){
+    private String setCustomPartCondition(JSONObject jo, Filter customFilter, SearchConfiguration sc, List valueList, String table){
     	StringBuilder condition = new StringBuilder();
 		String temp = customFilter.getFilterField().toString(table);
 		JSONObject conditionsParam = jo.getJSONObject("conditions");
@@ -1450,8 +1433,7 @@ public class SearchDao {
     }
     
     private boolean renderLocationCondition(JSONArray locationValues,StringBuilder locationSql,
-            StringBuilder conditions,String schemaname,
-            SearchConfiguration sc,OrgContext org,List values){
+            StringBuilder conditions, List values){
         boolean hasCondition = false;
         if(locationValues != null){
             StringBuilder joinCity = new StringBuilder();
@@ -1793,7 +1775,7 @@ public class SearchDao {
             this.schemaname =(String)org.getOrgMap().get("schemaname");
         }
         
-        public SearchBuilder addKeyWord(String keyword,SearchRequest searchRequest, SearchConfiguration sc){
+        public SearchBuilder addKeyWord(String keyword,SearchRequest searchRequest){
         	this.searchRequest =searchRequest;
             if(!Strings.isNullOrEmpty(keyword) && keyword.length() >= 3){
                 hasCondition = true;
@@ -1829,32 +1811,31 @@ public class SearchDao {
         
         public SearchBuilder addEducation(JSONArray educations){
             hasCondition = renderEducationCondition( educations,
-            		prefixSql, filterSql, schemaname, sc,Type.EDUCATION,org,values)||hasCondition;
+            		prefixSql, filterSql, Type.EDUCATION, values)||hasCondition;
             return this;
         }
         
         
         public SearchBuilder addCompany(JSONArray companies){
             hasCondition = renderCompanyCondition(searchRequest.getCompanyOperator(), companies,
-            		prefixSql, filterSql, schemaname, sc,Type.COMPANY,org,values)||hasCondition;
+            		prefixSql, filterSql, Type.COMPANY, values)||hasCondition;
             return this;
         }
       
        
         public SearchBuilder addSkill(JSONArray skills){
             hasCondition = renderSkillCondition(searchRequest.getSkillOperator(), skills,
-            		prefixSql, filterSql, schemaname, sc,Type.SKILL,org,values)||hasCondition;
+            		prefixSql, filterSql, Type.SKILL, values)||hasCondition;
             return this;
         }
         
         public SearchBuilder addCustomPartCondition(JSONArray searchValues){
-            hasCondition = renderCustomPartCondition(searchValues, filterSql, schemaname, sc, org, values)||hasCondition;
+            hasCondition = renderCustomPartCondition(searchValues, filterSql, sc, values)||hasCondition;
             return this;
         }
         
         public SearchBuilder addLocation(JSONArray locations){
-            hasCondition = renderLocationCondition( locations,
-            		locationSql, conditions, schemaname, sc, org, conditionValues)||hasCondition;
+            hasCondition = renderLocationCondition( locations, locationSql, conditions, conditionValues)||hasCondition;
             return this;
         }
               
