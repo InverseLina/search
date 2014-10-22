@@ -641,7 +641,7 @@
 			$sessionTimeout.addClass("hide");
 		}
 
-		if (skillsRating && (isNaN(skillsRating) || skillsRating <= 0 || skillsRating > 100)) {
+		if (skillsRating && (isNaN(skillsRating) || skillsRating <= 0)) {
 			$skillsRatingMsg.removeClass("hide");
 		} else {
 			$skillsRatingMsg.addClass("hide");
