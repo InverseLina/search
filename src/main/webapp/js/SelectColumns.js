@@ -141,7 +141,9 @@
 				
 				
 				app.columns.save(columns).done(function(){
-					view.$el.trigger("DO_SEARCH");
+					view.$el.trigger("DO_SET_COLUMNS", {
+						columns : columns
+					});
 				});
 			}
 
