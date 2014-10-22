@@ -64,7 +64,7 @@
 				$searchMode.find(".btn").toggleClass("active");
 				view.$el.trigger("SEARCHMODE_DOSEARCH",new Boolean(true));
 			},
-			"click; table .locationTh span.columnName,table .contactTh span.columnName,table th:not([data-type='boolean']) .customTh span.columnName" : function(event) {
+			"click;table th:not([data-type='boolean']) .headerTh span.columnName" : function(event) {
 				var view = this;
 				var $th = $(event.currentTarget).closest("th");
 				var $desc = $(".desc", $th);
@@ -72,9 +72,6 @@
 				var column = $th.attr("data-column");
 				var pageIdx = view.pageIdx || 1;
 				var pageSize = view.pageSize || 30;
-				if (column === "company" || column === "skill" || column === "education" || column === "resume") {
-					return false;
-				}
 				view.tableOrderColumn = column;
 				if ($asc.is(":hidden")) {
 					view.tableOrderType = "asc";

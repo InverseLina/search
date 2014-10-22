@@ -232,7 +232,7 @@
 					position: relative;
 					.order {
 						position: absolute;
-						top: 5px;
+						top: 8px;
 						right: 10px;
 					}
 					th {
@@ -381,6 +381,11 @@
 						}
 						.companyTh {
 							background: #33aad2;
+							.order {
+								position: absolute;
+								top: 9px;
+								right: 95px;
+							}
 						}
 						.resumeTh {
 							background: #A7EE3C !important;
@@ -396,15 +401,40 @@
 						}
 						.skillTh {
 							background: #e13c5e;
+							.order {
+								position: absolute;
+								top: 9px;
+								right: 95px;
+							}
 						}
-						.desc, .asc {
+						.order-type {
 							width: auto;
 							display: none;
 							margin-left: 5px;
 							float: right;
 							font-size: 10px;
 							font-weight: normal;
+							&.arrow-up {
+								width: 0;
+								height: 0;
+								margin-left: 2px;
+								vertical-align: middle;
+								border-bottom: 12px solid;
+								border-right: 6px solid transparent;
+								border-left: 6px solid transparent;
+							}
+							&.arrow-down {
+								width: 0;
+								height: 0;
+								margin-left: 2px;
+								vertical-align: middle;
+								border-top: 12px solid;
+								border-right: 6px solid transparent;
+								border-left: 6px solid transparent;
+							}
 						}
+
+						
 					}
 					th.checkboxCol {
 						width: 30px;
