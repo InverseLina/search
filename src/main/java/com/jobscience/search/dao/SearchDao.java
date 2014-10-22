@@ -913,13 +913,11 @@ public class SearchDao {
         	querySqlparam.addAll(sb.getConditionValues());
         	joinSql.append(locationSql);
         	querySqlparam.addAll(sb.getLocationValues());
-        	joinSql.append(sb.getExactSearchOrderSql());
         	
         	countSql.append(" where ").append(condition.subSequence(4, condition.length()));
         	countSqlparam.addAll(sb.getConditionValues());
  	        countSql.append(locationSql);
         	countSqlparam.addAll(sb.getLocationValues());
- 	        countSql.append(sb.getExactSearchOrderSql());
         	
         	joinSql.append(" ) subcontact on contact.id=subcontact.id ");
             countSql.append(" ) subcontact on contact.id=subcontact.id ");
@@ -928,6 +926,9 @@ public class SearchDao {
             	joinSql.append(" where 1=1 ");
                 countSql.append(" where 1=1 ");
             }
+            
+        	joinSql.append(sb.getExactSearchOrderSql());
+ 	        countSql.append(sb.getExactSearchOrderSql());
         }else{        
             joinSql.append(" ) subcontact on contact.id=subcontact.id ");
             countSql.append(" ) subcontact on contact.id=subcontact.id ");
