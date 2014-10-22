@@ -339,11 +339,7 @@
 				view.restoreSearchParam();
 			}
 			
-			//show desc/asc
-			if (view.tableOrderColumn && view.tableOrderType) {
-				$e.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
-			}
-
+			renderOrder.call(view);
 		},
 		showContentMessage : function(cmd, extra) {
 			var view = this;
@@ -682,6 +678,7 @@
 							});
 	
 						} else {
+							renderOrder.call(view);
 							renderSingleBody.call(view, "search-query-notfound");
 						}
 						
@@ -842,6 +839,15 @@
 		$tr.find("td").append($(html));
 	}
 
+	function renderOrder(){
+		var view = this;
+		view.$el.find(".desc, .asc").hide();
+		//show desc/asc
+		if (view.tableOrderColumn && view.tableOrderType) {
+			view.$el.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
+		}
+
+	}
 	
 	function buildResult(items) {
 		var result = [];
