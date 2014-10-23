@@ -40,8 +40,11 @@
 					$(document).off("btap." + view.cid);
 				}
 			});
+			
 			view.$el.on("mouseleave", function() {
-				view.$el.bRemove();
+				if(!view._dragging){
+					view.$el.bRemove();
+				}
 			});
 
 		},
@@ -79,6 +82,7 @@
 				var $li = $(event.currentTarget);
 				var view = this;
 				var $e = view.$el;
+				view._dragging = true;
 				var $clone = $li.clone();
 				$clone.attr("id", "columnsClone");
 				var pos = $li.position();
@@ -145,6 +149,8 @@
 						columns : columns
 					});
 				});
+				
+				view._dragging = false;
 			}
 
 		}
