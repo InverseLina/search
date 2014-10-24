@@ -115,7 +115,6 @@
 					configs["local_distance"] = view.$el.find("[name='local_distance']").val();
 					configs["local_date"] = view.$el.find("[name='local_date']").val();
 					configs["contact_resume_behave"] = view.$el.find("[name='contact_resume_behave']").val();
-					configs["skills_rating"] = view.$el.find("[name='skills_rating']").val();
 					configs["action_add_to_sourcing"] = view.$el.find("[name='action_add_to_sourcing']").prop("checked");
 					configs["action_favorite"] = view.$el.find("[name='action_favorite']").prop("checked");
 					configs["skill_assessment_rating"] = view.$el.find("[name='skill_assessment_rating']").prop("checked");
@@ -619,8 +618,6 @@
 		var $nameMsg = view.$el.find(".alert-error.name");
 		var $schemanameMsg = view.$el.find(".alert-error.schemaname");
 		var $sessionTimeout = view.$el.find(".alert-error.sessionTimeout");
-		var skillsRating = view.$el.find("[name='skills_rating']").val();
-		var $skillsRatingMsg = view.$el.find(".alert-error.skillsRating");
 
 		if (view.$el.find("[name='name']").val() === '') {
 			$nameMsg.removeClass("hide");
@@ -639,12 +636,6 @@
 			$sessionTimeout.removeClass("hide");
 		} else {
 			$sessionTimeout.addClass("hide");
-		}
-
-		if (skillsRating && (isNaN(skillsRating) || skillsRating <= 0)) {
-			$skillsRatingMsg.removeClass("hide");
-		} else {
-			$skillsRatingMsg.addClass("hide");
 		}
 
 		if (view.$el.find(".alert-error:not(.hide)").length > 0) {
