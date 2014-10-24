@@ -14,6 +14,7 @@ public class SearchRequest {
 
     private Map<String,String> searchMap = new HashMap();
     private String order, orderName, columns;
+    private boolean asc; 
     private int pageIndex = 1,pageSize = 15;
     private JSONArray contacts;
     private JSONArray skills;
@@ -72,7 +73,7 @@ public class SearchRequest {
         }
         
         String orderBy = (String)searchParams.get("orderBy");
-        boolean asc = searchParams.get("orderType") instanceof Boolean?
+        asc = searchParams.get("orderType") instanceof Boolean?
                 (Boolean)searchParams.get("orderType"):
                 Boolean.valueOf((String)searchParams.get("orderType"));
         if(orderBy != null){
@@ -242,6 +243,10 @@ public class SearchRequest {
 
 	public String getOrderName() {
 		return orderName;
+	}
+
+	public boolean isAsc() {
+		return asc;
 	}
 
 	public String getColumns() {

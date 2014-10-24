@@ -343,7 +343,7 @@ public class SearchDao {
         
         querySql.append(") b ");
     	if(!Strings.isNullOrEmpty(searchRequest.getOrder())){
-    		querySql.append(" order by "+searchRequest.getOrder());
+    		querySql.append(" order by "+searchRequest.getOrder()).append(" nulls last");
     		if(!searchRequest.getOrder().trim().startsWith("\"id\"")){
     			querySql.append(" offset ").append(offset).append(" limit ").append(searchRequest.getPageSize() + 1);
     		}
@@ -578,8 +578,8 @@ public class SearchDao {
     			groupBy.append(",");
     		}
     		groupBy.append("a.\"title\"");
-    		return "(select string_agg(e.\"ts2__job_title__c\",',') from "+schemaname
-    				+".ts2__employment_history__c e where a.\"sfid\" = e.\"ts2__contact__c\"  ) as title ";
+    		return "(select string_agg(e.\"ts2__job_title__c\",',') from ( select ts2__job_title__c from "+schemaname
+    				+".ts2__employment_history__c e where a.\"sfid\" = e.\"ts2__contact__c\" group by e.\"ts2__job_title__c\" order by  e.\"ts2__job_title__c\" asc ) e ) as title ";
     	}else if(originalName.toLowerCase().equals("createddate")){
     		if(groupBy.length()>0){
     			groupBy.append(",");
@@ -588,19 +588,19 @@ public class SearchDao {
     		return "to_char(a.\"createddate\",'yyyy-mm-dd') as createddate";
     	}else if(originalName.toLowerCase().equals("company")){
     	    return connectionString(" (select  string_agg(replace(c.\"name\",',','"+separator+"'),',')||'##'||string_agg(c.\"id\"::varchar,',') "
-    	                            , "from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
+    	                            , "from ( select c.name, c.id from "+schemaname+".jss_grouped_employers c join "+schemaname+".jss_contact_jss_groupby_employers groupby_employers "
     	                            , "on groupby_employers.jss_groupby_employers_id = c.id  "
-    	                            , "where a.\"id\" = groupby_employers.\"jss_contact_id\"  ) as company ");
+    	                            , "where a.\"id\" = groupby_employers.\"jss_contact_id\" order by c.\"name\" asc) c ) as company ");
     	}else if(originalName.toLowerCase().equals("skill")){
     	    return connectionString(" (select  string_agg(b.\"name\",',')||'##'||string_agg(b.\"id\"::varchar,',' ) "
-    	                            , "from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
+    	                            , "from ( select b.name, b.id from "+schemaname+".jss_grouped_skills b join "+schemaname+".jss_contact_jss_groupby_skills groupby_skills "
     	                            , "on groupby_skills.jss_groupby_skills_id = b.id  "
-    	                            , "where a.\"id\" = groupby_skills.\"jss_contact_id\"  ) as skill ");
+    	                            , "where a.\"id\" = groupby_skills.\"jss_contact_id\" order by b.\"name\" asc) b ) as skill ");
     	}else if(originalName.toLowerCase().equals("education")){
-    	    return connectionString(" (select  string_agg(d.\"name\",',' order by d.id)||'##'|| string_agg(d.\"id\"::varchar,',')"
-                                    , "from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
+    	    return connectionString(" (select  string_agg(d.\"name\",',')||'##'|| string_agg(d.\"id\"::varchar,',')"
+                                    , "from ( select d.name, d.id from "+schemaname+".jss_grouped_educations d join "+schemaname+".jss_contact_jss_groupby_educations groupby_educations "
                                     , "on groupby_educations.jss_groupby_educations_id = d.id  "
-                                    , "where a.\"id\" = groupby_educations.\"jss_contact_id\"  ) as education");
+                                    , "where a.\"id\" = groupby_educations.\"jss_contact_id\" order by d.\"name\" asc) d ) as education");
     	}else if(originalName.toLowerCase().equals("location")){
     		return "a.mailingcity as location ";
     	}
@@ -637,11 +637,11 @@ public class SearchDao {
         		}
         		return connectionString(" (select string_agg(distinct ","to_char(d.\"",ff.getColumn(),"\",'",dataFormat,"') ",",',') ",
                         "from ",schemaname,".",ff.getTable()," d  where a.\"",ff.getJoinTo(),"\" = d.\"",
-                        ff.getJoinFrom()+"\"   ) as \"",f.getName(),"\"");
+                        ff.getJoinFrom()+"\" ) as \"",f.getName(),"\"");
 	        }else{
 	            return connectionString(" (select string_agg(distinct d.\"",ff.getColumn(),"\"::varchar,',') " ,
-                        "from ",schemaname,".",ff.getTable()," d  where a.\"",ff.getJoinTo(),"\" = d.\"",
-                        ff.getJoinFrom()+"\"   ) as \"",f.getName(),"\"");
+                        "from ( select d.",ff.getColumn()," from",schemaname,".",ff.getTable()," d  where a.\"",ff.getJoinTo(),"\" = d.\"",
+                        ff.getJoinFrom()+"\" order by ",ff.getColumn()," asc ) d ) as \"",f.getName(),"\"");
 	        }
         }
     }
@@ -927,15 +927,15 @@ public class SearchDao {
                 countSql.append(" where 1=1 ");
             }
             
-        	joinSql.append(sb.getExactSearchOrderSql());
- 	        countSql.append(sb.getExactSearchOrderSql());
+        	joinSql.append(sb.getExactSearchOrderSql(searchRequest));
+ 	        countSql.append(sb.getExactSearchOrderSql(searchRequest));
         }else{        
             joinSql.append(" ) subcontact on contact.id=subcontact.id ");
             countSql.append(" ) subcontact on contact.id=subcontact.id ");
             
             joinSql.append(locationSql);
             countSql.append(locationSql);
-            joinSql.append(" where 1=1 ").append(condition).append(sb.getExactSearchOrderSql());
+            joinSql.append(" where 1=1 ").append(condition).append(sb.getExactSearchOrderSql(searchRequest));
             querySqlparam.addAll(sb.getConditionValues());
             countSql.append(" where 1=1 ").append(condition);
             countSqlparam.addAll(sb.getConditionValues());
@@ -1788,16 +1788,16 @@ public class SearchDao {
                 		keyWordSql.append(" order by ").append(searchRequest.getOrder());
                 	}
                 	if(!searchRequest.isOnlyKeyWord()){
-                		exactSearchOrderSql.append(getOrderSql());
+                		exactSearchOrderSql.append(getOrderSql(searchRequest));
                 	}
                 }else{
                 	   if (searchRequest.getOrder().trim().startsWith("\"id\"")&&
                            	searchRequest.isOnlyKeyWord()) {
                            	keyWordSql.append(" order by ").append(searchRequest.getOrder());
                			}else if(searchRequest.getCustomFields() != null && searchRequest.getCustomFields().size()>0){
-               				exactSearchOrderSql.append(getOrderSql());
+               				exactSearchOrderSql.append(getOrderSql(searchRequest));
                			}else{
-                            orderSql.append(getOrderSql());
+                            orderSql.append(getOrderSql(searchRequest));
                        }
                 }
             }else{
@@ -1918,22 +1918,23 @@ public class SearchDao {
             }
         }
         
-        public String getExactSearchOrderSql( ){
+        public String getExactSearchOrderSql(SearchRequest searchRequest){
         	if((locationSql.length() > 0 || hasContactCondition) && !searchRequest.getOrder().trim().startsWith("\"id\"")){
         		if(exactSearchOrderSql.length() == 0){
-        			exactSearchOrderSql.append(getOrderSql());
+        			exactSearchOrderSql.append(getOrderSql(searchRequest));
         		}
         	}
         	return exactSearchOrderSql.toString();
         }
         
-        public String getOrderSql(){
+        public String getOrderSql(SearchRequest searchRequest){
         	StringBuilder sb = new StringBuilder();
         	Filter customFilter = sc.getCustomFilterByName(searchRequest.getOrderName());
+        	boolean isasc = searchRequest.isAsc();
 			if(customFilter != null && "contact".equals(customFilter.getFilterField().getTable())){
 				 String column = customFilter.getFilterField().getColumn();
 				 if(checkColumn(column, "contact", schemaname)){
-	            		exactSearchOrderSql.append(" order by \"").append(column).append("\"");
+	            		exactSearchOrderSql.append(" order by \"").append(column).append("\" ").append(isasc?"asc":"desc");
 				 }
 			}
         	return sb.toString();
