@@ -22,7 +22,36 @@
 		},
 
 		postDisplay : function(data) {
+			var view = this;
+			var $e = view.$el;
+			var $resumeViewContainer = $e.closest(".resumeViewContainer");
 			showView.call(this, data);
+
+			if(app.orgInfo.contact_resume_behave === "hover"){
+				$resumeViewContainer.find(".ResumeView").removeClass("modal");
+				var $resumeIcon = data.targetIcon;
+				$resumeIcon.off("mouseout");
+				$resumeIcon.on("mouseout",function(event){
+					var x=event.clientX;
+	                var y=event.clientY;
+	                var resumeViewContainerOffset = $resumeViewContainer.offset();
+	                var divx1 = resumeViewContainerOffset.left;
+	                var divy1 = resumeViewContainerOffset.top;
+	                var divx2 = resumeViewContainerOffset.left + $resumeViewContainer.width();
+	                var divy2 = resumeViewContainerOffset.top + $resumeViewContainer.height();
+	                if( x < divx1 || x > divx2 || y < divy1 || y > divy2){
+	                	$e.bRemove();
+	                }
+				});
+
+				$resumeViewContainer.off("mouseleave");
+				$resumeViewContainer.on("mouseleave", function(){
+					$e.bRemove();
+				});
+
+			}else{
+				$e.closest('body').find(".ResumeView").addClass("modal");
+			}
 
 		},
 		// --------- /View Interface Implement--------- //
@@ -33,8 +62,6 @@
 				var view = this;
 				view.$el.bRemove();
 			}
-
-
 		}
 		// --------- /Events--------- //
 	});

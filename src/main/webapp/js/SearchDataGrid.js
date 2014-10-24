@@ -138,6 +138,8 @@
 				}
 			},
 			"mouseover; .resume-ico.hover" : function(event) {
+				var view = this;
+				var $e = view.$el;
 				var cid = $(event.currentTarget).closest("i").attr("data-id");
 				var sfid = $(event.currentTarget).closest("i").attr("data-sfid");
 				var cname = $(event.currentTarget).closest("i").attr("data-cname");
@@ -145,10 +147,16 @@
 					var url = app.orgInfo.apex_resume_url + sfid;
 					window.showModalDialog(url, "dialogWidth=540px;dialogHeight=430px");
 				} else {
-					brite.display("ResumeView", "body", {
+					var $this = $(event.currentTarget);
+					var iconOffset = $this.offset();
+					var $resumeViewContainer = $e.find(".resumeViewContainer");
+					$resumeViewContainer.css({left:iconOffset.left-8, top:-30});
+					if($resumeViewContainer.find(".ResumeView").size() > 0) return;
+					brite.display("ResumeView", ".resumeViewContainer", {
 						id : cid,
 						sfid : sfid,
-						name : cname
+						name : cname,
+						targetIcon : $this
 					});
 				}
 			},
