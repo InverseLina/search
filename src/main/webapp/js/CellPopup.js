@@ -82,7 +82,7 @@
 					};
 					if($li.attr("data-id") != ""){
 						var groupedid = $li.attr("data-id");
-						item.groupedid = groupedid;
+						item.groupedid = groupedid * 1;
 					}
 					$li.trigger("ADD_FILTER", item);
 				}
