@@ -3,21 +3,19 @@
      <field table="jss_contact" name="contactResumeTsv" column="resume_tsv" />
   </keyword>
   
-  <filter name="skill" title="Skill" type="skill" all-any="false" display="column" bg-color="#eeddee">
-     <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" slider="ts2__rating__c">
-        <joinslider table="ts2__assessment__c" column="ts2__rating__c" joincolumn=""/>
-     </field>
+  <filter name="skill" title="Skill" type="skill" display="column" all-any="false" orderable="false" bg-color="#eeddee">
+     <field table="ts2__skill__c" column="ts2__skill_name__c" joinfrom="sfid" jointo="ts2__contact__c" />
   </filter>
 
-  <filter name="education" title="Education" type="education" display="column" bg-color="#eeddee">
+  <filter name="education" title="Education" type="education" display="column" orderable="false" bg-color="#eeddee">
      <field table="ts2__education_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
-  </filter>   
+  </filter>
   
-  <filter name="company" title="Employer" type="company" display="column" bg-color="#eeddee">
+  <filter name="company" title="Employer" type="company" display="column" all-any="false" orderable="false"  bg-color="#eeddee">
      <field table="ts2__employment_history__c" column="ts2__name__c" joinfrom="sfid" jointo="ts2__contact__c"/>
-  </filter>   
+  </filter>
 
-  <filter name="location" title="Location" type="location" orderable="false" show="false" display="column" bg-color="#eeddee">
+  <filter name="location" title="Location" type="location" show="false" orderable="false" display="column" bg-color="#eeddee">
      <field table="city_score" column="city" />
   </filter> 
   

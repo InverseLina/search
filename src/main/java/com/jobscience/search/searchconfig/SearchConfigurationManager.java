@@ -522,12 +522,12 @@ public class SearchConfigurationManager {
                                      hasError = true;
                                  }
                              }
-                             if("skill".equals(val)){
+                             /*if("skill".equals(val)){
                                  if(!checkAttribute(fieldNode,"slider")){
                                      errorMsg = "Missing slider attribute for "+val+" filter field";
                                      hasError = true;
                                  }
-                             }
+                             }*/
                          }
                      }
             	}
