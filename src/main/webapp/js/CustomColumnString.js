@@ -139,7 +139,6 @@
 		var view = this;
 		var $e = view.$el;
 		var $input = $e.find(".autocomplete-input-wrapper .valueInput");
-
 		if (value != "") {
 			$input.val("");
 			$input.focus();
@@ -168,7 +167,6 @@
 				}
 				
 				if(!exist){
-					console.log();
 					isNotArray.push(value);
 				}
 			}
@@ -180,6 +178,7 @@
 				data["!="] = isNotArray;
 			}
 			app.ParamsControl.saveHeaderCustomColumnFilter(view.paramName, data);
+			applyValues.call(view);
 			$e.trigger("DO_SEARCH"); 
 		}
 	}

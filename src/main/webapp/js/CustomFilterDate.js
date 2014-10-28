@@ -29,6 +29,7 @@
 				var oper = $li.attr("data-oper");
 				showEditValues.call(view, view.getValue());
 				showByOper.call(view, oper);
+				checkChange.call(view);
 			},
 			"click; .btnApplyValue" : function(e){
 				var view = this;
@@ -46,12 +47,14 @@
 					datePickerView.onSelect(function(dateValue){
 						$input.val(dateValue);
 						applyValue.call(view, true);
+						checkChange.call(view);
 					});
 				});
 			},
 			"keyup; .valueInput" : function(e){
 				var view = this;
 				var $e = this.$el;
+				checkChange.call(view);
 				if(e.which == 13){
 					applyValue.call(view);
 				}
@@ -126,6 +129,19 @@
 	});
 	
 	// --------- Private Methods--------- //
+	function checkChange(){
+		var view = this;
+		var $e = view.$el;
+		var oper = $e.find(".editContainer .operation-item.active").attr("data-oper");
+		var value = $e.find("input[name='value']").val();
+		var value1 = $e.find("input[name='value1']").val();
+		if(oper != "between" || value != "" || value1 != ""){
+			$e.trigger("TOGGLE_CUSTOM_CLEAR", true);
+		}else{
+			$e.trigger("TOGGLE_CUSTOM_CLEAR", false);
+		}
+	}
+	
 	function validateInput($input, showMessage){
 		var view = this;
 		var $e = view.$el;

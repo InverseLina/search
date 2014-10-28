@@ -62,7 +62,7 @@
 					filterRender = app.getFilterRender("custom");
 					if(display == "side"){
 						view.$content.addClass("custom");
-						view.$content.append("<span class='clearCustomFilter icon-fa fa-times-circle'></span>");
+						view.$content.append("<span class='hide clearCustomFilter icon-fa fa-times-circle'></span>");
 					}
 				}else{
 					var type = $target.attr("data-column");
@@ -84,6 +84,7 @@
 				var component = $(view.$content.children()[1]).bView();
 				app.ParamsControl.saveHeaderCustomFilter({field:component.paramName});
 				component.clearFields();
+				$e.trigger("TOGGLE_CUSTOM_CLEAR",false);
 				$e.trigger("DO_SEARCH");
 			}
 		},
@@ -104,6 +105,14 @@
 			"POPUP_CLOSE" : function(event) {
 				var view = this;
 				close.call(view);
+			},
+			"TOGGLE_CUSTOM_CLEAR":function(event, show){
+				var view = this;
+				if(show){
+					view.$content.find(".clearCustomFilter").removeClass("hide");
+				}else{
+					view.$content.find(".clearCustomFilter").addClass("hide");
+				}
 			}
 
 		}

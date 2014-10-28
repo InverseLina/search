@@ -55,6 +55,7 @@
 				var value = $item.attr("data-value");
 				selectOperation.call(view, value);
 				$e.find(".operations").addClass("hide");
+				checkChange.call(view);
 			},
 			"keydown; .valueInput":function(e) {
 				var view = this;
@@ -70,6 +71,7 @@
 				var $apply = $e.find(".btnApplyValue");
 				e.preventDefault();
 				changeAutoComplete.call(view, e.which);
+				checkChange.call(view);
 			},
 			"click; .autocomplete-item":function(e){
 				e.stopPropagation();
@@ -87,6 +89,7 @@
 				$item.remove();
 				checkEmpty.call(view);
 				applyValues.call(view,false);
+				checkChange.call(view);
 			},
 			"click; .btnApplyValue":function(e){
 				var view = this;
@@ -282,6 +285,19 @@
 			$selectedCon.removeClass("empty");
 		}else{
 			$selectedCon.addClass("empty");
+		}
+	}
+	
+	function checkChange(){
+		var view = this;
+		var $e = view.$el;
+		var oper = $e.find(".operationSelect .value").attr("data-value");
+		var valueInput = $e.find("input[name='value']").val();
+		var size = $e.find(".editContainer .wrap-items .selected-item").size();
+		if(oper == "isnot" || valueInput != "" || size > 0){
+			$e.trigger("TOGGLE_CUSTOM_CLEAR", true);
+		}else{
+			$e.trigger("TOGGLE_CUSTOM_CLEAR", false);
 		}
 	}
 	
