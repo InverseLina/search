@@ -4,7 +4,6 @@
 // --------- ResumeView--------- //
 .ResumeView {
 	margin-left:16px;
-	height:660px;
 	display: block;.highlight{
 		background-color: #FFFF00;
 	}
@@ -12,9 +11,11 @@
 		outline: 0;
 		height: 100%;
 		.modal-content{
-			height: 100%;
+			.modal-header{
+				height:80px;
+			}
 			.modal-body{
-				max-height:500px;
+				max-height:480px;
 				overflow-x: hidden;
 				overflow-y: auto;
 				padding-bottom: 0px;
@@ -23,9 +24,10 @@
 				}
 			}
 			.modal-footer {
-				padding-top: 0px;
+				padding: 0px 19px 20px 20px;
+				margin-top:0px;
 				button {
-					margin-top: 10px;
+					margin-top: 12px;
 				}
 			}
 		}
