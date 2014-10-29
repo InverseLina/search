@@ -87,6 +87,7 @@
 				}
 				$e.find(".editContainer").addClass("hide"); 
 			}
+			checkChange.call(view);
 		},
 		
 		getValue:function(){
@@ -136,9 +137,9 @@
 		var value = $e.find("input[name='value']").val();
 		var value1 = $e.find("input[name='value1']").val();
 		if(oper != "between" || value != "" || value1 != ""){
-			$e.trigger("TOGGLE_CUSTOM_CLEAR", true);
+			$e.trigger("HEADER_POPUP_TOGGLE_CUSTOM_CLEAR", true);
 		}else{
-			$e.trigger("TOGGLE_CUSTOM_CLEAR", false);
+			$e.trigger("HEADER_POPUP_TOGGLE_CUSTOM_CLEAR", false);
 		}
 	}
 	

@@ -92,7 +92,7 @@
 				}
 				$e.find(".editContainer").addClass("hide");
 			}
-			
+			checkChange.call(view);
 			
 		},
 		getValue:function(){
@@ -133,9 +133,9 @@
 		var $e = view.$el;
 		var oper = $e.find(".viewContainer .valueLabel").attr("data-value");
 		if(oper == ""){
-			$e.trigger("TOGGLE_CUSTOM_CLEAR", false);
+			$e.trigger("HEADER_POPUP_TOGGLE_CUSTOM_CLEAR", false);
 		}else{
-			$e.trigger("TOGGLE_CUSTOM_CLEAR", true);
+			$e.trigger("HEADER_POPUP_TOGGLE_CUSTOM_CLEAR", true);
 		}
 		
 	}

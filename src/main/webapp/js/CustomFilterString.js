@@ -144,6 +144,7 @@
 				}
 				$e.find(".editContainer").addClass("hide");
 			}
+			checkChange.call(view);
 		},
 		
 		getValue:function(){
@@ -295,9 +296,9 @@
 		var valueInput = $e.find("input[name='value']").val();
 		var size = $e.find(".editContainer .wrap-items .selected-item").size();
 		if(oper == "isnot" || valueInput != "" || size > 0){
-			$e.trigger("TOGGLE_CUSTOM_CLEAR", true);
+			$e.trigger("HEADER_POPUP_TOGGLE_CUSTOM_CLEAR", true);
 		}else{
-			$e.trigger("TOGGLE_CUSTOM_CLEAR", false);
+			$e.trigger("HEADER_POPUP_TOGGLE_CUSTOM_CLEAR", false);
 		}
 	}
 	

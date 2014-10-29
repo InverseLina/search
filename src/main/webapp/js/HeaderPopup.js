@@ -106,7 +106,7 @@
 				var view = this;
 				close.call(view);
 			},
-			"TOGGLE_CUSTOM_CLEAR":function(event, show){
+			"HEADER_POPUP_TOGGLE_CUSTOM_CLEAR":function(event, show){
 				var view = this;
 				if(show){
 					view.$content.find(".clearCustomFilter").removeClass("hide");
