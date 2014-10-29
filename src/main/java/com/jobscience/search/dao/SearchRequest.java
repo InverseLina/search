@@ -90,6 +90,7 @@ public class SearchRequest {
             }
             
         }else{
+        	orderName = "id";
             order = " \"id\" desc";
         }
         

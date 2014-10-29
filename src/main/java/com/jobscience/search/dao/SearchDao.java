@@ -945,7 +945,6 @@ public class SearchDao {
         .append((searchRequest.getPageIndex() - 1)* searchRequest.getPageSize())
         .append(" limit ").append(searchRequest.getPageSize() + 1).append(") a ");
         
-        
         if(!hasExtraSearchColumn(searchRequest) || hasContactsCondition || locationSql.length() > 0 ||
                 Strings.isNullOrEmpty(searchRequest.getKeyword()) || searchRequest.getKeyword().length() < 3){
             countSql.append(") a ");
@@ -1797,14 +1796,14 @@ public class SearchDao {
                			}else if(searchRequest.getCustomFields() != null && searchRequest.getCustomFields().size()>0){
                				exactSearchOrderSql.append(getOrderSql(searchRequest));
                			}else{
-                            orderSql.append(getOrderSql(searchRequest));
+               				exactSearchOrderSql.append(getOrderSql(searchRequest));
                        }
                 }
             }else{
             	keyWordSql.append(" select distinct contact.id from contact ");
             	keyWordCountSql.append(" select  distinct contact.id from contact ");
             	if (searchRequest.getOrder().trim().startsWith("\"id\"")) {
-            		orderSql.append(" order by ").append(searchRequest.getOrder());
+            		exactSearchOrderSql.append(getOrderSql(searchRequest));
             	}
             }
             return this;
@@ -1893,7 +1892,7 @@ public class SearchDao {
         			hasContactCondition||!searchRequest.getOrder().trim().startsWith("\"id\"")){
         		  return " join ( "+keyWordSql+filterSql;
         	}else{
-        		  return " join ( "+keyWordSql+filterSql+orderSql;
+        		  return " join ( "+keyWordSql+filterSql;
         	}
           
         }
@@ -1919,7 +1918,7 @@ public class SearchDao {
         }
         
         public String getExactSearchOrderSql(SearchRequest searchRequest){
-        	if((locationSql.length() > 0 || hasContactCondition) && !searchRequest.getOrder().trim().startsWith("\"id\"")){
+        	if((locationSql.length() > 0 || hasContactCondition)){
         		if(exactSearchOrderSql.length() == 0){
         			exactSearchOrderSql.append(getOrderSql(searchRequest));
         		}
@@ -1927,16 +1926,25 @@ public class SearchDao {
         	return exactSearchOrderSql.toString();
         }
         
+        public String getSubSearchOrderSql(){
+        	return orderSql.toString();
+        }
+        
         public String getOrderSql(SearchRequest searchRequest){
         	StringBuilder sb = new StringBuilder();
-        	Filter customFilter = sc.getCustomFilterByName(searchRequest.getOrderName());
-        	boolean isasc = searchRequest.isAsc();
-			if(customFilter != null && "contact".equals(customFilter.getFilterField().getTable())){
-				 String column = customFilter.getFilterField().getColumn();
-				 if(checkColumn(column, "contact", schemaname)){
-	            		exactSearchOrderSql.append(" order by \"").append(column).append("\" ").append(isasc?"asc":"desc");
-				 }
-			}
+        	String orderName = searchRequest.getOrderName();
+        	if("id".equals(orderName)){
+        		sb.append(" order by \"id\" ").append(searchRequest.isAsc()?"asc":"desc");
+        	}else{
+            	Filter customFilter = sc.getCustomFilterByName(orderName);
+            	boolean isasc = searchRequest.isAsc();
+    			if(customFilter != null && "contact".equals(customFilter.getFilterField().getTable())){
+    				 String column = customFilter.getFilterField().getColumn();
+    				 if(checkColumn(column, "contact", schemaname)){
+    					 sb.append(" order by \"").append(column).append("\" ").append(isasc?"asc":"desc");
+    				 }
+    			}
+        	}
         	return sb.toString();
         }
         
