@@ -88,7 +88,9 @@
 				var $item = $(e.currentTarget).closest(".selected-item");
 				$item.remove();
 				checkEmpty.call(view);
-				applyValues.call(view,false);
+				if($e.closest(".HeaderPopup").size() == 0){
+					applyValues.call(view,false);
+				}
 				checkChange.call(view);
 			},
 			"click; .btnApplyValue":function(e){
@@ -273,7 +275,9 @@
 			}
 		}
 		checkEmpty.call(view);
-		applyValues.call(view,false);
+		if($e.closest(".HeaderPopup").size() == 0){
+			applyValues.call(view,false);
+		}
 	}
 
 	
