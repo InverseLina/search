@@ -67,25 +67,28 @@
 			"click;table th:not([data-type='boolean']) .headerTh span.columnName" : function(event) {
 				var view = this;
 				var $th = $(event.currentTarget).closest("th");
-				var $desc = $(".desc", $th);
-				var $asc = $(".asc", $th);
+				var $desc = $th.find(".desc");
+				var $asc = $th.find(".asc");
+				if($desc.hasClass("disable") && $desc.hasClass("disable")){
+					return;
+				}
 				var column = $th.attr("data-column");
 				var pageIdx = view.pageIdx || 1;
 				var pageSize = view.pageSize || 30;
 				view.tableOrderColumn = column;
-				if ($asc.is(":hidden")) {
-					view.tableOrderType = "asc";
-					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH", {
-						pageIdx : pageIdx,
-						pageSize : pageSize
-					});
-				} else {
+				if ($asc.is(":hidden") && $desc.is(":hidden")) {
 					view.tableOrderType = "desc";
-					view.$el.bComponent("MainView").$el.trigger("DO_SEARCH", {
-						pageIdx : pageIdx,
-						pageSize : pageSize
-					});
+				} else if($asc.is(":hidden")) {
+					view.tableOrderType = "asc";
+				} else {
+					view.tableOrderType = null;
+					view.tableOrderDisable = true;
 				}
+				view.$el.bComponent("MainView").$el.trigger("DO_SEARCH", {
+					pageIdx : pageIdx,
+					pageSize : pageSize
+				}); 
+
 				event.stopPropagation();
 			},
 			"click; table th[data-column]" : function(event) {
@@ -853,6 +856,8 @@
 		//show desc/asc
 		if (view.tableOrderColumn && view.tableOrderType) {
 			view.$el.find("table th[data-column='" + view.tableOrderColumn + "']").find("." + view.tableOrderType).show();
+		}else if(view.tableOrderDisable){
+			view.$el.find("table th[data-column='" + view.tableOrderColumn + "']").find(".desc,.asc").show().addClass("disable");
 		}
 
 	}

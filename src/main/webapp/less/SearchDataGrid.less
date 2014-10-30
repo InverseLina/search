@@ -230,11 +230,6 @@
 				thead tr {
 					display: block;
 					position: relative;
-					.order {
-						position: absolute;
-						top: 8px;
-						right: 10px;
-					}
 					th {
 						font-weight: bold;
 						height: 104px;
@@ -385,6 +380,17 @@
 								position: absolute;
 								top: 9px;
 								right: 95px;
+								&.disable{
+									display:block;
+									&.arrow-up {
+										right:90px;
+										border-bottom: 12px solid rgba(255,255,255, .2);
+									}
+									&.arrow-down {
+										right:98px;
+										border-top: 12px solid rgba(255,255,255, .2);
+									}
+								}
 							}
 						}
 						.resumeTh {
@@ -405,32 +411,48 @@
 								position: absolute;
 								top: 9px;
 								right: 95px;
+								&.disable{
+									display:block;
+									&.arrow-up {
+										right:90px;
+										border-bottom: 12px solid rgba(255,255,255, .2);
+									}
+									&.arrow-down {
+										right:98px;
+										border-top: 12px solid rgba(255,255,255, .2);
+									}
+								}
 							}
 						}
 						.order-type {
-							width: auto;
+							position: absolute;
+							top: 8px;
+							right: 10px;
+							width: 0;
+							height: 0;
 							display: none;
-							margin-left: 5px;
 							float: right;
 							font-size: 10px;
 							font-weight: normal;
+							margin-left: 2px;
+							border-right: 6px solid transparent;
+							border-left: 6px solid transparent;
 							&.arrow-up {
-								width: 0;
-								height: 0;
-								margin-left: 2px;
-								vertical-align: middle;
 								border-bottom: 12px solid;
-								border-right: 6px solid transparent;
-								border-left: 6px solid transparent;
 							}
 							&.arrow-down {
-								width: 0;
-								height: 0;
-								margin-left: 2px;
-								vertical-align: middle;
 								border-top: 12px solid;
-								border-right: 6px solid transparent;
-								border-left: 6px solid transparent;
+							}
+							&.disable{
+								display:block;
+								&.arrow-up {
+									right:5px;
+									border-bottom: 12px solid rgba(255,255,255, .2);
+								}
+								&.arrow-down {
+									right:13px;
+									border-top: 12px solid rgba(255,255,255, .2);
+								}
 							}
 						}
 
