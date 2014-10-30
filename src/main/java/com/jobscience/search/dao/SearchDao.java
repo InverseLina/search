@@ -507,7 +507,7 @@ public class SearchDao {
             if (type.equals("location")) {
                 querySql = new StringBuilder(" select score as count, city as name, case when country = 'US' or country = 'CA' then region else country end as suffix, city_world_id as locationid" + " from " + baseTable + "  where 1=1 ");
                 if (queryString != null && queryString.trim().length() > 0) {
-                    querySql.append(" AND score > 0 ");
+                    //querySql.append(" AND score > 0 ");
                     String[] values = queryString.split(",");
                     String firstQuery = values[0].trim();
                     if (values.length > 1) {
