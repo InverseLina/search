@@ -16,7 +16,7 @@ public class SearchLogDao {
     private String INSERT_SQL = "INSERT INTO jss_searchlog(user_id,date,search,perfcount,perffetch) values(?,?,?,?,?)";
 
     public void addSearchLog(String search,Long perfCount,Long perfFetch,Long userId,OrgContext org){
-        if(dbSetupManager.checkOrgExtra((String)org.getOrgMap().get("name")).contains("searchlog,")){
+        if(!dbSetupManager.checkOrgExtra((String)org.getOrgMap().get("name")).contains("searchlog,")){
             daoRwHelper.executeUpdate(org.getOrgMap().get("name").toString(), INSERT_SQL,userId,new Date(),search,perfCount,perfFetch);   
         }
     }
