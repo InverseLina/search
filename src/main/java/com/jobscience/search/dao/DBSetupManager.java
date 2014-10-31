@@ -639,6 +639,13 @@ public class DBSetupManager {
         sysRecreateCityWorldThread.setName("sysRecreateCityWorldThread");
         sysRecreateCityWorldThread.start();
     }
+    
+    private boolean isSystemRecreateCityWorldRunning() {
+        if (sysRecreateCityWorldThread != null && sysRecreateCityWorldThread.isAlive()) {
+            return true;
+        }
+        return false;
+    }
     // ---------- /Thread ----------//
 
     public Map getSystemSetupStatus() {
@@ -783,7 +790,7 @@ public class DBSetupManager {
             if (steps == status.size() - 1) {
                 status.put(statusKey, DONE);
             } else {
-                if (isSystemSetupRunning()) {
+                if (isSystemSetupRunning() || isSystemRecreateCityWorldRunning()) {
                     status.put(statusKey, RUNNING);
                     Map runningMap = (Map) status.get(step);
                     if(runningMap == null){
@@ -2432,7 +2439,7 @@ public class DBSetupManager {
     private void dropSysCityWorld() {
         //drop old city_world table
         Runner runner = daoRwHelper.newSysRunner();
-        runner.execute("DROP TABLE city_world CASCADE");
+        runner.execute("DROP TABLE if exists city_world CASCADE");
         runner.close();
     }
     

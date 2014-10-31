@@ -80,6 +80,7 @@
 					type : "Post"
 				}).done(function(data) {
 					view.$el.trigger("STATUS_CHANGE", data);
+					view.timer = false;
 					startTimer.call(view);
 				});
 				
@@ -147,7 +148,7 @@
 				} else {
 					$alertCheckColumns.addClass("alert-info").html(statusData.check_missing_columns.status);
 				}
-
+				console.log(statusData);
 				if (statusData.status === "notstarted") {
 					$btnStart.removeClass("hide").prop("disabled", false);
 					$btnReset.removeClass("hide").prop("disabled", false).html("Reset");
@@ -167,7 +168,7 @@
 				} else if (statusData.status === "incomplete") {
 					$btnStart.removeClass("hide").prop("disabled", false);
 					$btnReset.removeClass("hide").prop("disabled", false).html("Reset");
-					$btnRecreate.removeClass("hide").prop("disabled", true);
+					$btnRecreate.removeClass("hide").prop("disabled", false);
 					
 					stopTimer.call(view);
 				} else if (statusData.status === "done") {
