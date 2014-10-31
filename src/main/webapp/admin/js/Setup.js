@@ -53,6 +53,10 @@
 				var view = this;
 				view.$el.trigger("RESET");
 			},
+			"click;.setupRecreate:not([disabled])" : function(event) {
+				var view = this;
+				view.$el.trigger("RECREATE");
+			},
 			"START" : function(event) {
 				var view = this;
 				app.getJsonData("/admin-sys-start", {}, {
@@ -70,12 +74,23 @@
 					view.$el.trigger("STATUS_CHANGE", data);
 				});
 			},
+			"RECREATE" : function(event) {
+				var view = this;
+				app.getJsonData("/admin-sys-recreate-cityworld", {}, {
+					type : "Post"
+				}).done(function(data) {
+					view.$el.trigger("STATUS_CHANGE", data);
+					startTimer.call(view);
+				});
+				
+			},
 			"STATUS_CHANGE" : function(event, statusData) {
 				var view = this;
 				var $e = view.$el;
 				$e.find(".save,.button").addClass("disabled");
 				var $btnStart = $e.find(".setupStart");
 				var $btnReset = $e.find(".setupReset");
+				var $btnRecreate = $e.find(".setupRecreate");
 				var $alertCreateSchema = $e.find(".create .alert").removeClass("alert-warning alert-success alert-error alert-info");
 				var $alertImportZipcode = $e.find(".import .alert").removeClass("alert-warning alert-success alert-error alert-info");
 				var $alertCreatePgTrgm = $e.find(".create_pg_trgm .alert").removeClass("alert-warning alert-success alert-error alert-info");
@@ -136,11 +151,13 @@
 				if (statusData.status === "notstarted") {
 					$btnStart.removeClass("hide").prop("disabled", false);
 					$btnReset.removeClass("hide").prop("disabled", false).html("Reset");
+					$btnRecreate.removeClass("hide").prop("disabled", true);
 
 					stopTimer.call(view);
 				} else if (statusData.status === "running") {
 					$btnStart.removeClass("hide").prop("disabled", true);
 					$btnReset.removeClass("hide");
+					$btnRecreate.removeClass("hide").prop("disabled", true);
 					if (statusData.caceling) {
 						$btnReset.html("Reseting...").prop("disabled", true);
 					} else {
@@ -150,11 +167,13 @@
 				} else if (statusData.status === "incomplete") {
 					$btnStart.removeClass("hide").prop("disabled", false);
 					$btnReset.removeClass("hide").prop("disabled", false).html("Reset");
-
+					$btnRecreate.removeClass("hide").prop("disabled", true);
+					
 					stopTimer.call(view);
 				} else if (statusData.status === "done") {
 					$btnStart.removeClass("hide").prop("disabled", true);
 					$btnReset.removeClass("hide");
+					$btnRecreate.removeClass("hide").prop("disabled", false);
 					stopTimer.call(view);
 
 					$e.find(".setting .alert").removeClass("alert-info").addClass("alert-success").html("Done");

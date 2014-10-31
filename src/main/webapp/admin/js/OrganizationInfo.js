@@ -297,12 +297,26 @@
 					refresh.call(view);
 				}, 3000);
 			},
+			"click;.org-recreate" : function(event) {
+				var view = this;
+				var orgName = view.currentOrgName;
+				app.getJsonData("/admin-org-recreate-cityscore", {
+					org : orgName
+				}, {
+					type : "Post"
+				}).done(function(result) {
+					window.clearInterval(view.orgSetupIntervalId);
+					refresh.call(view);
+				});
+			},			
+			
 			"STATUS_CHANGE" : function(event, times) {
 				var view = this;
 				times = times || 0;
 				var orgName = view.currentOrgName;
 				var addClass = "alert-success", removeClass = "alert-danger";
 				var $setupBtn = view.$el.find(".org-setup"), $pasueBtn = view.$el.find(".org-pause"), $resetBtn = view.$el.find(".org-reset");
+				var $recreateBtn = view.$el.find(".org-recreate");
 				times++;
 				app.getJsonData("/admin-org-status", {
 					org : orgName
@@ -317,30 +331,35 @@
 							$setupBtn.prop("disabled", true).html("Setup");
 							$pasueBtn.prop("disabled", true);
 							$resetBtn.prop("disabled", false);
+							$recreateBtn.prop("disabled",false);
 							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").removeClass("disabled");
 							break;
 						case  "part"      :
 							$setupBtn.prop("disabled", false).html("Resume");
 							$pasueBtn.prop("disabled", true);
 							$resetBtn.prop("disabled", false);
+							$recreateBtn.prop("disabled",true);
 							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").removeClass("disabled");
 							break;
 						case  "error"     :
 							$setupBtn.prop("disabled", true).html("Setup");
 							$pasueBtn.prop("disabled", true);
 							$resetBtn.prop("disabled", false);
+							$recreateBtn.prop("disabled",true);
 							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").removeClass("disabled");
 							break;
 						case  "notstarted":
 							$setupBtn.prop("disabled", false).html("Setup");
 							$pasueBtn.prop("disabled", true);
 							$resetBtn.prop("disabled", false);
+							$recreateBtn.prop("disabled",true);
 							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").removeClass("disabled");
 							break;
 						case  "running"   :
 							$setupBtn.prop("disabled", true).html("Setup...");
 							$pasueBtn.prop("disabled", false);
 							$resetBtn.prop("disabled", true);
+							$recreateBtn.prop("disabled",true);
 							view.$el.find(".save,.saveSearchConfig,.disable-indexes,.multiply,.rebuild-resume,.enable-indexes,.drop-ex").addClass("disabled");
 							setTimeout(function() {
 								refresh.call(view);
