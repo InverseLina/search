@@ -126,6 +126,7 @@ public class DBSetupManager {
     private String DONE="done",RUNNING="running",NOTSTARTED="notstarted",ERROR="error",PART="part",INCOMPLETE="incomplete";
     private String webPath;
     private volatile Thread sysThread;
+    private volatile Thread sysRecreateCityWorldThread;
     private volatile boolean sysReseting = false;
     private volatile HttpGet zipCodeConnection = null;
     private volatile HttpGet cityConnection = null;
@@ -133,6 +134,7 @@ public class DBSetupManager {
     private boolean firstSetup = true;
     private String step = null;
     private ConcurrentHashMap<String,Thread> orgThreads = new ConcurrentHashMap<String, Thread>();
+    private ConcurrentHashMap<String,Thread> orgRecreateCityScoreThreads = new ConcurrentHashMap<String, Thread>();
     private ConcurrentHashMap<String, CurrentOrgSetupStatus>  currentOrgSetupStatus = 
     		new ConcurrentHashMap<String, DBSetupManager.CurrentOrgSetupStatus>();
     
@@ -506,6 +508,43 @@ public class DBSetupManager {
         return status;
 
     }
+    
+    public void orgRecreateCityScore(final String orgName){
+    	dropOrgCityScore(orgName);
+    	if(orgSetupStatusMsg.get(orgName) != null){
+    		orgSetupStatusMsg.get(orgName).clear();
+    	}
+        if(webPath == null){
+            webPath = currentRequestContextHolder.getCurrentRequestContext().getServletContext().getRealPath("/");
+        }
+        Thread orgRecreateThread = orgRecreateCityScoreThreads.get(orgName);
+        if(orgRecreateThread == null){
+        	orgRecreateThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                    	orgSetupStatus.put(orgName, true);
+                    	createExtraGroupCity(orgName, "city_score");
+                    	orgSetupStatus.put(orgName, false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.error(e.getMessage());
+                    }
+                }
+            });
+
+            orgRecreateCityScoreThreads.put(orgName, orgRecreateThread);
+            orgRecreateThread.setName(orgName);
+            orgRecreateThread.start();
+        }
+    }
+    
+    private void dropOrgCityScore(String orgName){
+    	//drop city_score table
+    	Runner runner = daoRwHelper.newOrgRunner(orgName);
+        runner.execute("DROP TABLE city_score CASCADE");
+        runner.close();
+    }
     // ---------- /organization setup interfaces ----------//
 
     // ---------- system setup interfaces ----------//
@@ -580,6 +619,26 @@ public class DBSetupManager {
         return false;
     }
 
+    public void systemRecreateCityWorld() {
+    	dropSysCityWorld();
+        if (sysRecreateCityWorldThread != null) {
+        	sysRecreateCityWorldThread.interrupt();
+        	sysRecreateCityWorldThread = null;
+        }
+        sysRecreateCityWorldThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                	recreateCityWorld();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        
+        sysRecreateCityWorldThread.setName("sysRecreateCityWorldThread");
+        sysRecreateCityWorldThread.start();
+    }
     // ---------- /Thread ----------//
 
     public Map getSystemSetupStatus() {
@@ -2368,6 +2427,18 @@ public class DBSetupManager {
             fixMissingColumns(null, true);
         }
         firstSetup = false;
+    }
+    
+    private void dropSysCityWorld() {
+        //drop old city_world table
+        Runner runner = daoRwHelper.newSysRunner();
+        runner.execute("DROP TABLE city_world CASCADE");
+        runner.close();
+    }
+    
+    private void recreateCityWorld() throws Exception{
+        step = "import_city_world";
+        importCityWorld();
     }
     
     private boolean checkSysSchema(){

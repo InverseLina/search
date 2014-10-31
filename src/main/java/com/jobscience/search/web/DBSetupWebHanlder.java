@@ -32,6 +32,18 @@ public class DBSetupWebHanlder {
         return webResponseBuilder.success();
     }
     
+    @WebPost("/admin-org-recreate-cityscore")
+    @RequireAdmin
+    public WebResponse orgRecreateCityScore(@WebParam("org")String orgName){
+        try{
+            dbSetupManager.orgRecreateCityScore(orgName);
+        }catch(Exception e){
+            e.printStackTrace();
+            return webResponseBuilder.success(new JSSSqlException(-1,e.getLocalizedMessage()));
+        }
+        return webResponseBuilder.success();
+    }
+    
     @WebPost("/stop-org-setup")
     @RequireAdmin
     public WebResponse stopOrgSetup(@WebParam("org")String orgName){
@@ -78,6 +90,14 @@ public class DBSetupWebHanlder {
     @RequireAdmin
     public WebResponse start(){
         dbSetupManager.systemSetup();
+        Map status = dbSetupManager.getSystemSetupStatus();
+        return webResponseBuilder.success(status);
+    }
+    
+    @WebPost("/admin-sys-recreate-cityworld")
+    @RequireAdmin
+    public WebResponse recreateCityWorld (){
+        dbSetupManager.systemRecreateCityWorld();
         Map status = dbSetupManager.getSystemSetupStatus();
         return webResponseBuilder.success(status);
     }
