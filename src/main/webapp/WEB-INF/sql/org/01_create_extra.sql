@@ -23,9 +23,9 @@
 	schema_name := '"'||TG_TABLE_SCHEMA||'"';
 	EXECUTE   'set search_path to '||schema_name;
 	IF( TG_OP='INSERT' ) THEN
-	    insert into jss_contact(id,resume_tsv,contact_tsv,sfid) values(new.id,to_tsvector(coalesce(new."ts2__text_resume__c",' ')),to_tsvector(coalesce(new."firstname",' ')||coalesce(new."lastname",' ')||coalesce(new."title",' ')),coalesce(new."sfid",' '));
+	    insert into jss_contact(id,resume_lower,resume_tsv,contact_tsv,sfid) values(new.id,lower(coalesce(new."ts2__text_resume__c")),to_tsvector(coalesce(new."ts2__text_resume__c",' ')),to_tsvector(coalesce(new."firstname",' ')||coalesce(new."lastname",' ')||coalesce(new."title",' ')),coalesce(new."sfid",' '));
 	ELSIF (TG_OP = 'UPDATE') THEN
-	    UPDATE jss_contact SET resume_tsv=to_tsvector(coalesce(new."ts2__text_resume__c",' ')),contact_tsv= to_tsvector(coalesce(new."firstname",' ')||coalesce(new."lastname",' ')||coalesce(new."title",' '))  where id = new.id;
+	    UPDATE jss_contact SET resume_lower=lower(coalesce(new."ts2__text_resume__c")),resume_tsv=to_tsvector(coalesce(new."ts2__text_resume__c",' ')),contact_tsv= to_tsvector(coalesce(new."firstname",' ')||coalesce(new."lastname",' ')||coalesce(new."title",' '))  where id = new.id;
 	END IF;
 	RETURN NEW;
 	END;
