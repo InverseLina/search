@@ -900,7 +900,7 @@
 						notLast : colLen - j > 1
 					});
 
-				} else if (columns[j] === "CreatedDate") {
+				} else if (columns[j] === "createddate") {
 					item.push({
 						name : columns[j],
 						value : formateDate(items[i][columns[j]], dateFormat),
