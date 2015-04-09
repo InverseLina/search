@@ -1658,7 +1658,7 @@ public class SearchDao {
     
     private String addPercentageIfNecessary(String src){
         if (!src.contains("%")) {
-            return src + "%";
+            return "%" + src + "%";
         }
         return src;
     }
