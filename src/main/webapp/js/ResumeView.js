@@ -33,15 +33,15 @@
 				$resumeIcon.off("mouseout");
 				$resumeIcon.on("mouseout",function(event){
 					var x=event.clientX;
-	                var y=event.clientY;
-	                var resumeViewContainerOffset = $resumeViewContainer.offset();
-	                var divx1 = resumeViewContainerOffset.left;
-	                var divy1 = resumeViewContainerOffset.top;
-	                var divx2 = resumeViewContainerOffset.left + $resumeViewContainer.width();
-	                var divy2 = resumeViewContainerOffset.top + $resumeViewContainer.height();
-	                if( x < divx1 || x > divx2 || y < divy1 || y > divy2){
-	                	$e.bRemove();
-	                }
+					var y=event.clientY;
+					var resumeViewContainerOffset = $resumeViewContainer.offset();
+					var divx1 = resumeViewContainerOffset.left;
+					var divy1 = resumeViewContainerOffset.top;
+					var divx2 = resumeViewContainerOffset.left + $resumeViewContainer.width();
+					var divy2 = resumeViewContainerOffset.top + $resumeViewContainer.height();
+					if( x < divx1 || x > divx2 || y < divy1 || y > divy2){
+						$e.bRemove();
+					}
 				});
 
 				$resumeViewContainer.off("mouseleave");
@@ -92,8 +92,14 @@
 								var encapeChar = encapeChars[i];
 								keyWord = keyWord.replace(new RegExp("\\"+encapeChar,"g"), "\\"+encapeChar);
 							}
-							var reg = new RegExp("("+ keyWord +")", "gmi");
-							resume = resume.replace(reg, "<span class=\"highlight\">$1</span>");
+							var reg = new RegExp("( "+ keyWord +" )", "gmi");
+							resume = resume.replace(reg, " <span class=\"highlight\">" + keyWord + "</span> ");
+							if(resume.indexOf(keyWord) == 0){
+								resume = "<span class=\"highlight\">" + keyWord + "</span>" + resume.substring(keyWord.length,resume.length);
+							}
+							if(resume.lastIndexOf(keyWord) == (resume.length - keyWord.length)){
+								resume =  resume.substring(0,resume.length-keyWord.length) + "<span class=\"highlight\">" + keyWord + "</span>";
+							}
 						}
 					}
 				}

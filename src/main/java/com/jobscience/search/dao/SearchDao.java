@@ -1120,8 +1120,10 @@ public class SearchDao {
 					joinSql.append(" and ");
 					lastOne = false;
 				}
-				joinSql.append(" jss.\"resume_lower\" like ? ");
-				values.add("%" + key.trim().toLowerCase() + "%");
+				joinSql.append(" jss.\"resume_lower\" like ? or jss.\"resume_lower\" like ? or jss.\"resume_lower\" like ?");
+				values.add("% " + key.trim().toLowerCase() + " %");
+				values.add(key.trim().toLowerCase() + " %");
+				values.add("% " + key.trim().toLowerCase());
 			} else {
 				joinSql.append(" jss.\"resume_lower\" not like ? ");
 				values.add("%" + key.trim().toLowerCase() + "%");
