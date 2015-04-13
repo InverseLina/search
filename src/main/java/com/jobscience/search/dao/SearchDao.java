@@ -139,7 +139,7 @@ public class SearchDao {
             	}
         	}else{
         	    if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
-                    searchValue = searchValue.replaceAll("\"", "");
+                    //searchValue = searchValue.replaceAll("\"", "");
         	    }
         	}
     	}
@@ -1019,16 +1019,16 @@ public class SearchDao {
         SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
         StringBuilder sb = new StringBuilder();
         String exactFilter = "";
-        exact = false;
-        if(exact){
-        	exactFilter=" ts_rank(resume_tsv, ?)>0 AND (";
-        	            values.add(param.replaceAll("\\s+", "&"));
-        }
         for(Field f : sc.getKeyword().getFields()){
-        	sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(?)");
-        	            values.add(param);
+			if(exact){
+				exactFilter=alias+".\"resume_lower\" like ?";
+				values.add("%"+param.replaceAll("\"","").trim().toLowerCase()+"%");
+			}else{
+				sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(?)");
+				values.add("'"+param+"'");
+			}
         }
-        return exactFilter+sb.delete(0, 2).toString()+(exact?")":"");
+        return exactFilter+sb.delete(0, 2).toString();
     }
 
     /**

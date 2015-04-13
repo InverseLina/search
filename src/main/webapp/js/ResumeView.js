@@ -72,42 +72,29 @@
 		var $e = view.$el;
 		var $body = $e.find(".modal-body");
 		var query = app.ParamsControl.getQuery();
-		var encapeChars = ["\\","*",".","?","+","$","^","[","]","(",")","{","}","|","/"];
 		app.getJsonData("getResume", {
 			cid : data.id,
 			keyword : query
 		}).done(function(result) {
 			if (result) {
-				var resume = result.resume;
+				view.resume = result.resume;
 				var exact = result.exact;
-				if(exact){
-					var keyWord = query;
-					var keyWordsSplited = keyWord.substring(1,keyWord.length-1);
-					keyWordsSplited = keyWordsSplited.split(/["]/);
-					for (var k in keyWordsSplited) {
-						var Operator = new RegExp("\s*(AND|OR|NOT)\s*");
-						if (keyWordsSplited[k] && !(/^ +$/.test(keyWordsSplited[k])) && !Operator.test(keyWordsSplited[k])){
-							var keyWord = keyWordsSplited[k].replace(/(^\s*)|(\s*$)/g, "");
-							for(var i = 0; i < encapeChars.length; i++){
-								var encapeChar = encapeChars[i];
-								keyWord = keyWord.replace(new RegExp("\\"+encapeChar,"g"), "\\"+encapeChar);
-							}
-							var reg = new RegExp("( "+ keyWord +" )", "gmi");
-							resume = resume.replace(reg, " <span class=\"highlight\">" + keyWord + "</span> ");
-							if(resume.indexOf(keyWord) == 0){
-								resume = "<span class=\"highlight\">" + keyWord + "</span>" + resume.substring(keyWord.length,resume.length);
-							}
-							if(resume.lastIndexOf(keyWord) == (resume.length - keyWord.length)){
-								resume =  resume.substring(0,resume.length-keyWord.length) + "<span class=\"highlight\">" + keyWord + "</span>";
-							}
+				var hasExact = result.hasExact || false;
+				var hasExactValue = result.hasExactValue || [];
+				if(exact || hasExact){
+					if(exact){
+						renderResume.call(view,query)
+					}else{
+						for(var i=0;i<hasExactValue.length;i++){
+							renderResume.call(view,hasExactValue[i]);
 						}
 					}
 				}
 				
 				$content = $(render("ResumeView-content", {
-					resume : resume
+					resume : view.resume
 				}));
-				$body.html("<pre>" + resume + "</pre>");
+				$body.html("<pre>" + view.resume + "</pre>");
 			} else {
 				$content = $(render("ResumeView-content", {
 					resume : "not resume"
@@ -120,4 +107,29 @@
 
 	// --------- /Private Methods--------- //
 
+	function renderResume(query) {
+		var view = this;
+		var encapeChars = ["\\","*",".","?","+","$","^","[","]","(",")","{","}","|","/"];
+		var keyWord = query;
+		var keyWordsSplited = keyWord.substring(1,keyWord.length-1);
+		keyWordsSplited = keyWordsSplited.split(/["]/);
+		for (var k in keyWordsSplited) {
+			var Operator = new RegExp("\s*(AND|OR|NOT)\s*");
+			if (keyWordsSplited[k] && !(/^ +$/.test(keyWordsSplited[k])) && !Operator.test(keyWordsSplited[k])){
+				var keyWord = keyWordsSplited[k].replace(/(^\s*)|(\s*$)/g, "");
+				for(var i = 0; i < encapeChars.length; i++){
+					var encapeChar = encapeChars[i];
+					keyWord = keyWord.replace(new RegExp("\\"+encapeChar,"g"), "\\"+encapeChar);
+				}
+				var reg = new RegExp("( "+ keyWord +" )", "gmi");
+				view.resume = view.resume.replace(reg, " <span class=\"highlight\">" + keyWord + "</span> ");
+				if(view.resume.indexOf(keyWord) == 0){
+					view.resume = "<span class=\"highlight\">" + keyWord + "</span>" + view.resume.substring(keyWord.length,view.resume.length);
+				}
+				if(view.resume.lastIndexOf(keyWord) == (view.resume.length - keyWord.length)){
+					view.resume =  view.resume.substring(0,resume.length-keyWord.length) + "<span class=\"highlight\">" + keyWord + "</span>";
+				}
+			}
+		}
+	}
 })(jQuery);

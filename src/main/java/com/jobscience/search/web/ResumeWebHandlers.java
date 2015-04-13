@@ -1,5 +1,7 @@
 package com.jobscience.search.web;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,12 +29,26 @@ public class ResumeWebHandlers {
     public WebResponse search(@WebParam("cid") Long cid, @WebParam("keyword") String keyword) {
     	boolean exact = keyword.matches("^\\s*\"[\\s\\S]+\"\\s*$");
         List<Map> result = null;
+        boolean hasExact = false;
         Map map = null;
+        List<String> hasExactValue = new ArrayList<String>();
         if (!exact) {
-            String query = keyword.trim().replaceAll("\"", "").replaceAll("(NOT|OR|AND)", "").replaceAll("\\s+", "|");
-            query = query.replaceAll("^[|]+", "").replaceAll("[|]+$", "");
-            String sql = "select \"name\", ts_headline(\"ts2__text_resume__c\", to_tsquery(?), \'StartSel=\"<span class=\"\"highlight\"\">\", StopSel=\"</span>\", HighlightAll=true\') as resume from  contact where id = ?";
-            result = daoRwHelper.executeQuery(orgHolder.getOrgName(), sql, query, cid);
+            String[] queryArray = keyword.trim().replaceAll("(NOT|OR|AND)", "|").split("\\|");
+            StringBuilder sb = new StringBuilder();
+            for(int i=0;i<queryArray.length;i++){
+                String query = queryArray[i].trim();
+                if(query.matches("^\\s*\"[\\s\\S]+\"\\s*$")){
+                    hasExact = true;
+                    hasExactValue.add(query.trim());
+                }else{
+                    sb.append(query);
+                }
+            }
+            String queryString = sb.toString().replaceAll("\\s+", "|").replaceAll("^[|]+", "").replaceAll("[|]+$", "");
+            //String query = keyword.trim().replaceAll("\"", "").replaceAll("(NOT|OR|AND)", "").replaceAll("\\s+", "|");
+            //query = query.replaceAll("^[|]+", "").replaceAll("[|]+$", "");
+            String sql = "select \"name\", ts_headline(\"ts2__text_resume__c\", plainto_tsquery(?), \'StartSel=\"<span class=\"\"highlight\"\">\", StopSel=\"</span>\", HighlightAll=true\') as resume from  contact where id = ?";
+            result = daoRwHelper.executeQuery(orgHolder.getOrgName(), sql, queryString, cid);
         } else {
             String sql = "select \"name\", \"ts2__text_resume__c\" as resume from  contact where id = ?";
             result = daoRwHelper.executeQuery(orgHolder.getOrgName(), sql, cid);
@@ -40,6 +56,10 @@ public class ResumeWebHandlers {
         if(result.size() > 0){
             map = result.get(0);
             map.put("exact", exact);
+            if(hasExact){
+                map.put("hasExact",hasExact);
+                map.put("hasExactValue",hasExactValue);
+            }
         }
         return webResponseBuilder.success(map);
     }

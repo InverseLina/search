@@ -351,8 +351,8 @@ public class SearchRequest {
     }
     private String ruleInexactKeyWord(String keyWord){
     	StringBuffer ruleKey = new StringBuffer();
-    	String keyword = keyWord.trim().replaceAll("\"", "");
-    	String[] keywords = keyword.split("[ ]+");
+    	//String keyword = keyWord.trim().replaceAll("\"", "");
+    	String[] keywords = keyWord.split("[ ]+");
     	boolean needOperator = false;
     	boolean hasOperator = false;
     	String operator = "";
@@ -381,7 +381,7 @@ public class SearchRequest {
     				ruleKey.append(operator);
     				hasOperator = false;
     			}else{
-        			ruleKey.append("OR ");
+        			//ruleKey.append("OR ");
     			}
     		}
 			
