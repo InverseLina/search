@@ -121,14 +121,8 @@
 					var encapeChar = encapeChars[i];
 					keyWord = keyWord.replace(new RegExp("\\"+encapeChar,"g"), "\\"+encapeChar);
 				}
-				var reg = new RegExp("( "+ keyWord +" )", "gmi");
-				view.resume = view.resume.replace(reg, " <span class=\"highlight\">" + keyWord + "</span> ");
-				if(view.resume.indexOf(keyWord) == 0){
-					view.resume = "<span class=\"highlight\">" + keyWord + "</span>" + view.resume.substring(keyWord.length,view.resume.length);
-				}
-				if(view.resume.lastIndexOf(keyWord) == (view.resume.length - keyWord.length)){
-					view.resume =  view.resume.substring(0,resume.length-keyWord.length) + "<span class=\"highlight\">" + keyWord + "</span>";
-				}
+				var reg = new RegExp("\\b"+ keyWord +"\\b", "gmi");
+				view.resume = view.resume.replace(reg, "<span class=\"highlight\">" + keyWord + "</span>");
 			}
 		}
 	}
