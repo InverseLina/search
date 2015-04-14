@@ -1021,8 +1021,8 @@ public class SearchDao {
         String exactFilter = "";
         for(Field f : sc.getKeyword().getFields()){
 			if(exact){
-				exactFilter=alias+".\"resume_lower\" like ?";
-				values.add("%"+param.replaceAll("\"","").trim().toLowerCase()+"%");
+				exactFilter=alias+".\"resume_lower\" SIMILAR TO ?";
+				values.add("%[^a-z]" + param.replaceAll("\"","").trim().toLowerCase() + "[^a-z]%");
 			}else{
 				sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(?)");
 				values.add("'"+param+"'");
@@ -1120,10 +1120,8 @@ public class SearchDao {
 					joinSql.append(" and ");
 					lastOne = false;
 				}
-				joinSql.append(" jss.\"resume_lower\" like ? or jss.\"resume_lower\" like ? or jss.\"resume_lower\" like ?");
-				values.add("% " + key.trim().toLowerCase() + " %");
-				values.add(key.trim().toLowerCase() + " %");
-				values.add("% " + key.trim().toLowerCase());
+				joinSql.append(" jss.\"resume_lower\" SIMILAR TO ?");
+				values.add("%[^a-z]" + key.trim().toLowerCase() + "[^a-z]%");
 			} else {
 				joinSql.append(" jss.\"resume_lower\" not like ? ");
 				values.add("%" + key.trim().toLowerCase() + "%");
