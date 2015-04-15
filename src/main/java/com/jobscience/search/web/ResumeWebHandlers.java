@@ -29,6 +29,7 @@ public class ResumeWebHandlers {
     public WebResponse search(@WebParam("cid") Long cid, @WebParam("keyword") String keyword) {
     	boolean exact = keyword.matches("^\\s*\"[\\s\\S]+\"\\s*$");
         List<Map> result = null;
+        // the keyword maybe has the exact word event if without all parameters contain quotes,like "Account Manager" And Director
         boolean hasExact = false;
         Map map = null;
         List<String> hasExactValue = new ArrayList<String>();
@@ -45,8 +46,6 @@ public class ResumeWebHandlers {
                 }
             }
             String queryString = sb.toString().replaceAll("\\s+", "|").replaceAll("^[|]+", "").replaceAll("[|]+$", "");
-            //String query = keyword.trim().replaceAll("\"", "").replaceAll("(NOT|OR|AND)", "").replaceAll("\\s+", "|");
-            //query = query.replaceAll("^[|]+", "").replaceAll("[|]+$", "");
             String sql = "select \"name\", ts_headline(\"ts2__text_resume__c\", plainto_tsquery(?), \'StartSel=\"<span class=\"\"highlight\"\">\", StopSel=\"</span>\", HighlightAll=true\') as resume from  contact where id = ?";
             result = daoRwHelper.executeQuery(orgHolder.getOrgName(), sql, queryString, cid);
         } else {

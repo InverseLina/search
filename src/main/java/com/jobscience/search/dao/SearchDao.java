@@ -126,6 +126,7 @@ public class SearchDao {
         String schemaname = (String)org.getOrgMap().get("schemaname");
     	SearchConfiguration sc = searchConfigurationManager.getSearchConfiguration((String)org.getOrgMap().get("name"));
     	searchValue = searchValue.replaceAll("[\\(\\)%\\^\\@#~\\*]", "").trim();
+		// if it is exact word,just make it to search
     	if(!exact){
         	if(!searchValue.contains("NOT ") &&
         	   !searchValue.contains("AND ") &&
@@ -137,10 +138,6 @@ public class SearchDao {
             	    exact = true;
                     searchValue = searchValue.replaceAll("\"", "");//.replaceAll("\\s+", " AND ");
             	}
-        	}else{
-        	    if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
-                    //searchValue = searchValue.replaceAll("\"", "");
-        	    }
         	}
     	}
     	//if no search value,just return sql with 1!=1
