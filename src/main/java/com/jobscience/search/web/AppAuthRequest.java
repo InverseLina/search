@@ -94,7 +94,7 @@ public class AppAuthRequest implements AuthRequest {
             case WEB_TEMPLATE:
                 String orgName = rc.getParam("org");
                 if (orgName != null) {
-                  rc.setCookie(COOKIE_ORG, orgName,true);
+                    setCookie(rc, COOKIE_ORG, orgName, 524160f);
                 }
                 return authWebRequest(rc);
             // static files and generated files (.less, webbundle) we do not need to auth.
@@ -345,14 +345,12 @@ public class AppAuthRequest implements AuthRequest {
     }
 
     private void setCookie(RequestContext rc, String name, String value, float expire){
-        Cookie cookie = new Cookie(name,value);
-        cookie.setPath("/");
         if(expire > 0) {
-            cookie.setMaxAge((int)(expire * 60));
+            rc.getRes().addHeader("Set-Cookie",name+"="+value+";Max-Age="+(int) (expire * 60)+"path=/;Secure;HttpOnly");
         }else{
-            cookie.setMaxAge(120 * 60);
+            rc.getRes().addHeader("Set-Cookie",name+"="+value+";Max-Age="+120 * 60+"path=/;Secure;HttpOnly");
         }
-        rc.getRes().addCookie(cookie);
+
     }
     
     static String sha1(String txt){
