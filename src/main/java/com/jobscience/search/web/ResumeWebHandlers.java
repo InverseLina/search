@@ -42,7 +42,7 @@ public class ResumeWebHandlers {
                     hasExact = true;
                     hasExactValue.add(query.trim());
                 }else{
-                    sb.append(query);
+                    sb.append(" "+query);
                 }
             }
             String queryString = sb.toString().replaceAll("\\s+", "|").replaceAll("^[|]+", "").replaceAll("[|]+$", "");
