@@ -33,7 +33,8 @@ public class ResumeWebHandlers {
         boolean hasExact = false;
         Map map = null;
         List<String> hasExactValue = new ArrayList<String>();
-        if (!exact) {
+        // note that to fix exact issue for now
+        //if (!exact) {
             String[] queryArray = keyword.trim().replaceAll("(NOT|OR|AND)", "|").split("\\|");
             StringBuilder sb = new StringBuilder();
             for(int i=0;i<queryArray.length;i++){
@@ -48,10 +49,10 @@ public class ResumeWebHandlers {
             String queryString = sb.toString().replaceAll("\\s+", "|").replaceAll("^[|]+", "").replaceAll("[|]+$", "");
             String sql = "select \"name\", ts_headline(\"ts2__text_resume__c\", plainto_tsquery(?), \'StartSel=\"<span class=\"\"highlight\"\">\", StopSel=\"</span>\", HighlightAll=true\') as resume from  contact where id = ?";
             result = daoRwHelper.executeQuery(orgHolder.getOrgName(), sql, queryString, cid);
-        } else {
-            String sql = "select \"name\", \"ts2__text_resume__c\" as resume from  contact where id = ?";
-            result = daoRwHelper.executeQuery(orgHolder.getOrgName(), sql, cid);
-        }
+        //} else {
+        //    String sql = "select \"name\", \"ts2__text_resume__c\" as resume from  contact where id = ?";
+        //    result = daoRwHelper.executeQuery(orgHolder.getOrgName(), sql, cid);
+        //}
         if(result.size() > 0){
             map = result.get(0);
             map.put("exact", exact);

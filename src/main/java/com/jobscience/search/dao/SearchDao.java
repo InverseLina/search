@@ -970,18 +970,19 @@ public class SearchDao {
 		} else {
 			boolean exact = keyword.matches("^\\s*\".+\"\\s*$");
 			joinSql.append(" select  distinct contact.id,contact.sfid  from (");
-			if (exact) {
-				if (searchRequest.isOnlyKeyWord()) {
-					joinSql = new StringBuilder();
-				}
-				ArrayList<String> keys = new ArrayList<String>();
-				Map<Integer, String> operators = new HashMap<Integer, String>();
-				//spilt keywords
-				spiltKeywords(keyword,keys,operators);
-				//exactkeywordSql
-				joinSql.append(exactkeywordSql(org,keys, operators, searchRequest,values));
-				return joinSql.toString();
-			} else {
+			// note that to fix exact issue for now
+			//if (exact) {
+			//	if (searchRequest.isOnlyKeyWord()) {
+			//		joinSql = new StringBuilder();
+			//	}
+			//	ArrayList<String> keys = new ArrayList<String>();
+			//	Map<Integer, String> operators = new HashMap<Integer, String>();
+			//	//spilt keywords
+			//	spiltKeywords(keyword,keys,operators);
+			//	//exactkeywordSql
+			//	joinSql.append(exactkeywordSql(org,keys, operators, searchRequest,values));
+			//	return joinSql.toString();
+			//} else {
 				if (searchRequest.isOnlyKeyWord()) {
 					if (keyword.contains("NOT ") || keyword.contains("AND ")
 							|| keyword.contains("OR ")) {
@@ -998,7 +999,7 @@ public class SearchDao {
 					joinSql.append(booleanSearchHandler(keyword, null, org,
 							false,values));
 				}
-			}
+			//}
 			joinSql.append(")  contact ");
 			return joinSql.toString();
 		}
@@ -1776,17 +1777,18 @@ public class SearchDao {
         	this.searchRequest =searchRequest;
             if(!Strings.isNullOrEmpty(keyword) && keyword.length() >= 3){
                 hasCondition = true;
-                keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org,searchRequest));
+                keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org, searchRequest));
                 keyWordCountSql.append(keyWordSql.toString());
-                if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
-                	if(searchRequest.getOrder().trim().startsWith("\"id\"")&&
-                           	searchRequest.isOnlyKeyWord()){
-                		keyWordSql.append(" order by ").append(searchRequest.getOrder());
-                	}
-                	if(!searchRequest.isOnlyKeyWord()){
-                		exactSearchOrderSql.append(getOrderSql(searchRequest));
-                	}
-                }else{
+				// note that to fix exact issue for now
+                //if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
+                //	if(searchRequest.getOrder().trim().startsWith("\"id\"")&&
+				//          	searchRequest.isOnlyKeyWord()){
+                //		keyWordSql.append(" order by ").append(searchRequest.getOrder());
+                //	}
+                //	if(!searchRequest.isOnlyKeyWord()){
+                //		exactSearchOrderSql.append(getOrderSql(searchRequest));
+                //	}
+                //}else{
                 	   if (searchRequest.getOrder().trim().startsWith("\"id\"")&&
                            	searchRequest.isOnlyKeyWord()) {
                            	keyWordSql.append(" order by ").append(searchRequest.getOrder());
@@ -1795,7 +1797,7 @@ public class SearchDao {
                			}else{
                				exactSearchOrderSql.append(getOrderSql(searchRequest));
                        }
-                }
+                //}
             }else{
             	keyWordSql.append(" select distinct contact.id from contact ");
             	keyWordCountSql.append(" select  distinct contact.id from contact ");
