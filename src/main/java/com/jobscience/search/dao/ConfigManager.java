@@ -165,4 +165,13 @@ public class ConfigManager {
     private String getValueFromProperties(String key){
         return null;
     }
+
+    public String getDateFormat(Integer id){
+        List<Map> list = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(), "select value from config where name=? AND org_id=?", "local_date", id);
+        if(list.size() > 0){
+            return String.valueOf(list.get(0).get("value"));
+        }else{
+            return null;
+        }
+    }
 }

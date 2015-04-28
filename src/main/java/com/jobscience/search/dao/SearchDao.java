@@ -888,9 +888,9 @@ public class SearchDao {
         SearchBuilder sb = new SearchBuilder(org);
         sb.addKeyWord(searchRequest.getKeyword(),searchRequest).addContactFilter(searchRequest.getContacts(), searchRequest.hasContactTitle())
           .addCompany(searchRequest.getCompanies()).addEducation(searchRequest.getEducations())
-          .addSkill(searchRequest.getSkills()).addCustomPartCondition(searchRequest.getCustomFields()).addLocation(searchRequest.getLocations())
+          .addSkill(searchRequest.getSkills()).addCustomPartCondition(searchRequest.getCustomFields(),org).addLocation(searchRequest.getLocations())
           .addCustomFilter(searchRequest.getCustomFilters()).addObjectType(searchRequest.getObjectType())
-          .addStatus(searchRequest.getStatus()).addCustomFields(searchRequest.getCustomFields());
+          .addStatus(searchRequest.getStatus()).addCustomFields(searchRequest.getCustomFields(),org);
         querySqlparam.addAll(sb.getValues());
         countSqlparam.addAll(sb.getValues());
             
@@ -970,7 +970,6 @@ public class SearchDao {
 		} else {
 			boolean exact = keyword.matches("^\\s*\".+\"\\s*$");
 			joinSql.append(" select  distinct contact.id,contact.sfid  from (");
-			// note that to fix exact issue for now
 			//if (exact) {
 			//	if (searchRequest.isOnlyKeyWord()) {
 			//		joinSql = new StringBuilder();
@@ -1025,6 +1024,7 @@ public class SearchDao {
 				sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(?)");
 				values.add("'"+param+"'");
 			}
+
         }
         return exactFilter+sb.delete(0, 2).toString();
     }
@@ -1390,7 +1390,7 @@ public class SearchDao {
 	}
     
     private boolean renderCustomPartCondition(JSONArray searchValues, StringBuilder filterSql,
-                            SearchConfiguration sc, List valueList) {
+                            SearchConfiguration sc, List valueList,OrgContext org) {
         boolean hasCondition = false;
         if (searchValues != null) {
             StringBuilder condition = new StringBuilder();
@@ -1411,7 +1411,7 @@ public class SearchDao {
         		}
         		condition.append(" join ").append(table).append(" ").append(name).append(" on contact.").append(jointo).append("=")
         		         .append(name).append(".").append(joinfrom).append(" AND (1!=1 OR (1=1");
-                condition.append(setCustomPartCondition(jo, customFilter, sc, valueList, name));
+                condition.append(setCustomPartCondition(jo, customFilter, sc, valueList, name, org));
         		condition.append(" ) )");
             }
             filterSql.append(condition);
@@ -1420,12 +1420,12 @@ public class SearchDao {
         return hasCondition;
     }
 
-    private String setCustomPartCondition(JSONObject jo, Filter customFilter, SearchConfiguration sc, List valueList, String table){
+    private String setCustomPartCondition(JSONObject jo, Filter customFilter, SearchConfiguration sc, List valueList, String table,OrgContext org){
     	StringBuilder condition = new StringBuilder();
 		String temp = customFilter.getFilterField().toString(table);
 		JSONObject conditionsParam = jo.getJSONObject("conditions");
         for(Object op : conditionsParam.keySet()){
-            condition.append(" AND (1=1 ").append(wrap(temp, customFilter, conditionsParam.get(op), op, valueList));
+            condition.append(" AND (1=1 ").append(wrap(temp, customFilter, conditionsParam.get(op), op, valueList,org));
         }
     	return condition.toString();
     }
@@ -1559,7 +1559,7 @@ public class SearchDao {
         return hasCondition;
     }
     
-    private boolean renderCustomFields(JSONArray searchValues,StringBuilder conditions, List conditionValues, SearchConfiguration sc){
+    private boolean renderCustomFields(JSONArray searchValues,StringBuilder conditions, List conditionValues, SearchConfiguration sc, OrgContext org){
     	if(searchValues == null){
             return false;
         }
@@ -1578,7 +1578,7 @@ public class SearchDao {
                 temp = customFilter.getFilterField().toString("contact");
                 conditionsParam = jo.getJSONObject("conditions");
                 for(Object op : conditionsParam.keySet()){
-                    conditions.append(" AND ( 1=1 ").append(wrap(temp,customFilter,conditionsParam.get(op),op,conditionValues));
+                    conditions.append(" AND ( 1=1 ").append(wrap(temp,customFilter,conditionsParam.get(op),op,conditionValues,org));
                 }
             } else {
             	//other conditions has add in customfielter
@@ -1588,7 +1588,7 @@ public class SearchDao {
         return hasCondition;
     }
     
-    private String wrap(String temp, Filter customFilter, Object conditionParam, Object op, List conditionValues){
+    private String wrap(String temp, Filter customFilter, Object conditionParam, Object op, List conditionValues,OrgContext org){
     	StringBuilder wrapStr = new StringBuilder();
         if("string".equalsIgnoreCase(customFilter.getFilterType().value())){
         	JSONArray terms = JSONArray.fromObject(conditionParam);
@@ -1610,7 +1610,14 @@ public class SearchDao {
         		wrapStr.append(")");
         	}
         }else if("date".equalsIgnoreCase(customFilter.getFilterType().value())){
-        	wrapStr.append("and").append(temp).append(op).append(" to_date(?,'MM/DD/YYYY')");
+			String dataFormat = null;
+			if(org.getOrgMap().get("name") != null){
+				dataFormat = getOrgConfigValue((String)org.getOrgMap().get("name"), "local_date");
+			}
+			if(dataFormat == null){
+				dataFormat = "yyyy-mm-dd";
+			}
+        	wrapStr.append("and").append(temp).append(op).append(" to_date(?,'"+dataFormat+"')");
         	conditionValues.add(conditionParam);
         }else if("boolean".equalsIgnoreCase(customFilter.getFilterType().value())){
             if("=".equals(op) || "==".equals(op)){
@@ -1777,9 +1784,8 @@ public class SearchDao {
         	this.searchRequest =searchRequest;
             if(!Strings.isNullOrEmpty(keyword) && keyword.length() >= 3){
                 hasCondition = true;
-                keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org, searchRequest));
+                keyWordSql.append(getSearchValueJoinTable(keyword, values, "contact", org,searchRequest));
                 keyWordCountSql.append(keyWordSql.toString());
-				// note that to fix exact issue for now
                 //if(keyword.matches("^\\s*\"[^\"]+\"\\s*$")){//when exact search,add condition for resume
                 //	if(searchRequest.getOrder().trim().startsWith("\"id\"")&&
 				//          	searchRequest.isOnlyKeyWord()){
@@ -1828,8 +1834,8 @@ public class SearchDao {
             return this;
         }
         
-        public SearchBuilder addCustomPartCondition(JSONArray searchValues){
-            hasCondition = renderCustomPartCondition(searchValues, filterSql, sc, values)||hasCondition;
+        public SearchBuilder addCustomPartCondition(JSONArray searchValues, OrgContext org){
+            hasCondition = renderCustomPartCondition(searchValues, filterSql, sc, values, org)||hasCondition;
             return this;
         }
         
@@ -1880,8 +1886,8 @@ public class SearchDao {
         	hasContactCondition = renderCustomFilters(searchValues, filterSql, conditions, values, conditionValues, schemaname, sc)||hasContactCondition;
             return this;
         }
-        public SearchBuilder addCustomFields(JSONArray searchValues){
-            hasContactCondition = renderCustomFields(searchValues,  conditions, conditionValues, sc) || hasContactCondition;
+        public SearchBuilder addCustomFields(JSONArray searchValues, OrgContext org){
+            hasContactCondition = renderCustomFields(searchValues,  conditions, conditionValues, sc,org) || hasContactCondition;
             hasCondition = hasContactCondition || hasCondition;
             return this;
         }

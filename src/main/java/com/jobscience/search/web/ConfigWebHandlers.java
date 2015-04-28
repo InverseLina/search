@@ -77,4 +77,8 @@ public class ConfigWebHandlers {
         return webResponseBuilder.success(configManager.getConfig(name,orgHolder.getId()));
     }
 
+    @WebGet("/config/getDateFormat")
+    public WebResponse getDateFormat() throws Exception {
+        return webResponseBuilder.success(configManager.getDateFormat(orgHolder.getId()));
+    }
 }

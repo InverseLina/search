@@ -20,26 +20,32 @@
 
 		postDisplay : function(data) {
 			var view = this;
-			var $e = this.$el;
-			var dateStr = data.value;
-			var date;
-			if(!dateStr || dateStr == "" || !/^\d\d\/\d\d\/\d\d\d\d$/.test(dateStr)){
-				date = new Date();
-			}else{
-				var dateArr = dateStr.split("/");
-				date = new Date(Date.parse(dateArr[2]+"/"+ dateArr[0] +"/" + dateArr[1]));
-				if(date == "Invalid Date"){
-					date = new Date();
+			app.getJsonData("/config/getDateFormat",null,"Get").done(function(data) {
+				if(data == null){
+					data = "yyyy/MM/dd";
 				}
-			}
-			
-			
-			view.currentMonth = date.getMonth();
-			view.currentYear = date.getFullYear();
-			
-			showCalendar.call(view,view.currentMonth);
-			selectDate.call(view, date);
-			view.elementInit = true;
+				view.dateFormat = data.replace("YYYY","yyyy").replace("DD","dd");
+				var $e = this.$el;
+				var dateStr = data.value;
+				var date;
+				if(!dateStr || dateStr == "" || !/^\d\d\/\d\d\/\d\d\d\d$/.test(dateStr)){
+					date = new Date();
+				}else{
+					var dateArr = dateStr.split("/");
+					date = new Date(Date.parse(dateArr[2]+"/"+ dateArr[0] +"/" + dateArr[1]));
+					if(date == "Invalid Date"){
+						date = new Date();
+					}
+				}
+
+
+				view.currentMonth = date.getMonth();
+				view.currentYear = date.getFullYear();
+
+				showCalendar.call(view,view.currentMonth);
+				selectDate.call(view, date);
+				view.elementInit = true;
+			});
 		},
 		// --------- /View Interface Implement--------- //
 		// --------- Events--------- //
@@ -190,7 +196,7 @@
 		for (var i = 0; i < endDateOfMonth.getDate() * 1; i++) {
 			var date = new Date(firstDateOfMonth * 1 + i * 24 * 60 * 60 * 1000);
 			var dataValue = date.getDate();
-			var dateFormatStr = date.format("yyyy/MM/dd");
+			var dateFormatStr = date.format(view.dateFormat);
 			week[date.getDay()] = {
 				dataValue : dataValue,
 				dateObj : date,
@@ -213,7 +219,7 @@
 			var date = new Date(firstDateOfMonth * 1 - (firstDateOfMonth.getDay() - i) * 24 * 60 * 60 * 1000);
 			var dateStr = date.getDate() <= 9 ? "0" + date.getDate() : date.getDate();
 			var dataValue = date.getDate();
-			var dateFormatStr = date.format("yyyy/MM/dd");
+			var dateFormatStr = date.format(view.dateFormat);
 			weeks[0][i] = {
 				dataValue : dataValue,
 				dateObj : date,
@@ -227,7 +233,7 @@
 		for (var i = endDateOfMonth.getDay() + 1; i <= 6; i++) {
 			var date = new Date(endDateOfMonth * 1 + (i - endDateOfMonth.getDay()) * 24 * 60 * 60 * 1000);
 			var dataValue = date.getDate();
-			var dateFormatStr = date.format("yyyy/MM/dd");
+			var dateFormatStr = date.format(view.dateFormat);
 			weeks[weeks.length - 1][i] = {
 				dataValue : dataValue,
 				dateObj : date,
@@ -242,7 +248,7 @@
 			for(var i = 0; i < 7; i++){
 				var date = new Date(newEndDate * 1 + (i + 1) * 24 * 60 * 60 * 1000);
 				var dataValue = date.getDate();
-				var dateFormatStr = date.format("yyyy/MM/dd");
+				var dateFormatStr = date.format(view.dateFormat);
 				week.push({
 					dataValue : dataValue,
 					dateObj : date,
@@ -271,14 +277,14 @@
 	function setValue(date){
 		var view = this;
 		if(view._onSelectCallback && $.isFunction(view._onSelectCallback)){
-			view._onSelectCallback(date.format("MM/dd/yyyy"));
+			view._onSelectCallback(date.format(view.dateFormat));
 		}
 	}
 	
 	function selectDate(date){
 		var view = this;
 		var $e = view.$el;
-		var dateString = date.format("yyyy/MM/dd");
+		var dateString = date.format(view.dateFormat);
 		$e.find("td .date").removeClass("selected");
 		$e.find("td[data-date='"+dateString+"'] .date").addClass("selected");
 	}

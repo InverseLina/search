@@ -17,6 +17,13 @@
 		},
 
 		postDisplay : function(data) {
+			var view = this;
+			app.getJsonData("/config/getDateFormat",null,"Get").done(function(data) {
+				if(data == null){
+					data = "yyyy/MM/dd";
+				}
+				view.dateFormat = data.replace("YYYY","yyyy").replace("DD","dd");
+			});
 		},
 		// --------- /View Interface Implement--------- //
 
@@ -154,14 +161,21 @@
 			}
 			return false;
 		}
-		
-		if(!/^\d\d\/\d\d\/\d\d\d\d$/.test(value)){
+		var reg = new RegExp();
+		if(view.dateFormat == "yyyy-MM-dd"){
+			reg = /^\d\d\d\d\-\d\d\-\d\d$/
+		}else if(view.dateFormat == "dd/MM/yyyy" || view.dateFormat == "MM/dd/yyyy"){
+			reg = /^\d\d\/\d\d\/\d\d\d\d$/;
+		}else{
+			reg = /^\d\d\d\d\d\d\d\d$/;
+		}
+		if(!reg.test(value)){
 			if(showMessage){
 				$alert.removeClass("hide");
 			}
 			return false;
 		}
-		var dateValue = Date.parse(value);
+		var dateValue = Date.parse(getFormatDate(value,view.dateFormat));
 		if(isNaN(dateValue) || dateValue <= 0){
 			if(showMessage){
 				$alert.removeClass("hide");
@@ -180,8 +194,8 @@
 		var $alert = $e.find(".rangeError"); 
 		var validated = validateInput.call(view, $input, showMessage) && validateInput.call(view, $input1, showMessage);
 		if(validated){
-			var dateValue = Date.parse(value);
-			var dateValue1 = Date.parse(value1);
+			var dateValue = Date.parse(getFormatDate(value,view.dateFormat));
+			var dateValue1 = Date.parse(getFormatDate(value1,view.dateFormat));
 			if(dateValue > dateValue1){
 				if(showMessage){
 					$alert.removeClass("hide");	
@@ -341,6 +355,25 @@
 			$e.find(".viewContainer .resultValue1").addClass("hide").attr("data-value", "").text("");
 		}
 		
+	}
+
+	function getFormatDate(date,format){
+		var view = this;
+		var dateString;
+		var dateArr;
+		if(format == "yyyy-MM-dd"){
+			dateArr = date.split("-");
+			return dateArr[0]+"/"+ dateArr[1] +"/" + dateArr[2];
+		}else if(format == "dd/MM/yyyy"){
+			dateArr = date.split("/");
+			return dateArr[2]+"/"+ dateArr[1] +"/" + dateArr[0];
+		}else if(format == "MM/dd/yyyy"){
+			dateArr = date.split("/");
+			return dateArr[2]+"/"+ dateArr[0] +"/" + dateArr[1];
+		}else{
+			return date.substr(0,4)+"/"+ date.substr(4,2) +"/" + date.substr(6,2);
+		}
+
 	}
 	
 	// --------- /Private Methods--------- //
