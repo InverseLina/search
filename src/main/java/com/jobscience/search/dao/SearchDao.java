@@ -132,7 +132,7 @@ public class SearchDao {
         	   !searchValue.contains("AND ") &&
         	   !searchValue.contains("OR ")){
             	if(!searchValue.matches("^\\s*\"[^\"]+\"\\s*$")){//if there not in quotes,replace space to OR
-            	    searchValue = searchValue.replaceAll("\\s+", " OR ");
+            	    //searchValue = searchValue.replaceAll("\\s+", " OR ");
             	    exact = false;
             	}else{
             	    exact = true;
@@ -1021,8 +1021,13 @@ public class SearchDao {
 				exactFilter=alias+".\"resume_lower\" SIMILAR TO ?";
 				values.add("%[^a-z]" + param.replaceAll("\"","").trim().toLowerCase() + "[^a-z]%");
 			}else{
-				sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(?)");
-				values.add("'"+param+"'");
+				if(param.contains(" ")){
+					sb.append("OR ").append(alias+".\"resume_lower\" ilike ?");
+					values.add("%" + param.replaceAll("\"","").trim().toLowerCase() + "%");
+				}else{
+					sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(?)");
+					values.add("'"+param+"'");
+				}
 			}
 
         }
@@ -1636,7 +1641,7 @@ public class SearchDao {
 
     private String getOrgConfigValue(String orgName, String configColumn){
     	String sql = "select value from config where org_id in (select id from org where name = ?) and name = ?";
-    	List<Map> results = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(), sql, orgName, configColumn);
+		List<Map> results = daoRwHelper.executeQuery(daoRwHelper.newSysRunner(), sql, orgName, configColumn);
     	if(results.size() == 1){
     		return results.get(0).get("value").toString();
     	} else {
