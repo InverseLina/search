@@ -3,6 +3,7 @@ package com.jobscience.search.web;
 
 import java.io.IOException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,15 +73,15 @@ public class WebExceptionProcessor {
     }
     @WebExceptionCatcher
     public void processOtherException(Exception e, WebExceptionContext wec, RequestContext rc) {
-    	rc.getWebModel().put("errorCode", e.toString());
-        rc.getWebModel().put("errorMessage", e.getMessage());
+    	rc.getWebModel().put("errorCode", StringEscapeUtils.escapeHtml(e.toString()));
+        rc.getWebModel().put("errorMessage", StringEscapeUtils.escapeHtml(e.getMessage()));
         rc.getWebModel().put("success", "false");
         rc.getRes().setHeader("Cache-Control","no-cache");
         rc.getRes().setHeader("Pragma","no-cache");
         rc.getRes().setDateHeader ("Expires", -1);
 		logger.warn("SERVER_ERROR",e);
         try {
-            rc.getWriter().write("The server has occurred an error:"+e.getMessage());
+            rc.getWriter().write("The server has occurred an error:"+StringEscapeUtils.escapeHtml(e.getMessage()));
         } catch (IOException ioException) {
         	ioException.printStackTrace();
         }
