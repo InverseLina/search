@@ -28,7 +28,7 @@ public class AppConfig extends AbstractModule {
     @SuppressWarnings("unused")
     private static Logger log = LoggerFactory.getLogger(AppConfig.class);
 
-	public static String JSS_VERSION = "DROP-058";
+	public static String JSS_VERSION = "DROP-059-SNAPSHOT";
     
     @Override
     protected void configure() {
