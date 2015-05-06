@@ -50,7 +50,7 @@
 				var $inputWrapper = $icon.closest(".date-input-wrapper");
 				var $input = $inputWrapper.find("input");
 				var value = $input.val();
-				brite.display("DatePicker",$inputWrapper,{target:$input, value:value}).done(function(datePickerView){
+				brite.display("DatePicker",$inputWrapper,{target:$input, value:value,dateFormat:view.dateFormat}).done(function(datePickerView){
 					datePickerView.onSelect(function(dateValue){
 						$input.val(dateValue);
 						applyValue.call(view, true);

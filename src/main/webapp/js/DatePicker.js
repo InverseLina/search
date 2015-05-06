@@ -20,32 +20,30 @@
 
 		postDisplay : function(data) {
 			var view = this;
-			app.getJsonData("/config/getDateFormat",null,"Get").done(function(data) {
-				if(data == null){
-					data = "yyyy/MM/dd";
-				}
-				view.dateFormat = data.replace("YYYY","yyyy").replace("DD","dd");
-				var $e = this.$el;
-				var dateStr = data.value;
-				var date;
-				if(!dateStr || dateStr == "" || !/^\d\d\/\d\d\/\d\d\d\d$/.test(dateStr)){
+			if(data.dateFormat == null){
+				data = "yyyy/MM/dd";
+			}
+			view.dateFormat = data.dateFormat.replace("YYYY","yyyy").replace("DD","dd");
+			var $e = this.$el;
+			var dateStr = data.value;
+			var date;
+			if(!dateStr || dateStr == "" || !/^\d\d\/\d\d\/\d\d\d\d$/.test(dateStr)){
+				date = new Date();
+			}else{
+				var dateArr = dateStr.split("/");
+				date = new Date(Date.parse(dateArr[2]+"/"+ dateArr[0] +"/" + dateArr[1]));
+				if(date == "Invalid Date"){
 					date = new Date();
-				}else{
-					var dateArr = dateStr.split("/");
-					date = new Date(Date.parse(dateArr[2]+"/"+ dateArr[0] +"/" + dateArr[1]));
-					if(date == "Invalid Date"){
-						date = new Date();
-					}
 				}
+			}
 
 
-				view.currentMonth = date.getMonth();
-				view.currentYear = date.getFullYear();
+			view.currentMonth = date.getMonth();
+			view.currentYear = date.getFullYear();
 
-				showCalendar.call(view,view.currentMonth);
-				selectDate.call(view, date);
-				view.elementInit = true;
-			});
+			showCalendar.call(view,view.currentMonth);
+			selectDate.call(view, date);
+			view.elementInit = true;
 		},
 		// --------- /View Interface Implement--------- //
 		// --------- Events--------- //
