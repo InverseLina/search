@@ -154,7 +154,7 @@
 		var fields = app.columns.getCustomColumnsNotSelected();
 		var $filtersContainer = $e.find(".filters-content").empty();
 		
-		if(fields && fields.length > 0){
+		//if(fields && fields.length > 0){
 			$e.removeClass("hide");
 			for (var i = 0; i < fields.length; i++) {
 				var field = fields[i];
@@ -189,9 +189,9 @@
 					});
 				}
 			}
-		}else{
+		/*}else{
 			$e.addClass("hide");
-		}
+		}*/
 		
 	}
 	
