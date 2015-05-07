@@ -84,6 +84,8 @@ public class SearchWebHandlers {
     											 @WebParam("queryString")String queryString,@WebParam("orderByCount")Boolean orderByCount,
     											 @WebParam("min")String min, @WebParam("pageSize")Integer pageSize, 
     											 @WebParam("pageNum")Integer pageNum) throws SQLException{
+
+
         Map result = new HashMap();
         JSONObject jo = JSONObject.fromObject(searchValues);
         if (queryString == null) {

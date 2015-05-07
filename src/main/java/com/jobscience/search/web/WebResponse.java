@@ -3,6 +3,7 @@ package com.jobscience.search.web;
 import java.util.Map;
 
 import com.jobscience.search.exception.AppException;
+import org.apache.commons.lang.StringEscapeUtils;
 
 public class WebResponse {
     
@@ -49,7 +50,7 @@ public class WebResponse {
 
     public String getErrorCode(){
         if (throwable instanceof AppException){
-            return ((AppException) throwable).getErrorCode();
+            return StringEscapeUtils.escapeHtml(((AppException) throwable).getErrorCode());
         }else{
             return null;
         }
@@ -57,7 +58,7 @@ public class WebResponse {
     
     public String getErrorMessage() {
         if(throwable != null){
-            return throwable.getMessage();
+            return StringEscapeUtils.escapeHtml(throwable.getMessage());
         }
         return null;
     }

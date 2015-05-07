@@ -1,12 +1,15 @@
 package com.jobscience.search.web;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 
+import com.jobscience.search.exception.InjectException;
 import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
@@ -89,6 +92,19 @@ public class AppAuthRequest implements AuthRequest {
 
 	@Override
 	public AuthToken authRequest(RequestContext rc) {
+		Enumeration rnames=rc.getReq().getParameterNames();
+		for (Enumeration e = rnames ; e.hasMoreElements() ;) {
+			String thisName=e.nextElement().toString();
+			String thisValue=rc.getReq().getParameter(thisName);
+			if(thisName != null && checkXPath(thisName)){
+				throw new InjectException("The input should not contains any metacharacters which may attack the project");
+			}
+			if(!"searchValues".equals(thisName)){
+				if(thisValue != null && checkXPath(thisValue)){
+					throw new InjectException("The input should not contains any metacharacters which may attack the project");
+				}
+			}
+		}
 		WebRequestType wrt = rc.getWebRequestType();
 		AuthToken authToken = null;
 		switch(wrt){
@@ -372,5 +388,16 @@ public class AppAuthRequest implements AuthRequest {
 		return Hashing.sha1().hashString(txt, Charsets.UTF_8).toString();
 	}
 
+
+	private boolean checkXPath(String queryString){
+		boolean flag = false;
+		String[] strings = {"\'","@","and","(",")","/","\"","="};
+		for(String s:strings){
+			if(queryString.contains(s)){
+				flag = true;
+			}
+		}
+		return  flag;
+	}
 
 }
