@@ -92,16 +92,19 @@ public class AppAuthRequest implements AuthRequest {
 
 	@Override
 	public AuthToken authRequest(RequestContext rc) {
-		Enumeration rnames=rc.getReq().getParameterNames();
-		for (Enumeration e = rnames ; e.hasMoreElements() ;) {
-			String thisName=e.nextElement().toString();
-			String thisValue=rc.getReq().getParameter(thisName);
-			if(thisName != null && checkXPath(thisName)){
-				throw new InjectException("The input should not contains any metacharacters which may attack the project");
-			}
-			if(!"searchValues".equals(thisName)){
-				if(thisValue != null && checkXPath(thisValue)){
+		String servletPath = rc.getReq().getServletPath();
+		if("/getAutoCompleteData".equals(servletPath) || "/searchuiconfig".equals(servletPath)){
+			Enumeration rnames=rc.getReq().getParameterNames();
+			for (Enumeration e = rnames ; e.hasMoreElements() ;) {
+				String thisName=e.nextElement().toString();
+				String thisValue=rc.getReq().getParameter(thisName);
+				if(thisName != null && checkXPath(thisName)){
 					throw new InjectException("The input should not contains any metacharacters which may attack the project");
+				}
+				if(!"searchValues".equals(thisName) && !"value".equals(thisName) && !"configsJson".equals(thisName)){
+					if(thisValue != null && checkXPath(thisValue)){
+						throw new InjectException("The input should not contains any metacharacters which may attack the project");
+					}
 				}
 			}
 		}
@@ -391,7 +394,7 @@ public class AppAuthRequest implements AuthRequest {
 
 	private boolean checkXPath(String queryString){
 		boolean flag = false;
-		String[] strings = {"\'","@","and","(",")","/","\"","="};
+		String[] strings = {"\'","@","and","(",")","/","\"","=","[","]"};
 		for(String s:strings){
 			if(queryString.contains(s)){
 				flag = true;

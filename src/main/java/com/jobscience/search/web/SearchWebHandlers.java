@@ -16,6 +16,7 @@ import com.jobscience.search.dao.SearchDao;
 import com.jobscience.search.dao.SearchRequest;
 import com.jobscience.search.dao.SearchResult;
 import com.jobscience.search.organization.OrgContextManager;
+import org.apache.commons.lang.StringEscapeUtils;
 
 @Singleton
 public class SearchWebHandlers {
@@ -91,7 +92,7 @@ public class SearchWebHandlers {
         if (queryString == null) {
             queryString = "";
         }
-        result.put("queryString", queryString);
+        result.put("queryString", StringEscapeUtils.escapeHtml(queryString));
         Map searchMap = new HashMap();
         for(Object key : jo.keySet()){
         	searchMap.put(key.toString().substring(2),jo.get(key).toString());
