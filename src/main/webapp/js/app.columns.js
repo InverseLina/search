@@ -32,6 +32,7 @@ var app = app || {};
 						columns = defaultColumns();
 					}
 				});
+				app.cookie("columns", columns.join(","));
 				return columns;
 			}
 		},
