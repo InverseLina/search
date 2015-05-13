@@ -92,22 +92,6 @@ public class AppAuthRequest implements AuthRequest {
 
 	@Override
 	public AuthToken authRequest(RequestContext rc) {
-		String servletPath = rc.getReq().getServletPath();
-		if("/getAutoCompleteData".equals(servletPath) || "/searchuiconfig".equals(servletPath)){
-			Enumeration rnames=rc.getReq().getParameterNames();
-			for (Enumeration e = rnames ; e.hasMoreElements() ;) {
-				String thisName=e.nextElement().toString();
-				String thisValue=rc.getReq().getParameter(thisName);
-				if(thisName != null && checkXPath(thisName)){
-					throw new InjectException("The input should not contains any metacharacters which may attack the project");
-				}
-				if(!"searchValues".equals(thisName) && !"value".equals(thisName) && !"configsJson".equals(thisName)){
-					if(thisValue != null && checkXPath(thisValue)){
-						throw new InjectException("The input should not contains any metacharacters which may attack the project");
-					}
-				}
-			}
-		}
 		WebRequestType wrt = rc.getWebRequestType();
 		AuthToken authToken = null;
 		switch(wrt){
@@ -310,6 +294,24 @@ public class AppAuthRequest implements AuthRequest {
 				log.warn("Does not have user token");
 			}
 		}
+
+		String servletPath = rc.getReq().getServletPath();
+		if("/getAutoCompleteData".equals(servletPath) || "/searchuiconfig".equals(servletPath)){
+			Enumeration rnames=rc.getReq().getParameterNames();
+			for (Enumeration e = rnames ; e.hasMoreElements() ;) {
+				String thisName=e.nextElement().toString();
+				String thisValue=rc.getReq().getParameter(thisName);
+				if(thisName != null && checkXPath(thisName)){
+					throw new InjectException("The input should not contains any metacharacters which may attack the project");
+				}
+				if(!"searchValues".equals(thisName) && !"value".equals(thisName) && !"configsJson".equals(thisName)){
+					if(thisValue != null && checkXPath(thisValue)){
+						throw new InjectException("The input should not contains any metacharacters which may attack the project");
+					}
+				}
+			}
+		}
+
 		return authToken;
 	}
 
