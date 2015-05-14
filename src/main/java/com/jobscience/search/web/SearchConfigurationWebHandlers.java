@@ -44,8 +44,13 @@ public class SearchConfigurationWebHandlers {
     private WebResponseBuilder webResponseBuilder;
 
     @WebGet("/searchuiconfig")
-    public WebResponse searchuiconfig(@WebParam("org") String orgName){
-        return webResponseBuilder.success(searchConfigurationManager.getFilters(orgName));
+    public WebResponse searchuiconfig(RequestContext rc){
+        String orgName = rc.getCookie("org");
+        if(orgName != null){
+            return webResponseBuilder.success(searchConfigurationManager.getFilters(orgName));
+        }else {
+            return webResponseBuilder.success();
+        }
     }
 
     @WebGet("/getSearchConfig")
