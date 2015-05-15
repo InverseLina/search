@@ -130,19 +130,26 @@
 						keyWord = keyWord.replace(new RegExp("\\"+encapeChar,"g"), "\\"+encapeChar);
 					}
 					var reg = new RegExp("\\b"+ keyWord +"\\b", "gmi");
-					view.resume = view.resume.replace(reg, "<span class=\"highlight\">" + keyWord + "</span>");
-					var keyWordsSplitedBySpace = keyWord.split(" ");
-					for(var s in keyWordsSplitedBySpace){
-						var keyWordS = keyWordsSplitedBySpace[s];
-						var keywordString = keyWord.replace(keyWordS,"<span class=\"highlight\">" + keyWordS + "</span>");
-						var regLabel = new RegExp(keywordString, "gmi");
-						view.resume = view.resume.replace(regLabel, "<span class=\"highlight\">" + keyWord + "</span>");
-					}
+					view.resume = view.resume.replace(reg, "<span class=\"highlight\">" + keyWord + "</span>");;
+					renderKeyWordContains.call(view,keyWord);
 				}
 			}
 		}else{
 			var reg = new RegExp("("+ keyWord +")", "gmi");
 			view.resume = view.resume.replace(reg, "<span class=\"highlight\">" + keyWord + "</span>");
+			renderKeyWordContains.call(view,keyWord);
+		}
+	}
+
+
+	function renderKeyWordContains(keyWord) {
+		var view = this;
+		var keyWordsSplitedBySpace = keyWord.split(" ");
+		for(var s in keyWordsSplitedBySpace){
+			var keyWordS = keyWordsSplitedBySpace[s];
+			var keywordString = keyWord.replace(keyWordS,"<span class=\"highlight\">" + keyWordS + "</span>");
+			var regLabel = new RegExp(keywordString, "gmi");
+			view.resume = view.resume.replace(regLabel, "<span class=\"highlight\">" + keyWord + "</span>");
 		}
 	}
 })(jQuery);
