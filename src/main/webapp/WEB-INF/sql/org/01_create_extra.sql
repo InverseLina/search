@@ -73,7 +73,7 @@ CREATE TABLE if not exists jss_searchlog
   id bigserial NOT NULL,
   user_id bigint NOT NULL,
   date timestamp with time zone,
-  search character varying(512),
+  search character varying(32000),
   perfcount bigint NOT NULL DEFAULT 0,
   perffetch bigint NOT NULL DEFAULT 0,
   CONSTRAINT jss_searchlog_pkey PRIMARY KEY (id)
