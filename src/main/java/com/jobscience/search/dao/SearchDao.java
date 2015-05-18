@@ -1021,13 +1021,13 @@ public class SearchDao {
 				exactFilter=alias+".\"resume_lower\" SIMILAR TO ?";
 				values.add("%[^a-z]" + param.replaceAll("\"","").trim().toLowerCase() + "[^a-z]%");
 			}else{
-				if(param.contains(" ")){
-					sb.append("OR ").append(alias+".\"resume_lower\" ilike ?");
-					values.add("%" + param.replaceAll("\"","").trim().toLowerCase() + "%");
-				}else{
+				//if(param.contains(" ")){
+				//	sb.append("OR ").append(alias+".\"resume_lower\" ilike ?");
+				//	values.add("%" + param.replaceAll("\"","").trim().toLowerCase() + "%");
+				//}else{
 					sb.append("OR ").append(f.toString(alias)).append("@@ to_tsquery(?)");
 					values.add("'"+param+"'");
-				}
+				//}
 			}
 
         }

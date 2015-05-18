@@ -31,7 +31,6 @@ public class ResumeWebHandlers {
         List<Map> result = null;
         // the keyword maybe has the exact word event if without all parameters contain quotes,like "Account Manager" And Director
         boolean hasExact = false;
-        boolean hasNotExact = false;
         Map map = null;
         List<String> hasExactValue = new ArrayList<String>();
         List<String> notExactValue = new ArrayList<String>();
@@ -44,9 +43,6 @@ public class ResumeWebHandlers {
                 if(query.matches("^\\s*\"[\\s\\S]+\"\\s*$")){
                     hasExact = true;
                     hasExactValue.add(query.trim());
-                }else if(query.contains(" ")){
-                    hasNotExact = true;
-                    notExactValue.add(query.trim());
                 }else{
                     sb.append(" "+query);
                 }
@@ -64,9 +60,6 @@ public class ResumeWebHandlers {
             if(hasExact){
                 map.put("hasExact",hasExact);
                 map.put("hasExactValue",hasExactValue);
-            }if(hasNotExact){
-                map.put("hasNotExact",hasNotExact);
-                map.put("notExactValue",notExactValue);
             }
         }
         return webResponseBuilder.success(map);

@@ -80,20 +80,13 @@
 				view.resume = result.resume;
 				var exact = result.exact;
 				var hasExact = result.hasExact || false;
-				var hasNotExact = result.hasNotExact || false;
 				var hasExactValue = result.hasExactValue || [];
-				var notExactValue = result.notExactValue || [];
-				if(exact || hasExact || hasNotExact){
+				if(exact || hasExact){
 					if(exact){
 						renderResume.call(view,query,"exact")
 					}else{
 						for(var j=0;j<hasExactValue.length;j++){
 							renderResume.call(view,hasExactValue[j],"exact");
-						}
-					}
-					if(hasNotExact){
-						for(var i=0;i<notExactValue.length;i++){
-							renderResume.call(view,notExactValue[i],"notExact");
 						}
 					}
 				}
